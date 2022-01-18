@@ -1,0 +1,47 @@
+{
+  "name": "openmrs-ohri-form-engine-lib",
+  "version": "0.1.0",
+  "description": "A Forms Common Library microfrontend for OpenMRS HIV Reference Implementation (OHRI)",
+  "browser": "dist/openmrs-ohri-form-engine-lib.js",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "homepage": "https://github.com/UCSF-IGHS/openmrs-ohri-form-engine-lib#readme",
+  "scripts": { 
+    "lint": "eslint src --ext tsx",
+    "prettier": "prettier --config prettier.config.js --write \"src/**/*.{ts,tsx}\"",
+    "typescript": "tsc"
+  },
+  "browserslist": ["extends browserslist-config-openmrs"],
+  "keywords": ["openmrs"],
+  "publishConfig": {
+    "access": "public"
+  }, 
+  "dependencies": {
+    "@carbon/icons-react": "^10.18.0",
+    "ace-builds": "^1.4.12",
+    "carbon-components-react": "^7.25.0",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.6",
+    "formik": "^2.2.6",
+    "jest-coverage-badges": "^1.0.0",
+    "lodash-es": "^4.17.15",
+    "moment": "^2.29.1",
+    "react-ace": "^9.4.4",
+    "react-anchor-link-smooth-scroll": "^1.0.12",
+    "react-markdown": "^7.1.0",
+    "react-scroll": "^1.8.2",
+    "react-test-renderer": "^16.9.0",
+    "react-waypoint": "^10.1.0",
+    "semver": "^7.3.5",
+    "systemjs-webpack-interop": "^2.3.2",
+    "yup": "^0.29.1"
+  },
+  "peerDependencies": {
+    "@openmrs/esm-framework": "3.x",
+    "carbon-components": "^10.19.0",
+    "carbon-icons": "^7.0.7",
+    "dayjs": "^1.8.16",
+    "react": "^16.9.0",
+    "react-i18next": "^11.3.4"
+  }
+}

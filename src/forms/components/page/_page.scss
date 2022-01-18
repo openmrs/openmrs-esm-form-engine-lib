@@ -1,0 +1,64 @@
+@import "../../../root.scss";
+
+.divider {
+  background-color: rgba(107, 104, 104, 0.5);
+  margin: 25px 0;
+}
+
+.pageContent:last-child > hr {
+  display: none;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: row;
+  margin: 20px 0 20px 0;
+}
+
+.pageTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-gray-100);
+  width: 100%;
+}
+
+.required {
+  margin: 0.25rem 27rem 0.5rem 0;
+  font-size: 0.875rem;
+  line-height: 1.29;
+  letter-spacing: 0.16px;
+  color: var(--color-gray-70);
+  width: 100%;
+}
+
+.formSection {
+  flex: 1 1 65%;
+}
+
+.formSection > div > fieldset {
+  margin-bottom: 0 !important;
+}
+
+.collapseToggle {
+  margin-Left: -180px;
+  margin-bottom: 20px;
+  margin-top: -10px;
+}
+
+.sectionContent > div {
+  background-color: $ui-01;
+}
+
+.formSection > div div div input,
+.formSection > div div div textarea,
+.formSection > div div div dropdown,
+.formSection :global(.bx--dropdown) button {
+  background-color: #ffffff !important;
+}
+
+@media (min-width: 640px) {
+  :global(.bx--accordion__content) {
+    padding-right: 2rem !important;
+  }
+}
