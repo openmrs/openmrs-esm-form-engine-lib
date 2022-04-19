@@ -355,7 +355,10 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     if (field.fieldDependants) {
       field.fieldDependants.forEach(dep => {
         const dependant = fields.find(f => f.id == dep);
-        evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
+        evalHide({ value: dependant, type: 'field' }, fields, {
+          ...values,
+          [fieldName]: value,
+        });
         if (dependant['readonlyExpression']) {
           dependant.readonly = evaluateExpression(
             dependant['readonlyExpression'],
@@ -376,7 +379,10 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     if (field.pageDependants) {
       field.pageDependants?.forEach(dep => {
         const dependant = form.pages.find(f => f.label == dep);
-        evalHide({ value: dependant, type: 'page' }, fields, { ...values, [fieldName]: value });
+        evalHide({ value: dependant, type: 'page' }, fields, {
+          ...values,
+          [fieldName]: value,
+        });
         let form_temp = form;
         const index = form_temp.pages.findIndex(page => page.label == dep);
         form_temp[index] = dependant;

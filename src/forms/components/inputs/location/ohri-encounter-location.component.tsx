@@ -11,7 +11,10 @@ import { OHRIValueDisplay, OHRIValueEmpty } from '../../value/ohri-value.compone
 import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID } from '../../../utils/ohri-form-helper';
 
-export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; onChange: any }> = ({ question }) => {
+export const OHRIEncounterLocationPicker: React.FC<{
+  question: OHRIFormField;
+  onChange: any;
+}> = ({ question }) => {
   const [field, meta] = useField(question.id);
   const { setEncounterLocation, setFieldValue, encounterContext } = React.useContext(OHRIFormContext);
   const [locations, setLocations] = useState([]);

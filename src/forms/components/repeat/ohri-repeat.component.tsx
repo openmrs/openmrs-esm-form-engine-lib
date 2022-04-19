@@ -129,7 +129,13 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
       ) : null;
     return (
       <>
-        <Row style={{ margin: '0', marginBottom: '1rem', marginTop: '1rem', width: rowWidth }}>
+        <Row
+          style={{
+            margin: '0',
+            marginBottom: '1rem',
+            marginTop: '1rem',
+            width: rowWidth,
+          }}>
           <OHRIObsGroup question={question} onChange={onChange} handler={getHandler('obsGroup')} />
           {deleteControl}
         </Row>
