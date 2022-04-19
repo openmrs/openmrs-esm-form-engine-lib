@@ -1,8 +1,7 @@
 import * as semver from 'semver';
-import { OHRIFormField } from '../forms/types';
+import { OHRIFormField, OHRIFormSchema } from '../api/types';
 
-let defaultFormsRegistry: Record<string, any> = null;
-
+let baseRegistry = {};
 export interface FormJsonFile {
   version: string;
   semanticVersion?: string;
@@ -47,6 +46,7 @@ export function getForm(
 }
 
 export function loadSubforms(parentForm) {
+  parentForm.pages = parentForm.pages || [];
   parentForm.pages.forEach(page => {
     if (page.isSubform && page.subform?.name && page.subform.package) {
       try {
@@ -88,7 +88,7 @@ export function getFormByVersion(forms: FormJsonFile[], requiredVersion: string,
 }
 
 export function lookupForms(packageName, formNamespace, formsRegistry) {
-  const pkg = formsRegistry ? formsRegistry[packageName] : defaultFormsRegistry[packageName];
+  const pkg = formsRegistry ? formsRegistry[packageName] : baseRegistry[packageName];
   if (!pkg) {
     throw Error(`Package with name ${packageName} was not found in registry`);
   }
@@ -117,13 +117,16 @@ export function applyFormIntent(intent, originalJson, parentOverrides?: Array<Be
   const jsonBuffer = JSON.parse(JSON.stringify(originalJson));
   // Set the default page based on the current intent
   jsonBuffer.defaultPage = jsonBuffer.availableIntents?.find(
-    candidate => candidate.intent === intent?.intent || intent,
+    candidate => candidate.intent === (intent?.intent || intent),
   )?.defaultPage;
 
   // filter form-level markdown behaviour
   if (jsonBuffer.markdown) {
     updateMarkdownRequiredBehaviour(jsonBuffer.markdown, intent);
   }
+
+  // Before starting traversal, ensure nodes exist, at least as empty-arrays
+  jsonBuffer.pages = jsonBuffer.pages || [];
 
   // Traverse the property tree with items of interest for validation
   jsonBuffer.pages.forEach(page => {
@@ -141,18 +144,23 @@ export function applyFormIntent(intent, originalJson, parentOverrides?: Array<Be
       );
     }
     // TODO: Apply parentOverrides to pages if applicable
-    const pageBehaviour = page.behaviours?.find(behaviour => behaviour.intent === intent?.intent || intent);
+    const pageBehaviour = page.behaviours?.find(behaviour => behaviour.intent === (intent?.intent || intent));
     if (pageBehaviour) {
       page.hide = pageBehaviour?.hide;
+      page.readonly = pageBehaviour?.readonly;
     } else {
       const fallBackBehaviour = page.behaviours?.find(behaviour => behaviour.intent === '*');
       page.hide = fallBackBehaviour?.hide;
+      page.readonly = fallBackBehaviour?.readonly;
     }
 
     // filter page-level markdown behaviour
     if (page.markdown) {
       updateMarkdownRequiredBehaviour(page.markdown, intent);
     }
+    // Before starting traversal, ensure nodes exist, at least as empty-arrays
+    page.sections = page.sections || [];
+
     page.sections.forEach(section => {
       // TODO: Apply parentOverrides to sections if applicable
       const secBehaviour = section.behaviours?.find(behaviour => behaviour.intent === intent?.intent || intent);
@@ -167,6 +175,9 @@ export function applyFormIntent(intent, originalJson, parentOverrides?: Array<Be
       if (section.markdown) {
         updateMarkdownRequiredBehaviour(section.markdown, intent);
       }
+
+      // Before starting traversal, ensure nodes exist, at least as empty-arrays
+      section.questions = section.questions || [];
 
       section.questions.forEach((question: OHRIFormField) => {
         if (question['behaviours']) {
@@ -248,10 +259,9 @@ export function updateExcludeIntentBehaviour(excludedIntents: Array<string>, ori
   originalJson.availableIntents = originalJson.availableIntents.filter(
     intent => !excludedIntents.includes(intent?.intent || intent),
   );
-
   return originalJson;
 }
 
-export function setDefaultFormsRegistry(registry: Record<string, any>) {
-  defaultFormsRegistry = registry;
+export function addToBaseFormsRegistry(customRegistry: Record<string, any>) {
+  baseRegistry = { ...baseRegistry, ...customRegistry };
 }

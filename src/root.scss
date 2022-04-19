@@ -17,9 +17,14 @@ $warning-background: #fff8e1;
 $openmrs-background-grey: #f4f4f4;
 $danger: #da1e28;
 $interactive-01: #0f62fe;
-$brand-teal-01: #007d79;
+$brand-teal-01: #3197D9;
 $ohri-input-width: 22.313rem;
 $ohri-home-background: #ededed;
+
+$brand-color-01: #1A3054; // primary
+$brand-color-02: #131E35; // darker
+$brand-color-03: #3197D9; // underline - 3197D9
+$button-primary: #0078A6;
 
 .productiveHeading01 {
   @include carbon--type-style("productive-heading-01");
@@ -79,4 +84,26 @@ $ohri-home-background: #ededed;
 
 aside {
    background-color: $ui-02 !important;
+}
+
+// Login Overrides
+
+div[class*='-esm-login__styles__center'] > img {
+  width: 140px; // design has 120px
+}
+
+:global(.tab-12rem) > button {
+  width: 12rem !important;
+}
+
+:global(.tab-14rem) > button {
+  width: 14rem !important;
+}
+
+:global(.tab-16rem) > button {
+  width: 16rem !important;
+}
+
+:global(.bx--overflow-menu) > div {
+  width: 15rem !important;
 }

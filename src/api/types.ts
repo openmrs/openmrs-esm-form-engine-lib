@@ -1,168 +1,155 @@
-export interface LocationData {
-  display: string;
-  uuid: string;
+import { EncounterContext } from '../ohri-form-context';
+
+/**
+ * Defines logic that processes field submission and value binding while in edit mode
+ */
+export interface SubmissionHandler {
+  /**
+   * Abstraction of the extraction of initial field value from an `encounter`
+   *
+   * @returns the `initialValue`
+   */
+  getInitialValue: (encounter: any, field: OHRIFormField, allFormFields?: Array<OHRIFormField>) => {};
+
+  /**
+   * Handles field submission.
+   *
+   * @should Construct a new submission value, edit and handle deletion by voiding.
+   * @returns the `submissionValue`
+   */
+  handleFieldSubmission: (field: OHRIFormField, value: any, context: EncounterContext) => {};
+
+  /**
+   * Extracts value to be displayed while in `view` mode
+   *
+   * @returns the `displayValue`
+   */
+  getDisplayValue: (field: OHRIFormField, value: any) => any;
+
+  /**
+   * Fetches the previous value for a formfield
+   */
+  getPreviousValue?: (field: OHRIFormField, encounter: any, allFormFields: Array<OHRIFormField>) => any;
 }
 
-export interface SessionData {
-  authenticated: boolean;
-  locale: string;
-  currentProvider: {
-    uuid: string;
-    display: string;
-    person: DisplayMetadata;
-    identifier: string;
-    attributes: Array<{}>;
-    retired: boolean;
-    links: Links;
-    resourceVersion: string;
-  };
-  sessionLocation: {
-    uuid: string;
-    display: string;
-    name: string;
-    description?: string;
-  };
-  user: {
-    uuid: string;
-    display: string;
-    username: string;
-  };
-  privileges: Array<DisplayMetadata>;
-  roles: Array<DisplayMetadata>;
-  retired: false;
-  links: Links;
+/**
+ * Field validator abstraction
+ */
+export interface FieldValidator {
+  /**
+   * Validates a field and returns validation errors
+   */
+  validate(field: OHRIFormField, value: any, config?: any): { errCode: string; errMessage: string }[];
 }
 
-export interface AllergyData {
-  allergen: {
-    allergenType: string;
-    codedAllergen: {
-      answers: [];
-      attrributes: [];
-      conceptClass: DisplayMetadata;
-      display: string;
-      links: Links;
-      mappings: DisplayMetadata[];
-      name: {
-        conceptNameType: string;
-        display: string;
-        locale: string;
-        name: string;
-        uuid: string;
-      };
-      names: DisplayMetadata[];
-      setMembers: [];
-      uuid: string;
-    };
-  };
-  auditInfo: {
-    changedBy: DisplayMetadata;
-    creator: DisplayMetadata;
-    dateCreated: string;
-    dateChanged: string;
-  };
-  comment: string;
-  display: string;
-  links: Links;
-  reactions: [
-    {
-      reaction: AllergicReaction;
-    },
-  ];
-  severity: {
-    name: {
-      conceptNameType: string;
-      display: string;
-      locale: string;
-      name: string;
-      uuid: string;
-    };
-    names: DisplayMetadata[];
-    uuid: string;
-  };
-}
-
-export type Allergen = {
-  answers: [];
-  attributes: [];
-  conceptClass: DisplayMetadata;
-  dataType: DisplayMetadata;
-  descriptions: [];
-  display: string;
-  links: Links;
-  mappings: Array<DisplayMetadata>;
-  name: {
-    display: string;
-    links: Links;
-    uuid: string;
-    conceptTypeName?: string;
-    locale: string;
-    localePreferred: boolean;
-    name: string;
-    resourceVersion: string;
-  };
-  names: DisplayMetadata[];
-  setMembers: [];
-  uuid: string;
-};
-
-export type AllergicReaction = {
-  answers: [];
-  attributes: [];
-  conceptClass: DisplayMetadata;
-  datatype: DisplayMetadata;
-  descriptions: DisplayMetadata[];
-  name: {
-    display: string;
-  };
-  display: string;
-  uuid: string;
-};
-
-type Links = Array<{
-  rel: string;
-  uri: string;
-}>;
-
-type DisplayMetadata = {
-  display?: string;
-  links?: Links;
+export interface EncounterDescriptor {
+  location?: any; // string | { name: string; uuid: string };
+  obs?: Array<any>; // TODO: add obs descriptor
+  orders?: Array<any>;
   uuid?: string;
-};
+  encounterProviders?: Array<{ provider: any; encounterRole: string }>;
+  encounterDatetime?: Date;
+  encounterType?: string;
+  patient?: string;
+}
 
-export interface Location {
-  uuid: string;
-  display: string;
+export interface HideProps {
+  hideWhenExpression: string;
+}
+
+export interface OHRIFormSchema {
   name: string;
-  description?: string;
-  address1?: string;
-  address2?: string;
-  cityVillage?: string;
-  stateProvince?: string;
-  country?: string;
-  postalCode?: string;
-  latitude?: string;
-  longitude?: string;
-  countryDistrict?: string;
-  address3?: string;
-  address4?: string;
-  address5?: string;
-  address6?: string;
-}
-
-export interface HSTEncounter {
-  encounterDatetime: Date;
-  encounterType: string;
-  patient: string;
-  location: string;
-  encounterProviders?: Array<{ encounterRole: string; provider: string }>;
-  obs: Array<any>;
-  form?: string;
-  visit?: string;
-}
-
-export interface Concept {
+  pages: Array<OHRIFormPage>;
+  processor: string;
   uuid: string;
-  display: string;
-  answers?: Concept[];
+  referencedForms: [];
+  encounterType: string;
+  encounter?: string | EncounterDescriptor;
+  allowUnspecifiedAll?: boolean;
+  defaultPage?: string;
+  readonly?: string | boolean;
+  inlineRendering?: 'single-line' | 'multiline' | 'automatic';
+  markdown?: any;
 }
+
+export interface OHRIFormPage {
+  label: string;
+  isHidden?: boolean;
+  hide?: HideProps;
+  sections: Array<OHRIFormSection>;
+  isSubform?: boolean;
+  inlineRendering?: 'single-line' | 'multiline' | 'automatic';
+  readonly?: string | boolean;
+  subform?: { name?: string; package?: string; behaviours?: Array<any>; form: OHRIFormSchema };
+}
+export interface OHRIFormField {
+  label: string;
+  type: string;
+  questionOptions: OHRIFormQuestionOptions;
+  id: string;
+  questions?: Array<OHRIFormField>;
+  value?: any;
+  hide?: HideProps;
+  isHidden?: boolean;
+  isParentHidden?: boolean;
+  fieldDependants?: Set<string>;
+  pageDependants?: Set<string>;
+  sectionDependants?: Set<string>;
+  required?: boolean;
+  unspecified?: boolean;
+  disabled?: boolean;
+  readonly?: string | boolean;
+  inlineRendering?: 'single-line' | 'multiline' | 'automatic';
+  validators?: Array<Record<string, any>>;
+  behaviours?: Array<Record<string, any>>;
+}
+
+export interface OHRIFormFieldProps {
+  question: OHRIFormField;
+  onChange: (fieldName: string, value: any, setErrors) => {};
+  handler: SubmissionHandler;
+}
+export interface OHRIFormSection {
+  hide?: HideProps;
+  label: string;
+  isExpanded: string;
+  isHidden?: boolean;
+  isParentHidden?: boolean;
+  questions: Array<OHRIFormField>;
+  inlineRendering?: 'single-line' | 'multiline' | 'automatic';
+  readonly?: string | boolean;
+}
+
+export interface OHRIFormQuestionOptions {
+  rendering: RenderType;
+  concept?: string;
+  max?: string;
+  min?: string;
+  showDate?: string;
+  conceptMappings?: Array<Record<any, any>>;
+  answers?: Array<Record<any, any>>;
+  weeksList?: string;
+  locationTag?: string;
+  rows?: number;
+  toggleOptions?: { labelTrue: string; labelFalse: string };
+  repeatOptions?: { addText?: string };
+  defaultValue?: any;
+}
+
+export type SessionMode = 'edit' | 'enter' | 'view';
+
+export type RenderType =
+  | 'select'
+  | 'text'
+  | 'date'
+  | 'number'
+  | 'checkbox'
+  | 'radio'
+  | 'ui-select-extended'
+  | 'repeating'
+  | 'group'
+  | 'content-switcher'
+  | 'encounter-location'
+  | 'textarea'
+  | 'toggle'
+  | 'fixed-value';

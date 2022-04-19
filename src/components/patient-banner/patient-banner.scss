@@ -1,0 +1,14 @@
+@import "../../root.scss";
+
+.patientBannerContainer {
+  display: flex;
+  width: 100%;
+  position:sticky;
+  flex-direction: row;
+  align-items: baseline;
+  padding: 0;
+}
+
+.patientBannerContainer > div {
+  width: 100%;
+}

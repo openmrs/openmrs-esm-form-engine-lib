@@ -1,0 +1,12 @@
+.readOnlyStyle {
+  border-bottom: 0.5px #c6c6c6;
+  border-style: solid;
+}
+
+.readOnlyStyle > div {
+  padding-bottom: 7px !important;
+}
+
+.readOnlyValue {
+  color: #525252;
+}
