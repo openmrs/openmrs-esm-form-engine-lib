@@ -1,0 +1,73 @@
+.ohriForm {
+  height: 100%;
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+.ohriFormContainer {
+  display: -webkit-flex;
+  height: 100%;
+  overflow-y: hidden;
+}
+
+.ohriFormContainer :global(.bx--label) {
+  font-size: 0.875rem;
+}
+
+.formContent {
+  margin: 0;
+  flex-basis: 65%;
+  flex-grow: 1;
+  flex-shrink: 1;
+  position: relative;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.formContentBody {
+  overflow-y: auto;
+  width: inherit;
+  position: sticky;
+}
+
+.minifiedFormContentBody {
+  margin-bottom: 0px !important;
+}
+
+@media (max-width: 768px) {
+  .ohriFormContainer {
+    height: 100vh;
+  }
+}
+
+.minifiedButtons {
+  width: 100%;
+  height: 63.5px;
+}
+
+.minifiedButtons :global(.bx--btn) {
+  max-width: 50%;
+  height: 3.9rem;
+}
+
+.minifiedButtons > button {
+  width: 50%;
+}
+
+.markdownContainer {
+  padding: 1rem;
+}
+
+aside[class*='-esm-patient-chart__workspace-window__container__'] {
+  border-left: 1px solid #8d8d8d !important;
+}
+
+aside[class*='-esm-patient-chart__workspace-window__container__'] > div {
+    display: flex;
+    bottom: 0;
+}
+
+aside[class*='-esm-patient-chart__workspace-window__container__'] > div > div {
+    flex-grow: 1;
+}

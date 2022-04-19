@@ -1,0 +1,8 @@
+{
+    "name": "Test HTS POC",
+    "pages": [],
+    "processor": "EncounterFormProcessor",
+    "uuid": "da24c540-cc83-43bc-978f-c1ef180a497f",
+    "referencedForms": [],
+    "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe"
+}
