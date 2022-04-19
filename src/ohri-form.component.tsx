@@ -19,8 +19,8 @@ import { isTrue } from './utils/boolean-utils';
 import { useWorkspaceLayout } from './utils/useWorkspaceLayout';
 import { Button } from 'carbon-components-react';
 import ReactMarkdown from 'react-markdown';
-import LoadingIcon from './_forms/components/loading/loading.component';
 import { PatientBanner } from './components/patient-banner/patient-banner.component';
+import LoadingIcon from './components/loading/loading.component';
 
 interface OHRIFormProps {
   formJson: OHRIFormSchema;
