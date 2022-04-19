@@ -1,6 +1,7 @@
 import * as semver from 'semver';
 import { OHRIFormField } from '../forms/types';
-import defaultFormsRegistry from '../packages/forms-registry';
+
+let defaultFormsRegistry: Record<string, any> = null;
 
 export interface FormJsonFile {
   version: string;
@@ -249,4 +250,8 @@ export function updateExcludeIntentBehaviour(excludedIntents: Array<string>, ori
   );
 
   return originalJson;
+}
+
+export function setDefaultFormsRegistry(registry: Record<string, any>) {
+  defaultFormsRegistry = registry;
 }

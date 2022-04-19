@@ -1,18 +1,11 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Toggle } from 'carbon-components-react';
-import { extensionStore, useAssignedExtensionIds } from '@openmrs/esm-framework';
+import { useExtensionSlotMeta } from '@openmrs/esm-framework';
 import styles from './ohri-section-collapsible-toggle.scss';
 
 const OHRISectionCollapsibleToggle = () => {
-  const extensions = useAssignedExtensionIds('patient-chart-workspace-header-slot');
-
-  const callBack = useMemo(() => {
-    const ext = extensionStore.getState().extensions['ohri-form-header-toggle-ext'];
-    if (ext) {
-      return ext.meta['handleCollapse'];
-    }
-    return null;
-  }, [extensions]);
+  const metas = useExtensionSlotMeta('patient-chart-workspace-header-slot');
+  const callBack = metas['ohri-form-header-toggle-ext']?.handleCollapse;
 
   const toggleCollapsedStatus = e => {
     callBack && callBack(e);
