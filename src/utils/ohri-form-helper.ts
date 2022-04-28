@@ -5,17 +5,21 @@ import { EncounterContext } from '../ohri-form-context';
 import { OHRIFormField, OHRIFormSection, SubmissionHandler } from '../api/types';
 import { OHRIDefaultFieldValueValidator } from '../validators/default-value-validator';
 import { isEmpty } from '../validators/ohri-form-validator';
+import { isTrue } from './boolean-utils';
 
 export function cascadeVisibityToChildFields(
   visibility: boolean,
   section: OHRIFormSection,
   allFields: Array<OHRIFormField>,
+  obsToVoidList: Array<Record<string, any>>,
+  setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
 ) {
   const candidateIds = section.questions.map(q => q.id);
   allFields
     .filter(field => candidateIds.includes(field.id))
     .forEach(field => {
       field.isParentHidden = visibility;
+      voidObsValueOnFieldHidden(field, obsToVoidList, setFieldValue);
     });
 }
 
@@ -62,4 +66,17 @@ export function evaluateFieldReadonlyProp(
     return;
   }
   field.readonly = !isEmpty(sectionReadonly) || !isEmpty(pageReadonly) || formReadonly;
+}
+
+export function voidObsValueOnFieldHidden(
+  field: OHRIFormField,
+  obsToVoidList: Array<Record<string, any>>,
+  setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
+) {
+  if ((isTrue(field.isHidden) || isTrue(field.isParentHidden)) && field.value?.uuid) {
+    field.value.voided = true;
+    obsToVoidList.push(field.value);
+    field.value = null;
+    setFieldValue(field.id, null);
+  }
 }

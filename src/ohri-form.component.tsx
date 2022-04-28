@@ -2,15 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './ohri-form.scss';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import {
-  usePatient,
-  useSessionUser,
-  showToast,
-  attach,
-  getAsyncLifecycle,
-  registerExtension,
-  detach,
-} from '@openmrs/esm-framework';
+import { usePatient, useSession, showToast, getAsyncLifecycle, detach } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
 import { OHRIFormSchema, SessionMode, OHRIFormPage as OHRIFormPageProps } from './api/types';
 import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
@@ -49,7 +41,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const [currentProvider, setCurrentProvider] = useState(null);
   const [location, setEncounterLocation] = useState(null);
   const { patient } = usePatient(patientUUID);
-  const session = useSessionUser();
+  const session = useSession();
   const [initialValues, setInitialValues] = useState({});
   const encDate = new Date();
   const [scrollAblePages, setScrollablePages] = useState(new Set<OHRIFormPageProps>());

@@ -1,5 +1,5 @@
 import { openmrsObservableFetch, useLayoutType } from '@openmrs/esm-framework';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ConceptFalse, ConceptTrue, encounterRepresentation } from '../../constants';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { getHandler, getValidator } from '../../registry/registry';
@@ -14,13 +14,14 @@ import {
   cascadeVisibityToChildFields,
   evaluateFieldReadonlyProp,
   inferInitialValueFromDefaultFieldValue,
+  voidObsValueOnFieldHidden,
 } from '../../utils/ohri-form-helper';
 import { isEmpty, isEmpty as isValueEmpty, OHRIFieldValidator } from '../../validators/ohri-form-validator';
 import OHRIFormPage from '../page/ohri-form-page';
 import { InstantEffect } from '../../utils/instant-effect';
 import { FormSubmissionHandler } from '../../ohri-form.component';
 import { isTrue } from '../../utils/boolean-utils';
-import { evaluateExpression, FormNode } from '../../utils/expression-runner';
+import { evaluateExpression } from '../../utils/expression-runner';
 import { getPreviousEncounter, saveEncounter } from '../../api/api';
 
 interface OHRIEncounterFormProps {
@@ -245,11 +246,11 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     if (type == 'page') {
       value['sections'].forEach(section => {
         section.isParentHidden = isHidden;
-        cascadeVisibityToChildFields(isHidden, section, allFields);
+        cascadeVisibityToChildFields(isHidden, section, allFields, obsGroupsToVoid, setFieldValue);
       });
     }
     if (type == 'section') {
-      cascadeVisibityToChildFields(isHidden, value, allFields);
+      cascadeVisibityToChildFields(isHidden, value, allFields, obsGroupsToVoid, setFieldValue);
     }
   };
 
@@ -417,6 +418,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       field.fieldDependants.forEach(dep => {
         const dependant = fields.find(f => f.id == dep);
         evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
+        voidObsValueOnFieldHidden(dependant, obsGroupsToVoid, setFieldValue);
         if (dependant['readonlyExpression']) {
           dependant.readonly = evaluateExpression(
             dependant['readonlyExpression'],
