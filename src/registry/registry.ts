@@ -17,76 +17,85 @@ import OHRIFixedValue from '../components/inputs/fixed-value/ohri-fixed-value.co
 import OHRIMarkdown from '../components/inputs/markdown/ohri-markdown.component';
 import { OHRIDateValidator } from '../validators/ohri-date-validator';
 import { OHRIJSExpressionValidator } from '../validators/ohri-js-expression-validator';
+import { getGlobalStore } from '@openmrs/esm-framework';
+import { OHRIFormsTagLibraryStore } from '../constants';
 
-const baseFieldComponents: Array<RegistryItem> = [
+export interface FormsRegistryStoreState {
+  baseFieldComponents: Array<RegistryItem>;
+  customControls: Array<RegistryItem>;
+  baseHandlers: Array<RegistryItem>;
+  fieldValidators: Array<ValidatorRegistryItem>;
+}
+
+export const baseFieldComponents: Array<ControlRegistryItem> = [
   {
     id: 'OHRIText',
-    component: OHRIText,
+    loadControl: () => Promise.resolve({ default: OHRIText }),
     type: 'text',
   },
   {
     id: 'OHRIRadio',
-    component: OHRIRadio,
+    loadControl: () => Promise.resolve({ default: OHRIRadio }),
     type: 'radio',
   },
   {
     id: 'OHRIDate',
-    component: OHRIDate,
+    loadControl: () => Promise.resolve({ default: OHRIDate }),
     type: 'date',
   },
   {
     id: 'OHRINumber',
-    component: OHRINumber,
+    loadControl: () => Promise.resolve({ default: OHRINumber }),
     type: 'number',
   },
   {
     id: 'OHRIMultiSelect',
-    component: OHRIMultiSelect,
+    loadControl: () => Promise.resolve({ default: OHRIMultiSelect }),
     type: 'checkbox',
   },
   {
     id: 'OHRIContentSwitcher',
-    component: OHRIContentSwitcher,
+    loadControl: () => Promise.resolve({ default: OHRIContentSwitcher }),
     type: 'content-switcher',
   },
   {
     id: 'OHRIEncounterLocationPicker',
-    component: OHRIEncounterLocationPicker,
+    loadControl: () => Promise.resolve({ default: OHRIEncounterLocationPicker }),
     type: 'encounter-location',
   },
   {
     id: 'OHRIDropdown',
-    component: OHRIDropdown,
+    loadControl: () => Promise.resolve({ default: OHRIDropdown }),
     type: 'select',
   },
   {
     id: 'OHRITextArea',
-    component: OHRITextArea,
+    loadControl: () => Promise.resolve({ default: OHRITextArea }),
     type: 'textarea',
   },
   {
     id: 'OHRIToggle',
-    component: OHRIToggle,
+    loadControl: () => Promise.resolve({ default: OHRIToggle }),
     type: 'toggle',
   },
   {
     id: 'OHRIObsGroup',
-    component: OHRIObsGroup,
+    loadControl: () => Promise.resolve({ default: OHRIObsGroup }),
     type: 'group',
   },
   {
     id: 'OHRIRepeat',
-    component: OHRIRepeat,
+    loadControl: () => Promise.resolve({ default: OHRIRepeat }),
     type: 'repeating',
   },
   {
     id: 'OHRIFixedValue',
-    component: OHRIFixedValue,
+    loadControl: () => Promise.resolve({ default: OHRIFixedValue }),
     type: 'fixed-value',
   },
   {
     id: 'OHRIMarkdown',
-    component: OHRIMarkdown,
+    loadControl: () => Promise.resolve({ default: OHRIMarkdown }),
     type: 'markdown',
   },
 ];
@@ -125,7 +134,12 @@ const fieldValidators: Array<ValidatorRegistryItem> = [
 ];
 
 export const getFieldComponent = renderType => {
-  return baseFieldComponents.find(item => item.type == renderType)?.component;
+  let lazy = baseFieldComponents.find(item => item.type == renderType)?.loadControl;
+  if (!lazy) {
+    const tagLib = getGlobalStore<Array<ControlRegistryItem>>(OHRIFormsTagLibraryStore, []).getState();
+    lazy = tagLib.find(item => item.type == renderType)?.loadControl;
+  }
+  return lazy?.();
 };
 
 export function getHandler(type: string): SubmissionHandler {
@@ -134,10 +148,6 @@ export function getHandler(type: string): SubmissionHandler {
 
 export function addHandler(handler: RegistryItem) {
   baseHandlers.push(handler);
-}
-
-export function addFieldComponent(fieldComponent: RegistryItem) {
-  baseFieldComponents.push(fieldComponent);
 }
 
 export function addvalidator(validator: ValidatorRegistryItem) {
@@ -156,6 +166,11 @@ export interface RegistryItem {
   type?: string;
 }
 
+export interface ControlRegistryItem {
+  id: string;
+  loadControl: () => Promise<any>;
+  type: string;
+}
 interface ValidatorRegistryItem extends RegistryItem {
   component: FieldValidator;
 }

@@ -26,13 +26,7 @@ function OHRIFormPage({ page, onFieldChange, setSelectedPage, isCollapsed }) {
               return (
                 <AccordionItem title={sec.label} open={isCollapsed} className={styles.sectionContent}>
                   <div className={styles.formSection} key={index}>
-                    <OHRIFormSection
-                      fields={sec.questions}
-                      showTitle={page.sections.length > 1}
-                      onFieldChange={onFieldChange}
-                      sectionTitle={sec.label}
-                      key={index}
-                    />
+                    <OHRIFormSection fields={sec.questions} onFieldChange={onFieldChange} key={index} />
                   </div>
                 </AccordionItem>
               );

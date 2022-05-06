@@ -1,6 +1,6 @@
 import { Column, Row } from 'carbon-components-react/lib/components/Grid';
-import React from 'react';
-import { getFieldComponent, getHandler } from '../../registry/registry';
+import React, { useEffect, useState } from 'react';
+import { getHandler } from '../../registry/registry';
 import { OHRIFormFieldProps } from '../../api/types';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
 import styles from '../inputs/_input.scss';
@@ -10,23 +10,34 @@ export interface ObsGroupProps extends OHRIFormFieldProps {
 }
 
 export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteControl }) => {
-  const groupContent = question.questions
-    .filter(groupMember => !groupMember.isHidden)
-    .map((groupMember, index) => {
-      const component = getFieldControl(groupMember);
-      if (component) {
-        const qnFragment = React.createElement(component, {
-          question: groupMember,
+  const [groupMembersControlMap, setGroupMembersControlMap] = useState([]);
+
+  useEffect(() => {
+    Promise.all(
+      question.questions.map(field => {
+        return getFieldControl(field)?.then(result => ({ field, control: result.default }));
+      }),
+    ).then(results => {
+      setGroupMembersControlMap(results);
+    });
+  }, [question.questions]);
+  const groupContent = groupMembersControlMap
+    .filter(groupMemberMapItem => !!groupMemberMapItem && !groupMemberMapItem.field.isHidden)
+    .map((groupMemberMapItem, index) => {
+      const { control, field } = groupMemberMapItem;
+      if (control) {
+        const qnFragment = React.createElement(control, {
+          question: field,
           onChange: onChange,
           key: index,
-          handler: getHandler(groupMember.type),
+          handler: getHandler(field.type),
         });
         return (
           <Column className={styles.obsGroupColumn}>
-            {supportsUnspecified(groupMember) ? (
+            {supportsUnspecified(field) ? (
               <>
                 {qnFragment}
-                <OHRIUnspecified question={groupMember} />
+                <OHRIUnspecified question={field} />
               </>
             ) : (
               qnFragment

@@ -7,3 +7,4 @@ export const encounterRepresentation =
   'patient:(uuid,display),encounterProviders:(uuid,provider:(uuid,name)),' +
   'obs:(uuid,obsDatetime,voided,groupMembers,concept:(uuid,name:(uuid,name)),value:(uuid,name:(uuid,name),' +
   'names:(uuid,conceptNameType,name))))';
+export const OHRIFormsTagLibraryStore = 'ohri-forms-engine-tag-lib-store';
