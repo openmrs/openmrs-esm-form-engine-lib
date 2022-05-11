@@ -5,4 +5,5 @@ export * from './constants';
 export * from './utils/boolean-utils';
 export * from './validators/ohri-form-validator';
 export * from './utils/ohri-form-helper';
+export * from './ohri-form-context';
 export { default as OHRIForm } from './ohri-form.component';
