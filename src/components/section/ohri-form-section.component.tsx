@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styles from './ohri-form-section.scss';
 import { getFieldComponent, getHandler } from '../../registry/registry';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
-import { OHRIFormField } from '../../api/types';
+import { OHRIFormField, OHRIFormFieldProps } from '../../api/types';
 import { isTrue } from '../../utils/boolean-utils';
+import { useField } from 'formik';
 
 export const getFieldControl = (question: OHRIFormField) => {
   // Check if a concept wasn't provided
@@ -43,11 +44,12 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
         .map((entry, index) => {
           const { control, field } = entry;
           if (control) {
-            const qnFragment = React.createElement(control, {
+            const qnFragment = React.createElement<OHRIFormFieldProps>(control, {
               question: field,
               onChange: onFieldChange,
               key: index,
               handler: getHandler(field.type),
+              useField,
             });
             return supportsUnspecified(field) && field.questionOptions.rendering != 'group' ? (
               <div className={styles.questionOverrides}>

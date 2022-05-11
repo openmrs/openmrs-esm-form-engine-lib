@@ -15,7 +15,7 @@ describe('OHRIJSExpressionValidator - validate', () => {
     bodyTemperature: 0,
     testDate: null,
   };
-  const expressionContext: ExpressionContext = { mode: 'enter' };
+  const expressionContext: ExpressionContext = { mode: 'enter', patient: {} };
 
   it('should evaluate js expressions', () => {
     // setup

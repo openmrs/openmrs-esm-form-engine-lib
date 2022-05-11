@@ -1,3 +1,4 @@
+import { FieldHelperProps, FieldInputProps, FieldMetaProps } from 'formik';
 import { EncounterContext } from '../ohri-form-context';
 
 /**
@@ -108,6 +109,8 @@ export interface OHRIFormFieldProps {
   question: OHRIFormField;
   onChange: (fieldName: string, value: any, setErrors) => {};
   handler: SubmissionHandler;
+  // This is of util to components defined out of the engine
+  useField?: (fieldId: string) => [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
 }
 export interface OHRIFormSection {
   hide?: HideProps;
