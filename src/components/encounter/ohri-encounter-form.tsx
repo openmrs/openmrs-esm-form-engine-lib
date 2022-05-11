@@ -186,6 +186,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             tempInitVals,
             {
               mode: sessionMode,
+              patient,
             },
           );
         }
@@ -240,6 +241,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     const { value, type } = node;
     const isHidden = evaluateExpression(value['hide']?.hideWhenExpression, node, allFields, allValues, {
       mode: sessionMode,
+      patient,
     });
     node.value.isHidden = isHidden;
     // cascade visibility
@@ -427,6 +429,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             { ...values, [fieldName]: value },
             {
               mode: sessionMode,
+              patient,
             },
           );
         }

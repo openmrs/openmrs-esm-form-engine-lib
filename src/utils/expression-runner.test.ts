@@ -78,7 +78,7 @@ export const testFields: Array<OHRIFormField> = [
 ];
 
 describe('Common expression runner - evaluateExpression', () => {
-  const context: ExpressionContext = { mode: 'enter' };
+  const context: ExpressionContext = { mode: 'enter', patient: {} };
   const allFields = JSON.parse(JSON.stringify(testFields));
   let valuesMap = {
     linkedToCare: '',

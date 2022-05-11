@@ -11,6 +11,7 @@ export interface FormNode {
 export interface ExpressionContext {
   mode: 'enter' | 'edit' | 'view';
   myValue?: any;
+  patient: any;
 }
 
 export function evaluateExpression(
@@ -23,7 +24,7 @@ export function evaluateExpression(
   const allFieldsKeys = allFields.map(f => f.id);
   const parts = expression.trim().split(' ');
   // setup runtime variables
-  const { mode, myValue } = context;
+  const { mode, myValue, patient } = context;
 
   function isEmpty(value) {
     if (allFieldsKeys.includes(value)) {
