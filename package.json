@@ -6,6 +6,7 @@
   "main": "src/index.ts",
   "license": "MIT",
   "homepage": "https://github.com/UCSF-IGHS/openmrs-ohri-form-engine-lib#readme",
+  
   "scripts": {
     "lint": "eslint src --ext tsx",
     "prettier": "prettier --config prettier.config.js --write \"src/**/*.{ts,tsx}\"",
@@ -20,6 +21,7 @@
     "openmrs"
   ],
   "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
     "access": "public"
   },
   "husky": {
