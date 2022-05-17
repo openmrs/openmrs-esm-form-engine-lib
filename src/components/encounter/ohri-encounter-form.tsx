@@ -445,6 +445,12 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           const section = form.pages[i].sections.find((section, _sectionIndex) => section.label == dependant);
           if (section) {
             evalHide({ value: section, type: 'section' }, fields, { ...values, [fieldName]: value });
+            if (isTrue(section.isHidden)) {
+              section.questions.forEach(field => {
+                field.isParentHidden = true;
+                voidObsValueOnFieldHidden(field, obsGroupsToVoid, setFieldValue);
+              });
+            }
             break;
           }
         }
@@ -454,6 +460,14 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       field.pageDependants?.forEach(dep => {
         const dependant = form.pages.find(f => f.label == dep);
         evalHide({ value: dependant, type: 'page' }, fields, { ...values, [fieldName]: value });
+        if (isTrue(dependant.isHidden)) {
+          dependant.sections.forEach(section => {
+            section.questions.forEach(field => {
+              field.isParentHidden = true;
+              voidObsValueOnFieldHidden(field, obsGroupsToVoid, setFieldValue);
+            });
+          });
+        }
         let form_temp = form;
         const index = form_temp.pages.findIndex(page => page.label == dep);
         form_temp[index] = dependant;

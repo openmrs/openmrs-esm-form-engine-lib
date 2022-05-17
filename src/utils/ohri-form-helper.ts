@@ -73,10 +73,16 @@ export function voidObsValueOnFieldHidden(
   obsToVoidList: Array<Record<string, any>>,
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
 ) {
-  if ((isTrue(field.isHidden) || isTrue(field.isParentHidden)) && field.value?.uuid) {
-    field.value.voided = true;
-    obsToVoidList.push(field.value);
+  if ((isTrue(field.isHidden) || isTrue(field.isParentHidden)) && field.value) {
+    const isValueIterable = Array.isArray(field.value);
+    const iterableValue = isValueIterable ? field.value : [field.value];
+    iterableValue
+      .filter(val => !!val.uuid)
+      .forEach(val => {
+        val.voided = true;
+        obsToVoidList.push(val);
+      });
     field.value = null;
-    setFieldValue(field.id, null);
+    setFieldValue(field.id, isValueIterable ? [] : null);
   }
 }
