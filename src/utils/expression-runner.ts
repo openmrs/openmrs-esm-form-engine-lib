@@ -20,7 +20,7 @@ export function evaluateExpression(
   allFields: Array<OHRIFormField>,
   allFieldValues: Record<string, any>,
   context: ExpressionContext,
-): boolean {
+): any {
   const allFieldsKeys = allFields.map(f => f.id);
   const parts = expression.trim().split(' ');
   // setup runtime variables
@@ -67,6 +67,24 @@ export function evaluateExpression(
     return null;
   }
 
+  function calcBMI(heightQuestionId, weightQuestionId) {
+    const height = allFieldValues[heightQuestionId];
+    const weight = allFieldValues[weightQuestionId];
+    [heightQuestionId, weightQuestionId].forEach(entry => {
+      if (allFieldsKeys.includes(entry)) {
+        registerDependency(
+          node,
+          allFields.find(candidate => candidate.id == entry),
+        );
+      }
+    });
+    let r;
+    if (height && weight) {
+      r = (weight / (((height / 100) * height) / 100)).toFixed(1);
+    }
+    return height && weight ? parseFloat(r) : null;
+  }
+
   parts.forEach((part, index) => {
     if (index % 2 == 0) {
       if (allFieldsKeys.includes(part)) {
@@ -90,7 +108,7 @@ export function evaluateExpression(
   } catch (error) {
     console.error(error);
   }
-  return false;
+  return null;
 }
 
 function registerDependency(node: FormNode, determinant: OHRIFormField) {

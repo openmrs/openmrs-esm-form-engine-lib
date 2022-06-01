@@ -137,6 +137,9 @@ export interface OHRIFormQuestionOptions {
   toggleOptions?: { labelTrue: string; labelFalse: string };
   repeatOptions?: { addText?: string };
   defaultValue?: any;
+  calculate?: {
+    calculateExpression: string;
+  };
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view';

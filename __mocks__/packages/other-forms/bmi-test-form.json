@@ -1,0 +1,69 @@
+{
+    "name": "Test HTS POC",
+    "pages": [
+        {
+            "label": "Screening",
+            "sections": [
+                {
+                    "label": "Testing history",
+                    "isExpanded": "true",
+                    "questions": [
+                        {
+                            "label": "Height",
+                            "type": "obs",
+                            "questionOptions": {
+                                "rendering": "number",
+                                "concept": "164400AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            },
+                            "required": "true",
+                            "unspecified": "true",
+                            "hide": {
+                                "hideWhenExpression": "false"
+                            },
+                            "validators": [],
+                            "id": "height"
+                        },
+                        {
+                            "label": "Weight",
+                            "type": "obs",
+                            "questionOptions": {
+                                "rendering": "number",
+                                "concept": "184400AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            },
+                            "required": "true",
+                            "unspecified": "true",
+                            "hide": {
+                                "hideWhenExpression": "false"
+                            },
+                            "validators": [],
+                            "id": "weight"
+                        },
+                        {
+                            "label": "BMI",
+                            "type": "obs",
+                            "questionOptions": {
+                                "rendering": "text",
+                                "calculate": {
+                                    "calculateExpression": "calcBMI('height','weight')"
+                                },
+                                "concept": "164400AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                            },
+                            "required": "true",
+                            "unspecified": "true",
+                            "hide": {
+                                "hideWhenExpression": "false"
+                            },
+                            "validators": [],
+                            "id": "bmi"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "availableIntents": [],
+    "processor": "EncounterFormProcessor",
+    "uuid": "da24c540-cc83-43bc-978f-c1ef180a497f",
+    "referencedForms": [],
+    "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe"
+}

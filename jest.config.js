@@ -21,6 +21,7 @@ module.exports = {
     '@openmrs/esm-framework': '@openmrs/esm-framework/mock',
     'react-i18next': '<rootDir>/__mocks__/react-i18next.js',
     'lodash-es': 'lodash',
+    'react-markdown': '<rootDir>/__mocks__/react-markdown.tsx',
   },
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
 };

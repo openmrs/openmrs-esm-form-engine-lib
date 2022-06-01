@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, screen, cleanup } from '@testing-library/react';
+import { render, fireEvent, screen, cleanup, act } from '@testing-library/react';
 import { Form, Formik } from 'formik';
 import { EncounterContext, OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormField } from '../../../api/types';
@@ -46,28 +46,31 @@ const encounterContext: EncounterContext = {
   date: new Date(2020, 11, 29),
 };
 
-const renderForm = intialValues =>
-  render(
-    <Formik initialValues={intialValues} onSubmit={null}>
-      {props => (
-        <Form>
-          <OHRIFormContext.Provider
-            value={{
-              values: props.values,
-              setFieldValue: props.setFieldValue,
-              setEncounterLocation: jest.fn(),
-              obsGroupsToVoid: [],
-              setObsGroupsToVoid: jest.fn(),
-              encounterContext: encounterContext,
-              fields: [question],
-              isFieldInitializationComplete: true,
-            }}>
-            <OHRIContentSwitcher question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-          </OHRIFormContext.Provider>
-        </Form>
-      )}
-    </Formik>,
+const renderForm = async intialValues => {
+  await act(async () =>
+    render(
+      <Formik initialValues={intialValues} onSubmit={null}>
+        {props => (
+          <Form>
+            <OHRIFormContext.Provider
+              value={{
+                values: props.values,
+                setFieldValue: props.setFieldValue,
+                setEncounterLocation: jest.fn(),
+                obsGroupsToVoid: [],
+                setObsGroupsToVoid: jest.fn(),
+                encounterContext: encounterContext,
+                fields: [question],
+                isFieldInitializationComplete: true,
+              }}>
+              <OHRIContentSwitcher question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+            </OHRIFormContext.Provider>
+          </Form>
+        )}
+      </Formik>,
+    ),
   );
+};
 
 describe('content-switcher input field', () => {
   afterEach(() => {
@@ -77,7 +80,7 @@ describe('content-switcher input field', () => {
 
   it('should record new obs', async () => {
     // setup
-    renderForm({});
+    await renderForm({});
     const oncologyScreeningTab = screen.getByRole('tab', { name: /Oncology Screening and Diagnosis Program/i });
 
     // assert initial values
@@ -112,7 +115,7 @@ describe('content-switcher input field', () => {
       voided: false,
       value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
     };
-    renderForm({ 'patient-past-program': question.value.value });
+    await renderForm({ 'patient-past-program': question.value.value });
     const fightMalariaTab = screen.getByRole('tab', { name: /Fight Malaria Initiative/ });
 
     // edit by selecting 'Fight Malaria Initiative'

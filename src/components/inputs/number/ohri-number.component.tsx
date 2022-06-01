@@ -25,7 +25,12 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
     }
   }, [question['submission']]);
 
-  field.onBlur = () => {
+  field.onBlur = event => {
+    if (field.value != event.target.value) {
+      // testing purposes only
+      field.value = event.target.value;
+      setFieldValue(question.id, event.target.value);
+    }
     if (field.value && question.unspecified) {
       setFieldValue(`${question.id}-unspecified`, false);
     }

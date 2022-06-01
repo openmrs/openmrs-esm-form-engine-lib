@@ -190,6 +190,22 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             },
           );
         }
+        if (field.questionOptions.calculate?.calculateExpression) {
+          const result = evaluateExpression(
+            field.questionOptions.calculate.calculateExpression,
+            { value: field, type: 'field' },
+            allFormFields,
+            tempInitVals,
+            {
+              mode: sessionMode,
+              patient,
+            },
+          );
+          if (!isEmpty(result)) {
+            tempInitVals[field.id] = result;
+            getHandler(field.type).handleFieldSubmission(field, result, encounterContext);
+          }
+        }
         return field;
       }),
     );
@@ -396,8 +412,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     const validators = Array.isArray(field.validators)
       ? [{ type: 'OHRIBaseValidator' }, ...field.validators]
       : [{ type: 'OHRIBaseValidator' }];
-    if (Array.isArray(field.validators)) {
-    }
     // handle validation
     const basevalidatorConfig = {
       expressionContext: { mode: sessionMode },
@@ -419,9 +433,13 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     if (field.fieldDependants) {
       field.fieldDependants.forEach(dep => {
         const dependant = fields.find(f => f.id == dep);
-        evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
-        voidObsValueOnFieldHidden(dependant, obsGroupsToVoid, setFieldValue);
-        if (dependant['readonlyExpression']) {
+        // evaluate hide
+        if (dependant.hide) {
+          evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
+          voidObsValueOnFieldHidden(dependant, obsGroupsToVoid, setFieldValue);
+        }
+        // evaluate readonly
+        if (!dependant.isHidden && dependant['readonlyExpression']) {
           dependant.readonly = evaluateExpression(
             dependant['readonlyExpression'],
             { value: dependant, type: 'field' },
@@ -432,6 +450,23 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
               patient,
             },
           );
+        }
+        // evaluate calculated value
+        if (!dependant.isHidden && dependant.questionOptions.calculate?.calculateExpression) {
+          const result = evaluateExpression(
+            dependant.questionOptions.calculate.calculateExpression,
+            { value: dependant, type: 'field' },
+            fields,
+            { ...values, [fieldName]: value },
+            {
+              mode: sessionMode,
+              patient,
+            },
+          );
+          if (!isEmpty(result)) {
+            setFieldValue(dependant.id, result);
+            getHandler(dependant.type).handleFieldSubmission(dependant, result, encounterContext);
+          }
         }
         let fields_temp = [...fields];
         const index = fields_temp.findIndex(f => f.id == dep);
@@ -478,7 +513,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
 
   // set handler
   handlers.set(form.name, { validate: validate, submit: handleFormSubmit });
-
   return (
     <OHRIFormContext.Provider
       value={{

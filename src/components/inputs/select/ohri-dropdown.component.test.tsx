@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, screen, cleanup } from '@testing-library/react';
+import { render, fireEvent, screen, cleanup, act } from '@testing-library/react';
 import { Form, Formik } from 'formik';
 import { EncounterContext, OHRIFormContext } from '../../../ohri-form-context';
 import OHRIDropdown from './ohri-dropdown.component';
@@ -46,28 +46,31 @@ const encounterContext: EncounterContext = {
   date: new Date(2020, 11, 29),
 };
 
-const renderForm = intialValues =>
-  render(
-    <Formik initialValues={intialValues} onSubmit={null}>
-      {props => (
-        <Form>
-          <OHRIFormContext.Provider
-            value={{
-              values: props.values,
-              setFieldValue: props.setFieldValue,
-              setEncounterLocation: jest.fn(),
-              obsGroupsToVoid: [],
-              setObsGroupsToVoid: jest.fn(),
-              encounterContext: encounterContext,
-              fields: [question],
-              isFieldInitializationComplete: true,
-            }}>
-            <OHRIDropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-          </OHRIFormContext.Provider>
-        </Form>
-      )}
-    </Formik>,
+const renderForm = async intialValues => {
+  await act(async () =>
+    render(
+      <Formik initialValues={intialValues} onSubmit={null}>
+        {props => (
+          <Form>
+            <OHRIFormContext.Provider
+              value={{
+                values: props.values,
+                setFieldValue: props.setFieldValue,
+                setEncounterLocation: jest.fn(),
+                obsGroupsToVoid: [],
+                setObsGroupsToVoid: jest.fn(),
+                encounterContext: encounterContext,
+                fields: [question],
+                isFieldInitializationComplete: true,
+              }}>
+              <OHRIDropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+            </OHRIFormContext.Provider>
+          </Form>
+        )}
+      </Formik>,
+    ),
   );
+};
 
 describe('dropdown input field', () => {
   afterEach(() => {
@@ -76,7 +79,7 @@ describe('dropdown input field', () => {
   });
 
   it('should record new obs', async () => {
-    renderForm({});
+    await renderForm({});
     // setup
     const dropdownWidget = screen.getByRole('button', { name: /Patient past program./ });
 
@@ -114,7 +117,7 @@ describe('dropdown input field', () => {
       voided: false,
       value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
     };
-    renderForm({ 'patient-past-program': question.value.value });
+    await renderForm({ 'patient-past-program': question.value.value });
     const dropdownWidget = screen.getByRole('button', { name: /Patient past program./ });
 
     // do some edits
