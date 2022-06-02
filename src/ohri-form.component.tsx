@@ -51,6 +51,8 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const ref = useRef(null);
   const workspaceLayout = useWorkspaceLayout(ref);
   const handlers = new Map<string, FormSubmissionHandler>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useMemo(() => {
     const copy: OHRIFormSchema = JSON.parse(JSON.stringify(formJson));
     if (encounterUuid && !copy.encounter) {
@@ -128,6 +130,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
     });
     // do submit
     if (isSubmitable) {
+      setIsSubmitting(true);
       const submissions = [...handlers].map(([key, handler]) => {
         return handler?.submit?.(values);
       });
@@ -209,6 +212,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     setSelectedPage={setSelectedPage}
                     handlers={handlers}
                     workspaceLayout={workspaceLayout}
+                    isSubmitting
                   />
                 </div>
                 {workspaceLayout == 'minimized' && (

@@ -11,6 +11,7 @@ type OHRIFormContextProps = {
   encounterContext: EncounterContext;
   fields: OHRIFormField[];
   isFieldInitializationComplete: boolean;
+  isSubmitting: boolean;
   layoutType?: LayoutType;
   workspaceLayout?: 'minimized' | 'maximized';
 };
