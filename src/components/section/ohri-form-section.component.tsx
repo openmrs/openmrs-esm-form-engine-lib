@@ -35,7 +35,7 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
     ).then(results => {
       setFieldToControlMap(results);
     });
-  }, [fields?.length]);
+  }, [fields]);
 
   return (
     <div className={styles.sectionContainer}>
