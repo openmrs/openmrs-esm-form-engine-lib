@@ -7,7 +7,7 @@
   "license": "MIT",
   "homepage": "https://github.com/UCSF-IGHS/openmrs-ohri-form-engine-lib#readme",
   "scripts": {
-    "lint": "eslint src --ext tsx",
+    "lint": "eslint src --ext tsx --fix",
     "prettier": "prettier --config prettier.config.js --write \"src/**/*.{ts,tsx}\"",
     "typescript": "tsc",
     "test": "jest --config ./jest.config.js --passWithNoTests",
@@ -25,7 +25,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged && concurrently 'npm:test' 'npm:typescript' 'npm:lint'"
+      "pre-commit": "pretty-quick --staged && concurrently 'npm:test' 'npm:typescript' 'npm:prettier' 'npm:lint'"
     }
   },
   "dependencies": {
