@@ -212,7 +212,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     setSelectedPage={setSelectedPage}
                     handlers={handlers}
                     workspaceLayout={workspaceLayout}
-                    isSubmitting
+                    isSubmitting={isSubmitting}
                   />
                 </div>
                 {workspaceLayout == 'minimized' && (
