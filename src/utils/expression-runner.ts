@@ -92,7 +92,7 @@ export function evaluateExpression(
         registerDependency(node, determinant);
         // prep eval variables
         let determinantValue = allFieldValues[part];
-        if (determinant.questionOptions.rendering == 'toggle') {
+        if (determinant.questionOptions.rendering == 'toggle' && typeof determinantValue == 'boolean') {
           determinantValue = determinantValue ? ConceptTrue : ConceptFalse;
         }
         if (typeof determinantValue == 'string') {
