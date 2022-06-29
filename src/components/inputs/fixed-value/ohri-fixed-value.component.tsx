@@ -1,7 +1,7 @@
-import { useField } from 'formik';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
+import { isObject } from 'lodash-es';
 
 const OHRIFixedValue: React.FC<OHRIFormFieldProps> = ({ question, handler }) => {
   const { encounterContext, isFieldInitializationComplete } = React.useContext(OHRIFormContext);
@@ -10,7 +10,7 @@ const OHRIFixedValue: React.FC<OHRIFormFieldProps> = ({ question, handler }) => 
     if (question.value && typeof question.value == 'string' && isFieldInitializationComplete) {
       delete question.value;
       handler.handleFieldSubmission(question, question['fixedValue'], encounterContext);
-    } else if (typeof question.value == 'object' && !obsValueEqualTo(question['fixedValue'], question.value)) {
+    } else if (isObject(question.value) && !obsValueEqualTo(question['fixedValue'], question.value)) {
       // edit obs
       handler.handleFieldSubmission(question, question['fixedValue'], encounterContext);
     }
@@ -19,6 +19,6 @@ const OHRIFixedValue: React.FC<OHRIFormFieldProps> = ({ question, handler }) => 
 };
 
 function obsValueEqualTo(value: string, obs: any) {
-  return typeof obs.value == 'object' ? obs.value?.uuid == value : obs.value == value;
+  return isObject(obs.value) ? obs.value?.uuid == value : obs.value == value;
 }
 export default OHRIFixedValue;
