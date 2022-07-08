@@ -3,6 +3,7 @@ import React from 'react';
 import OHRIForm from './ohri-form.component';
 import hts_poc_1_1 from '../__mocks__/packages/hiv/forms/hts_poc/1.1.json';
 import bmi_form from '../__mocks__/packages/other-forms/bmi-test-form.json';
+import edd_form from '../__mocks__/packages/other-forms/edd-test-form.json';
 import { mockPatient } from '../__mocks__/patient.mock';
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 
@@ -71,6 +72,23 @@ describe('OHRI Forms: ', () => {
       expect(heightField.value).toBe('150');
       expect(weightField.value).toBe('50');
       expect(bmiField.value).toBe('22.2');
+    });
+
+    it('Should evaluate EDD', async () => {
+      // setup
+      await renderForm(edd_form);
+      let eddField = screen.getByRole('textbox', { name: /EDD/ }) as HTMLInputElement;
+      let lmpField = screen.getByRole('textbox', { name: /LMP/ }) as HTMLInputElement;
+
+      expect(eddField.value).toBe('');
+      expect(lmpField.value).toBe('');
+
+      // replay
+      fireEvent.blur(lmpField, { target: { value: '2022-07-06T00:00:00.000Z' } });
+
+      // verify
+      expect(lmpField.value).toBe('7/6/2022');
+      expect(eddField.value).toBe('4/12/2023');
     });
   });
 

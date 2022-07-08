@@ -85,6 +85,23 @@ export function evaluateExpression(
     return height && weight ? parseFloat(r) : null;
   }
 
+  function calcEDD(lmpQuestionId) {
+    const lmp = allFieldValues[lmpQuestionId];
+    [lmpQuestionId].forEach(entry => {
+      if (allFieldsKeys.includes(entry)) {
+        registerDependency(
+          node,
+          allFields.find(candidate => candidate.id == entry),
+        );
+      }
+    });
+    let resultEdd = {};
+    if (lmp) {
+      resultEdd = new Date(lmp.getTime() + 280 * 24 * 60 * 60 * 1000);
+    }
+    return lmp ? resultEdd : null;
+  }
+
   parts.forEach((part, index) => {
     if (index % 2 == 0) {
       if (allFieldsKeys.includes(part)) {

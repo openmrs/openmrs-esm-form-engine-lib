@@ -1,0 +1,88 @@
+{
+	"name": "",
+	"pages": [
+		{
+			"label": "POC Test EDD",
+			"sections": [
+				{
+					"label": "Test EDD",
+					"isExpanded": "true",
+					"questions": [
+						{
+							"label": "LMP",
+							"type": "obs",
+							"questionOptions": {
+								"rendering": "date",
+								"concept": "166079AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+								"weeksList": "",
+								"conceptMappings": [
+									{
+										"type": "CIEL",
+										"value": "166079"
+									},
+									{
+										"type": "SNOMED-CT",
+										"value": "248993009"
+									}
+								]
+							},
+                            "required": "true",
+                            "unspecified": "true",
+                            "hide": {
+                                "hideWhenExpression": "false"
+                            },
+                            "validators": [],
+							"id": "LMP"
+						},
+						{
+							"label": "EDD",
+							"type": "obs",
+							"questionOptions": {
+								"rendering": "date",
+                                "calculate": {
+                                    "calculateExpression": "calcEDD('LMP')"
+                                },
+								"concept": "5596AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+								"weeksList": "",
+								"conceptMappings": [
+									{
+										"type": "AMPATH",
+										"value": "1854"
+									},
+									{
+										"type": "SNOMED-CT",
+										"value": "366322004"
+									},
+									{
+										"type": "AMPATH",
+										"value": "5596"
+									},
+									{
+										"type": "CIEL",
+										"value": "5596"
+									},
+									{
+										"type": "LOINC",
+										"value": "11779-6"
+									}
+								]
+							},
+                            "required": "true",
+                            "unspecified": "true",
+                            "hide": {
+                                "hideWhenExpression": "false"
+                            },
+                            "validators": [],
+							"id": "EDD"
+						}
+					]
+				}
+			]
+		}
+	],
+	"availableIntents": [],
+    "processor": "EncounterFormProcessor",
+    "uuid": "da24c540-cc83-43bc-978f-c1ef180a497f",
+    "referencedForms": [],
+    "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe"
+} 
