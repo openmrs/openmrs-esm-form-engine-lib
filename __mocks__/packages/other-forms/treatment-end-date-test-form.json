@@ -1,0 +1,121 @@
+{
+	"name": "",
+	"pages": [
+		{
+			"label": "Test treatment end date",
+			"sections": [
+				{
+					"label": "Test treatment end date",
+					"isExpanded": "true",
+					"questions": [
+						{
+							"label": "Followup Date",
+							"type": "obs",
+							"questionOptions": {
+								"rendering": "date",
+								"concept": "163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+								"weeksList": ""
+							},
+							"id": "followupDate"
+						},
+						{
+							"label": "Patient Status",
+							"type": "obs",
+							"questionOptions": {
+								"rendering": "radio",
+								"concept": "160433AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+								"answers": [
+									{
+										"concept": "1693AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+										"label": "TO",
+										"conceptMappings": []
+									},
+									{
+										"concept": "5240AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+										"label": "LOST",
+										"conceptMappings": []
+									},
+									{
+										"concept": "160431AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+										"label": "DROP",
+										"conceptMappings": []
+									},
+									{
+										"concept": "1692AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+										"label": "STOP",
+										"conceptMappings": []
+									},
+									{
+										"concept": "159AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+										"label": "DEAD",
+										"conceptMappings": []
+									},
+									{
+										"concept": "160429AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+										"label": "ON ART",
+										"conceptMappings": []
+									}
+								],
+								"conceptMappings": [
+									{
+										"type": "CIEL",
+										"value": "160433"
+									},
+									{
+										"type": "PIH-Malawi",
+										"value": "6538"
+									},
+									{
+										"type": "SNOMED-CT",
+										"value": "365860008"
+									}
+								]
+							},
+							"id": "patientStatus"
+						},
+						{
+							"label": "ARV dispensed in days",
+							"type": "obs",
+							"questionOptions": {
+								"rendering": "number",
+								"concept": "3a0709e9-d7a8-44b9-9512-111db5ce3989",
+								"max": "",
+								"min": "",
+								"showDate": ""
+							},
+							"id": "arvDispensedInDays"
+						},
+						{
+							"label": "Treatment end date",
+							"type": "obs",
+							"questionOptions": {
+								"rendering": "date",
+                "calculate": {
+                                    "calculateExpression": "calcTreatmentEndDate('followupDate', 'arvDispensedInDays', 'patientStatus')"
+                                },
+								"concept": "164384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+								"weeksList": "",
+								"conceptMappings": [
+									{
+										"type": "SNOMED-CT",
+										"value": "413947000"
+									},
+									{
+										"type": "CIEL",
+										"value": "164384"
+									}
+								]
+							},
+							"id": "treatmentEndDate"
+						}
+					]
+				}
+			]
+		}
+	],
+	"availableIntents": [],
+    "processor": "EncounterFormProcessor",
+    "uuid": "da24c540-cc83-43bc-978f-c1ef180a497f",
+    "referencedForms": [],
+    "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe"
+}

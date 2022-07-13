@@ -102,6 +102,72 @@ export function evaluateExpression(
     return lmp ? resultEdd : null;
   }
 
+  function calcMonthsOnART(artStartDateQuestionId) {
+    const artStartDate = allFieldValues[artStartDateQuestionId];
+    [artStartDateQuestionId].forEach(entry => {
+      if (allFieldsKeys.includes(entry)) {
+        registerDependency(
+          node,
+          allFields.find(candidate => candidate.id == entry),
+        );
+      }
+    });
+    let resultMonthsOnART;
+    let today = new Date();
+    let artInDays = Math.round((today.getTime() - artStartDate.getTime()) / 86400000);
+    if (artStartDate && artInDays >= 30) {
+      resultMonthsOnART = Math.floor(artInDays / 30);
+    }
+    return artStartDate ? resultMonthsOnART : null;
+  }
+
+  function calcNextVisitDate(followupDateQuestionId, arvDispensedInDaysQuestionId) {
+    const followupDate = allFieldValues[followupDateQuestionId];
+    const arvDispensedInDays = allFieldValues[arvDispensedInDaysQuestionId];
+    [followupDateQuestionId, arvDispensedInDaysQuestionId].forEach(entry => {
+      if (allFieldsKeys.includes(entry)) {
+        registerDependency(
+          node,
+          allFields.find(candidate => candidate.id == entry),
+        );
+      }
+    });
+    let resultNextVisitDate = {};
+    if (followupDate && arvDispensedInDays) {
+      resultNextVisitDate = new Date(followupDate.getTime() + arvDispensedInDays * 24 * 60 * 60 * 1000);
+    }
+    return followupDate && arvDispensedInDays ? resultNextVisitDate : null;
+  }
+
+  function calcTreatmentEndDate(
+    followupDateQuestionId,
+    arvDispensedInDaysQuestionId,
+    patientStatusQuestionId,
+    treatmentEndDateQuestionId,
+  ) {
+    const followupDate = allFieldValues[followupDateQuestionId];
+    const arvDispensedInDays = allFieldValues[arvDispensedInDaysQuestionId];
+    const patientStatus = allFieldValues[patientStatusQuestionId];
+    [followupDateQuestionId, arvDispensedInDaysQuestionId, patientStatusQuestionId, treatmentEndDateQuestionId].forEach(
+      entry => {
+        if (allFieldsKeys.includes(entry)) {
+          registerDependency(
+            node,
+            allFields.find(candidate => candidate.id == entry),
+          );
+        }
+      },
+    );
+    let resultTreatmentEndDate = {};
+    let extraDaysAdded = 30 + arvDispensedInDays;
+    if (followupDate && arvDispensedInDays && patientStatus == '160429AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA') {
+      resultTreatmentEndDate = new Date(followupDate.getTime() + extraDaysAdded * 24 * 60 * 60 * 1000);
+    }
+    return followupDate && arvDispensedInDays && patientStatus == '160429AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+      ? resultTreatmentEndDate
+      : null;
+  }
+
   parts.forEach((part, index) => {
     if (index % 2 == 0) {
       if (allFieldsKeys.includes(part)) {

@@ -4,6 +4,8 @@ import OHRIForm from './ohri-form.component';
 import hts_poc_1_1 from '../__mocks__/packages/hiv/forms/hts_poc/1.1.json';
 import bmi_form from '../__mocks__/packages/other-forms/bmi-test-form.json';
 import edd_form from '../__mocks__/packages/other-forms/edd-test-form.json';
+import next_visit_form from '../__mocks__/packages/other-forms/next-visit-test-form.json';
+import months_on_art_form from '../__mocks__/packages/other-forms/months-on-art-form.json';
 import { mockPatient } from '../__mocks__/patient.mock';
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 
@@ -89,6 +91,51 @@ describe('OHRI Forms: ', () => {
       // verify
       expect(lmpField.value).toBe('7/6/2022');
       expect(eddField.value).toBe('4/12/2023');
+    });
+
+    it('Should evaluate months on ART', async () => {
+      // setup
+      await renderForm(months_on_art_form);
+      let artStartDateField = screen.getByRole('textbox', {
+        name: /Antiretroviral treatment start date/,
+      }) as HTMLInputElement;
+      let monthsOnARTField = screen.getByRole('spinbutton', { name: /Months on ART/ }) as HTMLInputElement;
+      let assumeTodayToBe = '7/11/2022';
+
+      expect(artStartDateField.value).toBe('');
+      expect(assumeTodayToBe).toBe('7/11/2022');
+      expect(monthsOnARTField.value).toBe('');
+
+      // replay
+      fireEvent.blur(artStartDateField, { target: { value: '5/2/2022' } });
+
+      // verify
+      expect(artStartDateField.value).toBe('5/2/2022');
+      expect(assumeTodayToBe).toBe('7/11/2022');
+      expect(monthsOnARTField.value).toBe('2');
+    });
+
+    it('Should evaluate next visit date', async () => {
+      // setup
+      await renderForm(next_visit_form);
+      let followupDateField = screen.getByRole('textbox', { name: /Followup Date/ }) as HTMLInputElement;
+      let arvDispensedInDaysField = screen.getByRole('spinbutton', {
+        name: /ARV dispensed in days/,
+      }) as HTMLInputElement;
+      let nextVisitDateField = screen.getByRole('textbox', { name: /Next visit date/ }) as HTMLInputElement;
+
+      expect(followupDateField.value).toBe('');
+      expect(arvDispensedInDaysField.value).toBe('');
+      expect(nextVisitDateField.value).toBe('');
+
+      // replay
+      fireEvent.blur(followupDateField, { target: { value: '2022-07-06T00:00:00.000Z' } });
+      fireEvent.blur(arvDispensedInDaysField, { target: { value: 120 } });
+
+      // verify
+      expect(followupDateField.value).toBe('7/6/2022');
+      expect(arvDispensedInDaysField.value).toBe('120');
+      expect(nextVisitDateField.value).toBe('11/3/2022');
     });
   });
 

@@ -1,0 +1,90 @@
+{
+	"name": "",
+	"pages": [
+		{
+			"label": "POC Test months on ART",
+			"sections": [
+				{
+					"label": "Test months on ART",
+					"isExpanded": "true",
+					"questions": [
+						{
+							"label": "Antiretroviral treatment start date",
+							"type": "obs",
+							"questionOptions": {
+								"rendering": "date",
+								"weeksList": "",
+								"concept": "159599AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+								"conceptMappings": [
+									{
+										"type": "PIH",
+										"value": "2516"
+									},
+									{
+										"type": "PIH-Malawi",
+										"value": "2516"
+									},
+									{
+										"type": "SNOMED-MVP",
+										"value": "1595991000105005"
+									},
+									{
+										"type": "CIEL",
+										"value": "159599"
+									}
+								]
+							},
+							"id": "artStartDate"
+						},
+						{
+							"label": "Months on ART",
+							"type": "obs",
+							"questionOptions": {
+								"rendering": "number",
+                                "calculate": {
+                                    "calculateExpression": "calcMonthsOnART('artStartDate')"
+                                },
+								"concept": "159368AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+								"conceptMappings": [
+									{
+										"type": "CIEL",
+										"value": "159368"
+									},
+									{
+										"type": "AMPATH",
+										"value": "1897"
+									},
+									{
+										"type": "SNOMED-CT",
+										"value": "261774000"
+									},
+									{
+										"type": "SNOMED-CT",
+										"value": "261774000"
+									},
+									{
+										"type": "AMPATH",
+										"value": "1897"
+									},
+									{
+										"type": "CIEL",
+										"value": "159368"
+									}
+								],
+								"max": "",
+								"min": "",
+								"showDate": ""
+							},
+							"id": "monthsOnART"
+						}
+					]
+				}
+			]
+		}
+	],
+	"availableIntents": [],
+    "processor": "EncounterFormProcessor",
+    "uuid": "da24c540-cc83-43bc-978f-c1ef180a497f",
+    "referencedForms": [],
+    "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe"
+}
