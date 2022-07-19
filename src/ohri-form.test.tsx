@@ -6,6 +6,7 @@ import bmi_form from '../__mocks__/packages/other-forms/bmi-test-form.json';
 import edd_form from '../__mocks__/packages/other-forms/edd-test-form.json';
 import next_visit_form from '../__mocks__/packages/other-forms/next-visit-test-form.json';
 import months_on_art_form from '../__mocks__/packages/other-forms/months-on-art-form.json';
+import age_validation_form from '../__mocks__/packages/other-forms/age-validation-form.json';
 import { mockPatient } from '../__mocks__/patient.mock';
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 
@@ -113,6 +114,23 @@ describe('OHRI Forms: ', () => {
       expect(artStartDateField.value).toBe('5/2/2022');
       expect(assumeTodayToBe).toBe('7/11/2022');
       expect(monthsOnARTField.value).toBe('2');
+    });
+
+    it('Should only show question when age is under 5', async () => {
+      // setup
+      await renderForm(age_validation_form);
+      let enrollmentDate = screen.getByRole('textbox', { name: /enrollmentDate/ }) as HTMLInputElement;
+
+      expect(enrollmentDate.value).toBe('');
+      fireEvent.blur(enrollmentDate, { target: { value: '1975-07-06T00:00:00.000Z' } });
+
+      let mrn = screen.getByRole('textbox', { name: /MRN/ }) as HTMLInputElement;
+      expect(mrn.value).toBe('');
+
+      // verify
+      expect(enrollmentDate.value).toBe('7/6/1975');
+      expect(mrn.value).toBe('');
+      expect(mrn).toBeVisible();
     });
 
     it('Should evaluate next visit date', async () => {

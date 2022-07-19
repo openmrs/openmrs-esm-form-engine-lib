@@ -168,6 +168,27 @@ export function evaluateExpression(
       : null;
   }
 
+  function calcAgeBasedOnDate(questionId) {
+    const value = allFieldValues[questionId];
+    [questionId].forEach(entry => {
+      if (allFieldsKeys.includes(entry)) {
+        registerDependency(
+          node,
+          allFields.find(candidate => candidate.id == entry),
+        );
+      }
+    });
+    let targetYear = null;
+    if (value) {
+      targetYear = new Date(value).getFullYear();
+    } else {
+      targetYear = new Date().getFullYear();
+    }
+    let birthDate = new Date(patient.birthDate).getFullYear();
+    let calculatedYear = targetYear - birthDate;
+    return calculatedYear;
+  }
+
   parts.forEach((part, index) => {
     if (index % 2 == 0) {
       if (allFieldsKeys.includes(part)) {
