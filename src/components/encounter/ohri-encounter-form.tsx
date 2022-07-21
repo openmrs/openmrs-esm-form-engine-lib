@@ -23,6 +23,7 @@ import { FormSubmissionHandler } from '../../ohri-form.component';
 import { isTrue } from '../../utils/boolean-utils';
 import { evaluateExpression } from '../../utils/expression-runner';
 import { getPreviousEncounter, saveEncounter } from '../../api/api';
+import { scrollIntoView } from '../../utils/ohri-sidebar';
 
 interface OHRIEncounterFormProps {
   formJson: OHRIFormSchema;
@@ -308,8 +309,27 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     }
   }, []);
 
+  const [invalidFields, setInvalidFields] = useState([]);
+
+  useEffect(() => {
+    if (invalidFields?.length) {
+      let firstInvalidField = invalidFields[0];
+      let answerOptionid: string;
+      if (firstInvalidField.questionOptions.rendering === 'radio') {
+        answerOptionid = `${firstInvalidField.id}-${firstInvalidField.questionOptions.answers[0].label}`;
+        scrollIntoView(answerOptionid, true);
+      } else if (firstInvalidField.questionOptions.rendering === 'checkbox') {
+        answerOptionid = `${firstInvalidField.label}-input`;
+        scrollIntoView(answerOptionid, true);
+      } else {
+        scrollIntoView(firstInvalidField.id, true);
+      }
+    }
+  }, [invalidFields]);
+
   const validate = useCallback(
     values => {
+      let errorFields = [];
       let formHasErrors = false;
       // handle field validation
       fields
@@ -318,6 +338,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         .forEach(field => {
           const errors = OHRIFieldValidator.validate(field, values[field.id]);
           if (errors.length) {
+            errorFields.push(field);
             field['submission'] = {
               ...field['submission'],
               errors: errors,
@@ -326,6 +347,8 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             return;
           }
         });
+      setInvalidFields([...errorFields]);
+
       return !formHasErrors;
     },
     [fields],
