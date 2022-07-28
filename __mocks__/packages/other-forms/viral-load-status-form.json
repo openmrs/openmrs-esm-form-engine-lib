@@ -1,0 +1,75 @@
+{
+	"name": "",
+	"pages": [
+		{
+			"label": "Test Viral Load Status",
+			"sections": [
+				{
+					"label": "Test Viral Load Status",
+					"isExpanded": "true",
+					"questions": [
+						{
+							"label": "Viral Load Count",
+							"type": "obs",
+							"questionOptions": {
+								"rendering": "number",
+								"concept": "856AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+								"max": "",
+								"min": "",
+								"showDate": "",
+								"conceptMappings": [
+									{
+										"type": "AMPATH",
+										"value": "856"
+									},
+									{
+										"type": "CIEL",
+										"value": "856"
+									},
+									{
+										"type": "SNOMED-CT",
+										"value": "315124004"
+									},
+									{
+										"type": "IMO-ProcedureIT",
+										"value": "929811"
+									}
+								]
+							},
+							"id": "viralLoadCount"
+						},
+						{
+							"label": "Viral Load Status",
+							"type": "obs",
+							"questionOptions": {
+								"rendering": "radio",
+                                "calculate": {
+                                    "calculateExpression": "calcViralLoadStatus('viralLoadCount')"
+                                },
+								"concept": "2dc9ee04-4d12-4606-ae0f-86895bf14a44",
+								"answers": [
+									{
+										"concept": "5d5e42cc-acc4-4069-b3a8-7163e0db5d96",
+										"label": "Suppressed",
+										"conceptMappings": []
+									},
+									{
+										"concept": "a6768be6-c08e-464d-8f53-5f4229508e54",
+										"label": "Unsuppressed",
+										"conceptMappings": []
+									}
+								]
+							},
+							"id": "viralLoadStatus"
+						}
+					]
+				}
+			]
+		}
+	],
+	"availableIntents": [],
+    "processor": "EncounterFormProcessor",
+    "uuid": "da24c540-cc83-43bc-978f-c1ef180a497f",
+    "referencedForms": [],
+    "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe"
+}

@@ -103,7 +103,8 @@ export function evaluateExpression(
   }
 
   function calcMonthsOnART(artStartDateQuestionId) {
-    const artStartDate = allFieldValues[artStartDateQuestionId];
+    let today = new Date();
+    const artStartDate = allFieldValues[artStartDateQuestionId] || today;
     [artStartDateQuestionId].forEach(entry => {
       if (allFieldsKeys.includes(entry)) {
         registerDependency(
@@ -113,12 +114,32 @@ export function evaluateExpression(
       }
     });
     let resultMonthsOnART;
-    let today = new Date();
     let artInDays = Math.round((today.getTime() - artStartDate.getTime()) / 86400000);
     if (artStartDate && artInDays >= 30) {
       resultMonthsOnART = Math.floor(artInDays / 30);
     }
     return artStartDate ? resultMonthsOnART : null;
+  }
+
+  function calcViralLoadStatus(viralLoadCountQuestionId) {
+    const viralLoadCount = allFieldValues[viralLoadCountQuestionId];
+    [viralLoadCountQuestionId].forEach(entry => {
+      if (allFieldsKeys.includes(entry)) {
+        registerDependency(
+          node,
+          allFields.find(candidate => candidate.id == entry),
+        );
+      }
+    });
+    let resultViralLoadStatus;
+    if (viralLoadCount) {
+      if (viralLoadCount > 50) {
+        resultViralLoadStatus = 'a6768be6-c08e-464d-8f53-5f4229508e54';
+      } else {
+        resultViralLoadStatus = '5d5e42cc-acc4-4069-b3a8-7163e0db5d96';
+      }
+    }
+    return viralLoadCount ? resultViralLoadStatus : null;
   }
 
   function calcNextVisitDate(followupDateQuestionId, arvDispensedInDaysQuestionId) {
