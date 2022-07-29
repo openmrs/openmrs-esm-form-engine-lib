@@ -19,6 +19,11 @@ export function cascadeVisibityToChildFields(
     .filter(field => candidateIds.includes(field.id))
     .forEach(field => {
       field.isParentHidden = visibility;
+      if (field.questionOptions.rendering == 'group') {
+        field.questions.forEach(member => {
+          member.isParentHidden = visibility;
+        });
+      }
       voidObsValueOnFieldHidden(field, obsToVoidList, setFieldValue);
     });
 }
