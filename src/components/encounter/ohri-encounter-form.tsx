@@ -261,6 +261,11 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       patient,
     });
     node.value.isHidden = isHidden;
+    if (type == 'field' && node.value?.questions?.length) {
+      node.value?.questions.forEach(question => {
+        question.isHidden = isHidden;
+      });
+    }
     // cascade visibility
     if (type == 'page') {
       value['sections'].forEach(section => {
