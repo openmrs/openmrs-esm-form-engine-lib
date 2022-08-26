@@ -62,6 +62,7 @@ const renderForm = async intialValues => {
                 encounterContext: encounterContext,
                 fields: [question],
                 isFieldInitializationComplete: true,
+                isSubmitting: false,
               }}>
               <OHRIDropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
             </OHRIFormContext.Provider>

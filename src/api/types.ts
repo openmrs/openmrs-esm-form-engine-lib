@@ -124,6 +124,8 @@ export interface OHRIFormSection {
 }
 
 export interface OHRIFormQuestionOptions {
+  extensionId?: string;
+  extensionSlotName?: string;
   rendering: RenderType;
   concept?: string;
   max?: string;

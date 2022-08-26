@@ -52,12 +52,12 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
               useField,
             });
             return supportsUnspecified(field) && field.questionOptions.rendering != 'group' ? (
-              <div className={styles.questionOverrides}>
+              <div>
                 {qnFragment}
                 <OHRIUnspecified question={field} />
               </div>
             ) : (
-              <div className={styles.questionOverrides}>{qnFragment}</div>
+              <div>{qnFragment}</div>
             );
           }
         })}

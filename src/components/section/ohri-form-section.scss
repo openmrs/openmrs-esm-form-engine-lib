@@ -17,10 +17,8 @@
   width: 90%;
 }
 
-.questionOverrides {
-  //margin-top: 14px;
-}
-
+// This rule is breaking styling for embedded widgets
+// To should be more specific 
 .sectionContainer :global(.bx--fieldset) {
   margin-bottom: 0;
 }

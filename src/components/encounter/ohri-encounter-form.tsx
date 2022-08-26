@@ -42,6 +42,7 @@ interface OHRIEncounterFormProps {
   setScrollablePages: (pages: Set<OHRIFormPageProps>) => void;
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
   setSelectedPage: (page: string) => void;
+  isSubmitting: boolean;
 }
 
 export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
@@ -61,6 +62,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   handlers,
   allInitialValues,
   setAllInitialValues,
+  isSubmitting,
 }) => {
   const [fields, setFields] = useState<Array<OHRIFormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
@@ -544,8 +546,8 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   return (
     <OHRIFormContext.Provider
       value={{
-        values: values,
-        setFieldValue: setFieldValue,
+        values,
+        setFieldValue,
         setEncounterLocation: setEncounterLocation,
         setObsGroupsToVoid: setObsGroupsToVoid,
         obsGroupsToVoid: obsGroupsToVoid,
@@ -554,6 +556,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         layoutType,
         workspaceLayout,
         isFieldInitializationComplete,
+        isSubmitting,
       }}>
       <InstantEffect effect={addScrollablePages} />
       {form.pages.map((page, index) => {
@@ -585,6 +588,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
               setSelectedPage={setSelectedPage}
               handlers={handlers}
               workspaceLayout={workspaceLayout}
+              isSubmitting
             />
           );
         }

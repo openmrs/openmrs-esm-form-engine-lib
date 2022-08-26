@@ -54,7 +54,8 @@
     "carbon-icons": "^7.0.7",
     "dayjs": "^1.8.16",
     "react": "^16.9.0",
-    "react-i18next": "^11.3.4"
+    "react-i18next": "^11.3.4",
+    "rxjs": "6.x"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
@@ -94,6 +95,7 @@
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react-hooks": "^4.3.0",
-    "identity-obj-proxy": "^3.0.0"
+    "identity-obj-proxy": "^3.0.0",
+    "rxjs": "^6.6.3"
   }
 }

@@ -19,6 +19,7 @@ import { OHRIDateValidator } from '../validators/ohri-date-validator';
 import { OHRIJSExpressionValidator } from '../validators/ohri-js-expression-validator';
 import { getGlobalStore } from '@openmrs/esm-framework';
 import { OHRIFormsTagLibraryStore } from '../constants';
+import OHRIExtensionParcel from '../components/extension/ohri-extension-parcel.component';
 
 export interface FormsRegistryStoreState {
   baseFieldComponents: Array<RegistryItem>;
@@ -97,6 +98,11 @@ export const baseFieldComponents: Array<ControlRegistryItem> = [
     id: 'OHRIMarkdown',
     loadControl: () => Promise.resolve({ default: OHRIMarkdown }),
     type: 'markdown',
+  },
+  {
+    id: 'OHRIExtensionParcel',
+    loadControl: () => Promise.resolve({ default: OHRIExtensionParcel }),
+    type: 'extension-widget',
   },
 ];
 
