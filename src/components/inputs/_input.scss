@@ -206,13 +206,8 @@
 :global(.bx--form-item) { 
 flex: none;}
 
-// :global(.bx--form-requirement){
-//   margin-left: 5rem;
-// }
 
 div[class*='-esm-patient-vitals__vitals-header__default-border'] {
   margin-left: 5rem;
 
 }
-
-// <div class="bx--time-picker bx--time-picker--invalid"><div class="bx--time-picker__input"><input class="bx--time-picker__input-field bx--text-input" pattern="(1[012]|[1-9]):[0-5][0-9](\\s)?" placeholder="HH:MM" maxlength="5" id="orderDate" type="time" value="11:04" data-invalid="true"></div></div>
