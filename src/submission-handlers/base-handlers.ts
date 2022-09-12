@@ -38,7 +38,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     return field.value;
   },
   getInitialValue: (encounter: any, field: OHRIFormField, allFormFields: Array<OHRIFormField>) => {
-    let obs = encounter.obs.find(o => o.concept.uuid == field.questionOptions.concept);
+    let obs = getEncounterObs(encounter, field);
     const rendering = field.questionOptions.rendering;
     let parentField = null;
     let obsGroup = null;
@@ -50,10 +50,12 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     }
     if (!obs && field['groupId']) {
       parentField = allFormFields.find(f => f.id == field['groupId']);
-      obsGroup = encounter.obs.find(o => o.concept.uuid == parentField.questionOptions.concept);
+      obsGroup = getEncounterObs(encounter, parentField);
       if (obsGroup) {
         parentField.value = obsGroup;
-        obs = obsGroup.groupMembers?.find(o => o.concept.uuid == field.questionOptions.concept);
+        if (obsGroup.groupMembers) {
+          obs = getEncounterObs(obsGroup.groupMembers, field);
+        }
       }
     }
     if (obs) {
@@ -112,7 +114,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     return value;
   },
   getPreviousValue: (field: OHRIFormField, encounter: any, allFormFields: Array<OHRIFormField>) => {
-    let obs = encounter.obs.find(o => o.concept.uuid == field.questionOptions.concept);
+    let obs = getEncounterObs(encounter, field);
     const rendering = field.questionOptions.rendering;
     let parentField = null;
     let obsGroup = null;
@@ -124,10 +126,12 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     }
     if (!obs && field['groupId']) {
       parentField = allFormFields.find(f => f.id == field['groupId']);
-      obsGroup = encounter.obs.find(o => o.concept.uuid == parentField.questionOptions.concept);
+      obsGroup = getEncounterObs(encounter, parentField);
       if (obsGroup) {
         parentField.value = obsGroup;
-        obs = obsGroup.groupMembers?.find(o => o.concept.uuid == field.questionOptions.concept);
+        if (obsGroup.groupMembers) {
+          obs = getEncounterObs(obsGroup.groupMembers, field);
+        }
       }
     }
     if (obs) {
@@ -177,10 +181,22 @@ const constructObs = (value: any, context: EncounterContext, field: OHRIFormFiel
     order: null,
     groupMembers: [],
     voided: false,
-    // formFieldNamespace: 'ohri-forms',
-    // formFieldPath: 'field-id',
+    formFieldNamespace: 'ohri-forms',
+    formFieldPath: constructFormFieldPath(field.id),
     value: value,
   };
+};
+
+const constructFormFieldPath = (id: string): string => {
+  return `ohri-forms-${id}`;
+};
+
+export const getEncounterObs = (encounter: any, field: OHRIFormField) => {
+  let obs = encounter.obs.find(o => o.formFieldPath == constructFormFieldPath(field.id));
+  if (!obs) {
+    obs = encounter.obs.find(o => o.concept.uuid == field.questionOptions.concept && !o.formFieldPath);
+  }
+  return obs;
 };
 
 const multiSelectObsHandler = (field: OHRIFormField, values: Array<string>, context: EncounterContext) => {

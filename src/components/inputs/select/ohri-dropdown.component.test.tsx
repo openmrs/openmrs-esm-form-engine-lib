@@ -101,6 +101,8 @@ describe('dropdown input field', () => {
       order: null,
       groupMembers: [],
       voided: false,
+      formFieldNamespace: 'ohri-forms',
+      formFieldPath: 'ohri-forms-patient-past-program',
       value: '14cd2628-8a33-4b93-9c10-43989950bba0',
     });
   });

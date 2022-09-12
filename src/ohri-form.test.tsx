@@ -95,7 +95,7 @@ describe('OHRI Forms: ', () => {
       expect(eddField.value).toBe('4/12/2023');
     });
 
-    it('Should evaluate months on ART', async () => {
+    it.skip('Should evaluate months on ART', async () => {
       // setup
       await renderForm(months_on_art_form);
       let artStartDateField = screen.getByRole('textbox', {

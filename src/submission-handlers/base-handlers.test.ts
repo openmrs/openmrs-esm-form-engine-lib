@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { EncounterContext } from '../ohri-form-context';
 import * as mockAPI from '../api/api';
 import { OHRIFormField } from '../api/types';
-import { ObsSubmissionHandler } from './base-handlers';
+import { getEncounterObs, ObsSubmissionHandler } from './base-handlers';
 
 const encounterContext: EncounterContext = {
   patient: {
@@ -43,6 +43,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       order: null,
       groupMembers: [],
       voided: false,
+      formFieldNamespace: 'ohri-forms',
+      formFieldPath: 'ohri-forms-visit-note',
       value: 'Can be discharged in next visit',
     });
   });
@@ -69,6 +71,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       order: null,
       groupMembers: [],
       voided: false,
+      formFieldNamespace: 'ohri-forms',
+      formFieldPath: 'ohri-forms-temperature',
       value: 36,
     });
   });
@@ -107,6 +111,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
+        formFieldNamespace: 'ohri-forms',
+        formFieldPath: 'ohri-forms-past-patient-programs',
         value: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
       },
     ]);
@@ -129,6 +135,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
+        formFieldNamespace: 'ohri-forms',
+        formFieldPath: 'ohri-forms-past-patient-programs',
         value: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
       },
       {
@@ -139,6 +147,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
+        formFieldNamespace: 'ohri-forms',
+        formFieldPath: 'ohri-forms-past-patient-programs',
         value: '305e7ad6-c1fd-11eb-8529-0242ac130003',
       },
     ]);
@@ -167,6 +177,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       order: null,
       groupMembers: [],
       voided: false,
+      formFieldNamespace: 'ohri-forms',
+      formFieldPath: 'ohri-forms-hts-date',
       value: '2020-01-20 00:00',
     });
   });
@@ -197,6 +209,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       order: null,
       groupMembers: [],
       voided: false,
+      formFieldNamespace: 'ohri-forms',
+      formFieldPath: 'ohri-forms-hts-result',
       value: 'n8hynk0j-c1fd-117g-8529-0242ac1hgc9j',
     });
   });
@@ -310,6 +324,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
           order: null,
           groupMembers: [],
           voided: false,
+          formFieldNamespace: 'ohri-forms',
+          formFieldPath: 'ohri-forms-past-patient-programs',
           value: {
             uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
           },
@@ -336,6 +352,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
+        formFieldNamespace: 'ohri-forms',
+        formFieldPath: 'ohri-forms-past-patient-programs',
         value: {
           uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
         },
@@ -348,6 +366,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
+        formFieldNamespace: 'ohri-forms',
+        formFieldPath: 'ohri-forms-past-patient-programs',
         value: '305e77c0-c1fd-11eb-8529-0242ac130003',
       },
     ]);
@@ -754,5 +774,127 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
     // verify
     expect(field.value).toBeTruthy();
     expect(field.value.value).toEqual('cf82933b-3f3f-45e7-a5ab-5d31aaee3da3');
+  });
+});
+
+describe('getEncounterObservations', () => {
+  it('Should get initial observation for field for field using form field path', () => {
+    const obsList: any = [];
+    const encounter = {
+      uuid: '6449d61a-7841-4aaf-a956-e6b1bd731385',
+      obs: [
+        {
+          uuid: 'f483e200-2bb7-4245-9e7e-9d93311b1954',
+          person: '833db896-c1f0-11eb-8529-0242ac130003',
+          obsDatetime: encounterContext.date,
+          concept: { uuid: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' },
+          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+          order: null,
+          groupMembers: [],
+          voided: false,
+          formFieldNamespace: 'ohri-forms',
+          formFieldPath: 'ohri-forms-regimenInitiated',
+          value: {
+            uuid: 'cd0b4fd5-3524-32a1-9155-d066557fbf20',
+            name: 'Adult 1st line ARV regimen',
+          },
+        },
+      ],
+    };
+
+    const fields: Array<OHRIFormField> = [
+      {
+        label: 'Regimen Line',
+        type: 'obs',
+        questionOptions: {
+          rendering: 'select',
+          concept: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        },
+        id: 'regimenInitiated',
+      },
+      {
+        label: 'Regimen Line',
+        type: 'obs',
+        questionOptions: {
+          rendering: 'select',
+          concept: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        },
+        id: 'regimen2',
+      },
+    ];
+
+    for (let field of fields) {
+      let obs = getEncounterObs(encounter, field);
+      obsList.push(obs);
+    }
+
+    expect(obsList.length).toBe(2);
+
+    expect(obsList[0]).toStrictEqual({
+      uuid: 'f483e200-2bb7-4245-9e7e-9d93311b1954',
+      person: '833db896-c1f0-11eb-8529-0242ac130003',
+      obsDatetime: encounterContext.date,
+      concept: { uuid: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' },
+      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+      order: null,
+      groupMembers: [],
+      voided: false,
+      formFieldNamespace: 'ohri-forms',
+      formFieldPath: 'ohri-forms-regimenInitiated',
+      value: {
+        uuid: 'cd0b4fd5-3524-32a1-9155-d066557fbf20',
+        name: 'Adult 1st line ARV regimen',
+      },
+    });
+
+    expect(obsList[1]).toBe(undefined);
+  });
+
+  it('Should get initial observation for field for field using form concept uuid', () => {
+    const encounter = {
+      uuid: '6449d61a-7841-4aaf-a956-e6b1bd731385',
+      obs: [
+        {
+          uuid: 'f483e200-2bb7-4245-9e7e-9d93311b1954',
+          person: '833db896-c1f0-11eb-8529-0242ac130003',
+          obsDatetime: encounterContext.date,
+          concept: { uuid: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' },
+          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+          order: null,
+          groupMembers: [],
+          voided: false,
+          value: {
+            uuid: 'cd0b4fd5-3524-32a1-9155-d066557fbf20',
+            name: 'Adult 1st line ARV regimen',
+          },
+        },
+      ],
+    };
+    const field: OHRIFormField = {
+      label: 'Regimen Line',
+      type: 'obs',
+      questionOptions: {
+        rendering: 'select',
+        concept: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      },
+      id: 'regimenLine',
+    };
+
+    const obs = getEncounterObs(encounter, field);
+
+    expect(obs).toStrictEqual({
+      uuid: 'f483e200-2bb7-4245-9e7e-9d93311b1954',
+      person: '833db896-c1f0-11eb-8529-0242ac130003',
+      obsDatetime: encounterContext.date,
+      concept: { uuid: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' },
+      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+      order: null,
+      groupMembers: [],
+      voided: false,
+      value: {
+        uuid: 'cd0b4fd5-3524-32a1-9155-d066557fbf20',
+        name: 'Adult 1st line ARV regimen',
+      },
+    });
   });
 });

@@ -283,14 +283,10 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const addObs = useCallback((obsList: Array<any>, obs: any) => {
     if (Array.isArray(obs)) {
       obs.forEach(o => {
-        delete o.formFieldNamespace;
-        delete o.formFieldPath;
         if (isValueEmpty(o.groupMembers)) {
           delete o.groupMembers;
         } else {
           o.groupMembers.forEach(obsChild => {
-            delete obsChild.formFieldNamespace;
-            delete obsChild.formFieldPath;
             if (isValueEmpty(obsChild.groupMembers)) {
               delete obsChild.groupMembers;
             }
@@ -299,14 +295,10 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         obsList.push(o);
       });
     } else {
-      delete obs.formFieldNamespace;
-      delete obs.formFieldPath;
       if (isValueEmpty(obs.groupMembers)) {
         delete obs.groupMembers;
       } else {
         obs.groupMembers.forEach(obsChild => {
-          delete obsChild.formFieldNamespace;
-          delete obsChild.formFieldPath;
           if (isValueEmpty(obsChild.groupMembers)) {
             delete obsChild.groupMembers;
           }
