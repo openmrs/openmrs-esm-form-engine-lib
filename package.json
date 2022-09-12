@@ -1,6 +1,6 @@
 {
   "name": "@ohri/openmrs-ohri-form-engine-lib",
-  "version": "0.1.11-1",
+  "version": "0.1.12",
   "description": "A React based Forms Engine for OpenMRS 3.X",
   "browser": "dist/openmrs-ohri-form-engine-lib.js",
   "main": "src/index.ts",
