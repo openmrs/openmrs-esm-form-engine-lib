@@ -44,7 +44,7 @@ jobs:
 
     needs: build
 
-    if: ${{ github.ref == 'refs/heads/dev' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
 
     steps:
       - uses: actions/checkout@v3
