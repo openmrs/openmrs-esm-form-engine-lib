@@ -203,11 +203,10 @@
   margin-left: 5rem;
 }
 
-:global(.bx--form-item) { 
-flex: none;}
-
-
-div[class*='-esm-patient-vitals__vitals-header__default-border'] {
+.formField :global(.bx--label--disabled) {
   margin-left: 5rem;
+}
 
+div[class*='-openmrs-esm-ohri-covid___input__formField___3aqHt'] {
+  margin-right: 20rem !important;
 }

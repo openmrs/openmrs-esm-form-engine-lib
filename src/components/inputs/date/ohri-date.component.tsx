@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { OHRIFormFieldProps } from '../../../api/types';
-import { DatePicker, DatePickerInput, TimePicker, TimePickerSelect, SelectItem } from 'carbon-components-react';
+import { DatePicker, DatePickerInput, TimePicker } from 'carbon-components-react';
 import { useField } from 'formik';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import styles from '../_input.scss';
@@ -46,11 +46,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
   const onTimeChange = (event = false, useValue = false) => {
     if (useValue) {
       let prevValue = handler.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-      setTime(
-        moment(prevValue.value)
-          .utcOffset('+0300')
-          .format('hh:mm'),
-      );
+      setTime(moment(prevValue.value).format('hh:mm'));
     } else {
       const time = event?.target?.value;
       let currentDateTime = new Date(question.value.value);
@@ -105,7 +101,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
           const rawDate = new Date(prevValue.value);
 
           prevValue = {
-            display: moment(prevValue.value).format('M/D/YYYY'),
+            display: moment(prevValue.value).format('M/D/YYYY HH:mm'),
             value: [rawDate],
           };
         } else {
@@ -154,15 +150,6 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
                 invalidText={errors[0]?.errMessage}
               />
             </DatePicker>
-            {previousValueForReview && (
-              <div className={`${styles.formField}`}>
-                <PreviousValueReview
-                  value={previousValueForReview.value}
-                  displayText={previousValueForReview.display}
-                  setValue={onDateChange}
-                />
-              </div>
-            )}
           </div>
           {question?.questionOptions.rendering === 'datetime' ? (
             <TimePicker
@@ -182,6 +169,15 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
               onChange={onTimeChange}></TimePicker>
           ) : (
             ''
+          )}
+          {previousValueForReview && (
+            <div className={`${styles.formField}`}>
+              <PreviousValueReview
+                value={previousValueForReview.value}
+                displayText={previousValueForReview.display}
+                setValue={onDateChange}
+              />
+            </div>
           )}
         </div>
       </>
