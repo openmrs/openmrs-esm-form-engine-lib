@@ -1,3 +1,4 @@
+import { OpenmrsResource } from '@openmrs/esm-framework';
 import { FieldHelperProps, FieldInputProps, FieldMetaProps } from 'formik';
 import { EncounterContext } from '../ohri-form-context';
 
@@ -10,7 +11,7 @@ export interface SubmissionHandler {
    *
    * @returns the `initialValue`
    */
-  getInitialValue: (encounter: any, field: OHRIFormField, allFormFields?: Array<OHRIFormField>) => {};
+  getInitialValue: (encounter: OpenmrsEncounter, field: OHRIFormField, allFormFields?: Array<OHRIFormField>) => {};
 
   /**
    * Handles field submission.
@@ -30,7 +31,7 @@ export interface SubmissionHandler {
   /**
    * Fetches the previous value for a formfield
    */
-  getPreviousValue?: (field: OHRIFormField, encounter: any, allFormFields: Array<OHRIFormField>) => any;
+  getPreviousValue?: (field: OHRIFormField, encounter: OpenmrsEncounter, allFormFields: Array<OHRIFormField>) => any;
 }
 
 /**
@@ -41,17 +42,6 @@ export interface FieldValidator {
    * Validates a field and returns validation errors
    */
   validate(field: OHRIFormField, value: any, config?: any): { errCode: string; errMessage: string }[];
-}
-
-export interface EncounterDescriptor {
-  location?: any; // string | { name: string; uuid: string };
-  obs?: Array<any>; // TODO: add obs descriptor
-  orders?: Array<any>;
-  uuid?: string;
-  encounterProviders?: Array<{ provider: any; encounterRole: string }>;
-  encounterDatetime?: Date;
-  encounterType?: string;
-  patient?: string;
 }
 
 export interface HideProps {
@@ -65,7 +55,7 @@ export interface OHRIFormSchema {
   uuid: string;
   referencedForms: [];
   encounterType: string;
-  encounter?: string | EncounterDescriptor;
+  encounter?: string | OpenmrsEncounter;
   allowUnspecifiedAll?: boolean;
   defaultPage?: string;
   readonly?: string | boolean;
@@ -161,3 +151,35 @@ export type RenderType =
   | 'textarea'
   | 'toggle'
   | 'fixed-value';
+
+// OpenMRS Type Definitions
+export interface OpenmrsEncounter {
+  uuid?: string;
+  encounterDatetime?: string | Date;
+  patient?: OpenmrsResource | string;
+  location?: OpenmrsResource | string;
+  encounterType?: OpenmrsResource | string;
+  obs?: Array<OpenmrsObs>;
+  orders?: Array<OpenmrsResource>;
+  voided?: boolean;
+  visit?: OpenmrsResource | string;
+  encounterProviders?: Array<Record<string, any>>;
+}
+
+export interface OpenmrsObs extends OpenmrsResource {
+  concept: OpenmrsResource;
+  obsDatetime: string | Date;
+  obsGroup: OpenmrsObs;
+  groupMembers: Array<OpenmrsObs>;
+  comment: string;
+  location: OpenmrsResource;
+  order: OpenmrsResource;
+  encounter: OpenmrsResource;
+  voided: boolean;
+  value: any;
+  formFieldPath: string;
+  formFieldNamespace: string;
+  status: string;
+  interpretation: string;
+  [anythingElse: string]: any;
+}

@@ -4,10 +4,10 @@ import { ConceptFalse, ConceptTrue, encounterRepresentation } from '../../consta
 import { OHRIFormContext } from '../../ohri-form-context';
 import { getHandler, getValidator } from '../../registry/registry';
 import {
-  EncounterDescriptor,
   OHRIFormField,
   OHRIFormPage as OHRIFormPageProps,
   OHRIFormSchema,
+  OpenmrsEncounter,
   SessionMode,
 } from '../../api/types';
 import {
@@ -66,8 +66,8 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
 }) => {
   const [fields, setFields] = useState<Array<OHRIFormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
-  const [encounter, setEncounter] = useState<EncounterDescriptor>(null);
-  const [previousEncounter, setPreviousEncounter] = useState<EncounterDescriptor>(null);
+  const [encounter, setEncounter] = useState<OpenmrsEncounter>(null);
+  const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [form, setForm] = useState<OHRIFormSchema>(formJson);
   const [obsGroupsToVoid, setObsGroupsToVoid] = useState([]);
   const [formInitialValues, setFormInitialValues] = useState({});
@@ -239,7 +239,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   useEffect(() => {
     let subscription;
     if (formJson.encounter && typeof formJson.encounter == 'string') {
-      subscription = openmrsObservableFetch<EncounterDescriptor>(
+      subscription = openmrsObservableFetch<OpenmrsEncounter>(
         `/ws/rest/v1/encounter/${formJson.encounter}?v=${encounterRepresentation}`,
       ).subscribe(({ data }) => setEncounter(data));
     } else if (typeof formJson.encounter == 'object') {
@@ -390,7 +390,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
 
     // Add voided obs groups
     obsGroupsToVoid.forEach(obs => addObs(obsForSubmission, obs));
-    let encounterForSubmission: EncounterDescriptor = {};
+    let encounterForSubmission: OpenmrsEncounter = {};
     if (encounter) {
       Object.assign(encounterForSubmission, encounter);
       encounterForSubmission['location'] = encounterLocation.uuid;

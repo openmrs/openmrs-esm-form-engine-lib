@@ -1,6 +1,6 @@
 import { LayoutType } from '@openmrs/esm-framework';
 import React from 'react';
-import { OHRIFormField, SessionMode } from './api/types';
+import { OHRIFormField, OpenmrsEncounter, SessionMode } from './api/types';
 
 type OHRIFormContextProps = {
   values: Record<string, any>;
@@ -18,8 +18,8 @@ type OHRIFormContextProps = {
 
 export interface EncounterContext {
   patient: any;
-  encounter: any;
-  previousEncounter?: any;
+  encounter: OpenmrsEncounter;
+  previousEncounter?: OpenmrsEncounter;
   location: any;
   sessionMode: SessionMode;
   date: Date;
