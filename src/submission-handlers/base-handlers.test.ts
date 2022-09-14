@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { EncounterContext } from '../ohri-form-context';
 import * as mockAPI from '../api/api';
 import { OHRIFormField } from '../api/types';
-import { getEncounterObs, ObsSubmissionHandler } from './base-handlers';
+import { findObsByFormField, ObsSubmissionHandler } from './base-handlers';
 
 const encounterContext: EncounterContext = {
   patient: {
@@ -597,13 +597,14 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
       },
       id: 'visit-note',
     };
-    encounterContext.encounter['obs'].push({
+    const obs: any = {
       uuid: '86a9366f-009b-40b7-b8ac-81fc6c4d7ca6',
       concept: {
         uuid: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       },
       value: 'Can be discharged in next visit',
-    });
+    };
+    encounterContext.encounter['obs'].push(obs);
     // replay
     const initialValue = ObsSubmissionHandler.getInitialValue(encounterContext.encounter, field);
     // verify
@@ -621,13 +622,14 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
       },
       id: 'temp',
     };
-    encounterContext.encounter['obs'].push({
+    const obs: any = {
       uuid: '6ae85e6f-134d-48c2-b89a-8293d6ea7e3d',
       concept: {
         uuid: '7928c3ab-4d14-471f-94a8-a12eaa59e29c',
       },
       value: 37,
-    });
+    };
+    encounterContext.encounter['obs'].push(obs);
     // replay
     const initialValue = ObsSubmissionHandler.getInitialValue(encounterContext.encounter, field);
     // verify
@@ -645,7 +647,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
       },
       id: 'past-patient-programs',
     };
-    encounterContext.encounter['obs'].push(
+    const obsList: Array<any> = [
       {
         uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
         concept: {
@@ -664,7 +666,8 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
           uuid: '6f337e18-5445-437f-8298-684a7067dc1c',
         },
       },
-    );
+    ];
+    encounterContext.encounter['obs'] = obsList;
     // replay
     const initialValue = ObsSubmissionHandler.getInitialValue(encounterContext.encounter, field);
     // verify
@@ -682,13 +685,14 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
       },
       id: 'hts-date',
     };
-    encounterContext.encounter['obs'].push({
+    const obs: any = {
       uuid: '828cff78-2c38-4ed2-94f1-61c5f79dda17',
       concept: {
         uuid: 'j8b6705b-b6d8-4eju-8f37-0b14f5347569',
       },
       value: 'Sat Nov 19 2016 00:00:00 GMT+0300 (East Africa Time)',
-    });
+    };
+    encounterContext.encounter['obs'].push(obs);
     // replay
     const initialValue = ObsSubmissionHandler.getInitialValue(encounterContext.encounter, field);
     // verify
@@ -706,7 +710,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
       },
       id: 'hts-result',
     };
-    encounterContext.encounter['obs'].push({
+    const obs: any = {
       uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
       concept: {
         uuid: '4e59df68-9774-49b3-9d33-ab75139c6a68',
@@ -714,7 +718,8 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
       value: {
         uuid: '12f7be3d-fb5d-47dc-b5e3-56c501be80a6',
       },
-    });
+    };
+    encounterContext.encounter['obs'].push(obs);
     // replay
     const initialValue = ObsSubmissionHandler.getInitialValue(encounterContext.encounter, field);
     // verify
@@ -755,7 +760,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
       },
       id: 'everTestedPositive',
     };
-    encounterContext.encounter['obs'].push({
+    const obs: any = {
       uuid: '51de7978-4ae2-497e-afb4-bb07699ced8f',
       concept: {
         uuid: '1492AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
@@ -763,7 +768,8 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
       value: {
         uuid: 'cf82933b-3f3f-45e7-a5ab-5d31aaee3da3',
       },
-    });
+    };
+    encounterContext.encounter['obs'].push(obs);
 
     // verify initial value
     expect(field.value).toBe(undefined);
@@ -777,124 +783,97 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
   });
 });
 
-describe('getEncounterObservations', () => {
-  it('Should get initial observation for field for field using form field path', () => {
-    const obsList: any = [];
-    const encounter = {
-      uuid: '6449d61a-7841-4aaf-a956-e6b1bd731385',
-      obs: [
-        {
-          uuid: 'f483e200-2bb7-4245-9e7e-9d93311b1954',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          obsDatetime: encounterContext.date,
-          concept: { uuid: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' },
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          formFieldNamespace: 'ohri-forms',
-          formFieldPath: 'ohri-forms-regimenInitiated',
-          value: {
-            uuid: 'cd0b4fd5-3524-32a1-9155-d066557fbf20',
-            name: 'Adult 1st line ARV regimen',
-          },
-        },
-      ],
-    };
-
-    const fields: Array<OHRIFormField> = [
-      {
-        label: 'Regimen Line',
-        type: 'obs',
-        questionOptions: {
-          rendering: 'select',
-          concept: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-        },
-        id: 'regimenInitiated',
-      },
-      {
-        label: 'Regimen Line',
-        type: 'obs',
-        questionOptions: {
-          rendering: 'select',
-          concept: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-        },
-        id: 'regimen2',
-      },
-    ];
-
-    for (let field of fields) {
-      let obs = getEncounterObs(encounter, field);
-      obsList.push(obs);
-    }
-
-    expect(obsList.length).toBe(2);
-
-    expect(obsList[0]).toStrictEqual({
-      uuid: 'f483e200-2bb7-4245-9e7e-9d93311b1954',
-      person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.date,
-      concept: { uuid: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' },
-      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-      order: null,
-      groupMembers: [],
-      voided: false,
-      formFieldNamespace: 'ohri-forms',
-      formFieldPath: 'ohri-forms-regimenInitiated',
-      value: {
-        uuid: 'cd0b4fd5-3524-32a1-9155-d066557fbf20',
-        name: 'Adult 1st line ARV regimen',
-      },
-    });
-
-    expect(obsList[1]).toBe(undefined);
-  });
-
-  it('Should get initial observation for field for field using form concept uuid', () => {
-    const encounter = {
-      uuid: '6449d61a-7841-4aaf-a956-e6b1bd731385',
-      obs: [
-        {
-          uuid: 'f483e200-2bb7-4245-9e7e-9d93311b1954',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          obsDatetime: encounterContext.date,
-          concept: { uuid: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' },
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          value: {
-            uuid: 'cd0b4fd5-3524-32a1-9155-d066557fbf20',
-            name: 'Adult 1st line ARV regimen',
-          },
-        },
-      ],
-    };
-    const field: OHRIFormField = {
-      label: 'Regimen Line',
+describe('findObsByFormField', () => {
+  const namespace = 'ohri-forms';
+  const fields: Array<OHRIFormField> = [
+    {
+      label: 'Field One',
       type: 'obs',
       questionOptions: {
         rendering: 'select',
-        concept: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        concept: '8c3db896-c1f0-11eb-8529-0242acv30003',
       },
-      id: 'regimenLine',
-    };
-
-    const obs = getEncounterObs(encounter, field);
-
-    expect(obs).toStrictEqual({
-      uuid: 'f483e200-2bb7-4245-9e7e-9d93311b1954',
-      person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.date,
-      concept: { uuid: '164515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' },
-      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-      order: null,
-      groupMembers: [],
-      voided: false,
-      value: {
-        uuid: 'cd0b4fd5-3524-32a1-9155-d066557fbf20',
-        name: 'Adult 1st line ARV regimen',
+      id: 'fieldOne',
+    },
+    {
+      label: 'Field two',
+      type: 'obs',
+      questionOptions: {
+        rendering: 'select',
+        concept: '8c3db896-c1f0-11eb-8529-0242acv30003',
       },
-    });
+      id: 'fieldTwo',
+    },
+    {
+      label: 'Field three',
+      type: 'obs',
+      questionOptions: {
+        rendering: 'select',
+        concept: 'mc3db896-c4f0-11eb-8529-0242acv3000c',
+      },
+      id: 'fieldThree',
+    },
+    {
+      label: 'Field four',
+      type: 'obs',
+      questionOptions: {
+        rendering: 'select',
+        concept: 'mc3db896-c4f0-11eb-8529-0242acv3000c',
+      },
+      id: 'fieldFour',
+    },
+  ];
+
+  const obsList: Array<any> = [
+    {
+      uuid: '6449d61a-7841-4aaf-a956-e6b1bd731385',
+      concept: {
+        uuidd: '8c3db896-c1f0-11eb-8529-0242acv30003',
+      },
+      formFieldNamespace: namespace,
+      formFieldPath: 'ohri-forms-fieldOne',
+    },
+    {
+      uuid: '1449d61a-78b1-4aaf-a956-e6b1bd73138f',
+      concept: {
+        uuid: 'mc3db896-c4f0-11eb-8529-0242acv3000c',
+      },
+      formFieldNamespace: namespace,
+      formFieldPath: 'ohri-forms-fieldThree',
+    },
+    {
+      uuid: '8449d61a-5841-4aaf-a956-e6b1bd73138b',
+      concept: {
+        uuid: '8c3db896-c1f0-11eb-8529-0242acv30003',
+      },
+      formFieldNamespace: namespace,
+      formFieldPath: 'ohri-forms-fieldTwo',
+    },
+    {
+      uuid: '5449d61a-4841-4aaf-a956-26b1bd73138b',
+      concept: {
+        uuid: 'mc3db896-c4f0-11eb-8529-0242acv3000c',
+      },
+      formFieldNamespace: 'some-random-namespace',
+      formFieldPath: 'none-existing-pathname',
+    },
+  ];
+
+  it('Should find observation by field path', () => {
+    // do find
+    let obs = findObsByFormField(obsList, [], fields[0]);
+    // verify
+    expect(obs).toBe(obsList[0]);
+    // replay
+    obs = findObsByFormField(obsList, [], fields[1]);
+    // verify
+    expect(obs).toBe(obsList[2]);
+  });
+
+  it('Should fallback to mapping by concept if no obs was found by fieldpath', () => {
+    // do find
+    const obs = findObsByFormField(obsList, [obsList[1].uuid], fields[3]);
+    // verify
+    expect(obs).toBe(obsList[3]);
   });
 });

@@ -2,11 +2,15 @@ import moment from 'moment';
 import { getConcept } from '../api/api';
 import { ConceptTrue } from '../constants';
 import { EncounterContext } from '../ohri-form-context';
-import { OHRIFormField, SubmissionHandler } from '../api/types';
+import { OHRIFormField, OpenmrsEncounter, OpenmrsObs, SubmissionHandler } from '../api/types';
+
+// Temporarily holds observations that have already been binded with matching fields
+let assignedObsIds: string[] = [];
 
 /**
  * Obs handler
  */
+
 export const ObsSubmissionHandler: SubmissionHandler = {
   handleFieldSubmission: (field: OHRIFormField, value: any, context: EncounterContext) => {
     if (field.questionOptions.rendering == 'checkbox') {
@@ -37,8 +41,8 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     }
     return field.value;
   },
-  getInitialValue: (encounter: any, field: OHRIFormField, allFormFields: Array<OHRIFormField>) => {
-    let obs = getEncounterObs(encounter, field);
+  getInitialValue: (encounter: OpenmrsEncounter, field: OHRIFormField, allFormFields: Array<OHRIFormField>) => {
+    let obs = findObsByFormField(encounter.obs, assignedObsIds, field);
     const rendering = field.questionOptions.rendering;
     let parentField = null;
     let obsGroup = null;
@@ -50,15 +54,17 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     }
     if (!obs && field['groupId']) {
       parentField = allFormFields.find(f => f.id == field['groupId']);
-      obsGroup = getEncounterObs(encounter, parentField);
+      obsGroup = findObsByFormField(encounter.obs, assignedObsIds, parentField);
       if (obsGroup) {
+        assignedObsIds.push(obsGroup.uuid);
         parentField.value = obsGroup;
         if (obsGroup.groupMembers) {
-          obs = getEncounterObs(obsGroup.groupMembers, field);
+          obs = findObsByFormField(obsGroup.groupMembers, assignedObsIds, field);
         }
       }
     }
     if (obs) {
+      assignedObsIds.push(obs.uuid);
       field.value = JSON.parse(JSON.stringify(obs));
       if (rendering == 'radio' || rendering == 'content-switcher') {
         getConcept(field.questionOptions.concept, 'custom:(uuid,display,datatype:(uuid,display,name))').subscribe(
@@ -113,8 +119,8 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     }
     return value;
   },
-  getPreviousValue: (field: OHRIFormField, encounter: any, allFormFields: Array<OHRIFormField>) => {
-    let obs = getEncounterObs(encounter, field);
+  getPreviousValue: (field: OHRIFormField, encounter: OpenmrsEncounter, allFormFields: Array<OHRIFormField>) => {
+    let obs = findObsByFormField(encounter.obs, assignedObsIds, field);
     const rendering = field.questionOptions.rendering;
     let parentField = null;
     let obsGroup = null;
@@ -126,15 +132,17 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     }
     if (!obs && field['groupId']) {
       parentField = allFormFields.find(f => f.id == field['groupId']);
-      obsGroup = getEncounterObs(encounter, parentField);
+      obsGroup = findObsByFormField(encounter.obs, assignedObsIds, parentField);
       if (obsGroup) {
+        assignedObsIds.push(obsGroup.uuid);
         parentField.value = obsGroup;
         if (obsGroup.groupMembers) {
-          obs = getEncounterObs(obsGroup.groupMembers, field);
+          obs = findObsByFormField(obsGroup.groupMembers, assignedObsIds, field);
         }
       }
     }
     if (obs) {
+      assignedObsIds.push(obs.uuid);
       if (typeof obs.value == 'string' || typeof obs.value == 'number') {
         if (rendering == 'date') {
           return { value: moment(obs.value).toDate(), display: moment(obs.value).format('YYYY-MM-DD HH:mm') };
@@ -182,19 +190,23 @@ const constructObs = (value: any, context: EncounterContext, field: OHRIFormFiel
     groupMembers: [],
     voided: false,
     formFieldNamespace: 'ohri-forms',
-    formFieldPath: constructFormFieldPath(field.id),
+    formFieldPath: `ohri-forms-${field.id}`,
     value: value,
   };
 };
 
-const constructFormFieldPath = (id: string): string => {
-  return `ohri-forms-${id}`;
-};
-
-export const getEncounterObs = (encounter: any, field: OHRIFormField) => {
-  let obs = encounter.obs.find(o => o.formFieldPath == constructFormFieldPath(field.id));
+export const findObsByFormField = (
+  obsList: Array<OpenmrsObs>,
+  claimedObsIds: string[],
+  field: OHRIFormField,
+): OpenmrsObs => {
+  const obs = obsList.find(o => o.formFieldPath == `ohri-forms-${field.id}`);
+  // We shall fall back to mapping by the associated concept
+  // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
   if (!obs) {
-    obs = encounter.obs.find(o => o.concept.uuid == field.questionOptions.concept && !o.formFieldPath);
+    const assignableObsOptions = obsList.filter(obs => obs.concept.uuid == field.questionOptions.concept);
+    // return the first occurrance of an unclaimed observation
+    return assignableObsOptions.filter(obs => !claimedObsIds.includes(obs.uuid))[0];
   }
   return obs;
 };
@@ -240,3 +252,7 @@ const multiSelectObsHandler = (field: OHRIFormField, values: Array<string>, cont
     });
   return field.value;
 };
+
+export function teardownBaseHandlerUtils() {
+  assignedObsIds = [];
+}

@@ -13,6 +13,7 @@ import { Button } from 'carbon-components-react';
 import ReactMarkdown from 'react-markdown';
 import { PatientBanner } from './components/patient-banner/patient-banner.component';
 import LoadingIcon from './components/loading/loading.component';
+import { init, teardown } from './lifecycle';
 
 interface OHRIFormProps {
   formJson: OHRIFormSchema;
@@ -118,6 +119,16 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       setCurrentProvider(session.currentProvider.uuid);
     }
   }, [session]);
+
+  useEffect(() => {
+    ////////////
+    // This hooks into the React lifecycle of the forms engine.
+    ////////////
+    init();
+    return () => {
+      teardown();
+    };
+  }, []);
 
   const handleFormSubmit = (values: Record<string, any>) => {
     // validate form and it's suforms
