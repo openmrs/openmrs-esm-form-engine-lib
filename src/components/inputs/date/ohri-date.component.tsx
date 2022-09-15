@@ -45,11 +45,15 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
 
   const onTimeChange = (event = false, useValue = false) => {
     if (useValue) {
-      let prevValue = handler.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-      setTime(moment(prevValue.value).format('hh:mm'));
+      const prevValue = handler.getPreviousValue(question, encounterContext?.previousEncounter, fields);
+      setTime(
+        moment(prevValue.value)
+          .utcOffset('+0300')
+          .format('hh:mm'),
+      );
     } else {
       const time = event?.target?.value;
-      let currentDateTime = new Date(question.value.value);
+      const currentDateTime = new Date(question.value.value);
       const splitTime = time.split(':');
 
       currentDateTime.setHours(splitTime[0] ?? '00', splitTime[1] ?? '00');
