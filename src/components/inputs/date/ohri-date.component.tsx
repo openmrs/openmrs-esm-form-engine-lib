@@ -20,7 +20,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
   const [conceptName, setConceptName] = useState('Loading...');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
-  const [time, setTime] = useState(false);
+  const [time, setTime] = useState('');
 
   useEffect(() => {
     if (question['submission']?.errors) {
@@ -43,19 +43,14 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
     question.value = handler.handleFieldSubmission(question, refinedDate, encounterContext);
   };
 
-  const onTimeChange = (event = false, useValue = false) => {
+  const onTimeChange = (event, useValue = false) => {
     if (useValue) {
       const prevValue = handler.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-      setTime(
-        moment(prevValue.value)
-          .utcOffset('+0300')
-          .format('hh:mm'),
-      );
+      setTime(moment(prevValue?.value).format('hh:mm'));
     } else {
-      const time = event?.target?.value;
+      const time = event.target.value;
       const currentDateTime = new Date(question.value.value);
       const splitTime = time.split(':');
-
       currentDateTime.setHours(splitTime[0] ?? '00', splitTime[1] ?? '00');
       setFieldValue(question.id, currentDateTime);
       onChange(question.id, currentDateTime, setErrors);
