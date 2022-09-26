@@ -143,6 +143,7 @@ export type RenderType =
   | 'date'
   | 'number'
   | 'checkbox'
+  | 'datetime'
   | 'radio'
   | 'ui-select-extended'
   | 'repeating'
