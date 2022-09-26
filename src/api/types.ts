@@ -132,6 +132,7 @@ export interface OHRIFormQuestionOptions {
   calculate?: {
     calculateExpression: string;
   };
+  isDateTime?: { labelTrue: boolean; labelFalse: boolean };
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view';
@@ -142,6 +143,7 @@ export type RenderType =
   | 'date'
   | 'number'
   | 'checkbox'
+  | 'datetime'
   | 'radio'
   | 'ui-select-extended'
   | 'repeating'

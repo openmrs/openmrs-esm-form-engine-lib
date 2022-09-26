@@ -196,3 +196,17 @@
 .reviewPreviousValueRadioOverrides div {
   width: auto !important;
 }
+
+// TimePicker Overrides
+.formField :global(.bx--time-picker__input-field) {
+  width: auto;
+  margin-left: 5rem;
+}
+
+.formField :global(.bx--label--disabled) {
+  margin-left: 5rem;
+}
+
+div[class*='-openmrs-esm-ohri-covid___input__formField___3aqHt'] {
+  margin-right: 20rem !important;
+}

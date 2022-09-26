@@ -104,6 +104,11 @@ export const baseFieldComponents: Array<ControlRegistryItem> = [
     loadControl: () => Promise.resolve({ default: OHRIExtensionParcel }),
     type: 'extension-widget',
   },
+  {
+    id: 'OHRIDateTime',
+    loadControl: () => Promise.resolve({ default: OHRIDate }),
+    type: 'datetime',
+  },
 ];
 
 const baseHandlers: Array<RegistryItem> = [
