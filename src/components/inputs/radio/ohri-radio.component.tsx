@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FormGroup, RadioButtonGroup, RadioButton } from 'carbon-components-react';
+import { FormGroup, RadioButtonGroup, RadioButton } from '@carbon/react';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
 import { OHRIFormContext } from '../../../ohri-form-context';
@@ -91,7 +91,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
             </RadioButtonGroup>
             {!isFieldRequiredError && errors?.length > 0 && (
               <div className={styles.errorLabel}>
-                <div className={`bx--form-requirement`}>{errors[0].errMessage}</div>
+                <div className={`cds--form-requirement`}>{errors[0].errMessage}</div>
               </div>
             )}
           </FormGroup>

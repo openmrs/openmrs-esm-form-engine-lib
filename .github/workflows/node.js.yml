@@ -2,15 +2,11 @@ name: Form-engine-CI
 
 on:
   push:
-    tags:
+    branches: 
       - '*'
-    branches:
-      - '*'
-
   pull_request:
     branches:
       - '*'
-    types: [opened, synchronize]
   release:
     types:
       - created
@@ -24,13 +20,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Use Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: "16.x"
+          node-version: '16'
       - run: yarn install
       - run: yarn lint
+      - run: yarn run test
       - run: yarn build
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
@@ -44,17 +41,20 @@ jobs:
 
     needs: build
 
-    if: ${{ github.ref == 'refs/heads/main' }}
+    # Temporarily disabling this soft check of the main branch iorder to make a pre_release from the 1.x branch
+    # if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' }}
 
     steps:
       - uses: actions/checkout@v3
+
       - name: Download Artifacts
         uses: actions/download-artifact@v3
+
       - name: Use Node.js
-      # Setup .npmrc file to publish to npm
         uses: actions/setup-node@v3
         with:
-          node-version: "16.x"
+          node-version: '16'
           registry-url: "https://registry.npmjs.org"
       - run: yarn install
       - run: sed -i -e "s/\(\"version\":\\s\+\"\([0-9]\+\.\?\)\+\)/\1-pre.${{ github.run_number }}/" 'package.json'
@@ -67,7 +67,7 @@ jobs:
 
     needs: build
 
-    if: ${{ github.ref == 'refs/heads/master' }}
+    if: ${{ github.event_name == 'release' }}
 
     steps:
       - uses: actions/checkout@v3

@@ -1,4 +1,4 @@
-import { Button } from 'carbon-components-react';
+import { Button } from '@carbon/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { OHRIValueDisplay } from '../value/ohri-value.component';
@@ -15,7 +15,7 @@ export const PreviousValueReview: React.FC<{
     <div className={inputControlStyles.formField} style={{ width: '14rem', marginLeft: '2rem' }}>
       {!hideHeader && (
         <div>
-          <span className="bx--label">{t('previously', 'Previously')}</span>
+          <span className="cds--label">{t('previously', 'Previously')}</span>
         </div>
       )}
       <div className={inputControlStyles.row}>

@@ -1,6 +1,4 @@
-import { ButtonSet, Column, FormGroup } from 'carbon-components-react';
-import Button from 'carbon-components-react/lib/components/Button';
-import Row from 'carbon-components-react/lib/components/Grid/Row';
+import { ButtonSet, Column, FormGroup, Button, Row } from '@carbon/react';
 import { useFormikContext } from 'formik';
 import { cloneDeep } from 'lodash';
 import moment from 'moment';
@@ -10,7 +8,7 @@ import { OHRIFormContext } from '../../ohri-form-context';
 import { getHandler } from '../../registry/registry';
 import { OHRIFormField, OHRIFormFieldProps } from '../../api/types';
 import { OHRIObsGroup } from '../group/ohri-obs-group.component';
-import { TrashCan32, Add16 } from '@carbon/icons-react';
+import { TrashCan, Add } from '@carbon/react/icons';
 import { useLayoutType } from '@openmrs/esm-framework';
 import styles from '../inputs/_input.scss';
 import { getConcept } from '../../api/api';
@@ -120,7 +118,7 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
       index !== 0 ? (
         <Column style={{ paddingTop: '1.2rem', marginLeft: '.5rem' }}>
           <Button
-            renderIcon={TrashCan32}
+            renderIcon={() => <TrashCan size={32} />}
             kind="danger--tertiary"
             onClick={() => removeQuestion(question)}
             hasIconOnly
@@ -141,7 +139,7 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
     <Row>
       <Column>
         <Button
-          renderIcon={Add16}
+          renderIcon={() => <Add size={16} />}
           kind="ghost"
           onClick={() => {
             const nextCount = counter + 1;

@@ -46,30 +46,28 @@ const encounterContext: EncounterContext = {
   date: new Date(2020, 11, 29),
 };
 
-const renderForm = async intialValues => {
-  await act(async () =>
-    render(
-      <Formik initialValues={intialValues} onSubmit={null}>
-        {props => (
-          <Form>
-            <OHRIFormContext.Provider
-              value={{
-                values: props.values,
-                setFieldValue: props.setFieldValue,
-                setEncounterLocation: jest.fn(),
-                obsGroupsToVoid: [],
-                setObsGroupsToVoid: jest.fn(),
-                encounterContext: encounterContext,
-                fields: [question],
-                isFieldInitializationComplete: true,
-                isSubmitting: false,
-              }}>
-              <OHRIDropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-            </OHRIFormContext.Provider>
-          </Form>
-        )}
-      </Formik>,
-    ),
+const renderForm = intialValues => {
+  render(
+    <Formik initialValues={intialValues} onSubmit={null}>
+      {props => (
+        <Form>
+          <OHRIFormContext.Provider
+            value={{
+              values: props.values,
+              setFieldValue: props.setFieldValue,
+              setEncounterLocation: jest.fn(),
+              obsGroupsToVoid: [],
+              setObsGroupsToVoid: jest.fn(),
+              encounterContext: encounterContext,
+              fields: [question],
+              isFieldInitializationComplete: true,
+              isSubmitting: false,
+            }}>
+            <OHRIDropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+          </OHRIFormContext.Provider>
+        </Form>
+      )}
+    </Formik>,
   );
 };
 

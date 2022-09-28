@@ -590,6 +590,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             onFieldChange={onFieldChange}
             setSelectedPage={setSelectedPage}
             isCollapsed={isCollapsed}
+            key={index}
           />
         );
       })}

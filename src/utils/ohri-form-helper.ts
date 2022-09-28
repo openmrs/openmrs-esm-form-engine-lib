@@ -56,7 +56,7 @@ export function isInlineView(
   workspaceLayout: 'minimized' | 'maximized',
 ) {
   if (renderingType == 'automatic') {
-    return workspaceLayout == 'maximized' && layoutType == 'desktop';
+    return workspaceLayout == 'maximized' && layoutType.endsWith('desktop');
   }
   return renderingType == 'single-line';
 }

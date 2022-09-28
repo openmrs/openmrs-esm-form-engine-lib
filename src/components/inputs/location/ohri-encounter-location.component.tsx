@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Dropdown } from 'carbon-components-react';
+import { Dropdown } from '@carbon/react';
 import { OHRIFormField } from '../../../api/types';
 import styles from '../_input.scss';
 import { useField } from 'formik';

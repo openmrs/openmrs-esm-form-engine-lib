@@ -10,7 +10,7 @@
   overflow-y: hidden;
 }
 
-.ohriFormContainer :global(.bx--label) {
+.ohriFormContainer :global(.cds--label) {
   font-size: 0.875rem;
 }
 
@@ -46,7 +46,7 @@
   height: 63.5px;
 }
 
-.minifiedButtons :global(.bx--btn) {
+.minifiedButtons :global(.cds--btn) {
   max-width: 50%;
   height: 3.9rem;
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Toggle } from 'carbon-components-react';
+import { Toggle } from '@carbon/react';
 import { useExtensionSlotMeta } from '@openmrs/esm-framework';
 import styles from './ohri-section-collapsible-toggle.scss';
 

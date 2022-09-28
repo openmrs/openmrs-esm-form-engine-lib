@@ -1,6 +1,6 @@
-import { ListItem, MultiSelect, UnorderedList } from 'carbon-components-react';
-import { useField } from 'formik';
 import React, { useEffect, useMemo, useState } from 'react';
+import { ListItem, FilterableMultiSelect, UnorderedList } from '@carbon/react';
+import { useField } from 'formik';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRILabel } from '../../label/ohri-label.component';
@@ -93,7 +93,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
               ? `${styles.multiselectOverride} ${styles.errorLabel}`
               : `${styles.multiselectOverride}`
           }>
-          <MultiSelect.Filterable
+          <FilterableMultiSelect
             placeholder={t('filterItemsInMultiselect', 'Search...')}
             onChange={handleSelectItemsChange}
             id={question.label}

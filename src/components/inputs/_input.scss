@@ -52,7 +52,7 @@
   border-bottom: 1px solid #8d8d8d !important;
 }
 
-.numberInputWrapper :global(.bx--number) {
+.numberInputWrapper :global(.cds--number) {
   @extend .formField;
   width: $ohri-input-width;
   font-size: 0.875rem;
@@ -119,7 +119,7 @@
   background-color: #edf5ff;
 }
 
-.radioButton_ohri > .bx--radio-button-wrapper {
+.radioButton_ohri > .cds--radio-button-wrapper {
   margin-right: 0rem !important;
 }
 
@@ -146,7 +146,7 @@
   color: $color-gray-70;
 }
 
-.errorLabel :global(.bx--form-requirement) {
+.errorLabel :global(.cds--form-requirement) {
   display: block;
   max-height: 12.5rem;
   overflow: visible;
@@ -181,7 +181,7 @@
   width: auto !important;
 }
 
-.ohriLabel :global(.bx--assistive-text) {
+.ohriLabel :global(.cds--assistive-text) {
   max-width: 30rem !important;
   font-size: 0.75rem;
   white-space: pre-line !important;

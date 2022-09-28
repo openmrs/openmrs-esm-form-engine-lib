@@ -1,4 +1,4 @@
-import { Checkbox } from 'carbon-components-react';
+import { Checkbox } from '@carbon/react';
 import { useField } from 'formik';
 import React, { useCallback, useEffect, useState } from 'react';
 import { OHRIFormContext } from '../../../ohri-form-context';

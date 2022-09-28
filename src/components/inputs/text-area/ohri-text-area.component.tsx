@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { TextArea } from 'carbon-components-react';
+import { TextArea } from '@carbon/react';
 import { OHRIFormFieldProps } from '../../../api/types';
 import styles from '../_input.scss';
 import { useField } from 'formik';

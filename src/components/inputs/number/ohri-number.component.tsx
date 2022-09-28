@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { NumberInput } from 'carbon-components-react';
+import { NumberInput } from '@carbon/react';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
 import { OHRIFormContext } from '../../../ohri-form-context';
@@ -93,7 +93,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
             value={field.value || ''}
             onFocus={() => setPreviousValue(field.value)}
             allowEmpty={true}
-            size="xl"
+            size="lg"
             hideSteppers={true}
             disabled={question.disabled}
             className={isFieldRequiredError ? styles.errorLabel : ''}

@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './_page.scss';
 import OHRIFormSection from '../section/ohri-form-section.component';
 import { Waypoint } from 'react-waypoint';
-import { Accordion, AccordionItem } from 'carbon-components-react';
+import { Accordion, AccordionItem } from '@carbon/react';
 import { isTrue } from '../../utils/boolean-utils';
 
 function OHRIFormPage({ page, onFieldChange, setSelectedPage, isCollapsed }) {
@@ -19,12 +19,11 @@ function OHRIFormPage({ page, onFieldChange, setSelectedPage, isCollapsed }) {
           <p className={styles.pageTitle}>{page.label}</p>
         </div>
         <Accordion>
-          {/* <p className={styles.required}>All fields are required unless marked optional</p> */}
           {page.sections
             .filter(sec => !isTrue(sec.isHidden))
             .map((sec, index) => {
               return (
-                <AccordionItem title={sec.label} open={isCollapsed} className={styles.sectionContent}>
+                <AccordionItem title={sec.label} open={isCollapsed} className={styles.sectionContent} key={index}>
                   <div className={styles.formSection} key={index}>
                     <OHRIFormSection fields={sec.questions} onFieldChange={onFieldChange} key={index} />
                   </div>
