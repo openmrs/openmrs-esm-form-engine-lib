@@ -41,9 +41,7 @@ jobs:
 
     needs: build
 
-    # Temporarily disabling this soft check of the main branch iorder to make a pre_release from the 1.x branch
-    # if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -58,9 +56,11 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - run: yarn install
       - run: sed -i -e "s/\(\"version\":\\s\+\"\([0-9]\+\.\?\)\+\)/\1-pre.${{ github.run_number }}/" 'package.json'
-      - run: yarn publish --tag next
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_OHRI_ACCESS_TOKEN }}
+      - run: |
+         yarn config set npmAlwaysAuth true
+         yarn config set npmAuthToken ${{ secrets.NPM_OHRI_ACCESS_TOKEN }}
+      - run: yarn npm publish --tag next
+        
   
   master_release:
     runs-on: ubuntu-latest
