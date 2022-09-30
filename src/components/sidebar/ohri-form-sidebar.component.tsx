@@ -5,6 +5,7 @@ import { isEmpty } from '../../validators/ohri-form-validator';
 import { scrollIntoView } from '../../utils/ohri-sidebar';
 
 function OHRIFormSidebar({
+  isFormSubmitting,
   scrollAblePages,
   selectedPage,
   mode,
@@ -91,13 +92,14 @@ function OHRIFormSidebar({
           </div>
         )}
         {mode != 'view' && (
-          <Button style={{ marginBottom: '0.625rem', width: '11rem' }} type="submit">
+          <Button style={{ marginBottom: '0.625rem', width: '11rem' }} type="submit" disabled={isFormSubmitting}>
             Save
           </Button>
         )}
         <Button
           style={{ width: '11rem' }}
           kind="tertiary"
+          disabled={isFormSubmitting}
           onClick={() => {
             onCancel && onCancel();
             handleClose && handleClose();
