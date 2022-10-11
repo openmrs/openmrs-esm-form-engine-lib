@@ -154,24 +154,36 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       const submissions = [...handlers].map(([key, handler]) => {
         return handler?.submit?.(values);
       });
-      Promise.all(submissions).then(results => {
-        if (mode == 'edit') {
+      Promise.all(submissions)
+        .then(results => {
+          if (mode == 'edit') {
+            showToast({
+              description: t('updatedRecordDescription', 'The patient encounter was updated'),
+              title: t('updatedRecord', 'Record updated'),
+              kind: 'success',
+              critical: true,
+            });
+          } else {
+            showToast({
+              description: t('createdRecordDescription', 'A new encounter was created'),
+              title: t('createdRecord', 'Record created'),
+              kind: 'success',
+              critical: true,
+            });
+          }
+          onSubmit?.();
+        })
+        .catch(error => {
           showToast({
-            description: t('updatedRecordDescription', 'The patient encounter was updated'),
-            title: t('updatedRecord', 'Record updated'),
-            kind: 'success',
+            description: t('errorDescription', error.message),
+            title: t('errorDescriptionTitle', 'Error'),
+            kind: 'error',
             critical: true,
           });
-        } else {
-          showToast({
-            description: t('createdRecordDescription', 'A new encounter was created'),
-            title: t('createdRecord', 'Record created'),
-            kind: 'success',
-            critical: true,
-          });
-        }
-        onSubmit?.();
-      });
+        })
+        .finally(() => {
+          setIsSubmitting(false);
+        });
     }
   };
 
@@ -192,6 +204,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
             <div className={styles.ohriFormContainer}>
               {showSideBar && (
                 <OHRIFormSidebar
+                  isFormSubmitting={isSubmitting}
                   scrollAblePages={scrollAblePages}
                   selectedPage={selectedPage}
                   mode={mode}
@@ -245,7 +258,11 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                       }}>
                       {mode == 'view' ? 'Close' : 'Cancel'}
                     </Button>
-                    {mode != 'view' && <Button type="submit">Save</Button>}
+                    {mode != 'view' && (
+                      <Button type="submit" disabled={isSubmitting}>
+                        Save
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
