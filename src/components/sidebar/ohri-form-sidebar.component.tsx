@@ -99,7 +99,6 @@ function OHRIFormSidebar({
         <Button
           style={{ width: '11rem' }}
           kind="tertiary"
-          disabled={isFormSubmitting}
           onClick={() => {
             onCancel && onCancel();
             handleClose && handleClose();

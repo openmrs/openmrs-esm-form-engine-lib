@@ -166,11 +166,14 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
         })
         .catch(error => {
           showToast({
-            description: t('errorDescription', error),
+            description: t('errorDescription', error.message),
             title: t('errorDescriptionTitle', 'Error'),
             kind: 'error',
             critical: true,
           });
+        })
+        .finally(() => {
+          setIsSubmitting(false);
         });
     }
   };
@@ -240,7 +243,6 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                   <div className={styles.minifiedButtons}>
                     <Button
                       kind="secondary"
-                      disabled={isSubmitting}
                       onClick={() => {
                         onCancel && onCancel();
                         handleClose && handleClose();
