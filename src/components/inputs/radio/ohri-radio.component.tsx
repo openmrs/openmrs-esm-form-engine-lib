@@ -67,7 +67,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
       <div className={styles.row}>
         <div>
           <FormGroup
-            style={{ paddingBottom: '1rem' }}
+            style={{ paddingBottom: '1rem', width: '22.313rem' }}
             legendText={question.label}
             className={isFieldRequiredError && styles.errorLegend}
             disabled={question.disabled}
@@ -100,7 +100,10 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
           <div>
             <FormGroup
               legendText={null}
-              style={{ marginLeft: '2rem', paddingBottom, width: '30rem !important' }}
+              style={{
+                position: 'absolute',
+                marginTop: '-3.86rem',
+              }}
               className={styles.reviewPreviousValueRadioOverrides}>
               <PreviousValueReview
                 value={previousValueForReview.value}
