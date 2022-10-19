@@ -62,7 +62,7 @@ describe('OHRI Forms: ', () => {
 
     it('Should evaluate BMI', async () => {
       // setup
-      renderForm(bmi_form);
+      await act(async () => renderForm(bmi_form));
 
       const bmiField = (await screen.findByRole('textbox', { name: /BMI/ })) as HTMLInputElement;
       const heightField = (await screen.findByRole('spinbutton', { name: /Height/ })) as HTMLInputElement;
@@ -84,7 +84,7 @@ describe('OHRI Forms: ', () => {
 
     it('Should evaluate EDD', async () => {
       // setup
-      renderForm(edd_form);
+      await act(async () => renderForm(edd_form));
       const eddField = (await screen.findByRole('textbox', { name: /EDD/ })) as HTMLInputElement;
       const lmpField = (await screen.findByRole('textbox', { name: /LMP/ })) as HTMLInputElement;
 
@@ -125,7 +125,7 @@ describe('OHRI Forms: ', () => {
 
     it('Should evaluate viral load status', async () => {
       // setup
-      renderForm(viral_load_status_form);
+      await act(async () => renderForm(viral_load_status_form));
       let viralLoadCountField = (await screen.findByRole('spinbutton', {
         name: /Viral Load Count/,
       })) as HTMLInputElement;
