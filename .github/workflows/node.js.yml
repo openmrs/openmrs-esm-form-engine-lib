@@ -2,7 +2,7 @@ name: Form-engine-CI
 
 on:
   push:
-    branches: 
+    branches:
       - '*'
   pull_request:
     branches:
@@ -60,9 +60,9 @@ jobs:
          yarn config set npmAlwaysAuth true
          yarn config set npmAuthToken ${{ secrets.NPM_OHRI_ACCESS_TOKEN }}
       - run: yarn npm publish --tag next
-        
-  
-  master_release:
+
+
+  release:
     runs-on: ubuntu-latest
 
     needs: build
