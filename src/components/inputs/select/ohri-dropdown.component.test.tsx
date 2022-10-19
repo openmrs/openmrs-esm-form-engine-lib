@@ -46,30 +46,28 @@ const encounterContext: EncounterContext = {
   date: new Date(2020, 11, 29),
 };
 
-const renderForm = async intialValues => {
-  await act(async () =>
-    render(
-      <Formik initialValues={intialValues} onSubmit={null}>
-        {props => (
-          <Form>
-            <OHRIFormContext.Provider
-              value={{
-                values: props.values,
-                setFieldValue: props.setFieldValue,
-                setEncounterLocation: jest.fn(),
-                obsGroupsToVoid: [],
-                setObsGroupsToVoid: jest.fn(),
-                encounterContext: encounterContext,
-                fields: [question],
-                isFieldInitializationComplete: true,
-                isSubmitting: false,
-              }}>
-              <OHRIDropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-            </OHRIFormContext.Provider>
-          </Form>
-        )}
-      </Formik>,
-    ),
+const renderForm = intialValues => {
+  render(
+    <Formik initialValues={intialValues} onSubmit={null}>
+      {props => (
+        <Form>
+          <OHRIFormContext.Provider
+            value={{
+              values: props.values,
+              setFieldValue: props.setFieldValue,
+              setEncounterLocation: jest.fn(),
+              obsGroupsToVoid: [],
+              setObsGroupsToVoid: jest.fn(),
+              encounterContext: encounterContext,
+              fields: [question],
+              isFieldInitializationComplete: true,
+              isSubmitting: false,
+            }}>
+            <OHRIDropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+          </OHRIFormContext.Provider>
+        </Form>
+      )}
+    </Formik>,
   );
 };
 
@@ -85,7 +83,9 @@ describe('dropdown input field', () => {
     const dropdownWidget = screen.getByRole('button', { name: /Patient past program./ });
 
     // assert initial values
-    expect(question.value).toBe(null);
+    await act(async () => {
+      expect(question.value).toBe(null);
+    });
 
     // choose an option
     fireEvent.click(dropdownWidget);
@@ -93,17 +93,19 @@ describe('dropdown input field', () => {
     fireEvent.click(fightMalariaOption);
 
     // verify
-    expect(question.value).toEqual({
-      person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: new Date(2020, 11, 29),
-      concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-      order: null,
-      groupMembers: [],
-      voided: false,
-      formFieldNamespace: 'ohri-forms',
-      formFieldPath: 'ohri-forms-patient-past-program',
-      value: '14cd2628-8a33-4b93-9c10-43989950bba0',
+    await act(async () => {
+      expect(question.value).toEqual({
+        person: '833db896-c1f0-11eb-8529-0242ac130003',
+        obsDatetime: new Date(2020, 11, 29),
+        concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+        location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+        order: null,
+        groupMembers: [],
+        voided: false,
+        formFieldNamespace: 'ohri-forms',
+        formFieldPath: 'ohri-forms-patient-past-program',
+        value: '14cd2628-8a33-4b93-9c10-43989950bba0',
+      });
     });
   });
 
@@ -129,16 +131,18 @@ describe('dropdown input field', () => {
     fireEvent.click(oncologyScreeningOption);
 
     // verify
-    expect(question.value).toEqual({
-      uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
-      person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: new Date(2020, 11, 29),
-      concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-      order: null,
-      groupMembers: [],
-      voided: false,
-      value: '12f7be3d-fb5d-47dc-b5e3-56c501be80a6',
+    await act(async () => {
+      expect(question.value).toEqual({
+        uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+        person: '833db896-c1f0-11eb-8529-0242ac130003',
+        obsDatetime: new Date(2020, 11, 29),
+        concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+        location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+        order: null,
+        groupMembers: [],
+        voided: false,
+        value: '12f7be3d-fb5d-47dc-b5e3-56c501be80a6',
+      });
     });
   });
 });

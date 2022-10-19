@@ -1,4 +1,4 @@
-import { Column, Row } from 'carbon-components-react/lib/components/Grid';
+import { Column, Row } from '@carbon/react';
 import React, { useEffect, useState } from 'react';
 import { getHandler } from '../../registry/registry';
 import { OHRIFormFieldProps } from '../../api/types';

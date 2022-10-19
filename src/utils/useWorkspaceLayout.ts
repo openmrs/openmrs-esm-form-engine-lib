@@ -8,7 +8,7 @@ export function useWorkspaceLayout(ref): 'minimized' | 'maximized' {
   useEffect(() => {
     if (ref?.current) {
       const width = ref.current.offsetWidth;
-      if (layout == 'desktop' && width < 1000) {
+      if (layout.endsWith('desktop') && width < 1000) {
         setMode('minimized');
       } else {
         setMode('maximized');

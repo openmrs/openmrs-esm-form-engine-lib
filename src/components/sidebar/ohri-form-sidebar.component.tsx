@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './ohri-form-sidebar.component.scss';
-import { Button, Toggle } from 'carbon-components-react';
+import { Button, Toggle } from '@carbon/react';
 import { isEmpty } from '../../validators/ohri-form-validator';
 import { scrollIntoView } from '../../utils/ohri-sidebar';
 

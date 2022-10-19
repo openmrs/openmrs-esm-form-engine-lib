@@ -2,14 +2,22 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './ohri-form.scss';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import { usePatient, useSession, showToast, getAsyncLifecycle, detach } from '@openmrs/esm-framework';
+import {
+  usePatient,
+  useSession,
+  showToast,
+  getAsyncLifecycle,
+  detach,
+  registerExtension,
+  attach,
+} from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
 import { OHRIFormSchema, SessionMode, OHRIFormPage as OHRIFormPageProps } from './api/types';
 import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
 import { OHRIEncounterForm } from './components/encounter/ohri-encounter-form';
 import { isTrue } from './utils/boolean-utils';
 import { useWorkspaceLayout } from './utils/useWorkspaceLayout';
-import { Button } from 'carbon-components-react';
+import { Button } from '@carbon/react';
 import ReactMarkdown from 'react-markdown';
 import { PatientBanner } from './components/patient-banner/patient-banner.component';
 import LoadingIcon from './components/loading/loading.component';
@@ -55,7 +63,8 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useMemo(() => {
-    const copy: OHRIFormSchema = JSON.parse(JSON.stringify(formJson));
+    const copy: OHRIFormSchema =
+      typeof formJson == 'string' ? JSON.parse(formJson) : JSON.parse(JSON.stringify(formJson));
     if (encounterUuid && !copy.encounter) {
       // Assign this to the parent form
       copy.encounter = encounterUuid;
@@ -87,7 +96,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
 
   useEffect(() => {
     const extDetails = {
-      id: 'ohri-form-header-toggle-ext',
+      name: 'ohri-form-header-toggle-ext',
       moduleName: '@openmrs/esm-ohri-app',
       slot: 'patient-chart-workspace-header-slot',
       load: getAsyncLifecycle(
@@ -103,11 +112,11 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
         },
       },
     };
-    // registerExtension(extDetails.id, extDetails);
-    // attach('patient-chart-workspace-header-slot', extDetails.id);
+    registerExtension(extDetails);
+    attach('patient-chart-workspace-header-slot', extDetails.name);
 
     return () => {
-      detach('patient-chart-workspace-header-slot', extDetails.id);
+      detach('patient-chart-workspace-header-slot', extDetails.name);
     };
   }, []);
 
@@ -188,7 +197,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
         setSubmitting(false);
       }}>
       {props => (
-        <Form className={`bx--form no-padding ng-untouched ng-pristine ng-invalid ${styles.ohriForm}`} ref={ref}>
+        <Form className={`cds--form no-padding ng-untouched ng-pristine ng-invalid ${styles.ohriForm}`} ref={ref}>
           {!patient ? (
             <LoadingIcon />
           ) : (

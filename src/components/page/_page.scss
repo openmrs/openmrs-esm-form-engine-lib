@@ -53,12 +53,12 @@
 .formSection > div div div input,
 .formSection > div div div textarea,
 .formSection > div div div dropdown,
-.formSection :global(.bx--dropdown) button {
+.formSection :global(.cds--dropdown) button {
   background-color: #ffffff !important;
 }
 
 @media (min-width: 640px) {
-  :global(.bx--accordion__content) {
+  :global(.cds--accordion__content) {
     padding-right: 2rem !important;
   }
 }

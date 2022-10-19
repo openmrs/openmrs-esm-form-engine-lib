@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { EncounterContext } from '../ohri-form-context';
-import * as mockAPI from '../api/api';
+import * as api from '../api/api';
 import { OHRIFormField } from '../api/types';
 import { findObsByFormField, ObsSubmissionHandler } from './base-handlers';
 
@@ -674,7 +674,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
     expect(initialValue).toEqual(['105e7ad6-c1fd-11eb-8529-0242ac130ju9', '6f337e18-5445-437f-8298-684a7067dc1c']);
   });
 
-  xit('should get initial value for date rendering', () => {
+  it('should get initial value for date rendering', () => {
     // setup
     const field: OHRIFormField = {
       label: 'HTS Date',
@@ -690,13 +690,13 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
       concept: {
         uuid: 'j8b6705b-b6d8-4eju-8f37-0b14f5347569',
       },
-      value: 'Sat Nov 19 2016 00:00:00 GMT+0300 (East Africa Time)',
+      value: '2016-11-19 00:00',
     };
     encounterContext.encounter['obs'].push(obs);
     // replay
-    const initialValue = ObsSubmissionHandler.getInitialValue(encounterContext.encounter, field);
+    const initialValue: any = ObsSubmissionHandler.getInitialValue(encounterContext.encounter, field);
     // verify
-    expect(initialValue).toEqual(new Date(2016, 10, 19));
+    expect(initialValue.toLocaleDateString('en-US')).toEqual('11/19/2016');
   });
 
   it('should get initial value for coded input types', () => {
@@ -728,18 +728,19 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
 
   it('should update obs value with boolean concept uuid for boolean types', () => {
     // setup
-    spyOn(mockAPI, 'getConcept').and.returnValue(
-      new Observable(sub => {
-        sub.next({
-          uuid: '1492AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-          display: 'Ever tested positive for HIV before?',
-          datatype: {
-            uuid: 'bca4d5f1-ee6a-4282-a5ff-c8db12c4247c',
-            display: 'Boolean',
-            name: 'Boolean',
-          },
-        });
-      }),
+    jest.spyOn(api, 'getConcept').mockImplementationOnce(
+      () =>
+        new Observable(sub => {
+          sub.next({
+            uuid: '1492AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            display: 'Ever tested positive for HIV before?',
+            datatype: {
+              uuid: 'bca4d5f1-ee6a-4282-a5ff-c8db12c4247c',
+              display: 'Boolean',
+              name: 'Boolean',
+            },
+          });
+        }),
     );
     const field: OHRIFormField = {
       label: 'Ever tested positive for HIV before?',

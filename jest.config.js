@@ -24,4 +24,5 @@ module.exports = {
     'react-markdown': '<rootDir>/__mocks__/react-markdown.tsx',
   },
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  testEnvironment: 'jsdom',
 };

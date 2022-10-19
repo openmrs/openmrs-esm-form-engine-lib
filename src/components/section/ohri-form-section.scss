@@ -19,7 +19,7 @@
 
 // This rule is breaking styling for embedded widgets
 // To should be more specific 
-.sectionContainer :global(.bx--fieldset) {
+.sectionContainer :global(.cds--fieldset) {
   margin-bottom: 0;
 }
 
@@ -27,6 +27,6 @@
   margin-bottom: 1rem;
 }
 
-.sectionContainer :global(.bx--label) {
+.sectionContainer :global(.cds--label) {
   text-align: left;
 }

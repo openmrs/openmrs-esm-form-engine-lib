@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { OHRIFormFieldProps } from '../../../api/types';
-import { DatePicker, DatePickerInput, TimePicker } from 'carbon-components-react';
+import { DatePicker, DatePickerInput, TimePicker } from '@carbon/react';
 import { useField } from 'formik';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import styles from '../_input.scss';
@@ -50,7 +50,9 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
 
   const onTimeChange = (event, useValue = false) => {
     if (useValue) {
-      const prevValue = handler.getPreviousValue(question, encounterContext?.previousEncounter, fields);
+      const prevValue =
+        encounterContext?.previousEncounter &&
+        handler.getPreviousValue(question, encounterContext?.previousEncounter, fields);
       setTime(moment(prevValue?.value).format('hh:mm'));
     } else {
       const time = event.target.value;
@@ -149,6 +151,12 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
                 value={
                   field.value instanceof Date ? field.value.toLocaleDateString(window.navigator.language) : field.value
                 }
+                // Added for testing purposes.
+                // Notes:
+                // Something is strange is happening with the way events are propagated and handled by Carbon.
+                // When we manually trigger an onchange event using the 'fireEvent' lib, the handler below will
+                // be triggered as opposed to the former hanlder that only gets triggered at runtime.
+                onChange={e => onDateChange([moment(e.target.value, ['YYYY-MM-DD', 'DD/MM/YYYY']).toDate()])}
                 disabled={question.disabled}
                 invalid={!isFieldRequiredError && errors.length > 0}
                 invalidText={errors[0]?.errMessage}
