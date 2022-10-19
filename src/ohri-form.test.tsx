@@ -44,7 +44,7 @@ describe('OHRI Forms: ', () => {
   });
 
   it('Should render without dying', async () => {
-    renderForm(hts_poc_1_1);
+    await act(async () => renderForm(hts_poc_1_1));
   });
 
   it('Should render all form fields', () => {
@@ -68,18 +68,18 @@ describe('OHRI Forms: ', () => {
       const heightField = (await screen.findByRole('spinbutton', { name: /Height/ })) as HTMLInputElement;
       const weightField = (await screen.findByRole('spinbutton', { name: /Weight/ })) as HTMLInputElement;
 
-      expect(heightField.value).toBe('');
-      expect(weightField.value).toBe('');
-      expect(bmiField.value).toBe('');
+      await act(async () => expect(heightField.value).toBe(''));
+      await act(async () => expect(weightField.value).toBe(''));
+      await act(async () => expect(bmiField.value).toBe(''));
 
       // replay
       fireEvent.blur(heightField, { target: { value: 150 } });
       fireEvent.blur(weightField, { target: { value: 50 } });
 
       // verify
-      expect(heightField.value).toBe('150');
-      expect(weightField.value).toBe('50');
-      expect(bmiField.value).toBe('22.2');
+      await act(async () => expect(heightField.value).toBe('150'));
+      await act(async () => expect(weightField.value).toBe('50'));
+      await act(async () => expect(bmiField.value).toBe('22.2'));
     });
 
     it('Should evaluate EDD', async () => {
@@ -88,20 +88,20 @@ describe('OHRI Forms: ', () => {
       const eddField = (await screen.findByRole('textbox', { name: /EDD/ })) as HTMLInputElement;
       const lmpField = (await screen.findByRole('textbox', { name: /LMP/ })) as HTMLInputElement;
 
-      expect(eddField.value).toBe('');
-      expect(lmpField.value).toBe('');
+      await act(async () => expect(eddField.value).toBe(''));
+      await act(async () => expect(lmpField.value).toBe(''));
 
       // replay
       fireEvent.change(lmpField, { target: { value: '2022-07-06' } });
 
       // verify
-      expect(lmpField.value).toBe('7/6/2022');
-      expect(eddField.value).toBe('4/12/2023');
+      await act(async () => expect(lmpField.value).toBe('7/6/2022'));
+      await act(async () => expect(eddField.value).toBe('4/12/2023'));
     });
 
     it('Should evaluate months on ART', async () => {
       // setup
-      renderForm(months_on_art_form);
+      await act(async () => renderForm(months_on_art_form));
       jest.useFakeTimers();
       jest.setSystemTime(new Date(2022, 9, 1));
       let artStartDateField = (await screen.findByRole('textbox', {
@@ -110,17 +110,17 @@ describe('OHRI Forms: ', () => {
       let monthsOnARTField = (await screen.findByRole('spinbutton', { name: /Months on ART/ })) as HTMLInputElement;
       let assumeTodayToBe = '7/11/2022';
 
-      expect(artStartDateField.value).toBe('');
-      expect(assumeTodayToBe).toBe('7/11/2022');
-      expect(monthsOnARTField.value).toBe('');
+      await act(async () => expect(artStartDateField.value).toBe(''));
+      await act(async () => expect(assumeTodayToBe).toBe('7/11/2022'));
+      await act(async () => expect(monthsOnARTField.value).toBe(''));
 
       // replay
       fireEvent.blur(artStartDateField, { target: { value: '05/02/2022' } });
 
       // verify
-      expect(artStartDateField.value).toBe('5/2/2022');
-      expect(assumeTodayToBe).toBe('7/11/2022');
-      expect(monthsOnARTField.value).toBe('5');
+      await act(async () => expect(artStartDateField.value).toBe('5/2/2022'));
+      await act(async () => expect(assumeTodayToBe).toBe('7/11/2022'));
+      await act(async () => expect(monthsOnARTField.value).toBe('5'));
     });
 
     it('Should evaluate viral load status', async () => {
@@ -133,57 +133,57 @@ describe('OHRI Forms: ', () => {
       let suppressedField = (await screen.findByRole('radio', { name: /Suppressed/ })) as HTMLInputElement;
       let unsuppressedField = (await screen.findByRole('radio', { name: /Unsuppressed/ })) as HTMLInputElement;
 
-      expect(viralLoadCountField.value).toBe('');
-      expect(viralLoadStatusField.value).toBe(undefined);
+      await act(async () => expect(viralLoadCountField.value).toBe(''));
+      await act(async () => expect(viralLoadStatusField.value).toBe(undefined));
 
       // replay
       fireEvent.blur(viralLoadCountField, { target: { value: 30 } });
 
       // verify
-      expect(viralLoadCountField.value).toBe('30');
-      expect(suppressedField).toBeChecked();
-      expect(unsuppressedField).not.toBeChecked();
+      await act(async () => expect(viralLoadCountField.value).toBe('30'));
+      await act(async () => expect(suppressedField).toBeChecked());
+      await act(async () => expect(unsuppressedField).not.toBeChecked());
     });
 
     it('Should only show question when age is under 5', async () => {
       // setup
-      renderForm(age_validation_form);
+      await act(async () => renderForm(age_validation_form));
       let enrollmentDate = (await screen.findByRole('textbox', { name: /enrollmentDate/ })) as HTMLInputElement;
 
-      expect(enrollmentDate.value).toBe('');
+      await act(async () => expect(enrollmentDate.value).toBe(''));
       fireEvent.blur(enrollmentDate, { target: { value: '1975-07-06T00:00:00.000Z' } });
 
       let mrn = (await screen.findByRole('textbox', { name: /MRN/ })) as HTMLInputElement;
-      expect(mrn.value).toBe('');
+      await act(async () => expect(mrn.value).toBe(''));
 
       // verify
-      expect(enrollmentDate.value).toBe('7/6/1975');
-      expect(mrn.value).toBe('');
-      expect(mrn).toBeVisible();
+      await act(async () => expect(enrollmentDate.value).toBe('7/6/1975'));
+      await act(async () => expect(mrn.value).toBe(''));
+      await act(async () => expect(mrn).toBeVisible());
     });
 
     // FIXME: This test passes locally but fails in the CI environment
     xit('Should evaluate next visit date', async () => {
       // setup
-      renderForm(next_visit_form);
+      await act(async () => renderForm(next_visit_form));
       let followupDateField = (await screen.findByRole('textbox', { name: /Followup Date/ })) as HTMLInputElement;
       let arvDispensedInDaysField = (await screen.findByRole('spinbutton', {
         name: /ARV dispensed in days/,
       })) as HTMLInputElement;
       let nextVisitDateField = (await screen.findByRole('textbox', { name: /Next visit date/ })) as HTMLInputElement;
 
-      expect(followupDateField.value).toBe('');
-      expect(arvDispensedInDaysField.value).toBe('');
-      expect(nextVisitDateField.value).toBe('');
+      await act(async () => expect(followupDateField.value).toBe(''));
+      await act(async () => expect(arvDispensedInDaysField.value).toBe(''));
+      await act(async () => expect(nextVisitDateField.value).toBe(''));
 
       // replay
       fireEvent.blur(followupDateField, { target: { value: '2022-07-06T00:00:00.000Z' } });
       fireEvent.blur(arvDispensedInDaysField, { target: { value: 120 } });
 
       // verify
-      expect(followupDateField.value).toBe('');
-      expect(arvDispensedInDaysField.value).toBe('120');
-      expect(nextVisitDateField.value).toBe('11/3/2022');
+      await act(async () => expect(followupDateField.value).toBe(''));
+      await act(async () => expect(arvDispensedInDaysField.value).toBe('120'));
+      await act(async () => expect(nextVisitDateField.value).toBe('11/3/2022'));
     });
   });
 

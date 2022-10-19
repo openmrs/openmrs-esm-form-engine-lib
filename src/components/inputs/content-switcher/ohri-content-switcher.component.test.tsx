@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, screen, cleanup, act } from '@testing-library/react';
+import { render, fireEvent, screen, cleanup, act, waitFor } from '@testing-library/react';
 import { Form, Formik } from 'formik';
 import { EncounterContext, OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormField } from '../../../api/types';
@@ -83,23 +83,27 @@ describe('content-switcher input field', () => {
     const oncologyScreeningTab = screen.getByRole('tab', { name: /Oncology Screening and Diagnosis Program/i });
 
     // assert initial values
-    expect(question.value).toBe(null);
+    await act(async () => {
+      expect(question.value).toBe(null);
+    });
 
     // select Oncology Screening and Diagnosis Program
     fireEvent.click(oncologyScreeningTab);
 
     // verify
-    expect(question.value).toEqual({
-      person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: new Date(2020, 11, 29),
-      concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-      order: null,
-      groupMembers: [],
-      voided: false,
-      formFieldNamespace: 'ohri-forms',
-      formFieldPath: 'ohri-forms-patient-past-program',
-      value: '12f7be3d-fb5d-47dc-b5e3-56c501be80a6',
+    await act(async () => {
+      expect(question.value).toEqual({
+        person: '833db896-c1f0-11eb-8529-0242ac130003',
+        obsDatetime: new Date(2020, 11, 29),
+        concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+        location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+        order: null,
+        groupMembers: [],
+        voided: false,
+        formFieldNamespace: 'ohri-forms',
+        formFieldPath: 'ohri-forms-patient-past-program',
+        value: '12f7be3d-fb5d-47dc-b5e3-56c501be80a6',
+      });
     });
   });
 
@@ -123,16 +127,18 @@ describe('content-switcher input field', () => {
     fireEvent.click(fightMalariaTab);
 
     // verify
-    expect(question.value).toEqual({
-      uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
-      person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: new Date(2020, 11, 29),
-      concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-      order: null,
-      groupMembers: [],
-      voided: false,
-      value: '14cd2628-8a33-4b93-9c10-43989950bba0',
+    await act(async () => {
+      expect(question.value).toEqual({
+        uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+        person: '833db896-c1f0-11eb-8529-0242ac130003',
+        obsDatetime: new Date(2020, 11, 29),
+        concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+        location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+        order: null,
+        groupMembers: [],
+        voided: false,
+        value: '14cd2628-8a33-4b93-9c10-43989950bba0',
+      });
     });
   });
 });
