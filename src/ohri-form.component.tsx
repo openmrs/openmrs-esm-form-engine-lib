@@ -61,6 +61,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const workspaceLayout = useWorkspaceLayout(ref);
   const handlers = new Map<string, FormSubmissionHandler>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pagesWithErrors, setPagesWithErrors] = useState([]);
 
   const form = useMemo(() => {
     const copy: OHRIFormSchema =
@@ -205,6 +206,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
               {showSideBar && (
                 <OHRIFormSidebar
                   isFormSubmitting={isSubmitting}
+                  pagesWithErrors={pagesWithErrors}
                   scrollAblePages={scrollAblePages}
                   selectedPage={selectedPage}
                   mode={mode}
@@ -241,6 +243,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     setAllInitialValues={setInitialValues}
                     allInitialValues={initialValues}
                     setScrollablePages={setScrollablePages}
+                    setPagesWithErrors={setPagesWithErrors}
                     setFieldValue={props.setFieldValue}
                     setSelectedPage={setSelectedPage}
                     handlers={handlers}

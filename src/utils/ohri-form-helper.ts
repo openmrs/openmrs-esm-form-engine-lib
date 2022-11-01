@@ -2,7 +2,7 @@ import { LayoutType } from '@openmrs/esm-framework';
 import { fetchConceptNameByUuid } from '../api/api';
 import { ConceptTrue } from '../constants';
 import { EncounterContext } from '../ohri-form-context';
-import { OHRIFormField, OHRIFormSection, SubmissionHandler } from '../api/types';
+import { OHRIFormField, OHRIFormPage, OHRIFormSection, SubmissionHandler } from '../api/types';
 import { OHRIDefaultFieldValueValidator } from '../validators/default-value-validator';
 import { isEmpty } from '../validators/ohri-form-validator';
 import { isTrue } from './boolean-utils';
@@ -90,4 +90,21 @@ export function voidObsValueOnFieldHidden(
     field.value = null;
     setFieldValue(field.id, isValueIterable ? [] : null);
   }
+}
+
+export function findPagesWithErrors(pages: Set<OHRIFormPage>, errorFields: OHRIFormField[]): string[] {
+  let pagesWithErrors: string[] = [];
+  let allFormPages = [...pages];
+  if (errorFields?.length) {
+    //Find pages each of the errors belong to
+    errorFields.forEach(field => {
+      allFormPages.forEach(page => {
+        let errorPage = page.sections.find(section => section.questions.find(question => question === field));
+        if (errorPage && !pagesWithErrors.includes(page.label)) {
+          pagesWithErrors.push(page.label);
+        }
+      });
+    });
+  }
+  return pagesWithErrors;
 }

@@ -13,6 +13,7 @@ import {
 import {
   cascadeVisibityToChildFields,
   evaluateFieldReadonlyProp,
+  findPagesWithErrors,
   inferInitialValueFromDefaultFieldValue,
   voidObsValueOnFieldHidden,
 } from '../../utils/ohri-form-helper';
@@ -40,6 +41,7 @@ interface OHRIEncounterFormProps {
   workspaceLayout: 'minimized' | 'maximized';
   setAllInitialValues: (values: Record<string, any>) => void;
   setScrollablePages: (pages: Set<OHRIFormPageProps>) => void;
+  setPagesWithErrors: (pages: string[]) => void;
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
   setSelectedPage: (page: string) => void;
   isSubmitting: boolean;
@@ -57,6 +59,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   scrollablePages,
   workspaceLayout,
   setScrollablePages,
+  setPagesWithErrors,
   setFieldValue,
   setSelectedPage,
   handlers,
@@ -312,6 +315,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
 
   useEffect(() => {
     if (invalidFields?.length) {
+      setPagesWithErrors(findPagesWithErrors(scrollablePages, invalidFields));
       let firstInvalidField = invalidFields[0];
       let answerOptionid: string;
       if (firstInvalidField.questionOptions.rendering === 'radio') {
@@ -446,8 +450,12 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         [];
       setErrors && setErrors(errors);
       if (errors.length) {
+        setInvalidFields(invalidFields => [...invalidFields, field]);
         return;
+      } else {
+        setInvalidFields(invalidFields => invalidFields.filter(item => item !== field));
       }
+      setPagesWithErrors(findPagesWithErrors(scrollablePages, invalidFields));
     }
     if (field.questionOptions.rendering == 'toggle') {
       value = value ? ConceptTrue : ConceptFalse;
@@ -576,6 +584,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
               setAllInitialValues={setAllInitialValues}
               allInitialValues={allInitialValues}
               setScrollablePages={setScrollablePages}
+              setPagesWithErrors={setPagesWithErrors}
               setFieldValue={setFieldValue}
               setSelectedPage={setSelectedPage}
               handlers={handlers}

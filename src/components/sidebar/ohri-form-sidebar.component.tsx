@@ -6,6 +6,7 @@ import { scrollIntoView } from '../../utils/ohri-sidebar';
 
 function OHRIFormSidebar({
   isFormSubmitting,
+  pagesWithErrors,
   scrollAblePages,
   selectedPage,
   mode,
@@ -69,7 +70,15 @@ function OHRIFormSidebar({
           !page.isHidden && (
             <div
               aria-hidden="true"
-              className={joinWord(page.label) === selectedPage ? styles.sidebarSectionActive : styles.sidebarSection}
+              className={
+                joinWord(page.label) === selectedPage && pagesWithErrors.includes(page.label)
+                  ? styles.sidebarSectionErrorActive
+                  : joinWord(page.label) === selectedPage
+                  ? styles.sidebarSectionActive
+                  : pagesWithErrors.includes(page.label)
+                  ? styles.sidebarSectionError
+                  : styles.sidebarSection
+              }
               key={index}
               onClick={() => handleClick(page.label)}>
               {/* eslint-disable-next-line no-console */}
