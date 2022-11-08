@@ -1,15 +1,14 @@
-import { ButtonSet, Column, FormGroup, Button, Row } from '@carbon/react';
+import { FormGroup, Button } from '@carbon/react';
 import { useFormikContext } from 'formik';
 import { cloneDeep } from 'lodash';
 import moment from 'moment';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ConceptTrue } from '../../constants';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { getHandler } from '../../registry/registry';
 import { OHRIFormField, OHRIFormFieldProps } from '../../api/types';
 import { OHRIObsGroup } from '../group/ohri-obs-group.component';
 import { TrashCan, Add } from '@carbon/react/icons';
-import { useLayoutType } from '@openmrs/esm-framework';
 import styles from '../inputs/_input.scss';
 import { getConcept } from '../../api/api';
 
@@ -48,14 +47,6 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
   const { fields, encounterContext, obsGroupsToVoid } = React.useContext(OHRIFormContext);
   const { values, setValues } = useFormikContext();
   const [counter, setCounter] = useState(0);
-  const viewPort = useLayoutType();
-
-  const rowWidth = useMemo(() => {
-    if (viewPort == 'phone' || viewPort == 'tablet') {
-      return '50rem';
-    }
-    return '90rem';
-  }, [viewPort]);
 
   useEffect(() => {
     if (encounterContext.encounter && !counter) {
@@ -97,7 +88,7 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
     setQuestions(questions);
   };
 
-  const removeQuestion = (question: OHRIFormField) => {
+  const removeNthRow = (question: OHRIFormField) => {
     if (question.value && question.value.uuid) {
       // obs group should be voided
       question.value['voided'] = true;
@@ -115,46 +106,57 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
   };
   const nodes = questions.map((question, index) => {
     const deleteControl =
-      index !== 0 ? (
-        <Column style={{ paddingTop: '1.2rem', marginLeft: '.5rem' }}>
-          <Button
-            renderIcon={() => <TrashCan size={32} />}
-            kind="danger--tertiary"
-            onClick={() => removeQuestion(question)}
-            hasIconOnly
-          />
-        </Column>
+      questions.length > 1 ? (
+        <div>
+          <div style={{ paddingTop: '1.2rem', marginLeft: '.5rem' }} className={styles.flexColumn}>
+            <Button
+              renderIcon={() => <TrashCan size={16} />}
+              kind="danger--tertiary"
+              onClick={() => removeNthRow(question)}
+              hasIconOnly
+            />
+          </div>
+        </div>
       ) : null;
     return (
       <>
-        <Row style={{ margin: '0', marginBottom: '1rem', marginTop: '1rem', width: rowWidth }}>
-          <OHRIObsGroup question={question} onChange={onChange} handler={getHandler('obsGroup')} />
-          {deleteControl}
-        </Row>
+        {index != 0 && (
+          <div>
+            <hr style={{ borderTop: '1px solid #bbb', marginBottom: '2rem', width: '85%', float: 'left' }} />
+          </div>
+        )}
+        <div style={{ margin: '1rem 0rem' }}>
+          <OHRIObsGroup
+            question={question}
+            onChange={onChange}
+            handler={getHandler('obsGroup')}
+            deleteControl={deleteControl}
+          />
+        </div>
       </>
     );
   });
 
   nodes.push(
-    <Row>
-      <Column>
-        <Button
-          renderIcon={() => <Add size={16} />}
-          kind="ghost"
-          onClick={() => {
-            const nextCount = counter + 1;
-            handleAdd(nextCount, null);
-            setCounter(nextCount);
-          }}>
-          {question.questionOptions.repeatOptions?.addText || 'Add'}
-        </Button>
-      </Column>
-    </Row>,
+    <div>
+      <Button
+        renderIcon={() => <Add size={16} />}
+        kind="ghost"
+        onClick={() => {
+          const nextCount = counter + 1;
+          handleAdd(nextCount, null);
+          setCounter(nextCount);
+        }}>
+        {question.questionOptions.repeatOptions?.addText || 'Add'}
+      </Button>
+    </div>,
   );
   return (
     !question.isHidden && (
       <div style={{ marginTop: '0.65rem', marginBottom: '2rem' }}>
-        <FormGroup legendText={question.label}>{nodes}</FormGroup>
+        <FormGroup legendText={question.label} className={styles.boldLegend}>
+          {nodes}
+        </FormGroup>
       </div>
     )
   );

@@ -1,4 +1,3 @@
-import { Column, Row } from '@carbon/react';
 import React, { useEffect, useState } from 'react';
 import { getHandler } from '../../registry/registry';
 import { OHRIFormFieldProps } from '../../api/types';
@@ -33,7 +32,7 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
           handler: getHandler(field.type),
         });
         return (
-          <Column className={styles.obsGroupColumn}>
+          <div className={`${styles.flexColumn} ${styles.obsGroupColumn} `}>
             {supportsUnspecified(field) ? (
               <>
                 {qnFragment}
@@ -42,12 +41,12 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
             ) : (
               qnFragment
             )}
-          </Column>
+          </div>
         );
       }
     });
-  if (groupContent) {
+  if (groupContent && deleteControl) {
     groupContent.push(deleteControl);
   }
-  return <Row>{groupContent}</Row>;
+  return <div className={styles.flexRow}>{groupContent}</div>;
 };
