@@ -5,8 +5,6 @@ import styles from '../_input.scss';
 import { useField } from 'formik';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { createErrorHandler } from '@openmrs/esm-framework';
-import { OHRILabel } from '../../label/ohri-label.component';
-import { OHRIValueDisplay, OHRIValueEmpty } from '../../value/ohri-value.component';
 import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';

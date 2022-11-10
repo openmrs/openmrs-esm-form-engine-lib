@@ -56,7 +56,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
       setTime(moment(prevValue?.value).format('hh:mm'));
     } else {
       const time = event.target.value;
-      const currentDateTime = new Date(question.value.value);
+      const currentDateTime = field.value;
       const splitTime = time.split(':');
       currentDateTime.setHours(splitTime[0] ?? '00', splitTime[1] ?? '00');
       setFieldValue(question.id, currentDateTime);
@@ -124,6 +124,16 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);
+
+  useEffect(() => {
+    if (!time && field.value) {
+      if (field.value instanceof Date) {
+        const hours = field.value.getHours() < 10 ? `0${field.value.getHours()}` : `${field.value.getHours()}`;
+        const minutes = field.value.getMinutes() < 10 ? `0${field.value.getMinutes()}` : `${field.value.getMinutes()}`;
+        setTime([hours, minutes].join(':'));
+      }
+    }
+  }, [field.value, time]);
 
   return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
     <OHRIFieldValueView

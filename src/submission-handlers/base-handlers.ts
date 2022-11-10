@@ -3,6 +3,7 @@ import { getConcept } from '../api/api';
 import { ConceptTrue } from '../constants';
 import { EncounterContext } from '../ohri-form-context';
 import { OHRIFormField, OpenmrsEncounter, OpenmrsObs, SubmissionHandler } from '../api/types';
+import { parseToLocalDateTime } from '../utils/ohri-form-helper';
 
 // Temporarily holds observations that have already been binded with matching fields
 let assignedObsIds: string[] = [];
@@ -25,7 +26,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
       } else if (!value) {
         field.value = undefined;
       } else {
-        if (field.questionOptions.rendering == 'date') {
+        if (field.questionOptions.rendering.startsWith('date')) {
           field.value.value = moment(value).format('YYYY-MM-DD HH:mm');
         } else {
           field.value.value = value;
@@ -33,7 +34,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
         field.value.voided = false;
       }
     } else {
-      if (field.questionOptions.rendering == 'date') {
+      if (field.questionOptions.rendering.startsWith('date')) {
         field.value = constructObs(moment(value).format('YYYY-MM-DD HH:mm'), context, field);
         return field.value;
       }
@@ -76,9 +77,10 @@ export const ObsSubmissionHandler: SubmissionHandler = {
         );
       }
       if (typeof obs.value == 'string' || typeof obs.value == 'number') {
-        if (field.questionOptions.rendering == 'date') {
-          field.value.value = moment(field.value.value).format('YYYY-MM-DD HH:mm');
-          return moment(obs.value).toDate();
+        if (field.questionOptions.rendering.startsWith('date')) {
+          const dateObject = parseToLocalDateTime(field.value.value);
+          field.value.value = moment(dateObject).format('YYYY-MM-DD HH:mm');
+          return dateObject;
         }
         return obs.value;
       }
@@ -144,8 +146,9 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     if (obs) {
       assignedObsIds.push(obs.uuid);
       if (typeof obs.value == 'string' || typeof obs.value == 'number') {
-        if (rendering == 'date') {
-          return { value: moment(obs.value).toDate(), display: moment(obs.value).format('YYYY-MM-DD HH:mm') };
+        if (rendering == 'date' || rendering == 'datetime') {
+          const dateObj = parseToLocalDateTime(`${obs.value}`);
+          return { value: dateObj, display: moment(dateObj).format('YYYY-MM-DD HH:mm') };
         }
         return { value: obs.value, display: obs.value };
       }
