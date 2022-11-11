@@ -541,8 +541,10 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     }
   };
 
-  // set handler
-  handlers.set(form.name, { validate: validate, submit: handleFormSubmit });
+  // set handler if not in view mode
+  if (sessionMode !== 'view') {
+    handlers.set(form.name, { validate: validate, submit: handleFormSubmit });
+  }
   return (
     <OHRIFormContext.Provider
       value={{

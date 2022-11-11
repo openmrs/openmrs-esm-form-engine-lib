@@ -138,7 +138,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
   return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
     <OHRIFieldValueView
       label={question.label}
-      value={field.value instanceof Date ? field.value.toLocaleDateString(window.navigator.language) : field.value}
+      value={field.value instanceof Date ? getDisplay(field.value, question.questionOptions.rendering) : field.value}
       conceptName={conceptName}
       isInline={isInline}
     />
@@ -207,4 +207,11 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
   );
 };
 
+function getDisplay(date: Date, rendering: string) {
+  const dateString = date.toLocaleDateString(window.navigator.language);
+  if (rendering == 'datetime') {
+    return `${dateString} ${date.toLocaleTimeString()}`;
+  }
+  return dateString;
+}
 export default OHRIDate;
