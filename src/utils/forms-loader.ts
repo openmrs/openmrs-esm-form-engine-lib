@@ -1,5 +1,5 @@
 import * as semver from 'semver';
-import { OHRIFormField, OHRIFormSchema } from '../api/types';
+import { OHRIFormField } from '../api/types';
 
 let baseRegistry = {};
 export interface FormJsonFile {

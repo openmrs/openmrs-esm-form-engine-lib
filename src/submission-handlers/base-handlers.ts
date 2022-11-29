@@ -49,13 +49,13 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     let obsGroup = null;
     // If this field is a group member and the obs was picked from the encounters's top obs leaves,
     // chances are high this obs wasn't captured as part of the obs group. return empty.
-    // this should be solved by tracking obs through `formFieldNamespace`.
+    // this should be solved by tracking obs path through `formFieldNamespace`.
     if (obs && field['groupId']) {
       return '';
     }
     if (!obs && field['groupId']) {
       parentField = allFormFields.find(f => f.id == field['groupId']);
-      obsGroup = findObsByFormField(encounter.obs, assignedObsIds, parentField);
+      obsGroup = findObsByFormField(encounter.obs, null, parentField);
       if (obsGroup) {
         assignedObsIds.push(obsGroup.uuid);
         parentField.value = obsGroup;
@@ -198,6 +198,12 @@ const constructObs = (value: any, context: EncounterContext, field: OHRIFormFiel
   };
 };
 
+/**
+ * Looks up target Obs for a specific field in the`obsList`.
+ *
+ * If `claimedObsIds` is provided, it will be used to filter
+ * out all previously assigned observations basing list content.
+ */
 export const findObsByFormField = (
   obsList: Array<OpenmrsObs>,
   claimedObsIds: string[],
@@ -209,7 +215,9 @@ export const findObsByFormField = (
   if (!obs) {
     const assignableObsOptions = obsList.filter(obs => obs.concept.uuid == field.questionOptions.concept);
     // return the first occurrance of an unclaimed observation
-    return assignableObsOptions.filter(obs => !claimedObsIds.includes(obs.uuid))[0];
+    return claimedObsIds?.length
+      ? assignableObsOptions.filter(obs => !claimedObsIds.includes(obs.uuid))[0]
+      : assignableObsOptions[0];
   }
   return obs;
 };
