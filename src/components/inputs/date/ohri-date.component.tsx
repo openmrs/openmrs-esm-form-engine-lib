@@ -40,12 +40,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
     setFieldValue(question.id, refinedDate);
     onChange(question.id, refinedDate, setErrors);
     onTimeChange(false, true);
-    moment(refinedDate.value).format('YYYY-MM-DD HH:mm');
-    question.value = handler.handleFieldSubmission(
-      question,
-      moment(refinedDate.value).format('YYYY-MM-DD HH:mm'),
-      encounterContext,
-    );
+    question.value = handler.handleFieldSubmission(question, refinedDate, encounterContext);
   };
 
   const onTimeChange = (event, useValue = false) => {
