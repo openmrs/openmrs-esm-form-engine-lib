@@ -137,7 +137,6 @@ export const ObsSubmissionHandler: SubmissionHandler = {
       obsGroup = findObsByFormField(encounter.obs, assignedObsIds, parentField);
       if (obsGroup) {
         assignedObsIds.push(obsGroup.uuid);
-        parentField.value = obsGroup;
         if (obsGroup.groupMembers) {
           obs = findObsByFormField(obsGroup.groupMembers, assignedObsIds, field);
         }
