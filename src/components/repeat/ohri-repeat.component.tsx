@@ -11,6 +11,8 @@ import { OHRIObsGroup } from '../group/ohri-obs-group.component';
 import { TrashCan, Add } from '@carbon/react/icons';
 import styles from '../inputs/_input.scss';
 import { getConcept } from '../../api/api';
+import { evaluateExpression } from '../../utils/expression-runner';
+import { isEmpty } from '../../validators/ohri-form-validator';
 
 export const getInitialValueFromObs = (field: OHRIFormField, obsGroup: any) => {
   const rendering = field.questionOptions.rendering;
@@ -42,6 +44,16 @@ export const getInitialValueFromObs = (field: OHRIFormField, obsGroup: any) => {
   return '';
 };
 
+export const updateFieldIdInExpression = (expression: string, index: number, questionIds: string[]) => {
+  let uniqueQuestionIds = [...new Set(questionIds)];
+  uniqueQuestionIds.forEach(id => {
+    if (expression.match(id)) {
+      expression = expression.replace(new RegExp(id, 'g'), `${id}-${index}`);
+    }
+  });
+  return expression;
+};
+
 export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange }) => {
   const [questions, setQuestions] = useState([question]);
   const { fields, encounterContext, obsGroupsToVoid } = React.useContext(OHRIFormContext);
@@ -70,16 +82,63 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
   }, [question]);
 
   const handleAdd = (count: number, obsGroup?: any) => {
+    const questionIds: string[] = [];
     const idSuffix = count;
     const next = cloneDeep(question);
     next.value = obsGroup;
     next.id = `${next.id}-${idSuffix}`;
+    next.questions.forEach(q => {
+      questionIds.push(q.id);
+    });
     next.questions.forEach(q => {
       q.id = `${q.id}-${idSuffix}`;
       q['groupId'] = next.id;
       q.value = null;
       let initialValue = obsGroup ? getInitialValueFromObs(q, obsGroup) : null;
       values[`${q.id}`] = initialValue ? initialValue : q.questionOptions.rendering == 'checkbox' ? [] : '';
+
+      //Evaluate hide expressions
+      if (q['hide'].hideWhenExpression) {
+        let updatedExpression = updateFieldIdInExpression(q['hide'].hideWhenExpression, idSuffix, questionIds);
+        q['hide'].hideWhenExpression = updatedExpression;
+        q.isHidden = evaluateExpression(updatedExpression, { value: q, type: 'field' }, fields, values, {
+          mode: encounterContext.sessionMode,
+          patient: encounterContext.patient,
+        });
+      }
+
+      //Evaluate validators
+      if (q.validators) {
+        if (q.validators.length > 0) {
+          for (let value of q.validators) {
+            if (value.type === 'js_expression') {
+              value['failsWhenExpression'] = updateFieldIdInExpression(
+                value['failsWhenExpression'],
+                idSuffix,
+                questionIds,
+              );
+            }
+          }
+        }
+      }
+
+      //Evaluate Calculated Expressions
+      if (q.questionOptions.calculate?.calculateExpression) {
+        const updatedExpression = updateFieldIdInExpression(
+          q.questionOptions.calculate?.calculateExpression,
+          idSuffix,
+          questionIds,
+        );
+        const result = evaluateExpression(updatedExpression, { value: q, type: 'field' }, fields, values, {
+          mode: encounterContext.sessionMode,
+          patient: encounterContext.patient,
+        });
+        if (!isEmpty(result)) {
+          values[q.id] = result;
+          getHandler(q.type).handleFieldSubmission(q, result, encounterContext);
+        }
+      }
+
       fields.push(q);
     });
     setValues(values);
