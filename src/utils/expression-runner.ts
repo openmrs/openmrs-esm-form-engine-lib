@@ -60,6 +60,42 @@ export function evaluateExpression(
     return left?.getTime() < otherDate.getTime();
   }
 
+  function isDateAfter(selectedDate: Date, baseDate: Date, duration: number, timePeriod: string) {
+    let calculatedDate = new Date(0);
+    selectedDate = moment(selectedDate, 'YYYY-MM-DD', true).toDate();
+    baseDate = moment(baseDate, 'YYYY-MM-DD', true).toDate();
+
+    switch (timePeriod) {
+      case 'months':
+        calculatedDate = new Date(baseDate.setMonth(baseDate.getMonth() + duration));
+        break;
+      case 'weeks':
+        calculatedDate = addWeeksToDate(baseDate, duration);
+        break;
+      case 'days':
+        calculatedDate = addDaysToDate(baseDate, duration);
+      case 'years':
+        calculatedDate = new Date(baseDate.setFullYear(baseDate.getFullYear() + duration));
+        break;
+      default:
+        break;
+    }
+
+    return selectedDate.getTime() > calculatedDate.getTime();
+  }
+
+  function addWeeksToDate(date, weeks) {
+    date.setDate(date.getDate() + 7 * weeks);
+
+    return date;
+  }
+
+  function addDaysToDate(date, days) {
+    date.setDate(date.getDate() + days);
+
+    return date;
+  }
+
   function useFieldValue(questionId: string) {
     if (allFieldsKeys.includes(questionId)) {
       return allFieldValues[questionId];
