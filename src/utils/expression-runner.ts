@@ -74,6 +74,7 @@ export function evaluateExpression(
         break;
       case 'days':
         calculatedDate = addDaysToDate(baseDate, duration);
+        break;
       case 'years':
         calculatedDate = new Date(baseDate.setFullYear(baseDate.getFullYear() + duration));
         break;
