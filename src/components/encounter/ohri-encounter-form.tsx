@@ -1,5 +1,5 @@
 import { openmrsObservableFetch, useLayoutType } from '@openmrs/esm-framework';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ConceptFalse, ConceptTrue, encounterRepresentation } from '../../constants';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { getHandler, getValidator } from '../../registry/registry';
@@ -92,14 +92,17 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     };
   }, [scrollablePages, formJson]);
 
-  const encounterContext = {
-    patient: patient,
-    encounter: encounter,
-    previousEncounter,
-    location: location,
-    sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
-    date: encounterDate,
-  };
+  const encounterContext = useMemo(
+    () => ({
+      patient: patient,
+      encounter: encounter,
+      previousEncounter,
+      location: location,
+      sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
+      date: encounterDate,
+    }),
+    [encounter, encounterDate, form?.encounter, location, patient, previousEncounter, sessionMode],
+  );
 
   useEffect(() => {
     if (!encounterLocation) {

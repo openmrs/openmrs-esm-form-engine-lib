@@ -22,6 +22,7 @@ import ReactMarkdown from 'react-markdown';
 import { PatientBanner } from './components/patient-banner/patient-banner.component';
 import LoadingIcon from './components/loading/loading.component';
 import { init, teardown } from './lifecycle';
+import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
 
 interface OHRIFormProps {
   formJson: OHRIFormSchema;
@@ -62,6 +63,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const handlers = new Map<string, FormSubmissionHandler>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
+  const postSubmissionHandler = usePostSubmissionAction(formJson.postSubmissionAction);
 
   const form = useMemo(() => {
     const copy: OHRIFormSchema =
@@ -156,7 +158,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
         return handler?.submit?.(values);
       });
       Promise.all(submissions)
-        .then(results => {
+        .then(async results => {
           if (mode == 'edit') {
             showToast({
               description: t('updatedRecordDescription', 'The patient encounter was updated'),
@@ -171,6 +173,16 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
               kind: 'success',
               critical: true,
             });
+          }
+          // Post Submission Actions
+          if (postSubmissionHandler) {
+            await Promise.resolve(
+              postSubmissionHandler.applyAction({
+                patient,
+                sessionMode,
+                encounters: results.map(encounterResult => encounterResult.data),
+              }),
+            );
           }
           onSubmit?.();
         })

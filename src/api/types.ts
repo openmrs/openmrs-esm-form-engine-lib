@@ -61,6 +61,7 @@ export interface OHRIFormSchema {
   readonly?: string | boolean;
   inlineRendering?: 'single-line' | 'multiline' | 'automatic';
   markdown?: any;
+  postSubmissionAction?: string;
 }
 
 export interface OHRIFormPage {
@@ -71,7 +72,12 @@ export interface OHRIFormPage {
   isSubform?: boolean;
   inlineRendering?: 'single-line' | 'multiline' | 'automatic';
   readonly?: string | boolean;
-  subform?: { name?: string; package?: string; behaviours?: Array<any>; form: OHRIFormSchema };
+  subform?: {
+    name?: string;
+    package?: string;
+    behaviours?: Array<any>;
+    form: Omit<OHRIFormSchema, 'postSubmissionAction'>;
+  };
 }
 export interface OHRIFormField {
   label: string;
@@ -154,6 +160,13 @@ export type RenderType =
   | 'toggle'
   | 'fixed-value';
 
+export interface PostSubmissionAction {
+  applyAction(formSession: {
+    patient: fhir.Patient;
+    encounters: Array<OpenmrsEncounter>;
+    sessionMode: SessionMode;
+  }): void;
+}
 // OpenMRS Type Definitions
 export interface OpenmrsEncounter {
   uuid?: string;

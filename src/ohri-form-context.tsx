@@ -17,7 +17,7 @@ type OHRIFormContextProps = {
 };
 
 export interface EncounterContext {
-  patient: any;
+  patient: fhir.Patient;
   encounter: OpenmrsEncounter;
   previousEncounter?: OpenmrsEncounter;
   location: any;

@@ -4,10 +4,7 @@ import { map } from 'rxjs/operators';
 import { encounterRepresentation } from '../constants';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
-  let url = '/ws/rest/v1/encounter';
-  if (encounterUuid) {
-    url = url + `/${encounterUuid}`;
-  }
+  const url = !!encounterUuid ? `/ws/rest/v1/encounter/${encounterUuid}?v=full` : `/ws/rest/v1/encounter?v=full`;
   return openmrsFetch(url, {
     headers: {
       'Content-Type': 'application/json',

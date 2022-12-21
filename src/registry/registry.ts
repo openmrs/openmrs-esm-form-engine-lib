@@ -12,23 +12,44 @@ import OHRIToggle from '../components/inputs/toggle/ohri-toggle.component';
 import { OHRIRepeat } from '../components/repeat/ohri-repeat.component';
 import { OHRIFieldValidator } from '../validators/ohri-form-validator';
 import { EncounterLocationSubmissionHandler, ObsSubmissionHandler } from '../submission-handlers/base-handlers';
-import { FieldValidator, SubmissionHandler } from '../api/types';
+import { FieldValidator, PostSubmissionAction, SubmissionHandler } from '../api/types';
 import OHRIFixedValue from '../components/inputs/fixed-value/ohri-fixed-value.component';
 import OHRIMarkdown from '../components/inputs/markdown/ohri-markdown.component';
 import { OHRIDateValidator } from '../validators/ohri-date-validator';
 import { OHRIJSExpressionValidator } from '../validators/ohri-js-expression-validator';
 import { getGlobalStore } from '@openmrs/esm-framework';
-import { OHRIFormsTagLibraryStore } from '../constants';
+import { OHRIFormsStore } from '../constants';
 import OHRIExtensionParcel from '../components/extension/ohri-extension-parcel.component';
 
-export interface FormsRegistryStoreState {
-  baseFieldComponents: Array<RegistryItem>;
-  customControls: Array<RegistryItem>;
-  baseHandlers: Array<RegistryItem>;
-  fieldValidators: Array<ValidatorRegistryItem>;
+export interface RegistryItem {
+  id: string;
+  component: any;
+  type?: string;
 }
 
-export const baseFieldComponents: Array<ControlRegistryItem> = [
+export interface ComponentRegistration {
+  id: string;
+  load: () => Promise<any>;
+}
+
+export interface PostSubmissionActionRegistration extends ComponentRegistration {
+  load: () => Promise<{ default: PostSubmissionAction }>;
+}
+
+export interface CustomControlRegistration extends Omit<ComponentRegistration, 'load'> {
+  loadControl: () => Promise<any>;
+  type: string;
+}
+interface ValidatorRegistryItem extends RegistryItem {
+  component: FieldValidator;
+}
+
+export interface FormsRegistryStoreState {
+  customControls: Array<CustomControlRegistration>;
+  postSubmissionActions: Array<PostSubmissionActionRegistration>;
+}
+
+export const baseFieldComponents: Array<CustomControlRegistration> = [
   {
     id: 'OHRIText',
     loadControl: () => Promise.resolve({ default: OHRIText }),
@@ -147,8 +168,7 @@ const fieldValidators: Array<ValidatorRegistryItem> = [
 export const getFieldComponent = renderType => {
   let lazy = baseFieldComponents.find(item => item.type == renderType)?.loadControl;
   if (!lazy) {
-    const tagLib = getGlobalStore<Array<ControlRegistryItem>>(OHRIFormsTagLibraryStore, []).getState();
-    lazy = tagLib.find(item => item.type == renderType)?.loadControl;
+    lazy = getOHRIFormsStore().customControls.find(item => item.type == renderType)?.loadControl;
   }
   return lazy?.();
 };
@@ -167,21 +187,31 @@ export function addvalidator(validator: ValidatorRegistryItem) {
   }
 }
 
+function getOHRIFormsStore(): FormsRegistryStoreState {
+  return getGlobalStore<FormsRegistryStoreState>(OHRIFormsStore, {
+    customControls: [],
+    postSubmissionActions: [],
+  }).getState();
+}
+
 export function getValidator(id: string): FieldValidator {
   return fieldValidators.find(validator => validator.id == id)?.component || fieldValidators[0].component;
 }
 
-export interface RegistryItem {
-  id: string;
-  component: any;
-  type?: string;
+export function registerControl(registration: CustomControlRegistration) {
+  getOHRIFormsStore().customControls.push(registration);
 }
 
-export interface ControlRegistryItem {
-  id: string;
-  loadControl: () => Promise<any>;
-  type: string;
+export function registerPostSubmissionAction(registration: PostSubmissionActionRegistration) {
+  getOHRIFormsStore().postSubmissionActions.push(registration);
 }
-interface ValidatorRegistryItem extends RegistryItem {
-  component: FieldValidator;
+
+export function getPostSubmissionActionById(actionId: string) {
+  const lazy = getOHRIFormsStore().postSubmissionActions.find(registration => registration.id == actionId)?.load;
+  if (lazy) {
+    return lazy();
+  } else {
+    console.error(`No loader found for PostSubmissionAction registration of id: ${actionId}`);
+  }
+  return null;
 }
