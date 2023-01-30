@@ -196,20 +196,21 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
     );
   });
 
-  nodes.push(
-    <div>
-      <Button
-        renderIcon={() => <Add size={16} />}
-        kind="ghost"
-        onClick={() => {
-          const nextCount = counter + 1;
-          handleAdd(nextCount, null);
-          setCounter(nextCount);
-        }}>
-        {question.questionOptions.repeatOptions?.addText || 'Add'}
-      </Button>
-    </div>,
-  );
+  encounterContext.sessionMode != 'view' &&
+    nodes.push(
+      <div>
+        <Button
+          renderIcon={() => <Add size={16} />}
+          kind="ghost"
+          onClick={() => {
+            const nextCount = counter + 1;
+            handleAdd(nextCount, null);
+            setCounter(nextCount);
+          }}>
+          {question.questionOptions.repeatOptions?.addText || 'Add'}
+        </Button>
+      </div>,
+    );
   return (
     !question.isHidden && (
       <div style={{ marginTop: '0.65rem', marginBottom: '2rem' }}>

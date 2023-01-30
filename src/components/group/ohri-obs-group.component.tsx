@@ -4,12 +4,14 @@ import { OHRIFormFieldProps } from '../../api/types';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
 import styles from '../inputs/_input.scss';
 import { getFieldControl, supportsUnspecified } from '../section/ohri-form-section.component';
+import { OHRIFormContext } from '../../ohri-form-context';
 export interface ObsGroupProps extends OHRIFormFieldProps {
   deleteControl?: any;
 }
 
 export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteControl }) => {
   const [groupMembersControlMap, setGroupMembersControlMap] = useState([]);
+  const { encounterContext } = React.useContext(OHRIFormContext);
 
   useEffect(() => {
     Promise.all(

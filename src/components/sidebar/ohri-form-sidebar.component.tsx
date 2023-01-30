@@ -81,15 +81,14 @@ function OHRIFormSidebar({
               }
               key={index}
               onClick={() => handleClick(page.label)}>
-              {/* eslint-disable-next-line no-console */}
               <div className={styles.sidebarSectionLink}>{page.label}</div>
             </div>
           )
         );
       })}
-      <hr className={styles.sideBarHorizontalLine} />
+      {mode !== 'view' && <hr className={styles.sideBarHorizontalLine} />}
       <div className={styles.sidenavActions}>
-        {allowUnspecifiedAll && (
+        {allowUnspecifiedAll && mode !== 'view' && (
           <div style={{ marginBottom: '.6rem' }}>
             <Toggle
               labelText=""
@@ -106,7 +105,7 @@ function OHRIFormSidebar({
           </Button>
         )}
         <Button
-          style={{ width: '11rem' }}
+          style={{ width: '11rem', marginTop: mode == 'view' ? '1.5rem' : '0' }}
           kind="tertiary"
           onClick={() => {
             onCancel && onCancel();
