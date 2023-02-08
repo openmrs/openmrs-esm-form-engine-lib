@@ -72,6 +72,11 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       // Assign this to the parent form
       copy.encounter = encounterUuid;
     }
+    // Ampath forms configure the `encounterType` property through the `encounter` attribute
+    if (copy.encounter && typeof copy.encounter == 'string' && !copy.encounterType) {
+      copy.encounterType = copy.encounter;
+      delete copy.encounter;
+    }
     let i = copy.pages.length;
     // let's loop backwards so that we splice in the opposite direction
     while (i--) {
