@@ -23,6 +23,7 @@ import { PatientBanner } from './components/patient-banner/patient-banner.compon
 import LoadingIcon from './components/loading/loading.component';
 import { init, teardown } from './lifecycle';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
+import LinearLoader from './components/loading/linear-loader.component';
 
 interface OHRIFormProps {
   formJson: OHRIFormSchema;
@@ -63,6 +64,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const handlers = new Map<string, FormSubmissionHandler>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
+  const [isFormLoading, setIsFormLoading] = useState(true);
   const postSubmissionHandler = usePostSubmissionAction(formJson.postSubmissionAction);
 
   const form = useMemo(() => {
@@ -220,71 +222,78 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
             <LoadingIcon />
           ) : (
             <div className={styles.ohriFormContainer}>
-              {showSideBar && (
-                <OHRIFormSidebar
-                  isFormSubmitting={isSubmitting}
-                  pagesWithErrors={pagesWithErrors}
-                  scrollAblePages={scrollAblePages}
-                  selectedPage={selectedPage}
-                  mode={mode}
-                  onCancel={onCancel}
-                  handleClose={handleClose}
-                  values={props.values}
-                  setValues={props.setValues}
-                  allowUnspecifiedAll={formJson.allowUnspecifiedAll}
-                  defaultPage={formJson.defaultPage}
-                />
+              {isFormLoading && sessionMode == 'edit' && (
+                <div className={styles.ohriFormBody}>
+                  <LinearLoader />
+                </div>
               )}
-
-              <div className={styles.formContent}>
-                {workspaceLayout != 'minimized' && <PatientBanner patient={patient} hideActionsOverflow={true} />}
-                {form.markdown && (
-                  <div className={styles.markdownContainer}>
-                    <ReactMarkdown children={form.markdown.join('\n')} />
-                  </div>
+              <div className={styles.ohriFormBody}>
+                {showSideBar && (
+                  <OHRIFormSidebar
+                    isFormSubmitting={isSubmitting}
+                    pagesWithErrors={pagesWithErrors}
+                    scrollAblePages={scrollAblePages}
+                    selectedPage={selectedPage}
+                    mode={mode}
+                    onCancel={onCancel}
+                    handleClose={handleClose}
+                    values={props.values}
+                    setValues={props.setValues}
+                    allowUnspecifiedAll={formJson.allowUnspecifiedAll}
+                    defaultPage={formJson.defaultPage}
+                  />
                 )}
-                <div
-                  className={`${styles.formContentBody}
+                <div className={styles.formContent}>
+                  {workspaceLayout != 'minimized' && <PatientBanner patient={patient} hideActionsOverflow={true} />}
+                  {form.markdown && (
+                    <div className={styles.markdownContainer}>
+                      <ReactMarkdown children={form.markdown.join('\n')} />
+                    </div>
+                  )}
+                  <div
+                    className={`${styles.formContentBody}
                     ${workspaceLayout == 'minimized' ? `${styles.minifiedFormContentBody}` : ''}
                   `}>
-                  <OHRIEncounterForm
-                    formJson={form}
-                    patient={patient}
-                    encounterDate={encDate}
-                    provider={currentProvider}
-                    location={location}
-                    values={props.values}
-                    isCollapsed={collapsed}
-                    sessionMode={sessionMode}
-                    scrollablePages={scrollAblePages}
-                    setAllInitialValues={setInitialValues}
-                    allInitialValues={initialValues}
-                    setScrollablePages={setScrollablePages}
-                    setPagesWithErrors={setPagesWithErrors}
-                    setFieldValue={props.setFieldValue}
-                    setSelectedPage={setSelectedPage}
-                    handlers={handlers}
-                    workspaceLayout={workspaceLayout}
-                    isSubmitting={isSubmitting}
-                  />
-                </div>
-                {workspaceLayout == 'minimized' && (
-                  <div className={styles.minifiedButtons}>
-                    <Button
-                      kind="secondary"
-                      onClick={() => {
-                        onCancel && onCancel();
-                        handleClose && handleClose();
-                      }}>
-                      {mode == 'view' ? 'Close' : 'Cancel'}
-                    </Button>
-                    {mode != 'view' && (
-                      <Button type="submit" disabled={isSubmitting}>
-                        Save
-                      </Button>
-                    )}
+                    <OHRIEncounterForm
+                      formJson={form}
+                      patient={patient}
+                      encounterDate={encDate}
+                      provider={currentProvider}
+                      location={location}
+                      values={props.values}
+                      isCollapsed={collapsed}
+                      sessionMode={sessionMode}
+                      scrollablePages={scrollAblePages}
+                      setAllInitialValues={setInitialValues}
+                      allInitialValues={initialValues}
+                      setScrollablePages={setScrollablePages}
+                      setPagesWithErrors={setPagesWithErrors}
+                      setIsFormLoading={setIsFormLoading}
+                      setFieldValue={props.setFieldValue}
+                      setSelectedPage={setSelectedPage}
+                      handlers={handlers}
+                      workspaceLayout={workspaceLayout}
+                      isSubmitting={isSubmitting}
+                    />
                   </div>
-                )}
+                  {workspaceLayout == 'minimized' && (
+                    <div className={styles.minifiedButtons}>
+                      <Button
+                        kind="secondary"
+                        onClick={() => {
+                          onCancel && onCancel();
+                          handleClose && handleClose();
+                        }}>
+                        {mode == 'view' ? 'Close' : 'Cancel'}
+                      </Button>
+                      {mode != 'view' && (
+                        <Button type="submit" disabled={isSubmitting}>
+                          Save
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}

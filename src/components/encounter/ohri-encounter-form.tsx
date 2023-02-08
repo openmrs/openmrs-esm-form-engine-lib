@@ -42,6 +42,7 @@ interface OHRIEncounterFormProps {
   setAllInitialValues: (values: Record<string, any>) => void;
   setScrollablePages: (pages: Set<OHRIFormPageProps>) => void;
   setPagesWithErrors: (pages: string[]) => void;
+  setIsFormLoading?: (value: boolean) => void;
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
   setSelectedPage: (page: string) => void;
   isSubmitting: boolean;
@@ -60,6 +61,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   workspaceLayout,
   setScrollablePages,
   setPagesWithErrors,
+  setIsFormLoading,
   setFieldValue,
   setSelectedPage,
   handlers,
@@ -153,6 +155,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       });
       setEncounterLocation(encounter.location);
       isFieldEncounterBindingComplete = true;
+      setIsFormLoading(false);
     } else {
       const emptyValues = {
         checkbox: [],
