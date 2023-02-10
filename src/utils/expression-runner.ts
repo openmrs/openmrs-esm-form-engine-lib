@@ -60,6 +60,14 @@ export function evaluateExpression(
     return left?.getTime() < otherDate.getTime();
   }
 
+  function isDateEqualTo(left: Date, right: string | Date, format?: string) {
+    let otherDate: any = right;
+    if (typeof right == 'string') {
+      otherDate = format ? moment(right, format, true).toDate() : moment(right, 'YYYY-MM-DD', true).toDate();
+    }
+    return left?.toDateString() == otherDate.toDateString();
+  }
+
   function isDateAfter(selectedDate: Date, baseDate: Date, duration: number, timePeriod: string) {
     let calculatedDate = new Date(0);
     selectedDate = moment(selectedDate, 'YYYY-MM-DD', true).toDate();

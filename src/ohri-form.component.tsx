@@ -222,7 +222,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
             <LoadingIcon />
           ) : (
             <div className={styles.ohriFormContainer}>
-              {isFormLoading && sessionMode == 'edit' && (
+              {isFormLoading && sessionMode !== 'enter' && (
                 <div className={styles.ohriFormBody}>
                   <LinearLoader />
                 </div>
