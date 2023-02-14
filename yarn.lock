@@ -2736,6 +2736,7 @@ __metadata:
     jest-cli: ^28.1.2
     jest-coverage-badges: ^1.0.0
     jest-environment-jsdom: ^28.1.2
+    jest-when: 3.5.1
     lodash-es: ^4.17.15
     moment: ^2.29.1
     openmrs: next
@@ -10193,6 +10194,15 @@ __metadata:
     jest-util: ^28.1.3
     string-length: ^4.0.1
   checksum: 8f6d674a4865e7df251f71544f1b51f06fd36b5a3a61f2ac81aeb81fa2a196be354fba51d0f97911c88f67cd254583b3a22ee124bf2c5b6ee2fadec27356c207
+  languageName: node
+  linkType: hard
+
+"jest-when@npm:3.5.1":
+  version: 3.5.1
+  resolution: "jest-when@npm:3.5.1"
+  peerDependencies:
+    jest: ">= 25"
+  checksum: 1efb9f497f7c846fe8b0f4125d5f449c4a4d78d5d0afa910d134b301ae4c119ea52c9465db38d2146269d42808afe8f3a4328d1d656878a9a69458ee653f6499
   languageName: node
   linkType: hard
 

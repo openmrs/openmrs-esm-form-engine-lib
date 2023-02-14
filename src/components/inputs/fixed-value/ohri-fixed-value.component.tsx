@@ -15,7 +15,7 @@ const OHRIFixedValue: React.FC<OHRIFormFieldProps> = ({ question, handler }) => 
       // fixed-value rendering types aren't supposed to EDIT an existing value
       // by the time this point is reached, it means an Observation with
       // the same concept question within this encounter has been assigned to this field
-      // I will just ignore that Observation
+      // We will just ignore that Observation
       delete question.value;
       handler.handleFieldSubmission(question, question['fixedValue'], encounterContext);
     } else if (!isTrue(question.isHidden) && isEmpty(question.value)) {

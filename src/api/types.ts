@@ -198,3 +198,19 @@ export interface OpenmrsObs extends OpenmrsResource {
   interpretation: string;
   [anythingElse: string]: any;
 }
+
+export interface OpenmrsForm {
+  uuid: string;
+  name: string;
+  encounterType: OpenmrsResource;
+  version: string;
+  description: string;
+  published: boolean;
+  retired: boolean;
+  resources: Array<OpenmrsFormResource>;
+}
+
+export interface OpenmrsFormResource extends OpenmrsResource {
+  dataType: string;
+  valueReference: string;
+}

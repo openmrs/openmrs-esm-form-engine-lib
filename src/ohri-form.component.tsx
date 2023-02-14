@@ -15,24 +15,55 @@ import { useTranslation } from 'react-i18next';
 import { OHRIFormSchema, SessionMode, OHRIFormPage as OHRIFormPageProps } from './api/types';
 import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
 import { OHRIEncounterForm } from './components/encounter/ohri-encounter-form';
-import { isTrue } from './utils/boolean-utils';
-import { useWorkspaceLayout } from './utils/useWorkspaceLayout';
+import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
 import { Button } from '@carbon/react';
 import ReactMarkdown from 'react-markdown';
 import { PatientBanner } from './components/patient-banner/patient-banner.component';
-import LoadingIcon from './components/loading/loading.component';
+import LoadingIcon from './components/loaders/loading.component';
 import { init, teardown } from './lifecycle';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
-import LinearLoader from './components/loading/linear-loader.component';
+import LinearLoader from './components/loaders/linear-loader.component';
+import { useFormJson } from './hooks/useFormJson';
+import { PatientChartWorkspaceHeaderSlot } from './constants';
+import { reportError } from './utils/error-utils';
 
 interface OHRIFormProps {
-  formJson: OHRIFormSchema;
-  onSubmit?: any;
-  onCancel?: any;
-  encounterUuid?: string;
+  patientUUID: string;
+  formUUID?: string;
+  formJson?: OHRIFormSchema;
+  encounterUUID?: string;
+  formSessionIntent?: string;
+  onSubmit?: () => void;
+  onCancel?: () => void;
+  handleClose?: () => void;
   mode?: SessionMode;
-  handleClose?: any;
-  patientUUID?: string;
+  meta?: {
+    /**
+     * The microfrontend that will be used to serve configs and load extensions.
+     */
+    moduleName: string;
+    /**
+     * Tells the engine where to pickup OHRI forms specific config from the ESM's configuration
+     *
+     * *Assuming an esm defines a config of similar structure:*
+     * ```json
+     *  {
+     *   forms: {
+     *     OHRIFormConfig: {},
+     *   },
+     *   otherConfigs: {}
+     *  }
+     * ```
+     * The path to the `OHRIFormConfig` would be: `"forms.OHRIFormConfig"`
+     */
+    configPath?: string;
+  };
+  /**
+   * @deprecated
+   *
+   * Renamed to `encounterUUID`. To be removed in future iterations.
+   */
+  encounterUuid?: string;
 }
 
 export interface FormSubmissionHandler {
@@ -42,16 +73,26 @@ export interface FormSubmissionHandler {
 
 const OHRIForm: React.FC<OHRIFormProps> = ({
   formJson,
-  encounterUuid,
+  formUUID,
+  patientUUID,
+  encounterUUID,
   mode,
   onSubmit,
   onCancel,
   handleClose,
-  patientUUID,
+  formSessionIntent,
+  meta,
+  encounterUuid,
 }) => {
   const [currentProvider, setCurrentProvider] = useState(null);
   const [location, setEncounterLocation] = useState(null);
-  const { patient } = usePatient(patientUUID);
+  const { patient, isLoading: isLoadingPatient, error: patientError } = usePatient(patientUUID);
+  const { formJson: refinedFormJson, isLoading: isLoadingFormJson, formError } = useFormJson(
+    formUUID,
+    formJson,
+    encounterUUID || encounterUuid,
+    formSessionIntent,
+  );
   const session = useSession();
   const [initialValues, setInitialValues] = useState({});
   const encDate = new Date();
@@ -64,37 +105,14 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const handlers = new Map<string, FormSubmissionHandler>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
-  const [isFormLoading, setIsFormLoading] = useState(true);
-  const postSubmissionHandler = usePostSubmissionAction(formJson.postSubmissionAction);
-
-  const form = useMemo(() => {
-    const copy: OHRIFormSchema =
-      typeof formJson == 'string' ? JSON.parse(formJson) : JSON.parse(JSON.stringify(formJson));
-    if (encounterUuid && !copy.encounter) {
-      // Assign this to the parent form
-      copy.encounter = encounterUuid;
-    }
-    // Ampath forms configure the `encounterType` property through the `encounter` attribute
-    if (copy.encounter && typeof copy.encounter == 'string' && !copy.encounterType) {
-      copy.encounterType = copy.encounter;
-      delete copy.encounter;
-    }
-    let i = copy.pages.length;
-    // let's loop backwards so that we splice in the opposite direction
-    while (i--) {
-      const page = copy.pages[i];
-      if (isTrue(page.isSubform) && !isTrue(page.isHidden) && page.subform?.form?.encounterType == copy.encounterType) {
-        copy.pages.splice(i, 1, ...page.subform.form.pages.filter(page => !isTrue(page.isSubform)));
-      }
-    }
-    return copy;
-  }, [encounterUuid]);
+  const postSubmissionHandler = usePostSubmissionAction(refinedFormJson?.postSubmissionAction);
+  const [isLoadingFormDependencies, setIsLoadingFormDependencies] = useState(true);
 
   const sessionMode = useMemo(() => {
     if (mode) {
       return mode;
     }
-    if (encounterUuid) {
+    if (encounterUUID || encounterUuid) {
       return 'edit';
     }
     return 'enter';
@@ -107,13 +125,13 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   useEffect(() => {
     const extDetails = {
       name: 'ohri-form-header-toggle-ext',
-      moduleName: '@openmrs/esm-ohri-app',
-      slot: 'patient-chart-workspace-header-slot',
+      moduleName: meta?.moduleName || '@openmrs/esm-ohri-app',
+      slot: PatientChartWorkspaceHeaderSlot,
       load: getAsyncLifecycle(
         () => import('./components/section-collapsible-toggle/ohri-section-collapsible-toggle.component'),
         {
           featureName: 'ohri-form-header-toggle',
-          moduleName: '@openmrs/esm-ohri-app',
+          moduleName: meta?.moduleName || '@openmrs/esm-ohri-app',
         },
       ),
       meta: {
@@ -123,16 +141,16 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       },
     };
     registerExtension(extDetails);
-    attach('patient-chart-workspace-header-slot', extDetails.name);
+    attach(PatientChartWorkspaceHeaderSlot, extDetails.name);
 
     return () => {
-      detach('patient-chart-workspace-header-slot', extDetails.name);
+      detach(PatientChartWorkspaceHeaderSlot, extDetails.name);
     };
   }, []);
 
   useEffect(() => {
     if (session) {
-      if (!encounterUuid) {
+      if (!(encounterUUID || encounterUuid)) {
         setEncounterLocation(session.sessionLocation);
       }
       setCurrentProvider(session.currentProvider.uuid);
@@ -148,6 +166,14 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       teardown();
     };
   }, []);
+
+  useEffect(() => {
+    reportError(formError, t);
+  }, [formError, t]);
+
+  useEffect(() => {
+    reportError(patientError, t);
+  }, [patientError, t]);
 
   const handleFormSubmit = (values: Record<string, any>) => {
     // validate form and it's suforms
@@ -218,11 +244,11 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       }}>
       {props => (
         <Form className={`cds--form no-padding ng-untouched ng-pristine ng-invalid ${styles.ohriForm}`} ref={ref}>
-          {!patient ? (
+          {isLoadingPatient || isLoadingFormJson ? (
             <LoadingIcon />
           ) : (
             <div className={styles.ohriFormContainer}>
-              {isFormLoading && sessionMode !== 'enter' && (
+              {isLoadingFormDependencies && (
                 <div className={styles.ohriFormBody}>
                   <LinearLoader />
                 </div>
@@ -245,9 +271,9 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                 )}
                 <div className={styles.formContent}>
                   {workspaceLayout != 'minimized' && <PatientBanner patient={patient} hideActionsOverflow={true} />}
-                  {form.markdown && (
+                  {refinedFormJson.markdown && (
                     <div className={styles.markdownContainer}>
-                      <ReactMarkdown children={form.markdown.join('\n')} />
+                      <ReactMarkdown children={refinedFormJson.markdown.join('\n')} />
                     </div>
                   )}
                   <div
@@ -255,7 +281,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     ${workspaceLayout == 'minimized' ? `${styles.minifiedFormContentBody}` : ''}
                   `}>
                     <OHRIEncounterForm
-                      formJson={form}
+                      formJson={refinedFormJson}
                       patient={patient}
                       encounterDate={encDate}
                       provider={currentProvider}
@@ -268,7 +294,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                       allInitialValues={initialValues}
                       setScrollablePages={setScrollablePages}
                       setPagesWithErrors={setPagesWithErrors}
-                      setIsFormLoading={setIsFormLoading}
+                      setIsLoadingFormDependencies={setIsLoadingFormDependencies}
                       setFieldValue={props.setFieldValue}
                       setSelectedPage={setSelectedPage}
                       handlers={handlers}

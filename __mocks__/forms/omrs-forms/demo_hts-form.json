@@ -1,0 +1,62 @@
+{
+    "uuid": "955ab92f-f93e-4dc0-9c68-b7b2346def55",
+    "display": "Demo HTS Form",
+    "name": "Demo HTS Form",
+    "description": null,
+    "encounterType": null,
+    "version": "1.0",
+    "build": null,
+    "published": false,
+    "formFields": [],
+    "retired": false,
+    "auditInfo": {
+        "creator": {
+            "uuid": "82f18b44-6814-11e8-923f-e9a88dcb533f",
+            "display": "admin",
+            "links": [
+                {
+                    "rel": "self",
+                    "uri": "http://ohri-demo.globalhealthapp.net/openmrs/ws/rest/v1/user/82f18b44-6814-11e8-923f-e9a88dcb533f",
+                    "resourceAlias": "user"
+                }
+            ]
+        },
+        "dateCreated": "2023-01-31T07:15:01.000+0000",
+        "changedBy": null,
+        "dateChanged": null
+    },
+    "resources": [
+        {
+            "uuid": "f12989b8-b8cb-47a2-b115-24a7ebe6d7f0",
+            "name": "JSON schema",
+            "valueReference": "1580ec72-2bed-4e33-954d-c94835c694a2",
+            "display": "JSON schema",
+            "links": [
+                {
+                    "rel": "value",
+                    "uri": "http://ohri-demo.globalhealthapp.net/openmrs/ws/rest/v1/form/955ab92f-f93e-4dc0-9c68-b7b2346def55/resource/f12989b8-b8cb-47a2-b115-24a7ebe6d7f0/value",
+                    "resourceAlias": "resource"
+                },
+                {
+                    "rel": "self",
+                    "uri": "http://ohri-demo.globalhealthapp.net/openmrs/ws/rest/v1/form/955ab92f-f93e-4dc0-9c68-b7b2346def55/resource/f12989b8-b8cb-47a2-b115-24a7ebe6d7f0",
+                    "resourceAlias": "resource"
+                },
+                {
+                    "rel": "full",
+                    "uri": "http://ohri-demo.globalhealthapp.net/openmrs/ws/rest/v1/form/955ab92f-f93e-4dc0-9c68-b7b2346def55/resource/f12989b8-b8cb-47a2-b115-24a7ebe6d7f0?v=full",
+                    "resourceAlias": "resource"
+                }
+            ],
+            "resourceVersion": "1.9"
+        }
+    ],
+    "links": [
+        {
+            "rel": "self",
+            "uri": "http://ohri-demo.globalhealthapp.net/openmrs/ws/rest/v1/form/955ab92f-f93e-4dc0-9c68-b7b2346def55",
+            "resourceAlias": "form"
+        }
+    ],
+    "resourceVersion": "1.9"
+}

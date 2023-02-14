@@ -1,0 +1,346 @@
+{
+    "name": "Demo HTS POC",
+    "pages": [
+        {
+            "label": "Screening",
+            "sections": [
+                {
+                    "label": "Testing history",
+                    "isExpanded": "true",
+                    "questions": [
+                        {
+                            "label": "When was the HIV test conducted?",
+                            "type": "obs",
+                            "questionOptions": {
+                                "rendering": "date",
+                                "concept": "164400AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                                "weeksList": ""
+                            },
+                            "required": "true",
+                            "unspecified": "true",
+                            "hide": {
+                                "hideWhenExpression": "false"
+                            },
+                            "validators": [
+                                {
+                                    "type": "date",
+                                    "allowFutureDates": "false"
+                                },
+                                {
+                                    "type": "js_expression",
+                                    "failsWhenExpression": "myValue < '1/1/1980' || myValue > today()"
+                                }
+                            ],
+                            "behaviours": [
+                                {
+                                    "intent": "HTS_INTENT_A",
+                                    "required": "true",
+                                    "unspecified": "true",
+                                    "hide": {
+                                        "hideWhenExpression": "false"
+                                    },
+                                    "validators": [
+                                        {
+                                            "type": "date",
+                                            "allowFutureDates": "false"
+                                        },
+                                        {
+                                            "type": "js_expression",
+                                            "failsWhenExpression": "myValue < '1/1/1980' || myValue > today()"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "intent": "HTS_INTENT_B",
+                                    "required": "true"
+                                },
+                                {
+                                    "intent": "*",
+                                    "required": "false",
+                                    "hide": {
+                                        "hideWhenExpression": "false"
+                                    },
+                                    "validators": [
+                                        {
+                                            "type": "date",
+                                            "allowFutureDates": "false"
+                                        },
+                                        {
+                                            "type": "js_expression",
+                                            "failsWhenExpression": "myValue < '1/1/1980' || myValue > today()"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "id": "dateTestPerformed"
+                        },
+                        {
+                            "label": "Community service delivery point",
+                            "type": "obs",
+                            "questionOptions": {
+                              "rendering": "select",
+                              "concept": "74a3b695-30f7-403b-8f63-3f766461e104",
+                              "answers": [
+                                {
+                                  "concept": "b12b2d5e-9e9b-4af8-b326-a9de5ea0acfe",
+                                  "label": "Drop In Centre",
+                                  "conceptMappings": []
+                                },
+                                {
+                                  "concept": "c15aecde-acac-49b6-bffe-cd1bb291c28b",
+                                  "label": "Workplace",
+                                  "conceptMappings": []
+                                },
+                                {
+                                  "concept": "7ac53e4f-c5c4-4bd9-a948-1df1fb73740a",
+                                  "label": "Hotspot",
+                                  "conceptMappings": []
+                                },
+                                {
+                                  "concept": "160545AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                                  "label": "Outreach Program",
+                                  "conceptMappings": []
+                                },
+                                {
+                                  "concept": "159938AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                                  "label": "Home Based HIV Testing Program",
+                                  "conceptMappings": [
+                                    {
+                                      "type": "AMPATH",
+                                      "value": "2049"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "concept": "159939AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                                  "label": "Mobile Voluntary Counselling and Testing Program",
+                                  "conceptMappings": [
+                                    {
+                                      "type": "AMPATH",
+                                      "value": "2048"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "concept": "159940AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                                  "label": "Voluntary Counselling and Testing Center",
+                                  "conceptMappings": [
+                                    {
+                                      "type": "AMPATH",
+                                      "value": "2047"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "concept": "1067AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                                  "label": "Unknown",
+                                  "conceptMappings": [
+                                    {
+                                      "type": "CIEL",
+                                      "value": "1067"
+                                    },
+                                    {
+                                      "type": "AMPATH",
+                                      "value": "1067"
+                                    },
+                                    {
+                                      "type": "SNOMED CT",
+                                      "value": "CT: 261665006"
+                                    },
+                                    {
+                                      "type": "PIH",
+                                      "value": "1067"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "concept": "5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                                  "label": "Other",
+                                  "conceptMappings": [
+                                    {
+                                      "type": "PIH-Malawi",
+                                      "value": "6408"
+                                    },
+                                    {
+                                      "type": "org.openmrs.module.mdrtb",
+                                      "value": "OTHER"
+                                    },
+                                    {
+                                      "type": "SNOMED-MVP",
+                                      "value": "56221000105001"
+                                    },
+                                    {
+                                      "type": "PIH",
+                                      "value": "5622"
+                                    },
+                                    {
+                                      "type": "AMPATH",
+                                      "value": "5622"
+                                    },
+                                    {
+                                      "type": "SNOMED-CT",
+                                      "value": "74964007"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            "behaviours": [
+                              {
+                                "intent": "HTS_INTENT_A",
+                                "hide": {
+                                  "hideWhenExpression": "true"
+                                }
+                              },
+                              {
+                                "intent": "HTS_INTENT_B",
+                                "required": "true"
+                              },
+                              {
+                                "intent": "*",
+                                "required": "true",
+                                "unspecified": "true",
+                                "hide": {
+                                  "hideWhenExpression": "false"
+                                }
+                              }
+                            ],
+                            "id": "serviceDeliveryPoint"
+                        },
+                        {
+                            "label": "TB screening",
+                            "type": "obs",
+                            "questionOptions": {
+                              "rendering": "checkbox",
+                              "concept": "12a22a0b-f0ed-4f1a-8d70-7c6acda5ae78",
+                              "answers": [
+                                {
+                                  "concept": "1494AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                                  "label": "Fever lasting more than 3 weeks",
+                                  "conceptMappings": []
+                                },
+                                {
+                                  "concept": "150796AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                                  "label": "Abnormal Weight Loss",
+                                  "conceptMappings": []
+                                },
+                                {
+                                  "concept": "159799AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                                  "label": "Cough lasting more than 2 weeks",
+                                  "conceptMappings": [
+                                    {
+                                      "type": "PIH",
+                                      "value": "2573"
+                                    },
+                                    {
+                                      "type": "SNOMED-MVP",
+                                      "value": "1597991000105004"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "concept": "1107AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                                  "label": "None",
+                                  "conceptMappings": [
+                                    {
+                                      "type": "org.openmrs.module.mdrtb",
+                                      "value": "NONE"
+                                    },
+                                    {
+                                      "type": "PIH",
+                                      "value": "1107"
+                                    },
+                                    {
+                                      "type": "CIEL",
+                                      "value": "1107"
+                                    },
+                                    {
+                                      "type": "SNOMED-CT",
+                                      "value": "260413007"
+                                    },
+                                    {
+                                      "type": "AMPATH",
+                                      "value": "1107"
+                                    },
+                                    {
+                                      "type": "PIH-Malawi",
+                                      "value": "1107"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "concept": "133027AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                                  "label": "Night sweats",
+                                  "conceptMappings": [
+                                    {
+                                      "type": "ICPC2",
+                                      "value": "A09"
+                                    },
+                                    {
+                                      "type": "ICD-10-WHO",
+                                      "value": "R61.1"
+                                    },
+                                    {
+                                      "type": "AMPATH",
+                                      "value": "6029"
+                                    },
+                                    {
+                                      "type": "SNOMED-CT",
+                                      "value": "42984000"
+                                    },
+                                    {
+                                      "type": "PIH",
+                                      "value": "6029"
+                                    },
+                                    {
+                                      "type": "IMO-ProblemIT",
+                                      "value": "50760"
+                                    },
+                                    {
+                                      "type": "3BT",
+                                      "value": "10063085"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "concept": "12a22a0b-f0ed-4f1a-8d70-7c6acda5ae78",
+                                  "label": "Weight Loss (Abnormal weight loss)",
+                                  "conceptMappings": []
+                                }
+                              ]
+                            },
+                            "behaviours": [
+                              {
+                                "intent": "HTS_INTENT_A",
+                                "required": "true",
+                                "unspecified": "true"
+                              },
+                              {
+                                "intent": "HTS_INTENT_B",
+                                "hide": {
+                                  "hideWhenExpression": "true"
+                                }
+                              },
+                              {
+                                "intent": "*",
+                                "required": "true",
+                                "unspecified": "true"
+                              }
+                            ],
+                            "id": "tbSymptoms"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "availableIntents": [
+        "HTS_INTENT_A",
+        "HTS_INTENT_B",
+        "*"
+    ],
+    "processor": "EncounterFormProcessor",
+    "uuid": "da24c540-cc83-43bc-978f-c1ef180a497f",
+    "referencedForms": [],
+    "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe"
+}

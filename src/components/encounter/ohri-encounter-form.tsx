@@ -1,6 +1,6 @@
-import { openmrsObservableFetch, useLayoutType } from '@openmrs/esm-framework';
+import { useLayoutType } from '@openmrs/esm-framework';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ConceptFalse, ConceptTrue, encounterRepresentation } from '../../constants';
+import { ConceptFalse, ConceptTrue } from '../../constants';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { getHandler, getValidator } from '../../registry/registry';
 import {
@@ -25,6 +25,7 @@ import { isTrue } from '../../utils/boolean-utils';
 import { evaluateExpression } from '../../utils/expression-runner';
 import { getPreviousEncounter, saveEncounter } from '../../api/api';
 import { scrollIntoView } from '../../utils/ohri-sidebar';
+import { useEncounter } from '../../hooks/useEncounter';
 
 interface OHRIEncounterFormProps {
   formJson: OHRIFormSchema;
@@ -42,7 +43,7 @@ interface OHRIEncounterFormProps {
   setAllInitialValues: (values: Record<string, any>) => void;
   setScrollablePages: (pages: Set<OHRIFormPageProps>) => void;
   setPagesWithErrors: (pages: string[]) => void;
-  setIsFormLoading?: (value: boolean) => void;
+  setIsLoadingFormDependencies?: (value: boolean) => void;
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
   setSelectedPage: (page: string) => void;
   isSubmitting: boolean;
@@ -61,7 +62,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   workspaceLayout,
   setScrollablePages,
   setPagesWithErrors,
-  setIsFormLoading,
+  setIsLoadingFormDependencies,
   setFieldValue,
   setSelectedPage,
   handlers,
@@ -71,7 +72,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
 }) => {
   const [fields, setFields] = useState<Array<OHRIFormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
-  const [encounter, setEncounter] = useState<OpenmrsEncounter>(null);
+  const { encounter, isLoading: isLoadingEncounter } = useEncounter(formJson);
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [form, setForm] = useState<OHRIFormSchema>(formJson);
   const [obsGroupsToVoid, setObsGroupsToVoid] = useState([]);
@@ -107,7 +108,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   );
 
   useEffect(() => {
-    if (!encounterLocation) {
+    if (!encounterLocation && location) {
       setEncounterLocation(location);
     }
   }, [location]);
@@ -155,7 +156,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       });
       setEncounterLocation(encounter.location);
       isFieldEncounterBindingComplete = true;
-      setIsFormLoading(false);
     } else {
       const emptyValues = {
         checkbox: [],
@@ -246,24 +246,18 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   }, [encounter]);
 
   useEffect(() => {
-    let subscription;
-    if (formJson.encounter && typeof formJson.encounter == 'string') {
-      subscription = openmrsObservableFetch<OpenmrsEncounter>(
-        `/ws/rest/v1/encounter/${formJson.encounter}?v=${encounterRepresentation}`,
-      ).subscribe(({ data }) => setEncounter(data));
-    } else if (typeof formJson.encounter == 'object') {
-      setEncounter(formJson.encounter);
-    }
-    return () => subscription?.unsubscribe();
-  }, [formJson.encounter]);
-
-  useEffect(() => {
     if (sessionMode == 'enter') {
       getPreviousEncounter(patient.id, formJson.encounterType).then(data => {
         setPreviousEncounter(data);
       });
     }
   }, [sessionMode]);
+
+  useEffect(() => {
+    if (!isLoadingEncounter && (previousEncounter || sessionMode != 'enter')) {
+      setIsLoadingFormDependencies(false);
+    }
+  }, [isLoadingEncounter, previousEncounter]);
 
   const evalHide = (node, allFields: OHRIFormField[], allValues: Record<string, any>) => {
     const { value, type } = node;

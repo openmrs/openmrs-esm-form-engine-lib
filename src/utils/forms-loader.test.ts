@@ -1,11 +1,11 @@
 import { FormJsonFile, getForm, getFormByVersion, getLatestFormVersion, applyFormIntent } from './forms-loader';
 import formsRegistry from '../../__mocks__/packages/test-forms-registry';
 import {
-  testSchemaV2,
-  htsRetrospectiveResultingSchemaV2,
   htsHivtestResultingSchemaV2,
+  htsRetrospectiveResultingSchemaV2,
   htsWildcardResultingSchemaV2,
-} from './forms-loader.test.schema';
+  testSchemaV2,
+} from '../../__mocks__/forms/ohri-forms/forms-loader.test.schema';
 
 const htsTestForms: FormJsonFile[] = [
   {
