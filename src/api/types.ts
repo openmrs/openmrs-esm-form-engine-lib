@@ -61,7 +61,7 @@ export interface OHRIFormSchema {
   readonly?: string | boolean;
   inlineRendering?: 'single-line' | 'multiline' | 'automatic';
   markdown?: any;
-  postSubmissionAction?: string;
+  postSubmissionActions?: Array<string>;
 }
 
 export interface OHRIFormPage {
@@ -76,7 +76,7 @@ export interface OHRIFormPage {
     name?: string;
     package?: string;
     behaviours?: Array<any>;
-    form: Omit<OHRIFormSchema, 'postSubmissionAction'>;
+    form: Omit<OHRIFormSchema, 'postSubmissionActions'>;
   };
 }
 export interface OHRIFormField {

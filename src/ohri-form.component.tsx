@@ -105,7 +105,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const handlers = new Map<string, FormSubmissionHandler>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
-  const postSubmissionHandler = usePostSubmissionAction(refinedFormJson?.postSubmissionAction);
+  const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
   const [isLoadingFormDependencies, setIsLoadingFormDependencies] = useState(true);
 
   const sessionMode = useMemo(() => {
@@ -208,12 +208,14 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
             });
           }
           // Post Submission Actions
-          if (postSubmissionHandler) {
-            await Promise.resolve(
-              postSubmissionHandler.applyAction({
-                patient,
-                sessionMode,
-                encounters: results.map(encounterResult => encounterResult.data),
+          if (postSubmissionHandlers) {
+            await Promise.all(
+              postSubmissionHandlers.map(handler => {
+                handler.applyAction({
+                  patient,
+                  sessionMode,
+                  encounters: results.map(encounterResult => encounterResult.data),
+                });
               }),
             );
           }

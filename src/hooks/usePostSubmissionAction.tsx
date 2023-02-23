@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PostSubmissionAction } from '../api/types';
 import { getPostSubmissionActionById } from '../registry/registry';
 
-export function usePostSubmissionAction(actionId: string) {
-  const [action, setAction] = useState<PostSubmissionAction>(null);
+export function usePostSubmissionAction(actionIds: Array<string>) {
+  const [actions, setActions] = useState<Array<PostSubmissionAction>>([]);
   useEffect(() => {
-    if (actionId) {
-      getPostSubmissionActionById(actionId).then(response => setAction(response.default));
+    let actionArray = [];
+    if (actionIds) {
+      actionIds.map(actionId => {
+        getPostSubmissionActionById(actionId).then(response => actionArray.push(response.default));
+      });
     }
-  }, [actionId]);
+    setActions(actionArray);
+  }, [actionIds]);
 
-  return action;
+  return actions;
 }
