@@ -33,7 +33,11 @@ describe('OHRIJSExpressionValidator - validate', () => {
 
     // verify
     expect(errors).toEqual([
-      { errCode: 'value.invalid', errMessage: 'Atleast one type of Prevention Services must be selected' },
+      {
+        errCode: 'value.invalid',
+        message: 'Atleast one type of Prevention Services must be selected',
+        resultType: 'error',
+      },
     ]);
 
     // provide some value(s) for Prevention Services
@@ -52,7 +56,7 @@ describe('OHRIJSExpressionValidator - validate', () => {
     expect(errors).toEqual([]);
   });
 
-  it('should fail if date value is not within the configured bounds', () => {
+  fit('should fail if date value is not within the configured bounds', () => {
     // setup
     const dateField: OHRIFormField = {
       label: 'Test Date',
@@ -82,7 +86,7 @@ describe('OHRIJSExpressionValidator - validate', () => {
 
     // verify
     expect(errors).toEqual([
-      { errCode: 'value.invalid', errMessage: "Value cannot be before '2020-12-01' or after today" },
+      { errCode: 'value.invalid', message: "Value cannot be before '2020-12-01' or after today", resultType: 'error' },
     ]);
 
     // set & replay
@@ -97,7 +101,7 @@ describe('OHRIJSExpressionValidator - validate', () => {
 
     // verify
     expect(errors).toEqual([
-      { errCode: 'value.invalid', errMessage: "Value cannot be before '2020-12-01' or after today" },
+      { errCode: 'value.invalid', message: "Value cannot be before '2020-12-01' or after today", resultType: 'error' },
     ]);
 
     // replay

@@ -112,11 +112,8 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
     if (mode) {
       return mode;
     }
-    if (encounterUUID || encounterUuid) {
-      return 'edit';
-    }
-    return 'enter';
-  }, [mode]);
+    return encounterUUID || encounterUuid ? 'edit' : 'enter';
+  }, [mode, encounterUUID, encounterUuid]);
 
   const showSideBar = useMemo(() => {
     return workspaceLayout != 'minimized' && scrollAblePages.size > 0;

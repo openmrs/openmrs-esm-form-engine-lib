@@ -17,11 +17,13 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
   const [conceptName, setConceptName] = useState('Loading...');
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
+  const [warnings, setWarnings] = useState([]);
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
 
   useEffect(() => {
-    if (question['submission']?.errors) {
-      setErrors(question['submission']?.errors);
+    if (question['submission']) {
+      question['submission'].erros && setErrors(question['submission'].errors);
+      question['submission'].warnings && setWarnings(question['submission'].warnings);
     }
   }, [question['submission']]);
 
@@ -35,7 +37,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
       setFieldValue(`${question.id}-unspecified`, false);
     }
     if (previousValue !== field.value) {
-      onChange(question.id, field.value, setErrors);
+      onChange(question.id, field.value, setErrors, setWarnings);
       question.value = handler.handleFieldSubmission(question, field.value, encounterContext);
     }
   };
@@ -85,7 +87,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
             {...field}
             id={question.id}
             invalid={!isFieldRequiredError && errors.length > 0}
-            invalidText={errors[0]?.errMessage}
+            invalidText={errors[0]?.message}
             label={question.label}
             max={question.questionOptions.max || undefined}
             min={question.questionOptions.min || undefined}
@@ -97,6 +99,8 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
             hideSteppers={true}
             disabled={question.disabled}
             className={isFieldRequiredError ? styles.errorLabel : ''}
+            warn={warnings.length > 0}
+            warnText={warnings[0]?.message}
           />
         </div>
         {previousValueForReview && (

@@ -16,10 +16,12 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
   const [errors, setErrors] = useState([]);
   const [conceptName, setConceptName] = useState('Loading...');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
+  const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
-    if (question['submission']?.errors) {
-      setErrors(question['submission']?.errors);
+    if (question['submission']) {
+      question['submission'].erros && setErrors(question['submission'].errors);
+      question['submission'].warnings && setWarnings(question['submission'].warnings);
     }
   }, [question['submission']]);
 
@@ -28,7 +30,7 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
       setFieldValue(`${question.id}-unspecified`, false);
     }
     if (previousValue !== field.value) {
-      onChange(question.id, field.value, setErrors);
+      onChange(question.id, field.value, setErrors, setWarnings);
       question.value = handler.handleFieldSubmission(question, field.value, encounterContext);
     }
   };
@@ -67,7 +69,9 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
             rows={question.questionOptions.rows || 4}
             disabled={question.disabled}
             invalid={!isFieldRequiredError && errors.length > 0}
-            invalidText={errors.length && errors[0].errMessage}
+            invalidText={errors.length && errors[0].message}
+            warn={warnings.length > 0}
+            warnText={warnings.length && warnings[0].message}
           />
         </div>
       </div>

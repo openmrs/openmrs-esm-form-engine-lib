@@ -91,8 +91,8 @@
 							"questionOptions": {
 								"rendering": "date",
                 "calculate": {
-                                    "calculateExpression": "calcTreatmentEndDate('followupDate', 'arvDispensedInDays', 'patientStatus')"
-                                },
+									"calculateExpression": "calcTreatmentEndDate('followupDate', 'arvDispensedInDays', 'patientStatus')"
+								},
 								"concept": "164384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
 								"weeksList": "",
 								"conceptMappings": [

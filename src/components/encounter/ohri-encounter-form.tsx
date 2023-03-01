@@ -9,12 +9,12 @@ import {
   OHRIFormSchema,
   OpenmrsEncounter,
   SessionMode,
+  ValidationResult,
 } from '../../api/types';
 import {
   cascadeVisibityToChildFields,
   evaluateFieldReadonlyProp,
   findPagesWithErrors,
-  inferInitialValueFromDefaultFieldValue,
   voidObsValueOnFieldHidden,
 } from '../../utils/ohri-form-helper';
 import { isEmpty, isEmpty as isValueEmpty, OHRIFieldValidator } from '../../validators/ohri-form-validator';
@@ -26,6 +26,7 @@ import { evaluateExpression } from '../../utils/expression-runner';
 import { getPreviousEncounter, saveEncounter } from '../../api/api';
 import { scrollIntoView } from '../../utils/ohri-sidebar';
 import { useEncounter } from '../../hooks/useEncounter';
+import { useInitialValues } from '../../hooks/useInitialValues';
 
 interface OHRIEncounterFormProps {
   formJson: OHRIFormSchema;
@@ -76,9 +77,55 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [form, setForm] = useState<OHRIFormSchema>(formJson);
   const [obsGroupsToVoid, setObsGroupsToVoid] = useState([]);
-  const [formInitialValues, setFormInitialValues] = useState({});
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
+  const [invalidFields, setInvalidFields] = useState([]);
   const layoutType = useLayoutType();
+  const encounterContext = useMemo(
+    () => ({
+      patient: patient,
+      encounter: encounter,
+      previousEncounter,
+      location: location,
+      sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
+      date: encounterDate,
+    }),
+    [encounter, encounterDate, form?.encounter, location, patient, previousEncounter, sessionMode],
+  );
+
+  const flattenedFields = useMemo(() => {
+    const flattenedFieldsTemp = [];
+    form.pages.forEach(page =>
+      page.sections.forEach(section => {
+        section.questions.forEach(question => {
+          // explicitly set blank values to null
+          // TODO: shouldn't we be setting to the default behaviour?
+          section.inlineRendering = isEmpty(section.inlineRendering) ? null : section.inlineRendering;
+          page.inlineRendering = isEmpty(page.inlineRendering) ? null : page.inlineRendering;
+          form.inlineRendering = isEmpty(form.inlineRendering) ? null : form.inlineRendering;
+          question.inlineRendering = section.inlineRendering ?? page.inlineRendering ?? form.inlineRendering;
+          evaluateFieldReadonlyProp(question, section.readonly, page.readonly, form.readonly);
+          if (question.questionOptions.rendering == 'fixed-value' && !question['fixedValue']) {
+            question['fixedValue'] = question.value;
+          }
+          flattenedFieldsTemp.push(question);
+          if (question.type == 'obsGroup') {
+            question.questions.forEach(groupedField => {
+              // set group id
+              groupedField['groupId'] = question.id;
+              flattenedFieldsTemp.push(groupedField);
+            });
+          }
+        });
+      }),
+    );
+    return flattenedFieldsTemp;
+  }, []);
+
+  const { initialValues: tempInitialValues, isFieldEncounterBindingComplete } = useInitialValues(
+    flattenedFields,
+    encounter,
+    encounterContext,
+  );
 
   const addScrollablePages = useCallback(() => {
     formJson.pages.forEach(page => {
@@ -95,18 +142,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     };
   }, [scrollablePages, formJson]);
 
-  const encounterContext = useMemo(
-    () => ({
-      patient: patient,
-      encounter: encounter,
-      previousEncounter,
-      location: location,
-      sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
-      date: encounterDate,
-    }),
-    [encounter, encounterDate, form?.encounter, location, patient, previousEncounter, sessionMode],
-  );
-
   useEffect(() => {
     if (!encounterLocation && location) {
       setEncounterLocation(location);
@@ -114,136 +149,55 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   }, [location]);
 
   useEffect(() => {
-    const allFormFields: Array<OHRIFormField> = [];
-    const tempInitVals = {};
-    let isFieldEncounterBindingComplete = false;
-    form.pages.forEach(page =>
-      page.sections.forEach(section => {
-        section.questions.forEach(question => {
-          // explicitly set blank values to null
-          // TODO: shouldn't we be setting to the default behaviour?
-          section.inlineRendering = isEmpty(section.inlineRendering) ? null : section.inlineRendering;
-          page.inlineRendering = isEmpty(page.inlineRendering) ? null : page.inlineRendering;
-          form.inlineRendering = isEmpty(form.inlineRendering) ? null : form.inlineRendering;
-          question.inlineRendering = section.inlineRendering ?? page.inlineRendering ?? form.inlineRendering;
-          evaluateFieldReadonlyProp(question, section.readonly, page.readonly, form.readonly);
-          if (question.questionOptions.rendering == 'fixed-value' && !question['fixedValue']) {
-            question['fixedValue'] = question.value;
+    if (tempInitialValues && Object.keys(tempInitialValues).length) {
+      setFields(
+        flattenedFields.map(field => {
+          if (field.hide) {
+            evalHide({ value: field, type: 'field' }, flattenedFields, tempInitialValues);
+          } else {
+            field.isHidden = false;
           }
-          allFormFields.push(question);
-          if (question.type == 'obsGroup') {
-            question.questions.forEach(groupedField => {
-              // set group id
-              groupedField['groupId'] = question.id;
-              allFormFields.push(groupedField);
-            });
+          if (typeof field.readonly == 'string' && field.readonly?.split(' ')?.length > 1) {
+            // needed to store the expression for further evaluations
+            field['readonlyExpression'] = field.readonly;
+            field.readonly = evaluateExpression(
+              field.readonly,
+              { value: field, type: 'field' },
+              flattenedFields,
+              tempInitialValues,
+              {
+                mode: sessionMode,
+                patient,
+              },
+            );
+          }
+          return field;
+        }),
+      );
+
+      form.pages.forEach(page => {
+        if (page.hide) {
+          evalHide({ value: page, type: 'page' }, flattenedFields, tempInitialValues);
+        } else {
+          page.isHidden = false;
+        }
+        page.sections.forEach(section => {
+          if (section.hide) {
+            evalHide({ value: section, type: 'section' }, flattenedFields, tempInitialValues);
+          } else {
+            section.isHidden = false;
           }
         });
-      }),
-    );
-    // set Formik initial values
-    if (encounter) {
-      allFormFields.forEach(field => {
-        const handler = getHandler(field.type);
-        let existingVal = handler?.getInitialValue(encounter, field, allFormFields);
-        if (isEmpty(existingVal) && !isEmpty(field.questionOptions.defaultValue)) {
-          existingVal = inferInitialValueFromDefaultFieldValue(field, encounterContext, handler);
-        }
-        tempInitVals[field.id] = existingVal === null || existingVal === undefined ? '' : existingVal;
-        if (field.unspecified) {
-          tempInitVals[`${field.id}-unspecified`] = !!!existingVal;
-        }
       });
-      setEncounterLocation(encounter.location);
-      isFieldEncounterBindingComplete = true;
-    } else {
-      const emptyValues = {
-        checkbox: [],
-        toggle: false,
-        default: '',
-      };
-      allFormFields.forEach(field => {
-        let value = null;
-        if (!isEmpty(field.questionOptions.defaultValue)) {
-          value = inferInitialValueFromDefaultFieldValue(field, encounterContext, getHandler(field.type));
-        }
-        if (!isEmpty(value)) {
-          tempInitVals[field.id] = value;
-        } else {
-          tempInitVals[field.id] =
-            emptyValues[field.questionOptions.rendering] != undefined
-              ? emptyValues[field.questionOptions.rendering]
-              : emptyValues.default;
-        }
-        if (field.unspecified) {
-          tempInitVals[`${field.id}-unspecified`] = false;
-        }
-      });
-    }
-    // prepare fields
-    setFields(
-      allFormFields.map(field => {
-        if (field.hide) {
-          evalHide({ value: field, type: 'field' }, allFormFields, tempInitVals);
-        } else {
-          field.isHidden = false;
-        }
-        if (typeof field.readonly == 'string' && field.readonly?.split(' ')?.length > 1) {
-          // needed to store the expression for further evaluations
-          field['readonlyExpression'] = field.readonly;
-          field.readonly = evaluateExpression(
-            field.readonly,
-            { value: field, type: 'field' },
-            allFormFields,
-            tempInitVals,
-            {
-              mode: sessionMode,
-              patient,
-            },
-          );
-        }
-        if (field.questionOptions.calculate?.calculateExpression) {
-          const result = evaluateExpression(
-            field.questionOptions.calculate.calculateExpression,
-            { value: field, type: 'field' },
-            allFormFields,
-            tempInitVals,
-            {
-              mode: sessionMode,
-              patient,
-            },
-          );
-          if (!isEmpty(result)) {
-            tempInitVals[field.id] = result;
-            getHandler(field.type).handleFieldSubmission(field, result, encounterContext);
-          }
-        }
-        return field;
-      }),
-    );
-    form.pages.forEach(page => {
-      if (page.hide) {
-        evalHide({ value: page, type: 'page' }, allFormFields, tempInitVals);
-      } else {
-        page.isHidden = false;
+      setForm(form);
+      setAllInitialValues({ ...allInitialValues, ...tempInitialValues });
+      if (sessionMode == 'enter') {
+        setIsFieldInitializationComplete(true);
+      } else if (isFieldEncounterBindingComplete) {
+        setIsFieldInitializationComplete(true);
       }
-      page.sections.forEach(section => {
-        if (section.hide) {
-          evalHide({ value: section, type: 'section' }, allFormFields, tempInitVals);
-        } else {
-          section.isHidden = false;
-        }
-      });
-    });
-    setForm(form);
-    setFormInitialValues(tempInitVals);
-    setAllInitialValues({ ...allInitialValues, ...tempInitVals });
-    if (sessionMode == 'enter') {
-      setIsFieldInitializationComplete(true);
-    } else if (isFieldEncounterBindingComplete) {
-      setIsFieldInitializationComplete(true);
     }
-  }, [encounter]);
+  }, [tempInitialValues]);
 
   useEffect(() => {
     if (sessionMode == 'enter') {
@@ -311,21 +265,20 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     }
   }, []);
 
-  const [invalidFields, setInvalidFields] = useState([]);
-
   useEffect(() => {
     if (invalidFields?.length) {
       setPagesWithErrors(findPagesWithErrors(scrollablePages, invalidFields));
-      let firstInvalidField = invalidFields[0];
-      let answerOptionid: string;
-      if (firstInvalidField.questionOptions.rendering === 'radio') {
-        answerOptionid = `${firstInvalidField.id}-${firstInvalidField.questionOptions.answers[0].label}`;
-        scrollIntoView(answerOptionid, true);
-      } else if (firstInvalidField.questionOptions.rendering === 'checkbox') {
-        answerOptionid = `${firstInvalidField.label}-input`;
-        scrollIntoView(answerOptionid, true);
-      } else {
-        scrollIntoView(firstInvalidField.id, true);
+      switch (invalidFields[0].questionOptions.rendering) {
+        case 'radio':
+          const firstRadioGroupMemberDomId = `${invalidFields[0].id}-${invalidFields[0].questionOptions.answers[0].label}`;
+          scrollIntoView(firstRadioGroupMemberDomId, true);
+          break;
+        case 'checkbox':
+          scrollIntoView(`${invalidFields[0].label}-input`, true);
+          break;
+        default:
+          scrollIntoView(invalidFields[0].id, true);
+          break;
       }
     }
   }, [invalidFields]);
@@ -339,7 +292,9 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         .filter(field => !field.isParentHidden && !field.disabled && !field.isHidden && !isTrue(field.readonly))
         .filter(field => field['submission']?.unspecified != true)
         .forEach(field => {
-          const errors = OHRIFieldValidator.validate(field, values[field.id]);
+          const errors = OHRIFieldValidator.validate(field, values[field.id]).filter(
+            error => error.resultType == 'error',
+          );
           if (errors.length) {
             errorFields.push(field);
             field['submission'] = {
@@ -433,7 +388,12 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     }
   };
 
-  const onFieldChange = (fieldName: string, value: any, setErrors) => {
+  const onFieldChange = (
+    fieldName: string,
+    value: any,
+    setErrors: (errors: Array<ValidationResult>) => void,
+    setWarnings: (warnings: Array<ValidationResult>) => void,
+  ) => {
     const field = fields.find(field => field.id == fieldName);
     const validators = Array.isArray(field.validators)
       ? [{ type: 'OHRIBaseValidator' }, ...field.validators]
@@ -444,18 +404,21 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       values: { ...values, [fieldName]: value },
       fields,
     };
+    const errors = [];
+    const warnings = [];
     for (let validatorConfig of validators) {
-      const errors =
+      const errorsAndWarinings =
         getValidator(validatorConfig.type)?.validate(field, value, { ...basevalidatorConfig, ...validatorConfig }) ||
         [];
-      setErrors && setErrors(errors);
-      if (errors.length) {
-        setInvalidFields(invalidFields => [...invalidFields, field]);
-        return;
-      } else {
-        setInvalidFields(invalidFields => invalidFields.filter(item => item !== field));
-      }
-      setPagesWithErrors(findPagesWithErrors(scrollablePages, invalidFields));
+      errors.push(...errorsAndWarinings.filter(error => error.resultType == 'error'));
+      warnings.push(...errorsAndWarinings.filter(error => error.resultType == 'warning'));
+    }
+    setErrors?.(errors);
+    setWarnings?.(warnings);
+    if (errors.length) {
+      setInvalidFields(invalidFields => [...invalidFields, field]);
+    } else {
+      setInvalidFields(invalidFields => invalidFields.filter(item => item !== field));
     }
     if (field.questionOptions.rendering == 'toggle') {
       value = value ? ConceptTrue : ConceptFalse;

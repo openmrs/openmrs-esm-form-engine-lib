@@ -18,16 +18,18 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
   const [conceptName, setConceptName] = useState('Loading...');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
+  const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
-    if (question['submission']?.errors) {
-      setErrors(question['submission']?.errors);
+    if (question['submission']) {
+      question['submission'].erros && setErrors(question['submission'].errors);
+      question['submission'].warnings && setWarnings(question['submission'].warnings);
     }
   }, [question['submission']]);
 
   const handleChange = value => {
     setFieldValue(question.id, value);
-    onChange(question.id, value, setErrors);
+    onChange(question.id, value, setErrors, setWarnings);
     question.value = handler.handleFieldSubmission(question, value, encounterContext);
   };
 
@@ -85,7 +87,9 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
             onChange={({ selectedItem }) => handleChange(selectedItem)}
             disabled={question.disabled}
             invalid={!isFieldRequiredError && errors.length > 0}
-            invalidText={errors.length && errors[0].errMessage}
+            invalidText={errors.length && errors[0].message}
+            warn={warnings.length > 0}
+            warnText={warnings.length && warnings[0].message}
           />
         </div>
         {previousValueForReview && (

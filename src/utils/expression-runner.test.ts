@@ -1,5 +1,5 @@
 import { OHRIFormField } from '../api/types';
-import { evaluateExpression, ExpressionContext } from './expression-runner';
+import { checkReferenceToResolvedFragment, evaluateExpression, ExpressionContext } from './expression-runner';
 
 export const testFields: Array<OHRIFormField> = [
   {
@@ -229,5 +229,28 @@ describe('Common expression runner - evaluateExpression', () => {
     ).toBeTruthy();
     expect(Array.from(referredToPreventionServices.fieldDependants)).toStrictEqual(['bodyTemperature']);
     expect(Array.from(htsProviderRemarks.fieldDependants)).toStrictEqual(['bodyTemperature']);
+  });
+});
+
+describe('Common expression runner - checkReferenceToResolvedFragment', () => {
+  it('should extract resolved fragment and chained reference when given a valid input', () => {
+    const token = 'resolve(api.fetchSomeValue("arg1", "arg2")).someOtherRef';
+    const expected = ['resolve(api.fetchSomeValue("arg1", "arg2"))', '.someOtherRef'];
+    const result = checkReferenceToResolvedFragment(token);
+    expect(result).toEqual(expected);
+  });
+
+  it('should extract only resolved fragment when there is no chained reference', () => {
+    const token = 'resolve(AnotherFragment)';
+    const expected = ['resolve(AnotherFragment)', ''];
+    const result = checkReferenceToResolvedFragment(token);
+    expect(result).toEqual(expected);
+  });
+
+  it('should return an empty string for the resolved fragment and chained reference when given an invalid input', () => {
+    const token = 'invalidToken';
+    const expected = ['', ''];
+    const result = checkReferenceToResolvedFragment(token);
+    expect(result).toEqual(expected);
   });
 });

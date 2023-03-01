@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ListItem, FilterableMultiSelect, UnorderedList } from '@carbon/react';
+import { FilterableMultiSelect, UnorderedList } from '@carbon/react';
 import { useField } from 'formik';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
-import { OHRILabel } from '../../label/ohri-label.component';
 import { OHRIValueEmpty } from '../../value/ohri-value.component';
 import { useTranslation } from 'react-i18next';
 import styles from '../_input.scss';
@@ -17,6 +16,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
   const [errors, setErrors] = useState([]);
+  const [warnings, setWarnings] = useState([]);
   const [counter, setCounter] = useState(0);
   const [touched, setTouched] = useState(false);
   const [conceptName, setConceptName] = useState('Loading...');
@@ -35,8 +35,9 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
   }, [field.value]);
 
   useEffect(() => {
-    if (question['submission']?.errors) {
-      setErrors(question['submission']?.errors);
+    if (question['submission']) {
+      question['submission'].erros && setErrors(question['submission'].errors);
+      question['submission'].warnings && setWarnings(question['submission'].warnings);
     }
   }, [question['submission']]);
 
@@ -58,7 +59,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
     setTouched(true);
     const value = selectedItems.map(selectedItem => selectedItem.concept);
     setFieldValue(question.id, value);
-    onChange(question.id, value, setErrors);
+    onChange(question.id, value, setErrors, setWarnings);
     question.value = handler.handleFieldSubmission(question, value, encounterContext);
   };
 
@@ -105,7 +106,9 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
             itemToString={item => (item ? item.label : ' ')}
             disabled={question.disabled}
             invalid={!isFieldRequiredError && errors.length > 0}
-            invalidText={errors[0]?.errMessage}
+            invalidText={errors[0]?.message}
+            warn={warnings.length > 0}
+            warnText={warnings[0]?.message}
           />
         </div>
         <div className={styles.formField} style={{ marginTop: '0.125rem' }}>

@@ -22,7 +22,7 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
 
   const handleChange = value => {
     setFieldValue(question.id, value?.name);
-    onChange(question.id, value?.name, setErrors);
+    onChange(question.id, value?.name, setErrors, null);
     question.value = handler.handleFieldSubmission(question, value?.name, encounterContext);
   };
   const selectedIndex = useMemo(

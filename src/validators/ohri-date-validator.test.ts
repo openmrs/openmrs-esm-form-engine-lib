@@ -23,14 +23,14 @@ describe('OHRIDateValidator - validate', () => {
     // setup and replay
     const errors = OHRIDateValidator.validate(field, null, field.validators[0]);
     // verify
-    expect(errors).toEqual([{ errCode: 'field.required', errMessage: 'Field is mandatory' }]);
+    expect(errors).toEqual([{ errCode: 'field.required', message: 'Field is mandatory', resultType: 'error' }]);
   });
 
   it('should by default reject future dates', () => {
     // setup and replay
     const errors = OHRIDateValidator.validate(field, new Date('December 17, 2032 03:24:00'), null);
     // verify
-    expect(errors).toEqual([{ errCode: 'value.invalid', errMessage: 'Future dates not allowed' }]);
+    expect(errors).toEqual([{ errCode: 'value.invalid', message: 'Future dates not allowed', resultType: 'error' }]);
   });
 
   it('should accept future dates for fields supporting them', () => {

@@ -21,6 +21,7 @@ export const OHRIUnspecified: React.FC<{
       question['submission'] = {
         unspecified: true,
         errors: [],
+        warnings: [],
       };
       let emptyValue = null;
       switch (question.questionOptions.rendering) {

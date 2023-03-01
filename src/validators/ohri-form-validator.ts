@@ -10,7 +10,7 @@ export const OHRIFieldValidator: FieldValidator = {
     }
     if (isTrue(field.required) || isTrue(field.unspecified)) {
       if (isEmpty(value)) {
-        return [{ errCode: fieldRequiredErrCode, errMessage: 'Field is mandatory' }];
+        return [{ resultType: 'error', errCode: fieldRequiredErrCode, message: 'Field is mandatory' }];
       }
     }
     return [];

@@ -9,7 +9,7 @@ module.exports = {
     },
   },
   coverageReporters: ['json-summary', 'lcov'],
-  collectCoverageFrom: ['./src/forms/**', '!./src/components/**/*.snap'],
+  collectCoverageFrom: ['./src/**', '!./src/components/**/*.snap'],
   transform: {
     '^.+\\.tsx?$': 'babel-jest',
   },

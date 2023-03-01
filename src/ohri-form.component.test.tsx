@@ -9,10 +9,12 @@ import next_visit_form from '../__mocks__/forms/ohri-forms/next-visit-test-form.
 import months_on_art_form from '../__mocks__/forms/ohri-forms/months-on-art-form.json';
 import age_validation_form from '../__mocks__/forms/ohri-forms/age-validation-form.json';
 import viral_load_status_form from '../__mocks__/forms/ohri-forms/viral-load-status-form.json';
+import external_data_source_form from '../__mocks__/forms/ohri-forms/external_data_source_form.json';
 import { mockPatient } from '../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../__mocks__/session.mock';
 import demoHtsOpenmrsForm from '../__mocks__/forms/omrs-forms/demo_hts-form.json';
 import demoHtsOhriForm from '../__mocks__/forms/ohri-forms/demo_hts-form.json';
+
 import {
   assertFormHasAllFields,
   findMultiSelectInput,
@@ -63,10 +65,11 @@ jest.mock('../src/api/api', () => {
     getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(null)),
     fetchConceptNameByUuid: jest.fn().mockImplementation(() => Promise.resolve(null)),
     getConcept: jest.fn().mockImplementation(() => Promise.resolve(null)),
+    getLatestObs: jest.fn().mockImplementation(() => Promise.resolve({ valueNumeric: 60 })),
   };
 });
 
-describe('OHRI Forms: ', () => {
+describe('OHRI Forms:', () => {
   afterEach(() => {
     cleanup();
     jest.useRealTimers();
@@ -228,6 +231,15 @@ describe('OHRI Forms: ', () => {
       await act(async () => expect(enrollmentDate.value).toBe('7/6/1975'));
       await act(async () => expect(mrn.value).toBe(''));
       await act(async () => expect(mrn).toBeVisible());
+    });
+
+    it('Should load initial value from external arbitrary data source', async () => {
+      // setup
+      await act(async () => renderForm(null, external_data_source_form));
+      const bodyWeightField = await findNumberInput(screen, 'Body Weight');
+
+      // verify
+      await act(async () => expect(bodyWeightField.value).toBe('60'));
     });
 
     // FIXME: This test passes locally but fails in the CI environment

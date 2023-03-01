@@ -18,15 +18,18 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [paddingBottom, setPaddingBottom] = useState('3.1rem');
+  const [warnings, setWarnings] = useState([]);
+
   useEffect(() => {
-    if (question['submission']?.errors) {
-      setErrors(question['submission']?.errors);
+    if (question['submission']) {
+      question['submission'].erros && setErrors(question['submission'].errors);
+      question['submission'].warnings && setWarnings(question['submission'].warnings);
     }
   }, [question['submission']]);
 
   const handleChange = value => {
     setFieldValue(question.id, value);
-    onChange(question.id, value, setErrors);
+    onChange(question.id, value, setErrors, setWarnings);
     question.value = handler.handleFieldSubmission(question, value, encounterContext);
   };
 
@@ -89,11 +92,14 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
                 );
               })}
             </RadioButtonGroup>
-            {!isFieldRequiredError && errors?.length > 0 && (
-              <div className={styles.errorLabel}>
-                <div className={`cds--form-requirement`}>{errors[0].errMessage}</div>
-              </div>
-            )}
+            {(!isFieldRequiredError && errors?.length > 0) ||
+              (warnings.length > 0 && (
+                <div className={errors.length ? styles.errorLabel : warnings.length ? styles.warningLabel : ''}>
+                  <div className={`cds--form-requirement`}>
+                    {errors.length ? errors[0].message : warnings.length ? warnings[0].message : null}
+                  </div>
+                </div>
+              ))}
           </FormGroup>
         </div>
         {previousValueForReview && (

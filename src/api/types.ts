@@ -41,7 +41,13 @@ export interface FieldValidator {
   /**
    * Validates a field and returns validation errors
    */
-  validate(field: OHRIFormField, value: any, config?: any): { errCode: string; errMessage: string }[];
+  validate(field: OHRIFormField, value: any, config?: any): Array<ValidationResult>;
+}
+
+export interface ValidationResult {
+  resultType: 'warning' | 'error';
+  errCode?: string;
+  message: string;
 }
 
 export interface HideProps {
@@ -103,7 +109,12 @@ export interface OHRIFormField {
 
 export interface OHRIFormFieldProps {
   question: OHRIFormField;
-  onChange: (fieldName: string, value: any, setErrors) => {};
+  onChange: (
+    fieldName: string,
+    value: any,
+    setErrors: (errors: Array<ValidationResult>) => void,
+    setWarnings: (warnings: Array<ValidationResult>) => void,
+  ) => void;
   handler: SubmissionHandler;
   // This is of util to components defined out of the engine
   useField?: (fieldId: string) => [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];

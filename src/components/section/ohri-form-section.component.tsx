@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './ohri-form-section.scss';
 import { getFieldComponent, getHandler } from '../../registry/registry';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
@@ -6,24 +6,6 @@ import { OHRIFormField, OHRIFormFieldProps } from '../../api/types';
 import { isTrue } from '../../utils/boolean-utils';
 import { useField } from 'formik';
 
-export const getFieldControl = (question: OHRIFormField) => {
-  // Check if a concept wasn't provided
-  if (question.type == 'obs' && !question.questionOptions.concept) {
-    // Disable the control
-    question.disabled = true;
-    // Since we don't have a concept, just render a text input
-    return getFieldComponent('text');
-  }
-  return getFieldComponent(question.questionOptions.rendering);
-};
-
-export const supportsUnspecified = question => {
-  return (
-    isTrue(question.unspecified) &&
-    question.questionOptions.rendering != 'toggle' &&
-    question.questionOptions.rendering != 'encounter-location'
-  );
-};
 const OHRIFormSection = ({ fields, onFieldChange }) => {
   const [fieldToControlMap, setFieldToControlMap] = useState([]);
 
@@ -64,5 +46,28 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
     </div>
   );
 };
+
+export function getFieldControl(question: OHRIFormField) {
+  if (isMissingConcept(question)) {
+    // just render a disabled text input
+    question.disabled = true;
+    return getFieldComponent('text');
+  }
+  return getFieldComponent(question.questionOptions.rendering);
+}
+
+export function supportsUnspecified(question: OHRIFormField) {
+  return (
+    isTrue(question.unspecified) &&
+    question.questionOptions.rendering != 'toggle' &&
+    question.questionOptions.rendering != 'encounter-location'
+  );
+}
+
+function isMissingConcept(question: OHRIFormField) {
+  return (
+    question.type == 'obs' && !question.questionOptions.concept && question.questionOptions.rendering !== 'fixed-value'
+  );
+}
 
 export default OHRIFormSection;
