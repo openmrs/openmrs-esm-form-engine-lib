@@ -5,6 +5,8 @@ import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.componen
 import { OHRIFormField, OHRIFormFieldProps } from '../../api/types';
 import { isTrue } from '../../utils/boolean-utils';
 import { useField } from 'formik';
+import { ErrorBoundary } from 'react-error-boundary';
+import { ToastNotification } from '@carbon/react';
 
 const OHRIFormSection = ({ fields, onFieldChange }) => {
   const [fieldToControlMap, setFieldToControlMap] = useState([]);
@@ -20,32 +22,53 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
   }, [fields]);
 
   return (
-    <div className={styles.sectionContainer}>
-      {fieldToControlMap
-        .filter(entry => !!entry)
-        .map((entry, index) => {
-          const { control, field } = entry;
-          if (control) {
-            const qnFragment = React.createElement<OHRIFormFieldProps>(control, {
-              question: field,
-              onChange: onFieldChange,
-              key: index,
-              handler: getHandler(field.type),
-              useField,
-            });
-            return supportsUnspecified(field) && field.questionOptions.rendering != 'group' ? (
-              <div key={index}>
-                {qnFragment}
-                <OHRIUnspecified question={field} />
-              </div>
-            ) : (
-              <div key={index}>{qnFragment}</div>
-            );
-          }
-        })}
-    </div>
+    <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
+      <div className={styles.sectionContainer}>
+        {fieldToControlMap
+          .filter(entry => !!entry)
+          .map((entry, index) => {
+            const { control, field } = entry;
+            if (control) {
+              const qnFragment = React.createElement<OHRIFormFieldProps>(control, {
+                question: field,
+                onChange: onFieldChange,
+                key: index,
+                handler: getHandler(field.type),
+                useField,
+              });
+              return supportsUnspecified(field) && field.questionOptions.rendering != 'group' ? (
+                <div key={index}>
+                  {qnFragment}
+                  <OHRIUnspecified question={field} />
+                </div>
+              ) : (
+                <div key={index}>{qnFragment}</div>
+              );
+            }
+          })}
+      </div>
+    </ErrorBoundary>
   );
 };
+
+function ErrorFallback({ error }) {
+  // TODOS:
+  // 1. Handle internationalization
+  // 2. Show a more descriptive error message about the field
+  return (
+    <ToastNotification
+      ariaLabel="closes notification"
+      caption=""
+      hideCloseButton
+      lowContrast
+      onClose={function noRefCheck() {}}
+      onCloseButtonClick={function noRefCheck() {}}
+      statusIconDescription="notification"
+      subtitle={`Message: ${error.message}`}
+      title="Error rendering field"
+    />
+  );
+}
 
 export function getFieldControl(question: OHRIFormField) {
   if (isMissingConcept(question)) {

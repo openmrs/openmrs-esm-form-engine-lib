@@ -21,6 +21,9 @@ export function evaluateExpression(
   allFieldValues: Record<string, any>,
   context: ExpressionContext,
 ): any {
+  if (!expression?.trim()) {
+    return null;
+  }
   const allFieldsKeys = allFields.map(f => f.id);
   const parts = parseExpression(expression.trim());
   // setup function scope
@@ -64,6 +67,9 @@ export async function evaluateAsyncExpression(
   allFieldValues: Record<string, any>,
   context: ExpressionContext,
 ): Promise<any> {
+  if (!expression?.trim()) {
+    return null;
+  }
   const allFieldsKeys = allFields.map(f => f.id);
   const parts = parseExpression(expression.trim());
   // setup function scope

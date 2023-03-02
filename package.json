@@ -37,6 +37,7 @@
     "lodash-es": "^4.17.15",
     "moment": "^2.29.1",
     "react-anchor-link-smooth-scroll": "^1.0.12",
+    "react-error-boundary": "3.1.4",
     "react-markdown": "^7.1.0",
     "react-scroll": "^1.8.2",
     "react-test-renderer": "^16.9.0",
