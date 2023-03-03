@@ -17,14 +17,13 @@ export function useInitialValues(
     const asyncItemsKeys = Object.keys(asyncInitValues);
     Promise.all(asyncItemsKeys.map(key => asyncInitValues[key])).then(results => {
       asyncItemsKeys.forEach((key, index) => {
-        if (!isEmpty(results[index])) {
-          initialValues[key] = results[index];
-          const field = formFields.find(field => field.id === key);
-          try {
-            getHandler(field.type).handleFieldSubmission(field, results[index], encounterContext);
-          } catch (error) {
-            console.error(error);
-          }
+        const result = isEmpty(results[index]) ? '' : results[index];
+        initialValues[key] = result;
+        const field = formFields.find(field => field.id === key);
+        try {
+          getHandler(field.type).handleFieldSubmission(field, result, encounterContext);
+        } catch (error) {
+          console.error(error);
         }
       });
       setInitialValues({ ...initialValues });

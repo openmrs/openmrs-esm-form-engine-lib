@@ -27,7 +27,11 @@ export function evaluateExpression(
   const allFieldsKeys = allFields.map(f => f.id);
   const parts = parseExpression(expression.trim());
   // setup function scope
-  const { mode, myValue, patient } = context;
+  let { mode, myValue, patient } = context;
+  if (node.type === 'field' && myValue === undefined) {
+    myValue = allFieldValues[node.value['id']];
+  }
+
   const {
     isEmpty,
     today,
@@ -73,7 +77,10 @@ export async function evaluateAsyncExpression(
   const allFieldsKeys = allFields.map(f => f.id);
   const parts = parseExpression(expression.trim());
   // setup function scope
-  const { mode, myValue, patient } = context;
+  let { mode, myValue, patient } = context;
+  if (node.type === 'field' && myValue === undefined) {
+    myValue = allFieldValues[node.value['id']];
+  }
   const {
     api,
     isEmpty,

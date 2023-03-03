@@ -75,6 +75,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const [encounterLocation, setEncounterLocation] = useState(null);
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(formJson);
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
+  const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
   const [form, setForm] = useState<OHRIFormSchema>(formJson);
   const [obsGroupsToVoid, setObsGroupsToVoid] = useState([]);
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
@@ -146,7 +147,10 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     if (!encounterLocation && location) {
       setEncounterLocation(location);
     }
-  }, [location]);
+    if (encounter && !encounterLocation) {
+      setEncounterLocation(encounter.location);
+    }
+  }, [location, encounter]);
 
   useEffect(() => {
     if (tempInitialValues && Object.keys(tempInitialValues).length) {
@@ -203,15 +207,18 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     if (sessionMode == 'enter') {
       getPreviousEncounter(patient.id, formJson.encounterType).then(data => {
         setPreviousEncounter(data);
+        setIsLoadingPreviousEncounter(false);
       });
+    } else {
+      setIsLoadingPreviousEncounter(false);
     }
   }, [sessionMode]);
 
   useEffect(() => {
-    if (!isLoadingEncounter && (previousEncounter || sessionMode != 'enter')) {
+    if (!isLoadingEncounter && !isLoadingPreviousEncounter) {
       setIsLoadingFormDependencies(false);
     }
-  }, [isLoadingEncounter, previousEncounter]);
+  }, [isLoadingEncounter, isLoadingPreviousEncounter]);
 
   const evalHide = (node, allFields: OHRIFormField[], allValues: Record<string, any>) => {
     const { value, type } = node;
@@ -426,6 +433,23 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     if (field.fieldDependants) {
       field.fieldDependants.forEach(dep => {
         const dependant = fields.find(f => f.id == dep);
+        // evaluate calculated value
+        if (!dependant.isHidden && dependant.questionOptions.calculate?.calculateExpression) {
+          let result = evaluateExpression(
+            dependant.questionOptions.calculate.calculateExpression,
+            { value: dependant, type: 'field' },
+            fields,
+            { ...values, [fieldName]: value },
+            {
+              mode: sessionMode,
+              patient,
+            },
+          );
+          result = isEmpty(result) ? '' : result;
+          values[dependant.id] = result;
+          setFieldValue(dependant.id, result);
+          getHandler(dependant.type).handleFieldSubmission(dependant, result, encounterContext);
+        }
         // evaluate hide
         if (dependant.hide) {
           evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
@@ -444,23 +468,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             },
           );
         }
-        // evaluate calculated value
-        if (!dependant.isHidden && dependant.questionOptions.calculate?.calculateExpression) {
-          const result = evaluateExpression(
-            dependant.questionOptions.calculate.calculateExpression,
-            { value: dependant, type: 'field' },
-            fields,
-            { ...values, [fieldName]: value },
-            {
-              mode: sessionMode,
-              patient,
-            },
-          );
-          if (!isEmpty(result)) {
-            setFieldValue(dependant.id, result);
-            getHandler(dependant.type).handleFieldSubmission(dependant, result, encounterContext);
-          }
-        }
+
         let fields_temp = [...fields];
         const index = fields_temp.findIndex(f => f.id == dep);
         fields_temp[index] = dependant;
