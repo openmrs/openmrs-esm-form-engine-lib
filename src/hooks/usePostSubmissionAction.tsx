@@ -8,7 +8,7 @@ export function usePostSubmissionAction(actionIds: Array<string>) {
     let actionArray = [];
     if (actionIds) {
       actionIds.map(actionId => {
-        getPostSubmissionActionById(actionId).then(response => actionArray.push(response.default));
+        getPostSubmissionActionById(actionId)?.then(response => actionArray.push(response.default));
       });
     }
     setActions(actionArray);

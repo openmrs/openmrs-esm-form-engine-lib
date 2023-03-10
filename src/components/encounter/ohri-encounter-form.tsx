@@ -287,6 +287,9 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           scrollIntoView(invalidFields[0].id, true);
           break;
       }
+    } else {
+      // clear errrors
+      setPagesWithErrors([]);
     }
   }, [invalidFields]);
 
