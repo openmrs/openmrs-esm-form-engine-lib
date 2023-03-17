@@ -204,7 +204,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   }, [tempInitialValues]);
 
   useEffect(() => {
-    if (sessionMode == 'enter') {
+    if (sessionMode == 'enter' && !formJson.formOptions?.usePreviousValueDisabled) {
       getPreviousEncounter(patient.id, formJson.encounterType).then(data => {
         setPreviousEncounter(data);
         setIsLoadingPreviousEncounter(false);

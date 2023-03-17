@@ -40,7 +40,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
   }, [conceptName]);
 
   useEffect(() => {
-    if (encounterContext?.previousEncounter) {
+    if (encounterContext?.previousEncounter && !question.questionOptions.usePreviousValueDisabled) {
       const prevValue = handler.getPreviousValue(question, encounterContext?.previousEncounter, fields);
       if (!isEmpty(prevValue?.value)) {
         setPreviousValueForReview(prevValue);

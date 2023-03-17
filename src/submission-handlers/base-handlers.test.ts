@@ -690,7 +690,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
       concept: {
         uuid: 'j8b6705b-b6d8-4eju-8f37-0b14f5347569',
       },
-      value: '2016-11-19 00:00',
+      value: '2016-11-19T00:00',
     };
     encounterContext.encounter['obs'].push(obs);
     // replay

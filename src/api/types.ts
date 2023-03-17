@@ -68,6 +68,9 @@ export interface OHRIFormSchema {
   inlineRendering?: 'single-line' | 'multiline' | 'automatic';
   markdown?: any;
   postSubmissionActions?: Array<string>;
+  formOptions?: {
+    usePreviousValueDisabled: boolean;
+  };
 }
 
 export interface OHRIFormPage {
@@ -150,6 +153,7 @@ export interface OHRIFormQuestionOptions {
     calculateExpression: string;
   };
   isDateTime?: { labelTrue: boolean; labelFalse: boolean };
+  usePreviousValueDisabled?: boolean;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view';
