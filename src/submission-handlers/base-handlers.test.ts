@@ -1,6 +1,5 @@
 import { Observable } from 'rxjs';
 import { EncounterContext } from '../ohri-form-context';
-import * as api from '../api/api';
 import { OHRIFormField } from '../api/types';
 import { findObsByFormField, ObsSubmissionHandler } from './base-handlers';
 
@@ -728,20 +727,26 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
 
   it('should update obs value with boolean concept uuid for boolean types', () => {
     // setup
-    jest.spyOn(api, 'getConcept').mockImplementationOnce(
-      () =>
-        new Observable(sub => {
-          sub.next({
-            uuid: '1492AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-            display: 'Ever tested positive for HIV before?',
-            datatype: {
-              uuid: 'bca4d5f1-ee6a-4282-a5ff-c8db12c4247c',
-              display: 'Boolean',
-              name: 'Boolean',
-            },
+    jest.mock('../api/api', () => {
+      const originalModule = jest.requireActual('../api/api');
+      return {
+        getConcept: jest.fn(() => {
+          return new Observable(sub => {
+            sub.next({
+              uuid: '1492AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+              display: 'Ever tested positive for HIV before?',
+              datatype: {
+                uuid: 'bca4d5f1-ee6a-4282-a5ff-c8db12c4247c',
+                display: 'Boolean',
+                name: 'Boolean',
+              },
+            });
           });
         }),
-    );
+        originalModule,
+      };
+    });
+
     const field: OHRIFormField = {
       label: 'Ever tested positive for HIV before?',
       type: 'obs',
@@ -780,7 +785,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
 
     // verify
     expect(field.value).toBeTruthy();
-    expect(field.value.value).toEqual('cf82933b-3f3f-45e7-a5ab-5d31aaee3da3');
+    expect(field.value.value.uuid).toEqual('cf82933b-3f3f-45e7-a5ab-5d31aaee3da3');
   });
 });
 
