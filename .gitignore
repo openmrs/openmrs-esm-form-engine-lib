@@ -30,7 +30,8 @@ bower_components
 .lock-wscript
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
+build/**
+dist
 
 # Dependency directories
 node_modules/
@@ -57,15 +58,12 @@ typings/
 # dotenv environment variables file
 .env
 
-# next.js build output
-.next
-dist
 
 # Intellij integration
 *.iml
 .idea/
 
-.DS_Store
+**/*.DS_Store
 .turbo
 
 # ignores for Yarn v3 w/o PNP
