@@ -12,8 +12,8 @@ on:
       - created
 
 env:
-  ESM_NAME: "openmrs-ohri-form-engine-lib"
-  JS_NAME: "openmrs-ohri-form-engine-lib.js"
+  ESM_NAME: "openmrs-form-engine-lib"
+  JS_NAME: "openmrs-form-engine-lib.js"
 
 jobs:
   build:

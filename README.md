@@ -6,7 +6,7 @@
 
 <br/>
 
-# OHRI Forms
+# OpenMRS O3 Form Engine
 
 [<img src="src/readme/images/HTS-form-preview.png" alt="Test Form Preview" >](https://ohri.atlassian.net/wiki/spaces/HOME/pages/120684546/OHRI+Forms)
 
@@ -14,7 +14,7 @@
 
 ## About The Project
 
-OHRI Forms is simply a React component that renders forms based on the AMPATH Forms Schema. The AMPATH forms are well defined [here](https://ampath-forms.vercel.app/).
+The OpenMRS form engine is simply a React component that renders forms based on the AMPATH Forms Schema. The AMPATH forms are well defined [here](https://ampath-forms.vercel.app/).
 
 ### Documentation
 
@@ -34,7 +34,7 @@ You can find for more details, Technical guides, and other docs bundled within t
 
 ## Getting Started
 
- *NB: OHRI Forms is a library and not an [O3 MF module](https://o3-dev.docs.openmrs.org/#/getting_started/tour). That being said, it can be consumed by bundling it within an ESM or custom frontend app that incorporates it within a UI workflow.*
+ *NB: The engine is a library and not an [O3 MF module](https://o3-dev.docs.openmrs.org/#/getting_started/tour). That being said, it can be consumed by bundling it within an ESM or custom frontend app that incorporates it within a UI workflow.*
 ### Prerequisites
 
 You must have git, node, npm, and yarn installed. The versions required are
@@ -45,7 +45,7 @@ You must have git, node, npm, and yarn installed. The versions required are
 ### Installation
 
 ```bash
-yarn add @ohri/openmrs-ohri-form-engine-lib@latest
+yarn add @openmrs/openmrs-form-engine-lib@latest
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -54,7 +54,7 @@ yarn add @ohri/openmrs-ohri-form-engine-lib@latest
 
 ```javascript
 import React from 'react';
-import { OHRIForm, OHRIFormSchema, SessionMode } from '@ohri/openmrs-ohri-form-engine-lib';
+import { OHRIForm, OHRIFormSchema, SessionMode } from '@openmrs/openmrs-form-engine-lib';
 import { useFormsJson } from './forms-utils'
 
 function FormRenderTest () {
@@ -76,7 +76,7 @@ If you have a suggestion that would make this better, please fork the repo and c
 *NB: You may have to [yarn link](https://classic.yarnpkg.com/en/docs/cli/link) your local installation of the project with a frontend app or ESM into order to view your local changes.*
 
 ### Report an issue
-https://github.com/UCSF-IGHS/openmrs-ohri-form-engine-lib/issues
+https://github.com/openmrs/openmrs-form-engine-lib/issues
 
 
 <!-- LICENSE -->
