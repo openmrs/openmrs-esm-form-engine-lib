@@ -14,11 +14,11 @@
 
 ## About The Project
 
-The OpenMRS form engine is simply a React component that renders forms based on the AMPATH Forms Schema. The AMPATH forms are well defined [here](https://ampath-forms.vercel.app/).
+The OpenMRS Form Engine is simply a React component that renders forms based on the AMPATH Forms Schema. The AMPATH forms are well defined [here](https://ampath-forms.vercel.app/). The origins of this react-based project were made possible thanks to the UCSF-OHRI project in 2022 and moved to the community in 2023. 
 
 ### Documentation
 
-You can find for more details, Technical guides, and other docs bundled within the [official documentation](https://ohri.atlassian.net/wiki/spaces/HOME/pages/120684546/OHRI+Forms).
+You can find for more details, Technical guides, and other docs bundled within the [official documentation](https://ohri.atlassian.net/wiki/spaces/HOME/pages/120684546/OHRI+Forms). 
 
 ### Built With
 
@@ -82,6 +82,6 @@ https://github.com/openmrs/openmrs-form-engine-lib/issues
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+Distributed under the MPLv2 with Healthcare Disclaimer License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
