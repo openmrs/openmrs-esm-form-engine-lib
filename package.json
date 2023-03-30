@@ -1,11 +1,11 @@
 {
-  "name": "@ohri/openmrs-ohri-form-engine-lib",
+  "name": "@openmrs/openmrs-form-engine-lib",
   "version": "1.0.1",
   "description": "A React based Forms Engine for OpenMRS 3.X",
-  "browser": "dist/openmrs-ohri-form-engine-lib.js",
+  "browser": "dist/openmrs-form-engine-lib.js",
   "main": "src/index.ts",
   "license": "MIT",
-  "homepage": "https://github.com/UCSF-IGHS/openmrs-ohri-form-engine-lib#readme",
+  "homepage": "https://github.com/openmrs/openmrs-form-engine-lib#readme",
   "scripts": {
     "lint": "eslint src --ext tsx --fix",
     "verify": "turbo run lint && turbo run typescript && yarn run test",
@@ -44,7 +44,6 @@
     "react-test-renderer": "^16.9.0",
     "react-waypoint": "^10.3.0",
     "semver": "^7.3.5",
-    "systemjs-webpack-interop": "^2.3.2",
     "yup": "^0.29.1"
   },
   "peerDependencies": {
