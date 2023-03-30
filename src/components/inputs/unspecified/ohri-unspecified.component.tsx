@@ -48,7 +48,7 @@ export const OHRIUnspecified: React.FC<{
   }, [question.value]);
 
   const handleOnChange = useCallback(value => {
-    setFieldValue(`${question.id}-unspecified`, value);
+    setFieldValue(`${question.id}-unspecified`, value.target.checked);
   }, []);
 
   return (
@@ -57,7 +57,7 @@ export const OHRIUnspecified: React.FC<{
     !hideCheckBox && (
       <div className={styles.unspecified}>
         <Checkbox
-          id={`${question.id}-unspcified`}
+          id={`${question.id}-unspecified`}
           labelText="Unspecified"
           value="Unspecified"
           onChange={handleOnChange}
