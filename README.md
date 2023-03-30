@@ -18,7 +18,7 @@ The OpenMRS Form Engine is simply a React component that renders forms based on 
 
 ### Documentation
 
-You can find for more details, Technical guides, and other docs bundled within the [official documentation](https://ohri.atlassian.net/wiki/spaces/HOME/pages/120684546/OHRI+Forms). 
+You can find for more details, Technical guides, and other docs bundled within the [official documentation](https://ohri-docs.globalhealthapp.net/). 
 
 ### Built With
 
