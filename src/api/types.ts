@@ -71,6 +71,7 @@ export interface OHRIFormSchema {
   formOptions?: {
     usePreviousValueDisabled: boolean;
   };
+  version?: string;
 }
 
 export interface OHRIFormPage {
