@@ -8,7 +8,7 @@
   "homepage": "https://github.com/openmrs/openmrs-form-engine-lib#readme",
   "scripts": {
     "lint": "eslint src --ext tsx --fix",
-    "verify": "turbo run lint && turbo run typescript && yarn run test",
+    "verify": "turbo lint typescript",
     "prettier": "prettier --config prettier.config.js --write \"src/**/*.{ts,tsx}\"",
     "typescript": "tsc",
     "test": "jest --config ./jest.config.js --passWithNoTests",

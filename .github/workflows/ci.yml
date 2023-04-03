@@ -17,17 +17,41 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      TURBO_API: 'http://127.0.0.1:9080'
+      TURBO_TOKEN: ${{ secrets.TURBO_SERVER_TOKEN }}
+      TURBO_TEAM: ${{ github.repository_owner }}
 
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-      - run: yarn install
-      - run: yarn lint
-      - run: yarn run test
-      - run: yarn build
+
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: yarn
+
+      - name: Setup local cache server for Turborepo
+        uses: felixmosh/turborepo-gh-artifacts@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          server-token: ${{ secrets.TURBO_SERVER_TOKEN }}
+
+      - name: Run tests, lint and typechecking
+        run: yarn turbo verify
+
+      - name: Run build
+        run: yarn turbo build --color --concurrency=5
+      
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
