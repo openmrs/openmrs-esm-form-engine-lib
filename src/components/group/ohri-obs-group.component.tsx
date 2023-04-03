@@ -14,13 +14,15 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
   const { encounterContext } = React.useContext(OHRIFormContext);
 
   useEffect(() => {
-    Promise.all(
-      question.questions.map(field => {
-        return getFieldControl(field)?.then(result => ({ field, control: result.default }));
-      }),
-    ).then(results => {
-      setGroupMembersControlMap(results);
-    });
+    if (question.questions) {
+      Promise.all(
+        question.questions.map(field => {
+          return getFieldControl(field)?.then(result => ({ field, control: result.default }));
+        }),
+      ).then(results => {
+        setGroupMembersControlMap(results);
+      });
+    }
   }, [question.questions]);
   const groupContent = groupMembersControlMap
     .filter(groupMemberMapItem => !!groupMemberMapItem && !groupMemberMapItem.field.isHidden)
