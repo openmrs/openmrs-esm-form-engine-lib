@@ -27,6 +27,7 @@ import { getPreviousEncounter, saveEncounter } from '../../api/api';
 import { scrollIntoView } from '../../utils/ohri-sidebar';
 import { useEncounter } from '../../hooks/useEncounter';
 import { useInitialValues } from '../../hooks/useInitialValues';
+import { useEncounterRole } from '../../hooks/useEncounterRole';
 
 interface OHRIEncounterFormProps {
   formJson: OHRIFormSchema;
@@ -92,6 +93,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     }),
     [encounter, encounterDate, form?.encounter, location, patient, previousEncounter, sessionMode],
   );
+  const { encounterRole } = useEncounterRole();
 
   const flattenedFields = useMemo(() => {
     const flattenedFieldsTemp = [];
@@ -372,7 +374,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           ...encounterForSubmission.encounterProviders,
           {
             provider: provider,
-            encounterRole: '240b26f9-dd88-4172-823d-4a8bfeb7841f',
+            encounterRole: encounterRole?.uuid,
           },
         ];
       }
@@ -386,7 +388,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         encounterProviders: [
           {
             provider: provider,
-            encounterRole: '240b26f9-dd88-4172-823d-4a8bfeb7841f',
+            encounterRole: encounterRole?.uuid,
           },
         ],
         obs: obsForSubmission,
