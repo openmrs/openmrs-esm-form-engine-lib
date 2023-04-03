@@ -13,7 +13,6 @@ on:
 env:
   ESM_NAME: "openmrs-form-engine-lib"
   JS_NAME: "openmrs-form-engine-lib.js"
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -47,7 +46,7 @@ jobs:
           server-token: ${{ secrets.TURBO_SERVER_TOKEN }}
 
       - name: Run tests, lint and typechecking
-        run: yarn turbo verify
+        run: yarn verify
 
       - name: Run build
         run: yarn turbo build --color --concurrency=5
