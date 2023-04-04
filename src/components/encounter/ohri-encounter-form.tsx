@@ -567,6 +567,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
               setSelectedPage={setSelectedPage}
               handlers={handlers}
               workspaceLayout={workspaceLayout}
+              setIsLoadingFormDependencies={setIsLoadingFormDependencies}
               isSubmitting
             />
           );

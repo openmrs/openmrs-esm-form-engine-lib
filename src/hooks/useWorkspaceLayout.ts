@@ -5,11 +5,12 @@ import { useLayoutEffect, useState } from 'react';
  */
 export function useWorkspaceLayout(rootRef): 'minimized' | 'maximized' {
   const [layout, setLayout] = useState<'minimized' | 'maximized'>('minimized');
+  const TABLET_MAX = 1023;
 
   useLayoutEffect(() => {
     const handleResize = () => {
       const containerWidth = rootRef.current?.parentElement?.offsetWidth;
-      setLayout(containerWidth >= 1000 ? 'maximized' : 'minimized');
+      containerWidth && setLayout(containerWidth > TABLET_MAX ? 'maximized' : 'minimized');
     };
     handleResize();
     const resizeObserver = new ResizeObserver(entries => {
