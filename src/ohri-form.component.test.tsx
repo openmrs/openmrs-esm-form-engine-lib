@@ -31,6 +31,7 @@ const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const mockOpenmrsFetch = jest.fn();
 const formsResourcePath = when((url: string) => url.includes('/ws/rest/v1/form/'));
 const clobdataResourcePath = when((url: string) => url.includes('/ws/rest/v1/clobdata/'));
+global.ResizeObserver = require('resize-observer-polyfill');
 when(mockOpenmrsFetch)
   .calledWith(formsResourcePath)
   .mockReturnValue({ data: demoHtsOpenmrsForm });

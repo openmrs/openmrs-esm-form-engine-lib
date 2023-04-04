@@ -1,20 +1,28 @@
-import { useLayoutType } from '@openmrs/esm-framework';
-import { useEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 
-export function useWorkspaceLayout(ref): 'minimized' | 'maximized' {
-  const [mode, setMode] = useState<'minimized' | 'maximized'>('maximized');
-  const layout = useLayoutType();
+/**
+ * This hook evaluates the layout of the current workspace based on the width of the container element
+ */
+export function useWorkspaceLayout(rootRef): 'minimized' | 'maximized' {
+  const [layout, setLayout] = useState<'minimized' | 'maximized'>('minimized');
+  const TABLET_MAX = 1023;
 
-  useEffect(() => {
-    if (ref?.current) {
-      const width = ref.current.offsetWidth;
-      if (layout.endsWith('desktop') && width < 1000) {
-        setMode('minimized');
-      } else {
-        setMode('maximized');
-      }
-    }
-  }, [ref?.current, ref?.current?.offsetWidth, layout]);
+  useLayoutEffect(() => {
+    const handleResize = () => {
+      const containerWidth = rootRef.current?.parentElement?.offsetWidth;
+      containerWidth && setLayout(containerWidth > TABLET_MAX ? 'maximized' : 'minimized');
+    };
+    handleResize();
+    const resizeObserver = new ResizeObserver(entries => {
+      handleResize();
+    });
 
-  return mode;
+    resizeObserver.observe(rootRef.current?.parentElement);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [rootRef]);
+
+  return layout;
 }

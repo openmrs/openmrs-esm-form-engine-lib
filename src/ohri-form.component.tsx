@@ -16,7 +16,7 @@ import { OHRIFormSchema, SessionMode, OHRIFormPage as OHRIFormPageProps } from '
 import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
 import { OHRIEncounterForm } from './components/encounter/ohri-encounter-form';
 import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
-import { Button } from '@carbon/react';
+import { Button, ButtonSet } from '@carbon/react';
 import ReactMarkdown from 'react-markdown';
 import { PatientBanner } from './components/patient-banner/patient-banner.component';
 import LoadingIcon from './components/loaders/loading.component';
@@ -302,7 +302,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     />
                   </div>
                   {workspaceLayout == 'minimized' && (
-                    <div className={styles.minifiedButtons}>
+                    <ButtonSet className={styles.minifiedButtons}>
                       <Button
                         kind="secondary"
                         onClick={() => {
@@ -311,12 +311,10 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                         }}>
                         {mode == 'view' ? 'Close' : 'Cancel'}
                       </Button>
-                      {mode != 'view' && (
-                        <Button type="submit" disabled={isSubmitting}>
-                          Save
-                        </Button>
-                      )}
-                    </div>
+                      <Button type="submit" disabled={mode == 'view' || isSubmitting}>
+                        Save
+                      </Button>
+                    </ButtonSet>
                   )}
                 </div>
               </div>
