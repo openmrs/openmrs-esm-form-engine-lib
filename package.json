@@ -7,7 +7,7 @@
   "license": "MIT",
   "homepage": "https://github.com/openmrs/openmrs-form-engine-lib#readme",
   "scripts": {
-    "lint": "eslint src --ext tsx --fix",
+    "lint": "TIMING=1 eslint src --ext tsx --fix",
     "verify": "turbo lint typescript && yarn run test",
     "prettier": "prettier --config prettier.config.js --write \"src/**/*.{ts,tsx}\"",
     "typescript": "tsc",
