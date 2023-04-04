@@ -98,7 +98,7 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
       values[`${q.id}`] = initialValue ? initialValue : q.questionOptions.rendering == 'checkbox' ? [] : '';
 
       //Evaluate hide expressions
-      if (q['hide'].hideWhenExpression) {
+      if (q['hide'] && q['hide'].hideWhenExpression) {
         let updatedExpression = updateFieldIdInExpression(q['hide'].hideWhenExpression, idSuffix, questionIds);
         q['hide'].hideWhenExpression = updatedExpression;
         q.isHidden = evaluateExpression(updatedExpression, { value: q, type: 'field' }, fields, values, {
