@@ -70,7 +70,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
       <div className={styles.row}>
         <div>
           <FormGroup
-            style={{ paddingBottom: '1rem', width: '22.313rem' }}
+            style={{ paddingBottom: '1rem' }}
             legendText={question.label}
             className={isFieldRequiredError ? styles.errorLegend : undefined}
             disabled={question.disabled}
