@@ -12,7 +12,8 @@
     "prettier": "prettier --config prettier.config.js --write \"src/**/*.{ts,tsx}\"",
     "typescript": "tsc",
     "test": "jest --config ./jest.config.js --passWithNoTests",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "analyze": "webpack --mode=production --env.analyze=true"
   },
   "browserslist": [
     "extends browserslist-config-openmrs"
