@@ -4,7 +4,6 @@ import { OHRIFormField } from '../api/types';
 import { FormNode } from './expression-runner';
 import { isEmpty as isValueEmpty } from '../validators/ohri-form-validator';
 import * as apiFunctions from '../api/api';
-import * as _ from 'lodash';
 
 export class CommonExpressionHelpers {
   node: FormNode = null;
@@ -273,173 +272,6 @@ export class CommonExpressionHelpers {
     return height && weight ? parseFloat(result) : null;
   };
 
-  calcBMIForAgeZscore = (bmiForAgeRefQuestionId, heightQuestionId, weightQuestionId) => {
-    const height = this.allFieldValues[heightQuestionId];
-    const weight = this.allFieldValues[weightQuestionId];
-    const bmiForAgeRef = this.allFieldValues[bmiForAgeRefQuestionId];
-
-    [bmiForAgeRefQuestionId, heightQuestionId, weightQuestionId].forEach(entry => {
-      if (this.allFieldsKeys.includes(entry)) {
-        registerDependency(
-          this.node,
-          this.allFields.find(candidate => candidate.id == entry),
-        );
-      }
-    });
-    let bmi;
-    const maxAgeInDays = 1856;
-    if (height && weight) {
-      bmi = (weight / (((height / 100) * height) / 100)).toFixed(1);
-    }
-    const refSectionObject = _.first(bmiForAgeRef);
-    let formattedSDValue;
-    if (refSectionObject) {
-      const refObjectValues = Object.keys(refSectionObject)
-        .map(key => refSectionObject[key])
-        .map(x => x);
-      const refObjectKeys = Object.keys(refSectionObject);
-      const minimumValue = refObjectValues[1];
-      const minReferencePoint = [];
-      if (bmi < minimumValue) {
-        minReferencePoint.push(minimumValue);
-      } else {
-        _.forEach(refObjectValues, value => {
-          if (value <= bmi) {
-            minReferencePoint.push(value);
-          }
-        });
-      }
-      const lastReferenceValue = _.last(minReferencePoint);
-      const lastValueIndex = _.findIndex(refObjectValues, o => {
-        return o === lastReferenceValue;
-      });
-      const SDValue = refObjectKeys[lastValueIndex];
-      formattedSDValue = SDValue.replace('SD', '');
-      if (formattedSDValue.includes('neg')) {
-        formattedSDValue = formattedSDValue.substring(1, 0);
-        formattedSDValue = '-' + formattedSDValue;
-      }
-
-      if (
-        formattedSDValue === 'S' ||
-        formattedSDValue === 'L' ||
-        formattedSDValue === 'M' ||
-        formattedSDValue === '-5'
-      ) {
-        formattedSDValue = '-4';
-      }
-    }
-
-    return bmi && refSectionObject ? formattedSDValue : null;
-  };
-
-  calcWeightForHeightZscore = (weightForHeightRefQuestionId, heightQuestionId, weightQuestionId) => {
-    let height = this.allFieldValues[heightQuestionId];
-    let weight = this.allFieldValues[weightQuestionId];
-    const weightForHeightRef = this.allFieldValues[weightForHeightRefQuestionId];
-
-    let refSection;
-    let formattedSDValue;
-    if (height && weight) {
-      height = parseFloat(height).toFixed(1);
-    }
-    const standardHeightMin = 45;
-    const standardMaxHeight = 110;
-    if (height < standardHeightMin || height > standardMaxHeight) {
-      formattedSDValue = -4;
-    } else {
-      refSection = _.filter(weightForHeightRef, refObject => {
-        return parseFloat(refObject['Length']).toFixed(1) === height;
-      });
-    }
-
-    const refSectionObject = _.first(refSection);
-    if (refSectionObject) {
-      const refObjectValues = Object.keys(refSectionObject)
-        .map(key => refSectionObject[key])
-        .map(x => x);
-      const refObjectKeys = Object.keys(refSectionObject);
-      const minimumValue = refObjectValues[1];
-      const minReferencePoint = [];
-      if (weight < minimumValue) {
-        minReferencePoint.push(minimumValue);
-      } else {
-        _.forEach(refObjectValues, value => {
-          if (value <= weight) {
-            minReferencePoint.push(value);
-          }
-        });
-      }
-      const lastReferenceValue = _.last(minReferencePoint);
-      const lastValueIndex = _.findIndex(refObjectValues, o => {
-        return o === lastReferenceValue;
-      });
-      const SDValue = refObjectKeys[lastValueIndex];
-      formattedSDValue = SDValue.replace('SD', '');
-      if (formattedSDValue.includes('neg')) {
-        formattedSDValue = formattedSDValue.substring(1, 0);
-        formattedSDValue = '-' + formattedSDValue;
-      }
-      if (
-        formattedSDValue === 'S' ||
-        formattedSDValue === 'L' ||
-        formattedSDValue === 'M' ||
-        formattedSDValue === '-5'
-      ) {
-        formattedSDValue = '-4';
-      }
-    }
-
-    return height && weight ? formattedSDValue : null;
-  };
-
-  calcHeightForAgeZscore = (heightForAgeRefQuestionId, heightQuestionId, weightQuestionId) => {
-    const height = this.allFieldValues[heightQuestionId];
-    const weight = this.allFieldValues[weightQuestionId];
-    const heightForAgeRef = this.allFieldValues[heightForAgeRefQuestionId];
-    const refSectionObject = _.first(heightForAgeRef);
-
-    let formattedSDValue;
-    if (refSectionObject) {
-      const refObjectValues = Object.keys(refSectionObject)
-        .map(key => refSectionObject[key])
-        .map(x => x);
-      const refObjectKeys = Object.keys(refSectionObject);
-      const minimumValue = refObjectValues[1];
-      const minReferencePoint = [];
-      if (height < minimumValue) {
-        minReferencePoint.push(minimumValue);
-      } else {
-        _.forEach(refObjectValues, value => {
-          if (value <= height) {
-            minReferencePoint.push(value);
-          }
-        });
-      }
-      const lastReferenceValue = _.last(minReferencePoint);
-      const lastValueIndex = _.findIndex(refObjectValues, o => {
-        return o === lastReferenceValue;
-      });
-      const SDValue = refObjectKeys[lastValueIndex];
-      formattedSDValue = SDValue.replace('SD', '');
-      if (formattedSDValue.includes('neg')) {
-        formattedSDValue = formattedSDValue.substring(1, 0);
-        formattedSDValue = '-' + formattedSDValue;
-      }
-
-      if (
-        formattedSDValue === 'S' ||
-        formattedSDValue === 'L' ||
-        formattedSDValue === 'M' ||
-        formattedSDValue === '-5'
-      ) {
-        formattedSDValue = '-4';
-      }
-    }
-
-    return height && weight && refSectionObject ? formattedSDValue : null;
-  };
-
   arrayContains = (array, members) => {
     if (Array.isArray(members)) {
       if (members.length === 0) {
@@ -491,8 +323,7 @@ export class CommonExpressionHelpers {
       }
     }
 
-    return value; // TODO implement this
-    // return $filter('date')(value, format, offset);
+    return value;
   }
 
   extractRepeatingGroupValues = (key, array) => {
