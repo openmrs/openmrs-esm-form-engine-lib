@@ -441,8 +441,6 @@ export class CommonExpressionHelpers {
   };
 
   arrayContains = (array, members) => {
-    console.log(array);
-    console.log(members);
     if (Array.isArray(members)) {
       if (members.length === 0) {
         return true;
