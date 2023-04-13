@@ -27,17 +27,17 @@ mockOpenmrsFetch.mockImplementation(jest.fn());
 
 // parent form
 when(mockOpenmrsFetch).calledWith(buildPath(PARENT_FORM_NAME)).mockResolvedValue({ data: { results: [nestedForm1Skeleton] } });
-when(mockOpenmrsFetch).calledWith(buildPath(PARENT_FORM_UUID)).mockResolvedValue({ data: { data: nestedForm1Skeleton } });
+when(mockOpenmrsFetch).calledWith(buildPath(PARENT_FORM_UUID)).mockResolvedValue({ data:  nestedForm1Skeleton } );
 when(mockOpenmrsFetch).calledWith(buildPath(PARENT_FORM_SCHEMA_VALUE_REF)).mockResolvedValue({ data: nestedForm1Body });
 
 // sub form
 when(mockOpenmrsFetch).calledWith(buildPath(SUB_FORM_NAME)).mockResolvedValue({ data: { results: [nestedForm2Skeleton] } });
-when(mockOpenmrsFetch).calledWith(buildPath(SUB_FORM_UUID)).mockResolvedValue({ data: { data: nestedForm2Skeleton } });
+when(mockOpenmrsFetch).calledWith(buildPath(SUB_FORM_UUID)).mockResolvedValue({ data: nestedForm2Skeleton  });
 when(mockOpenmrsFetch).calledWith(buildPath(SUB_FORM_SCHEMA_VALUE_REF)).mockResolvedValue({ data: nestedForm2Body });
 
 // mini form
 when(mockOpenmrsFetch).calledWith(buildPath(MINI_FORM_NAME)).mockResolvedValue({ data: { results: [miniFormSkeleton] } });
-when(mockOpenmrsFetch).calledWith(buildPath(MINI_FORM_UUID)).mockResolvedValue({ data: { data: miniFormSkeleton } });
+when(mockOpenmrsFetch).calledWith(buildPath(MINI_FORM_UUID)).mockResolvedValue({ data: miniFormSkeleton });
 when(mockOpenmrsFetch).calledWith(buildPath(MINI_FORM_SCHEMA_VALUE_REF)).mockResolvedValue({ data: miniFormBody });
 
 describe('useFormJson', () => {

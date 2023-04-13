@@ -64,7 +64,7 @@ export async function getOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm> {
 
   const { data: openmrsFormResponse } = await openmrsFetch(url);
   if (isUUID) {
-    return openmrsFormResponse.data;
+    return openmrsFormResponse;
   }
   return openmrsFormResponse.results?.length ? openmrsFormResponse.results[0] : null;
 }
