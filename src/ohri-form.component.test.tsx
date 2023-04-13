@@ -4,6 +4,7 @@ import React from 'react';
 import OHRIForm from './ohri-form.component';
 import hts_poc_1_1 from '../__mocks__/packages/hiv/forms/hts_poc/1.1.json';
 import bmi_form from '../__mocks__/forms/ohri-forms/bmi-test-form.json';
+import bsa_form from '../__mocks__/forms/ohri-forms/bsa-test-form.json';
 import edd_form from '../__mocks__/forms/ohri-forms/edd-test-form.json';
 import next_visit_form from '../__mocks__/forms/ohri-forms/next-visit-test-form.json';
 import months_on_art_form from '../__mocks__/forms/ohri-forms/months-on-art-form.json';
@@ -152,6 +153,27 @@ describe('OHRI Forms:', () => {
       await act(async () => expect(heightField.value).toBe('150'));
       await act(async () => expect(weightField.value).toBe('50'));
       await act(async () => expect(bmiField.value).toBe('22.2'));
+    });
+
+    it('Should evaluate BSA', async () => {
+      // setup
+      await act(async () => renderForm(null, bsa_form));
+
+      const bsaField = await findTextOrDateInput(screen, 'BSA');
+      const heightField = await findNumberInput(screen, 'Height');
+      const weightField = await findNumberInput(screen, 'Weight');
+      await act(async () => expect(heightField.value).toBe(''));
+      await act(async () => expect(weightField.value).toBe(''));
+      await act(async () => expect(bsaField.value).toBe(''));
+
+      // replay
+      fireEvent.blur(heightField, { target: { value: 190.5 } });
+      fireEvent.blur(weightField, { target: { value: 95 } });
+
+      // verify
+      await act(async () => expect(heightField.value).toBe('190.5'));
+      await act(async () => expect(weightField.value).toBe('95'));
+      await act(async () => expect(bsaField.value).toBe('2.24'));
     });
 
     it('Should evaluate EDD', async () => {

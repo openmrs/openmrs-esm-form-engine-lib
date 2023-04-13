@@ -252,6 +252,86 @@ export class CommonExpressionHelpers {
     let calculatedYear = targetYear - birthDate;
     return calculatedYear;
   };
+  //Ampath Helper Functions
+  calcBSA = (heightQuestionId, weightQuestionId) => {
+    const height = this.allFieldValues[heightQuestionId];
+    const weight = this.allFieldValues[weightQuestionId];
+
+    [heightQuestionId, weightQuestionId].forEach(entry => {
+      if (this.allFieldsKeys.includes(entry)) {
+        registerDependency(
+          this.node,
+          this.allFields.find(candidate => candidate.id == entry),
+        );
+      }
+    });
+    let result;
+    if (height && weight) {
+      result = Math.sqrt((height * weight) / 3600).toFixed(2);
+    }
+    return height && weight ? parseFloat(result) : null;
+  };
+
+  arrayContains = (array, members) => {
+    if (Array.isArray(members)) {
+      if (members.length === 0) {
+        return true;
+      }
+
+      let contains = true;
+
+      for (let i = 0; i < members.length; i++) {
+        const val = members[i];
+        if (array.indexOf(val) === -1) {
+          contains = false;
+        }
+      }
+
+      return contains;
+    } else {
+      return array.indexOf(members) !== -1;
+    }
+  };
+
+  arrayContainsAny = (array, members) => {
+    if (Array.isArray(members)) {
+      if (members.length === 0) {
+        return true;
+      }
+      let contains = false;
+
+      for (let i = 0; i < members.length; i++) {
+        const val = members[i];
+        if (array.indexOf(val) !== -1) {
+          contains = true;
+        }
+      }
+      return contains;
+    } else {
+      return array.indexOf(members) !== -1;
+    }
+  };
+
+  formatDate = (value, format, offset) => {
+    format = format || 'yyyy-MM-dd';
+    offset = offset || '+0300';
+
+    if (!(value instanceof Date)) {
+      value = new Date(value);
+      if (value === null || value === undefined) {
+        throw new Error('DateFormatException: value passed ' + 'is not a valid date');
+      }
+    }
+
+    return value;
+  };
+
+  extractRepeatingGroupValues = (key, array) => {
+    const values = array.map(function(item) {
+      return item[key];
+    });
+    return values;
+  };
 }
 
 export function registerDependency(node: FormNode, determinant: OHRIFormField) {
