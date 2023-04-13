@@ -312,7 +312,7 @@ export class CommonExpressionHelpers {
     }
   };
 
-  formatDate(value, format, offset) {
+  formatDate = (value, format, offset) => {
     format = format || 'yyyy-MM-dd';
     offset = offset || '+0300';
 
@@ -324,7 +324,7 @@ export class CommonExpressionHelpers {
     }
 
     return value;
-  }
+  };
 
   extractRepeatingGroupValues = (key, array) => {
     const values = array.map(function(item) {
