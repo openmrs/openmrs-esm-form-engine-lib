@@ -1,47 +1,23 @@
-import { openmrsFetch } from '@openmrs/esm-framework';
 import { useEffect, useState } from 'react';
-import { OHRIFormSchema, OpenmrsForm } from '../api/types';
+import { OHRIFormSchema } from '../api/types';
 import { isTrue } from '../utils/boolean-utils';
-import useSWR from 'swr';
-import { useClobData } from './useClobData';
 import { applyFormIntent } from '../utils/forms-loader';
+import { getOpenMRSForm, getOpenmrsFormBody } from '../api/api';
 
-// TODO: add support of loading form by name
 export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: string, formSessionIntent: string) {
   const [formJson, setFormJson] = useState<OHRIFormSchema>(null);
-  const [openmrsForm, setOpenmrsForm] = useState(null);
   const [error, setError] = useState(validateFormsArgs(formUuid, rawFormJson));
 
-  const { data: openmrsFormRequestResponse, error: openmrsFormError } = useSWR<{ data: OpenmrsForm }, Error>(
-    formUuid && !rawFormJson ? `/ws/rest/v1/form/${formUuid}?v=full` : null,
-    openmrsFetch,
-  );
-  const { clobdata, clobdataError } = useClobData(openmrsForm);
   useEffect(() => {
-    if (rawFormJson && !formUuid) {
-      try {
-        setFormJson({ ...refineFormJson(rawFormJson, formSessionIntent), encounter: encounterUuid });
-      } catch (error) {
-        // we have a malformed json schema
-        setError(new Error('Invalid form schema'));
-      }
-    }
-    if (openmrsFormRequestResponse?.data) {
-      setOpenmrsForm(openmrsFormRequestResponse?.data);
-    }
-  }, [openmrsFormRequestResponse, encounterUuid, rawFormJson]);
-
-  useEffect(() => {
-    if (clobdata) {
-      setFormJson({ ...refineFormJson(clobdata, formSessionIntent), encounter: encounterUuid });
-    }
-  }, [clobdata]);
-
-  useEffect(() => {
-    if (!error) {
-      setError(openmrsFormError || clobdataError);
-    }
-  }, [openmrsFormError, clobdataError]);
+    loadFormJson(formUuid, rawFormJson, formSessionIntent)
+      .then(formJson => {
+        setFormJson({ ...formJson, encounter: encounterUuid });
+      })
+      .catch(error => {
+        console.error(error);
+        setError(new Error('Error loading form JSON: ' + error.message));
+      });
+  }, [formSessionIntent, formUuid, rawFormJson, encounterUuid]);
 
   return {
     formJson,
@@ -49,17 +25,46 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
     formError: error,
   };
 }
+/**
+ * Fetches a form JSON from OpenMRS and recursively fetches all subforms if they exist.
+ *
+ * If `rawFormJson` is provided, it will be used as the raw form JSON object. Otherwise, the form JSON will be fetched from OpenMRS using the `formIdentifier` parameter.
+ *
+ * @param rawFormJson The raw form JSON object to be used if `formIdentifier` is not provided.
+ * @param formIdentifier The UUID or name of the form to be fetched from OpenMRS if `rawFormJson` is not provided.
+ * @param formSessionIntent An optional parameter that represents the current intent.
+ * @returns A well-built form object that includes any subforms.
+ */
+export async function loadFormJson(
+  formIdentifier: string,
+  rawFormJson?: any,
+  formSessionIntent?: string,
+): Promise<OHRIFormSchema> {
+  const openmrsFormResponse = await getOpenMRSForm(formIdentifier);
+  const clobDataResponse = await getOpenmrsFormBody(openmrsFormResponse);
+
+  const formJson: OHRIFormSchema = rawFormJson
+    ? refineFormJson(rawFormJson, formSessionIntent)
+    : refineFormJson(clobDataResponse, formSessionIntent);
+  const subformRefs = formJson.pages
+    .filter(page => page.isSubform && !page.subform.form && page.subform?.name)
+    .map(page => page.subform?.name);
+  const subforms = await Promise.all(subformRefs.map(subform => loadFormJson(subform, null, formSessionIntent)));
+  subforms.forEach(subform => {
+    formJson.pages.find(page => page.subform?.name === subform.name).subform.form = subform;
+  });
+  return formJson;
+}
 
 function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
   if (!formUuid && !rawFormJson) {
-    // throw new Error('InvalidArgumentsErr: Neither formUuid nor formJson was provided');
     return new Error('InvalidArgumentsErr: Neither formUuid nor formJson was provided');
   }
   if (formUuid && rawFormJson) {
-    // throw new Error('InvalidArgumentsErr: Both formUuid and formJson cannot be provided at the same time.');
     return new Error('InvalidArgumentsErr: Both formUuid and formJson cannot be provided at the same time.');
   }
 }
+
 function refineFormJson(formJson: any, formSessionIntent: string): OHRIFormSchema {
   const copy: OHRIFormSchema =
     typeof formJson == 'string' ? JSON.parse(formJson) : JSON.parse(JSON.stringify(formJson));

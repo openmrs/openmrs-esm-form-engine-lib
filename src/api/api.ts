@@ -2,6 +2,8 @@ import { openmrsFetch, openmrsObservableFetch } from '@openmrs/esm-framework';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { encounterRepresentation } from '../constants';
+import { OpenmrsForm } from './types';
+import { isLikeUUID } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
   const url = !!encounterUuid ? `/ws/rest/v1/encounter/${encounterUuid}?v=full` : `/ws/rest/v1/encounter?v=full`;
@@ -50,4 +52,29 @@ export function getLatestObs(patientUuid: string, conceptUuid: string, encounter
   return openmrsFetch(`/ws/fhir2/R4/Observation?${params}`).then(({ data }) => {
     return data.entry?.length ? data.entry[0].resource : null;
   });
+}
+
+export async function getOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm> {
+  if (!nameOrUUID) {
+    return null;
+  }
+  const { url, isUUID } = isLikeUUID(nameOrUUID)
+    ? { url: `/ws/rest/v1/form/${nameOrUUID}?v=full`, isUUID: true }
+    : { url: `/ws/rest/v1/form?q=${nameOrUUID}&v=full`, isUUID: false };
+
+  const { data: openmrsFormResponse } = await openmrsFetch(url);
+  if (isUUID) {
+    return openmrsFormResponse.data;
+  }
+  return openmrsFormResponse.results?.length ? openmrsFormResponse.results[0] : null;
+}
+
+export async function getOpenmrsFormBody(formSkeleton: OpenmrsForm) {
+  if (!formSkeleton) {
+    return null;
+  }
+  const { data: clobDataResponse } = await openmrsFetch(
+    `/ws/rest/v1/clobdata/${formSkeleton.resources.find(({ name }) => name === 'JSON schema').valueReference}`,
+  );
+  return clobDataResponse;
 }

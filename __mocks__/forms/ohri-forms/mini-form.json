@@ -1,0 +1,29 @@
+{
+    "encounterType": "503a5764-feaa-43d5-ad7e-f523091fbd8f",
+    "name": "Mini Form",
+    "pages": [
+      {
+        "label": "First Page",
+        "sections": [
+          {
+            "label": "A Section",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "label": "Question title",
+                "type": "obs",
+                "questionOptions": {
+                  "rendering": "text",
+                  "concept": "193e8a03-1581-46e9-b0a4-17c55fa2649f"
+                },
+                "id": "sampleQuestion"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "processor": "EncounterFormProcessor",
+    "referencedForms": [],
+    "uuid": "112d73b4-79e5-4be8-b9ae-d0840f00d4cf"
+  }
