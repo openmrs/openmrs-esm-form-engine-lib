@@ -195,6 +195,10 @@ export interface OpenmrsEncounter {
   voided?: boolean;
   visit?: OpenmrsResource | string;
   encounterProviders?: Array<Record<string, any>>;
+  form?: {
+    uuid: string,
+    display: string
+  }
 }
 
 export interface OpenmrsObs extends OpenmrsResource {

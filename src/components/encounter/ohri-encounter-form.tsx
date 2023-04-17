@@ -82,6 +82,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const layoutType = useLayoutType();
+
   const encounterContext = useMemo(
     () => ({
       patient: patient,
@@ -90,6 +91,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       location: location,
       sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
       date: encounterDate,
+      form: form,
     }),
     [encounter, encounterDate, form?.encounter, location, patient, previousEncounter, sessionMode],
   );
@@ -377,6 +379,10 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             encounterRole: encounterRole?.uuid,
           },
         ];
+        encounterForSubmission['form'] = {
+          uuid: encounterContext?.form?.uuid,
+          display: encounterContext.form?.name
+        }
       }
       encounterForSubmission['obs'] = obsForSubmission;
     } else {
@@ -392,6 +398,10 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           },
         ],
         obs: obsForSubmission,
+        form: {
+          uuid: encounterContext?.form?.uuid,
+          display: encounterContext.form?.name
+        }
       };
     }
     if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {
