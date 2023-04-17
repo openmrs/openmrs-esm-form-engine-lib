@@ -425,6 +425,22 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       errors.push(...errorsAndWarinings.filter(error => error.resultType == 'error'));
       warnings.push(...errorsAndWarinings.filter(error => error.resultType == 'warning'));
     }
+    if (field.questionOptions.rendering == 'number') {
+      let min = field.questionOptions.min;
+      let max = field.questionOptions.max;
+      if (min && Number(value) < Number(min)) {
+        errors.push({
+          resultType: 'error',
+          message: `Field value can't be less than ${min}`,
+        });
+        if (max && Number(value) > Number(max)) {
+          errors.push({
+            resultType: 'error',
+            message: `Field value can't be greater than ${max}`,
+          });
+        }
+      }
+    }
     setErrors?.(errors);
     setWarnings?.(warnings);
     if (errors.length) {
