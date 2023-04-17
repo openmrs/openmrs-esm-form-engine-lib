@@ -1,0 +1,38 @@
+{
+    "uuid": "af7c1fe6-d669-414e-b066-e9733f0de7a8",
+    "display": "Nested Form One",
+    "name": "Nested Form One",
+    "description": null,
+    "encounterType": null,
+    "version": "1.0",
+    "build": null,
+    "published": false,
+    "formFields": [],
+    "retired": false,
+    "auditInfo": {
+        "creator": {
+            "uuid": "82f18b44-6814-11e8-923f-e9a88dcb533f",
+            "display": "admin",
+            "links": [
+                {
+                    "rel": "self",
+                    "uri": "http://ohri-demo.globalhealthapp.net/openmrs/ws/rest/v1/user/82f18b44-6814-11e8-923f-e9a88dcb533f",
+                    "resourceAlias": "user"
+                }
+            ]
+        },
+        "dateCreated": "2023-04-10T07:15:01.000+0000",
+        "changedBy": null,
+        "dateChanged": null
+    },
+    "resources": [
+        {
+            "uuid": "c558a80a-f319-4c10-95d4-4282ef745b4b",
+            "name": "JSON schema",
+            "valueReference": "1ad1fccc-d279-46a0-8980-1d91afd6ba67",
+            "display": "JSON schema",
+            "resourceVersion": "1.9"
+        }
+    ],
+    "resourceVersion": "1.9"
+}
