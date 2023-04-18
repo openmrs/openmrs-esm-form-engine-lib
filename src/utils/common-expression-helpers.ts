@@ -332,6 +332,24 @@ export class CommonExpressionHelpers {
     });
     return values;
   };
+
+  calcGravida(parityTerm: number, parityAbortion: number) {
+    let gravida = 0;
+    if(parityTerm && parityAbortion) {
+      gravida = parityTerm + parityAbortion + 1;
+    }
+
+    return gravida;
+  }
+
+  calcDaysSinceCircumcisionProcedure(val) {
+    let daySinceLastCircumcision = 0;
+    if(val) {
+      var timeDiff = Math.abs((new Date).getTime() - Date.parse(val));
+      daySinceLastCircumcision = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    }
+    return daySinceLastCircumcision;
+  }
 }
 
 export function registerDependency(node: FormNode, determinant: OHRIFormField) {
