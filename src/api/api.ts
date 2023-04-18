@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { encounterRepresentation } from '../constants';
 import { OpenmrsForm } from './types';
-import { isLikeUUID } from '../utils/boolean-utils';
+import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
   const url = !!encounterUuid ? `/ws/rest/v1/encounter/${encounterUuid}?v=full` : `/ws/rest/v1/encounter?v=full`;
@@ -58,7 +58,7 @@ export async function getOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm> {
   if (!nameOrUUID) {
     return null;
   }
-  const { url, isUUID } = isLikeUUID(nameOrUUID)
+  const { url, isUUID } = isUuid(nameOrUUID)
     ? { url: `/ws/rest/v1/form/${nameOrUUID}?v=full`, isUUID: true }
     : { url: `/ws/rest/v1/form?q=${nameOrUUID}&v=full`, isUUID: false };
 
