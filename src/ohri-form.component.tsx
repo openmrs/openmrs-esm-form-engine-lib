@@ -12,6 +12,7 @@ import {
   detach,
   registerExtension,
   attach,
+  Visit,
 } from '@openmrs/esm-framework';
 import LinearLoader from './components/loaders/linear-loader.component';
 import LoadingIcon from './components/loaders/loading.component';
@@ -32,6 +33,7 @@ interface OHRIFormProps {
   formUUID?: string;
   formJson?: OHRIFormSchema;
   encounterUUID?: string;
+  visit?: Visit;
   formSessionIntent?: string;
   onSubmit?: () => void;
   onCancel?: () => void;
@@ -76,6 +78,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   formUUID,
   patientUUID,
   encounterUUID,
+  visit,
   mode,
   onSubmit,
   onCancel,
@@ -281,6 +284,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                       encounterDate={encDate}
                       provider={currentProvider}
                       location={location}
+                      visit={visit}
                       values={props.values}
                       isCollapsed={collapsed}
                       sessionMode={sessionMode}

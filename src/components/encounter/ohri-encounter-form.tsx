@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { SessionLocation, useLayoutType } from '@openmrs/esm-framework';
+import { SessionLocation, useLayoutType, Visit } from '@openmrs/esm-framework';
 import { ConceptFalse, ConceptTrue } from '../../constants';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { getHandler, getValidator } from '../../registry/registry';
@@ -35,6 +35,7 @@ interface OHRIEncounterFormProps {
   encounterDate: Date;
   provider: string;
   location: SessionLocation;
+  visit?: Visit;
   values: Record<string, any>;
   isCollapsed: boolean;
   sessionMode: SessionMode;
@@ -57,6 +58,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   encounterDate,
   provider,
   location,
+  visit,
   values,
   isCollapsed,
   sessionMode,
@@ -92,6 +94,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
       date: encounterDate,
       form: form,
+      visit: visit,
     }),
     [encounter, encounterDate, form?.encounter, location, patient, previousEncounter, sessionMode],
   );
@@ -381,7 +384,10 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         ];
         encounterForSubmission['form'] = {
           uuid: encounterContext?.form?.uuid,
-        };
+        },
+        encounterForSubmission['visit'] = {
+          uuid: visit?.uuid
+        }
       }
       encounterForSubmission['obs'] = obsForSubmission;
     } else {
@@ -400,6 +406,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         form: {
           uuid: encounterContext?.form?.uuid,
         },
+        visit: visit?.uuid,
       };
     }
 
@@ -564,6 +571,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
               encounterDate={encounterDate}
               provider={provider}
               location={location}
+              visit={visit}
               values={values}
               isCollapsed={isCollapsed}
               sessionMode={sessionMode}
