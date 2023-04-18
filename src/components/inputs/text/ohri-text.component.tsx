@@ -30,7 +30,7 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
 
   useEffect(() => {
     if (encounterContext?.previousEncounter && !question.questionOptions.usePreviousValueDisabled) {
-      const prevValue = handler.getPreviousValue(question, encounterContext?.previousEncounter, fields);
+      const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
       if (!isEmpty(prevValue?.value)) {
         setPreviousValueForReview(prevValue);
       }
@@ -43,7 +43,7 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
     }
     if (previousValue !== field.value) {
       onChange(question.id, field.value, setErrors, setWarnings);
-      question.value = handler.handleFieldSubmission(question, field.value, encounterContext);
+      question.value = handler?.handleFieldSubmission(question, field.value, encounterContext);
     }
   };
 

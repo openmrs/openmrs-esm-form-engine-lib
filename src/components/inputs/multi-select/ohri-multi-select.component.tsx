@@ -60,7 +60,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
     const value = selectedItems.map(selectedItem => selectedItem.concept);
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value = handler.handleFieldSubmission(question, value, encounterContext);
+    question.value = handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}
-        value={field.value ? handler.getDisplayValue(question, field.value) : field.value}
+        value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
         conceptName={conceptName}
         isInline={isInline}
       />
@@ -114,7 +114,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
         <div className={styles.formField} style={{ marginTop: '0.125rem' }}>
           {field.value?.length ? (
             <UnorderedList style={{ marginLeft: '1rem' }}>
-              {handler.getDisplayValue(question, field.value)?.map(displayValue => displayValue + ', ')}
+              {handler?.getDisplayValue(question, field.value)?.map(displayValue => displayValue + ', ')}
             </UnorderedList>
           ) : (
             <OHRIValueEmpty />

@@ -23,7 +23,7 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
   const handleChange = value => {
     setFieldValue(question.id, value?.name);
     onChange(question.id, value?.name, setErrors, null);
-    question.value = handler.handleFieldSubmission(question, value?.name, encounterContext);
+    question.value = handler?.handleFieldSubmission(question, value?.name, encounterContext);
   };
   const selectedIndex = useMemo(
     () => question.questionOptions.answers.findIndex(option => option.concept == field.value),
@@ -47,7 +47,7 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}
-        value={field.value ? handler.getDisplayValue(question, field.value) : field.value}
+        value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
         conceptName={conceptName}
         isInline={isInline}
       />
