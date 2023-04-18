@@ -30,7 +30,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
   const handleChange = value => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value = handler.handleFieldSubmission(question, value, encounterContext);
+    question.value = handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
   useEffect(() => {
@@ -41,7 +41,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
 
   useEffect(() => {
     if (encounterContext?.previousEncounter && !question.questionOptions.usePreviousValueDisabled) {
-      const prevValue = handler.getPreviousValue(question, encounterContext?.previousEncounter, fields);
+      const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
       if (!isEmpty(prevValue?.value)) {
         setPreviousValueForReview(prevValue);
         setPaddingBottom(question.questionOptions.answers.length > 2 ? '3.1rem' : '1.2rem');
@@ -60,7 +60,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}
-        value={field.value ? handler.getDisplayValue(question, field.value) : field.value}
+        value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
         conceptName={conceptName}
         isInline={isInline}
       />

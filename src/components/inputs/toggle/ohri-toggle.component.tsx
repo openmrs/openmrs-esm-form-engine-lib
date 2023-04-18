@@ -16,14 +16,14 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
   const handleChange = value => {
     setFieldValue(question.id, value);
     onChange(question.id, value, null, null);
-    question.value = handler.handleFieldSubmission(question, value, encounterContext);
+    question.value = handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
   useEffect(() => {
     // The toogle input doesn't support blank values
     // by default, the value should be false
     if (!question.value && encounterContext.sessionMode == 'enter') {
-      question.value = handler.handleFieldSubmission(question, field.value ?? false, encounterContext);
+      question.value = handler?.handleFieldSubmission(question, field.value ?? false, encounterContext);
     }
   }, []);
 
@@ -44,7 +44,7 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}
-        value={!isEmpty(field.value) ? handler.getDisplayValue(question, field.value) : field.value}
+        value={!isEmpty(field.value) ? handler?.getDisplayValue(question, field.value) : field.value}
         conceptName={conceptName}
         isInline={isInline}
       />

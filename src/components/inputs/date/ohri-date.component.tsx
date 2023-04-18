@@ -42,14 +42,14 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
     setFieldValue(question.id, refinedDate);
     onChange(question.id, refinedDate, setErrors, setWarnings);
     onTimeChange(false, true);
-    question.value = handler.handleFieldSubmission(question, refinedDate, encounterContext);
+    question.value = handler?.handleFieldSubmission(question, refinedDate, encounterContext);
   };
 
   const onTimeChange = (event, useValue = false) => {
     if (useValue) {
       const prevValue =
         encounterContext?.previousEncounter &&
-        handler.getPreviousValue(question, encounterContext?.previousEncounter, fields);
+        handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
       setTime(moment(prevValue?.value).format('hh:mm'));
     } else {
       const time = event.target.value;
@@ -97,7 +97,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
 
   useEffect(() => {
     if (encounterContext?.previousEncounter && !question.questionOptions.usePreviousValueDisabled) {
-      let prevValue = handler.getPreviousValue(question, encounterContext?.previousEncounter, fields);
+      let prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
 
       if (!isEmpty(prevValue?.value)) {
         if (question?.questionOptions.rendering === 'datetime') {
