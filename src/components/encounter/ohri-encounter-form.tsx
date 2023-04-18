@@ -381,7 +381,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         ];
         encounterForSubmission['form'] = {
           uuid: encounterContext?.form?.uuid,
-          display: encounterContext.form?.name
         }
       }
       encounterForSubmission['obs'] = obsForSubmission;
@@ -400,7 +399,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         obs: obsForSubmission,
         form: {
           uuid: encounterContext?.form?.uuid,
-          display: encounterContext.form?.name
         }
       };
     }

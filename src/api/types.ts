@@ -197,7 +197,6 @@ export interface OpenmrsEncounter {
   encounterProviders?: Array<Record<string, any>>;
   form?: {
     uuid: string,
-    display: string
   }
 }
 
