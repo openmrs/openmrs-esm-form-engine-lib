@@ -36,7 +36,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
 
   useEffect(() => {
     if (question['submission']) {
-      question['submission'].erros && setErrors(question['submission'].errors);
+      question['submission'].errors && setErrors(question['submission'].errors);
       question['submission'].warnings && setWarnings(question['submission'].warnings);
     }
   }, [question['submission']]);
