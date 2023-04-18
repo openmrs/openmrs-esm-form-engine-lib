@@ -381,7 +381,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         ];
         encounterForSubmission['form'] = {
           uuid: encounterContext?.form?.uuid,
-        }
+        };
       }
       encounterForSubmission['obs'] = obsForSubmission;
     } else {
@@ -399,7 +399,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         obs: obsForSubmission,
         form: {
           uuid: encounterContext?.form?.uuid,
-        }
+        },
       };
     }
     if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {

@@ -96,7 +96,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const session = useSession();
   const [initialValues, setInitialValues] = useState({});
   const encDate = new Date();
-  const [scrollAblePages, setScrollablePages] = useState(new Set<OHRIFormPageProps>());
+  const [scrollablePages, setScrollablePages] = useState(new Set<OHRIFormPageProps>());
   const [selectedPage, setSelectedPage] = useState('');
   const [collapsed, setCollapsed] = useState(true);
   const { t } = useTranslation();
@@ -116,8 +116,8 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   }, [mode, encounterUUID, encounterUuid]);
 
   const showSideBar = useMemo(() => {
-    return workspaceLayout != 'minimized' && scrollAblePages.size > 0;
-  }, [workspaceLayout, scrollAblePages.size]);
+    return workspaceLayout != 'minimized' && scrollablePages.size > 0;
+  }, [workspaceLayout, scrollablePages.size]);
 
   useEffect(() => {
     const extDetails = {
@@ -257,7 +257,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                   <OHRIFormSidebar
                     isFormSubmitting={isSubmitting}
                     pagesWithErrors={pagesWithErrors}
-                    scrollAblePages={scrollAblePages}
+                    scrollablePages={scrollablePages}
                     selectedPage={selectedPage}
                     mode={mode}
                     onCancel={onCancel}
@@ -288,7 +288,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                       values={props.values}
                       isCollapsed={collapsed}
                       sessionMode={sessionMode}
-                      scrollablePages={scrollAblePages}
+                      scrollablePages={scrollablePages}
                       setAllInitialValues={setInitialValues}
                       allInitialValues={initialValues}
                       setScrollablePages={setScrollablePages}
