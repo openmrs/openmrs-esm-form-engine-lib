@@ -79,7 +79,6 @@ function refineFormJson(formJson: any, formSessionIntent?: string): OHRIFormSche
     const page = copy.pages[i];
     if (isTrue(page.isSubform) && !isTrue(page.isHidden) && page.subform?.form?.encounterType == copy.encounterType) {
       const refinedSubform = refineFormJson(page.subform.form, formSessionIntent);
-      // copy.pages.splice(i, 1, ...page.subform.form.pages.filter(page => !isTrue(page.isSubform)));
       copy.pages.splice(i, 1, ...refinedSubform.pages);
     }
   }
