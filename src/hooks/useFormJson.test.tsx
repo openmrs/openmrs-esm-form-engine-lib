@@ -74,7 +74,7 @@ describe('useFormJson', () => {
     expect(hook.result.current.formJson.name).toBe(PARENT_FORM_NAME);
 
     // verify subforms
-    verifyNestedForms(hook.result.current.formJson);
+    verifyEmbeddedForms(hook.result.current.formJson);
   });
 
   it('should load subforms for raw form json', async () => {
@@ -88,7 +88,7 @@ describe('useFormJson', () => {
     expect(hook.result.current.formJson.name).toBe(PARENT_FORM_NAME);
     
     // verify subforms
-    verifyNestedForms(hook.result.current.formJson);
+    verifyEmbeddedForms(hook.result.current.formJson);
   });
 });
 
@@ -96,11 +96,12 @@ function buildPath(path: string) {
     return when((url: string) => url.includes(path));
 }
 
-function verifyNestedForms(formJson) {
-    const subform = formJson.pages[1].subform.form;
-    const nestedSubform = subform.pages[1].subform.form;
-    expect(subform.name).toBe(SUB_FORM_NAME);
+function verifyEmbeddedForms(formJson) {
+    // assert that the nestedForm2's (level one subform) pages have been aligned with the parent because they share the same encounterType
+    expect(formJson.pages.length).toBe(3);
+    // the mini form (it's not flattened into the parent form because it has a different encounterType)
+    const nestedSubform = formJson.pages[2].subform.form;
     expect(nestedSubform.name).toBe(MINI_FORM_NAME);
-    expect(subform.pages.length).toBe(2);
     expect(nestedSubform.pages.length).toBe(1);
 }
+

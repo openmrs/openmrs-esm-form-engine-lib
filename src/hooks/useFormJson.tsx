@@ -42,10 +42,7 @@ export async function loadFormJson(
 ): Promise<OHRIFormSchema> {
   const openmrsFormResponse = await getOpenMRSForm(formIdentifier);
   const clobDataResponse = await getOpenmrsFormBody(openmrsFormResponse);
-
-  const formJson: OHRIFormSchema = rawFormJson
-    ? refineFormJson(rawFormJson, formSessionIntent)
-    : refineFormJson(clobDataResponse, formSessionIntent);
+  const formJson: OHRIFormSchema = clobDataResponse ?? rawFormJson;
   const subformRefs = formJson.pages
     .filter(page => page.isSubform && !page.subform.form && page.subform?.name)
     .map(page => page.subform?.name);
@@ -53,7 +50,7 @@ export async function loadFormJson(
   subforms.forEach(subform => {
     formJson.pages.find(page => page.subform?.name === subform.name).subform.form = subform;
   });
-  return formJson;
+  return refineFormJson(formJson, formSessionIntent);
 }
 
 function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
@@ -65,7 +62,15 @@ function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
   }
 }
 
-function refineFormJson(formJson: any, formSessionIntent: string): OHRIFormSchema {
+/**
+ * Polishes the formJson by applying the following transformations:
+ * - Applies forms behavior based on the `formSessionIntent` parameter.
+ * - Subforms that have the same encounter type as the parent are inlined with the parent form.
+ * @param formJson The form JSON object to be refined.
+ * @param formSessionIntent An optional parameter that represents the current intent.
+ * @returns A refined form JSON object.
+ */
+function refineFormJson(formJson: any, formSessionIntent?: string): OHRIFormSchema {
   const copy: OHRIFormSchema =
     typeof formJson == 'string' ? JSON.parse(formJson) : JSON.parse(JSON.stringify(formJson));
   let i = copy.pages.length;
@@ -73,7 +78,9 @@ function refineFormJson(formJson: any, formSessionIntent: string): OHRIFormSchem
   while (i--) {
     const page = copy.pages[i];
     if (isTrue(page.isSubform) && !isTrue(page.isHidden) && page.subform?.form?.encounterType == copy.encounterType) {
-      copy.pages.splice(i, 1, ...page.subform.form.pages.filter(page => !isTrue(page.isSubform)));
+      const refinedSubform = refineFormJson(page.subform.form, formSessionIntent);
+      // copy.pages.splice(i, 1, ...page.subform.form.pages.filter(page => !isTrue(page.isSubform)));
+      copy.pages.splice(i, 1, ...refinedSubform.pages);
     }
   }
   // Ampath forms configure the `encounterType` property through the `encounter` attribute

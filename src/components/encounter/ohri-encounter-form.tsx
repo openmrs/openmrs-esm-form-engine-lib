@@ -545,8 +545,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           if (sessionMode != 'enter' && !page.subform?.form.encounter) {
             return null;
           }
-          // filter out all nested subforms
-          page.subform.form.pages = page.subform.form.pages.filter(page => !isTrue(page.isSubform));
           return (
             <OHRIEncounterForm
               key={index}

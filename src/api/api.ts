@@ -66,7 +66,9 @@ export async function getOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm> {
   if (isUUID) {
     return openmrsFormResponse;
   }
-  return openmrsFormResponse.results?.length ? openmrsFormResponse.results[0] : null;
+  return openmrsFormResponse.results?.length
+    ? openmrsFormResponse.results[0]
+    : new Error(`Form with ${nameOrUUID} was not found`);
 }
 
 export async function getOpenmrsFormBody(formSkeleton: OpenmrsForm) {
