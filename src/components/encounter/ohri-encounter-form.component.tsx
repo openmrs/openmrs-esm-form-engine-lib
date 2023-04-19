@@ -29,6 +29,9 @@ import { useEncounter } from '../../hooks/useEncounter';
 import { useInitialValues } from '../../hooks/useInitialValues';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
 
+/**
+ * Todo pirupius - this needs to be refactored to pass the provider and location as props
+ */
 interface OHRIEncounterFormProps {
   formJson: OHRIFormSchema;
   patient: any;
@@ -77,6 +80,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const [fields, setFields] = useState<Array<OHRIFormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
   const [encounterDate, setEncounterDate] = useState(formSessionDate);
+  const [encounterProvider, setEncounterProvider] = useState(null);
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(formJson);
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
@@ -152,6 +156,9 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     };
   }, [scrollablePages, formJson]);
 
+  /**
+   * TODO pirupius - this needs to be refactored to pass the encounter location and provider
+   */
   useEffect(() => {
     if (!encounterLocation && location) {
       setEncounterLocation(location);
@@ -545,6 +552,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         values,
         setFieldValue,
         setEncounterLocation: setEncounterLocation,
+        setEncounterProvider: setEncounterProvider,
         setObsGroupsToVoid: setObsGroupsToVoid,
         obsGroupsToVoid: obsGroupsToVoid,
         fields: fields,

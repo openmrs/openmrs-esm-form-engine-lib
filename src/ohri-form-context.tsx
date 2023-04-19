@@ -6,6 +6,7 @@ type OHRIFormContextProps = {
   values: Record<string, any>;
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
   setEncounterLocation: (value: any) => void;
+  setEncounterProvider: (value: any) => void;
   obsGroupsToVoid: Array<any>;
   setObsGroupsToVoid: (value: any) => void;
   encounterContext: EncounterContext;
@@ -21,6 +22,7 @@ export interface EncounterContext {
   encounter: OpenmrsEncounter;
   previousEncounter?: OpenmrsEncounter;
   location: any;
+  provider?: any;
   sessionMode: SessionMode;
   encounterDate: Date;
   setEncounterDate(value: Date): void;
