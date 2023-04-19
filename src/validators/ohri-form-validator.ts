@@ -15,24 +15,25 @@ export const OHRIFieldValidator: FieldValidator = {
       }
     }
     if (field.questionOptions.rendering == 'number') {
-      let min = field.questionOptions.min;
-      let max = field.questionOptions.max;
-
-      if (min && Number(value) < Number(min)) {
+      const min = field.questionOptions.min;
+      const max = field.questionOptions.max;
+      if (min && value < Number(min)) {
         return [
           {
             resultType: 'error',
             errCode: fieldOutOfBoundErrCode,
+            // TODO: handle i18n
             message: `Field value can't be less than ${min}`,
           },
         ];
       }
 
-      if (max && Number(value) > Number(max)) {
+      if (max && value > Number(max)) {
         return [
           {
             resultType: 'error',
             errCode: fieldOutOfBoundErrCode,
+            // TODO: handle i18n
             message: `Field value can't be greater than ${max}`,
           },
         ];
