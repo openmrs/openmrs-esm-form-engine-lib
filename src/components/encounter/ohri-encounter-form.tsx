@@ -28,7 +28,6 @@ import { scrollIntoView } from '../../utils/ohri-sidebar';
 import { useEncounter } from '../../hooks/useEncounter';
 import { useInitialValues } from '../../hooks/useInitialValues';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
-import { OHRIDefaultFieldValueValidator } from '../../validators/default-value-validator';
 
 interface OHRIEncounterFormProps {
   formJson: OHRIFormSchema;
@@ -425,13 +424,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         getValidator(validatorConfig.type)?.validate(field, value, { ...basevalidatorConfig, ...validatorConfig }) ||
         [];
       errors.push(...errorsAndWarinings.filter(error => error.resultType == 'error'));
-
-      const defaultValueValidation = OHRIDefaultFieldValueValidator.validate(field, value);
-      if (defaultValueValidation.length) {
-        defaultValueValidation.map(error => {
-          errors.push(error);
-        });
-      }
       warnings.push(...errorsAndWarinings.filter(error => error.resultType == 'warning'));
     }
     setErrors?.(errors);

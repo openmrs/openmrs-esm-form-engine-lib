@@ -23,25 +23,6 @@ export const OHRIDefaultFieldValueValidator: FieldValidator = {
         return [
           { resultType: 'error', errCode: 'invalid.defaultValue', message: `Invalid numerical  value: '${value}'` },
         ];
-      } else {
-        let min = field.questionOptions.min;
-        let max = field.questionOptions.max;
-        if (min && Number(value) < Number(min)) {
-          return [
-            {
-              resultType: 'error',
-              message: `Field value can't be less than ${min}`,
-            },
-          ];
-        }
-        if (max && Number(value) > Number(max)) {
-          return [
-            {
-              resultType: 'error',
-              message: `Field value can't be greater than ${max}`,
-            },
-          ];
-        }
       }
     }
     return [];
