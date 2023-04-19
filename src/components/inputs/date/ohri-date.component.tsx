@@ -1,15 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import moment from 'moment';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { DatePicker, DatePickerInput, TimePicker } from '@carbon/react';
 import { useField } from 'formik';
 import { OHRIFormContext } from '../../../ohri-form-context';
-import styles from '../_input.scss';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-import moment from 'moment';
+import styles from '../_input.scss';
 
 const dateFormatter = new Intl.DateTimeFormat(window.navigator.language);
 
@@ -58,13 +58,13 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
       currentDateTime.setHours(splitTime[0] ?? '00', splitTime[1] ?? '00');
       setFieldValue(question.id, currentDateTime);
       onChange(question.id, currentDateTime, setErrors, setWarnings);
-      question.value = handler.handleFieldSubmission(question, currentDateTime, encounterContext);
+      question.value = handler?.handleFieldSubmission(question, currentDateTime, encounterContext);
       setTime(time);
     }
   };
-  const { placeHolder, carbonDateformat } = useMemo(() => {
+  const { placeholder, carbonDateformat } = useMemo(() => {
     const formatObj = dateFormatter.formatToParts(new Date());
-    const placeHolder = formatObj
+    const placeholder = formatObj
       .map(obj => {
         switch (obj.type) {
           case 'day':
@@ -92,7 +92,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
         }
       })
       .join('');
-    return { placeHolder: placeHolder, carbonDateformat: carbonDateformat };
+    return { placeholder: placeholder, carbonDateformat: carbonDateformat };
   }, []);
 
   useEffect(() => {
@@ -153,7 +153,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
               dateFormat={carbonDateformat}>
               <DatePickerInput
                 id={question.id}
-                placeholder={placeHolder}
+                placeholder={placeholder}
                 labelText={question.label}
                 value={
                   field.value instanceof Date ? field.value.toLocaleDateString(window.navigator.language) : field.value
@@ -174,10 +174,11 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
           </div>
           {question?.questionOptions.rendering === 'datetime' ? (
             <TimePicker
+              className={styles.timePicker}
               id={question.id}
-              labelText="Order time"
+              labelText="Time:"
               placeholder="HH:MM"
-              pattern="(1[012]|[1-9]):[0-5][0-9](\\s)?"
+              pattern="(1[012]|[1-9]):[0-5][0-9])$"
               type="time"
               disabled={!field.value ? true : false}
               value={
@@ -187,7 +188,8 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
                   ? field.value.toLocaleDateString(window.navigator.language)
                   : field.value
               }
-              onChange={onTimeChange}></TimePicker>
+              onChange={onTimeChange}
+            />
           ) : (
             ''
           )}
