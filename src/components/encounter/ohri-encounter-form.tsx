@@ -28,6 +28,7 @@ import { scrollIntoView } from '../../utils/ohri-sidebar';
 import { useEncounter } from '../../hooks/useEncounter';
 import { useInitialValues } from '../../hooks/useInitialValues';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
+import { OHRIDefaultFieldValueValidator } from '../../validators/default-value-validator';
 
 interface OHRIEncounterFormProps {
   formJson: OHRIFormSchema;
@@ -394,6 +395,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         obs: obsForSubmission,
       };
     }
+
     if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {
       const ac = new AbortController();
       return saveEncounter(ac, encounterForSubmission, encounter?.uuid);
@@ -423,23 +425,14 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         getValidator(validatorConfig.type)?.validate(field, value, { ...basevalidatorConfig, ...validatorConfig }) ||
         [];
       errors.push(...errorsAndWarinings.filter(error => error.resultType == 'error'));
-      warnings.push(...errorsAndWarinings.filter(error => error.resultType == 'warning'));
-    }
-    if (field.questionOptions.rendering == 'number') {
-      let min = field.questionOptions.min;
-      let max = field.questionOptions.max;
-      if (min && Number(value) < Number(min)) {
-        errors.push({
-          resultType: 'error',
-          message: `Field value can't be less than ${min}`,
+
+      const defaultValueValidation = OHRIDefaultFieldValueValidator.validate(field, value);
+      if (defaultValueValidation.length) {
+        defaultValueValidation.map(error => {
+          errors.push(error);
         });
-        if (max && Number(value) > Number(max)) {
-          errors.push({
-            resultType: 'error',
-            message: `Field value can't be greater than ${max}`,
-          });
-        }
       }
+      warnings.push(...errorsAndWarinings.filter(error => error.resultType == 'warning'));
     }
     setErrors?.(errors);
     setWarnings?.(warnings);
