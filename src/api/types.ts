@@ -191,6 +191,7 @@ export interface PostSubmissionAction {
     sessionMode: SessionMode;
   }): void;
 }
+
 // OpenMRS Type Definitions
 export interface OpenmrsEncounter {
   uuid?: string;
@@ -240,4 +241,58 @@ export interface OpenmrsForm {
 export interface OpenmrsFormResource extends OpenmrsResource {
   dataType: string;
   valueReference: string;
+}
+
+export interface ProviderResponse {
+  results: Array<Provider>;
+}
+
+export interface Provider {
+  uuid: string;
+  display: string;
+  person: {
+    uuid: string;
+    display: string;
+  };
+  identifier: string;
+  attributes: [];
+  retired: false;
+}
+
+export interface LocationResponse {
+  results: Array<Location>;
+}
+
+export interface Location {
+  uuid: string;
+  display: string;
+  name: string;
+  description: string;
+  address1: string;
+  address2: string;
+  cityVillage: string;
+  stateProvince: string;
+  country: string;
+  postalCode: string;
+  latitude: string;
+  longitude: string;
+  countyDistrict: string;
+  tags: [
+    {
+      uuid: string;
+      display: string;
+    },
+  ];
+  parentLocation: {
+    uuid: string;
+    display: string;
+  };
+  childLocations: [
+    {
+      uuid: string;
+      display: string;
+    },
+  ];
+  retired: boolean;
+  attributes: [];
 }
