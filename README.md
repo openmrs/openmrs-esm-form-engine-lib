@@ -42,6 +42,7 @@ You must have git, node, npm, and yarn installed. The versions required are
 - The latest stable version of NPM
 - The latest stable version of Yarn
 
+
 ### Installation
 
 ```bash
@@ -70,10 +71,35 @@ function FormRenderTest () {
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
+### Local Development
+
+#### Install Dependencies 
+
+```bash
+yarn 
+```
+
+#### Build the lib
+```bash
+yarn build
+```
+
+#### Link the lib to an ESM that depends on this lib (i.e: openmrs-esm-form-builder)
+```bash
+cd path/to/openmrs-esm-form-builder
+
+yarn link path/to/openmrs-form-engine-lib
+```
+
+*The linking is what allows you to see your changes locally.*
+
+#### Start the dependant ESM locally as you would normally do 
+```bash
+yarn start
+```
+
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 
-
-*NB: You may have to [yarn link](https://classic.yarnpkg.com/en/docs/cli/link) your local installation of the project with a frontend app or ESM into order to view your local changes.*
 
 ### Report an issue
 https://github.com/openmrs/openmrs-form-engine-lib/issues
