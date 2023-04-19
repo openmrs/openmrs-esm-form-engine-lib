@@ -402,6 +402,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         },
       };
     }
+
     if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {
       const ac = new AbortController();
       return saveEncounter(ac, encounterForSubmission, encounter?.uuid);
