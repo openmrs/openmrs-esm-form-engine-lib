@@ -1,5 +1,5 @@
-import { useLayoutType } from '@openmrs/esm-framework';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { SessionLocation, useLayoutType } from '@openmrs/esm-framework';
 import { ConceptFalse, ConceptTrue } from '../../constants';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { getHandler, getValidator } from '../../registry/registry';
@@ -34,7 +34,7 @@ interface OHRIEncounterFormProps {
   patient: any;
   encounterDate: Date;
   provider: string;
-  location: { uuid: string; name: string };
+  location: SessionLocation;
   values: Record<string, any>;
   isCollapsed: boolean;
   sessionMode: SessionMode;
@@ -209,7 +209,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
 
   useEffect(() => {
     if (sessionMode == 'enter' && !formJson.formOptions?.usePreviousValueDisabled) {
-      getPreviousEncounter(patient.id, formJson.encounterType).then(data => {
+      getPreviousEncounter(patient?.id, formJson?.encounterType).then(data => {
         setPreviousEncounter(data);
         setIsLoadingPreviousEncounter(false);
       });
@@ -335,7 +335,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       .forEach(field => {
         if (field.type == 'obsGroup') {
           const obsGroup = {
-            person: patient.id,
+            person: patient?.id,
             obsDatetime: encounterDate,
             concept: field.questionOptions.concept,
             location: encounterLocation,
@@ -381,7 +381,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         ];
         encounterForSubmission['form'] = {
           uuid: encounterContext?.form?.uuid,
-        }
+        };
       }
       encounterForSubmission['obs'] = obsForSubmission;
     } else {
@@ -399,9 +399,10 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         obs: obsForSubmission,
         form: {
           uuid: encounterContext?.form?.uuid,
-        }
+        },
       };
     }
+
     if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {
       const ac = new AbortController();
       return saveEncounter(ac, encounterForSubmission, encounter?.uuid);

@@ -7,7 +7,7 @@ import { scrollIntoView } from '../../utils/ohri-sidebar';
 function OHRIFormSidebar({
   isFormSubmitting,
   pagesWithErrors,
-  scrollAblePages,
+  scrollablePages,
   selectedPage,
   mode,
   onCancel,
@@ -20,7 +20,7 @@ function OHRIFormSidebar({
   const [activeLink, setActiveLink] = useState(selectedPage);
 
   useEffect(() => {
-    if (defaultPage && [...scrollAblePages].find(({ label, isHidden }) => label === defaultPage && !isHidden)) {
+    if (defaultPage && [...scrollablePages].find(({ label, isHidden }) => label === defaultPage && !isHidden)) {
       scrollIntoView(joinWord(defaultPage));
     }
   }, [defaultPage]);
@@ -65,7 +65,7 @@ function OHRIFormSidebar({
   );
   return (
     <div className={styles.sidebar}>
-      {[...scrollAblePages].map((page, index) => {
+      {[...scrollablePages].map((page, index) => {
         return (
           !page.isHidden && (
             <div

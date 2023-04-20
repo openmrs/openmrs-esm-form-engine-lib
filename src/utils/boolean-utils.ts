@@ -17,10 +17,9 @@ export function isTrue(value: string | boolean): boolean {
 }
 
 /**
- * Checks whether a string is a "like" UUID.
- * A "like" UUID is a string that has the format of a UUID, but is not necessarily a valid UUID.
+ * Checks whether a string is a UUID
  */
-export function isLikeUUID(s: string): boolean {
-  const pattern = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-  return pattern.test(s);
+export function isUuid(value: string): boolean {
+  const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+  return uuidRegex.test(value);
 }
