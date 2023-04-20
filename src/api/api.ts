@@ -54,10 +54,16 @@ export function getLatestObs(patientUuid: string, conceptUuid: string, encounter
   });
 }
 
-export async function getOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm> {
+/**
+ * Fetches an OpenMRS form using either its name or UUID.
+ * @param {string} nameOrUUID - The form's name or UUID.
+ * @returns {Promise<OpenmrsForm | null>} - A Promise that resolves to the fetched OpenMRS form or null if not found.
+ */
+export async function fetchOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm | null> {
   if (!nameOrUUID) {
     return null;
   }
+
   const { url, isUUID } = isUuid(nameOrUUID)
     ? { url: `/ws/rest/v1/form/${nameOrUUID}?v=full`, isUUID: true }
     : { url: `/ws/rest/v1/form?q=${nameOrUUID}&v=full`, isUUID: false };
@@ -66,15 +72,28 @@ export async function getOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm> {
   if (isUUID) {
     return openmrsFormResponse;
   }
-  return openmrsFormResponse.results?.length ? openmrsFormResponse.results[0] : null;
+  return openmrsFormResponse.results?.length
+    ? openmrsFormResponse.results[0]
+    : new Error(`Form with ${nameOrUUID} was not found`);
 }
 
-export async function getOpenmrsFormBody(formSkeleton: OpenmrsForm) {
-  if (!formSkeleton) {
+/**
+ * Fetches ClobData for a given OpenMRS form.
+ * @param {OpenmrsForm} form - The OpenMRS form object.
+ * @returns {Promise<any | null>} - A Promise that resolves to the fetched ClobData or null if not found.
+ */
+export async function fetchClobData(form: OpenmrsForm): Promise<any | null> {
+  if (!form) {
     return null;
   }
-  const { data: clobDataResponse } = await openmrsFetch(
-    `/ws/rest/v1/clobdata/${formSkeleton.resources.find(({ name }) => name === 'JSON schema').valueReference}`,
-  );
+
+  const jsonSchemaResource = form.resources.find(({ name }) => name === 'JSON schema');
+  if (!jsonSchemaResource) {
+    return null;
+  }
+
+  const clobDataUrl = `/ws/rest/v1/clobdata/${jsonSchemaResource.valueReference}`;
+  const { data: clobDataResponse } = await openmrsFetch(clobDataUrl);
+
   return clobDataResponse;
 }
