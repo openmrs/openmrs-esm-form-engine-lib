@@ -11,33 +11,14 @@ export const OHRIFieldValidator: FieldValidator = {
     }
     if (isTrue(field.required) || isTrue(field.unspecified)) {
       if (isEmpty(value)) {
-        return [{ resultType: 'error', errCode: fieldRequiredErrCode, message: 'Field is mandatory' }];
+        return addError(fieldRequiredErrCode, 'Field is mandatory');
       }
     }
     if (field.questionOptions.rendering == 'number') {
-      const min = field.questionOptions.min;
-      const max = field.questionOptions.max;
-      if (min && value < Number(min)) {
-        return [
-          {
-            resultType: 'error',
-            errCode: fieldOutOfBoundErrCode,
-            // TODO: handle i18n
-            message: `Field value can't be less than ${min}`,
-          },
-        ];
-      }
-
-      if (max && value > Number(max)) {
-        return [
-          {
-            resultType: 'error',
-            errCode: fieldOutOfBoundErrCode,
-            // TODO: handle i18n
-            message: `Field value can't be greater than ${max}`,
-          },
-        ];
-      }
+      return numberInputRangeValidator(Number(field.questionOptions.min), Number(field.questionOptions.max), value);
+    }
+    if (field.questionOptions.rendering == 'text') {
+      return textInputLengthValidator(Number(field.questionOptions.min), Number(field.questionOptions.max), value);
     }
     return [];
   },
@@ -54,4 +35,32 @@ export function isEmpty(value: any): boolean {
     return true;
   }
   return false;
+}
+
+export function textInputLengthValidator(minLength: number, maxLength: number, value: string) {
+  return value.length >= minLength && value.length <= maxLength
+    ? []
+    : addError(
+        fieldOutOfBoundErrCode,
+        `Field length error, field length should be between ${minLength} and ${maxLength}.`,
+      );
+}
+
+export function numberInputRangeValidator(min: number, max: number, value: number) {
+  if (min && value < Number(min)) {
+    return addError(fieldOutOfBoundErrCode, `Field value can't be less than ${min}`);
+  }
+  if (max && value > Number(max)) {
+    return addError(fieldOutOfBoundErrCode, `Field value can't be greater than ${max}`);
+  }
+}
+
+export function addError(errorCode: string, message: string): [{}] {
+  return [
+    {
+      resultType: 'error',
+      errCode: errorCode,
+      message: message,
+    },
+  ];
 }
