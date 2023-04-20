@@ -12,25 +12,27 @@ function OHRIFormPage({ page, onFieldChange, setSelectedPage, isCollapsed }) {
     setSelectedPage(elementID);
   };
 
+  const visibleSections = page.sections.filter(sec => !isTrue(sec.isHidden));
+  const visibleSectionsJSX = visibleSections.map((sec, index) => {
+    const hasHiddenQuestionsInSection = sec.questions.every(question => question.isHidden);
+    return (
+      !hasHiddenQuestionsInSection && (
+        <AccordionItem title={sec.label} open={isCollapsed} className={styles.sectionContent} key={`section-${sec.id}`}>
+          <div className={styles.formSection}>
+            <OHRIFormSection fields={sec.questions} onFieldChange={onFieldChange} />
+          </div>
+        </AccordionItem>
+      )
+    );
+  });
+
   return (
     <Waypoint onEnter={() => handleEnter(newLabel)} topOffset="50%" bottomOffset="60%">
       <div id={newLabel} className={styles.pageContent}>
-        <div style={{}} className={styles.pageHeader}>
+        <div className={styles.pageHeader}>
           <p className={styles.pageTitle}>{page.label}</p>
         </div>
-        <Accordion>
-          {page.sections
-            .filter(sec => !isTrue(sec.isHidden))
-            .map((sec, index) => {
-              return (
-                <AccordionItem title={sec.label} open={isCollapsed} className={styles.sectionContent} key={index}>
-                  <div className={styles.formSection} key={index}>
-                    <OHRIFormSection fields={sec.questions} onFieldChange={onFieldChange} key={index} />
-                  </div>
-                </AccordionItem>
-              );
-            })}
-        </Accordion>
+        <Accordion>{visibleSectionsJSX}</Accordion>
       </div>
     </Waypoint>
   );
