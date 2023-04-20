@@ -3,7 +3,7 @@
     "display": "Mini Form",
     "name": "Mini Form",
     "description": null,
-    "encounterType": null,
+    "encounterType": "503a5764-feaa-43d5-ad7e-f523091fbd8f",
     "version": "1.0",
     "build": null,
     "published": false,

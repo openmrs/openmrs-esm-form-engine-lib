@@ -85,9 +85,8 @@ function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
  */
 function refineFormJson(formJson: any, formSessionIntent?: string): OHRIFormSchema {
   const parsedFormJson: OHRIFormSchema = parseFormJson(formJson);
-  removeInlineSubforms(parsedFormJson);
+  removeInlineSubforms(parsedFormJson, formSessionIntent);
   setEncounterType(parsedFormJson);
-
   return formSessionIntent ? applyFormIntent(formSessionIntent, parsedFormJson) : parsedFormJson;
 }
 
@@ -103,8 +102,9 @@ function parseFormJson(formJson: any): OHRIFormSchema {
 /**
  * Removes inline subforms from the form JSON and replaces them with their pages if the encounter type matches.
  * @param {OHRIFormSchema} formJson - The input form JSON object of type OHRIFormSchema.
+ * @param {string} formSessionIntent - The form session intent.
  */
-function removeInlineSubforms(formJson: OHRIFormSchema): void {
+function removeInlineSubforms(formJson: OHRIFormSchema, formSessionIntent: string): void {
   for (let i = formJson.pages.length - 1; i >= 0; i--) {
     const page = formJson.pages[i];
     if (
@@ -113,7 +113,7 @@ function removeInlineSubforms(formJson: OHRIFormSchema): void {
       page.subform?.form?.encounterType === formJson.encounterType
     ) {
       const nonSubformPages = page.subform.form.pages.filter(page => !isTrue(page.isSubform));
-      formJson.pages.splice(i, 1, ...nonSubformPages);
+      formJson.pages.splice(i, 1, ...refineFormJson(page.subform.form, formSessionIntent).pages);
     }
   }
 }
