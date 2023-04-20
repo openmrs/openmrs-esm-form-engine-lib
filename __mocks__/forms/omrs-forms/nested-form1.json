@@ -3,7 +3,7 @@
     "display": "Nested Form One",
     "name": "Nested Form One",
     "description": null,
-    "encounterType": null,
+    "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe",
     "version": "1.0",
     "build": null,
     "published": false,

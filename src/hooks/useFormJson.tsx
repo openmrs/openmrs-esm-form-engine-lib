@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { OHRIFormSchema } from '../api/types';
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
-import { getOpenMRSForm, getOpenmrsFormBody } from '../api/api';
+import { fetchOpenMRSForm, fetchClobData } from '../api/api';
 
 export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: string, formSessionIntent: string) {
   const [formJson, setFormJson] = useState<OHRIFormSchema>(null);
@@ -37,23 +37,36 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
  */
 export async function loadFormJson(
   formIdentifier: string,
-  rawFormJson?: any,
+  rawFormJson?: OHRIFormSchema,
   formSessionIntent?: string,
 ): Promise<OHRIFormSchema> {
-  const openmrsFormResponse = await getOpenMRSForm(formIdentifier);
-  const clobDataResponse = await getOpenmrsFormBody(openmrsFormResponse);
+  const openmrsFormResponse = await fetchOpenMRSForm(formIdentifier);
+  const clobDataResponse = await fetchClobData(openmrsFormResponse);
+  const formJson: OHRIFormSchema = clobDataResponse ?? rawFormJson;
+  const subformRefs = extractSubformRefs(formJson);
+  const subforms = await loadSubforms(subformRefs, formSessionIntent);
+  updateFormJsonWithSubforms(formJson, subforms);
 
-  const formJson: OHRIFormSchema = rawFormJson
-    ? refineFormJson(rawFormJson, formSessionIntent)
-    : refineFormJson(clobDataResponse, formSessionIntent);
-  const subformRefs = formJson.pages
+  return refineFormJson(formJson, formSessionIntent);
+}
+
+function extractSubformRefs(formJson: OHRIFormSchema): string[] {
+  return formJson.pages
     .filter(page => page.isSubform && !page.subform.form && page.subform?.name)
     .map(page => page.subform?.name);
-  const subforms = await Promise.all(subformRefs.map(subform => loadFormJson(subform, null, formSessionIntent)));
+}
+
+async function loadSubforms(subformRefs: string[], formSessionIntent?: string): Promise<OHRIFormSchema[]> {
+  return Promise.all(subformRefs.map(subform => loadFormJson(subform, null, formSessionIntent)));
+}
+
+function updateFormJsonWithSubforms(formJson: OHRIFormSchema, subforms: OHRIFormSchema[]): void {
   subforms.forEach(subform => {
-    formJson.pages.find(page => page.subform?.name === subform.name).subform.form = subform;
+    const matchingPage = formJson.pages.find(page => page.subform?.name === subform.name);
+    if (matchingPage) {
+      matchingPage.subform.form = subform;
+    }
   });
-  return formJson;
 }
 
 function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
@@ -64,25 +77,54 @@ function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
     return new Error('InvalidArgumentsErr: Both formUuid and formJson cannot be provided at the same time.');
   }
 }
+/**
+ * Refines the input form JSON object by parsing it, removing inline subforms, setting the encounter type, and applying form intents if provided.
+ * @param {any} formJson - The input form JSON object or string.
+ * @param {string} [formSessionIntent] - The optional form session intent.
+ * @returns {OHRIFormSchema} - The refined form JSON object of type OHRIFormSchema.
+ */
+function refineFormJson(formJson: any, formSessionIntent?: string): OHRIFormSchema {
+  const parsedFormJson: OHRIFormSchema = parseFormJson(formJson);
+  removeInlineSubforms(parsedFormJson, formSessionIntent);
+  setEncounterType(parsedFormJson);
+  return formSessionIntent ? applyFormIntent(formSessionIntent, parsedFormJson) : parsedFormJson;
+}
 
-function refineFormJson(formJson: any, formSessionIntent: string): OHRIFormSchema {
-  const copy: OHRIFormSchema =
-    typeof formJson == 'string' ? JSON.parse(formJson) : JSON.parse(JSON.stringify(formJson));
-  let i = copy.pages.length;
-  // let's loop backwards so that we splice in the opposite direction
-  while (i--) {
-    const page = copy.pages[i];
-    if (isTrue(page.isSubform) && !isTrue(page.isHidden) && page.subform?.form?.encounterType == copy.encounterType) {
-      copy.pages.splice(i, 1, ...page.subform.form.pages.filter(page => !isTrue(page.isSubform)));
+/**
+ * Parses the input form JSON and returns a deep copy of the object.
+ * @param {any} formJson - The input form JSON object or string.
+ * @returns {OHRIFormSchema} - The parsed form JSON object of type OHRIFormSchema.
+ */
+function parseFormJson(formJson: any): OHRIFormSchema {
+  return typeof formJson === 'string' ? JSON.parse(formJson) : JSON.parse(JSON.stringify(formJson));
+}
+
+/**
+ * Removes inline subforms from the form JSON and replaces them with their pages if the encounter type matches.
+ * @param {OHRIFormSchema} formJson - The input form JSON object of type OHRIFormSchema.
+ * @param {string} formSessionIntent - The form session intent.
+ */
+function removeInlineSubforms(formJson: OHRIFormSchema, formSessionIntent: string): void {
+  for (let i = formJson.pages.length - 1; i >= 0; i--) {
+    const page = formJson.pages[i];
+    if (
+      isTrue(page.isSubform) &&
+      !isTrue(page.isHidden) &&
+      page.subform?.form?.encounterType === formJson.encounterType
+    ) {
+      const nonSubformPages = page.subform.form.pages.filter(page => !isTrue(page.isSubform));
+      formJson.pages.splice(i, 1, ...refineFormJson(page.subform.form, formSessionIntent).pages);
     }
   }
-  // Ampath forms configure the `encounterType` property through the `encounter` attribute
-  if (copy.encounter && typeof copy.encounter == 'string' && !copy.encounterType) {
-    copy.encounterType = copy.encounter;
-    delete copy.encounter;
+}
+
+/**
+ * Sets the encounter type for the form JSON if it's provided through the `encounter` attribute.
+ * @param {OHRIFormSchema} formJson - The input form JSON object of type OHRIFormSchema.
+ */
+function setEncounterType(formJson: OHRIFormSchema): void {
+  if (formJson.encounter && typeof formJson.encounter === 'string' && !formJson.encounterType) {
+    formJson.encounterType = formJson.encounter;
+    delete formJson.encounter;
   }
-  if (formSessionIntent) {
-    return applyFormIntent(formSessionIntent, copy);
-  }
-  return copy;
 }

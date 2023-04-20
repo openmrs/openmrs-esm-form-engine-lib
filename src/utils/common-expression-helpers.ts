@@ -335,7 +335,7 @@ export class CommonExpressionHelpers {
 
   calcGravida(parityTerm: number, parityAbortion: number) {
     let gravida = 0;
-    if(parityTerm && parityAbortion) {
+    if (parityTerm && parityAbortion) {
       gravida = parityTerm + parityAbortion + 1;
     }
 
@@ -344,8 +344,8 @@ export class CommonExpressionHelpers {
 
   calcDaysSinceCircumcisionProcedure(val) {
     let daySinceLastCircumcision = 0;
-    if(val) {
-      var timeDiff = Math.abs((new Date).getTime() - Date.parse(val));
+    if (val) {
+      var timeDiff = Math.abs(new Date().getTime() - Date.parse(val));
       daySinceLastCircumcision = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
     }
     return daySinceLastCircumcision;

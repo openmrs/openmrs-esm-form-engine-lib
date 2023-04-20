@@ -99,9 +99,9 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
 
   const flattenedFields = useMemo(() => {
     const flattenedFieldsTemp = [];
-    form.pages.forEach(page =>
-      page.sections.forEach(section => {
-        section.questions.forEach(question => {
+    form.pages?.forEach(page =>
+      page.sections?.forEach(section => {
+        section.questions?.forEach(question => {
           // explicitly set blank values to null
           // TODO: shouldn't we be setting to the default behaviour?
           section.inlineRendering = isEmpty(section.inlineRendering) ? null : section.inlineRendering;
@@ -183,13 +183,13 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         }),
       );
 
-      form.pages.forEach(page => {
+      form?.pages?.forEach(page => {
         if (page.hide) {
           evalHide({ value: page, type: 'page' }, flattenedFields, tempInitialValues);
         } else {
           page.isHidden = false;
         }
-        page.sections.forEach(section => {
+        page?.sections?.forEach(section => {
           if (section.hide) {
             evalHide({ value: section, type: 'section' }, flattenedFields, tempInitialValues);
           } else {
@@ -554,8 +554,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           if (sessionMode != 'enter' && !page.subform?.form.encounter) {
             return null;
           }
-          // filter out all nested subforms
-          page.subform.form.pages = page.subform.form.pages.filter(page => !isTrue(page.isSubform));
           return (
             <OHRIEncounterForm
               key={index}
