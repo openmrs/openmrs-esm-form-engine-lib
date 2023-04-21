@@ -20,8 +20,8 @@ describe('OHRIFieldValidator - validate', () => {
     questionOptions: {
       rendering: 'text',
       concept: 'a-system-defined-concept-uuid',
-      min: '5',
-      max: '10',
+      minLength: '5',
+      maxLength: '10',
     },
     id: 'sampleTextQuestion',
   };
@@ -97,7 +97,7 @@ describe('OHRIFieldValidator - validate', () => {
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
-        message: `Field length error, field length should be between ${textInputField.questionOptions.min} and ${textInputField.questionOptions.max}.`,
+        message: `Field length error, field length should be between ${textInputField.questionOptions.minLength} and ${textInputField.questionOptions.maxLength}.`,
         resultType: 'error',
       },
     ]);
@@ -109,7 +109,7 @@ describe('OHRIFieldValidator - validate', () => {
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
-        message: `Field length error, field length should be between ${textInputField.questionOptions.min} and ${textInputField.questionOptions.max}.`,
+        message: `Field length error, field length should be between ${textInputField.questionOptions.minLength} and ${textInputField.questionOptions.maxLength}.`,
         resultType: 'error',
       },
     ]);

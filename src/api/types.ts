@@ -139,8 +139,16 @@ export interface OHRIFormQuestionOptions {
   extensionSlotName?: string;
   rendering: RenderType;
   concept?: string;
+  /**
+   * max and min are used to validate number field values
+   */
   max?: string;
   min?: string;
+  /**
+   * maxLength and maxLength are used to validate text field length
+   */
+  maxLength?: string;
+  minLength?: string;
   showDate?: string;
   conceptMappings?: Array<Record<any, any>>;
   answers?: Array<Record<any, any>>;
@@ -196,8 +204,8 @@ export interface OpenmrsEncounter {
   visit?: OpenmrsResource | string;
   encounterProviders?: Array<Record<string, any>>;
   form?: {
-    uuid: string,
-  }
+    uuid: string;
+  };
 }
 
 export interface OpenmrsObs extends OpenmrsResource {
