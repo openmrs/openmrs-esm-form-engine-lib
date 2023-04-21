@@ -26,6 +26,71 @@ describe('OHRIFieldValidator - validate', () => {
     id: 'sampleTextQuestion',
   };
 
+  const textInputFieldWithoutValidation: OHRIFormField = {
+    label: 'A Question of type obs that renders a Text input',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'text',
+      concept: 'a-system-defined-concept-uuid',
+    },
+    id: 'sampleTextQuestion',
+  };
+
+  const textInputFieldWithMinValidation: OHRIFormField = {
+    label: 'A Question of type obs that renders a Text input',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'text',
+      concept: 'a-system-defined-concept-uuid',
+      min: '5',
+    },
+    id: 'sampleTextQuestion',
+  };
+
+  const textInputFieldWithMaxValidation: OHRIFormField = {
+    label: 'A Question of type obs that renders a Text input',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'text',
+      concept: 'a-system-defined-concept-uuid',
+      max: '10',
+    },
+    id: 'sampleTextQuestion',
+  };
+
+  it('should fail on wrong max length only for inputText', () => {
+    const validationErrors = OHRIFieldValidator.validate(textInputFieldWithMaxValidation, 'super long text to test');
+
+    expect(validationErrors).toEqual([
+      {
+        errCode: 'field.outOfBound',
+        message: `Field length error, field length can't be greater than ${textInputField.questionOptions.max}`,
+        resultType: 'error',
+      },
+    ]);
+  });
+
+  it('should fail on wrong min length only for inputText', () => {
+    const validationErrors = OHRIFieldValidator.validate(textInputFieldWithMinValidation, 'sup');
+
+    expect(validationErrors).toEqual([
+      {
+        errCode: 'field.outOfBound',
+        message: `Field length error, field length can't be less than ${textInputField.questionOptions.min}`,
+        resultType: 'error',
+      },
+    ]);
+  });
+
+  it('should not fail if min and max is not defined for inputText', () => {
+    const validationErrors = OHRIFieldValidator.validate(
+      textInputFieldWithoutValidation,
+      'super text super text super text',
+    );
+
+    expect(validationErrors).toEqual(undefined);
+  });
+
   it('should fail for text length greater than the max defined length', () => {
     const validationErrors = OHRIFieldValidator.validate(textInputField, 'super text super text super text');
 
