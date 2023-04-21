@@ -1,3 +1,4 @@
+import { max } from 'moment';
 import { FieldValidator, OHRIFormField } from '../api/types';
 import { isTrue } from '../utils/boolean-utils';
 
@@ -38,12 +39,18 @@ export function isEmpty(value: any): boolean {
 }
 
 export function textInputLengthValidator(minLength: number, maxLength: number, value: string) {
-  return value.length >= minLength && value.length <= maxLength
-    ? []
-    : addError(
-        fieldOutOfBoundErrCode,
-        `Field length error, field length should be between ${minLength} and ${maxLength}.`,
-      );
+  if (minLength && maxLength && value.length >= minLength && value.length <= maxLength) {
+    return [];
+  } else if (minLength && maxLength && (value.length < minLength || value.length > maxLength)) {
+    return addError(
+      fieldOutOfBoundErrCode,
+      `Field length error, field length should be between ${minLength} and ${maxLength}.`,
+    );
+  } else if (minLength && value.length < minLength) {
+    return addError(fieldOutOfBoundErrCode, `Field length error, field length can't be less than ${minLength}`);
+  } else if (maxLength && value.length > maxLength) {
+    return addError(fieldOutOfBoundErrCode, `Field length error, field length can't be greater than ${maxLength}`);
+  }
 }
 
 export function numberInputRangeValidator(min: number, max: number, value: number) {
