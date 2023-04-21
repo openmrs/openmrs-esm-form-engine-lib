@@ -7,8 +7,8 @@ export const EncounterDatetimeHandler: SubmissionHandler = {
     context.setEncounterDate(value);
     return value;
   },
-  getInitialValue: (encounter: OpenmrsEncounter, field: OHRIFormField, allFormFields?: OHRIFormField[]) => {;
-    return new Date(); // pick it from the visit if present
+  getInitialValue: (encounter: OpenmrsEncounter, field: OHRIFormField, allFormFields?: OHRIFormField[]) => {
+    return new Date(); // TO DO: pick it from the visit if present
   },
 
   getDisplayValue: (field: OHRIFormField, value: any) => {
