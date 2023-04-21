@@ -99,7 +99,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   );
 
   const { t } = useTranslation();
-  const encDate = new Date();
+  const encDate = useMemo(() => new Date(), []);
   const handlers = new Map<string, FormSubmissionHandler>();
   const ref = useRef(null);
   const workspaceLayout = useWorkspaceLayout(ref);
