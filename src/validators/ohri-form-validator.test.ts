@@ -42,7 +42,7 @@ describe('OHRIFieldValidator - validate', () => {
     questionOptions: {
       rendering: 'text',
       concept: 'a-system-defined-concept-uuid',
-      min: '5',
+      minLength: '5',
     },
     id: 'sampleTextQuestion',
   };
@@ -53,7 +53,7 @@ describe('OHRIFieldValidator - validate', () => {
     questionOptions: {
       rendering: 'text',
       concept: 'a-system-defined-concept-uuid',
-      max: '10',
+      maxLength: '10',
     },
     id: 'sampleTextQuestion',
   };
@@ -64,7 +64,7 @@ describe('OHRIFieldValidator - validate', () => {
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
-        message: `Field length error, field length can't be greater than ${textInputField.questionOptions.max}`,
+        message: `Field length error, field length can't be greater than ${textInputField.questionOptions.maxLength}`,
         resultType: 'error',
       },
     ]);
@@ -76,7 +76,7 @@ describe('OHRIFieldValidator - validate', () => {
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
-        message: `Field length error, field length can't be less than ${textInputField.questionOptions.min}`,
+        message: `Field length error, field length can't be less than ${textInputField.questionOptions.minLength}`,
         resultType: 'error',
       },
     ]);
@@ -130,6 +130,7 @@ describe('OHRIFieldValidator - validate', () => {
     expect(validationErrors).toEqual([]);
   });
 
+  // Number Input Validator Tests
   it('should fail for number lesser than the defined min allowed', () => {
     const validationErrors = OHRIFieldValidator.validate(numberInputField, 3);
 
