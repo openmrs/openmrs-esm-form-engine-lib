@@ -19,7 +19,11 @@ export const OHRIFieldValidator: FieldValidator = {
       return numberInputRangeValidator(Number(field.questionOptions.min), Number(field.questionOptions.max), value);
     }
     if (field.questionOptions.rendering == 'text') {
-      return textInputLengthValidator(Number(field.questionOptions.min), Number(field.questionOptions.max), value);
+      return textInputLengthValidator(
+        Number(field.questionOptions.minLength),
+        Number(field.questionOptions.maxLength),
+        value,
+      );
     }
     return [];
   },
