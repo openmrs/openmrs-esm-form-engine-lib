@@ -43,7 +43,8 @@ const encounterContext: EncounterContext = {
     obs: [],
   },
   sessionMode: 'enter',
-  date: new Date(2020, 11, 29),
+  encounterDate: new Date(2020, 11, 29),
+  setEncounterDate: value => {},
 };
 
 const renderForm = intialValues => {
@@ -114,7 +115,7 @@ describe('dropdown input field', () => {
     question.value = {
       uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
       person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.date,
+      obsDatetime: encounterContext.encounterDate,
       concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
       order: null,

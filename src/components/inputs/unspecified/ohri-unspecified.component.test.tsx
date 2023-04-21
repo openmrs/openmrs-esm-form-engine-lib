@@ -26,7 +26,8 @@ const encounterContext: EncounterContext = {
     obs: [],
   },
   sessionMode: 'enter',
-  date: new Date(2020, 11, 29),
+  encounterDate: new Date(2020, 11, 29),
+  setEncounterDate: value => {},
 };
 
 const renderForm = intialValues => {
