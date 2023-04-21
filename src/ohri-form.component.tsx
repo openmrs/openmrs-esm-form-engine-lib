@@ -99,7 +99,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   );
 
   const { t } = useTranslation();
-  const encDate = useMemo(() => new Date(), []);
+  const formSessionDate = useMemo(() => new Date(), []);
   const handlers = new Map<string, FormSubmissionHandler>();
   const ref = useRef(null);
   const workspaceLayout = useWorkspaceLayout(ref);
@@ -281,7 +281,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     <OHRIEncounterForm
                       formJson={refinedFormJson}
                       patient={patient}
-                      encounterDate={encDate}
+                      formSessionDate={formSessionDate}
                       provider={currentProvider}
                       location={location}
                       visit={visit}

@@ -185,7 +185,7 @@ export const EncounterLocationSubmissionHandler: SubmissionHandler = {
 const constructObs = (value: any, context: EncounterContext, field: OHRIFormField) => {
   return {
     person: context.patient?.id,
-    obsDatetime: context.date,
+    obsDatetime: context.encounterDate,
     concept: field.questionOptions.concept,
     location: context.location,
     order: null,
