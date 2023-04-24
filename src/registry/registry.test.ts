@@ -1,19 +1,20 @@
+import { OHRIMultiSelect } from '../components/inputs/multi-select/ohri-multi-select.component';
+import OHRINumber from '../components/inputs/number/ohri-number.component';
 import { getFieldComponent } from './registry';
 
-jest.mock('./registry', () => ({
-  getFieldComponent: jest.fn().mockImplementation(renderType => {
-    if (renderType == 'number' || renderType == 'numeric') return 'OHRINumber';
-    if (renderType == 'checkbox' || renderType == 'multiCheckbox') return 'OHRIMultiSelect';
-  }),
-}));
-
 describe('registry', () => {
-  it('returns OHRINumber component for "number" or "numeric" render type', () => {
-    expect(getFieldComponent('number')).toBe('OHRINumber');
-    expect(getFieldComponent('numeric')).toBe('OHRINumber');
+  it('should load the OHRINumber component with alias "numeric"', async () => {
+    const result = await getFieldComponent('numeric');
+    expect(result).toEqual({ default: OHRINumber });
   });
-  it('returns OHRIMultiSelect component for "checkbox" or "multiCheckbox" render type', () => {
-    expect(getFieldComponent('checkbox')).toBe('OHRIMultiSelect');
-    expect(getFieldComponent('multiCheckbox')).toBe('OHRIMultiSelect');
+
+  it('should load the OHRIMultiSelect component with alias "multiCheckbox"', async () => {
+    const result = await getFieldComponent('multiCheckbox');
+    expect(result).toEqual({ default: OHRIMultiSelect });
+  });
+
+  it('should return undefined if no matching component is found', async () => {
+    const result = await getFieldComponent('unknown');
+    expect(result).toBeUndefined();
   });
 });
