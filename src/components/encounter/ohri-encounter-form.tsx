@@ -382,12 +382,12 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             encounterRole: encounterRole?.uuid,
           },
         ];
-        encounterForSubmission['form'] = {
+        (encounterForSubmission['form'] = {
           uuid: encounterContext?.form?.uuid,
-        },
-        encounterForSubmission['visit'] = {
-          uuid: visit?.uuid
-        }
+        }),
+          (encounterForSubmission['visit'] = {
+            uuid: visit?.uuid,
+          });
       }
       encounterForSubmission['obs'] = obsForSubmission;
     } else {

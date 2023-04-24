@@ -55,7 +55,7 @@ export function evaluateExpression(
     extractRepeatingGroupValues,
     calcGravida,
     calcDaysSinceCircumcisionProcedure,
-    calcTimeDifference
+    calcTimeDifference,
   } = new CommonExpressionHelpers(node, patient, allFields, allFieldValues, allFieldsKeys);
 
   parts.forEach((part, index) => {
