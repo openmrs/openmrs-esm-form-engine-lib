@@ -351,7 +351,7 @@ export class CommonExpressionHelpers {
     return daySinceLastCircumcision;
   }
 
-  calcTimeDifference = (obsDateId, timeFrame)  => {
+  calcTimeDifference = (obsDateId, timeFrame) => {
     let daySinceLastObs;
     let obsDate = this.allFieldValues[obsDateId];
     [obsDateId].forEach(entry => {
@@ -365,22 +365,22 @@ export class CommonExpressionHelpers {
     const endDate = moment(new Date());
     const duration = moment.duration(endDate.diff(obsDate));
 
-    if(obsDate !== '') {
-      if(timeFrame == 'd') {
+    if (obsDate !== '') {
+      if (timeFrame == 'd') {
         daySinceLastObs = Math.abs(duration.days());
       }
-      if(timeFrame == 'w') {
-        daySinceLastObs = Math.abs(duration.weeks())
+      if (timeFrame == 'w') {
+        daySinceLastObs = Math.abs(duration.weeks());
       }
-      if(timeFrame == 'm') {
+      if (timeFrame == 'm') {
         daySinceLastObs = Math.abs(duration.months());
       }
-      if(timeFrame == 'y') {
+      if (timeFrame == 'y') {
         daySinceLastObs = Math.abs(duration.years());
       }
     }
-    return daySinceLastObs == '' ? "0": daySinceLastObs;
-  }
+    return daySinceLastObs == '' ? '0' : daySinceLastObs;
+  };
 }
 
 export function registerDependency(node: FormNode, determinant: OHRIFormField) {
