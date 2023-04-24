@@ -1,6 +1,6 @@
 import { FormGroup, Button } from '@carbon/react';
 import { useFormikContext } from 'formik';
-import { cloneDeep } from 'lodash';
+import cloneDeep from 'lodash-es/cloneDeep';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { ConceptTrue } from '../../constants';
