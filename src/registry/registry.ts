@@ -20,6 +20,7 @@ import { OHRIJSExpressionValidator } from '../validators/ohri-js-expression-vali
 import { getGlobalStore } from '@openmrs/esm-framework';
 import { OHRIFormsStore } from '../constants';
 import OHRIExtensionParcel from '../components/extension/ohri-extension-parcel.component';
+import { EncounterDatetimeHandler } from '../submission-handlers/encounterDatetimeHandler';
 
 export interface RegistryItem {
   id: string;
@@ -147,6 +148,11 @@ const baseHandlers: Array<RegistryItem> = [
     id: 'EncounterLocationSubmissionHandler',
     component: EncounterLocationSubmissionHandler,
     type: 'encounterLocation',
+  },
+  {
+    id: 'EncounterDatetimeHandler',
+    component: EncounterDatetimeHandler,
+    type: 'encounterDatetime',
   },
 ];
 

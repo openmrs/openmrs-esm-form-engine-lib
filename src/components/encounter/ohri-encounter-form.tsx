@@ -32,7 +32,7 @@ import { useEncounterRole } from '../../hooks/useEncounterRole';
 interface OHRIEncounterFormProps {
   formJson: OHRIFormSchema;
   patient: any;
-  encounterDate: Date;
+  formSessionDate: Date;
   provider: string;
   location: SessionLocation;
   visit?: Visit;
@@ -55,7 +55,7 @@ interface OHRIEncounterFormProps {
 export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   formJson,
   patient,
-  encounterDate,
+  formSessionDate,
   provider,
   location,
   visit,
@@ -76,6 +76,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
 }) => {
   const [fields, setFields] = useState<Array<OHRIFormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
+  const [encounterDate, setEncounterDate] = useState(formSessionDate);
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(formJson);
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
@@ -92,11 +93,12 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       previousEncounter,
       location: location,
       sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
-      date: encounterDate,
+      encounterDate: formSessionDate,
       form: form,
       visit: visit,
+      setEncounterDate,
     }),
-    [encounter, encounterDate, form?.encounter, location, patient, previousEncounter, sessionMode],
+    [encounter, form?.encounter, location, patient, previousEncounter, sessionMode],
   );
   const { encounterRole } = useEncounterRole();
 
@@ -566,7 +568,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
               key={index}
               formJson={page.subform?.form}
               patient={patient}
-              encounterDate={encounterDate}
+              formSessionDate={encounterDate}
               provider={provider}
               location={location}
               visit={visit}

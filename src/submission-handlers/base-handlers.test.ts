@@ -15,7 +15,8 @@ const encounterContext: EncounterContext = {
     obs: [],
   },
   sessionMode: 'enter',
-  date: new Date(2020, 11, 29),
+  encounterDate: new Date(2020, 11, 29),
+  setEncounterDate: value => {},
 };
 
 describe('ObsSubmissionHandler - handleFieldSubmission', () => {
@@ -36,7 +37,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     // verify
     expect(obs).toEqual({
       person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.date,
+      obsDatetime: encounterContext.encounterDate,
       concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
       order: null,
@@ -64,7 +65,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     // verify
     expect(obs).toEqual({
       person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.date,
+      obsDatetime: encounterContext.encounterDate,
       concept: '2c43u05b-b6d8-4eju-8f37-0b14f5347560',
       location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
       order: null,
@@ -104,7 +105,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     expect(obs).toEqual([
       {
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.date,
+        obsDatetime: encounterContext.encounterDate,
         concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
@@ -128,7 +129,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     expect(obs).toEqual([
       {
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.date,
+        obsDatetime: encounterContext.encounterDate,
         concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
@@ -140,7 +141,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       },
       {
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.date,
+        obsDatetime: encounterContext.encounterDate,
         concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
@@ -170,7 +171,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     // verify
     expect(obs).toEqual({
       person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.date,
+      obsDatetime: encounterContext.encounterDate,
       concept: 'j8b6705b-b6d8-4eju-8f37-0b14f5347569',
       location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
       order: null,
@@ -202,7 +203,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     // verify
     expect(obs).toEqual({
       person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.date,
+      obsDatetime: encounterContext.encounterDate,
       concept: '89jbi9jk-b6d8-4eju-8f37-0b14f53mhj098b',
       location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
       order: null,
@@ -228,7 +229,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       value: {
         uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.date,
+        obsDatetime: encounterContext.encounterDate,
         concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
@@ -246,7 +247,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     expect(obs).toEqual({
       uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
       person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.date,
+      obsDatetime: encounterContext.encounterDate,
       concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
       order: null,
@@ -269,7 +270,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       value: {
         uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.date,
+        obsDatetime: encounterContext.encounterDate,
         concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
@@ -289,7 +290,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     expect(obs).toEqual({
       uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
       person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.date,
+      obsDatetime: encounterContext.encounterDate,
       concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
       order: null,
@@ -317,7 +318,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         {
           uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
           person: '833db896-c1f0-11eb-8529-0242ac130003',
-          obsDatetime: encounterContext.date,
+          obsDatetime: encounterContext.encounterDate,
           concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
           location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
           order: null,
@@ -345,7 +346,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       {
         uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.date,
+        obsDatetime: encounterContext.encounterDate,
         concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
@@ -359,7 +360,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       },
       {
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.date,
+        obsDatetime: encounterContext.encounterDate,
         concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
@@ -385,7 +386,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       value: {
         uuid: 'bca7277f-a726-4d3d-9db8-40937228ead5',
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.date,
+        obsDatetime: encounterContext.encounterDate,
         concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
@@ -402,7 +403,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     expect(obs).toEqual({
       uuid: 'bca7277f-a726-4d3d-9db8-40937228ead5',
       person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.date,
+      obsDatetime: encounterContext.encounterDate,
       concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
       location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
       order: null,
@@ -426,7 +427,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       value: {
         uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.date,
+        obsDatetime: encounterContext.encounterDate,
         concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
@@ -444,7 +445,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     expect(obs).toEqual({
       uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
       person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.date,
+      obsDatetime: encounterContext.encounterDate,
       concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
       order: null,
@@ -467,7 +468,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       value: {
         uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.date,
+        obsDatetime: encounterContext.encounterDate,
         concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
@@ -483,7 +484,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     expect(obs).toEqual({
       uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
       person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.date,
+      obsDatetime: encounterContext.encounterDate,
       concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
       order: null,
@@ -508,7 +509,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         {
           uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
           person: '833db896-c1f0-11eb-8529-0242ac130003',
-          obsDatetime: encounterContext.date,
+          obsDatetime: encounterContext.encounterDate,
           concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
           location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
           order: null,
@@ -530,7 +531,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       {
         uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.date,
+        obsDatetime: encounterContext.encounterDate,
         concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
@@ -557,7 +558,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       value: {
         uuid: 'bca7277f-a726-4d3d-9db8-40937228ead5',
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.date,
+        obsDatetime: encounterContext.encounterDate,
         concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
@@ -573,7 +574,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     expect(obs).toEqual({
       uuid: 'bca7277f-a726-4d3d-9db8-40937228ead5',
       person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.date,
+      obsDatetime: encounterContext.encounterDate,
       concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
       location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
       order: null,
