@@ -1,5 +1,7 @@
 'use ';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(duration);
 import { OHRIFormField } from '../api/types';
 import { FormNode } from './expression-runner';
 import { isEmpty as isValueEmpty } from '../validators/ohri-form-validator';
@@ -56,15 +58,15 @@ export class CommonExpressionHelpers {
   isDateBefore = (left: Date, right: string | Date, format?: string) => {
     let otherDate: any = right;
     if (typeof right == 'string') {
-      otherDate = format ? moment(right, format, true).toDate() : moment(right, 'YYYY-MM-DD', true).toDate();
+      otherDate = format ? dayjs(right, format, true).toDate() : dayjs(right, 'YYYY-MM-DD', true).toDate();
     }
     return left?.getTime() < otherDate.getTime();
   };
 
   isDateAfter = (selectedDate: Date, baseDate: Date, duration: number, timePeriod: string) => {
     let calculatedDate = new Date(0);
-    selectedDate = moment(selectedDate, 'YYYY-MM-DD', true).toDate();
-    baseDate = moment(baseDate, 'YYYY-MM-DD', true).toDate();
+    selectedDate = dayjs(selectedDate, 'YYYY-MM-DD', true).toDate();
+    baseDate = dayjs(baseDate, 'YYYY-MM-DD', true).toDate();
 
     switch (timePeriod) {
       case 'months':
@@ -353,7 +355,7 @@ export class CommonExpressionHelpers {
 
   calcTimeDifference = (obsDateId, timeFrame) => {
     let daySinceLastObs;
-    let obsDate = this.allFieldValues[obsDateId];
+    let obsDate = dayjs(this.allFieldValues[obsDateId]);
     [obsDateId].forEach(entry => {
       if (this.allFieldsKeys.includes(entry)) {
         registerDependency(
@@ -362,10 +364,10 @@ export class CommonExpressionHelpers {
         );
       }
     });
-    const endDate = moment(new Date());
-    const duration = moment.duration(endDate.diff(obsDate));
+    const endDate = dayjs(new Date());
+    const duration = dayjs.duration(endDate.diff(obsDate));
 
-    if (obsDate !== '') {
+    if (obsDate) {
       if (timeFrame == 'd') {
         daySinceLastObs = Math.abs(duration.days());
       }

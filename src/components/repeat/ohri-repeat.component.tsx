@@ -1,18 +1,18 @@
+import React, { useEffect, useState } from 'react';
 import { FormGroup, Button } from '@carbon/react';
+import { Add, TrashCan } from '@carbon/react/icons';
 import { useFormikContext } from 'formik';
 import cloneDeep from 'lodash-es/cloneDeep';
-import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
 import { ConceptTrue } from '../../constants';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { getHandler } from '../../registry/registry';
 import { OHRIFormField, OHRIFormFieldProps } from '../../api/types';
 import { OHRIObsGroup } from '../group/ohri-obs-group.component';
-import { TrashCan, Add } from '@carbon/react/icons';
-import styles from '../inputs/_input.scss';
 import { getConcept } from '../../api/api';
 import { evaluateExpression } from '../../utils/expression-runner';
 import { isEmpty } from '../../validators/ohri-form-validator';
+import styles from '../inputs/_input.scss';
 
 export const getInitialValueFromObs = (field: OHRIFormField, obsGroup: any) => {
   const rendering = field.questionOptions.rendering;
@@ -29,7 +29,7 @@ export const getInitialValueFromObs = (field: OHRIFormField, obsGroup: any) => {
       );
     }
     if (typeof obs[0].value == 'string' || typeof obs[0].value == 'number') {
-      return field.questionOptions.rendering == 'date' ? moment(obs[0].value).toDate() : obs[0].value;
+      return field.questionOptions.rendering == 'date' ? dayjs(obs[0].value).toDate() : obs[0].value;
     }
     if (field.questionOptions.rendering == 'checkbox') {
       field.value = obs;

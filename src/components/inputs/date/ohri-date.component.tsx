@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { DatePicker, DatePickerInput, TimePicker } from '@carbon/react';
 import { useField } from 'formik';
@@ -50,7 +50,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
       const prevValue =
         encounterContext?.previousEncounter &&
         handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-      setTime(moment(prevValue?.value).format('hh:mm'));
+      setTime(dayjs(prevValue?.value).format('hh:mm'));
     } else {
       const time = event.target.value;
       const currentDateTime = field.value;
@@ -104,7 +104,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
           const rawDate = new Date(prevValue.value);
 
           prevValue = {
-            display: moment(prevValue.value).format('M/D/YYYY HH:mm'),
+            display: dayjs(prevValue.value).format('M/D/YYYY HH:mm'),
             value: [rawDate],
           };
         } else {
@@ -162,8 +162,8 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
                 // Notes:
                 // Something strange is happening with the way events are propagated and handled by Carbon.
                 // When we manually trigger an onchange event using the 'fireEvent' lib, the handler below will
-                // be triggered as opposed to the former hanlder that only gets triggered at runtime.
-                onChange={e => onDateChange([moment(e.target.value, ['YYYY-MM-DD', 'DD/MM/YYYY']).toDate()])}
+                // be triggered as opposed to the former handler that only gets triggered at runtime.
+                onChange={e => onDateChange([dayjs(e.target.value, 'DD/MM/YYYY').toDate()])}
                 disabled={question.disabled}
                 invalid={!isFieldRequiredError && errors.length > 0}
                 invalidText={errors[0]?.message}

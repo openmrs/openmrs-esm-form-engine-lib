@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { LayoutType } from '@openmrs/esm-framework';
 import { fetchConceptNameByUuid } from '../api/api';
 import { ConceptTrue } from '../constants';
@@ -6,7 +7,6 @@ import { OHRIFormField, OHRIFormPage, OHRIFormSection, SubmissionHandler } from 
 import { OHRIDefaultFieldValueValidator } from '../validators/default-value-validator';
 import { isEmpty } from '../validators/ohri-form-validator';
 import { isTrue } from './boolean-utils';
-import moment from 'moment';
 
 export function cascadeVisibityToChildFields(
   visibility: boolean,
@@ -111,7 +111,7 @@ export function findPagesWithErrors(pages: Set<OHRIFormPage>, errorFields: OHRIF
 }
 
 export function parseToLocalDateTime(dateString: string): Date {
-  const dateObj = moment(dateString).toDate();
+  const dateObj = dayjs(dateString).toDate();
   try {
     const localTimeTokens = dateString.split('T')[1].split(':');
     dateObj.setHours(parseInt(localTimeTokens[0]), parseInt(localTimeTokens[1]), 0);

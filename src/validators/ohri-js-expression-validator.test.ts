@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { OHRIFormField } from '../api/types';
 import { ExpressionContext } from '../utils/expression-runner';
 import { testFields } from '../utils/expression-runner.test';
@@ -77,7 +77,7 @@ describe('OHRIJSExpressionValidator - validate', () => {
     allFields.push(dateField);
 
     // replay
-    let errors = OHRIJSExpressionValidator.validate(dateField, moment('2020-11-13', 'YYYY-MM-DD', true).toDate(), {
+    let errors = OHRIJSExpressionValidator.validate(dateField, dayjs('2020-11-13', 'YYYY-MM-DD', true).toDate(), {
       ...dateField.validators[0],
       expressionContext,
       values,
@@ -105,7 +105,7 @@ describe('OHRIJSExpressionValidator - validate', () => {
     ]);
 
     // replay
-    errors = OHRIJSExpressionValidator.validate(dateField, moment('2021-11-12', 'YYYY-MM-DD', true).toDate(), {
+    errors = OHRIJSExpressionValidator.validate(dateField, dayjs('2021-11-12', 'YYYY-MM-DD', true).toDate(), {
       ...dateField.validators[0],
       expressionContext,
       values,
