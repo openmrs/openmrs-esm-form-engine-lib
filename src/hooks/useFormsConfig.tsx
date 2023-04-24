@@ -1,7 +1,7 @@
-import { getConfig } from '@openmrs/esm-framework';
 import { useEffect, useState } from 'react';
+import get from 'lodash-es/get';
+import { getConfig } from '@openmrs/esm-framework';
 import { ConceptTrue, ConceptFalse } from '../constants';
-import { get } from 'lodash-es';
 
 export interface OHRIFormsConfig {
   conceptTrue: string;

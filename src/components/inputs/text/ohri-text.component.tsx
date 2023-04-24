@@ -1,15 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import isEmpty from 'lodash-es/isEmpty';
 import { TextInput } from '@carbon/react';
-import { OHRIFormFieldProps } from '../../../api/types';
-import styles from '../_input.scss';
 import { useField } from 'formik';
+import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { fieldRequiredErrCode } from '../../../validators/ohri-form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-import { isEmpty } from 'lodash';
+import styles from '../_input.scss';
 
 const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
   const [field, meta] = useField(question.id);

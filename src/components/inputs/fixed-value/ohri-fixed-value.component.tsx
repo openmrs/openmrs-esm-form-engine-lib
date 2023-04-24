@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
+import isObject from 'lodash-es/isObject';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
-import { isObject } from 'lodash-es';
 import { isEmpty } from '../../../validators/ohri-form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 
