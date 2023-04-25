@@ -240,15 +240,6 @@ export class CommonExpressionHelpers {
     return gravida;
   }
 
-  calcDaysSinceCircumcisionProcedure(val) {
-    let daySinceLastCircumcision = 0;
-    if (val) {
-      var timeDiff = Math.abs(new Date().getTime() - Date.parse(val));
-      daySinceLastCircumcision = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    }
-    return daySinceLastCircumcision;
-  }
-
   calcTimeDifference = (obsDate, timeFrame) => {
     let daySinceLastObs;
     const endDate = moment(new Date());

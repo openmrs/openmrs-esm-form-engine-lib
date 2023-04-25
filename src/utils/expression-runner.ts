@@ -54,7 +54,6 @@ export function evaluateExpression(
     formatDate,
     extractRepeatingGroupValues,
     calcGravida,
-    calcDaysSinceCircumcisionProcedure,
     calcTimeDifference,
   } = new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys);
 
@@ -110,7 +109,6 @@ export async function evaluateAsyncExpression(
     formatDate,
     extractRepeatingGroupValues,
     calcGravida,
-    calcDaysSinceCircumcisionProcedure,
     calcTimeDifference,
   } = new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys);
 
