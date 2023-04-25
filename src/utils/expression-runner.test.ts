@@ -1,5 +1,7 @@
 import { OHRIFormField } from '../api/types';
+import { ConceptFalse } from '../constants';
 import { CommonExpressionHelpers } from './common-expression-helpers';
+import { parseExpression } from './expression-parser';
 import { checkReferenceToResolvedFragment, evaluateExpression, ExpressionContext } from './expression-runner';
 
 export const testFields: Array<OHRIFormField> = [
@@ -172,7 +174,7 @@ describe('Common expression runner - evaluateExpression', () => {
     // replay and verify
     expect(
       evaluateExpression(
-        '!isEmpty(`linkedToCare`) && isEmpty(`htsProviderRemarks`)',
+        "!isEmpty('linkedToCare') && isEmpty('htsProviderRemarks')",
         { value: allFields[1], type: 'field' },
         allFields,
         valuesMap,
@@ -190,7 +192,7 @@ describe('Common expression runner - evaluateExpression', () => {
     // replay and verify
     expect(
       evaluateExpression(
-        'includes(`referredToPreventionServices`, `88cdde2b-753b-48ac-a51a-ae5e1ab24846`) && !includes(`referredToPreventionServices`, `1691AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`)',
+        "includes('referredToPreventionServices', '88cdde2b-753b-48ac-a51a-ae5e1ab24846') && !includes('referredToPreventionServices', '1691AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')",
         { value: allFields[1], type: 'field' },
         allFields,
         valuesMap,
@@ -202,7 +204,7 @@ describe('Common expression runner - evaluateExpression', () => {
   it('should support session mode as a runtime', () => {
     expect(
       evaluateExpression(
-        'mode == `enter` && isEmpty(`htsProviderRemarks`)',
+        "mode == 'enter' && isEmpty('htsProviderRemarks')",
         { value: allFields[2], type: 'field' },
         allFields,
         valuesMap,
@@ -221,7 +223,7 @@ describe('Common expression runner - evaluateExpression', () => {
     // replay
     expect(
       evaluateExpression(
-        '!includes(`referredToPreventionServices`, `88cdde2b-753b-48ac-a51a-ae5e1ab24846`) && isEmpty(`htsProviderRemarks`)',
+        "!includes('referredToPreventionServices', '88cdde2b-753b-48ac-a51a-ae5e1ab24846') && isEmpty('htsProviderRemarks')",
         { value: allFields[4], type: 'field' },
         allFields,
         valuesMap,
