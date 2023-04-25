@@ -1,9 +1,9 @@
 import { openmrsFetch } from '@openmrs/esm-framework';
 import useSWR from 'swr';
-import { LocationResponse, ProviderResponse } from './types';
+import { LocationResponse, EncounterProviderResponse } from './types';
 
 export function useProviders() {
-  const { data, error } = useSWR<{ data: ProviderResponse }>('/ws/rest/v1/provider', openmrsFetch);
+  const { data, error } = useSWR<{ data: EncounterProviderResponse }>('/ws/rest/v1/provider', openmrsFetch);
   return {
     providers: data?.data?.results,
     isLoadingProviders: !error && !data,

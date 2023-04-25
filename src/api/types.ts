@@ -243,11 +243,11 @@ export interface OpenmrsFormResource extends OpenmrsResource {
   valueReference: string;
 }
 
-export interface ProviderResponse {
-  results: Array<Provider>;
+export interface EncounterProviderResponse {
+  results: Array<EncounterProvider>;
 }
 
-export interface Provider {
+export interface EncounterProvider {
   uuid: string;
   display: string;
   person: {
@@ -295,4 +295,15 @@ export interface Location {
   ];
   retired: boolean;
   attributes: [];
+}
+
+export interface DataSource<T> {
+  fetchData(): any; // Should this be a promise?
+  resolveSelectedValue?: (value: any) => any;
+  searchOptions?: (searchText: string) => Promise<Array<any>>;
+}
+
+export interface DataSourceItem {
+  uuid: string;
+  display: string;
 }

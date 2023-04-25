@@ -1,24 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { Dropdown } from '@carbon/react';
-import { OHRIFormField } from '../../../api/types';
+import { DataSourceItem, OHRIFormField } from '../../../api/types';
 import { useField } from 'formik';
 import styles from '../_input.scss';
-import { useProviders } from '../../../api/patient-visits.resource';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { getConceptNameAndUUID } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { isTrue } from '../../../utils/boolean-utils';
 
-interface EncounterProviderProps {
+interface UISelectDropdownProps {
+  displayTitle: string;
   question: OHRIFormField;
+  dataSourceItems: Array<DataSourceItem>;
   defaultValue?: any;
   onChange?: any; // TODO - this might need to be deprecated
 }
 
-export const EncounterProvider: React.FC<EncounterProviderProps> = ({ question, defaultValue, onChange }) => {
+export const UISelectDropdown: React.FC<UISelectDropdownProps> = ({
+  displayTitle,
+  question,
+  dataSourceItems,
+  defaultValue,
+  onChange,
+}) => {
   const [field, meta] = useField(question.id);
-  const { setEncounterProvider, setFieldValue, encounterContext } = React.useContext(OHRIFormContext);
-  const { providers, isLoadingProviders } = useProviders();
+  const { setFieldValue, encounterContext } = React.useContext(OHRIFormContext);
   const [conceptName, setConceptName] = useState('Loading...');
 
   useEffect(() => {
@@ -42,13 +48,12 @@ export const EncounterProvider: React.FC<EncounterProviderProps> = ({ question, 
         <Dropdown
           id={question.id}
           titleText={question.label}
-          label="Choose provider"
-          items={providers}
+          label={displayTitle}
+          items={dataSourceItems}
           itemToString={item => item.display}
           selectedItem={field.value}
           onChange={({ selectedItem }) => {
             setFieldValue(question.id, selectedItem);
-            setEncounterProvider(selectedItem);
           }}
           disabled={question.disabled}
         />

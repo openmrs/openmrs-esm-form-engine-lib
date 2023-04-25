@@ -21,7 +21,7 @@ import { getGlobalStore } from '@openmrs/esm-framework';
 import { OHRIFormsStore } from '../constants';
 import OHRIExtensionParcel from '../components/extension/ohri-extension-parcel.component';
 import { EncounterDatetimeHandler } from '../submission-handlers/encounterDatetimeHandler';
-import { EncounterProvider } from '../components/inputs/providers/encounter-provider.component';
+import { UISelectDropdown } from '../components/inputs/ui-select-dropdown/ui-select-dropdown';
 
 export interface RegistryItem {
   id: string;
@@ -96,9 +96,9 @@ export const baseFieldComponents: Array<CustomControlRegistration> = [
     alias: '',
   },
   {
-    id: 'EncounterProvider',
-    loadControl: () => Promise.resolve({ default: EncounterProvider }),
-    type: 'encounter-provider',
+    id: 'UISelectDropdown',
+    loadControl: () => Promise.resolve({ default: UISelectDropdown }),
+    type: 'ui-select-dropdown',
   },
   {
     id: 'OHRIDropdown',
