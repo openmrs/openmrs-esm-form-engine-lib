@@ -40,6 +40,7 @@ export interface PostSubmissionActionRegistration extends ComponentRegistration 
 export interface CustomControlRegistration extends Omit<ComponentRegistration, 'load'> {
   loadControl: () => Promise<any>;
   type: string;
+  alias?: string;
 }
 interface ValidatorRegistryItem extends RegistryItem {
   component: FieldValidator;
@@ -55,81 +56,97 @@ export const baseFieldComponents: Array<CustomControlRegistration> = [
     id: 'OHRIText',
     loadControl: () => Promise.resolve({ default: OHRIText }),
     type: 'text',
+    alias: '',
   },
   {
     id: 'OHRIRadio',
     loadControl: () => Promise.resolve({ default: OHRIRadio }),
     type: 'radio',
+    alias: '',
   },
   {
     id: 'OHRIDate',
     loadControl: () => Promise.resolve({ default: OHRIDate }),
     type: 'date',
+    alias: '',
   },
   {
     id: 'OHRINumber',
     loadControl: () => Promise.resolve({ default: OHRINumber }),
     type: 'number',
+    alias: 'numeric',
   },
   {
     id: 'OHRIMultiSelect',
     loadControl: () => Promise.resolve({ default: OHRIMultiSelect }),
     type: 'checkbox',
+    alias: 'multiCheckbox',
   },
   {
     id: 'OHRIContentSwitcher',
     loadControl: () => Promise.resolve({ default: OHRIContentSwitcher }),
     type: 'content-switcher',
+    alias: '',
   },
   {
     id: 'OHRIEncounterLocationPicker',
     loadControl: () => Promise.resolve({ default: OHRIEncounterLocationPicker }),
     type: 'encounter-location',
+    alias: '',
   },
   {
     id: 'OHRIDropdown',
     loadControl: () => Promise.resolve({ default: OHRIDropdown }),
     type: 'select',
+    alias: '',
   },
   {
     id: 'OHRITextArea',
     loadControl: () => Promise.resolve({ default: OHRITextArea }),
     type: 'textarea',
+    alias: '',
   },
   {
     id: 'OHRIToggle',
     loadControl: () => Promise.resolve({ default: OHRIToggle }),
     type: 'toggle',
+    alias: '',
   },
   {
     id: 'OHRIObsGroup',
     loadControl: () => Promise.resolve({ default: OHRIObsGroup }),
     type: 'group',
+    alias: '',
   },
   {
     id: 'OHRIRepeat',
     loadControl: () => Promise.resolve({ default: OHRIRepeat }),
     type: 'repeating',
+    alias: '',
   },
   {
     id: 'OHRIFixedValue',
     loadControl: () => Promise.resolve({ default: OHRIFixedValue }),
     type: 'fixed-value',
+    alias: '',
   },
   {
     id: 'OHRIMarkdown',
     loadControl: () => Promise.resolve({ default: OHRIMarkdown }),
     type: 'markdown',
+    alias: '',
   },
   {
     id: 'OHRIExtensionParcel',
     loadControl: () => Promise.resolve({ default: OHRIExtensionParcel }),
     type: 'extension-widget',
+    alias: '',
   },
   {
     id: 'OHRIDateTime',
     loadControl: () => Promise.resolve({ default: OHRIDate }),
     type: 'datetime',
+    alias: '',
   },
 ];
 
@@ -172,9 +189,10 @@ const fieldValidators: Array<ValidatorRegistryItem> = [
 ];
 
 export const getFieldComponent = renderType => {
-  let lazy = baseFieldComponents.find(item => item.type == renderType)?.loadControl;
+  let lazy = baseFieldComponents.find(item => item.type == renderType || item?.alias == renderType)?.loadControl;
   if (!lazy) {
-    lazy = getOHRIFormsStore().customControls.find(item => item.type == renderType)?.loadControl;
+    lazy = getOHRIFormsStore().customControls.find(item => item.type == renderType || item?.alias == renderType)
+      ?.loadControl;
   }
   return lazy?.();
 };
