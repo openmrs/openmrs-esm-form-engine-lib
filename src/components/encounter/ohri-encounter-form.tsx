@@ -22,7 +22,7 @@ import OHRIFormPage from '../page/ohri-form-page';
 import { InstantEffect } from '../../utils/instant-effect';
 import { FormSubmissionHandler } from '../../ohri-form.component';
 import { isTrue } from '../../utils/boolean-utils';
-import { evaluateExpression } from '../../utils/expression-runner';
+import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { getPreviousEncounter, saveEncounter } from '../../api/api';
 import { scrollIntoView } from '../../utils/ohri-sidebar';
 import { useEncounter } from '../../hooks/useEncounter';
@@ -456,7 +456,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         const dependant = fields.find(f => f.id == dep);
         // evaluate calculated value
         if (!dependant.isHidden && dependant.questionOptions.calculate?.calculateExpression) {
-          let result = evaluateExpression(
+          evaluateAsyncExpression(
             dependant.questionOptions.calculate.calculateExpression,
             { value: dependant, type: 'field' },
             fields,
@@ -465,11 +465,12 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
               mode: sessionMode,
               patient,
             },
-          );
-          result = isEmpty(result) ? '' : result;
-          values[dependant.id] = result;
-          setFieldValue(dependant.id, result);
-          getHandler(dependant.type).handleFieldSubmission(dependant, result, encounterContext);
+          ).then(result => {
+            result = isEmpty(result) ? '' : result;
+            values[dependant.id] = result;
+            setFieldValue(dependant.id, result);
+            getHandler(dependant.type).handleFieldSubmission(dependant, result, encounterContext);
+          });
         }
         // evaluate hide
         if (dependant.hide) {
