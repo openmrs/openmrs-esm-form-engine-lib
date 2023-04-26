@@ -90,8 +90,6 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
               invalidText={errors.length && errors[0].message}
               warn={warnings.length > 0}
               warnText={warnings.length && warnings[0].message}
-              onInvalid={e => e.preventDefault()}
-              maxLength={question.questionOptions.max || TextInput.maxLength}
             />
           </div>
           {previousValueForReview && (
