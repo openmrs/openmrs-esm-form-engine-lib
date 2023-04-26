@@ -80,7 +80,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const [fields, setFields] = useState<Array<OHRIFormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
   const [encounterDate, setEncounterDate] = useState(formSessionDate);
-  const [encounterProvider, setEncounterProvider] = useState(null);
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(formJson);
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
@@ -552,7 +551,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         values,
         setFieldValue,
         setEncounterLocation: setEncounterLocation,
-        setEncounterProvider: setEncounterProvider,
         setObsGroupsToVoid: setObsGroupsToVoid,
         obsGroupsToVoid: obsGroupsToVoid,
         fields: fields,

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Dropdown } from '@carbon/react';
-import { DataSourceItem, OHRIFormField } from '../../../api/types';
+import { ComboBox } from '@carbon/react';
+import { UISelectItem, OHRIFormField } from '../../../api/types';
 import { useField } from 'formik';
 import styles from '../_input.scss';
 import { OHRIFormContext } from '../../../ohri-form-context';
@@ -9,15 +9,13 @@ import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.compo
 import { isTrue } from '../../../utils/boolean-utils';
 
 interface UISelectDropdownProps {
-  displayTitle: string;
   question: OHRIFormField;
-  dataSourceItems: Array<DataSourceItem>;
+  dataSourceItems: Array<UISelectItem>;
   defaultValue?: any;
-  onChange?: any; // TODO - this might need to be deprecated
+  onChange?: any;
 }
 
 export const UISelectDropdown: React.FC<UISelectDropdownProps> = ({
-  displayTitle,
   question,
   dataSourceItems,
   defaultValue,
@@ -26,6 +24,7 @@ export const UISelectDropdown: React.FC<UISelectDropdownProps> = ({
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext } = React.useContext(OHRIFormContext);
   const [conceptName, setConceptName] = useState('Loading...');
+  const [items, setItems] = useState(dataSourceItems);
 
   useEffect(() => {
     getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
@@ -45,15 +44,22 @@ export const UISelectDropdown: React.FC<UISelectDropdownProps> = ({
   ) : (
     !question.isHidden && (
       <div className={`${styles.formInputField} ${styles.multiselectOverride} ${styles.flexRow}`}>
-        <Dropdown
+        <ComboBox
           id={question.id}
           titleText={question.label}
-          label={displayTitle}
-          items={dataSourceItems}
+          items={items}
           itemToString={item => item.display}
           selectedItem={field.value}
+          shouldFilterItem={({ item, inputValue }) => {
+            return item.display.toLowerCase().includes(inputValue.toLowerCase());
+          }}
           onChange={({ selectedItem }) => {
             setFieldValue(question.id, selectedItem);
+            items
+              .filter(x => x.display == selectedItem.display)
+              .map(x => {
+                setFieldValue(question.id, x);
+              });
           }}
           disabled={question.disabled}
         />

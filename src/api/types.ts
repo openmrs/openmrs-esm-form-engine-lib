@@ -298,12 +298,12 @@ export interface Location {
 }
 
 export interface DataSource<T> {
-  fetchData(): any; // Should this be a promise?
-  resolveSelectedValue?: (value: any) => any;
+  fetchData(): Promise<Array<T>>;
+  makeSelectItems(): Array<UISelectItem>;
   searchOptions?: (searchText: string) => Promise<Array<any>>;
 }
 
-export interface DataSourceItem {
-  uuid: string;
+export interface UISelectItem {
+  id: string;
   display: string;
 }

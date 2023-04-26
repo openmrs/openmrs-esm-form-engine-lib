@@ -1,5 +1,5 @@
 import { openmrsFetch } from '@openmrs/esm-framework';
-import { DataSource, DataSourceItem, EncounterProvider } from '../api/types';
+import { DataSource, UISelectItem, EncounterProvider } from '../api/types';
 
 interface EncounterProviderData {
   uuid: string;
@@ -10,15 +10,19 @@ interface EncounterProviderData {
   };
 }
 
-class EncounterProviderDataSource implements DataSource<EncounterProvider> {
+class EncounterProviderDataSource implements DataSource<EncounterProviderData> {
   private readonly apiUrl = '/ws/rest/v1/provider?v=custom:(uuid,display,person:(uuid,display))';
 
-  fetchData(): DataSourceItem[] {
-    let providers: DataSourceItem[];
-    const response = openmrsFetch(this.apiUrl).then(({ data }) => {
+  fetchData(): Promise<EncounterProviderData[]> {
+    return openmrsFetch(this.apiUrl).then(({ data }) => {
       return data.results;
     });
-    response.then(data => {
+  }
+
+  makeSelectItems(): UISelectItem[] {
+    let providers: UISelectItem[] = [];
+    let data = this.fetchData();
+    data.then(data => {
       providers = data.map((provider: EncounterProviderData) => ({
         id: provider.uuid,
         display: provider.person.display,
@@ -26,6 +30,6 @@ class EncounterProviderDataSource implements DataSource<EncounterProvider> {
     });
     return providers;
   }
-  resolveSelectedValue?: (value: any) => any;
+
   searchOptions?: (searchText: string) => Promise<any[]>;
 }
