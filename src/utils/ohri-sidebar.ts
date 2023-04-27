@@ -1,11 +1,12 @@
-export function scrollIntoView(viewId: string, toFocus: boolean = false) {
+export function scrollIntoView(viewId: string, shouldFocus: boolean = false) {
   const currentElement = document.getElementById(viewId);
   currentElement?.scrollIntoView({
     behavior: 'smooth',
     block: 'start',
     inline: 'start',
   });
-  if (toFocus) {
+
+  if (shouldFocus) {
     currentElement?.focus();
   }
 }

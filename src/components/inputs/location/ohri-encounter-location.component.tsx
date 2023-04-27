@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Dropdown } from '@carbon/react';
 import { useField } from 'formik';
 import { createErrorHandler } from '@openmrs/esm-framework';
@@ -12,7 +12,7 @@ import styles from './ohri-encounter-location.scss';
 
 export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; onChange: any }> = ({ question }) => {
   const [field, meta] = useField(question.id);
-  const { setEncounterLocation, setFieldValue, encounterContext } = React.useContext(OHRIFormContext);
+  const { setEncounterLocation, setFieldValue, encounterContext } = useContext(OHRIFormContext);
   const [locations, setLocations] = useState([]);
   const [conceptName, setConceptName] = useState('Loading...');
 
