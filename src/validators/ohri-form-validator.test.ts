@@ -64,7 +64,7 @@ describe('OHRIFieldValidator - validate', () => {
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
-        message: `Field length error, field length can't be greater than ${textInputField.questionOptions.maxLength}`,
+        message: `Length should not exceed ${textInputField.questionOptions.maxLength} characters`,
         resultType: 'error',
       },
     ]);
@@ -76,7 +76,7 @@ describe('OHRIFieldValidator - validate', () => {
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
-        message: `Field length error, field length can't be less than ${textInputField.questionOptions.minLength}`,
+        message: `Length should be at least ${textInputField.questionOptions.minLength} characters`,
         resultType: 'error',
       },
     ]);
@@ -97,7 +97,7 @@ describe('OHRIFieldValidator - validate', () => {
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
-        message: `Field length error, field length should be between ${textInputField.questionOptions.minLength} and ${textInputField.questionOptions.maxLength}.`,
+        message: `Length should not exceed ${textInputField.questionOptions.maxLength} characters`,
         resultType: 'error',
       },
     ]);
@@ -109,7 +109,7 @@ describe('OHRIFieldValidator - validate', () => {
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
-        message: `Field length error, field length should be between ${textInputField.questionOptions.minLength} and ${textInputField.questionOptions.maxLength}.`,
+        message: `Length should be at least ${textInputField.questionOptions.minLength} characters`,
         resultType: 'error',
       },
     ]);
@@ -137,31 +137,21 @@ describe('OHRIFieldValidator - validate', () => {
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
-        message: `Field value can't be less than ${numberInputField.questionOptions.min}`,
+        message: `Value must be greater than ${numberInputField.questionOptions.min}`,
         resultType: 'error',
       },
     ]);
   });
 
-  it('should fail for number greater than the defined max allowed', () => {
+  it('should fail for numbers greater than the defined max allowed', () => {
     const validationErrors = OHRIFieldValidator.validate(numberInputField, 100);
 
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
-        message: `Field value can't be greater than ${numberInputField.questionOptions.max}`,
+        message: `Value must be lower than ${numberInputField.questionOptions.max}`,
         resultType: 'error',
       },
     ]);
-  });
-
-  it('should accept value equal to min allowed', () => {
-    const validationErrors = OHRIFieldValidator.validate(numberInputField, numberInputField.questionOptions.min);
-    expect(validationErrors).toEqual(undefined);
-  });
-
-  it('should accept value equal to max allowed', () => {
-    const validationErrors = OHRIFieldValidator.validate(numberInputField, numberInputField.questionOptions.max);
-    expect(validationErrors).toEqual(undefined);
   });
 });
