@@ -31,7 +31,7 @@ export const OHRIFieldValidator: FieldValidator = {
 };
 
 export function numberInputRangeValidator(min: number, max: number, inputValue: number) {
-  if (min && inputValue < Number(min)) {
+  if (!Number.isNaN(min) && inputValue < min) {
     return [
       {
         resultType: 'error',
@@ -41,7 +41,7 @@ export function numberInputRangeValidator(min: number, max: number, inputValue: 
     ];
   }
 
-  if (max && inputValue > Number(max)) {
+  if (!Number.isNaN(max) && inputValue > max) {
     return [
       {
         resultType: 'error',
