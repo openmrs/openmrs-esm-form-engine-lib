@@ -556,9 +556,16 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       }}>
       <InstantEffect effect={addScrollablePages} />
       {form.pages.map((page, index) => {
-        if (isTrue(page.isHidden)) {
+        const pageHasNoVisibleContent =
+          page.sections.every(section => section.isHidden) ||
+          page.sections.every(section => section.questions.every(question => question.isHidden)) ||
+          isTrue(page.isHidden);
+
+        if (pageHasNoVisibleContent) {
+          console.info(`The page "${page.label}" has no visible questions. Its sections will not be rendered.`);
           return null;
         }
+
         if (isTrue(page.isSubform) && page.subform?.form) {
           if (sessionMode != 'enter' && !page.subform?.form.encounter) {
             return null;
