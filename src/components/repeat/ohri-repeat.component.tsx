@@ -54,11 +54,17 @@ export const updateFieldIdInExpression = (expression: string, index: number, que
   return expression;
 };
 
+export const showAddButton = (repeatOptions: { limit?: string }, counter: number) => {
+  return isEmpty(repeatOptions.limit) || Number(repeatOptions.limit) === 0
+    ? true
+    : counter < Number(repeatOptions.limit);
+};
+
 export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange }) => {
   const [questions, setQuestions] = useState([question]);
   const { fields, encounterContext, obsGroupsToVoid } = React.useContext(OHRIFormContext);
   const { values, setValues } = useFormikContext();
-  const [counter, setCounter] = useState(0);
+  const [counter, setCounter] = useState(1);
 
   useEffect(() => {
     if (encounterContext.encounter && !counter) {
@@ -162,6 +168,7 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
       fields.splice(index, 1);
       delete values[field];
     });
+    setCounter(counter - 1);
   };
   const nodes = questions.map((question, index) => {
     const deleteControl =
@@ -199,16 +206,18 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
   encounterContext.sessionMode != 'view' &&
     nodes.push(
       <div>
-        <Button
-          renderIcon={() => <Add size={16} />}
-          kind="ghost"
-          onClick={() => {
-            const nextCount = counter + 1;
-            handleAdd(nextCount, null);
-            setCounter(nextCount);
-          }}>
-          {question.questionOptions.repeatOptions?.addText || 'Add'}
-        </Button>
+        {showAddButton(question.questionOptions.repeatOptions, counter) && (
+          <Button
+            renderIcon={() => <Add size={16} />}
+            kind="ghost"
+            onClick={() => {
+              const nextCount = counter + 1;
+              handleAdd(nextCount, null);
+              setCounter(nextCount);
+            }}>
+            {question.questionOptions.repeatOptions?.addText || 'Add'}
+          </Button>
+        )}
       </div>,
     );
   return (
