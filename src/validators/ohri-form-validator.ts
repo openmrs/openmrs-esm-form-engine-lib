@@ -18,7 +18,7 @@ export const OHRIFieldValidator: FieldValidator = {
       const minLength = field.questionOptions.minLength;
       const maxLength = field.questionOptions.maxLength;
 
-      return textInputLengthValidator(minLength, maxLength, value.length);
+      return textInputLengthValidator(minLength, maxLength, value.length) ?? [];
     }
     if (field.questionOptions.rendering === 'number') {
       const min = Number(field.questionOptions.min);
