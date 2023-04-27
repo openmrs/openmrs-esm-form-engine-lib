@@ -12,21 +12,18 @@ function OHRIFormPage({ page, onFieldChange, setSelectedPage, isCollapsed }) {
     setSelectedPage(elementID);
   };
 
-  const visibleSections = page.sections.filter(sec => {
-    const hasVisibleQuestionsInSection = sec.questions.some(question => !isTrue(question.isHidden));
-    return !isTrue(sec.isHidden) && hasVisibleQuestionsInSection;
-  });
+  const pageHasNoVisibleQuestions = page.sections.every(section =>
+    section.questions.every(question => question.isHidden),
+  );
 
-  const visibleSectionsJSX = visibleSections.map((sec, index) => (
-    <AccordionItem title={sec.label} open={isCollapsed} className={styles.sectionContent} key={`section-${sec.id}`}>
-      <div className={styles.formSection}>
-        <OHRIFormSection
-          fields={sec.questions.filter(question => !isTrue(question.isHidden))}
-          onFieldChange={onFieldChange}
-        />
-      </div>
-    </AccordionItem>
-  ));
+  if (pageHasNoVisibleQuestions) {
+    console.info(`The page "${page.label}" has no visible questions. It's sections will not be rendered.`);
+  }
+
+  const visibleSections = page.sections.filter(section => {
+    const hasVisibleQuestions = section.questions.some(question => !isTrue(question.isHidden));
+    return !isTrue(section.isHidden) && hasVisibleQuestions;
+  });
 
   return (
     <Waypoint onEnter={() => handleEnter(newLabel)} topOffset="50%" bottomOffset="60%">
@@ -34,7 +31,22 @@ function OHRIFormPage({ page, onFieldChange, setSelectedPage, isCollapsed }) {
         <div className={styles.pageHeader}>
           <p className={styles.pageTitle}>{page.label}</p>
         </div>
-        <Accordion>{visibleSectionsJSX}</Accordion>
+        <Accordion>
+          {visibleSections.map(section => (
+            <AccordionItem
+              title={section.label}
+              open={isCollapsed}
+              className={styles.sectionContent}
+              key={`section-${section.id}`}>
+              <div className={styles.formSection}>
+                <OHRIFormSection
+                  fields={section.questions.filter(question => !isTrue(question.isHidden))}
+                  onFieldChange={onFieldChange}
+                />
+              </div>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
     </Waypoint>
   );
