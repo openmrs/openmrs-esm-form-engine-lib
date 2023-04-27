@@ -27,6 +27,7 @@ import { useFormJson } from './hooks/useFormJson';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
 import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
 import styles from './ohri-form.scss';
+import { usePatientData } from './hooks/usePatientData';
 
 interface OHRIFormProps {
   patientUUID: string;
@@ -90,7 +91,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const session = useSession();
   const currentProvider = session?.currentProvider?.uuid ? session.currentProvider.uuid : null;
   const location = session && !(encounterUUID || encounterUuid) ? session?.sessionLocation : null;
-  const { patient, isLoading: isLoadingPatient, error: patientError } = usePatient(patientUUID);
+  const { patient, isLoadingPatient: isLoadingPatient, patientError: patientError } = usePatientData(patientUUID);
   const { formJson: refinedFormJson, isLoading: isLoadingFormJson, formError } = useFormJson(
     formUUID,
     formJson,
