@@ -166,7 +166,7 @@ export function applyFormIntent(intent, originalJson, parentOverrides?: Array<Be
         section.hide = secBehaviour?.hide;
       } else {
         const fallBackBehaviour = section.behaviours?.find(behaviour => behaviour.intent === '*');
-        section.hide = fallBackBehaviour?.hide;
+        section.hide = fallBackBehaviour?.hide ?? section.hide;
       }
 
       // filter section-level markdown behaviour
