@@ -1,4 +1,3 @@
-import { max } from 'moment';
 import { FieldValidator, OHRIFormField } from '../api/types';
 import { isTrue } from '../utils/boolean-utils';
 
