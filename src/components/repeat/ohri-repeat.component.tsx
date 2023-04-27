@@ -55,7 +55,7 @@ export const updateFieldIdInExpression = (expression: string, index: number, que
 };
 
 export const showAddButton = (repeatOptions: { limit?: string }, counter: number) => {
-  return isEmpty(repeatOptions.limit) || Number(repeatOptions.limit) === 0
+  return isEmpty(repeatOptions?.limit) || Number(repeatOptions.limit) === 0 || typeof repeatOptions.limit === 'string'
     ? true
     : counter < Number(repeatOptions.limit);
 };
