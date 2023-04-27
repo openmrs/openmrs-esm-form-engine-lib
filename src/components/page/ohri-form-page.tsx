@@ -17,7 +17,7 @@ function OHRIFormPage({ page, onFieldChange, setSelectedPage, isCollapsed }) {
   );
 
   if (pageHasNoVisibleQuestions) {
-    console.info(`The page "${page.label}" has no visible questions. It's sections will not be rendered.`);
+    console.info(`The page "${page.label}" has no visible questions. Its sections will not be rendered.`);
   }
 
   const visibleSections = page.sections.filter(section => {
