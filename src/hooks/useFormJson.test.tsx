@@ -26,38 +26,54 @@ const mockOpenmrsFetch = openmrsFetch as jest.Mock;
 mockOpenmrsFetch.mockImplementation(jest.fn());
 
 // parent form
-when(mockOpenmrsFetch).calledWith(buildPath(PARENT_FORM_NAME)).mockResolvedValue({ data: { results: [nestedForm1Skeleton] } });
-when(mockOpenmrsFetch).calledWith(buildPath(PARENT_FORM_UUID)).mockResolvedValue({ data:  nestedForm1Skeleton } );
-when(mockOpenmrsFetch).calledWith(buildPath(PARENT_FORM_SCHEMA_VALUE_REF)).mockResolvedValue({ data: nestedForm1Body });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(PARENT_FORM_NAME))
+  .mockResolvedValue({ data: { results: [nestedForm1Skeleton] } });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(PARENT_FORM_UUID))
+  .mockResolvedValue({ data: nestedForm1Skeleton });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(PARENT_FORM_SCHEMA_VALUE_REF))
+  .mockResolvedValue({ data: nestedForm1Body });
 
 // sub form
-when(mockOpenmrsFetch).calledWith(buildPath(SUB_FORM_NAME)).mockResolvedValue({ data: { results: [nestedForm2Skeleton] } });
-when(mockOpenmrsFetch).calledWith(buildPath(SUB_FORM_UUID)).mockResolvedValue({ data: nestedForm2Skeleton  });
-when(mockOpenmrsFetch).calledWith(buildPath(SUB_FORM_SCHEMA_VALUE_REF)).mockResolvedValue({ data: nestedForm2Body });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(SUB_FORM_NAME))
+  .mockResolvedValue({ data: { results: [nestedForm2Skeleton] } });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(SUB_FORM_UUID))
+  .mockResolvedValue({ data: nestedForm2Skeleton });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(SUB_FORM_SCHEMA_VALUE_REF))
+  .mockResolvedValue({ data: nestedForm2Body });
 
 // mini form
-when(mockOpenmrsFetch).calledWith(buildPath(MINI_FORM_NAME)).mockResolvedValue({ data: { results: [miniFormSkeleton] } });
-when(mockOpenmrsFetch).calledWith(buildPath(MINI_FORM_UUID)).mockResolvedValue({ data: miniFormSkeleton });
-when(mockOpenmrsFetch).calledWith(buildPath(MINI_FORM_SCHEMA_VALUE_REF)).mockResolvedValue({ data: miniFormBody });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(MINI_FORM_NAME))
+  .mockResolvedValue({ data: { results: [miniFormSkeleton] } });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(MINI_FORM_UUID))
+  .mockResolvedValue({ data: miniFormSkeleton });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(MINI_FORM_SCHEMA_VALUE_REF))
+  .mockResolvedValue({ data: miniFormBody });
 
 describe('useFormJson', () => {
-
-
   it('should fetch basic form by name', async () => {
     let hook = null;
     await act(async () => {
-        hook = renderHook(() => useFormJson(MINI_FORM_NAME, null, null, null));
+      hook = renderHook(() => useFormJson(MINI_FORM_NAME, null, null, null));
     });
 
     expect(hook.result.current.isLoading).toBe(false);
     expect(hook.result.current.error).toBe(undefined);
-    expect(hook.result.current.formJson.name).toBe(MINI_FORM_NAME)
+    expect(hook.result.current.formJson.name).toBe(MINI_FORM_NAME);
   });
 
   it('should fetch basic form by UUID', async () => {
     let hook = null;
     await act(async () => {
-        hook = renderHook(() => useFormJson(MINI_FORM_UUID, null, null, null));
+      hook = renderHook(() => useFormJson(MINI_FORM_UUID, null, null, null));
     });
 
     expect(hook.result.current.isLoading).toBe(false);
@@ -68,9 +84,9 @@ describe('useFormJson', () => {
   fit('should load form with nested subforms', async () => {
     let hook = null;
     await act(async () => {
-        hook = renderHook(() => useFormJson(PARENT_FORM_NAME, null, null, null));
+      hook = renderHook(() => useFormJson(PARENT_FORM_NAME, null, null, null));
     });
-    
+
     expect(hook.result.current.isLoading).toBe(false);
     expect(hook.result.current.error).toBe(undefined);
     expect(hook.result.current.formJson.name).toBe(PARENT_FORM_NAME);
@@ -82,20 +98,20 @@ describe('useFormJson', () => {
   it('should load subforms for raw form json', async () => {
     let hook = null;
     await act(async () => {
-        hook = renderHook(() => useFormJson(null, nestedForm1Body, null, null));
+      hook = renderHook(() => useFormJson(null, nestedForm1Body, null, null));
     });
-    
+
     expect(hook.result.current.isLoading).toBe(false);
     expect(hook.result.current.error).toBe(undefined);
     expect(hook.result.current.formJson.name).toBe(PARENT_FORM_NAME);
-    
+
     // verify subforms
     verifyEmbeddedForms(hook.result.current.formJson);
   });
 });
 
 function buildPath(path: string) {
-    return when((url: string) => url.includes(path));
+  return when((url: string) => url.includes(path));
 }
 
 function verifyEmbeddedForms(formJson) {

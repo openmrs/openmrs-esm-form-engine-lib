@@ -16,7 +16,7 @@ function calculateAge(birthDate: Date): number {
 
 export const usePatientData = patientUuid => {
   const { patient, isLoading: isLoadingPatient, error: patientError } = usePatient(patientUuid);
-  if(patient && !isLoadingPatient) {
+  if (patient && !isLoadingPatient) {
     patient['age'] = calculateAge(new Date(patient?.birthDate));
   }
   return { patient, isLoadingPatient, patientError };
