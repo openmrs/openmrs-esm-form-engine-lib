@@ -50,7 +50,7 @@ jobs:
 
       - name: Run build
         run: yarn turbo build --color --concurrency=5
-      
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -103,3 +103,111 @@ jobs:
       - run: yarn config set npmAuthToken "${NODE_AUTH_TOKEN}" && yarn npm publish --access public --tag latest
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+  bump-form-engine_ohri:
+      runs-on: ubuntu-latest
+
+      needs: pre_release
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+          with:
+            repository: UCSF-IGHS/openmrs-esm-ohri
+            ref: working
+
+        - name: Install dependencies
+          run: yarn
+
+        - name: Bump form engine
+          run: yarn ci:bump-form-engine-lib
+
+        - name: Commit changes
+          run: |
+            git config user.email "github-actions@github.com"
+            git config user.name "GitHub Actions"
+            git add yarn.lock
+            git commit -m "(chore) bump-form-engine"
+
+        - name: Create PR
+          uses: peter-evans/create-pull-request@v3
+          with:
+            token: ${{ secrets.ACTIONS_OHRI_PAT }}
+            commit-message: "(chore) bump-form-engine"
+            title: "(chore) Bump form engine"
+            body: "This is an Automated PR that bumps the form engine next tag once its available,
+                      to 3 main esm's"
+            branch: chore/bump-form-engine
+            base: working
+
+    bump-form-engine_patient_chart:
+      runs-on: ubuntu-latest
+
+      needs: pre_release
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+          with:
+            repository: openmrs/openmrs-esm-patient-chart
+            ref: main
+
+        - name: Install dependencies
+          run: yarn
+
+        - name: Bump form engine
+          run: yarn ci:bump-form-engine-lib
+
+        - name: Commit changes
+          run: |
+            git config user.email "github-actions@github.com"
+            git config user.name "GitHub Actions"
+            git add yarn.lock
+            git commit -m "(chore) bump-form-engine"
+
+        - name: Create PR
+          uses: peter-evans/create-pull-request@v3
+          with:
+            token: ${{ secrets.ACTIONS_OHRI_PAT }}
+            commit-message: "(chore) bump-form-engine"
+            title: "(chore) Bump form engine"
+            body: "This is an Automated PR that bumps the form engine next tag once its available,
+                      to 3 main esm's"
+            branch: chore/bump-form-engine
+            base: main
+
+    bump-form_builder:
+        runs-on: ubuntu-latest
+
+        needs: pre_release
+
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v3
+            with:
+              repository: openmrs/openmrs-esm-form-builder
+              ref: main
+
+          - name: Install dependencies
+            run: yarn
+
+          - name: Bump form engine
+            run: yarn ci:bump-form-engine-lib
+
+          - name: Commit changes
+            run: |
+              git config user.email "github-actions@github.com"
+              git config user.name "GitHub Actions"
+              git add yarn.lock
+              git commit -m "(chore) bump-form-engine"
+
+          - name: Create PR
+            uses: peter-evans/create-pull-request@v3
+            with:
+              token: ${{ secrets.ACTIONS_OHRI_PAT }}
+              commit-message: "(chore) bump-form-engine"
+              title: "(chore) Bump form engine"
+              body: "This is an Automated PR that bumps the form engine next tag once its available,
+                      to 3 main esm's"
+              branch: chore/bump-form-engine
+              base: main
