@@ -29,7 +29,8 @@ export function evaluateExpression(
   findAndRegisterReferencedFields(node, parts, fields);
   // setup function scope
   let { mode, myValue, patient } = context;
-  const { sex, age } = patient;
+  const { sex, age } = patient && 'sex' in patient && 'age' in patient ? patient : { sex: undefined, age: undefined };
+
   if (node.type === 'field' && myValue === undefined) {
     myValue = fieldValues[node.value['id']];
   }
@@ -63,7 +64,7 @@ export function evaluateExpression(
   try {
     return eval(expression);
   } catch (error) {
-    console.error(error);
+    console.error(`Error: ${error} \n\n failing expression: ${expression}`);
   }
   return null;
 }
@@ -84,7 +85,7 @@ export async function evaluateAsyncExpression(
   findAndRegisterReferencedFields(node, parts, fields);
   // setup function scope
   let { mode, myValue, patient } = context;
-  const { sex, age } = patient;
+  const { sex, age } = patient && 'sex' in patient && 'age' in patient ? patient : { sex: undefined, age: undefined };
   if (node.type === 'field' && myValue === undefined) {
     myValue = fieldValues[node.value['id']];
   }
@@ -146,7 +147,7 @@ export async function evaluateAsyncExpression(
   try {
     return eval(expression);
   } catch (error) {
-    console.error(error);
+    console.error(`Error: ${error} \n\n failing expression: ${expression}`);
   }
   return null;
 }
