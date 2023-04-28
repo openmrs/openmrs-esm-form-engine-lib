@@ -1,7 +1,6 @@
-import { ConceptFalse, ConceptTrue } from '../constants';
 import { OHRIFormField, OHRIFormPage, OHRIFormSection } from '../api/types';
-import { CommonExpressionHelpers, registerDependency } from './common-expression-helpers';
-import { parseExpression } from './expression-parser';
+import { CommonExpressionHelpers } from './common-expression-helpers';
+import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
 
 export interface FormNode {
   value: OHRIFormPage | OHRIFormSection | OHRIFormField;
@@ -17,21 +16,22 @@ export interface ExpressionContext {
 export function evaluateExpression(
   expression: string,
   node: FormNode,
-  allFields: Array<OHRIFormField>,
-  allFieldValues: Record<string, any>,
+  fields: Array<OHRIFormField>,
+  fieldValues: Record<string, any>,
   context: ExpressionContext,
 ): any {
   if (!expression?.trim()) {
     return null;
   }
-  const allFieldsKeys = allFields.map(f => f.id);
+  const allFieldsKeys = fields.map(f => f.id);
   const parts = parseExpression(expression.trim());
+  // register dependencies
+  findAndRegisterReferencedFields(node, parts, fields);
   // setup function scope
   let { mode, myValue, patient } = context;
   if (node.type === 'field' && myValue === undefined) {
-    myValue = allFieldValues[node.value['id']];
+    myValue = fieldValues[node.value['id']];
   }
-
   const {
     isEmpty,
     today,
@@ -54,15 +54,10 @@ export function evaluateExpression(
     formatDate,
     extractRepeatingGroupValues,
     calcGravida,
-    calcDaysSinceCircumcisionProcedure,
     calcTimeDifference,
-  } = new CommonExpressionHelpers(node, patient, allFields, allFieldValues, allFieldsKeys);
+  } = new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys);
 
-  parts.forEach((part, index) => {
-    if (index % 2 == 0 && allFieldsKeys.includes(part)) {
-      expression = interpolateFieldValue(node, expression, allFields, allFieldValues, part);
-    }
-  });
+  expression = linkReferencedFieldValues(fields, fieldValues, parts);
 
   try {
     return eval(expression);
@@ -75,19 +70,21 @@ export function evaluateExpression(
 export async function evaluateAsyncExpression(
   expression: string,
   node: FormNode,
-  allFields: Array<OHRIFormField>,
-  allFieldValues: Record<string, any>,
+  fields: Array<OHRIFormField>,
+  fieldValues: Record<string, any>,
   context: ExpressionContext,
 ): Promise<any> {
   if (!expression?.trim()) {
     return null;
   }
-  const allFieldsKeys = allFields.map(f => f.id);
-  const parts = parseExpression(expression.trim());
+  const allFieldsKeys = fields.map(f => f.id);
+  let parts = parseExpression(expression.trim());
+  // register dependencies
+  findAndRegisterReferencedFields(node, parts, fields);
   // setup function scope
   let { mode, myValue, patient } = context;
   if (node.type === 'field' && myValue === undefined) {
-    myValue = allFieldValues[node.value['id']];
+    myValue = fieldValues[node.value['id']];
   }
   const {
     api,
@@ -112,16 +109,15 @@ export async function evaluateAsyncExpression(
     formatDate,
     extractRepeatingGroupValues,
     calcGravida,
-    calcDaysSinceCircumcisionProcedure,
     calcTimeDifference,
-  } = new CommonExpressionHelpers(node, patient, allFields, allFieldValues, allFieldsKeys);
+  } = new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys);
 
+  expression = linkReferencedFieldValues(fields, fieldValues, parts);
+  // parts with resolve-able field references
+  parts = parseExpression(expression);
   const lazyFragments = [];
   parts.forEach((part, index) => {
     if (index % 2 == 0) {
-      if (allFieldsKeys.includes(part)) {
-        expression = interpolateFieldValue(node, expression, allFields, allFieldValues, part);
-      }
       if (part.startsWith('resolve(')) {
         const [refinedSubExpression] = checkReferenceToResolvedFragment(part);
         lazyFragments.push({ expression: refinedSubExpression, index });
@@ -158,46 +154,6 @@ export async function evaluateAsyncExpression(
  */
 export function resolve(lazy: Promise<any>) {
   return Promise.resolve(lazy);
-}
-
-/**
- * Interpolates the field value into the expression; This is done by replacing the field id with the field value.
- * @param fieldNode The field node
- * @param expression The expression
- * @param fields All fields
- * @param fieldValues Field values
- * @param token The field id to be replaced
- * @returns Refined expression
- */
-function interpolateFieldValue(
-  fieldNode: FormNode,
-  expression: string,
-  fields: Array<OHRIFormField>,
-  fieldValues: Record<string, any>,
-  token: string,
-): string {
-  const determinant = fields.find(field => field.id === token);
-  registerDependency(fieldNode, determinant);
-  // prep eval variables
-  let determinantValue = fieldValues[token];
-  if (determinant.questionOptions.rendering == 'toggle' && typeof determinantValue == 'boolean') {
-    determinantValue = determinantValue ? ConceptTrue : ConceptFalse;
-  }
-  if (typeof determinantValue == 'string') {
-    determinantValue = `'${determinantValue}'`;
-  }
-  const regx = new RegExp(token, 'g');
-  expression = expression.replace(regx, determinantValue);
-  return expression;
-}
-
-// For testing purposes only
-function mockAsyncFunction(value: any, delay?: number) {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve(value);
-    }, delay || 1000);
-  });
 }
 
 /**

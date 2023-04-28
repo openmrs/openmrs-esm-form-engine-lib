@@ -1,7 +1,9 @@
 'use ';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import moment from 'moment';
 dayjs.extend(duration);
+
 import { OHRIFormField } from '../api/types';
 import { FormNode } from './expression-runner';
 import { isEmpty as isValueEmpty } from '../validators/ohri-form-validator';
@@ -14,6 +16,7 @@ export class CommonExpressionHelpers {
   allFieldValues: Record<string, any> = {};
   allFieldsKeys: string[] = [];
   api = apiFunctions;
+  isEmpty = isValueEmpty;
 
   constructor(
     node: FormNode,
@@ -29,30 +32,12 @@ export class CommonExpressionHelpers {
     this.patient = patient;
   }
 
-  isEmpty = value => {
-    if (this.allFieldsKeys.includes(value)) {
-      registerDependency(
-        this.node,
-        this.allFields.find(candidate => candidate.id == value),
-      );
-      return isValueEmpty(this.allFieldValues[value]);
-    }
-    return isValueEmpty(value);
-  };
-
   today() {
     return new Date();
   }
 
-  includes = (questionId, value) => {
-    if (this.allFieldsKeys.includes(questionId)) {
-      registerDependency(
-        this.node,
-        this.allFields.find(candidate => candidate.id === questionId),
-      );
-      return this.allFieldValues[questionId]?.includes(value);
-    }
-    return false;
+  includes = (collection: any[], value: any) => {
+    return collection?.includes(value);
   };
 
   isDateBefore = (left: Date, right: string | Date, format?: string) => {
@@ -107,17 +92,7 @@ export class CommonExpressionHelpers {
     return null;
   };
 
-  calcBMI = (heightQuestionId, weightQuestionId) => {
-    const height = this.allFieldValues[heightQuestionId];
-    const weight = this.allFieldValues[weightQuestionId];
-    [heightQuestionId, weightQuestionId].forEach(entry => {
-      if (this.allFieldsKeys.includes(entry)) {
-        registerDependency(
-          this.node,
-          this.allFields.find(candidate => candidate.id == entry),
-        );
-      }
-    });
+  calcBMI = (height, weight) => {
     let r;
     if (height && weight) {
       r = (weight / (((height / 100) * height) / 100)).toFixed(1);
@@ -130,16 +105,7 @@ export class CommonExpressionHelpers {
    * @param lmpQuestionId
    * @returns
    */
-  calcEDD = lmpQuestionId => {
-    const lmp = this.allFieldValues[lmpQuestionId];
-    [lmpQuestionId].forEach(entry => {
-      if (this.allFieldsKeys.includes(entry)) {
-        registerDependency(
-          this.node,
-          this.allFields.find(candidate => candidate.id == entry),
-        );
-      }
-    });
+  calcEDD = lmp => {
     let resultEdd = {};
     if (lmp) {
       resultEdd = new Date(lmp.getTime() + 280 * 24 * 60 * 60 * 1000);
@@ -147,35 +113,17 @@ export class CommonExpressionHelpers {
     return lmp ? resultEdd : null;
   };
 
-  calcMonthsOnART = artStartDateQuestionId => {
+  calcMonthsOnART = artStartDate => {
     let today = new Date();
-    const artStartDate = this.allFieldValues[artStartDateQuestionId] || today;
-    [artStartDateQuestionId].forEach(entry => {
-      if (this.allFieldsKeys.includes(entry)) {
-        registerDependency(
-          this.node,
-          this.allFields.find(candidate => candidate.id == entry),
-        );
-      }
-    });
     let resultMonthsOnART;
-    let artInDays = Math.round((today.getTime() - artStartDate.getTime()) / 86400000);
+    let artInDays = Math.round((today.getTime() - artStartDate.getTime?.()) / 86400000);
     if (artStartDate && artInDays >= 30) {
       resultMonthsOnART = Math.floor(artInDays / 30);
     }
     return artStartDate ? resultMonthsOnART : null;
   };
 
-  calcViralLoadStatus = viralLoadCountQuestionId => {
-    const viralLoadCount = this.allFieldValues[viralLoadCountQuestionId];
-    [viralLoadCountQuestionId].forEach(entry => {
-      if (this.allFieldsKeys.includes(entry)) {
-        registerDependency(
-          this.node,
-          this.allFields.find(candidate => candidate.id == entry),
-        );
-      }
-    });
+  calcViralLoadStatus = viralLoadCount => {
     let resultViralLoadStatus;
     if (viralLoadCount) {
       if (viralLoadCount > 50) {
@@ -187,17 +135,7 @@ export class CommonExpressionHelpers {
     return viralLoadCount ? resultViralLoadStatus : null;
   };
 
-  calcNextVisitDate = (followupDateQuestionId, arvDispensedInDaysQuestionId) => {
-    const followupDate = this.allFieldValues[followupDateQuestionId];
-    const arvDispensedInDays = this.allFieldValues[arvDispensedInDaysQuestionId];
-    [followupDateQuestionId, arvDispensedInDaysQuestionId].forEach(entry => {
-      if (this.allFieldsKeys.includes(entry)) {
-        registerDependency(
-          this.node,
-          this.allFields.find(candidate => candidate.id == entry),
-        );
-      }
-    });
+  calcNextVisitDate = (followupDate, arvDispensedInDays) => {
     let resultNextVisitDate = {};
     if (followupDate && arvDispensedInDays) {
       resultNextVisitDate = new Date(followupDate.getTime() + arvDispensedInDays * 24 * 60 * 60 * 1000);
@@ -205,25 +143,7 @@ export class CommonExpressionHelpers {
     return followupDate && arvDispensedInDays ? resultNextVisitDate : null;
   };
 
-  calcTreatmentEndDate = (
-    followupDateQuestionId,
-    arvDispensedInDaysQuestionId,
-    patientStatusQuestionId,
-    treatmentEndDateQuestionId,
-  ) => {
-    const followupDate = this.allFieldValues[followupDateQuestionId];
-    const arvDispensedInDays = this.allFieldValues[arvDispensedInDaysQuestionId];
-    const patientStatus = this.allFieldValues[patientStatusQuestionId];
-    [followupDateQuestionId, arvDispensedInDaysQuestionId, patientStatusQuestionId, treatmentEndDateQuestionId].forEach(
-      entry => {
-        if (this.allFieldsKeys.includes(entry)) {
-          registerDependency(
-            this.node,
-            this.allFields.find(candidate => candidate.id == entry),
-          );
-        }
-      },
-    );
+  calcTreatmentEndDate = (followupDate, arvDispensedInDays, patientStatus) => {
     let resultTreatmentEndDate = {};
     let extraDaysAdded = 30 + arvDispensedInDays;
     if (followupDate && arvDispensedInDays && patientStatus == '160429AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA') {
@@ -234,19 +154,10 @@ export class CommonExpressionHelpers {
       : null;
   };
 
-  calcAgeBasedOnDate = questionId => {
-    const value = this.allFieldValues[questionId];
-    [questionId].forEach(entry => {
-      if (this.allFieldsKeys.includes(entry)) {
-        registerDependency(
-          this.node,
-          this.allFields.find(candidate => candidate.id == entry),
-        );
-      }
-    });
+  calcAgeBasedOnDate = dateValue => {
     let targetYear = null;
-    if (value) {
-      targetYear = new Date(value).getFullYear();
+    if (dateValue) {
+      targetYear = new Date(dateValue).getFullYear();
     } else {
       targetYear = new Date().getFullYear();
     }
@@ -254,19 +165,9 @@ export class CommonExpressionHelpers {
     let calculatedYear = targetYear - birthDate;
     return calculatedYear;
   };
-  //Ampath Helper Functions
-  calcBSA = (heightQuestionId, weightQuestionId) => {
-    const height = this.allFieldValues[heightQuestionId];
-    const weight = this.allFieldValues[weightQuestionId];
 
-    [heightQuestionId, weightQuestionId].forEach(entry => {
-      if (this.allFieldsKeys.includes(entry)) {
-        registerDependency(
-          this.node,
-          this.allFields.find(candidate => candidate.id == entry),
-        );
-      }
-    });
+  //Ampath Helper Functions
+  calcBSA = (height, weight) => {
     let result;
     if (height && weight) {
       result = Math.sqrt((height * weight) / 3600).toFixed(2);
@@ -344,28 +245,11 @@ export class CommonExpressionHelpers {
     return gravida;
   }
 
-  calcDaysSinceCircumcisionProcedure(val) {
-    let daySinceLastCircumcision = 0;
-    if (val) {
-      var timeDiff = Math.abs(new Date().getTime() - Date.parse(val));
-      daySinceLastCircumcision = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    }
-    return daySinceLastCircumcision;
-  }
-
-  calcTimeDifference = (obsDateId, timeFrame) => {
+  calcTimeDifference = (obsDate, timeFrame) => {
     let daySinceLastObs;
-    let obsDate = dayjs(this.allFieldValues[obsDateId]);
-    [obsDateId].forEach(entry => {
-      if (this.allFieldsKeys.includes(entry)) {
-        registerDependency(
-          this.node,
-          this.allFields.find(candidate => candidate.id == entry),
-        );
-      }
-    });
-    const endDate = dayjs(new Date());
-    const duration = dayjs.duration(endDate.diff(obsDate));
+
+    const endDate = moment(new Date());
+    const duration = moment.duration(endDate.diff(obsDate));
 
     if (obsDate) {
       if (timeFrame == 'd') {
@@ -386,6 +270,9 @@ export class CommonExpressionHelpers {
 }
 
 export function registerDependency(node: FormNode, determinant: OHRIFormField) {
+  if (!node || !determinant) {
+    return;
+  }
   switch (node.type) {
     case 'page':
       if (!determinant.pageDependants) {

@@ -1,3 +1,8 @@
+import { OHRIFormField } from '../api/types';
+import { ConceptFalse, ConceptTrue } from '../constants';
+import { registerDependency } from './common-expression-helpers';
+import { FormNode } from './expression-runner';
+
 /**
  * Parses a complex expression string into an array of tokens, ignoring operators found within quotes and within parentheses.
  *
@@ -46,4 +51,111 @@ export function parseExpression(expression: string): string[] {
     tokens.push(currentToken);
   }
   return tokens;
+}
+
+/**
+ * Links field references within expression fragments to the actual field values
+ * @returns The expression with linked field references
+ */
+export function linkReferencedFieldValues(
+  fields: OHRIFormField[],
+  fieldValues: Record<string, any>,
+  tokens: string[],
+): string {
+  const processedTokens = [];
+  tokens.forEach(token => {
+    if (hasParentheses(token)) {
+      let tokenWithUnresolvedArgs = token;
+      extractArgs(token).forEach(arg => {
+        const referencedField = findReferencedFieldIfExists(arg, fields);
+        if (referencedField) {
+          tokenWithUnresolvedArgs = replaceFieldRefWithValuePath(
+            referencedField,
+            fieldValues[referencedField.id],
+            tokenWithUnresolvedArgs,
+          );
+        }
+      });
+      processedTokens.push(tokenWithUnresolvedArgs);
+    } else {
+      const referencedField = findReferencedFieldIfExists(token, fields);
+      if (referencedField) {
+        processedTokens.push(replaceFieldRefWithValuePath(referencedField, fieldValues[referencedField.id], token));
+      } else {
+        // push token as is
+        processedTokens.push(token);
+      }
+    }
+  });
+  return processedTokens.join(' ');
+}
+
+/**
+ * Extracts the arguments or parameters to a function within an arbitrary expression.
+ *
+ * @param {string} expression - The expression to extract arguments from.
+ * @returns {string[]} An array of the extracted arguments.
+ */
+export function extractArgs(expression: string): string[] {
+  const args = [];
+  const regx = /(?:\w+|'(?:\\'|[^'\n])*')(?=[,\)]|\s*(?=\)))/g;
+  let match;
+  while ((match = regx.exec(expression))) {
+    args.push(match[0].replace(/\\'/g, "'").replace(/(^'|'$)/g, ''));
+  }
+  return args;
+}
+
+/**
+ * Checks if an expression contains opening and closing parentheses.
+ *
+ * @param {string} expression - The expression to check.
+ * @returns {boolean} `true` if the expression contains parentheses, otherwise `false`.
+ */
+export function hasParentheses(expression: string): boolean {
+  const re = /[()]/;
+  return re.test(expression);
+}
+
+export function replaceFieldRefWithValuePath(field: OHRIFormField, value: any, token: string): string {
+  if (token.includes(`useFieldValue('${field.id}')`)) {
+    return token;
+  }
+  // strip quotes
+  token = token.replace(new RegExp(`['"]${field.id}['"]`, 'g'), field.id);
+  if (field.questionOptions.rendering == 'toggle' && typeof value == 'boolean') {
+    // TODO: reference ConceptTrue and ConceptFalse through config patterns
+    return token.replace(field.id, `${value ? `'${ConceptTrue}'` : `'${ConceptFalse}'`}`);
+  }
+  return token.replace(field.id, `fieldValues.${field.id}`);
+}
+
+/**
+ * Finds and registers referenced fields in the expression
+ * @param fieldNode The field node
+ * @param tokens Expression tokens
+ * @param fields All fields
+ */
+export function findAndRegisterReferencedFields(
+  fieldNode: FormNode,
+  tokens: string[],
+  fields: Array<OHRIFormField>,
+): void {
+  tokens.forEach(token => {
+    if (hasParentheses(token)) {
+      extractArgs(token).forEach(arg => {
+        registerDependency(fieldNode, findReferencedFieldIfExists(arg, fields));
+      });
+    } else {
+      registerDependency(fieldNode, findReferencedFieldIfExists(token, fields));
+    }
+  });
+}
+
+function findReferencedFieldIfExists(fieldId: string, fields: OHRIFormField[]): OHRIFormField | undefined {
+  // check if field id has trailing quotes
+  if (/^'+|'+$/.test(fieldId)) {
+    fieldId = fieldId.replace(/^'|'$/g, '');
+  }
+  return fields.find(field => field.id === fieldId);
 }

@@ -12,18 +12,17 @@ function OHRIFormPage({ page, onFieldChange, setSelectedPage, isCollapsed }) {
     setSelectedPage(elementID);
   };
 
-  const visibleSections = page.sections.filter(sec => !isTrue(sec.isHidden));
-  const visibleSectionsJSX = visibleSections.map((sec, index) => {
-    const hasHiddenQuestionsInSection = sec.questions.every(question => question.isHidden);
-    return (
-      !hasHiddenQuestionsInSection && (
-        <AccordionItem title={sec.label} open={isCollapsed} className={styles.sectionContent} key={`section-${sec.id}`}>
-          <div className={styles.formSection}>
-            <OHRIFormSection fields={sec.questions} onFieldChange={onFieldChange} />
-          </div>
-        </AccordionItem>
-      )
-    );
+  const pageHasNoVisibleQuestions = page.sections.every(section =>
+    section.questions.every(question => question.isHidden),
+  );
+
+  if (pageHasNoVisibleQuestions) {
+    console.info(`The page "${page.label}" has no visible questions. Its sections will not be rendered.`);
+  }
+
+  const visibleSections = page.sections.filter(section => {
+    const hasVisibleQuestions = section.questions.some(question => !isTrue(question.isHidden));
+    return !isTrue(section.isHidden) && hasVisibleQuestions;
   });
 
   return (
@@ -32,7 +31,22 @@ function OHRIFormPage({ page, onFieldChange, setSelectedPage, isCollapsed }) {
         <div className={styles.pageHeader}>
           <p className={styles.pageTitle}>{page.label}</p>
         </div>
-        <Accordion>{visibleSectionsJSX}</Accordion>
+        <Accordion>
+          {visibleSections.map(section => (
+            <AccordionItem
+              title={section.label}
+              open={isCollapsed}
+              className={styles.sectionContent}
+              key={`section-${section.id}`}>
+              <div className={styles.formSection}>
+                <OHRIFormSection
+                  fields={section.questions.filter(question => !isTrue(question.isHidden))}
+                  onFieldChange={onFieldChange}
+                />
+              </div>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
     </Waypoint>
   );

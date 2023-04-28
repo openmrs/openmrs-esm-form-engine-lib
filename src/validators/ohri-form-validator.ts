@@ -14,19 +14,45 @@ export const OHRIFieldValidator: FieldValidator = {
         return addError(fieldRequiredErrCode, 'Field is mandatory');
       }
     }
-    if (field.questionOptions.rendering == 'number') {
-      return numberInputRangeValidator(Number(field.questionOptions.min), Number(field.questionOptions.max), value);
+    if (field.questionOptions.rendering === 'text') {
+      const minLength = field.questionOptions.minLength;
+      const maxLength = field.questionOptions.maxLength;
+
+      return textInputLengthValidator(minLength, maxLength, value.length) ?? [];
     }
-    if (field.questionOptions.rendering == 'text') {
-      return textInputLengthValidator(
-        Number(field.questionOptions.minLength),
-        Number(field.questionOptions.maxLength),
-        value,
-      );
+    if (field.questionOptions.rendering === 'number') {
+      const min = Number(field.questionOptions.min);
+      const max = Number(field.questionOptions.max);
+
+      return !Number.isNaN(min) || !Number.isNaN(max) ? numberInputRangeValidator(min, max, value) : [];
     }
     return [];
   },
 };
+
+export function numberInputRangeValidator(min: number, max: number, inputValue: number) {
+  if (!Number.isNaN(min) && inputValue < min) {
+    return [
+      {
+        resultType: 'error',
+        errCode: fieldOutOfBoundErrCode,
+        message: `Value must be greater than ${min}`,
+      },
+    ];
+  }
+
+  if (!Number.isNaN(max) && inputValue > max) {
+    return [
+      {
+        resultType: 'error',
+        errCode: fieldOutOfBoundErrCode,
+        message: `Value must be lower than ${max}`,
+      },
+    ];
+  }
+
+  return [];
+}
 
 export function isEmpty(value: any): boolean {
   if (value === undefined || value === null || value === '') {
@@ -41,27 +67,26 @@ export function isEmpty(value: any): boolean {
   return false;
 }
 
-export function textInputLengthValidator(minLength: number, maxLength: number, value: string) {
-  if (minLength && maxLength && value.length >= minLength && value.length <= maxLength) {
-    return [];
-  } else if (minLength && maxLength && (value.length < minLength || value.length > maxLength)) {
-    return addError(
-      fieldOutOfBoundErrCode,
-      `Field length error, field length should be between ${minLength} and ${maxLength}.`,
-    );
-  } else if (minLength && value.length < minLength) {
-    return addError(fieldOutOfBoundErrCode, `Field length error, field length can't be less than ${minLength}`);
-  } else if (maxLength && value.length > maxLength) {
-    return addError(fieldOutOfBoundErrCode, `Field length error, field length can't be greater than ${maxLength}`);
-  }
-}
+export function textInputLengthValidator(minLength: string, maxLength: string, inputLength: number) {
+  const minLen = Number(minLength);
+  const maxLen = Number(maxLength);
 
-export function numberInputRangeValidator(min: number, max: number, value: number) {
-  if (min && value < Number(min)) {
-    return addError(fieldOutOfBoundErrCode, `Field value can't be less than ${min}`);
-  }
-  if (max && value > Number(max)) {
-    return addError(fieldOutOfBoundErrCode, `Field value can't be greater than ${max}`);
+  if (typeof inputLength === 'number' && !Number.isNaN(inputLength)) {
+    if (minLen && maxLen && inputLength >= minLen && inputLength <= maxLen) {
+      return [];
+    }
+
+    if (minLen && inputLength < minLen) {
+      return addError(fieldOutOfBoundErrCode, `Length should be at least ${minLen} characters`);
+    }
+
+    if (maxLen && inputLength > maxLen) {
+      return addError(fieldOutOfBoundErrCode, `Length should not exceed ${maxLen} characters`);
+    }
+
+    if (maxLen && minLen && inputLength < minLen && inputLength > maxLen) {
+      return addError(fieldOutOfBoundErrCode, `Length should be between ${minLen} and ${maxLen} characters`);
+    }
   }
 }
 
