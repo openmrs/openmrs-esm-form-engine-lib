@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { FieldValidator, OHRIFormField } from '../api/types';
 
 export const OHRIDefaultFieldValueValidator: FieldValidator = {
@@ -14,7 +14,7 @@ export const OHRIDefaultFieldValueValidator: FieldValidator = {
     }
     if (field.questionOptions.rendering == 'date') {
       // Check if value is a valid date value
-      if (!moment(value, moment.ISO_8601, true).isValid()) {
+      if (!dayjs(value).isValid()) {
         return [{ resultType: 'error', errCode: 'invalid.defaultValue', message: `Invalid date value: '${value}'` }];
       }
     }

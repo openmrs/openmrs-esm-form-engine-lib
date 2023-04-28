@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { getConcept } from '../api/api';
 import { ConceptTrue } from '../constants';
 import { EncounterContext } from '../ohri-form-context';
@@ -27,7 +27,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
         field.value = undefined;
       } else {
         if (field.questionOptions.rendering.startsWith('date')) {
-          field.value.value = moment(value).format('YYYY-MM-DD HH:mm');
+          field.value.value = dayjs(value).format('YYYY-MM-DD HH:mm');
         } else {
           field.value.value = value;
         }
@@ -35,7 +35,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
       }
     } else {
       if (field.questionOptions.rendering.startsWith('date')) {
-        field.value = constructObs(moment(value).format('YYYY-MM-DD HH:mm'), context, field);
+        field.value = constructObs(dayjs(value).format('YYYY-MM-DD HH:mm'), context, field);
         return field.value;
       }
       field.value = constructObs(value, context, field);
@@ -79,7 +79,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
       if (typeof obs.value == 'string' || typeof obs.value == 'number') {
         if (field.questionOptions.rendering.startsWith('date')) {
           const dateObject = parseToLocalDateTime(field.value.value);
-          field.value.value = moment(dateObject).format('YYYY-MM-DD HH:mm');
+          field.value.value = dayjs(dateObject).format('YYYY-MM-DD HH:mm');
           return dateObject;
         }
         return obs.value;
@@ -147,7 +147,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
       if (typeof obs.value == 'string' || typeof obs.value == 'number') {
         if (rendering == 'date' || rendering == 'datetime') {
           const dateObj = parseToLocalDateTime(`${obs.value}`);
-          return { value: dateObj, display: moment(dateObj).format('YYYY-MM-DD HH:mm') };
+          return { value: dateObj, display: dayjs(dateObj).format('YYYY-MM-DD HH:mm') };
         }
         return { value: obs.value, display: obs.value };
       }

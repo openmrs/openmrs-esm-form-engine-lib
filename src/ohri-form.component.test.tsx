@@ -30,7 +30,7 @@ import { mockVisit } from '../__mocks__/visit.mock';
 //////////////////////////////////////////
 
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
-const visit = mockVisit
+const visit = mockVisit;
 const mockOpenmrsFetch = jest.fn();
 const formsResourcePath = when((url: string) => url.includes('/ws/rest/v1/form/'));
 const clobdataResourcePath = when((url: string) => url.includes('/ws/rest/v1/clobdata/'));
