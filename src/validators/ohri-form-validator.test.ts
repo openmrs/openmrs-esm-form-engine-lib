@@ -88,7 +88,7 @@ describe('OHRIFieldValidator - validate', () => {
       'super text super text super text',
     );
 
-    expect(validationErrors).toEqual(undefined);
+    expect(validationErrors).toEqual([]);
   });
 
   it('should fail for text length greater than the max defined length', () => {

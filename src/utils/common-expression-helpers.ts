@@ -1,4 +1,8 @@
-import moment from 'moment';
+'use ';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(duration);
+
 import { OHRIFormField } from '../api/types';
 import { FormNode } from './expression-runner';
 import { isEmpty as isValueEmpty } from '../validators/ohri-form-validator';
@@ -38,15 +42,15 @@ export class CommonExpressionHelpers {
   isDateBefore = (left: Date, right: string | Date, format?: string) => {
     let otherDate: any = right;
     if (typeof right == 'string') {
-      otherDate = format ? moment(right, format, true).toDate() : moment(right, 'YYYY-MM-DD', true).toDate();
+      otherDate = format ? dayjs(right, format, true).toDate() : dayjs(right, 'YYYY-MM-DD', true).toDate();
     }
     return left?.getTime() < otherDate.getTime();
   };
 
   isDateAfter = (selectedDate: Date, baseDate: Date, duration: number, timePeriod: string) => {
     let calculatedDate = new Date(0);
-    selectedDate = moment(selectedDate, 'YYYY-MM-DD', true).toDate();
-    baseDate = moment(baseDate, 'YYYY-MM-DD', true).toDate();
+    selectedDate = dayjs(selectedDate, 'YYYY-MM-DD', true).toDate();
+    baseDate = dayjs(baseDate, 'YYYY-MM-DD', true).toDate();
 
     switch (timePeriod) {
       case 'months':
@@ -225,38 +229,41 @@ export class CommonExpressionHelpers {
   };
 
   extractRepeatingGroupValues = (key, array) => {
-    const values = array.map(function(item) {
+    const values = array.map(function (item) {
       return item[key];
     });
     return values;
   };
 
-  calcGravida(parityTerm: number, parityAbortion: number) {
+  calcGravida(parityTerm, parityAbortion) {
     let gravida = 0;
-    if (parityTerm && parityAbortion) {
-      gravida = parityTerm + parityAbortion + 1;
+    if(parityTerm === parseInt(parityTerm)    ) {
+      gravida = parityTerm + 1
     }
-
+    if(parityAbortion === parseInt(parityAbortion)) {
+      gravida = parityAbortion + 1
+    }
+    if (parityAbortion === parseInt(parityAbortion) && parityTerm === parseInt(parityTerm)) {
+      parityAbortion + parityTerm + 1
+    }
     return gravida;
   }
 
   calcTimeDifference = (obsDate, timeFrame) => {
     let daySinceLastObs;
-    const endDate = moment(new Date());
-    const duration = moment.duration(endDate.diff(obsDate));
-
-    if (obsDate !== '') {
+    const endDate = dayjs();
+    if (obsDate) {
       if (timeFrame == 'd') {
-        daySinceLastObs = Math.abs(duration.days());
+        daySinceLastObs = Math.abs(Math.round(endDate.diff(obsDate, 'day', true)));
       }
       if (timeFrame == 'w') {
-        daySinceLastObs = Math.abs(duration.weeks());
+        daySinceLastObs = Math.abs(Math.round(endDate.diff(obsDate, 'week', true)));
       }
       if (timeFrame == 'm') {
-        daySinceLastObs = Math.abs(duration.months());
+        daySinceLastObs = Math.abs(Math.round(endDate.diff(obsDate, 'month', true)));
       }
       if (timeFrame == 'y') {
-        daySinceLastObs = Math.abs(duration.years());
+        daySinceLastObs = Math.abs(Math.round(endDate.diff(obsDate, 'year', true)));
       }
     }
     return daySinceLastObs == '' ? '0' : daySinceLastObs;
@@ -287,3 +294,4 @@ export function registerDependency(node: FormNode, determinant: OHRIFormField) {
       determinant.fieldDependants.add(node.value['id']);
   }
 }
+

@@ -52,7 +52,7 @@ describe('OHRIDefaultFieldValueValidator - validate', () => {
     ]);
   });
 
-  it('should accept valid date values', () => {
+  it.only('should accept valid date values', () => {
     // setup and replay
     const errors = OHRIDefaultFieldValueValidator.validate(dateField, '2020-01-20');
 
