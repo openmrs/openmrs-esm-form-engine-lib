@@ -229,39 +229,41 @@ export class CommonExpressionHelpers {
   };
 
   extractRepeatingGroupValues = (key, array) => {
-    const values = array.map(function(item) {
+    const values = array.map(function (item) {
       return item[key];
     });
     return values;
   };
 
-  calcGravida(parityTerm: number, parityAbortion: number) {
+  calcGravida(parityTerm, parityAbortion) {
     let gravida = 0;
-    if (parityTerm && parityAbortion) {
-      gravida = parityTerm + parityAbortion + 1;
+    if(parityTerm === parseInt(parityTerm)    ) {
+      gravida = parityTerm + 1
     }
-
+    if(parityAbortion === parseInt(parityAbortion)) {
+      gravida = parityAbortion + 1
+    }
+    if (parityAbortion === parseInt(parityAbortion) && parityTerm === parseInt(parityTerm)) {
+      parityAbortion + parityTerm + 1
+    }
     return gravida;
   }
 
   calcTimeDifference = (obsDate, timeFrame) => {
     let daySinceLastObs;
-
-    const endDate = dayjs().format();
-    const duration = dayjs.duration(dayjs(endDate).diff(dayjs(obsDate)));
-
+    const endDate = dayjs();
     if (obsDate) {
       if (timeFrame == 'd') {
-        daySinceLastObs = Math.abs(duration.days());
+        daySinceLastObs = Math.abs(Math.round(endDate.diff(obsDate, 'day', true)));
       }
       if (timeFrame == 'w') {
-        daySinceLastObs = Math.abs(duration.weeks());
+        daySinceLastObs = Math.abs(Math.round(endDate.diff(obsDate, 'week', true)));
       }
       if (timeFrame == 'm') {
-        daySinceLastObs = Math.abs(duration.months());
+        daySinceLastObs = Math.abs(Math.round(endDate.diff(obsDate, 'month', true)));
       }
       if (timeFrame == 'y') {
-        daySinceLastObs = Math.abs(duration.years());
+        daySinceLastObs = Math.abs(Math.round(endDate.diff(obsDate, 'year', true)));
       }
     }
     return daySinceLastObs == '' ? '0' : daySinceLastObs;
@@ -292,3 +294,4 @@ export function registerDependency(node: FormNode, determinant: OHRIFormField) {
       determinant.fieldDependants.add(node.value['id']);
   }
 }
+
