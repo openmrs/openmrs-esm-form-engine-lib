@@ -1,12 +1,22 @@
-.readOnlyStyle {
-  border-bottom: 0.5px #c6c6c6;
+@use '@carbon/colors';
+
+.formField {
+  margin-top: 10px;
+}
+
+.formField > div > div > label {
+  color: colors.$gray-70;
+}
+
+.readonly {
+  border-bottom: 0.5px colors.$gray-30;
   border-style: solid;
 }
 
-.readOnlyStyle > div {
+.readonly > div {
   padding-bottom: 7px !important;
 }
 
-.readOnlyValue {
-  color: #525252;
+.value {
+  color: colors.$gray-70;
 }

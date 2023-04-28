@@ -1,9 +1,9 @@
 import React from 'react';
-import styles from './_page.scss';
-import OHRIFormSection from '../section/ohri-form-section.component';
-import { Waypoint } from 'react-waypoint';
 import { Accordion, AccordionItem } from '@carbon/react';
+import { Waypoint } from 'react-waypoint';
 import { isTrue } from '../../utils/boolean-utils';
+import OHRIFormSection from '../section/ohri-form-section.component';
+import styles from './ohri-form-page.scss';
 
 function OHRIFormPage({ page, onFieldChange, setSelectedPage, isCollapsed }) {
   let newLabel = page.label.replace(/\s/g, '');

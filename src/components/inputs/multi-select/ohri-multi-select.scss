@@ -1,0 +1,35 @@
+@use '@carbon/colors';
+
+.formField {
+  margin-top: 10px;
+}
+
+.formField > div > div > label {
+  color: colors.$gray-70;
+}
+
+.multiselectOverride {
+  width: auto;
+  padding-bottom: 15px;
+}
+
+.multiselectOverride > div > div {
+  width: 22.313rem !important;
+}
+
+.multiselectOverride > div div div input {
+  border: 0 !important;
+  border-bottom: 1px solid #8d8d8d !important;
+}
+
+.errorLabel :global(.cds--form-requirement) {
+  display: block;
+  max-height: 12.5rem;
+  overflow: visible;
+  font-weight: 400;
+  color: colors.$red-60;
+}
+
+.list {
+  margin-left: '1rem';
+}

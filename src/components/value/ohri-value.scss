@@ -1,0 +1,15 @@
+@use '@carbon/colors';
+
+.value {
+  font-size: 0.875rem;
+}
+
+.empty {
+  @extend .value;
+  color: colors.$gray-30;
+}
+
+.item {
+  @extend .value;
+  margin-bottom: 0.5rem;
+}

@@ -1,3 +1,5 @@
+@use '@carbon/colors';
+
 .section {
   border-radius: solid 1px rgba(107, 104, 104, 0.5);
   margin-bottom: 3.063rem;
@@ -8,7 +10,7 @@
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.38;
-  color: #525252;
+  color: colors.$gray-70;
   margin-bottom: 0.5rem;
 }
 

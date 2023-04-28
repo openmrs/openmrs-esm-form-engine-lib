@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { NumberInput } from '@carbon/react';
-import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
-import { OHRIFormContext } from '../../../ohri-form-context';
-import styles from '../_input.scss';
 import { isTrue } from '../../../utils/boolean-utils';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
-import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
+import { OHRIFormFieldProps } from '../../../api/types';
+import { OHRIFormContext } from '../../../ohri-form-context';
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
+import styles from './ohri-number.scss';
 
 const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
   const [field, meta] = useField(question.id);

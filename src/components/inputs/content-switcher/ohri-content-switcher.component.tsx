@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FormGroup, ContentSwitcher, Switch } from '@carbon/react';
-import { OHRIFormFieldProps } from '../../../api/types';
-import styles from '../_input.scss';
 import { useField } from 'formik';
-import { OHRIFormContext } from '../../../ohri-form-context';
-import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
+import { OHRIFormContext } from '../../../ohri-form-context';
+import { OHRIFormFieldProps } from '../../../api/types';
+import styles from './ohri-content-switcher.scss';
 
 export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
   const [field, meta] = useField(question.id);
@@ -59,7 +59,7 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
           <ContentSwitcher onChange={handleChange} selectedIndex={selectedIndex} className={styles.selectedOption}>
             {question.questionOptions.answers.map((option, index) => (
               <Switch
-                className={selectedIndex === index ? styles.switchOverrides : styles.switchOverridesNone}
+                className={selectedIndex === index ? styles.switchOverrides : styles.sansSwitchOverrides}
                 name={option.concept || option.value}
                 text={option.label}
                 key={index}

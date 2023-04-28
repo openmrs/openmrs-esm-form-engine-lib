@@ -1,0 +1,35 @@
+@use '@carbon/colors';
+
+.formField {
+  margin-top: 10px;
+}
+
+.formField > div > div > label {
+  color: colors.$gray-70;
+}
+
+.formInputField {
+  @extend .formField;
+  width: auto;
+
+  > div > div > label {
+    max-width: auto;
+  }
+
+  > div > div > div {
+    width: 22.313rem !important;
+  }
+}
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+.errorLabel label {
+  color: colors.$red-60 !important;
+}
+
+.dropdown > div div button {
+  border-bottom: 1px solid #8d8d8d !important;
+}

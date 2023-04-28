@@ -1,9 +1,10 @@
 import React from 'react';
+import styles from './ohri-value.scss';
 
 export const OHRIValueEmpty = () => {
   return (
     <div>
-      <span style={{ fontSize: '.875rem', color: '#c6c6c6' }}>(Blank)</span>
+      <span className={styles.empty}>(Blank)</span>
     </div>
   );
 };
@@ -14,7 +15,7 @@ export const OHRIValueDisplay = ({ value }) => {
   }
   return (
     <div>
-      <span style={{ fontSize: '.875rem' }}>{value}</span>
+      <span className={styles.value}>{value}</span>
     </div>
   );
 };
@@ -23,7 +24,7 @@ const OHRIListDisplay = ({ valueArray }) => {
   return (
     <ul>
       {valueArray.map(item => (
-        <li style={{ fontSize: '.875rem', marginBottom: '.4rem' }}>{item}</li>
+        <li className={styles.item}>{item}</li>
       ))}
     </ul>
   );

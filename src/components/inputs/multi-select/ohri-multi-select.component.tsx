@@ -1,15 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FilterableMultiSelect, UnorderedList } from '@carbon/react';
 import { useField } from 'formik';
+import { useTranslation } from 'react-i18next';
+import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIValueEmpty } from '../../value/ohri-value.component';
-import { useTranslation } from 'react-i18next';
-import styles from '../_input.scss';
-import { isTrue } from '../../../utils/boolean-utils';
-import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { fieldRequiredErrCode } from '../../../validators/ohri-form-validator';
-import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
+import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isTrue } from '../../../utils/boolean-utils';
+import styles from './ohri-multi-select.scss';
 
 export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
   const { t } = useTranslation();
@@ -113,7 +113,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
         </div>
         <div className={styles.formField} style={{ marginTop: '0.125rem' }}>
           {field.value?.length ? (
-            <UnorderedList style={{ marginLeft: '1rem' }}>
+            <UnorderedList className={styles.list}>
               {handler?.getDisplayValue(question, field.value)?.map(displayValue => displayValue + ', ')}
             </UnorderedList>
           ) : (

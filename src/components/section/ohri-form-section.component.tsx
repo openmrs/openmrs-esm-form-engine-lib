@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import styles from './ohri-form-section.scss';
-import { getFieldComponent, getHandler } from '../../registry/registry';
-import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
-import { OHRIFormField, OHRIFormFieldProps } from '../../api/types';
-import { isTrue } from '../../utils/boolean-utils';
 import { useField } from 'formik';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ToastNotification } from '@carbon/react';
+import { getFieldComponent, getHandler } from '../../registry/registry';
+import { isTrue } from '../../utils/boolean-utils';
+import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
+import { OHRIFormField, OHRIFormFieldProps } from '../../api/types';
+import styles from './ohri-form-section.scss';
 
 const OHRIFormSection = ({ fields, onFieldChange }) => {
   const [fieldToControlMap, setFieldToControlMap] = useState([]);

@@ -1,0 +1,14 @@
+
+.label {
+  width: auto !important;
+
+  :global(.cds--assistive-text) {
+    max-width: 30rem !important;
+    font-size: 0.75rem;
+    white-space: pre-line !important;
+  }
+
+  :global(.cds--label) {
+    font-weight: bolder;
+  }
+}

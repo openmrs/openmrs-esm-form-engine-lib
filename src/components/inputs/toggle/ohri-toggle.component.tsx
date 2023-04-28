@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Toggle } from '@carbon/react';
 import { OHRIFormFieldProps } from '../../../api/types';
-import styles from '../_input.scss';
 import { useField } from 'formik';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { isEmpty } from '../../../validators/ohri-form-validator';
+import styles from './ohri-toggle.scss';
 
 const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
   const [field, meta] = useField(question.id);
