@@ -562,7 +562,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           isTrue(page.isHidden);
 
         if (pageHasNoVisibleContent) {
-          console.info(`The page "${page.label}" has no visible questions. Its sections will not be rendered.`);
           return null;
         }
 
