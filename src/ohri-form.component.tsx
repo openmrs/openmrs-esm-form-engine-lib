@@ -13,9 +13,11 @@ import {
   useSession,
   Visit,
 } from '@openmrs/esm-framework';
+import LinearLoader from './components/loaders/linear-loader.component';
+import LoadingIcon from './components/loaders/loading.component';
+import Sidebar from './components/sidebar/sidebar.component';
 import { init, teardown } from './lifecycle';
-import { OHRIFormSchema, SessionMode, OHRIFormPage as OHRIFormPageProps } from './api/types';
-import { OHRIEncounterForm } from './components/encounter/ohri-encounter-form.component';
+import { OHRIFormSchema, SessionMode, FormPage as FormPageProps } from './types';
 import { PatientBanner } from './components/patient-banner/patient-banner.component';
 import { PatientChartWorkspaceHeaderSlot } from './constants';
 import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
@@ -23,14 +25,12 @@ import { useFormJson } from './hooks/useFormJson';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
 import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
 import { usePatientData } from './hooks/usePatientData';
-import LinearLoader from './components/loaders/linear-loader.component';
-import LoadingIcon from './components/loaders/loading.component';
-import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
-import styles from './ohri-form.component.scss';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
+import { EncounterForm } from './components/encounter/ohri-encounter-form.component';
+import styles from './ohri-form.scss';
 
-interface OHRIFormProps {
+interface FormProps {
   patientUUID: string;
   formUUID?: string;
   formJson?: OHRIFormSchema;
@@ -76,7 +76,7 @@ export interface FormSubmissionHandler {
   validate: (values) => boolean;
 }
 
-const OHRIForm: React.FC<OHRIFormProps> = ({
+const OHRIForm: React.FC<FormProps> = ({
   formJson,
   formUUID,
   patientUUID,
@@ -107,7 +107,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const ref = useRef(null);
   const workspaceLayout = useWorkspaceLayout(ref);
   const [initialValues, setInitialValues] = useState({});
-  const [scrollablePages, setScrollablePages] = useState(new Set<OHRIFormPageProps>());
+  const [scrollablePages, setScrollablePages] = useState(new Set<FormPageProps>());
   const [selectedPage, setSelectedPage] = useState('');
   const [isFormExpanded, setIsFormExpanded] = useState<boolean | undefined>(undefined);
   const [isLoadingFormDependencies, setIsLoadingFormDependencies] = useState(true);
@@ -136,7 +136,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       moduleName: meta?.moduleName || '@openmrs/esm-ohri-app',
       slot: PatientChartWorkspaceHeaderSlot,
       load: getAsyncLifecycle(
-        () => import('./components/section-collapsible-toggle/ohri-section-collapsible-toggle.component'),
+        () => import('./components/section-collapsible-toggle/section-collapsible-toggle.component'),
         {
           featureName: 'ohri-form-header-toggle',
           moduleName: meta?.moduleName || '@openmrs/esm-ohri-app',
@@ -299,7 +299,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                 )}
                 <div className={styles.ohriFormBody}>
                   {showSidebar && (
-                    <OHRIFormSidebar
+                    <Sidebar
                       isFormSubmitting={isSubmitting}
                       pagesWithErrors={pagesWithErrors}
                       scrollablePages={scrollablePages}
@@ -324,7 +324,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                       className={classNames(styles.formContentBody, {
                         [styles.minifiedFormContentBody]: workspaceLayout === 'minimized' || sessionMode === 'view',
                       })}>
-                      <OHRIEncounterForm
+                      <EncounterForm
                         formJson={refinedFormJson}
                         patient={patient}
                         formSessionDate={formSessionDate}

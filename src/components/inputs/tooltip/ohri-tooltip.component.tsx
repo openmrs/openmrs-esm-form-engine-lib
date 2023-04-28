@@ -1,21 +1,21 @@
 import React from 'react';
-import { Tooltip } from '@carbon/react';
+import { Tooltip as CarbonTooltip } from '@carbon/react';
 import { Information } from '@carbon/react/icons';
 import styles from './ohri-tooltip.scss';
-import { OHRIFormField } from '../../../api/types';
+import { FormField } from '../../../types';
 
-interface OHRITooltipProps {
-  field: OHRIFormField;
+interface TooltipProps {
+  field: FormField;
 }
 
-export const OHRITooltip: React.FC<OHRITooltipProps> = ({ field }) => {
+export const Tooltip: React.FC<TooltipProps> = ({ field }) => {
   return (
     <span>
-      <Tooltip align="top" label={field.questionInfo} description={field.questionInfo}>
+      <CarbonTooltip align="top" label={field.questionInfo} description={field.questionInfo}>
         <button className={styles.tooltip} type="button" data-testid={field.id}>
           <Information />
         </button>
-      </Tooltip>
+      </CarbonTooltip>
     </span>
   );
 };

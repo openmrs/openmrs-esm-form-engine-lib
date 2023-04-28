@@ -1,0 +1,29 @@
+@use '@carbon/colors';
+
+.formField {
+  margin-top: 10px;
+}
+
+.formField > div > div > label {
+  color: colors.$gray-70;
+}
+
+.numberInputWrapper :global(.cds--number) {
+  @extend .formField;
+  width: 22.313rem;
+  font-size: 0.875rem;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+.errorLabel :global(.cds--form-requirement) {
+  display: block;
+  max-height: 12.5rem;
+  overflow: visible;
+  font-weight: 400;
+  color: colors.$red-60;
+}

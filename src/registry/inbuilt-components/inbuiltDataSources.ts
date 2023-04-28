@@ -1,8 +1,8 @@
-import { DataSource } from '../../api/types';
+import { DataSource } from '../../types';
+import { RegistryItem } from '../registry';
 import { ConceptDataSource } from '../../datasources/concept-data-source';
 import { LocationDataSource } from '../../datasources/location-data-source';
 import { ProviderDataSource } from '../../datasources/provider-datasource';
-import { RegistryItem } from '../registry';
 
 /**
  * @internal

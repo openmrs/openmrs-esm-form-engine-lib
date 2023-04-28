@@ -2,22 +2,22 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import debounce from 'lodash-es/debounce';
 import { ComboBox, InlineLoading, Layer } from '@carbon/react';
-import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
-import { OHRIFormContext } from '../../../ohri-form-context';
-import { isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { isTrue } from '../../../utils/boolean-utils';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
+import { FormContext } from '../../../form-context';
+import { FormFieldProps } from '../../../types';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { isInlineView } from '../../../utils/form-helper';
 import styles from './ui-select-extended.scss';
 
-const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onChange, previousValue }) => {
+const UISelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [items, setItems] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const [errors, setErrors] = useState([]);

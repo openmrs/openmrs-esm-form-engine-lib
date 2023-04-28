@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { OHRIFormField, SubmissionHandler } from '../api/types';
-import { getRegisteredFieldSubmissionHandler } from '..';
+import { FormField, getRegisteredFieldSubmissionHandler, SubmissionHandler } from '..';
 
-export function useFormFieldHandlers(fields: OHRIFormField[]) {
+export function useFormFieldHandlers(fields: FormField[]) {
   const [formFieldHandlers, setFormFieldHandlers] = useState<Record<string, SubmissionHandler>>({});
 
   useEffect(() => {

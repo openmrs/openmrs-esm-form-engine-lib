@@ -1,9 +1,9 @@
 import { registerExpressionHelper } from '..';
-import { OHRIFormField } from '../api/types';
+import { FormField } from '../types';
 import { CommonExpressionHelpers } from './common-expression-helpers';
 import { checkReferenceToResolvedFragment, evaluateExpression, ExpressionContext } from './expression-runner';
 
-export const testFields: Array<OHRIFormField> = [
+export const testFields: Array<FormField> = [
   {
     label: 'Was the client linked to care and treatment in this facility?',
     type: 'obs',

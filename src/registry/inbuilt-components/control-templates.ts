@@ -1,4 +1,4 @@
-import { ControlTemplate } from '../../api/types';
+import { ControlTemplate } from '../../types';
 
 export const controlTemplates: Array<ControlTemplate> = [
   {

@@ -1,4 +1,4 @@
-import { FormSchemaTransformer, OHRIFormField, OHRIFormSchema } from '../api/types';
+import { FormField, FormSchemaTransformer, OHRIFormSchema } from '../types';
 
 export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
   transform: (form: OHRIFormSchema) => {
@@ -22,7 +22,7 @@ export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
 /**
  * Make question transformations especially for originally AFE schemas to match the RFE schema
  */
-export function transformQuestion(question: OHRIFormField) {
+export function transformQuestion(question: FormField) {
   switch (question.type) {
     case 'encounterProvider':
       question.questionOptions.rendering = 'encounter-provider';

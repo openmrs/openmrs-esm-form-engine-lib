@@ -1,9 +1,9 @@
-import { OHRIFormField } from '../api/types';
-import { OHRIDefaultFieldValueValidator } from './default-value-validator';
+import { FormField } from '../types';
+import { DefaultFieldValueValidator } from './default-value-validator';
 
-describe('OHRIDefaultFieldValueValidator - validate', () => {
+describe('DefaultFieldValueValidator - validate', () => {
   // setup
-  const codedField: OHRIFormField = {
+  const codedField: FormField = {
     label: 'Past enrolled patient programs',
     type: 'obs',
     questionOptions: {
@@ -16,7 +16,7 @@ describe('OHRIDefaultFieldValueValidator - validate', () => {
     },
     id: 'past-patient-programs',
   };
-  const dateField: OHRIFormField = {
+  const dateField: FormField = {
     label: 'HTS Date',
     type: 'obs',
     questionOptions: {
@@ -25,7 +25,7 @@ describe('OHRIDefaultFieldValueValidator - validate', () => {
     },
     id: 'hts-date',
   };
-  const numericField: OHRIFormField = {
+  const numericField: FormField = {
     label: 'Temperature',
     type: 'obs',
     questionOptions: {
@@ -36,7 +36,7 @@ describe('OHRIDefaultFieldValueValidator - validate', () => {
   };
   it('should accept valid values for coded types', () => {
     // setup and replay
-    const errors = OHRIDefaultFieldValueValidator.validate(codedField, '105e7ad6-c1fd-11eb-8529-0242ac130ju9');
+    const errors = DefaultFieldValueValidator.validate(codedField, '105e7ad6-c1fd-11eb-8529-0242ac130ju9');
 
     // verify
     expect(errors).toEqual([]);
@@ -44,7 +44,7 @@ describe('OHRIDefaultFieldValueValidator - validate', () => {
 
   it('should reject invalid values for coded types', () => {
     // setup and replay
-    const errors = OHRIDefaultFieldValueValidator.validate(codedField, 'some none existing value');
+    const errors = DefaultFieldValueValidator.validate(codedField, 'some none existing value');
 
     // verify
     expect(errors).toEqual([
@@ -54,7 +54,7 @@ describe('OHRIDefaultFieldValueValidator - validate', () => {
 
   it.only('should accept valid date values', () => {
     // setup and replay
-    const errors = OHRIDefaultFieldValueValidator.validate(dateField, '2020-01-20');
+    const errors = DefaultFieldValueValidator.validate(dateField, '2020-01-20');
 
     // verify
     expect(errors).toEqual([]);
@@ -62,7 +62,7 @@ describe('OHRIDefaultFieldValueValidator - validate', () => {
 
   it('should reject invalid date values', () => {
     // setup and replay
-    const errors = OHRIDefaultFieldValueValidator.validate(dateField, 'test date');
+    const errors = DefaultFieldValueValidator.validate(dateField, 'test date');
 
     // verify
     expect(errors).toEqual([
@@ -72,7 +72,7 @@ describe('OHRIDefaultFieldValueValidator - validate', () => {
 
   it('should accept valid numeric values', () => {
     // setup and replay
-    const errors = OHRIDefaultFieldValueValidator.validate(numericField, '500.5');
+    const errors = DefaultFieldValueValidator.validate(numericField, '500.5');
 
     // verify
     expect(errors).toEqual([]);
@@ -80,7 +80,7 @@ describe('OHRIDefaultFieldValueValidator - validate', () => {
 
   it('should reject invalid numeric values', () => {
     // setup and replay
-    const errors = OHRIDefaultFieldValueValidator.validate(numericField, '500.5hds');
+    const errors = DefaultFieldValueValidator.validate(numericField, '500.5hds');
 
     // verify
     expect(errors).toEqual([

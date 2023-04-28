@@ -3,17 +3,17 @@ import get from 'lodash-es/get';
 import { getConfig } from '@openmrs/esm-framework';
 import { ConceptTrue, ConceptFalse } from '../constants';
 
-export interface OHRIFormsConfig {
+export interface FormsConfig {
   conceptTrue: string;
   conceptFalse: string;
 }
-const defaultOptions: OHRIFormsConfig = {
+const defaultOptions: FormsConfig = {
   conceptTrue: ConceptTrue,
   conceptFalse: ConceptFalse,
 };
 
 export function useFormsConfig(moduleName: string, configPath: string) {
-  const [config, setConfig] = useState<OHRIFormsConfig>(defaultOptions);
+  const [config, setConfig] = useState<FormsConfig>(defaultOptions);
 
   useEffect(() => {
     if (moduleName && configPath) {

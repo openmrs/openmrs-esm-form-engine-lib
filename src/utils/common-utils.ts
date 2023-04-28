@@ -1,5 +1,5 @@
-import { OHRIFormField, OpenmrsObs, RenderType, AttachmentResponse, Attachment } from '../api/types';
 import { formatDate } from '@openmrs/esm-framework';
+import { Attachment, AttachmentResponse, FormField, OpenmrsObs, RenderType } from '../types';
 
 export function flattenObsList(obsList: OpenmrsObs[]): OpenmrsObs[] {
   const flattenedList: OpenmrsObs[] = [];
@@ -20,7 +20,7 @@ export function flattenObsList(obsList: OpenmrsObs[]): OpenmrsObs[] {
   return flattenedList;
 }
 
-export function hasRendering(field: OHRIFormField, rendering: RenderType) {
+export function hasRendering(field: FormField, rendering: RenderType) {
   return field.questionOptions.rendering === rendering;
 }
 

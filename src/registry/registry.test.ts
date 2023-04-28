@@ -1,16 +1,17 @@
-import { OHRIMultiSelect } from '../components/inputs/multi-select/ohri-multi-select.component';
-import OHRINumber from '../components/inputs/number/ohri-number.component';
+import { MultiSelect } from '../components/inputs/multi-select/multi-select.component';
+import Number from '../components/inputs/number/number.component';
 import { getRegisteredControl } from './registry';
+
 
 describe('registry', () => {
   it('should load the OHRINumber component with alias "numeric"', async () => {
     const result = await getRegisteredControl('numeric');
-    expect(result).toEqual(OHRINumber);
+    expect(result).toEqual(Number);
   });
 
   it('should load the OHRIMultiSelect component with alias "multiCheckbox"', async () => {
     const result = await getRegisteredControl('multiCheckbox');
-    expect(result).toEqual(OHRIMultiSelect);
+    expect(result).toEqual(MultiSelect);
   });
 
   it('should return undefined if no matching component is found', async () => {

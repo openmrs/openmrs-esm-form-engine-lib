@@ -1,9 +1,9 @@
-import { OHRIFormField } from '../../api/types';
 import { cloneDeep } from 'lodash-es';
+import { FormField } from '../../types';
 
-export function cloneObsGroup(srcField: OHRIFormField, obsGroup: any, idSuffix: number) {
+export function cloneObsGroup(srcField: FormField, obsGroup: any, idSuffix: number) {
   const originalGroupMembersIds: string[] = [];
-  const clonedField = cloneDeep(srcField) as OHRIFormField;
+  const clonedField = cloneDeep(srcField) as FormField;
   clonedField.questionOptions.repeatOptions = { ...(clonedField.questionOptions.repeatOptions ?? {}), isCloned: true };
   clonedField.value = obsGroup;
   clonedField.uuid = obsGroup?.uuid;

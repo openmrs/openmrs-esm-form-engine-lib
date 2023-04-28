@@ -1,8 +1,8 @@
-import { openmrsFetch, openmrsObservableFetch } from '@openmrs/esm-framework';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { openmrsFetch, openmrsObservableFetch } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
-import { OpenmrsForm, ProgramEnrollmentPayload } from './types';
+import { OpenmrsForm, ProgramEnrollmentPayload } from '../types';
 import { isUuid } from '../utils/boolean-utils';
 
 const BASE_WS_API_URL = '/ws/rest/v1/';
@@ -121,7 +121,7 @@ export async function fetchOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm 
  * @param {OpenmrsForm} form - The OpenMRS form object.
  * @returns {Promise<any | null>} - A Promise that resolves to the fetched ClobData or null if not found.
  */
-export async function fetchClobData(form: OpenmrsForm): Promise<any | null> {
+export async function fetchClobdata(form: OpenmrsForm): Promise<any | null> {
   if (!form) {
     return null;
   }

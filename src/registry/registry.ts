@@ -1,13 +1,13 @@
 import {
   DataSource,
-  FieldValidator,
+  FormFieldValidator,
   FormSchemaTransformer,
-  OHRIFormFieldProps,
+  FormFieldProps,
   PostSubmissionAction,
   SubmissionHandler,
-} from '../api/types';
+} from '../types';
 import { getGlobalStore } from '@openmrs/esm-framework';
-import { OHRIFormsStore } from '../constants';
+import { FormsStore } from '../constants';
 import { inbuiltControls } from './inbuilt-components/inbuiltControls';
 import { inbuiltFieldSubmissionHandlers } from './inbuilt-components/inbuiltFieldSubmissionHandlers';
 import { inbuiltValidators } from './inbuilt-components/inbuiltValidators';
@@ -31,7 +31,7 @@ export interface ComponentRegistration<T> {
   load: () => Promise<{ default: T }>;
 }
 
-export interface CustomControlRegistration extends ComponentRegistration<React.ComponentType<OHRIFormFieldProps>> {
+export interface CustomControlRegistration extends ComponentRegistration<React.ComponentType<FormFieldProps>> {
   type: string;
   alias?: string;
 }
@@ -44,7 +44,7 @@ export interface FormSchemaTransformerRegistration extends ComponentRegistration
 
 export interface FormsRegistryStoreState {
   controls: CustomControlRegistration[];
-  fieldValidators: ComponentRegistration<FieldValidator>[];
+  fieldValidators: ComponentRegistration<FormFieldValidator>[];
   fieldSubmissionHandlers: FieldSubmissionHandlerRegistration[];
   postSubmissionActions: ComponentRegistration<PostSubmissionAction>[];
   dataSources: ComponentRegistration<DataSource<any>>[];
@@ -53,8 +53,8 @@ export interface FormsRegistryStoreState {
 }
 
 interface FormRegistryCache {
-  validators: Record<string, FieldValidator>;
-  controls: Record<string, React.ComponentType<OHRIFormFieldProps>>;
+  validators: Record<string, FormFieldValidator>;
+  controls: Record<string, React.ComponentType<FormFieldProps>>;
   fieldSubmissionHandlers: Record<string, SubmissionHandler>;
   postSubmissionActions: Record<string, PostSubmissionAction>;
   dataSources: Record<string, DataSource<any>>;
@@ -84,7 +84,7 @@ export function registerFieldSubmissionHandler(registration: FieldSubmissionHand
   getFormsStore().fieldSubmissionHandlers.push(registration);
 }
 
-export function registerFieldValidator(registration: ComponentRegistration<FieldValidator>) {
+export function registerFieldValidator(registration: ComponentRegistration<FormFieldValidator>) {
   getFormsStore().fieldValidators.push(registration);
 }
 
@@ -206,7 +206,7 @@ export async function getRegisteredPostSubmissionAction(actionId: string) {
   return null;
 }
 
-export async function getRegisteredValidator(name: string): Promise<FieldValidator> {
+export async function getRegisteredValidator(name: string): Promise<FormFieldValidator> {
   if (registryCache.validators[name]) {
     return registryCache.validators[name];
   }
@@ -249,7 +249,7 @@ export function getRegisteredExpressionHelpers() {
 }
 
 function getFormsStore(): FormsRegistryStoreState {
-  return getGlobalStore<FormsRegistryStoreState>(OHRIFormsStore, {
+  return getGlobalStore<FormsRegistryStoreState>(FormsStore, {
     controls: [],
     postSubmissionActions: [],
     expressionHelpers: {},

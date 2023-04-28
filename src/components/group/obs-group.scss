@@ -1,0 +1,35 @@
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+  margin-right: 2.5rem;
+  flex: 1;
+}
+
+.flexRow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.obsGroupColumn {
+  max-width: 18rem;
+}
+
+.obsGroupColumn input[class*="cds--date-picker__input"] {
+  width: 18rem !important;
+}
+
+.obsGroupColumn > div, .obsGroupColumn div[class*="cds--number"] {
+  margin-top: 0 !important;
+}
+
+/** Targets carbon's multiselect */
+.obsGroupColumn > div > div > div {
+  max-width: 18rem !important;
+}
+
+/** Targets carbon's dropdown */
+.obsGroupColumn > div > div > div > div {
+  max-width: 18rem !important;
+}

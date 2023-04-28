@@ -1,0 +1,43 @@
+@use '@carbon/colors';
+
+.formField {
+  margin-top: 10px;
+}
+
+.formField > div > div > label {
+  color: colors.$gray-70;
+}
+
+.formInputField {
+  @extend .formField;
+  width: auto;
+
+  > div > div > label {
+    max-width: auto;
+  }
+
+  > div > div > div {
+    width: 22.313rem !important;
+  }
+}
+
+.flexRow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.multiselectOverride {
+  width: auto;
+  padding-bottom: 15px;
+}
+
+.multiselectOverride > div > div {
+  width: 22.313rem !important;
+}
+
+.multiselectOverride > div div div input {
+  border: 0 !important;
+  border-bottom: 1px solid #8d8d8d !important;
+}

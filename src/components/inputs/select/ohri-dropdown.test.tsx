@@ -1,12 +1,12 @@
 import React from 'react';
-import { render, fireEvent, screen, cleanup, act } from '@testing-library/react';
+import { render, fireEvent, screen, act } from '@testing-library/react';
 import { Form, Formik } from 'formik';
-import { EncounterContext, OHRIFormContext } from '../../../ohri-form-context';
-import OHRIDropdown from './ohri-dropdown.component';
-import { OHRIFormField } from '../../../api/types';
+import { EncounterContext, FormContext } from '../../../form-context';
+import Dropdown from './dropdown.component';
+import { FormField } from '../../../types';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 
-const question: OHRIFormField = {
+const question: FormField = {
   label: 'Patient past program.',
   type: 'obs',
   questionOptions: {
@@ -55,7 +55,7 @@ const renderForm = (intialValues) => {
     <Formik initialValues={intialValues} onSubmit={null}>
       {(props) => (
         <Form>
-          <OHRIFormContext.Provider
+          <FormContext.Provider
             value={{
               values: props.values,
               setFieldValue: props.setFieldValue,
@@ -68,8 +68,8 @@ const renderForm = (intialValues) => {
               isSubmitting: false,
               formFieldHandlers: { obs: ObsSubmissionHandler },
             }}>
-            <OHRIDropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-          </OHRIFormContext.Provider>
+            <Dropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+          </FormContext.Provider>
         </Form>
       )}
     </Formik>,

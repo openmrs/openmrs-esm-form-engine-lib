@@ -1,5 +1,5 @@
 import * as semver from 'semver';
-import { OHRIFormField } from '../api/types';
+import { FormField } from '../types';
 
 let baseRegistry = {};
 export interface FormJsonFile {
@@ -181,7 +181,7 @@ export function applyFormIntent(intent, originalJson, parentOverrides?: Array<Be
       // Before starting traversal, ensure nodes exist, at least as empty-arrays
       section.questions = section.questions || [];
 
-      section.questions.forEach((question: OHRIFormField) => {
+      section.questions.forEach((question: FormField) => {
         if (question['behaviours']) {
           updateQuestionRequiredBehaviour(question, intent?.intent || intent);
           parentOverrides

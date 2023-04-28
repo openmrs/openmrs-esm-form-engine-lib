@@ -1,9 +1,9 @@
 import { openmrsFetch } from '@openmrs/esm-framework';
 import { useMemo } from 'react';
-import { OHRIFormSchema, OpenmrsForm } from '../api/types';
+import { OHRIFormSchema, OpenmrsForm } from '../types';
 import useSWRImmutable from 'swr/immutable';
 
-export function useClobData(form: OpenmrsForm) {
+export function useClobdata(form: OpenmrsForm) {
   const valueReferenceUuid = useMemo(
     () => form?.resources?.find(({ name }) => name === 'JSON schema').valueReference,
     [form],

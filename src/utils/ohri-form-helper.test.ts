@@ -1,4 +1,4 @@
-import { findConceptByReference } from './ohri-form-helper';
+import { findConceptByReference } from './form-helper';
 
 describe('OHRI Form Helper', () => {
   describe('findConceptByReference', () => {

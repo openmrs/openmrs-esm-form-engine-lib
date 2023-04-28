@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, fireEvent, waitFor, act, screen } from '@testing-library/react';
 import UISelectExtended from './ui-select-extended.component';
-import { OHRIFormField } from '../../../api/types';
-import { EncounterContext, OHRIFormContext } from '../../../ohri-form-context';
+import { EncounterContext, FormContext } from '../../../form-context';
 import { Form, Formik } from 'formik';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
+import { FormField } from '../../../types';
 
-const question: OHRIFormField = {
+const question: FormField = {
   label: 'Transfer Location',
   type: 'obs',
   questionOptions: {
@@ -47,7 +47,7 @@ const renderForm = (intialValues) => {
     <Formik initialValues={intialValues} onSubmit={null}>
       {(props) => (
         <Form>
-          <OHRIFormContext.Provider
+          <FormContext.Provider
             value={{
               values: props.values,
               setFieldValue: props.setFieldValue,
@@ -61,7 +61,7 @@ const renderForm = (intialValues) => {
               formFieldHandlers: { obs: ObsSubmissionHandler },
             }}>
             <UISelectExtended question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-          </OHRIFormContext.Provider>
+          </FormContext.Provider>
         </Form>
       )}
     </Formik>,

@@ -1,6 +1,6 @@
 import { openmrsFetch } from '@openmrs/esm-framework';
 import useSWR from 'swr';
-import { OHRIFormSchema, OpenmrsEncounter } from '../api/types';
+import { OHRIFormSchema, OpenmrsEncounter } from '../types';
 import { encounterRepresentation } from '../constants';
 
 export function useEncounter(formJson: OHRIFormSchema) {

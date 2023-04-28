@@ -1,7 +1,7 @@
 import { showToast } from '@openmrs/esm-framework';
 import { createProgramEnrollment, getPatientEnrolledPrograms, updateProgramEnrollment } from '../api/api';
-import { PostSubmissionAction, ProgramEnrollmentPayload } from '../api/types';
 import dayjs from 'dayjs';
+import { PostSubmissionAction, ProgramEnrollmentPayload } from '../types';
 
 export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
   applyAction: async function ({ patient, encounters, sessionMode }, config) {

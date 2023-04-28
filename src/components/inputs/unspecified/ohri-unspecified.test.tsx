@@ -1,13 +1,13 @@
+import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Formik, Form } from 'formik';
-import React from 'react';
-import { OHRIFormField, EncounterContext, OHRIFormContext } from '../../..';
-import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
-import { OHRIUnspecified } from './ohri-unspecified.component';
+import { FormField, EncounterContext, FormContext } from '../../..';
+import { UnspecifiedField } from './unspecified.component';
 import { findTextOrDateInput } from '../../../utils/test-utils';
-import OHRIDate from '../date/ohri-date.component';
+import DateField from '../date/date.component';
+import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 
-const question: OHRIFormField = {
+const question: FormField = {
   label: 'Visit Date',
   type: 'obs',
   questionOptions: {
@@ -41,7 +41,7 @@ const renderForm = (intialValues) => {
     <Formik initialValues={intialValues} onSubmit={null}>
       {(props) => (
         <Form>
-          <OHRIFormContext.Provider
+          <FormContext.Provider
             value={{
               values: props.values,
               setFieldValue: props.setFieldValue,
@@ -54,20 +54,20 @@ const renderForm = (intialValues) => {
               isSubmitting: false,
               formFieldHandlers: { obs: ObsSubmissionHandler },
             }}>
-            <OHRIDate question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-            <OHRIUnspecified question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-          </OHRIFormContext.Provider>
+            <DateField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+            <UnspecifiedField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+          </FormContext.Provider>
         </Form>
       )}
     </Formik>,
   );
 };
 
-describe('Unspecified', () => {
-  it('Should toggle the "Unspecified" checkbox on click', async () => {
+describe('UnspecifiedField', () => {
+  it('Should toggle the "UnspecifiedField" checkbox on click', async () => {
     // setup
     await renderForm({});
-    const unspecifiedCheckbox = screen.getByRole('checkbox', { name: /Unspecified/ });
+    const unspecifiedCheckbox = screen.getByRole('checkbox', { name: /UnspecifiedField/ });
 
     // assert initial state
     expect(unspecifiedCheckbox).not.toBeChecked();

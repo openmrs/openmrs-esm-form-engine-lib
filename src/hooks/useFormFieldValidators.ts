@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { FieldValidator, OHRIFormField } from '../api/types';
 import { getRegisteredValidator } from '../registry/registry';
+import { FormField, FormFieldValidator } from '../types';
 
-export function useFormFieldValidators(fields: OHRIFormField[]) {
-  const [validators, setValidators] = useState<Record<string, FieldValidator>>();
+export function useFormFieldValidators(fields: FormField[]) {
+  const [validators, setValidators] = useState<Record<string, FormFieldValidator>>();
 
   useEffect(() => {
     const supportedTypes = new Set<string>(['default']);

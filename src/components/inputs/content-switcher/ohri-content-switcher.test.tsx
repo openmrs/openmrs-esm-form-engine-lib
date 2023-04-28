@@ -1,12 +1,12 @@
 import React from 'react';
-import { render, fireEvent, screen, cleanup, act, waitFor } from '@testing-library/react';
+import { render, fireEvent, screen, act } from '@testing-library/react';
 import { Form, Formik } from 'formik';
-import { EncounterContext, OHRIFormContext } from '../../../ohri-form-context';
-import { OHRIFormField } from '../../../api/types';
+import { ContentSwitcher } from './content-switcher.component';
+import { EncounterContext, FormContext } from '../../../form-context';
+import { FormField } from '../../../types';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
-import { OHRIContentSwitcher } from './ohri-content-switcher.component';
 
-const question: OHRIFormField = {
+const question: FormField = {
   label: 'Patient past program',
   type: 'obs',
   questionOptions: {
@@ -56,7 +56,7 @@ const renderForm = (intialValues) => {
     <Formik initialValues={intialValues} onSubmit={null}>
       {(props) => (
         <Form>
-          <OHRIFormContext.Provider
+          <FormContext.Provider
             value={{
               values: props.values,
               setFieldValue: props.setFieldValue,
@@ -69,8 +69,8 @@ const renderForm = (intialValues) => {
               isSubmitting: false,
               formFieldHandlers: { obs: ObsSubmissionHandler },
             }}>
-            <OHRIContentSwitcher question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-          </OHRIFormContext.Provider>
+            <ContentSwitcher question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+          </FormContext.Provider>
         </Form>
       )}
     </Formik>,
