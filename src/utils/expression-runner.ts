@@ -11,6 +11,8 @@ export interface ExpressionContext {
   mode: 'enter' | 'edit' | 'view';
   myValue?: any;
   patient: any;
+  sex: string;
+  age: number;
 }
 
 export function evaluateExpression(
@@ -28,7 +30,7 @@ export function evaluateExpression(
   // register dependencies
   findAndRegisterReferencedFields(node, parts, fields);
   // setup function scope
-  let { mode, myValue, patient } = context;
+  let { mode, myValue, patient, age, sex } = context;
   if (node.type === 'field' && myValue === undefined) {
     myValue = fieldValues[node.value['id']];
   }
