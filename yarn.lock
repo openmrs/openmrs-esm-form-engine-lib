@@ -2892,7 +2892,7 @@ __metadata:
     clean-webpack-plugin: ^3.0.0
     concurrently: ^6.3.0
     css-loader: ^6.6.0
-    dayjs: ^1.11.7
+    dayjs: 1.x
     enzyme: ^3.11.0
     enzyme-adapter-react-16: ^1.15.6
     eslint: ^7.10.0
@@ -6807,7 +6807,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.10.4, dayjs@npm:^1.10.7, dayjs@npm:^1.11.7":
+"dayjs@npm:1.x, dayjs@npm:^1.10.4, dayjs@npm:^1.10.7":
   version: 1.11.7
   resolution: "dayjs@npm:1.11.7"
   checksum: 5003a7c1dd9ed51385beb658231c3548700b82d3548c0cfbe549d85f2d08e90e972510282b7506941452c58d32136d6362f009c77ca55381a09c704e9f177ebb

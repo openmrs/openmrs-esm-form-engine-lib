@@ -1,7 +1,6 @@
 'use ';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import moment from 'moment';
 dayjs.extend(duration);
 
 import { OHRIFormField } from '../api/types';
@@ -248,8 +247,8 @@ export class CommonExpressionHelpers {
   calcTimeDifference = (obsDate, timeFrame) => {
     let daySinceLastObs;
 
-    const endDate = moment(new Date());
-    const duration = moment.duration(endDate.diff(obsDate));
+    const endDate = dayjs().format();
+    const duration = dayjs.duration(dayjs(endDate).diff(dayjs(obsDate)));
 
     if (obsDate) {
       if (timeFrame == 'd') {
