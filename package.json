@@ -32,7 +32,6 @@
   },
   "dependencies": {
     "ace-builds": "^1.4.12",
-    "dayjs": "1.x",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
     "formik": "^2.2.6",
@@ -99,7 +98,8 @@
     "webpack-dev-server": "^4.13.1"
   },
   "resolutions": {
-    "@carbon/react": "1.13.0"
+    "@carbon/react": "1.13.0",
+    "dayjs": "^1.10.4"
   },
   "packageManager": "yarn@3.2.2"
 }
