@@ -181,8 +181,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
               {
                 mode: sessionMode,
                 patient,
-                age: patient?.age,
-                sex: patient.sex,
               },
             );
           }
@@ -236,8 +234,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     const isHidden = evaluateExpression(value['hide']?.hideWhenExpression, node, allFields, allValues, {
       mode: sessionMode,
       patient,
-      age: patient?.age,
-      sex: patient.sex,
     });
     node.value.isHidden = isHidden;
     if (type == 'field' && node.value?.questions?.length) {
@@ -469,8 +465,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             {
               mode: sessionMode,
               patient,
-              age: patient?.age,
-              sex: patient.sex,
             },
           ).then(result => {
             result = isEmpty(result) ? '' : result;
@@ -494,8 +488,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             {
               mode: sessionMode,
               patient,
-              age: patient?.age,
-              sex: patient.sex,
             },
           );
         }
