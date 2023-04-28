@@ -29,6 +29,7 @@ export function evaluateExpression(
   findAndRegisterReferencedFields(node, parts, fields);
   // setup function scope
   let { mode, myValue, patient } = context;
+  const { sex, age } = patient;
   if (node.type === 'field' && myValue === undefined) {
     myValue = fieldValues[node.value['id']];
   }
@@ -83,6 +84,7 @@ export async function evaluateAsyncExpression(
   findAndRegisterReferencedFields(node, parts, fields);
   // setup function scope
   let { mode, myValue, patient } = context;
+  const { sex, age } = patient;
   if (node.type === 'field' && myValue === undefined) {
     myValue = fieldValues[node.value['id']];
   }
