@@ -4,8 +4,9 @@
 
 [![Form-engine-CI](https://github.com/UCSF-IGHS/openmrs-ohri-form-engine-lib/actions/workflows/node.js.yml/badge.svg)](https://github.com/UCSF-IGHS/openmrs-ohri-form-engine-lib/actions/workflows/node.js.yml)
 
-
 # OpenMRS Form Engine
+
+[<img src="src/readme/images/HTS-form-preview.png" alt="Test Form Preview" >](https://ohri.atlassian.net/wiki/spaces/HOME/pages/120684546/OHRI+Forms)
 
 The OpenMRS Form Engine is a React library that builds and renders OpenMRS form schemas. Schemas are defined based on the [AMPATH Forms Schema](https://gist.github.com/denniskigen/80e4cd0765cbeda0efba79c6e6675e49) and get built using the OpenMRS [form builder](https://github.com/openmrs/openmrs-esm-form-builder) within the O3 reference application. The form engine is a library that can be consumed by any frontend app that needs to render forms. It enables the rendering of forms in the following modes:
 
@@ -22,8 +23,6 @@ The form engine also supports the following features:
 - **Expression helpers** - The form engine supports the use of expression helpers to evaluate expressions within the form schema. This allows for the creation of complex expressions that can be evaluated by the form engine.
 
 This project was initially developed by the [UCSF-IGHS team](https://github.com/UCSF-IGHS) in 2022 and moved to the community in 2023. Work is ongoing to improve the form engine and make it more robust.
-
-[<img src="src/readme/images/HTS-form-preview.png" alt="Test Form Preview" >](https://ohri.atlassian.net/wiki/spaces/HOME/pages/120684546/OHRI+Forms)
 
 ### Documentation
 
