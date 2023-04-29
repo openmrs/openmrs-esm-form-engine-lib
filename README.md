@@ -26,7 +26,7 @@ This project was initially developed by the [UCSF-IGHS team](https://github.com/
 
 ### Documentation
 
-You can find for more details, Technical guides, and other docs bundled within the [official documentation](https://ohri-docs.globalhealthapp.net/). 
+[Read the documentation](https://ohri-docs.globalhealthapp.net/).
 
 ## Getting Started
 
@@ -45,28 +45,6 @@ You must have git, node, npm, and yarn installed. The versions required are:
 ```bash
 yarn add @openmrs/openmrs-form-engine-lib@latest
 ```
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-### Example Usage
-
-```javascript
-import React from 'react';
-import { OHRIForm, FormSchema, SessionMode } from '@openmrs/openmrs-form-engine-lib';
-import { useFormsJson } from './forms-utils'
-
-function FormRenderTest () {
-	const { formJson, _ } = useFormsJson(...);
-
-	// other declarations
-
-	return <OHRIForm formJson={formJson} patientUUID={patientUUID} mode={SessionMode.ENTER} />;
-}
-```
-
-## Contributing
-
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 ### Local Development
 
@@ -121,8 +99,12 @@ yarn start --sources packages/esm-form-engine-app --backend https://link-to-my-b
 ```
 
 ### Report an issue
+
 https://github.com/openmrs/openmrs-form-engine-lib/issues
 
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 <!-- LICENSE -->
 ## License
