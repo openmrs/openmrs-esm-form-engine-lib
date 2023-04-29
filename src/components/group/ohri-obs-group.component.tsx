@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { getHandler } from '../../registry/registry';
+import { OHRIFormContext } from '../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../api/types';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
-import styles from '../inputs/_input.scss';
 import { getFieldControl, supportsUnspecified } from '../section/ohri-form-section.component';
-import { OHRIFormContext } from '../../ohri-form-context';
+import styles from './ohri-obs-group.scss';
+
 export interface ObsGroupProps extends OHRIFormFieldProps {
   deleteControl?: any;
 }
 
 export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteControl }) => {
   const [groupMembersControlMap, setGroupMembersControlMap] = useState([]);
-  const { encounterContext } = React.useContext(OHRIFormContext);
+  const { encounterContext } = useContext(OHRIFormContext);
 
   useEffect(() => {
     if (question.questions) {
@@ -29,7 +30,7 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
     .map((groupMemberMapItem, index) => {
       const { control, field } = groupMemberMapItem;
       if (control) {
-        const qnFragment = React.createElement(control, {
+        const questionFragment = React.createElement(control, {
           question: field,
           onChange: onChange,
           key: index,
@@ -39,11 +40,11 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
           <div className={`${styles.flexColumn} ${styles.obsGroupColumn} `}>
             {supportsUnspecified(field) ? (
               <>
-                {qnFragment}
+                {questionFragment}
                 <OHRIUnspecified question={field} />
               </>
             ) : (
-              qnFragment
+              questionFragment
             )}
           </div>
         );

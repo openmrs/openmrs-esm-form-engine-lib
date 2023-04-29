@@ -229,7 +229,7 @@ export class CommonExpressionHelpers {
   };
 
   extractRepeatingGroupValues = (key, array) => {
-    const values = array.map(function (item) {
+    const values = array.map(function(item) {
       return item[key];
     });
     return values;
@@ -237,14 +237,14 @@ export class CommonExpressionHelpers {
 
   calcGravida(parityTerm, parityAbortion) {
     let gravida = 0;
-    if(parityTerm === parseInt(parityTerm)    ) {
-      gravida = parityTerm + 1
+    if (parityTerm === parseInt(parityTerm)) {
+      gravida = parityTerm + 1;
     }
-    if(parityAbortion === parseInt(parityAbortion)) {
-      gravida = parityAbortion + 1
+    if (parityAbortion === parseInt(parityAbortion)) {
+      gravida = parityAbortion + 1;
     }
     if (parityAbortion === parseInt(parityAbortion) && parityTerm === parseInt(parityTerm)) {
-      parityAbortion + parityTerm + 1
+      parityAbortion + parityTerm + 1;
     }
     return gravida;
   }
@@ -294,4 +294,3 @@ export function registerDependency(node: FormNode, determinant: OHRIFormField) {
       determinant.fieldDependants.add(node.value['id']);
   }
 }
-

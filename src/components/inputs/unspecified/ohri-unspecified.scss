@@ -1,0 +1,7 @@
+@use '@carbon/colors';
+
+.unspecified > div label {
+  font-size: 12px;
+  color: colors.$gray-70;
+  padding-bottom: 1rem;
+}

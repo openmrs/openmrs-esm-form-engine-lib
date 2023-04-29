@@ -1,11 +1,11 @@
+import React, { useCallback, useEffect, useState } from 'react';
 import { Checkbox } from '@carbon/react';
 import { useField } from 'formik';
-import React, { useCallback, useEffect, useState } from 'react';
 import { OHRIFormContext } from '../../../ohri-form-context';
-import styles from '../_input.scss';
 import { OHRIFieldValidator } from '../../../validators/ohri-form-validator';
-import { OHRIFormField, SessionMode } from '../../../api/types';
+import { OHRIFormField } from '../../../api/types';
 import { isTrue } from '../../../utils/boolean-utils';
+import styles from './ohri-unspecified.scss';
 
 export const OHRIUnspecified: React.FC<{
   question: OHRIFormField;

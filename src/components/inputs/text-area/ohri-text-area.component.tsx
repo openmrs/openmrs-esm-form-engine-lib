@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { TextArea } from '@carbon/react';
-import { OHRIFormFieldProps } from '../../../api/types';
-import styles from '../_input.scss';
 import { useField } from 'formik';
-import { OHRIFormContext } from '../../../ohri-form-context';
 import { fieldRequiredErrCode } from '../../../validators/ohri-form-validator';
-import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
+import { OHRIFormContext } from '../../../ohri-form-context';
+import { OHRIFormFieldProps } from '../../../api/types';
+import styles from './ohri-text-area.scss';
 
 const OHRITextArea: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
   const [field, meta] = useField(question.id);

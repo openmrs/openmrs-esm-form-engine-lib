@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo } from 'react';
-import { OHRIFormFieldProps } from '../../api/types';
+import React, { useContext, useEffect, useMemo } from 'react';
+import { BehaviorSubject } from 'rxjs';
 import { attach, ExtensionSlot } from '@openmrs/esm-framework';
 import { OHRIFormContext } from '../../ohri-form-context';
-import { BehaviorSubject } from 'rxjs';
+import { OHRIFormFieldProps } from '../../api/types';
 
 const OHRIExtensionParcel: React.FC<OHRIFormFieldProps> = ({ question }) => {
-  const { encounterContext, isSubmitting } = React.useContext(OHRIFormContext);
+  const { encounterContext, isSubmitting } = useContext(OHRIFormContext);
   const submissionNotifier = useMemo(
     () => new BehaviorSubject<{ isSubmitting: boolean }>({ isSubmitting: false }),
     [],

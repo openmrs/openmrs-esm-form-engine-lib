@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { SessionLocation, useLayoutType, Visit } from '@openmrs/esm-framework';
 import { ConceptFalse, ConceptTrue } from '../../constants';
-import { OHRIFormContext } from '../../ohri-form-context';
 import { getHandler, getValidator } from '../../registry/registry';
 import {
   OHRIFormField,
@@ -11,6 +10,8 @@ import {
   SessionMode,
   ValidationResult,
 } from '../../api/types';
+import OHRIFormPage from '../page/ohri-form-page';
+import { OHRIFormContext } from '../../ohri-form-context';
 import {
   cascadeVisibityToChildFields,
   evaluateFieldReadonlyProp,
@@ -18,12 +19,11 @@ import {
   voidObsValueOnFieldHidden,
 } from '../../utils/ohri-form-helper';
 import { isEmpty, isEmpty as isValueEmpty, OHRIFieldValidator } from '../../validators/ohri-form-validator';
-import OHRIFormPage from '../page/ohri-form-page';
 import { InstantEffect } from '../../utils/instant-effect';
 import { FormSubmissionHandler } from '../../ohri-form.component';
-import { isTrue } from '../../utils/boolean-utils';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { getPreviousEncounter, saveEncounter } from '../../api/api';
+import { isTrue } from '../../utils/boolean-utils';
 import { scrollIntoView } from '../../utils/ohri-sidebar';
 import { useEncounter } from '../../hooks/useEncounter';
 import { useInitialValues } from '../../hooks/useInitialValues';
