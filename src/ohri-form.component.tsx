@@ -218,7 +218,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
         })
         .catch(error => {
           showToast({
-            description: t('errorDescription', error.message),
+            description: t('errorDescription', error?.responseBody?.error?.message ?? error?.message),
             title: t('errorDescriptionTitle', 'Error'),
             kind: 'error',
             critical: true,
