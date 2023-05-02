@@ -12,14 +12,6 @@ function OHRIFormPage({ page, onFieldChange, setSelectedPage, isCollapsed }) {
     setSelectedPage(elementID);
   };
 
-  const pageHasNoVisibleQuestions = page.sections.every(section =>
-    section.questions.every(question => question.isHidden),
-  );
-
-  if (pageHasNoVisibleQuestions) {
-    console.info(`The page "${page.label}" has no visible questions. Its sections will not be rendered.`);
-  }
-
   const visibleSections = page.sections.filter(section => {
     const hasVisibleQuestions = section.questions.some(question => !isTrue(question.isHidden));
     return !isTrue(section.isHidden) && hasVisibleQuestions;
