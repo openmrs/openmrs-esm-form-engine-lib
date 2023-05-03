@@ -1,4 +1,4 @@
-@import "../../root.scss";
+@use '@carbon/colors';
 
 .divider {
   background-color: rgba(107, 104, 104, 0.5);
@@ -12,14 +12,14 @@
 .pageHeader {
   display: flex;
   flex-direction: row;
-  margin: 20px 0 20px 15px;
+  margin: 0.5rem 1rem;
 }
 
 .pageTitle {
   font-size: 1.25rem;
   font-weight: 600;
   line-height: 1.4;
-  color: var(--color-gray-100);
+  color: colors.$gray-100;
   width: 100%;
 }
 
@@ -28,7 +28,7 @@
   font-size: 0.875rem;
   line-height: 1.29;
   letter-spacing: 0.16px;
-  color: var(--color-gray-70);
+  color: colors.$gray-70;
   width: 100%;
 }
 
@@ -47,14 +47,14 @@
 }
 
 .sectionContent > div {
-  background-color: $ui-01;
+  background-color: colors.$gray-10;
 }
 
 .formSection > div div div input,
 .formSection > div div div textarea,
 .formSection > div div div dropdown,
 .formSection :global(.cds--dropdown) button {
-  background-color: #ffffff !important;
+  background-color: white !important;
 }
 
 @media (min-width: 640px) {

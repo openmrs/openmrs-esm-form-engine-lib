@@ -1,15 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
-import { OHRIFormFieldProps } from '../../../api/types';
-import { DatePicker, DatePickerInput, TimePicker } from '@carbon/react';
 import { useField } from 'formik';
-import { OHRIFormContext } from '../../../ohri-form-context';
+import { DatePicker, DatePickerInput, TimePicker } from '@carbon/react';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
-import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isTrue } from '../../../utils/boolean-utils';
+import { OHRIFormFieldProps } from '../../../api/types';
+import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-import styles from '../_input.scss';
+import styles from './ohri-date.scss';
 
 const dateFormatter = new Intl.DateTimeFormat(window.navigator.language);
 
@@ -147,8 +147,9 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
             <DatePicker
               datePickerType="single"
               onChange={onDateChange}
+              // Investigate these styles
               className={`${styles.datePickerOverrides} ${isFieldRequiredError ? styles.errorLabel : ''} ${
-                question.disabled || isTrue(question.readonly) ? styles.disabledLabelOverrides : ''
+                question.disabled || isTrue(question.readonly) ? styles.disabled : ''
               }`}
               dateFormat={carbonDateformat}>
               <DatePickerInput
@@ -174,6 +175,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
           </div>
           {question?.questionOptions.rendering === 'datetime' ? (
             <TimePicker
+              // This classname doesn't seem to exist
               className={styles.timePicker}
               id={question.id}
               labelText="Time:"

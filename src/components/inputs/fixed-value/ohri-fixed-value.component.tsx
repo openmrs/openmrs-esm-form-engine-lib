@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import isObject from 'lodash-es/isObject';
-import { OHRIFormContext } from '../../../ohri-form-context';
-import { OHRIFormFieldProps } from '../../../api/types';
 import { isEmpty } from '../../../validators/ohri-form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
+import { OHRIFormContext } from '../../../ohri-form-context';
+import { OHRIFormFieldProps } from '../../../api/types';
 
 const OHRIFixedValue: React.FC<OHRIFormFieldProps> = ({ question, handler }) => {
   const { encounterContext, isFieldInitializationComplete } = React.useContext(OHRIFormContext);

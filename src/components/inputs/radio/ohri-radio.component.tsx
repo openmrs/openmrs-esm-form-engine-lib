@@ -3,12 +3,12 @@ import { FormGroup, RadioButtonGroup, RadioButton } from '@carbon/react';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
 import { OHRIFormContext } from '../../../ohri-form-context';
-import styles from '../_input.scss';
 import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
+import styles from './ohri-radio.scss';
 
 const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
   const [field, meta] = useField(question.id);
@@ -104,13 +104,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
         </div>
         {previousValueForReview && (
           <div>
-            <FormGroup
-              legendText={null}
-              style={{
-                position: 'absolute',
-                marginTop: '-3.86rem',
-              }}
-              className={styles.reviewPreviousValueRadioOverrides}>
+            <FormGroup legendText={null} className={styles.reviewPreviousValueRadioOverrides}>
               <PreviousValueReview
                 value={previousValueForReview.value}
                 displayText={previousValueForReview.display}

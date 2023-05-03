@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Dropdown } from '@carbon/react';
-import { OHRIFormField } from '../../../api/types';
-import styles from '../_input.scss';
 import { useField } from 'formik';
-import { OHRIFormContext } from '../../../ohri-form-context';
 import { createErrorHandler } from '@openmrs/esm-framework';
-import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID } from '../../../utils/ohri-form-helper';
-import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { getLocationsByTag } from '../../../api/api';
+import { isTrue } from '../../../utils/boolean-utils';
+import { OHRIFormField } from '../../../api/types';
+import { OHRIFormContext } from '../../../ohri-form-context';
+import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
+import styles from './ohri-encounter-location.scss';
 
 export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; onChange: any }> = ({ question }) => {
   const [field, meta] = useField(question.id);

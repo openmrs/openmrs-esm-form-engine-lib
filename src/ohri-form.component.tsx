@@ -5,13 +5,12 @@ import { Button, ButtonSet } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import {
-  usePatient,
-  useSession,
-  showToast,
-  getAsyncLifecycle,
-  detach,
-  registerExtension,
   attach,
+  detach,
+  getAsyncLifecycle,
+  registerExtension,
+  showToast,
+  useSession,
   Visit,
 } from '@openmrs/esm-framework';
 import LinearLoader from './components/loaders/linear-loader.component';
@@ -19,15 +18,15 @@ import LoadingIcon from './components/loaders/loading.component';
 import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
 import { init, teardown } from './lifecycle';
 import { OHRIFormSchema, SessionMode, OHRIFormPage as OHRIFormPageProps } from './api/types';
-import { OHRIEncounterForm } from './components/encounter/ohri-encounter-form';
+import { OHRIEncounterForm } from './components/encounter/ohri-encounter-form.component';
 import { PatientBanner } from './components/patient-banner/patient-banner.component';
 import { PatientChartWorkspaceHeaderSlot } from './constants';
 import { reportError } from './utils/error-utils';
 import { useFormJson } from './hooks/useFormJson';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
 import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
-import styles from './ohri-form.scss';
 import { usePatientData } from './hooks/usePatientData';
+import styles from './ohri-form.scss';
 
 interface OHRIFormProps {
   patientUUID: string;

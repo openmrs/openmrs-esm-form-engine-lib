@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './linear-loader.component.scss';
+import styles from './linear-loader.scss';
 
 const LinearLoader: React.FC = () => (
   <div className={styles.linearActivity}>

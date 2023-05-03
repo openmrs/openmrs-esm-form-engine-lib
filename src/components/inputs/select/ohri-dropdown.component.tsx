@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Dropdown } from '@carbon/react';
 import { useField } from 'formik';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
+import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isTrue } from '../../../utils/boolean-utils';
+import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
-import styles from '../_input.scss';
-import { isTrue } from '../../../utils/boolean-utils';
-import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
-import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
+import styles from './ohri-dropdown.scss';
 
 const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
   const [field, meta] = useField(question.id);
@@ -73,10 +73,7 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
   ) : (
     !question.isHidden && (
       <div className={`${styles.formInputField} ${styles.row}`}>
-        <div
-          className={
-            isFieldRequiredError ? `${styles.errorLabel} ${styles.dropDownOverride}` : styles.dropDownOverride
-          }>
+        <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.dropdown}` : styles.dropdown}>
           <Dropdown
             id={question.id}
             titleText={question.label}

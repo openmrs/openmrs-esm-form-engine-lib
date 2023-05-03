@@ -5,14 +5,14 @@ import { useFormikContext } from 'formik';
 import cloneDeep from 'lodash-es/cloneDeep';
 import dayjs from 'dayjs';
 import { ConceptTrue } from '../../constants';
-import { OHRIFormContext } from '../../ohri-form-context';
+import { getConcept } from '../../api/api';
 import { getHandler } from '../../registry/registry';
+import { OHRIFormContext } from '../../ohri-form-context';
 import { OHRIFormField, OHRIFormFieldProps } from '../../api/types';
 import { OHRIObsGroup } from '../group/ohri-obs-group.component';
-import { getConcept } from '../../api/api';
 import { evaluateExpression } from '../../utils/expression-runner';
 import { isEmpty } from '../../validators/ohri-form-validator';
-import styles from '../inputs/_input.scss';
+import styles from './ohri-repeat.scss';
 
 export const getInitialValueFromObs = (field: OHRIFormField, obsGroup: any) => {
   const rendering = field.questionOptions.rendering;
@@ -170,11 +170,12 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
     });
     setCounter(counter - 1);
   };
+
   const nodes = questions.map((question, index) => {
     const deleteControl =
       questions.length > 1 ? (
         <div>
-          <div style={{ paddingTop: '1.2rem', marginLeft: '.5rem' }} className={styles.flexColumn}>
+          <div className={styles.removeButton}>
             <Button
               renderIcon={() => <TrashCan size={16} />}
               kind="danger--tertiary"
@@ -184,14 +185,15 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
           </div>
         </div>
       ) : null;
+
     return (
       <>
-        {index != 0 && (
+        {index !== 0 && (
           <div>
-            <hr style={{ borderTop: '1px solid #bbb', marginBottom: '2rem', width: '85%', float: 'left' }} />
+            <hr className={styles.separator} />
           </div>
         )}
-        <div style={{ margin: '1rem 0rem' }}>
+        <div className={styles.obsGroupContainer}>
           <OHRIObsGroup
             question={question}
             onChange={onChange}
@@ -220,9 +222,10 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
         )}
       </div>,
     );
+
   return (
     !question.isHidden && (
-      <div style={{ marginTop: '0.65rem', marginBottom: '2rem' }}>
+      <div className={styles.container}>
         <FormGroup legendText={question.label} className={styles.boldLegend}>
           {nodes}
         </FormGroup>
