@@ -1,15 +1,20 @@
 @use '@carbon/colors';
 
 .formField {
-  margin-top: 10px;
-}
+  margin-left: 2rem; 
+  max-width: 19rem;
 
-.formField > div > div > label {
-  color: colors.$gray-70;
+  > div > div > label {
+    color: colors.$gray-70;
+  }
 }
 
 .row {
   display: flex;
   flex-direction: row;
   align-items: baseline;
+}
+
+.reuseButton {
+  margin-left: 3rem;
 }

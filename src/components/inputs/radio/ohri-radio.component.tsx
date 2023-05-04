@@ -68,51 +68,46 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
   ) : (
     !question.isHidden && (
       <div className={styles.row}>
-        <div>
-          <FormGroup
-            style={{ paddingBottom: '1rem' }}
-            legendText={question.label}
-            className={isFieldRequiredError ? styles.errorLegend : undefined}
-            disabled={question.disabled}
-            invalid={!isFieldRequiredError && errors.length > 0}>
-            <RadioButtonGroup
-              defaultSelected="default-selected"
-              name={question.id}
-              valueSelected={field.value}
-              onChange={handleChange}
-              orientation="vertical">
-              {question.questionOptions.answers.map((answer, index) => {
-                return (
-                  <RadioButton
-                    id={`${question.id}-${answer.label}`}
-                    labelText={answer.label}
-                    value={answer.concept}
-                    key={index}
-                  />
-                );
-              })}
-            </RadioButtonGroup>
-            {(!isFieldRequiredError && errors?.length > 0) ||
-              (warnings.length > 0 && (
-                <div className={errors.length ? styles.errorLabel : warnings.length ? styles.warningLabel : ''}>
-                  <div className={`cds--form-requirement`}>
-                    {errors.length ? errors[0].message : warnings.length ? warnings[0].message : null}
-                  </div>
+        <FormGroup
+          legendText={question.label}
+          className={isFieldRequiredError ? styles.errorLegend : undefined}
+          disabled={question.disabled}
+          invalid={!isFieldRequiredError && errors.length > 0}>
+          <RadioButtonGroup
+            defaultSelected="default-selected"
+            name={question.id}
+            valueSelected={field.value}
+            onChange={handleChange}
+            orientation="vertical">
+            {question.questionOptions.answers.map((answer, index) => {
+              return (
+                <RadioButton
+                  id={`${question.id}-${answer.label}`}
+                  labelText={answer.label}
+                  value={answer.concept}
+                  key={index}
+                />
+              );
+            })}
+          </RadioButtonGroup>
+          {(!isFieldRequiredError && errors?.length > 0) ||
+            (warnings.length > 0 && (
+              <div className={errors.length ? styles.errorLabel : warnings.length ? styles.warningLabel : ''}>
+                <div className={`cds--form-requirement`}>
+                  {errors.length ? errors[0].message : warnings.length ? warnings[0].message : null}
                 </div>
-              ))}
+              </div>
+            ))}
+        </FormGroup>
+        {previousValueForReview ? (
+          <FormGroup legendText={null}>
+            <PreviousValueReview
+              value={previousValueForReview.value}
+              displayText={previousValueForReview.display}
+              setValue={handleChange}
+            />
           </FormGroup>
-        </div>
-        {previousValueForReview && (
-          <div>
-            <FormGroup legendText={null} className={styles.reviewPreviousValueRadioOverrides}>
-              <PreviousValueReview
-                value={previousValueForReview.value}
-                displayText={previousValueForReview.display}
-                setValue={handleChange}
-              />
-            </FormGroup>
-          </div>
-        )}
+        ) : null}
       </div>
     )
   );
