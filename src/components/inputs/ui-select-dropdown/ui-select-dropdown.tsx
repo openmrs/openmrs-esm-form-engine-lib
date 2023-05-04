@@ -1,30 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { ComboBox } from '@carbon/react';
-import { UISelectItem, OHRIFormField } from '../../../api/types';
+import { OHRIFormField } from '../../../api/types';
 import { useField } from 'formik';
 import styles from '../_input.scss';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { getConceptNameAndUUID } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { isTrue } from '../../../utils/boolean-utils';
+import { getDataSource } from '../../../registry/registry';
 
 interface UISelectDropdownProps {
   question: OHRIFormField;
-  dataSourceItems: Array<UISelectItem>;
   defaultValue?: any;
   onChange?: any;
 }
 
-export const UISelectDropdown: React.FC<UISelectDropdownProps> = ({
-  question,
-  dataSourceItems,
-  defaultValue,
-  onChange,
-}) => {
+export const UISelectDropdown: React.FC<UISelectDropdownProps> = ({ question, defaultValue, onChange }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext } = React.useContext(OHRIFormContext);
   const [conceptName, setConceptName] = useState('Loading...');
-  const [items, setItems] = useState(dataSourceItems);
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    // get the data source
+    if (question.questionOptions['datasource']) {
+      const dataSource = getDataSource(question.questionOptions['datasource']);
+      if (dataSource) {
+        dataSource.fetchData().then(dataItems => {
+          setItems(dataItems.map(dataSource.toUuidAndDisplay));
+        });
+      } else {
+        // TODO: handle this case
+      }
+    } else {
+      // TODO: Handle this case
+    }
+  }, []);
 
   useEffect(() => {
     getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {

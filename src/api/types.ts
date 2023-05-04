@@ -298,12 +298,17 @@ export interface Location {
 }
 
 export interface DataSource<T> {
+  /**
+   * Fetches arbitrary data from a data source
+   */
   fetchData(): Promise<Array<T>>;
-  makeSelectItems(): Array<UISelectItem>;
-  searchOptions?: (searchText: string) => Promise<Array<any>>;
+  /**
+   * Maps a data source item to an object with a uuid and display property
+   */
+  toUuidAndDisplay(item: T): UuidAndDisplay;
 }
 
-export interface UISelectItem {
-  id: string;
+export interface UuidAndDisplay {
+  uuid: string;
   display: string;
 }
