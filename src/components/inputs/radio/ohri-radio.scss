@@ -11,7 +11,7 @@
 .row {
   display: flex;
   flex-direction: row;
-  align-items: baseline;
+  align-items: center;
 }
 
 .errorLabel :global(.cds--form-requirement) {
@@ -32,10 +32,4 @@
   overflow: visible;
   font-weight: 400;
   color: colors.$gray-70;
-}
-
-.reviewPreviousValueRadioOverrides div {
-  width: auto !important;
-  position: absolute;
-  margin-top: -3.86rem;
 }

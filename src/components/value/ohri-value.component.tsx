@@ -13,11 +13,7 @@ export const OHRIValueDisplay = ({ value }) => {
   if (Array.isArray(value)) {
     return <OHRIListDisplay valueArray={value} />;
   }
-  return (
-    <div>
-      <span className={styles.value}>{value}</span>
-    </div>
-  );
+  return <span className={styles.value}>{value}</span>;
 };
 
 const OHRIListDisplay = ({ valueArray }) => {
