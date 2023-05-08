@@ -92,11 +92,11 @@ export class CommonExpressionHelpers {
   };
 
   calcBMI = (height, weight) => {
-    let r;
     if (height && weight) {
-      r = (weight / (((height / 100) * height) / 100)).toFixed(1);
+      const bmi = weight / (((height / 100) * height) / 100);
+      return Math.round(bmi);
     }
-    return height && weight ? parseFloat(r) : null;
+    return null;
   };
 
   /**
