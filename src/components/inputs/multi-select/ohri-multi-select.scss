@@ -22,11 +22,7 @@
   border-bottom: 1px solid #8d8d8d !important;
 }
 
-.errorLabel :global(.cds--form-requirement) {
-  display: block;
-  max-height: 12.5rem;
-  overflow: visible;
-  font-weight: 400;
+.errorLabel label {
   color: colors.$red-60;
 }
 
