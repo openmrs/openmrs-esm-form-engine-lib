@@ -156,7 +156,7 @@ export interface OHRIFormQuestionOptions {
   locationTag?: string;
   rows?: number;
   toggleOptions?: { labelTrue: string; labelFalse: string };
-  repeatOptions?: { addText?: string; limit?: string };
+  repeatOptions?: { addText?: string; limit?: string; limitExpression?: string };
   defaultValue?: any;
   calculate?: {
     calculateExpression: string;
