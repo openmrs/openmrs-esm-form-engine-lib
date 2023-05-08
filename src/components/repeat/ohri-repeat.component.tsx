@@ -54,10 +54,10 @@ export const updateFieldIdInExpression = (expression: string, index: number, que
   return expression;
 };
 
-export const showAddButton = (repeatOptions: { limit?: string }, counter: number) => {
-  return isEmpty(repeatOptions?.limit) || Number(repeatOptions.limit) === 0 || typeof repeatOptions.limit === 'string'
-    ? true
-    : counter < Number(repeatOptions.limit);
+export const showAddButton = (limit: string | number, counter: number) => {
+  const repeatLimit = Number(limit);
+  //console.log('repeatLimit', repeatLimit);
+  return !Number.isNaN(repeatLimit) && repeatLimit > 0 ? counter < repeatLimit : true;
 };
 
 export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange }) => {
@@ -208,10 +208,10 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
   encounterContext.sessionMode != 'view' &&
     nodes.push(
       <div>
-        {showAddButton(question.questionOptions.repeatOptions, counter) && (
-          <Button
-            renderIcon={() => <Add size={16} />}
-            kind="ghost"
+        {showAddButton(question.questionOptions.repeatOptions?.limit, counter) && (
+                  <Button
+                    renderIcon={() => <Add size={16} />}
+                    kind="ghost"
             onClick={() => {
               const nextCount = counter + 1;
               handleAdd(nextCount, null);
