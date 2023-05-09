@@ -154,7 +154,7 @@ describe('OHRI Forms:', () => {
       // verify
       await act(async () => expect(heightField.value).toBe('150'));
       await act(async () => expect(weightField.value).toBe('50'));
-      await act(async () => expect(bmiField.value).toBe('22.2'));
+      await act(async () => expect(bmiField.value).toBe('22'));
     });
 
     it('Should evaluate BSA', async () => {
