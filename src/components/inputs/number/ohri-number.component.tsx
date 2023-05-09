@@ -102,6 +102,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
             className={isFieldRequiredError ? styles.errorLabel : ''}
             warn={warnings.length > 0}
             warnText={warnings[0]?.message}
+            step="0.01"
           />
         </div>
         {previousValueForReview && (

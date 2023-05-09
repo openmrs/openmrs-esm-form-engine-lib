@@ -20,10 +20,6 @@
   align-items: baseline;
 }
 
-.errorLabel :global(.cds--form-requirement) {
-  display: block;
-  max-height: 12.5rem;
-  overflow: visible;
-  font-weight: 400;
+.errorLabel label {
   color: colors.$red-60;
 }
