@@ -23,7 +23,7 @@ export const OHRIFieldValidator: FieldValidator = {
     if (field.questionOptions.rendering === 'number') {
       const min = Number(field.questionOptions.min);
       const max = Number(field.questionOptions.max);
-
+      if (isEmpty(value)) return [];
       return !Number.isNaN(min) || !Number.isNaN(max) ? numberInputRangeValidator(min, max, value) : [];
     }
     return [];
