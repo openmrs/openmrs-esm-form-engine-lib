@@ -465,8 +465,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     if (field.questionOptions.rendering == 'toggle') {
       value = value ? ConceptTrue : ConceptFalse;
     }
-    if (field.id == 'repeatLimitField') {
-    }
     if (field.fieldDependants) {
       field.fieldDependants.forEach(dep => {
         const dependant = fields.find(f => f.id == dep);
@@ -511,7 +509,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           dependant.questionOptions.rendering === 'repeating' &&
           !isEmpty(dependant.questionOptions.repeatOptions?.limitExpression)
         ) {
-          //('limit expression', dependant.questionOptions.repeatOptions?.limitExpression);
           dependant.questionOptions.repeatOptions.limit = evaluateExpression(
             dependant.questionOptions.repeatOptions?.limitExpression,
             { value: dependant, type: 'field' },
