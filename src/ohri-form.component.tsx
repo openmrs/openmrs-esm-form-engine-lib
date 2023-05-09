@@ -26,6 +26,7 @@ import { usePatientData } from './hooks/usePatientData';
 import LinearLoader from './components/loaders/linear-loader.component';
 import LoadingIcon from './components/loaders/loading.component';
 import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
+import WarningModal from './components/warning-modal.component';
 import styles from './ohri-form.scss';
 
 interface OHRIFormProps {
@@ -164,30 +165,6 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
     reportError(patientError, t);
   }, [patientError, t]);
 
-  const WarningModal = () => {
-    return (
-      <ComposedModal preventCloseOnClickOutside open={true} onClose={() => setShowWarningModal(false)}>
-        <ModalHeader title={t('discardChanges', 'Discard changes?')}></ModalHeader>
-        <ModalBody>
-          <p className={styles.messageBody}>
-            {t(
-              'discardWarningText',
-              'The changes you made to this form have not been saved. Are you sure you want to discard them?',
-            )}
-          </p>
-        </ModalBody>
-        <ModalFooter>
-          <Button kind="secondary" onClick={() => setShowWarningModal(false)}>
-            {t('cancel', 'Cancel')}
-          </Button>
-          <Button kind="danger" onClick={handleClose}>
-            {t('confirm', 'Confirm')}
-          </Button>
-        </ModalFooter>
-      </ComposedModal>
-    );
-  };
-
   const handleFormSubmit = (values: Record<string, any>) => {
     // validate the form and its subforms (when present)
     let isSubmittable = true;
@@ -206,7 +183,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
 
       Promise.all(submissions)
         .then(async results => {
-          if (mode == 'edit') {
+          if (mode === 'edit') {
             showToast({
               description: t('updatedRecordDescription', 'The patient encounter was updated'),
               title: t('updatedRecord', 'Record updated'),
@@ -262,12 +239,14 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
         setIsFormTouched(props.dirty);
 
         return (
-          <Form className={`cds--form no-padding ${styles.ohriForm}`} ref={ref}>
+          <Form style={{ outline: '2px solid cyan' }} className={`cds--form no-padding ${styles.ohriForm}`} ref={ref}>
             {isLoadingPatient || isLoadingFormJson ? (
               <LoadingIcon />
             ) : (
               <div className={styles.ohriFormContainer}>
-                {showWarningModal ? <WarningModal /> : null}
+                {showWarningModal ? (
+                  <WarningModal onClose={handleClose} onShowWarningModal={setShowWarningModal} t={t} />
+                ) : null}
                 {isLoadingFormDependencies && (
                   <div className={styles.loader}>
                     <LinearLoader />
@@ -300,7 +279,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     )}
                     <div
                       className={`${styles.formContentBody}
-                    ${workspaceLayout == 'minimized' ? `${styles.minifiedFormContentBody}` : ''}
+                    ${workspaceLayout === 'minimized' ? `${styles.minifiedFormContentBody}` : ''}
                   `}>
                       <OHRIEncounterForm
                         formJson={refinedFormJson}
@@ -325,7 +304,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                         isSubmitting={isSubmitting}
                       />
                     </div>
-                    {workspaceLayout == 'minimized' && (
+                    {workspaceLayout === 'minimized' && (
                       <ButtonSet className={styles.minifiedButtons}>
                         <Button
                           kind="secondary"
@@ -338,9 +317,9 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                             onCancel && onCancel();
                             handleClose && handleClose();
                           }}>
-                          {mode == 'view' ? 'Close' : 'Cancel'}
+                          {mode === 'view' ? 'Close' : 'Cancel'}
                         </Button>
-                        <Button type="submit" disabled={mode == 'view' || isSubmitting}>
+                        <Button type="submit" disabled={mode === 'view' || isSubmitting}>
                           {isSubmitting ? (
                             <InlineLoading description={t('submitting', 'Submitting') + '...'} />
                           ) : (
