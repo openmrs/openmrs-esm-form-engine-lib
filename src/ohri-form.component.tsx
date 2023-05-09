@@ -21,7 +21,7 @@ import { OHRIFormSchema, SessionMode, OHRIFormPage as OHRIFormPageProps } from '
 import { OHRIEncounterForm } from './components/encounter/ohri-encounter-form.component';
 import { PatientBanner } from './components/patient-banner/patient-banner.component';
 import { PatientChartWorkspaceHeaderSlot } from './constants';
-import { reportError } from './utils/error-utils';
+import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
 import { useFormJson } from './hooks/useFormJson';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
 import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
@@ -216,9 +216,10 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
           onSubmit?.();
         })
         .catch(error => {
+          const errorMessages = extractErrorMessagesFromResponse(error);
           showToast({
-            description: t('errorDescription', error?.responseBody?.error?.message ?? error?.message),
-            title: t('errorDescriptionTitle', 'Error'),
+            description: t('errorDescription', errorMessages.join(', ')),
+            title: t('errorDescriptionTitle', 'Error on saving form'),
             kind: 'error',
             critical: true,
           });
