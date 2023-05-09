@@ -26,14 +26,14 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
   };
 }
 /**
- * Fetches a form JSON from OpenMRS and recursively fetches all subforms if they exist.
+ * Fetches a form JSON from OpenMRS and recursively fetches its subforms if they available.
  *
  * If `rawFormJson` is provided, it will be used as the raw form JSON object. Otherwise, the form JSON will be fetched from OpenMRS using the `formIdentifier` parameter.
  *
  * @param rawFormJson The raw form JSON object to be used if `formIdentifier` is not provided.
  * @param formIdentifier The UUID or name of the form to be fetched from OpenMRS if `rawFormJson` is not provided.
  * @param formSessionIntent An optional parameter that represents the current intent.
- * @returns A well-built form object that includes any subforms.
+ * @returns A well-built form object that might include subforms.
  */
 export async function loadFormJson(
   formIdentifier: string,
