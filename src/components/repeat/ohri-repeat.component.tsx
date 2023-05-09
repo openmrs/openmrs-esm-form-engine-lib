@@ -57,7 +57,6 @@ export const updateFieldIdInExpression = (expression: string, index: number, que
 
 export const showAddButton = (limit: string | number, counter: number) => {
   const repeatLimit = Number(limit);
-  //console.log('repeatLimit', repeatLimit);
   return !Number.isNaN(repeatLimit) && repeatLimit > 0 ? counter < repeatLimit : true;
 };
 
