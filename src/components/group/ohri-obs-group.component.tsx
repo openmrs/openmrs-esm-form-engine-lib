@@ -41,7 +41,7 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
             {supportsUnspecified(field) ? (
               <>
                 {questionFragment}
-                <OHRIUnspecified question={field} />
+                <OHRIUnspecified question={field} onChange={onChange} handler={getHandler(field.type)} />
               </>
             ) : (
               questionFragment

@@ -170,6 +170,20 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           } else {
             field.isHidden = false;
           }
+          field.questionOptions.answers
+            ?.filter(answer => !isEmpty(answer.hide?.hideWhenExpression))
+            .forEach(answer => {
+              answer.isHidden = evaluateExpression(
+                answer.hide.hideWhenExpression,
+                { value: field, type: 'field' },
+                flattenedFields,
+                tempInitialValues,
+                {
+                  mode: sessionMode,
+                  patient,
+                },
+              );
+            });
           if (typeof field.readonly == 'string' && field.readonly?.split(' ')?.length > 1) {
             // needed to store the expression for further evaluations
             field['readonlyExpression'] = field.readonly;
@@ -495,6 +509,20 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
           voidObsValueOnFieldHidden(dependant, obsGroupsToVoid, setFieldValue);
         }
+        dependant?.questionOptions.answers
+          ?.filter(answer => !isEmpty(answer.hide?.hideWhenExpression))
+          .forEach(answer => {
+            answer.isHidden = evaluateExpression(
+              answer.hide?.hideWhenExpression,
+              { value: dependant, type: 'field' },
+              fields,
+              { ...values, [fieldName]: value },
+              {
+                mode: sessionMode,
+                patient,
+              },
+            );
+          });
         // evaluate readonly
         if (!dependant.isHidden && dependant['readonlyExpression']) {
           dependant.readonly = evaluateExpression(

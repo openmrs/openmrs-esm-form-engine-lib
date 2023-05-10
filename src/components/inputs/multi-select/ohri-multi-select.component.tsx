@@ -41,12 +41,14 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
     }
   }, [question['submission']]);
 
-  const questionItems = question.questionOptions.answers.map((option, index) => ({
-    id: `${question.id}-${option.concept}`,
-    concept: option.concept,
-    label: option.label,
-    key: index,
-  }));
+  const questionItems = question.questionOptions.answers
+    .filter(answer => !answer.isHidden)
+    .map((answer, index) => ({
+      id: `${question.id}-${answer.concept}`,
+      concept: answer.concept,
+      label: answer.label,
+      key: index,
+    }));
 
   const initiallySelectedQuestionItems = [];
   questionItems.forEach(item => {

@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { Formik, Form } from 'formik';
 import React from 'react';
 import { OHRIFormField, EncounterContext, OHRIFormContext } from '../../..';
+import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 import { OHRIUnspecified } from './ohri-unspecified.component';
 
 const question: OHRIFormField = {
@@ -47,7 +48,7 @@ const renderForm = intialValues => {
               isFieldInitializationComplete: true,
               isSubmitting: false,
             }}>
-            <OHRIUnspecified question={question} />
+            <OHRIUnspecified question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
           </OHRIFormContext.Provider>
         </Form>
       )}

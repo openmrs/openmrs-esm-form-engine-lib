@@ -39,7 +39,7 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
               return supportsUnspecified(field) && field.questionOptions.rendering != 'group' ? (
                 <div key={index}>
                   {qnFragment}
-                  <OHRIUnspecified question={field} />
+                  <OHRIUnspecified question={field} onChange={onFieldChange} handler={getHandler(field.type)} />
                 </div>
               ) : (
                 <div key={index}>{qnFragment}</div>
