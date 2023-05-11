@@ -151,7 +151,9 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
               className={`${styles.datePickerOverrides} ${isFieldRequiredError ? styles.errorLabel : ''} ${
                 question.disabled || isTrue(question.readonly) ? styles.disabled : ''
               }`}
-              dateFormat={carbonDateformat}>
+              dateFormat={carbonDateformat}
+              maxDate={new Date()} // Set the maximum date to the current date
+              >
               <DatePickerInput
                 id={question.id}
                 placeholder={placeholder}
@@ -165,11 +167,11 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
                 // When we manually trigger an onchange event using the 'fireEvent' lib, the handler below will
                 // be triggered as opposed to the former handler that only gets triggered at runtime.
                 onChange={e => onDateChange([dayjs(e.target.value, 'DD/MM/YYYY').toDate()])}
-                disabled={question.disabled}
-                invalid={!isFieldRequiredError && errors.length > 0}
-                invalidText={errors[0]?.message}
-                warn={warnings.length > 0}
-                warnText={warnings[0]?.message}
+                  disabled={question.disabled || isTrue(question.readonly)}
+                  invalid={!isFieldRequiredError && errors.length > 0}
+                  invalidText={errors[0]?.message}
+                  warn={warnings.length > 0}
+                  warnText={warnings[0]?.message}
               />
             </DatePicker>
           </div>
