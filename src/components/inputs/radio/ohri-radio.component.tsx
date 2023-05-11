@@ -79,16 +79,18 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
             valueSelected={field.value}
             onChange={handleChange}
             orientation="vertical">
-            {question.questionOptions.answers.map((answer, index) => {
-              return (
-                <RadioButton
-                  id={`${question.id}-${answer.label}`}
-                  labelText={answer.label}
-                  value={answer.concept}
-                  key={index}
-                />
-              );
-            })}
+            {question.questionOptions.answers
+              .filter(answer => !answer.isHidden)
+              .map((answer, index) => {
+                return (
+                  <RadioButton
+                    id={`${question.id}-${answer.label}`}
+                    labelText={answer.label}
+                    value={answer.concept}
+                    key={index}
+                  />
+                );
+              })}
           </RadioButtonGroup>
           {(!isFieldRequiredError && errors?.length > 0) ||
             (warnings.length > 0 && (

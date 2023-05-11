@@ -1,4 +1,4 @@
-import { render, fireEvent, screen, cleanup, act } from '@testing-library/react';
+import { render, fireEvent, screen, cleanup, act, getByText } from '@testing-library/react';
 import { when } from 'jest-when';
 import React from 'react';
 import OHRIForm from './ohri-form.component';
@@ -6,6 +6,7 @@ import hts_poc_1_1 from '../__mocks__/packages/hiv/forms/hts_poc/1.1.json';
 import bmi_form from '../__mocks__/forms/ohri-forms/bmi-test-form.json';
 import bsa_form from '../__mocks__/forms/ohri-forms/bsa-test-form.json';
 import edd_form from '../__mocks__/forms/ohri-forms/edd-test-form.json';
+import filter_answer_options_form from '../__mocks__/forms/ohri-forms/filter-answer-options-test-form.json';
 import next_visit_form from '../__mocks__/forms/ohri-forms/next-visit-test-form.json';
 import months_on_art_form from '../__mocks__/forms/ohri-forms/months-on-art-form.json';
 import age_validation_form from '../__mocks__/forms/ohri-forms/age-validation-form.json';
@@ -128,6 +129,33 @@ describe('OHRI Forms:', () => {
 
   describe('Form submission', () => {
     // TODO: Fillup test suite
+  });
+
+  describe('Filter Answer Options', () => {
+    it('should filter dropdown options based on value in count input field', async () => {
+      //setup
+      await act(async () => renderForm(null, filter_answer_options_form));
+      const recommendationDropdown = await findSelectInput(screen, 'Testing Recommendations');
+      const testCountField = await findNumberInput(screen, 'How many times have you tested in the past?');
+      // open dropdown
+      fireEvent.click(recommendationDropdown);
+      expect(screen.queryByRole('option', { name: /Perfect testing/i })).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: /Minimal testing/i })).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: /Un-decisive/i })).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: /Not ideal/i })).toBeInTheDocument();
+      // close dropdown
+      fireEvent.click(recommendationDropdown);
+      // provide a value greater than 5
+      fireEvent.blur(testCountField, { target: { value: '6' } });
+      // re-open dropdown
+      fireEvent.click(recommendationDropdown);
+      // verify
+      expect(testCountField.value).toBe('6');
+      expect(screen.queryByRole('option', { name: /Perfect testing/i })).toBeNull();
+      expect(screen.queryByRole('option', { name: /Minimal testing/i })).toBeNull();
+      expect(screen.queryByRole('option', { name: /Un-decisive/i })).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: /Not ideal/i })).toBeInTheDocument();
+    });
   });
 
   describe('Calcuated values', () => {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FormGroup, Button } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 import cloneDeep from 'lodash-es/cloneDeep';
 import dayjs from 'dayjs';
 import { ConceptTrue } from '../../constants';
@@ -60,6 +61,7 @@ export const showAddButton = (limit: string | number, counter: number) => {
 };
 
 export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange }) => {
+  const { t } = useTranslation();
   const [questions, setQuestions] = useState([question]);
   const { fields, encounterContext, obsGroupsToVoid } = React.useContext(OHRIFormContext);
   const { values, setValues } = useFormikContext();
@@ -216,7 +218,7 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
               handleAdd(nextCount, null);
               setCounter(nextCount);
             }}>
-            {question.questionOptions.repeatOptions?.addText || 'Add'}
+            <span>{question.questionOptions.repeatOptions?.addText || `${t('add', 'Add')}`}</span>
           </Button>
         )}
       </div>,

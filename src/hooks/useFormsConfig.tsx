@@ -21,7 +21,7 @@ export function useFormsConfig(moduleName: string, configPath: string) {
         setConfig({ config, ...get(c, configPath, config) });
       });
     }
-  }, [moduleName, configPath]);
+  }, [moduleName, configPath, config]);
 
   return config;
 }

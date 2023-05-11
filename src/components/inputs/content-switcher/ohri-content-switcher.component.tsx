@@ -18,23 +18,24 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
     if (question['submission']?.errors) {
       setErrors(question['submission']?.errors);
     }
-  }, [question['submission']]);
+  }, [question]);
 
   const handleChange = value => {
     setFieldValue(question.id, value?.name);
     onChange(question.id, value?.name, setErrors, null);
     question.value = handler?.handleFieldSubmission(question, value?.name, encounterContext);
   };
+
   const selectedIndex = useMemo(
     () => question.questionOptions.answers.findIndex(option => option.concept == field.value),
-    [field.value],
+    [field.value, question.questionOptions.answers],
   );
 
   useEffect(() => {
     getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
       setConceptName(conceptTooltip);
     });
-  }, [conceptName]);
+  }, [conceptName, question.questionOptions.concept]);
 
   const isInline = useMemo(() => {
     if (encounterContext.sessionMode == 'view' || isTrue(question.readonly)) {

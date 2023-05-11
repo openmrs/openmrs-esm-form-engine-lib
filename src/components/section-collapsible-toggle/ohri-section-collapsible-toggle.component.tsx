@@ -1,9 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Toggle } from '@carbon/react';
 import { useExtensionSlotMeta } from '@openmrs/esm-framework';
 import styles from './ohri-section-collapsible-toggle.scss';
 
 const OHRISectionCollapsibleToggle = () => {
+  const { t } = useTranslation();
   const metas = useExtensionSlotMeta('patient-chart-workspace-header-slot');
   const callBack = metas['ohri-form-header-toggle-ext']?.handleCollapse;
 
@@ -18,8 +20,8 @@ const OHRISectionCollapsibleToggle = () => {
         aria-label="toggle button"
         defaultToggled
         id="collapsable-toggle"
-        labelA=""
-        labelB=""
+        labelA={t('expandAll', 'Expand all')}
+        labelB={t('collapseAll', 'Collapse all')}
         onToggle={toggleCollapsedStatus}
       />
     </div>

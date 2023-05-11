@@ -4,13 +4,16 @@ import { useTranslation } from 'react-i18next';
 import { OHRIValueDisplay } from '../value/ohri-value.component';
 import styles from './previous-value-review.scss';
 
-export const PreviousValueReview: React.FC<{
-  value: any;
+type Props = {
+  value: string;
   displayText: string;
-  setValue: (value: any) => void;
+  setValue: (value) => void;
   hideHeader?: boolean;
-}> = ({ value, displayText, setValue, hideHeader }) => {
+};
+
+export const PreviousValueReview: React.FC<Props> = ({ value, displayText, setValue, hideHeader }) => {
   const { t } = useTranslation();
+
   return (
     <div className={styles.formField}>
       {!hideHeader && <span className="cds--label">{t('previousValue', 'Previous value')}</span>}

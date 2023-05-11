@@ -23,7 +23,7 @@ function OHRIFormSidebar({
     if (defaultPage && [...scrollablePages].find(({ label, isHidden }) => label === defaultPage && !isHidden)) {
       scrollIntoView(joinWord(defaultPage));
     }
-  }, [defaultPage]);
+  }, [defaultPage, scrollablePages]);
 
   const joinWord = value => {
     return value.replace(/\s/g, '');

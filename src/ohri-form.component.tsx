@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Form, Formik } from 'formik';
-import { Button, ButtonSet } from '@carbon/react';
+import { Button, ButtonSet, ComposedModal, InlineLoading, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import {
@@ -13,19 +13,20 @@ import {
   useSession,
   Visit,
 } from '@openmrs/esm-framework';
-import LinearLoader from './components/loaders/linear-loader.component';
-import LoadingIcon from './components/loaders/loading.component';
-import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
 import { init, teardown } from './lifecycle';
 import { OHRIFormSchema, SessionMode, OHRIFormPage as OHRIFormPageProps } from './api/types';
 import { OHRIEncounterForm } from './components/encounter/ohri-encounter-form.component';
 import { PatientBanner } from './components/patient-banner/patient-banner.component';
 import { PatientChartWorkspaceHeaderSlot } from './constants';
-import { reportError } from './utils/error-utils';
+import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
 import { useFormJson } from './hooks/useFormJson';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
 import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
 import { usePatientData } from './hooks/usePatientData';
+import LinearLoader from './components/loaders/linear-loader.component';
+import LoadingIcon from './components/loaders/loading.component';
+import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
+import WarningModal from './components/warning-modal.component';
 import styles from './ohri-form.scss';
 
 interface OHRIFormProps {
@@ -110,17 +111,13 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const [isLoadingFormDependencies, setIsLoadingFormDependencies] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
+  const [isFormTouched, setIsFormTouched] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
 
-  const sessionMode = useMemo(() => {
-    if (mode) {
-      return mode;
-    }
-    return encounterUUID || encounterUuid ? 'edit' : 'enter';
-  }, [mode, encounterUUID, encounterUuid]);
-
+  const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
   const showSidebar = useMemo(() => {
-    return workspaceLayout != 'minimized' && scrollablePages.size > 0;
+    return workspaceLayout !== 'minimized' && scrollablePages.size > 0;
   }, [workspaceLayout, scrollablePages.size]);
 
   useEffect(() => {
@@ -148,7 +145,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
     return () => {
       detach(PatientChartWorkspaceHeaderSlot, extDetails.name);
     };
-  }, []);
+  }, [meta?.moduleName]);
 
   useEffect(() => {
     ////////////
@@ -186,7 +183,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
 
       Promise.all(submissions)
         .then(async results => {
-          if (mode == 'edit') {
+          if (mode === 'edit') {
             showToast({
               description: t('updatedRecordDescription', 'The patient encounter was updated'),
               title: t('updatedRecord', 'Record updated'),
@@ -216,9 +213,10 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
           onSubmit?.();
         })
         .catch(error => {
+          const errorMessages = extractErrorMessagesFromResponse(error);
           showToast({
-            description: t('errorDescription', error?.responseBody?.error?.message ?? error?.message),
-            title: t('errorDescriptionTitle', 'Error'),
+            description: t('errorDescription', errorMessages.join(', ')),
+            title: t('errorDescriptionTitle', 'Error on saving form'),
             kind: 'error',
             critical: true,
           });
@@ -238,90 +236,106 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
         handleFormSubmit(values);
         setSubmitting(false);
       }}>
-      {props => (
-        <Form className={`cds--form no-padding ${styles.ohriForm}`} ref={ref}>
-          {isLoadingPatient || isLoadingFormJson ? (
-            <LoadingIcon />
-          ) : (
-            <div className={styles.ohriFormContainer}>
-              {isLoadingFormDependencies && (
-                <div className={styles.loader}>
-                  <LinearLoader />
-                </div>
-              )}
-              <div className={styles.ohriFormBody}>
-                {showSidebar && (
-                  <OHRIFormSidebar
-                    isFormSubmitting={isSubmitting}
-                    pagesWithErrors={pagesWithErrors}
-                    scrollablePages={scrollablePages}
-                    selectedPage={selectedPage}
-                    mode={mode}
-                    onCancel={onCancel}
-                    handleClose={handleClose}
-                    values={props.values}
-                    setValues={props.setValues}
-                    allowUnspecifiedAll={formJson.allowUnspecifiedAll}
-                    defaultPage={formJson.defaultPage}
-                  />
-                )}
-                <div className={styles.formContent}>
-                  {workspaceLayout != 'minimized' && patient?.id && (
-                    <PatientBanner patient={patient} hideActionsOverflow={true} />
-                  )}
-                  {refinedFormJson.markdown && (
-                    <div className={styles.markdownContainer}>
-                      <ReactMarkdown children={refinedFormJson.markdown.join('\n')} />
-                    </div>
-                  )}
-                  <div
-                    className={`${styles.formContentBody}
-                    ${workspaceLayout == 'minimized' ? `${styles.minifiedFormContentBody}` : ''}
-                  `}>
-                    <OHRIEncounterForm
-                      formJson={refinedFormJson}
-                      patient={patient}
-                      formSessionDate={formSessionDate}
-                      provider={currentProvider}
-                      location={location}
-                      visit={visit}
-                      values={props.values}
-                      isCollapsed={collapsed}
-                      sessionMode={sessionMode}
-                      scrollablePages={scrollablePages}
-                      setAllInitialValues={setInitialValues}
-                      allInitialValues={initialValues}
-                      setScrollablePages={setScrollablePages}
-                      setPagesWithErrors={setPagesWithErrors}
-                      setIsLoadingFormDependencies={setIsLoadingFormDependencies}
-                      setFieldValue={props.setFieldValue}
-                      setSelectedPage={setSelectedPage}
-                      handlers={handlers}
-                      workspaceLayout={workspaceLayout}
-                      isSubmitting={isSubmitting}
-                    />
+      {props => {
+        setIsFormTouched(props.dirty);
+
+        return (
+          <Form style={{ outline: '2px solid cyan' }} className={`cds--form no-padding ${styles.ohriForm}`} ref={ref}>
+            {isLoadingPatient || isLoadingFormJson ? (
+              <LoadingIcon />
+            ) : (
+              <div className={styles.ohriFormContainer}>
+                {showWarningModal ? (
+                  <WarningModal onClose={handleClose} onShowWarningModal={setShowWarningModal} t={t} />
+                ) : null}
+                {isLoadingFormDependencies && (
+                  <div className={styles.loader}>
+                    <LinearLoader />
                   </div>
-                  {workspaceLayout == 'minimized' && (
-                    <ButtonSet className={styles.minifiedButtons}>
-                      <Button
-                        kind="secondary"
-                        onClick={() => {
-                          onCancel && onCancel();
-                          handleClose && handleClose();
-                        }}>
-                        {mode == 'view' ? 'Close' : 'Cancel'}
-                      </Button>
-                      <Button type="submit" disabled={mode == 'view' || isSubmitting}>
-                        Save
-                      </Button>
-                    </ButtonSet>
+                )}
+                <div className={styles.ohriFormBody}>
+                  {showSidebar && (
+                    <OHRIFormSidebar
+                      isFormSubmitting={isSubmitting}
+                      pagesWithErrors={pagesWithErrors}
+                      scrollablePages={scrollablePages}
+                      selectedPage={selectedPage}
+                      mode={mode}
+                      onCancel={onCancel}
+                      handleClose={handleClose}
+                      values={props.values}
+                      setValues={props.setValues}
+                      allowUnspecifiedAll={formJson.allowUnspecifiedAll}
+                      defaultPage={formJson.defaultPage}
+                    />
                   )}
+                  <div className={styles.formContent}>
+                    {workspaceLayout != 'minimized' && patient?.id && (
+                      <PatientBanner patient={patient} hideActionsOverflow={true} />
+                    )}
+                    {refinedFormJson.markdown && (
+                      <div className={styles.markdownContainer}>
+                        <ReactMarkdown children={refinedFormJson.markdown.join('\n')} />
+                      </div>
+                    )}
+                    <div
+                      className={`${styles.formContentBody}
+                    ${workspaceLayout === 'minimized' ? `${styles.minifiedFormContentBody}` : ''}
+                  `}>
+                      <OHRIEncounterForm
+                        formJson={refinedFormJson}
+                        patient={patient}
+                        formSessionDate={formSessionDate}
+                        provider={currentProvider}
+                        location={location}
+                        visit={visit}
+                        values={props.values}
+                        isCollapsed={collapsed}
+                        sessionMode={sessionMode}
+                        scrollablePages={scrollablePages}
+                        setAllInitialValues={setInitialValues}
+                        allInitialValues={initialValues}
+                        setScrollablePages={setScrollablePages}
+                        setPagesWithErrors={setPagesWithErrors}
+                        setIsLoadingFormDependencies={setIsLoadingFormDependencies}
+                        setFieldValue={props.setFieldValue}
+                        setSelectedPage={setSelectedPage}
+                        handlers={handlers}
+                        workspaceLayout={workspaceLayout}
+                        isSubmitting={isSubmitting}
+                      />
+                    </div>
+                    {workspaceLayout === 'minimized' && (
+                      <ButtonSet className={styles.minifiedButtons}>
+                        <Button
+                          kind="secondary"
+                          onClick={() => {
+                            if (isFormTouched) {
+                              setShowWarningModal(true);
+                              return;
+                            }
+
+                            onCancel && onCancel();
+                            handleClose && handleClose();
+                          }}>
+                          {mode === 'view' ? 'Close' : 'Cancel'}
+                        </Button>
+                        <Button type="submit" disabled={mode === 'view' || isSubmitting}>
+                          {isSubmitting ? (
+                            <InlineLoading description={t('submitting', 'Submitting') + '...'} />
+                          ) : (
+                            <span>{t('save', 'Save')}</span>
+                          )}
+                        </Button>
+                      </ButtonSet>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </Form>
-      )}
+            )}
+          </Form>
+        );
+      }}
     </Formik>
   );
 };
