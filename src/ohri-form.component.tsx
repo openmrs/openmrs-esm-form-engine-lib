@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Form, Formik } from 'formik';
-import { Button, ButtonSet, ComposedModal, InlineLoading, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
+import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import {
@@ -91,7 +91,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const session = useSession();
   const currentProvider = session?.currentProvider?.uuid ? session.currentProvider.uuid : null;
   const location = session && !(encounterUUID || encounterUuid) ? session?.sessionLocation : null;
-  const { patient, isLoadingPatient: isLoadingPatient, patientError: patientError } = usePatientData(patientUUID);
+  const { patient, isLoadingPatient } = usePatientData(patientUUID);
   const { formJson: refinedFormJson, isLoading: isLoadingFormJson, formError } = useFormJson(
     formUUID,
     formJson,
@@ -102,8 +102,8 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const { t } = useTranslation();
   const formSessionDate = useMemo(() => new Date(), []);
   const handlers = new Map<string, FormSubmissionHandler>();
-  const ref = useRef(null);
-  const workspaceLayout = useWorkspaceLayout(ref);
+  const formRef = useRef(null);
+  const workspaceLayout = useWorkspaceLayout(formRef);
   const [initialValues, setInitialValues] = useState({});
   const [scrollablePages, setScrollablePages] = useState(new Set<OHRIFormPageProps>());
   const [selectedPage, setSelectedPage] = useState('');
@@ -115,7 +115,16 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const [showWarningModal, setShowWarningModal] = useState(false);
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
 
-  const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
+  let sessionMode;
+
+  if (mode) {
+    sessionMode = mode;
+  } else if (encounterUUID || encounterUuid) {
+    sessionMode = 'edit';
+  } else {
+    sessionMode = 'enter';
+  }
+
   const showSidebar = useMemo(() => {
     return workspaceLayout !== 'minimized' && scrollablePages.size > 0;
   }, [workspaceLayout, scrollablePages.size]);
@@ -160,10 +169,6 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   useEffect(() => {
     reportError(formError, t);
   }, [formError, t]);
-
-  useEffect(() => {
-    reportError(patientError, t);
-  }, [patientError, t]);
 
   const handleFormSubmit = (values: Record<string, any>) => {
     // validate the form and its subforms (when present)
@@ -240,7 +245,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
         setIsFormTouched(props.dirty);
 
         return (
-          <Form style={{ outline: '2px solid cyan' }} className={`cds--form no-padding ${styles.ohriForm}`} ref={ref}>
+          <Form className={`cds--form no-padding ${styles.ohriForm}`} ref={formRef}>
             {isLoadingPatient || isLoadingFormJson ? (
               <LoadingIcon />
             ) : (
@@ -270,7 +275,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     />
                   )}
                   <div className={styles.formContent}>
-                    {workspaceLayout != 'minimized' && patient?.id && (
+                    {workspaceLayout !== 'minimized' && patient?.id && (
                       <PatientBanner patient={patient} hideActionsOverflow={true} />
                     )}
                     {refinedFormJson.markdown && (

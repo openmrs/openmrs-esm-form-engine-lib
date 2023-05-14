@@ -14,19 +14,21 @@ function calculateAge(birthDate: Date): number {
   }
 }
 
-const patientGenderMap = {
-  female: 'F',
-  male: 'M',
-  other: 'O',
-  unknown: 'U',
-};
+export const usePatientData = (patientUuid: string) => {
+  const patientGenderMap = {
+    female: 'F',
+    male: 'M',
+    other: 'O',
+    unknown: 'U',
+  };
 
-export const usePatientData = patientUuid => {
   const { patient, isLoading: isLoadingPatient, error: patientError } = usePatient(patientUuid);
+
   if (patient && !isLoadingPatient) {
     // This is to support backward compatibility with the AMPATH JSON format
     patient['age'] = calculateAge(new Date(patient?.birthDate));
     patient['sex'] = patientGenderMap[patient.gender] ?? 'U';
   }
+
   return { patient, isLoadingPatient, patientError };
 };
