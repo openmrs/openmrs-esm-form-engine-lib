@@ -240,7 +240,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
         setIsFormTouched(props.dirty);
 
         return (
-          <Form style={{ outline: '2px solid cyan' }} className={`cds--form no-padding ${styles.ohriForm}`} ref={ref}>
+          <Form className={`cds--form no-padding ${styles.ohriForm}`} ref={ref}>
             {isLoadingPatient || isLoadingFormJson ? (
               <LoadingIcon />
             ) : (
