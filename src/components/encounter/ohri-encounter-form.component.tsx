@@ -37,7 +37,7 @@ interface OHRIEncounterFormProps {
   location: SessionLocation;
   visit?: Visit;
   values: Record<string, any>;
-  isCollapsed: boolean;
+  isFormExpanded: boolean;
   sessionMode: SessionMode;
   scrollablePages: Set<OHRIFormPageProps>;
   handlers: Map<string, FormSubmissionHandler>;
@@ -60,7 +60,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   location,
   visit,
   values,
-  isCollapsed,
+  isFormExpanded,
   sessionMode,
   scrollablePages,
   workspaceLayout,
@@ -651,7 +651,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
               location={location}
               visit={visit}
               values={values}
-              isCollapsed={isCollapsed}
+              isFormExpanded={isFormExpanded}
               sessionMode={sessionMode}
               scrollablePages={scrollablePages}
               setAllInitialValues={setAllInitialValues}
@@ -672,7 +672,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             page={page}
             onFieldChange={onFieldChange}
             setSelectedPage={setSelectedPage}
-            isCollapsed={isCollapsed}
+            isFormExpanded={isFormExpanded}
             key={index}
           />
         );
