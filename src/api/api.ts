@@ -1,4 +1,4 @@
-import { openmrsFetch, openmrsObservableFetch } from '@openmrs/esm-framework';
+import { FetchResponse, openmrsFetch, openmrsObservableFetch } from '@openmrs/esm-framework';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { encounterRepresentation } from '../constants';
@@ -96,4 +96,98 @@ export async function fetchClobData(form: OpenmrsForm): Promise<any | null> {
   const { data: clobDataResponse } = await openmrsFetch(clobDataUrl);
 
   return clobDataResponse;
+}
+
+/**
+ * Generic fetch function for making HTTP requests.
+ * Automatically stringifies JSON body if object is passed.
+ *
+ * @template T The expected response body type
+ * @param {string} url - The URL to make the request to
+ * @param {RequestInit} [fetchInit={}] - An options object containing any custom settings to be applied to the request
+ * @returns {Promise<FetchResponse<T>>} The response from the server, parsed as JSON if possible
+ * @throws {TypeError} When invalid arguments are passed
+ * @throws {GenericFetchError} When the request fails
+ */
+export function genericFetch<T = any>(url: string, fetchInit: RequestInit = {}): Promise<FetchResponse<T>> {
+  if (typeof url !== 'string') {
+    throw new TypeError('The first argument to this fetch function must be a url string');
+  }
+
+  if (typeof fetchInit !== 'object') {
+    throw new TypeError('The second argument to this fetch function must be a plain object.');
+  }
+
+  // We're going to need some headers
+  if (!fetchInit.headers) {
+    fetchInit.headers = {};
+  }
+
+  /* Automatically stringify javascript objects being sent in the
+   * request body.
+   */
+  if (fetchInit.body && typeof fetchInit.body === 'object' && !(fetchInit.body instanceof FormData)) {
+    fetchInit.body = JSON.stringify(fetchInit.body);
+    fetchInit.headers = { ...fetchInit.headers, 'Content-Type': 'application/json' };
+  }
+
+  const requestStacktrace = new Error();
+
+  return fetch(url, fetchInit).then(async r => {
+    const response = r as FetchResponse<T>;
+
+    if (response.ok) {
+      if (response.status === 204) {
+        response.data = (null as unknown) as T;
+        return response;
+      } else {
+        return response.text().then(responseText => {
+          try {
+            if (responseText) {
+              response.data = JSON.parse(responseText);
+            }
+          } catch (err) {
+            // Server didn't respond with json
+          }
+          return response;
+        });
+      }
+    } else {
+      return response.text().then(
+        responseText => {
+          let responseBody = responseText;
+          try {
+            responseBody = JSON.parse(responseText);
+          } catch (err) {
+            // Server didn't respond with json, so just go with the response text string
+          }
+          throw new GenericFetchError(url, response, responseBody, requestStacktrace);
+        },
+        err => {
+          throw new GenericFetchError(url, response, null, requestStacktrace);
+        },
+      );
+    }
+  });
+}
+
+/**
+ * Custom error class for generic fetch failures.
+ * Includes additional information about the request and response for easier debugging.
+ *
+ * @extends Error
+ */
+class GenericFetchError extends Error {
+  /**
+   * Creates a new instance of GenericFetchError
+   * @param {string} url - The URL that the failed request was made to
+   * @param {Response} response - The response received from the server
+   * @param {any} responseBody - The body of the response, if any
+   * @param {Error} requestStacktrace - The stack trace captured before the request was made
+   */
+  constructor(public url: string, public response: Response, public responseBody: any, requestStacktrace: Error) {
+    super(`Request to ${url} failed with status ${response.status}. Response body: ${JSON.stringify(responseBody)}`);
+    this.stack = requestStacktrace.stack;
+    this.name = 'GenericFetchError';
+  }
 }
