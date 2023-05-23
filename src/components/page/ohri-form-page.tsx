@@ -1,25 +1,20 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Accordion, AccordionItem } from '@carbon/react';
 import { Waypoint } from 'react-waypoint';
 import { isTrue } from '../../utils/boolean-utils';
 import OHRIFormSection from '../section/ohri-form-section.component';
 import styles from './ohri-form-page.scss';
 
-function OHRIFormPage({ page, onFieldChange, setSelectedPage, isCollapsed }) {
-  let newLabel = page.label.replace(/\s/g, '');
-
-  const handleEnter = elementID => {
-    setSelectedPage(elementID);
-  };
-
+function OHRIFormPage({ page, onFieldChange, setSelectedPage, isFormExpanded }) {
+  const trimmedLabel = useMemo(() => page.label.replace(/\s/g, ''), [page.label]);
   const visibleSections = page.sections.filter(section => {
     const hasVisibleQuestions = section.questions.some(question => !isTrue(question.isHidden));
     return !isTrue(section.isHidden) && hasVisibleQuestions;
   });
 
   return (
-    <Waypoint onEnter={() => handleEnter(newLabel)} topOffset="50%" bottomOffset="60%">
-      <div id={newLabel} className={styles.pageContent}>
+    <Waypoint onEnter={() => setSelectedPage(trimmedLabel)} topOffset="50%" bottomOffset="60%">
+      <div id={trimmedLabel} className={styles.pageContent}>
         <div className={styles.pageHeader}>
           <p className={styles.pageTitle}>{page.label}</p>
         </div>
@@ -27,7 +22,7 @@ function OHRIFormPage({ page, onFieldChange, setSelectedPage, isCollapsed }) {
           {visibleSections.map(section => (
             <AccordionItem
               title={section.label}
-              open={isCollapsed}
+              open={isFormExpanded !== undefined ? isFormExpanded : isTrue(section.isExpanded)}
               className={styles.sectionContent}
               key={`section-${section.id}`}>
               <div className={styles.formSection}>

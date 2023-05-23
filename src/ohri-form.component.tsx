@@ -107,7 +107,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const [initialValues, setInitialValues] = useState({});
   const [scrollablePages, setScrollablePages] = useState(new Set<OHRIFormPageProps>());
   const [selectedPage, setSelectedPage] = useState('');
-  const [collapsed, setCollapsed] = useState(true);
+  const [isFormExpanded, setIsFormExpanded] = useState<boolean | undefined>(undefined);
   const [isLoadingFormDependencies, setIsLoadingFormDependencies] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
@@ -134,7 +134,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       ),
       meta: {
         handleCollapse: (value: boolean) => {
-          setCollapsed(value);
+          setIsFormExpanded(value);
         },
       },
     };
@@ -290,7 +290,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                         location={location}
                         visit={visit}
                         values={props.values}
-                        isCollapsed={collapsed}
+                        isFormExpanded={isFormExpanded}
                         sessionMode={sessionMode}
                         scrollablePages={scrollablePages}
                         setAllInitialValues={setInitialValues}
