@@ -75,8 +75,8 @@ yarn link `path/to/openmrs-form-engine-lib`
 For example, if you are working on the `openmrs-esm-form-builder` module, you would run the following command:
 
 ```bash
+pwd | pbcopy # copy the path to form-engine-lib to the to the clipboard
 cd `path/to/openmrs-esm-form-builder`
-pwd | pbcopy # copy the path to the clipboard
 yarn link `pbpaste` # paste the path to the openmrs-form-engine-lib
 ```
 
