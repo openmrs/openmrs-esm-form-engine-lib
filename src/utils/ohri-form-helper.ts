@@ -120,3 +120,27 @@ export function parseToLocalDateTime(dateString: string): Date {
   }
   return dateObj;
 }
+
+/**
+ * Given a mapping reference to a concept by source and term (ie "CIEL:1234") and a set of concepts, return the concept, if any, with that mapping
+ *
+ * @param reference
+ * @param concepts
+ */
+export function findConceptByReference(reference: string, concepts) {
+  // we only currently support uuids and reference term pairs in the format "SOURCE:TERM", so if no ":" return null
+  if (!reference.includes(':')) {
+    return null;
+  }
+
+  const [source, code] = reference.split(':');
+
+  return concepts?.find(concept => {
+    return concept?.conceptMappings?.find(mapping => {
+      return (
+        mapping?.conceptReferenceTerm?.conceptSource?.name.toUpperCase() === source.toUpperCase() &&
+        mapping?.conceptReferenceTerm?.code.toUpperCase() === code.toUpperCase()
+      );
+    });
+  });
+}

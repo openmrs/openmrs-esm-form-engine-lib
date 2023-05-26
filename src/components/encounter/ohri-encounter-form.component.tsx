@@ -15,6 +15,7 @@ import { OHRIFormContext } from '../../ohri-form-context';
 import {
   cascadeVisibityToChildFields,
   evaluateFieldReadonlyProp,
+  findConceptByReference,
   findPagesWithErrors,
   voidObsValueOnFieldHidden,
 } from '../../utils/ohri-form-helper';
@@ -28,6 +29,7 @@ import { scrollIntoView } from '../../utils/ohri-sidebar';
 import { useEncounter } from '../../hooks/useEncounter';
 import { useInitialValues } from '../../hooks/useInitialValues';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
+import { useConcepts } from '../../hooks/useConcepts';
 
 interface OHRIEncounterFormProps {
   formJson: OHRIFormSchema;
@@ -102,8 +104,10 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   );
   const { encounterRole } = useEncounterRole();
 
-  const flattenedFields = useMemo(() => {
+  // given the form, flatten the fields and pull out all concept references
+  const [flattenedFields, conceptReferences] = useMemo(() => {
     const flattenedFieldsTemp = [];
+    const conceptReferencesTemp = [];
     form.pages?.forEach(page =>
       page.sections?.forEach(section => {
         section.questions?.forEach(question => {
@@ -128,7 +132,19 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         });
       }),
     );
-    return flattenedFieldsTemp;
+    flattenedFieldsTemp.forEach(field => {
+      if (field.questionOptions?.concept) {
+        conceptReferencesTemp.push(field.questionOptions.concept);
+      }
+      if (field.questionOptions?.answers) {
+        field.questionOptions.answers.forEach((answer) => {
+          if (answer.concept) {
+            conceptReferencesTemp.push(answer.concept);
+          }
+        });
+      }
+    });
+    return [flattenedFieldsTemp, conceptReferencesTemp];
   }, []);
 
   const { initialValues: tempInitialValues, isFieldEncounterBindingComplete } = useInitialValues(
@@ -136,6 +152,9 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     encounter,
     encounterContext,
   );
+
+  // look up concepts via their references
+  const { concepts } = useConcepts(conceptReferences);
 
   const addScrollablePages = useCallback(() => {
     formJson.pages.forEach(page => {
@@ -211,6 +230,24 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
               },
             );
           }
+
+          // for each question and answer, see if we find a matching concept, and, if so:
+          //   1) replace the concept reference with uuid (for the case when the form references the concept by mapping)
+          //   2) use the concept display as the label if no label specified
+          const matchingConcept = findConceptByReference(field.questionOptions.concept, concepts);
+          field.questionOptions.concept = matchingConcept ? matchingConcept.uuid : field.questionOptions.concept;
+          field.label = field.label ? field.label : matchingConcept?.display;
+          if (field.questionOptions.answers) {
+            field.questionOptions.answers = field.questionOptions.answers.map(answer => {
+              const matchingAnswerConcept = findConceptByReference(answer.concept, concepts);
+              return {
+                ...answer,
+                concept: matchingAnswerConcept ? matchingAnswerConcept.uuid : answer.concept,
+                label: answer.label ? answer.label : matchingAnswerConcept?.display,
+              };
+            });
+          }
+
           return field;
         }),
       );
@@ -237,7 +274,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         setIsFieldInitializationComplete(true);
       }
     }
-  }, [tempInitialValues]);
+  }, [tempInitialValues, concepts]);
 
   useEffect(() => {
     if (sessionMode == 'enter' && !isTrue(formJson.formOptions?.usePreviousValueDisabled)) {
