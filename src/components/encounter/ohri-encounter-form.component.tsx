@@ -137,7 +137,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         conceptReferencesTemp.push(field.questionOptions.concept);
       }
       if (field.questionOptions?.answers) {
-        field.questionOptions.answers.forEach((answer) => {
+        field.questionOptions.answers.forEach(answer => {
           if (answer.concept) {
             conceptReferencesTemp.push(answer.concept);
           }
