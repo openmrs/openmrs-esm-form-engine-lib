@@ -28,6 +28,7 @@
 }
 
 .formContent {
+  height: calc(100vh - 6rem);
   margin: 0;
   flex-basis: 65%;
   flex-grow: 1;
@@ -68,15 +69,3 @@
   padding: 1rem;
 }
 
-aside[class*='-esm-patient-chart__workspace-window__container__'] {
-  border-left: 1px solid #8d8d8d !important;
-}
-
-aside[class*='-esm-patient-chart__workspace-window__container__'] > div {
-  display: flex;
-  bottom: 0;
-}
-
-aside[class*='-esm-patient-chart__workspace-window__container__'] > div > div {
-  flex-grow: 1;
-}
