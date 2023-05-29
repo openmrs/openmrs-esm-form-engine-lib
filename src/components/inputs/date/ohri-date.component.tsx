@@ -151,7 +151,9 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
               className={`${styles.datePickerOverrides} ${isFieldRequiredError ? styles.errorLabel : ''} ${
                 question.disabled || isTrue(question.readonly) ? styles.disabled : ''
               }`}
-              dateFormat={carbonDateformat}>
+              dateFormat={carbonDateformat}
+              maxDate={new Date()} // Set the maximum date to the current date
+              >
               <DatePickerInput
                 id={question.id}
                 placeholder={placeholder}

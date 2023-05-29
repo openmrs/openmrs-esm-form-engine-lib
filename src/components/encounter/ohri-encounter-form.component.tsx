@@ -551,7 +551,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
               patient,
             },
           );
-          ({
             expressionResult: evaluateExpression(
               dependant.questionOptions.repeatOptions?.limitExpression,
               { value: dependant, type: 'field' },

@@ -209,11 +209,10 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
   encounterContext.sessionMode != 'view' &&
     nodes.push(
       <div>
-        {showAddButton(question.questionOptions.repeatOptions?.limit, counter) && (
-          <Button
-            renderIcon={() => <Add size={16} />}
-            className={styles.repeatButton}
-            kind="tertiary"
+      {showAddButton(question.questionOptions.repeatOptions?.limit, counter) && (
+                  <Button
+                    renderIcon={() => <Add size={16} />}
+                    kind="ghost"
             onClick={() => {
               const nextCount = counter + 1;
               handleAdd(nextCount, null);
