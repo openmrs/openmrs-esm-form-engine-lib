@@ -107,7 +107,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   // given the form, flatten the fields and pull out all concept references
   const [flattenedFields, conceptReferences] = useMemo(() => {
     const flattenedFieldsTemp = [];
-    const conceptReferencesTemp = [];
+    const conceptReferencesTemp = new Set<string>();
     form.pages?.forEach(page =>
       page.sections?.forEach(section => {
         section.questions?.forEach(question => {
@@ -134,12 +134,12 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     );
     flattenedFieldsTemp.forEach(field => {
       if (field.questionOptions?.concept) {
-        conceptReferencesTemp.push(field.questionOptions.concept);
+        conceptReferencesTemp.add(field.questionOptions.concept);
       }
       if (field.questionOptions?.answers) {
         field.questionOptions.answers.forEach(answer => {
           if (answer.concept) {
-            conceptReferencesTemp.push(answer.concept);
+            conceptReferencesTemp.add(answer.concept);
           }
         });
       }

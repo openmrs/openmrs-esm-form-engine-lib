@@ -122,25 +122,28 @@ export function parseToLocalDateTime(dateString: string): Date {
 }
 
 /**
- * Given a mapping reference to a concept by source and term (ie "CIEL:1234") and a set of concepts, return the concept, if any, with that mapping
+ * Given a reference to a concept (either the uuid, or the source and reference term, ie "CIEL:1234") and a set of concepts, return matching concept, if any
  *
- * @param reference
+ * @param reference a uuid or source/term mapping, ie "3cd6f86c-26fe-102b-80cb-0017a47871b2" or "CIEL:1234"
  * @param concepts
  */
 export function findConceptByReference(reference: string, concepts) {
-  // we only currently support uuids and reference term pairs in the format "SOURCE:TERM", so if no ":" return null
-  if (!reference.includes(':')) {
-    return null;
-  }
+  if (reference?.includes(':')) {
+    // handle mapping
+    const [source, code] = reference.split(':');
 
-  const [source, code] = reference.split(':');
-
-  return concepts?.find(concept => {
-    return concept?.conceptMappings?.find(mapping => {
-      return (
-        mapping?.conceptReferenceTerm?.conceptSource?.name.toUpperCase() === source.toUpperCase() &&
-        mapping?.conceptReferenceTerm?.code.toUpperCase() === code.toUpperCase()
-      );
+    return concepts?.find(concept => {
+      return concept?.conceptMappings?.find(mapping => {
+        return (
+          mapping?.conceptReferenceTerm?.conceptSource?.name.toUpperCase() === source.toUpperCase() &&
+          mapping?.conceptReferenceTerm?.code.toUpperCase() === code.toUpperCase()
+        );
+      });
     });
-  });
+  } else {
+    // handle uuid
+    return concepts?.find(concept => {
+      return concept.uuid === reference;
+    });
+  }
 }
