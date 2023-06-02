@@ -10,6 +10,7 @@ import {
   getAsyncLifecycle,
   registerExtension,
   showToast,
+  usePatient,
   useSession,
   Visit,
 } from '@openmrs/esm-framework';
@@ -91,7 +92,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const session = useSession();
   const currentProvider = session?.currentProvider?.uuid ? session.currentProvider.uuid : null;
   const location = session && !(encounterUUID || encounterUuid) ? session?.sessionLocation : null;
-  const { patient, isLoadingPatient: isLoadingPatient, patientError: patientError } = usePatientData(patientUUID);
+  const { patient, isLoading: isLoadingPatient, error: patientError } = usePatient(patientUUID);
   const { formJson: refinedFormJson, isLoading: isLoadingFormJson, formError } = useFormJson(
     formUUID,
     formJson,

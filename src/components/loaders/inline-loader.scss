@@ -1,0 +1,14 @@
+@use '@carbon/colors';
+  .formField {
+    margin-left: 2rem; 
+    max-width: 19rem;
+  
+    > div > div > label {
+      color: colors.$gray-70;
+    }
+  }
+  .row {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+  }

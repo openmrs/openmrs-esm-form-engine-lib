@@ -21,6 +21,7 @@ export interface EncounterContext {
   encounter: OpenmrsEncounter;
   previousEncounter?: OpenmrsEncounter;
   location: any;
+  provider?: any;
   sessionMode: SessionMode;
   encounterDate: Date;
   setEncounterDate(value: Date): void;
