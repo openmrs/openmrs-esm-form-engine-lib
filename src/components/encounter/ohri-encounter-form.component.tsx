@@ -633,10 +633,9 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           page.sections.every(section => section.questions.every(question => question.isHidden)) ||
           isTrue(page.isHidden);
 
-        if (pageHasNoVisibleContent) {
+        if (!page.isSubform && pageHasNoVisibleContent) {
           return null;
         }
-
         if (isTrue(page.isSubform) && page.subform?.form) {
           if (sessionMode != 'enter' && !page.subform?.form.encounter) {
             return null;
