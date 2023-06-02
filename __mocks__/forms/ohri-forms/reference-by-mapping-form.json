@@ -1,0 +1,54 @@
+{
+  "encounterType": "92fd09b4-5335-4f7e-9f63-b2a663fd09a6",
+  "name": "Reference By Mapping Form",
+  "processor": "EncounterFormProcessor",
+  "referencedForms": [],
+  "uuid": "3e360508-2357-4098-a3d8-48d793a08fa0",
+  "version": "1.0",
+  "pages": [
+    {
+      "label": "First Page",
+      "sections": [
+        {
+          "label": "Another Section",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "PIH:Occurrence of trauma",
+                "answers": [
+                  {
+                    "concept": "PIH:Yes"
+                  },
+                  {
+                    "concept": "PIH:No"
+                  }
+                ]
+              },
+              "id": "traumaQuestion"
+            },
+            {
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "PIH:COUGH",
+                "answers": [
+                  {
+                    "concept": "PIH:Yes"
+                  },
+                  {
+                    "concept": "PIH:No"
+                  }
+                ]
+              },
+              "id": "coughQuestion"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "description": "comment"
+}

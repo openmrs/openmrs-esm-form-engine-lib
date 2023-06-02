@@ -1,0 +1,140 @@
+{
+  "results": [
+    {
+      "uuid": "3cd6f600-26fe-102b-80cb-0017a47871b2",
+      "display": "Yes",
+      "conceptMappings": [
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "SNOMED CT"
+            },
+            "code": "373066001"
+          }
+        },
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "PIH"
+            },
+            "code": "YES"
+          }
+        },
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "CIEL"
+            },
+            "code": "1065"
+          }
+        }
+      ]
+    },
+    {
+      "uuid": "3cd6f86c-26fe-102b-80cb-0017a47871b2",
+      "display": "No",
+      "conceptMappings": [
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "PIH"
+            },
+            "code": "NO"
+          }
+        },
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "CIEL"
+            },
+            "code": "1066"
+          }
+        },
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "SNOMED CT"
+            },
+            "code": "373067005"
+          }
+        }
+      ]
+    },
+    {
+      "uuid": "3cccf632-26fe-102b-80cb-0017a47871b2",
+      "display": "Cough",
+      "conceptMappings": [
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "SNOMED CT"
+            },
+            "code": "263731006"
+          }
+        },
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "AMPATH"
+            },
+            "code": "5956"
+          }
+        },
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "SNOMED CT"
+            },
+            "code": "49727002"
+          }
+        },
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "PIH"
+            },
+            "code": "COUGH"
+          }
+        },
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "PIH"
+            },
+            "code": "107"
+          }
+        },
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "CIEL"
+            },
+            "code": "143264"
+          }
+        }
+      ]
+    },
+    {
+      "uuid": "f8134959-62d2-4f94-af6c-3580312b07a0",
+      "display": "Occurrence of trauma",
+      "conceptMappings": [
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "PIH"
+            },
+            "code": "8848"
+          }
+        },
+        {
+          "conceptReferenceTerm": {
+            "conceptSource": {
+              "name": "PIH"
+            },
+            "code": "Occurrence of trauma"
+          }
+        }
+      ]
+    }
+  ]
+}

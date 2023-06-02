@@ -11,7 +11,9 @@ import next_visit_form from '../__mocks__/forms/ohri-forms/next-visit-test-form.
 import months_on_art_form from '../__mocks__/forms/ohri-forms/months-on-art-form.json';
 import age_validation_form from '../__mocks__/forms/ohri-forms/age-validation-form.json';
 import viral_load_status_form from '../__mocks__/forms/ohri-forms/viral-load-status-form.json';
+import reference_by_mapping_form from '../__mocks__/forms/ohri-forms/reference-by-mapping-form.json';
 import external_data_source_form from '../__mocks__/forms/ohri-forms/external_data_source_form.json';
+import mock_concepts from '../__mocks__/concepts.mock.json';
 import { mockPatient } from '../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../__mocks__/session.mock';
 import demoHtsOpenmrsForm from '../__mocks__/forms/omrs-forms/demo_hts-form.json';
@@ -20,11 +22,12 @@ import demoHtsOhriForm from '../__mocks__/forms/ohri-forms/demo_hts-form.json';
 import {
   assertFormHasAllFields,
   findMultiSelectInput,
-  findNumberInput,
+  findNumberInput, findRadioGroupInput, findRadioGroupMember,
   findSelectInput,
   findTextOrDateInput,
 } from './utils/test-utils';
 import { mockVisit } from '../__mocks__/visit.mock';
+import {async} from "rxjs";
 
 //////////////////////////////////////////
 ////// Base setup
@@ -319,6 +322,29 @@ describe('OHRI Forms:', () => {
       await act(async () => expect(nextVisitDateField.value).toBe('11/3/2022'));
     });
   });
+
+  describe("Concept references", () => {
+    const conceptResourcePath = when((url: string) => url.includes('/ws/rest/v1/concept?references=PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH'));
+
+    when(mockOpenmrsFetch)
+      .calledWith(conceptResourcePath)
+      .mockReturnValue({ data: mock_concepts });
+
+    it('should add default labels based on concept display and substitute mapping references with uuids', async () => {
+      await act(async () => renderForm(null, reference_by_mapping_form));
+
+      const yes =  await screen.findAllByRole('radio', { name: 'Yes' }) as Array<HTMLInputElement>;
+      const no =  await screen.findAllByRole('radio', { name: 'No' }) as Array<HTMLInputElement>;
+      await assertFormHasAllFields(screen, [
+        { fieldName: 'Cough', fieldType: 'radio' },
+        { fieldName: 'Occurrence of trauma', fieldType: 'radio' },
+      ]);
+      await act(async () => expect(no[0].value).toBe("3cd6f86c-26fe-102b-80cb-0017a47871b2"))
+      await act(async () => expect(no[1].value).toBe("3cd6f86c-26fe-102b-80cb-0017a47871b2"))
+      await act(async () => expect(yes[0].value).toBe("3cd6f600-26fe-102b-80cb-0017a47871b2"))
+      await act(async () => expect(yes[1].value).toBe("3cd6f600-26fe-102b-80cb-0017a47871b2"))
+    })
+  })
 
   function renderForm(formUUID, formJson, intent?: string) {
     return act(() => {

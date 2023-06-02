@@ -150,7 +150,6 @@ export interface OHRIFormQuestionOptions {
   maxLength?: string;
   minLength?: string;
   showDate?: string;
-  conceptMappings?: Array<Record<any, any>>;
   answers?: Array<Record<any, any>>;
   weeksList?: string;
   locationTag?: string;
