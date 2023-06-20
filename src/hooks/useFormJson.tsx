@@ -7,7 +7,6 @@ import { fetchOpenMRSForm, fetchClobData } from '../api/api';
 export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: string, formSessionIntent: string) {
   const [formJson, setFormJson] = useState<OHRIFormSchema>(null);
   const [error, setError] = useState(validateFormsArgs(formUuid, rawFormJson));
-
   useEffect(() => {
     loadFormJson(formUuid, rawFormJson, formSessionIntent)
       .then(formJson => {
@@ -42,7 +41,10 @@ export async function loadFormJson(
 ): Promise<OHRIFormSchema> {
   const openmrsFormResponse = await fetchOpenMRSForm(formIdentifier);
   const clobDataResponse = await fetchClobData(openmrsFormResponse);
-  const formJson: OHRIFormSchema = clobDataResponse ?? rawFormJson;
+  const formJson: OHRIFormSchema = clobDataResponse
+    ? { ...clobDataResponse, uuid: openmrsFormResponse.uuid }
+    : rawFormJson;
+
   const subformRefs = extractSubformRefs(formJson);
   const subforms = await loadSubforms(subformRefs, formSessionIntent);
   updateFormJsonWithSubforms(formJson, subforms);
