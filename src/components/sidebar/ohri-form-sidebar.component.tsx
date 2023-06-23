@@ -63,30 +63,38 @@ function OHRIFormSidebar({
     },
     [unspecifiedFields],
   );
+
+  // Check if there is only one scrollable page
+  const isSinglePage = scrollablePages.length === 1;
+
   return (
     <div className={styles.sidebar}>
-      {[...scrollablePages].map((page, index) => {
-        return (
-          !page.isHidden && (
-            <div
-              aria-hidden="true"
-              className={
-                joinWord(page.label) === selectedPage && pagesWithErrors.includes(page.label)
-                  ? styles.sidebarSectionErrorActive
-                  : joinWord(page.label) === selectedPage
-                  ? styles.sidebarSectionActive
-                  : pagesWithErrors.includes(page.label)
-                  ? styles.sidebarSectionError
-                  : styles.sidebarSection
-              }
-              key={index}
-              onClick={() => handleClick(page.label)}>
-              <div className={styles.sidebarSectionLink}>{page.label}</div>
-            </div>
-          )
-        );
-      })}
-      {mode !== 'view' && <hr className={styles.sideBarHorizontalLine} />}
+      {!isSinglePage && (
+        <>
+          {[...scrollablePages].map((page, index) => {
+            return (
+              !page.isHidden && (
+                <div
+                  aria-hidden="true"
+                  className={
+                    joinWord(page.label) === selectedPage && pagesWithErrors.includes(page.label)
+                      ? styles.sidebarSectionErrorActive
+                      : joinWord(page.label) === selectedPage
+                      ? styles.sidebarSectionActive
+                      : pagesWithErrors.includes(page.label)
+                      ? styles.sidebarSectionError
+                      : styles.sidebarSection
+                  }
+                  key={index}
+                  onClick={() => handleClick(page.label)}>
+                  <div className={styles.sidebarSectionLink}>{page.label}</div>
+                </div>
+              )
+            );
+          })}
+          <hr className={styles.sideBarHorizontalLine} />
+        </>
+      )}
       <div className={styles.sidenavActions}>
         {allowUnspecifiedAll && mode !== 'view' && (
           <div style={{ marginBottom: '.6rem' }}>
@@ -99,7 +107,7 @@ function OHRIFormSidebar({
             />
           </div>
         )}
-        {mode != 'view' && (
+        {mode !== 'view' && (
           <Button style={{ marginBottom: '0.625rem', width: '11rem' }} type="submit" disabled={isFormSubmitting}>
             Save
           </Button>
@@ -111,7 +119,7 @@ function OHRIFormSidebar({
             onCancel && onCancel();
             handleClose && handleClose();
           }}>
-          {mode == 'view' ? 'Close' : 'Cancel'}
+          {mode === 'view' ? 'Close' : 'Cancel'}
         </Button>
       </div>
     </div>
