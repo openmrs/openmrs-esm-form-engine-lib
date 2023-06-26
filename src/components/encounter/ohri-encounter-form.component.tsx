@@ -524,7 +524,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       field.fieldDependants.forEach(dep => {
         const dependant = fields.find(f => f.id == dep);
         // evaluate calculated value
-        if (!dependant.isHidden && dependant.questionOptions.calculate?.calculateExpression) {
+        if (dependant.questionOptions.calculate?.calculateExpression) {
           evaluateAsyncExpression(
             dependant.questionOptions.calculate.calculateExpression,
             { value: dependant, type: 'field' },
