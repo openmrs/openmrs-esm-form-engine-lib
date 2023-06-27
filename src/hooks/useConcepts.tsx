@@ -30,5 +30,6 @@ export function useConcepts(references: Set<string>) {
     `/ws/rest/v1/concept?references=${Array.from(references).join(',')}&v=${conceptRepresentation}`,
     openmrsFetch,
   );
+  
   return { concepts: data?.data.results, error, isLoading };
   }
