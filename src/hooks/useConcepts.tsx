@@ -7,7 +7,7 @@ const conceptRepresentation =
 export function useConcepts(references: Set<string>) {
   const pageSize = 50;
 
-  const fetchConcepts = async (url:String) => {
+  const fetchConcepts = async (url:string) => {
     const response = await openmrsFetch(url);
     const totalCount = response.headers.get('X-Total-Count');
     const totalPages = Math.ceil(Number(totalCount)/pageSize);
@@ -30,6 +30,6 @@ export function useConcepts(references: Set<string>) {
     `/ws/rest/v1/concept?references=${Array.from(references).join(',')}&v=${conceptRepresentation}`,
     openmrsFetch,
   );
-  
+
   return { concepts: data?.data.results, error, isLoading };
   }
