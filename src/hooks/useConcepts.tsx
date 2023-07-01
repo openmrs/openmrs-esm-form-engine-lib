@@ -6,6 +6,11 @@ const conceptRepresentation =
 
 export function useConcepts(references: Set<string>) {
   const pageSize = 50;
+   // TODO: handle paging (ie when number of concepts greater than default limit per page)
+   const { data, error, isLoading } = useSWRImmutable<{ data: { results: Array<OpenmrsResource> } }, Error>(
+    `/ws/rest/v1/concept?references=${Array.from(references).join(',')}&v=${conceptRepresentation}`,
+    openmrsFetch,
+  );
 
   const fetchConcepts = async (url:string) => {
     const response = await openmrsFetch(url);
@@ -25,11 +30,6 @@ export function useConcepts(references: Set<string>) {
     return { results: fetchedResults };
   };
   
-  // TODO: handle paging (ie when number of concepts greater than default limit per page)
-  const { data, error, isLoading } = useSWRImmutable<{ data: { results: Array<OpenmrsResource> } }, Error>(
-    `/ws/rest/v1/concept?references=${Array.from(references).join(',')}&v=${conceptRepresentation}`,
-    openmrsFetch,
-  );
-
+ 
   return { concepts: data?.data.results, error, isLoading };
   }
