@@ -79,9 +79,17 @@ export class CommonExpressionHelpers {
   };
 
   addDaysToDate = (date, days) => {
-    date.setDate(date.getDate() + days);
+    const newDate = new Date(date);
+    dayjs(newDate).format('DD/MM/YYYY')
+    newDate.setDate(newDate.getDate() + days); 
+    if(isNaN(newDate.getTime())){
+      return;
+    }
+    return newDate;
 
-    return date;
+    // date.setDate(date.getDate() + days);
+
+    // return date;
   };
 
   useFieldValue = (questionId: string) => {
