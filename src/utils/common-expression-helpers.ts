@@ -86,10 +86,6 @@ export class CommonExpressionHelpers {
       return;
     }
     return newDate;
-
-    // date.setDate(date.getDate() + days);
-
-    // return date;
   };
 
   useFieldValue = (questionId: string) => {
