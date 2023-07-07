@@ -10,7 +10,7 @@ describe('OhriRepeatComponent - handleExpressionFieldIdUpdate', () => {
     const updatedExpression = updateFieldIdInExpression(expression, index, fieldIds);
 
     expect(updatedExpression).toEqual(
-      "infantStatus-2 !== '151849AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' && infantStatus-2 !== '154223AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'",
+      "infantStatus_2 !== '151849AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' && infantStatus_2 !== '154223AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'",
     );
   });
 

@@ -49,7 +49,7 @@ export const updateFieldIdInExpression = (expression: string, index: number, que
   let uniqueQuestionIds = [...new Set(questionIds)];
   uniqueQuestionIds.forEach(id => {
     if (expression.match(id)) {
-      expression = expression.replace(new RegExp(id, 'g'), `${id}-${index}`);
+      expression = expression.replace(new RegExp(id, 'g'), `${id}_${index}`);
     }
   });
   return expression;
@@ -93,20 +93,18 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
     const idSuffix = count;
     const next = cloneDeep(question);
     next.value = obsGroup;
-    next.id = `${next.id}-${idSuffix}`;
+    next.id = `${next.id}_${idSuffix}`;
     next.questions.forEach(q => {
       questionIds.push(q.id);
-    });
-    next.questions.forEach(q => {
-      q.id = `${q.id}-${idSuffix}`;
+      q.id = `${q.id}_${idSuffix}`;
       q['groupId'] = next.id;
       q.value = null;
-      let initialValue = obsGroup ? getInitialValueFromObs(q, obsGroup) : null;
+      const initialValue = obsGroup ? getInitialValueFromObs(q, obsGroup) : null;
       values[`${q.id}`] = initialValue ? initialValue : q.questionOptions.rendering == 'checkbox' ? [] : '';
 
       //Evaluate hide expressions
       if (q['hide'] && q['hide'].hideWhenExpression) {
-        let updatedExpression = updateFieldIdInExpression(q['hide'].hideWhenExpression, idSuffix, questionIds);
+        const updatedExpression = updateFieldIdInExpression(q['hide'].hideWhenExpression, idSuffix, questionIds);
         q['hide'].hideWhenExpression = updatedExpression;
         q.isHidden = evaluateExpression(updatedExpression, { value: q, type: 'field' }, fields, values, {
           mode: encounterContext.sessionMode,
