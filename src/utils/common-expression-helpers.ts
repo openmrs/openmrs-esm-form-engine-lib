@@ -80,10 +80,9 @@ export class CommonExpressionHelpers {
 
   addDaysToDate = (date, days) => {
     const newDate = new Date(date);
-    dayjs(newDate).format('DD/MM/YYYY')
     newDate.setDate(newDate.getDate() + days); 
     if(isNaN(newDate.getTime())){
-      return;
+      return null;
     }
     return newDate;
   };
