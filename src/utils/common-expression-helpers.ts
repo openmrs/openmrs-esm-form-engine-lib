@@ -78,13 +78,10 @@ export class CommonExpressionHelpers {
     return date;
   };
 
-  addDaysToDate = (date, days) => {
-    const newDate = new Date(date);
-    newDate.setDate(newDate.getDate() + days); 
-    if(isNaN(newDate.getTime())){
-      return null;
-    }
-    return newDate;
+  addDaysToDate = (date: Date, days: number): Date => {
+    return dayjs(date)
+      .add(days, 'day')
+      .toDate();
   };
 
   useFieldValue = (questionId: string) => {
