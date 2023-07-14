@@ -21,6 +21,12 @@
     border: 0 !important;
     border-bottom: 1px solid #8d8d8d !important;
   }
+  .flexRow {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+  }
   .row {
     display: flex;
     flex-direction: row;
@@ -42,4 +48,8 @@
     > div > div > div {
       width: 22.313rem !important;
     }
+  }
+
+  .loader {
+    padding: 0.25rem 0.5rem;
   }
