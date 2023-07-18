@@ -20,16 +20,20 @@ export function useConcepts(references: Set<string>) {
     const results: OpenmrsResource[] = await response.json();
     let fetchedResults = results;
 
+    const fetchPromises: Promise<OpenmrsResource[]>[] = [];
     for (let page = 2; page <= totalPages; page++) {
       const nextPageUrl = `${url}&startIndex=${(page - 1) * pageSize}&v=${conceptRepresentation}`;
-      const nextPageResponse = await openmrsFetch(nextPageUrl);
-      const nextPageResults: OpenmrsResource[] = await nextPageResponse.json();
-      fetchedResults = fetchedResults.concat(nextPageResults);
+      fetchPromises.push(openmrsFetch(nextPageUrl).then((res) => res.json()));
     }
+     const remainingResults = await Promise.all(fetchPromises);
+    remainingResults.forEach((pageResults) => {
+      fetchedResults = fetchedResults.concat(pageResults);
+    });
 
     return { results: fetchedResults };
   };
   
- 
   return { concepts: data?.data.results, error, isLoading };
-  }
+}
+
+
