@@ -94,6 +94,7 @@ export interface OHRIFormField {
   type: string;
   questionOptions: OHRIFormQuestionOptions;
   id: string;
+  groupId?: string;
   questions?: Array<OHRIFormField>;
   value?: any;
   hide?: HideProps;
@@ -155,7 +156,7 @@ export interface OHRIFormQuestionOptions {
   locationTag?: string;
   rows?: number;
   toggleOptions?: { labelTrue: string; labelFalse: string };
-  repeatOptions?: { addText?: string; limit?: string; limitExpression?: string };
+  repeatOptions?: { addText?: string; limit?: string; limitExpression?: string; isCloned?: boolean };
   defaultValue?: any;
   calculate?: {
     calculateExpression: string;
@@ -205,6 +206,7 @@ export interface OpenmrsEncounter {
   encounterProviders?: Array<Record<string, any>>;
   form?: {
     uuid: string;
+    [anythingElse: string]: any;
   };
 }
 
