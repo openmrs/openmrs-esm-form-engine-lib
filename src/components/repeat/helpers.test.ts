@@ -1,4 +1,4 @@
-import { updateFieldIdInExpression } from './ohri-repeat.component';
+import { updateFieldIdInExpression } from './helpers';
 
 describe('OhriRepeatComponent - handleExpressionFieldIdUpdate', () => {
   it('Should handle update of expression with ids in repeat group', () => {

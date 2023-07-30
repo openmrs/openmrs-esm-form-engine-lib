@@ -147,14 +147,14 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     return [flattenedFieldsTemp, conceptReferencesTemp];
   }, []);
 
-  const { initialValues: tempInitialValues, isFieldEncounterBindingComplete } = useInitialValues(
+  const { initialValues: tempInitialValues, isBindingComplete } = useInitialValues(
     flattenedFields,
     encounter,
     encounterContext,
   );
 
   // look up concepts via their references
-  const { concepts } = useConcepts(conceptReferences);
+  const { concepts, isLoading: isLoadingConcepts } = useConcepts(conceptReferences);
 
   const addScrollablePages = useCallback(() => {
     formJson.pages.forEach(page => {
@@ -181,7 +181,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   }, [location, encounter]);
 
   useEffect(() => {
-    if (tempInitialValues && Object.keys(tempInitialValues).length) {
+    if (Object.keys(tempInitialValues ?? {}).length && !isFieldInitializationComplete) {
       setFields(
         flattenedFields.map(field => {
           if (field.hide) {
@@ -267,14 +267,12 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         });
       });
       setForm(form);
-      setAllInitialValues({ ...allInitialValues, ...tempInitialValues });
-      if (sessionMode == 'enter') {
-        setIsFieldInitializationComplete(true);
-      } else if (isFieldEncounterBindingComplete) {
+      setAllInitialValues({ ...allInitialValues, ...values, ...tempInitialValues });
+      if (isBindingComplete && !isLoadingConcepts) {
         setIsFieldInitializationComplete(true);
       }
     }
-  }, [tempInitialValues, concepts]);
+  }, [tempInitialValues, concepts, isLoadingConcepts, isBindingComplete]);
 
   useEffect(() => {
     if (sessionMode == 'enter' && !isTrue(formJson.formOptions?.usePreviousValueDisabled)) {
