@@ -254,3 +254,15 @@ export interface DataSource<T> {
    */
   toUuidAndDisplay(item: T): OpenmrsResource;
 }
+
+export interface Drug {
+  uuid: string;
+  display: string;
+  name: string;
+  retired?: boolean;
+  concept?: {
+    uuid: string;
+    display: string;
+    links: any[];
+  };
+}
