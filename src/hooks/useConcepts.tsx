@@ -1,39 +1,32 @@
-import useSWRImmutable from 'swr/immutable';
+import useSWRImmutable,  {mutate}  from 'swr/immutable';
 import { openmrsFetch, OpenmrsResource } from '@openmrs/esm-framework';
 
 const conceptRepresentation =
   'custom:(uuid,display,conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
+const defaultPageSize = 50; // Modify this value based on your backend configuration
 
 export function useConcepts(references: Set<string>) {
-  const pageSize = 50;
-   // TODO: handle paging (ie when number of concepts greater than default limit per page)
-   const { data, error, isLoading } = useSWRImmutable<{ data: { results: Array<OpenmrsResource> } }, Error>(
-    `/ws/rest/v1/concept?references=${Array.from(references).join(',')}&v=${conceptRepresentation}`,
-    openmrsFetch,
-  );
-
-  const fetchConcepts = async (url:string) => {
+  const fetcher = async (url: string) => {
     const response = await openmrsFetch(url);
-    const totalCount = response.headers.get('X-Total-Count');
-    const totalPages = Math.ceil(Number(totalCount)/pageSize);
-
-    const results: OpenmrsResource[] = await response.json();
-    let fetchedResults = results;
-
-    const fetchPromises: Promise<OpenmrsResource[]>[] = [];
-    for (let page = 2; page <= totalPages; page++) {
-      const nextPageUrl = `${url}&startIndex=${(page - 1) * pageSize}&v=${conceptRepresentation}`;
-      fetchPromises.push(openmrsFetch(nextPageUrl).then((res) => res.json()));
-    }
-     const remainingResults = await Promise.all(fetchPromises);
-    remainingResults.forEach((pageResults) => {
-      fetchedResults = fetchedResults.concat(pageResults);
-    });
-
-    return { results: fetchedResults };
+    const data = await response.json();
+    return data.results;
   };
-  
-  return { concepts: data?.data.results, error, isLoading };
+
+  const queryKey = `/ws/rest/v1/concept?references=${Array.from(references).join(',')}&v=${conceptRepresentation}&limit=${defaultPageSize}`;
+
+  const { data, error, isValidating, mutate: mutateData } = useSWRImmutable(queryKey, fetcher);
+
+  async function fetchNextPage(startIndex: number) {
+    const url = `${queryKey}&startIndex=${startIndex}`;
+    const newData = await fetcher(url);
+    mutateData([...data, ...newData], false);
+  }
+
+  return {
+    concepts: data,
+    error,
+    isLoading: !data && !error,
+    isValidating,
+    fetchNextPage,
+  };
 }
-
-
