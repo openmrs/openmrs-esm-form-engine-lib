@@ -1,4 +1,4 @@
-import { updateFieldIdInExpression } from './ohri-repeat.component';
+import { updateFieldIdInExpression } from './helpers';
 
 describe('OhriRepeatComponent - handleExpressionFieldIdUpdate', () => {
   it('Should handle update of expression with ids in repeat group', () => {
@@ -10,7 +10,7 @@ describe('OhriRepeatComponent - handleExpressionFieldIdUpdate', () => {
     const updatedExpression = updateFieldIdInExpression(expression, index, fieldIds);
 
     expect(updatedExpression).toEqual(
-      "infantStatus-2 !== '151849AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' && infantStatus-2 !== '154223AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'",
+      "infantStatus_2 !== '151849AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' && infantStatus_2 !== '154223AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'",
     );
   });
 

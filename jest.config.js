@@ -15,6 +15,7 @@ module.exports = {
   },
   transformIgnorePatterns: ['/node_modules/(?!@openmrs)'],
   moduleNameMapper: {
+    '^dexie$': require.resolve('dexie'),
     '\\.(s?css)$': 'identity-obj-proxy',
     '@openmrs/esm-framework': '@openmrs/esm-framework/mock',
     'react-i18next': '<rootDir>/__mocks__/react-i18next.js',

@@ -94,6 +94,7 @@ export interface OHRIFormField {
   type: string;
   questionOptions: OHRIFormQuestionOptions;
   id: string;
+  groupId?: string;
   questions?: Array<OHRIFormField>;
   value?: any;
   hide?: HideProps;
@@ -155,7 +156,7 @@ export interface OHRIFormQuestionOptions {
   locationTag?: string;
   rows?: number;
   toggleOptions?: { labelTrue: string; labelFalse: string };
-  repeatOptions?: { addText?: string; limit?: string; limitExpression?: string };
+  repeatOptions?: { addText?: string; limit?: string; limitExpression?: string; isCloned?: boolean };
   defaultValue?: any;
   calculate?: {
     calculateExpression: string;
@@ -193,6 +194,7 @@ export interface PostSubmissionAction {
     sessionMode: SessionMode;
   }): void;
 }
+
 // OpenMRS Type Definitions
 export interface OpenmrsEncounter {
   uuid?: string;
@@ -207,6 +209,7 @@ export interface OpenmrsEncounter {
   encounterProviders?: Array<Record<string, any>>;
   form?: {
     uuid: string;
+    [anythingElse: string]: any;
   };
 }
 
@@ -242,4 +245,15 @@ export interface OpenmrsForm {
 export interface OpenmrsFormResource extends OpenmrsResource {
   dataType: string;
   valueReference: string;
+}
+
+export interface DataSource<T> {
+  /**
+   * Fetches arbitrary data from a data source
+   */
+  fetchData(searchTerm?: string): Promise<Array<T>>;
+  /**
+   * Maps a data source item to an object with a uuid and display property
+   */
+  toUuidAndDisplay(item: T): OpenmrsResource;
 }

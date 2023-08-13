@@ -6,7 +6,7 @@ import { OHRIFormField, OpenmrsEncounter, OpenmrsObs, SubmissionHandler } from '
 import { parseToLocalDateTime } from '../utils/ohri-form-helper';
 
 // Temporarily holds observations that have already been binded with matching fields
-let assignedObsIds: string[] = [];
+export let assignedObsIds: string[] = [];
 
 /**
  * Obs handler

@@ -81,7 +81,7 @@ describe('useFormJson', () => {
     expect(hook.result.current.formJson.name).toBe(MINI_FORM_NAME);
   });
 
-  fit('should load form with nested subforms', async () => {
+  it('should load form with nested subforms', async () => {
     let hook = null;
     await act(async () => {
       hook = renderHook(() => useFormJson(PARENT_FORM_NAME, null, null, null));
