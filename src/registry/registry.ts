@@ -21,6 +21,7 @@ import { getGlobalStore } from '@openmrs/esm-framework';
 import { OHRIFormsStore } from '../constants';
 import OHRIExtensionParcel from '../components/extension/ohri-extension-parcel.component';
 import { EncounterDatetimeHandler } from '../submission-handlers/encounterDatetimeHandler';
+import File from '../components/inputs/file/file.component';
 
 export interface RegistryItem {
   id: string;
@@ -146,6 +147,12 @@ export const baseFieldComponents: Array<CustomControlRegistration> = [
     id: 'OHRIDateTime',
     loadControl: () => Promise.resolve({ default: OHRIDate }),
     type: 'datetime',
+    alias: '',
+  },
+  {
+    id: 'file',
+    loadControl: () => Promise.resolve({ default: File }),
+    type: 'file',
     alias: '',
   },
 ];
