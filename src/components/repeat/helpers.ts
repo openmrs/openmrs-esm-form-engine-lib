@@ -1,8 +1,5 @@
-import { getConcept } from '../../api/api';
 import { OHRIFormField } from '../../api/types';
 import { cloneDeep } from 'lodash-es';
-import dayjs from 'dayjs';
-import { ConceptTrue } from '../../constants';
 
 export function cloneObsGroup(srcField: OHRIFormField, obsGroup: any, idSuffix: number) {
   const originalGroupMembersIds: string[] = [];
@@ -46,38 +43,6 @@ export function cloneObsGroup(srcField: OHRIFormField, obsGroup: any, idSuffix: 
   });
   return clonedField;
 }
-
-export const getInitialValueFromObs = (field: OHRIFormField, obsGroup: any) => {
-  const rendering = field.questionOptions.rendering;
-  const obs = obsGroup.groupMembers.filter(o => o.concept.uuid == field.questionOptions.concept);
-  if (obs.length) {
-    field.value = obs[0];
-    if (rendering == 'radio' || rendering == 'content-switcher') {
-      // TODO: Now that concepts are fetched at initialization, we don't need to perform this API call.
-      // Link the concepts with the associated form fields for future references
-      getConcept(field.questionOptions.concept, 'custom:(uuid,display,datatype:(uuid,display,name))').subscribe(
-        result => {
-          if (result.datatype.name == 'Boolean') {
-            field.value.value = obs[0].value.uuid;
-          }
-        },
-      );
-    }
-    if (typeof obs[0].value == 'string' || typeof obs[0].value == 'number') {
-      return field.questionOptions.rendering == 'date' ? dayjs(obs[0].value).toDate() : obs[0].value;
-    }
-    if (field.questionOptions.rendering == 'checkbox') {
-      field.value = obs;
-      return field.value.map(o => o.value.uuid);
-    }
-    if (field.questionOptions.rendering == 'toggle') {
-      field.value.value = obs[0].value.uuid;
-      return obs[0].value == ConceptTrue;
-    }
-    return obs[0].value?.uuid;
-  }
-  return '';
-};
 
 export const updateFieldIdInExpression = (expression: string, index: number, questionIds: string[]) => {
   let uniqueQuestionIds = [...new Set(questionIds)];
