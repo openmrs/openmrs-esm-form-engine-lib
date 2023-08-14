@@ -300,7 +300,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     node.value.isHidden = isHidden;
     if (type == 'field' && node.value?.questions?.length) {
       node.value?.questions.forEach(question => {
-        question.isHidden = isHidden;
+        question.isParentHidden = isHidden;
       });
     }
     // cascade visibility
