@@ -4,12 +4,7 @@ import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { ConceptTrue } from '../../constants';
 
-export function cloneObsGroup(
-  srcField: OHRIFormField,
-  obsGroup: any,
-  idSuffix: number,
-  allFieldValues: Record<string, any>,
-) {
+export function cloneObsGroup(srcField: OHRIFormField, obsGroup: any, idSuffix: number) {
   const originalGroupMembersIds: string[] = [];
   const clonedField = cloneDeep(srcField) as OHRIFormField;
   clonedField.questionOptions.repeatOptions = { ...(clonedField.questionOptions.repeatOptions ?? {}), isCloned: true };
@@ -20,12 +15,6 @@ export function cloneObsGroup(
     childField.id = `${childField.id}_${idSuffix}`;
     childField['groupId'] = clonedField.id;
     childField.value = null;
-    const initialValue = obsGroup ? getInitialValueFromObs(childField, obsGroup) : null;
-    allFieldValues[`${childField.id}`] = initialValue
-      ? initialValue
-      : childField.questionOptions.rendering == 'checkbox'
-      ? []
-      : '';
 
     // cleanup expressions
 

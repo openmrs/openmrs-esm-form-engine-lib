@@ -8,5 +8,5 @@ export * from './utils/ohri-form-helper';
 export * from './ohri-form-context';
 export * from './components/value/view/ohri-field-value-view.component';
 export * from './components/previous-value-review/previous-value-review.component';
-export * from './hooks/useFormJson'
+export * from './hooks/useFormJson';
 export { default as OHRIForm } from './ohri-form.component';

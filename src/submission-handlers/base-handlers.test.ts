@@ -726,6 +726,97 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
     expect(initialValue).toEqual('12f7be3d-fb5d-47dc-b5e3-56c501be80a6');
   });
 
+  it('should get intial values for obs-group members', () => {
+    // setup
+    const basePath = 'ohri-forms-';
+    const groupingQuestion: OHRIFormField = {
+      label: 'Obs Group',
+      type: 'obsGroup',
+      questionOptions: {
+        rendering: 'group',
+        concept: '3e59df68-v77c-49b3-9d33-aS75133c6a67',
+      },
+      questions: [
+        {
+          label: 'Past enrolled patient programs',
+          type: 'obs',
+          questionOptions: {
+            rendering: 'checkbox',
+            concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
+          },
+          id: 'past-patient-programs',
+        },
+        {
+          label: 'Visit note',
+          type: 'obs',
+          questionOptions: {
+            rendering: 'text',
+            concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+          },
+          id: 'visit-note',
+        },
+      ],
+      id: 'obs-group',
+    };
+    const obsList: Array<any> = [
+      {
+        uuid: 'm2487deh-e55f-4689-8791-nc9191798180',
+        concept: {
+          uuid: '3e59df68-v77c-49b3-9d33-aS75133c6a67',
+        },
+        groupMembers: [
+          {
+            uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
+            concept: {
+              uuid: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
+            },
+            value: {
+              uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
+            },
+            obsGroup: {
+              uuid: 'm2487deh-e55f-4689-8791-nc9191798180',
+            },
+            formFieldPath: basePath + 'past-patient-programs',
+          },
+          {
+            uuid: '23fd1819-0eb2-4753-88d7-6fc015786c8d',
+            concept: {
+              uuid: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
+            },
+            value: {
+              uuid: '6f337e18-5445-437f-8298-684a7067dc1c',
+            },
+            obsGroup: {
+              uuid: 'm2487deh-e55f-4689-8791-nc9191798180',
+            },
+            formFieldPath: basePath + 'past-patient-programs',
+          },
+          {
+            uuid: '86a9366f-009b-40b7-b8ac-81fc6c4d7ca6',
+            concept: {
+              uuid: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+            },
+            value: 'Can be discharged in next visit',
+            obsGroup: {
+              uuid: 'm2487deh-e55f-4689-8791-nc9191798180',
+            },
+            formFieldPath: basePath + 'visit-note',
+          },
+        ],
+      },
+    ];
+
+    encounterContext.encounter['obs'] = obsList;
+
+    // past enrolled programs init value
+    let initialValue = ObsSubmissionHandler.getInitialValue(encounterContext.encounter, groupingQuestion.questions[0]);
+    expect(initialValue).toEqual(['105e7ad6-c1fd-11eb-8529-0242ac130ju9', '6f337e18-5445-437f-8298-684a7067dc1c']);
+
+    // visit note init value
+    initialValue = ObsSubmissionHandler.getInitialValue(encounterContext.encounter, groupingQuestion.questions[1]);
+    expect(initialValue).toEqual('Can be discharged in next visit');
+  });
+
   it('should update obs value with boolean concept uuid for boolean types', () => {
     // setup
     jest.mock('../api/api', () => {
@@ -868,19 +959,22 @@ describe('findObsByFormField', () => {
 
   it('Should find observation by field path', () => {
     // do find
-    let obs = findObsByFormField(obsList, [], fields[0]);
+    let matchedObs = findObsByFormField(obsList, [], fields[0]);
     // verify
-    expect(obs).toBe(obsList[0]);
+    expect(matchedObs.length).toBe(1);
+    expect(matchedObs[0]).toBe(obsList[0]);
     // replay
-    obs = findObsByFormField(obsList, [], fields[1]);
+    matchedObs = findObsByFormField(obsList, [], fields[1]);
     // verify
-    expect(obs).toBe(obsList[2]);
+    expect(matchedObs.length).toBe(1);
+    expect(matchedObs[0]).toBe(obsList[2]);
   });
 
   it('Should fallback to mapping by concept if no obs was found by fieldpath', () => {
     // do find
-    const obs = findObsByFormField(obsList, [obsList[1].uuid], fields[3]);
+    const matchedObs = findObsByFormField(obsList, [obsList[1].uuid], fields[3]);
     // verify
-    expect(obs).toBe(obsList[3]);
+    expect(matchedObs.length).toBe(1);
+    expect(matchedObs[0]).toBe(obsList[3]);
   });
 });
