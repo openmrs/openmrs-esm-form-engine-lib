@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
 import { OHRIFormContext } from '../../../ohri-form-context';
+import OHRIAnnotate from '../annotate/ohri-annotate.component';
 
 interface FileProps extends OHRIFormFieldProps {}
 
@@ -44,7 +45,12 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
           {selectedFiles.map((file, index) => (
             <div key={index} className="file-preview">
               <p>{file.name}</p>
-              {file.type.includes('image') ? <img src={URL.createObjectURL(file)} alt="Preview" /> : <span>File Icon</span>}
+              {file.type.includes('image') ? (
+                <div>
+                  <img src={URL.createObjectURL(file)} alt="Preview" />
+                  <OHRIAnnotate imageUrl={URL.createObjectURL(file)} />
+                </div>
+              ) : (<span>File Icon</span>) }
             </div>
           ))}
         </div>
