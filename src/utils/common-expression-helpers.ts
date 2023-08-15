@@ -78,10 +78,10 @@ export class CommonExpressionHelpers {
     return date;
   };
 
-  addDaysToDate = (date, days) => {
-    date.setDate(date.getDate() + days);
-
-    return date;
+  addDaysToDate = (date: Date, days: number): Date => {
+    return dayjs(date)
+      .add(days, 'day')
+      .toDate();
   };
 
   useFieldValue = (questionId: string) => {

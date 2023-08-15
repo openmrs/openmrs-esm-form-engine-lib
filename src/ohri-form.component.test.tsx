@@ -1,4 +1,4 @@
-import { render, fireEvent, screen, cleanup, act, getByText } from '@testing-library/react';
+import { render, fireEvent, screen, cleanup, act } from '@testing-library/react';
 import { when } from 'jest-when';
 import React from 'react';
 import OHRIForm from './ohri-form.component';
@@ -22,12 +22,11 @@ import demoHtsOhriForm from '../__mocks__/forms/ohri-forms/demo_hts-form.json';
 import {
   assertFormHasAllFields,
   findMultiSelectInput,
-  findNumberInput, findRadioGroupInput, findRadioGroupMember,
+  findNumberInput, 
   findSelectInput,
   findTextOrDateInput,
 } from './utils/test-utils';
 import { mockVisit } from '../__mocks__/visit.mock';
-import {async} from "rxjs";
 
 //////////////////////////////////////////
 ////// Base setup
@@ -344,7 +343,7 @@ describe('OHRI Forms:', () => {
       await act(async () => expect(yes[0].value).toBe("3cd6f600-26fe-102b-80cb-0017a47871b2"))
       await act(async () => expect(yes[1].value).toBe("3cd6f600-26fe-102b-80cb-0017a47871b2"))
     })
-  })
+  });
 
   function renderForm(formUUID, formJson, intent?: string) {
     return act(() => {

@@ -14,16 +14,16 @@
 							"questionOptions": {
 								"rendering": "number",
 								"concept": "560555AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-                                "calculate": {
-                                    "calculateExpression": "resolve(api.getLatestObs('50512033-e047-4855-b2d3-1a6d9e889ff4', '560555AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')).valueNumeric"
-                                },
+								"calculate": {
+									"calculateExpression": "resolve(api.getLatestObs('50512033-e047-4855-b2d3-1a6d9e889ff4', '560555AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')).valueNumeric"
+								},
 								"conceptMappings": [
 									{
 										"type": "CIEL",
 										"value": "160555"
 									}
 								]
-                                
+
 							},
 							"id": "bodyWeight",
 							"validators": [],

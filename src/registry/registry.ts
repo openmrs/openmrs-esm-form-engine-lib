@@ -12,7 +12,7 @@ import OHRIToggle from '../components/inputs/toggle/ohri-toggle.component';
 import { OHRIRepeat } from '../components/repeat/ohri-repeat.component';
 import { OHRIFieldValidator } from '../validators/ohri-form-validator';
 import { EncounterLocationSubmissionHandler, ObsSubmissionHandler } from '../submission-handlers/base-handlers';
-import { FieldValidator, PostSubmissionAction, SubmissionHandler } from '../api/types';
+import { DataSource, FieldValidator, PostSubmissionAction, SubmissionHandler } from '../api/types';
 import OHRIFixedValue from '../components/inputs/fixed-value/ohri-fixed-value.component';
 import OHRIMarkdown from '../components/inputs/markdown/ohri-markdown.component';
 import { OHRIDateValidator } from '../validators/ohri-date-validator';
@@ -22,6 +22,8 @@ import { OHRIFormsStore } from '../constants';
 import OHRIExtensionParcel from '../components/extension/ohri-extension-parcel.component';
 import { EncounterDatetimeHandler } from '../submission-handlers/encounterDatetimeHandler';
 import File from '../components/inputs/file/file.component';
+import { UISelectExtended } from '../components/inputs/ui-select-extended/ui-select-extended';
+
 
 export interface RegistryItem {
   id: string;
@@ -45,6 +47,10 @@ export interface CustomControlRegistration extends Omit<ComponentRegistration, '
 }
 interface ValidatorRegistryItem extends RegistryItem {
   component: FieldValidator;
+}
+
+interface DataSourceRegistryItem extends Omit<RegistryItem, 'type'> {
+  component: DataSource<any>;
 }
 
 export interface FormsRegistryStoreState {
@@ -94,6 +100,11 @@ export const baseFieldComponents: Array<CustomControlRegistration> = [
     loadControl: () => Promise.resolve({ default: OHRIEncounterLocationPicker }),
     type: 'encounter-location',
     alias: '',
+  },
+  {
+    id: 'UISelectExtended',
+    loadControl: () => Promise.resolve({ default: UISelectExtended }),
+    type: 'ui-select-extended',
   },
   {
     id: 'OHRIDropdown',
@@ -195,6 +206,8 @@ const fieldValidators: Array<ValidatorRegistryItem> = [
   },
 ];
 
+const dataSources: Array<DataSourceRegistryItem> = [];
+
 export const getFieldComponent = renderType => {
   let lazy = baseFieldComponents.find(item => item.type == renderType || item?.alias == renderType)?.loadControl;
   if (!lazy) {
@@ -227,6 +240,10 @@ function getOHRIFormsStore(): FormsRegistryStoreState {
 
 export function getValidator(id: string): FieldValidator {
   return fieldValidators.find(validator => validator.id == id)?.component || fieldValidators[0].component;
+}
+
+export function getDataSource(id: string): DataSource<any> {
+  return dataSources.find(dataSource => dataSource.id == id)?.component;
 }
 
 export function registerControl(registration: CustomControlRegistration) {

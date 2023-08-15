@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Form, Formik } from 'formik';
-import { Button, ButtonSet, ComposedModal, InlineLoading, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
+import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import {
@@ -27,7 +27,7 @@ import LinearLoader from './components/loaders/linear-loader.component';
 import LoadingIcon from './components/loaders/loading.component';
 import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
 import WarningModal from './components/warning-modal.component';
-import styles from './ohri-form.scss';
+import styles from './ohri-form.component.scss';
 
 interface OHRIFormProps {
   patientUUID: string;
