@@ -495,7 +495,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       : [{ type: 'OHRIBaseValidator' }];
     // handle validation
     const basevalidatorConfig = {
-      expressionContext: { mode: sessionMode },
+      expressionContext: { patient, mode: sessionMode },
       values: { ...values, [fieldName]: value },
       fields,
     };
