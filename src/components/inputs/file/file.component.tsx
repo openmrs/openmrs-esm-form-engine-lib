@@ -19,7 +19,7 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
 
   const [selectedFiles, setSelectedFiles] = useState([]); // Add state for selected files
 
-  const handleFileChange = (event) => {
+  const handleFileChange = event => {
     const newSelectedFiles = Array.from(event.target.files);
     setSelectedFiles(newSelectedFiles);
     setFieldValue(question.id, newSelectedFiles); // Update form field value
@@ -48,9 +48,12 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
               {file.type.includes('image') ? (
                 <div>
                   <img src={URL.createObjectURL(file)} alt="Preview" />
+
                   <OHRIAnnotate imageUrl={URL.createObjectURL(file)} />
                 </div>
-              ) : (<span>File Icon</span>) }
+              ) : (
+                <span>File Icon</span>
+              )}
             </div>
           ))}
         </div>
