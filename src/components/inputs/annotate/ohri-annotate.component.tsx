@@ -21,9 +21,6 @@ const OHRIAnnotate = ({ imageUrl }) => {
     setAnnotatedImageUrl(url);
   };
 
-  // eslint-disable-next-line no-console
-  console.log('imageUrl:', imageUrl);
-
   // Handle the annotation click event
   const handleAnnotateClick = () => {
     //set the flag to false before opening the annotation tool.
