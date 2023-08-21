@@ -1,15 +1,17 @@
 import { openmrsFetch } from '@openmrs/esm-framework';
+import { OHRIFormSchema, ConfigObject } from './api/types';
 
-export const handleFormValidation = async (schema, configObject) => {
+export const handleFormValidation = async (
+  schema: OHRIFormSchema,
+  configObject: ConfigObject,
+): Promise<Array<Array<Record<string, any>>>> => {
   const errorsArray = [];
   const warningsArray = [];
 
   if (schema) {
-    const parsedForm = typeof schema == 'string' ? JSON.parse(schema) : schema;
-
     const asyncTasks = [];
 
-    parsedForm.pages?.forEach(page =>
+    schema.pages?.forEach(page =>
       page.sections?.forEach(section =>
         section.questions?.forEach(question => {
           asyncTasks.push(

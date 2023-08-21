@@ -254,3 +254,13 @@ export interface DataSource<T> {
    */
   toUuidAndDisplay(item: T): OpenmrsResource;
 }
+
+export interface ConfigObject {
+  Numeric: Array<string>;
+  Coded: Array<string>;
+  Text: Array<string>;
+  Date: Array<string>;
+  Datetime: Array<string>;
+  Boolean: Array<string>;
+  Rule: Array<string>;
+}
