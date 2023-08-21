@@ -115,12 +115,11 @@ jest.mock('../utils/expression-runner', () => {
   };
 });
 
-describe('useInialValues', () => {
+describe('useInitialValues', () => {
   const encounterDate = new Date();
 
   afterEach(() => {
-    allFormFields = allFormFields.slice(0, 6);
-    allFormFields.forEach(field => {
+    allFormFields.slice(0, 6).forEach(field => {
       delete field.value;
     });
   });
@@ -182,10 +181,10 @@ describe('useInialValues', () => {
       notes: 'Mother is in perfect condition',
       screening_methods: [],
       // child one
-      date_of_birth: '7/24/2023',
+      date_of_birth: new Date('2023-07-24T00:00:00.000+0000').toLocaleDateString('en-US'),
       infant_name: 'TBD',
       // child two
-      date_of_birth_1: '7/24/2023',
+      date_of_birth_1: new Date('2023-07-24T00:00:00.000+0000').toLocaleDateString('en-US'),
       infant_name_1: ' TDB II',
     });
     expect(allFormFields.find(field => field.id === 'date_of_birth_1')).not.toBeNull();
@@ -231,7 +230,9 @@ describe('useInialValues', () => {
       notes: '',
       screening_methods: [],
       date_of_birth: '',
+      date_of_birth_1: '',
       infant_name: '',
+      infant_name_1: '',
       latest_mother_hiv_status: '664AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
     });
   });
