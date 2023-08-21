@@ -28,41 +28,27 @@ export function evaluateExpression(
   // register dependencies
   findAndRegisterReferencedFields(node, parts, fields);
   // setup function scope
-  let { mode, myValue, patient } = context;
+  let { myValue, patient } = context;
   const { sex, age } = patient && 'sex' in patient && 'age' in patient ? patient : { sex: undefined, age: undefined };
 
   if (node.type === 'field' && myValue === undefined) {
     myValue = fieldValues[node.value['id']];
   }
-  const {
-    isEmpty,
-    today,
-    includes,
-    isDateBefore,
-    isDateAfter,
-    addWeeksToDate,
-    addDaysToDate,
-    useFieldValue,
-    calcBMI,
-    calcEDD,
-    calcMonthsOnART,
-    calcViralLoadStatus,
-    calcNextVisitDate,
-    calcTreatmentEndDate,
-    calcAgeBasedOnDate,
-    calcBSA,
-    arrayContains,
-    arrayContainsAny,
-    formatDate,
-    extractRepeatingGroupValues,
-    calcGravida,
-    calcTimeDifference,
-  } = new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys);
+
+  const expressionContext = {
+    ...new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys),
+    ...context,
+    fieldValues,
+    patient,
+    myValue,
+    sex,
+    age,
+  };
 
   expression = linkReferencedFieldValues(fields, fieldValues, parts);
 
   try {
-    return eval(expression);
+    return evaluate(expression, expressionContext);
   } catch (error) {
     console.error(`Error: ${error} \n\n failing expression: ${expression}`);
   }
@@ -83,39 +69,27 @@ export async function evaluateAsyncExpression(
   let parts = parseExpression(expression.trim());
   // register dependencies
   findAndRegisterReferencedFields(node, parts, fields);
+
   // setup function scope
-  let { mode, myValue, patient } = context;
+  let { myValue, patient } = context;
   const { sex, age } = patient && 'sex' in patient && 'age' in patient ? patient : { sex: undefined, age: undefined };
   if (node.type === 'field' && myValue === undefined) {
     myValue = fieldValues[node.value['id']];
   }
-  const {
-    api,
-    isEmpty,
-    today,
-    includes,
-    isDateBefore,
-    isDateAfter,
-    addWeeksToDate,
-    addDaysToDate,
-    useFieldValue,
-    calcBMI,
-    calcEDD,
-    calcMonthsOnART,
-    calcViralLoadStatus,
-    calcNextVisitDate,
-    calcTreatmentEndDate,
-    calcAgeBasedOnDate,
-    calcBSA,
-    arrayContains,
-    arrayContainsAny,
-    formatDate,
-    extractRepeatingGroupValues,
-    calcGravida,
-    calcTimeDifference,
-  } = new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys);
+
+  const expressionContext = {
+    ...new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys),
+    ...context,
+    fieldValues,
+    patient,
+    myValue,
+    sex,
+    age,
+    temporaryObjectsMap: {},
+  };
 
   expression = linkReferencedFieldValues(fields, fieldValues, parts);
+
   // parts with resolve-able field references
   parts = parseExpression(expression);
   const lazyFragments = [];
@@ -130,7 +104,7 @@ export async function evaluateAsyncExpression(
 
   const temporaryObjectsMap = {};
   // resolve lazy fragments
-  const fragments = await Promise.all(lazyFragments.map(({ expression }) => eval(expression)));
+  const fragments = await Promise.all(lazyFragments.map(({ expression }) => evaluate(expression, expressionContext)));
   lazyFragments.forEach((fragment, index) => {
     if (typeof fragments[index] == 'object') {
       const objectKey = `obj_${index}`;
@@ -144,19 +118,14 @@ export async function evaluateAsyncExpression(
     }
   });
 
+  expressionContext.temporaryObjectsMap = temporaryObjectsMap;
+
   try {
-    return eval(expression);
+    return evaluate(expression, expressionContext);
   } catch (error) {
     console.error(`Error: ${error} \n\n failing expression: ${expression}`);
   }
   return null;
-}
-
-/**
- * Used as wrapper around async functions. It basically evaluates the promised value.
- */
-export function resolve(lazy: Promise<any>) {
-  return Promise.resolve(lazy);
 }
 
 /**
@@ -171,4 +140,18 @@ export function checkReferenceToResolvedFragment(token: string) {
   const match = token.match(/resolve\((.*)\)/) || [];
   const chainedRef = match.length ? token.substring(token.indexOf(match[0]) + match[0].length) : '';
   return [match[0] || '', chainedRef];
+}
+
+/**
+ * A slightly safer version of the built-in eval()
+ *
+ * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
+ *
+ * @param expression A JS expression to execute
+ */
+function evaluate(expression: string, expressionContext?: Record<string, any>) {
+  return Function(...Object.keys(expressionContext), `"use strict"; return (${expression})`).call(
+    undefined,
+    ...Object.values(expressionContext),
+  );
 }
