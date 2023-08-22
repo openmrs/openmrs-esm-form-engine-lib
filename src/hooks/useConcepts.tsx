@@ -1,32 +1,28 @@
-import useSWRImmutable,  {mutate}  from 'swr/immutable';
+import useSWRImmutable from 'swr/immutable';
 import { openmrsFetch, OpenmrsResource } from '@openmrs/esm-framework';
 
 const conceptRepresentation =
   'custom:(uuid,display,conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
-const defaultPageSize = 50; // Modify this value based on your backend configuration
 
 export function useConcepts(references: Set<string>) {
-  const fetcher = async (url: string) => {
+  const pageSize = 10; 
+  const pagesToFetch = Math.ceil(references.size / pageSize);
+
+  const fetcher = async (url) => {
     const response = await openmrsFetch(url);
     const data = await response.json();
-    return data.results;
+    return data;
   };
 
-  const queryKey = `/ws/rest/v1/concept?references=${Array.from(references).join(',')}&v=${conceptRepresentation}&limit=${defaultPageSize}`;
+  const pages = Array.from({ length: pagesToFetch }, (_, index) => {
+    const offset = index * pageSize;
+    const referencesSlice = Array.from(references).slice(offset, offset + pageSize);
+    const referenceString = referencesSlice.join(',');
+    return `/ws/rest/v1/concept?references=${referenceString}&v=${conceptRepresentation}`;
+  });
 
-  const { data, error, isValidating, mutate: mutateData } = useSWRImmutable(queryKey, fetcher);
+  const { data, error, isLoading } = useSWRImmutable(pages, fetcher);
 
-  async function fetchNextPage(startIndex: number) {
-    const url = `${queryKey}&startIndex=${startIndex}`;
-    const newData = await fetcher(url);
-    mutateData([...data, ...newData], false);
-  }
 
-  return {
-    concepts: data,
-    error,
-    isLoading: !data && !error,
-    isValidating,
-    fetchNextPage,
-  };
+  return { concepts: data, error, isLoading };
 }
