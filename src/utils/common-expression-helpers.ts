@@ -30,9 +30,9 @@ export class CommonExpressionHelpers {
     this.patient = patient;
   }
 
-  today() {
+  today = () => {
     return new Date();
-  }
+  };
 
   includes = <T = any>(collection: T[], value: T) => {
     return collection?.includes(value);
@@ -278,6 +278,13 @@ export class CommonExpressionHelpers {
       }
     }
     return daySinceLastObs === '' ? '0' : daySinceLastObs;
+  };
+
+  /**
+   * Used as wrapper around async functions. It basically evaluates the promised value.
+   */
+  resolve = (lazy: Promise<unknown>) => {
+    return Promise.resolve(lazy);
   };
 }
 
