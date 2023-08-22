@@ -1,4 +1,3 @@
-'use ';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
@@ -35,7 +34,7 @@ export class CommonExpressionHelpers {
     return new Date();
   }
 
-  includes = (collection: any[], value: any) => {
+  includes = <T = any>(collection: T[], value: T) => {
     return collection?.includes(value);
   };
 
@@ -72,7 +71,7 @@ export class CommonExpressionHelpers {
     return selectedDate.getTime() > calculatedDate.getTime();
   };
 
-  addWeeksToDate = (date, weeks) => {
+  addWeeksToDate = (date: Date, weeks: number) => {
     date.setDate(date.getDate() + 7 * weeks);
 
     return date;
@@ -91,12 +90,12 @@ export class CommonExpressionHelpers {
     return null;
   };
 
-  calcBMI = (height, weight) => {
-    let r;
+  calcBMI = (height: number, weight: number) => {
+    let r: string;
     if (height && weight) {
       r = (weight / (((height / 100) * height) / 100)).toFixed(1);
     }
-    return height && weight ? parseFloat(r) : null;
+    return r ? parseFloat(r) : null;
   };
 
   /**
@@ -104,7 +103,7 @@ export class CommonExpressionHelpers {
    * @param lmpQuestionId
    * @returns
    */
-  calcEDD = lmp => {
+  calcEDD = (lmp: Date) => {
     let resultEdd = {};
     if (lmp) {
       resultEdd = new Date(lmp.getTime() + 280 * 24 * 60 * 60 * 1000);
@@ -112,9 +111,9 @@ export class CommonExpressionHelpers {
     return lmp ? resultEdd : null;
   };
 
-  calcMonthsOnART = artStartDate => {
+  calcMonthsOnART = (artStartDate: Date) => {
     let today = new Date();
-    let resultMonthsOnART;
+    let resultMonthsOnART: number;
     let artInDays = Math.round((today.getTime() - artStartDate.getTime?.()) / 86400000);
     if (artStartDate && artInDays >= 30) {
       resultMonthsOnART = Math.floor(artInDays / 30);
@@ -122,8 +121,8 @@ export class CommonExpressionHelpers {
     return artStartDate ? resultMonthsOnART : null;
   };
 
-  calcViralLoadStatus = viralLoadCount => {
-    let resultViralLoadStatus;
+  calcViralLoadStatus = (viralLoadCount: number) => {
+    let resultViralLoadStatus: string;
     if (viralLoadCount) {
       if (viralLoadCount > 50) {
         resultViralLoadStatus = 'a6768be6-c08e-464d-8f53-5f4229508e54';
@@ -131,18 +130,18 @@ export class CommonExpressionHelpers {
         resultViralLoadStatus = '5d5e42cc-acc4-4069-b3a8-7163e0db5d96';
       }
     }
-    return viralLoadCount ? resultViralLoadStatus : null;
+    return resultViralLoadStatus ?? null;
   };
 
   calcNextVisitDate = (followupDate, arvDispensedInDays) => {
-    let resultNextVisitDate = {};
+    let resultNextVisitDate: Date;
     if (followupDate && arvDispensedInDays) {
       resultNextVisitDate = new Date(followupDate.getTime() + arvDispensedInDays * 24 * 60 * 60 * 1000);
     }
-    return followupDate && arvDispensedInDays ? resultNextVisitDate : null;
+    return resultNextVisitDate ?? null;
   };
 
-  calcTreatmentEndDate = (followupDate, arvDispensedInDays, patientStatus) => {
+  calcTreatmentEndDate = (followupDate: Date, arvDispensedInDays: number, patientStatus: string) => {
     let resultTreatmentEndDate = {};
     let extraDaysAdded = 30 + arvDispensedInDays;
     if (followupDate && arvDispensedInDays && patientStatus == '160429AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA') {
@@ -153,7 +152,7 @@ export class CommonExpressionHelpers {
       : null;
   };
 
-  calcAgeBasedOnDate = dateValue => {
+  calcAgeBasedOnDate = (dateValue?: ConstructorParameters<typeof Date>[0] | null) => {
     let targetYear = null;
     if (dateValue) {
       targetYear = new Date(dateValue).getFullYear();
@@ -166,57 +165,69 @@ export class CommonExpressionHelpers {
   };
 
   //Ampath Helper Functions
-  calcBSA = (height, weight) => {
-    let result;
+  calcBSA = (height: number, weight: number) => {
+    let result: string;
     if (height && weight) {
       result = Math.sqrt((height * weight) / 3600).toFixed(2);
     }
-    return height && weight ? parseFloat(result) : null;
+    return result ? parseFloat(result) : null;
   };
 
-  arrayContains = (array, members) => {
-    if (Array.isArray(members)) {
-      if (members.length === 0) {
+  arrayContains = <T = any>(array: T[], members: T[] | T) => {
+    if (!array || !Array.isArray(array)) {
+      return false;
+    }
+
+    if (array.length === 0) {
+      return members === undefined || members === null || (Array.isArray(members) && members.length === 0);
+    }
+
+    if (!Array.isArray(members)) {
+      members = [members];
+    }
+
+    if (members.length === 0) {
+      return true;
+    }
+
+    for (let val of members) {
+      if (array.indexOf(val) === -1) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  arrayContainsAny = <T = any>(array: T[], members: T[]) => {
+    if (!array || !Array.isArray(array)) {
+      return false;
+    }
+
+    if (array.length === 0) {
+      return members === undefined || members === null || (Array.isArray(members) && members.length === 0);
+    }
+
+    if (!Array.isArray(members)) {
+      members = [members];
+    }
+
+    if (members.length === 0) {
+      return true;
+    }
+
+    for (let val of members) {
+      if (array.indexOf(val) !== -1) {
         return true;
       }
-
-      let contains = true;
-
-      for (let i = 0; i < members.length; i++) {
-        const val = members[i];
-        if (array.indexOf(val) === -1) {
-          contains = false;
-        }
-      }
-
-      return contains;
-    } else {
-      return array.indexOf(members) !== -1;
     }
+
+    return false;
   };
 
-  arrayContainsAny = (array, members) => {
-    if (Array.isArray(members)) {
-      if (members.length === 0) {
-        return true;
-      }
-      let contains = false;
-
-      for (let i = 0; i < members.length; i++) {
-        const val = members[i];
-        if (array.indexOf(val) !== -1) {
-          contains = true;
-        }
-      }
-      return contains;
-    } else {
-      return array.indexOf(members) !== -1;
-    }
-  };
-
-  formatDate = (value, format, offset) => {
-    format = format || 'yyyy-MM-dd';
-    offset = offset || '+0300';
+  formatDate = (value: ConstructorParameters<typeof Date>[0], format?: string | null, offset?: string | null) => {
+    format = format ?? 'yyyy-MM-dd';
+    offset = offset ?? '+0300';
 
     if (!(value instanceof Date)) {
       value = new Date(value);
@@ -228,7 +239,7 @@ export class CommonExpressionHelpers {
     return value;
   };
 
-  extractRepeatingGroupValues = (key, array) => {
+  extractRepeatingGroupValues = (key: string | number | symbol, array: Record<string | number | symbol, unknown>[]) => {
     const values = array.map(function(item) {
       return item[key];
     });
@@ -249,8 +260,8 @@ export class CommonExpressionHelpers {
     return gravida;
   }
 
-  calcTimeDifference = (obsDate, timeFrame) => {
-    let daySinceLastObs;
+  calcTimeDifference = (obsDate: Date | dayjs.Dayjs, timeFrame: 'd' | 'w' | 'm' | 'y') => {
+    let daySinceLastObs: number | string = '';
     const endDate = dayjs();
     if (obsDate) {
       if (timeFrame == 'd') {
@@ -266,7 +277,7 @@ export class CommonExpressionHelpers {
         daySinceLastObs = Math.abs(Math.round(endDate.diff(obsDate, 'year', true)));
       }
     }
-    return daySinceLastObs == '' ? '0' : daySinceLastObs;
+    return daySinceLastObs === '' ? '0' : daySinceLastObs;
   };
 }
 
