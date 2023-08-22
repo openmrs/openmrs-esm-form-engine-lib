@@ -147,7 +147,16 @@ export function checkReferenceToResolvedFragment(token: string) {
  *
  * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
  *
+ * ```js
+ * evaluate("myNum + 2", { myNum: 5 }); // 7
+ * ```
+ *
+ * Note that references to variables not included in the `expressionContext` will result at
+ * `undefined` during evaluation.
+ *
  * @param expression A JS expression to execute
+ * @param expressionContext A JS object consisting of the names to make available in the scope
+ *   the expression is executed in.
  */
 function evaluate(expression: string, expressionContext?: Record<string, any>) {
   return Function(...Object.keys(expressionContext), `"use strict"; return (${expression})`).call(
