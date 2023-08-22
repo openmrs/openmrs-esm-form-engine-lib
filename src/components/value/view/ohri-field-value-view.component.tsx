@@ -17,7 +17,7 @@ export const OHRIFieldValueView: React.FC<OHRIFieldValueViewProps> = ({ label, c
       <div className={styles.formField}>
         <Row>
           <Column lg={5} md={5}>
-            <OHRILabel value="tempVal" tooltipText={conceptName} />
+            <OHRILabel value={label} tooltipText={conceptName} />
           </Column>
           <Column className={styles.value}>
             {!isEmpty(value) ? <OHRIValueDisplay value={value} /> : <OHRIValueEmpty />}
@@ -27,7 +27,7 @@ export const OHRIFieldValueView: React.FC<OHRIFieldValueViewProps> = ({ label, c
     )}
     {!isInline && (
       <div className={styles.formField}>
-        <OHRILabel value="tempVal" tooltipText={conceptName} />
+        <OHRILabel value={label} tooltipText={conceptName} />
         <div className={styles.value}>{value ? <OHRIValueDisplay value={value} /> : <OHRIValueEmpty />}</div>
       </div>
     )}
