@@ -65,7 +65,7 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' ? (
+  return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
     <OHRIFieldValueView
       label={question.label}
       value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
@@ -91,7 +91,6 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
             invalidText={errors.length && errors[0].message}
             warn={warnings.length > 0}
             warnText={warnings.length && warnings[0].message}
-            readOnly={question.readonly}
           />
         </div>
         {previousValueForReview && (
