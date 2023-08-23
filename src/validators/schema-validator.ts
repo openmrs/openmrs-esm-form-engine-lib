@@ -5,8 +5,8 @@ export const handleFormValidation = async (
   schema: OHRIFormSchema,
   configObject: ConfigObject,
 ): Promise<Array<Array<Record<string, any>>>> => {
-  const errorsArray = [];
-  const warningsArray = [];
+  const errors = [];
+  const warnings = [];
 
   if (schema) {
     const asyncTasks = [];
@@ -15,14 +15,14 @@ export const handleFormValidation = async (
       page.sections?.forEach(section =>
         section.questions?.forEach(question => {
           asyncTasks.push(
-            handleQuestionValidation(question, errorsArray, warningsArray, configObject),
-            handleAnswerValidation(question, errorsArray),
+            handleQuestionValidation(question, errors, warnings, configObject),
+            handleAnswerValidation(question, errors),
           );
           question.type === 'obsGroup' &&
             question.questions?.forEach(obsGrpQuestion =>
               asyncTasks.push(
-                handleQuestionValidation(obsGrpQuestion, errorsArray, configObject, warningsArray),
-                handleAnswerValidation(question, errorsArray),
+                handleQuestionValidation(obsGrpQuestion, errors, configObject, warnings),
+                handleAnswerValidation(question, errors),
               ),
             );
         }),
@@ -30,7 +30,7 @@ export const handleFormValidation = async (
     );
     await Promise.all(asyncTasks);
 
-    return [errorsArray, warningsArray];
+    return [errors, warnings];
   }
 };
 
