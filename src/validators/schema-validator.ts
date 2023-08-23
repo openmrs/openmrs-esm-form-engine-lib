@@ -1,5 +1,5 @@
 import { openmrsFetch } from '@openmrs/esm-framework';
-import { OHRIFormSchema, ConfigObject } from './api/types';
+import { OHRIFormSchema, ConfigObject } from '../api/types';
 
 export const handleFormValidation = async (
   schema: OHRIFormSchema,
