@@ -56,7 +56,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
+  return encounterContext.sessionMode == 'view' ? (
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}
@@ -78,6 +78,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
             name={question.id}
             valueSelected={field.value}
             onChange={handleChange}
+            readOnly={question.readonly}
             orientation="vertical">
             {question.questionOptions.answers
               .filter(answer => !answer.isHidden)
