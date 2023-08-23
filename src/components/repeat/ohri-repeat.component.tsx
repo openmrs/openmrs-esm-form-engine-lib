@@ -34,7 +34,7 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
 
   const handleAdd = useCallback(
     (counter: number) => {
-      const clonedGroupingField = cloneObsGroup(question, null, counter, values);
+      const clonedGroupingField = cloneObsGroup(question, null, counter);
       // run necessary expressions
       clonedGroupingField.questions.forEach(childField => {
         if (childField.hide?.hideWhenExpression) {

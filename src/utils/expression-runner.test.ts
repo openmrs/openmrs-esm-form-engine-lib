@@ -1,7 +1,5 @@
 import { OHRIFormField } from '../api/types';
-import { ConceptFalse } from '../constants';
 import { CommonExpressionHelpers } from './common-expression-helpers';
-import { parseExpression } from './expression-parser';
 import { checkReferenceToResolvedFragment, evaluateExpression, ExpressionContext } from './expression-runner';
 
 export const testFields: Array<OHRIFormField> = [

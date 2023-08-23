@@ -5,6 +5,7 @@ import { getHandler } from '../registry/registry';
 import { evaluateAsyncExpression } from '../utils/expression-runner';
 import { cloneObsGroup } from '../components/repeat/helpers';
 import { assignedObsIds } from '../submission-handlers/base-handlers';
+import { hasRendering } from '../utils/common-utils';
 
 export function useInitialValues(
   formFields: OHRIFormField[],
@@ -53,7 +54,7 @@ export function useInitialValues(
       formFields
         .filter(field => isEmpty(field.value))
         .forEach(field => {
-          if (field.questionOptions.rendering == 'repeating') {
+          if (hasRendering(field, 'repeating')) {
             !field.questionOptions.repeatOptions?.isCloned && repeatableFields.push(field);
             return;
           }
@@ -71,6 +72,7 @@ export function useInitialValues(
         });
       const flatenedFields = repeatableFields.flatMap(field => {
         let counter = 1;
+        const handler = getHandler(field.type);
         const unMappedGroups = encounter.obs.filter(
           obs =>
             obs.concept.uuid === field.questionOptions.concept &&
@@ -78,7 +80,10 @@ export function useInitialValues(
             !assignedObsIds.includes(obs.uuid),
         );
         return unMappedGroups.flatMap(group => {
-          const clone = cloneObsGroup(field, group, counter++, initialValues);
+          const clone = cloneObsGroup(field, group, counter++);
+          clone.questions.forEach(childField => {
+            initialValues[childField.id] = handler.getInitialValue({ obs: [group] }, childField, formFields);
+          });
           assignedObsIds.push(group.uuid);
           return [clone, ...clone.questions];
         });
