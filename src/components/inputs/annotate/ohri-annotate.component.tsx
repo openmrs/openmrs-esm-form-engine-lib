@@ -3,7 +3,7 @@ import { Button } from '@carbon/react';
 import { configSchema } from '../../../config';
 import { usePatient } from '@openmrs/esm-framework';
 
-const OHRIAnnotate = ({ imageUrl }) => {
+const OHRIAnnotate = ({ imageUrl, attachmentId }) => {
   // State to track whether the annotated image has been saved
   const [isImageSaved, setIsImageSaved] = useState(false);
 
@@ -26,11 +26,8 @@ const OHRIAnnotate = ({ imageUrl }) => {
     //set the flag to false before opening the annotation tool.
     setIsImageSaved(false);
 
-    // Open the annotation app in a new tab, passing the callback function
-    // Pass additional query parameters, such as imageUrl, to the annotation app
-    const annotationUrl = `${config.drawingTool.url}?patientUuid=${patientUuid}&imageUrl=${encodeURIComponent(
-      imageUrl,
-    )}&receiveAnnotatedImageUrl=${receiveAnnotatedImageUrl}`;
+    // Open the annotation app in a new tab with attachment ID and other parameters
+    const annotationUrl = `${config.drawingTool.url}?attachmentId=${attachmentId}&patientUuid=${patientUuid}`;
     window.open(annotationUrl, '_blank');
   };
 

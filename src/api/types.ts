@@ -164,7 +164,7 @@ export interface OHRIFormQuestionOptions {
   isDateTime?: { labelTrue: boolean; labelFalse: boolean };
   usePreviousValueDisabled?: boolean;
   allowedFileTypes?: Array<string>;
-  allowMultiple?: boolean;   //Allow Single File Attachments  and Multiple file attachments
+  allowMultiple?: boolean; //Allow Single File Attachments  and Multiple file attachments
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view';
@@ -185,7 +185,7 @@ export type RenderType =
   | 'textarea'
   | 'toggle'
   | 'fixed-value'
-  | 'file';  //allow the form engine to recognize and handle the new file component
+  | 'file'; //allow the form engine to recognize and handle the new file component
 
 export interface PostSubmissionAction {
   applyAction(formSession: {
