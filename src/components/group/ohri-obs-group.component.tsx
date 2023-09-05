@@ -5,6 +5,7 @@ import { OHRIFormFieldProps } from '../../api/types';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
 import { getFieldControl, supportsUnspecified } from '../section/ohri-form-section.component';
 import styles from './ohri-obs-group.scss';
+import { useField } from 'formik';
 
 export interface ObsGroupProps extends OHRIFormFieldProps {
   deleteControl?: any;
@@ -35,6 +36,7 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
           onChange: onChange,
           key: index,
           handler: getHandler(field.type),
+          useField,
         });
         return (
           <div className={`${styles.flexColumn} ${styles.obsGroupColumn} `}>
