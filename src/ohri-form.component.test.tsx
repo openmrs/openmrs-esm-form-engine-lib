@@ -1,4 +1,4 @@
-import { render, fireEvent, screen, cleanup, act } from '@testing-library/react';
+import { render, fireEvent, screen, cleanup, act, waitFor } from '@testing-library/react';
 import { when } from 'jest-when';
 import React from 'react';
 import OHRIForm from './ohri-form.component';
@@ -18,11 +18,12 @@ import { mockPatient } from '../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../__mocks__/session.mock';
 import demoHtsOpenmrsForm from '../__mocks__/forms/omrs-forms/demo_hts-form.json';
 import demoHtsOhriForm from '../__mocks__/forms/ohri-forms/demo_hts-form.json';
+import { saveEncounter } from './api/api';
 
 import {
   assertFormHasAllFields,
   findMultiSelectInput,
-  findNumberInput, 
+  findNumberInput,
   findSelectInput,
   findTextOrDateInput,
 } from './utils/test-utils';
@@ -131,6 +132,54 @@ describe('OHRI Forms:', () => {
 
   describe('Form submission', () => {
     // TODO: Fillup test suite
+    // // TODO: Fillup test suite
+    // it('should ensure that the form submits data to the given endpoint', async () => {
+    //   //mock expected resolution from the API fetch
+    //   mockOpenmrsFetch.mockResolvedValue({ ok: true });
+
+    //   //mock form JSON
+    //   const formData = demo_hts_form;
+
+    //   //render the form component
+    //   renderForm(formData.uuid, formData);
+
+    //   // calls the click button on the OHRI form component
+    //   userEvent.click(screen.getByLabelText('save'));
+
+    //   expect(mockOpenmrsFetch).toHaveBeenCalledWith(`/ws/rest/v1/encounter/${formData.uuid}?v=full`, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(formData),
+    //   });
+    // });
+
+    // // mock the fetch function to resolve the response data
+    // global.fetch = jest.fn().mockResolvedValue({
+    //   ok: true,
+    //   json: () => Promise.resolve(responseData),
+    // });
+
+    it('should save data to the backend', async () => {
+      // const responseData = { message: 'data saved succesfully' };
+      const abortControllerMock = new AbortController();
+
+      const mockedSaveEncounter = jest.fn(saveEncounter);
+
+      const result = await mockedSaveEncounter(abortControllerMock, mockVisit);
+
+      // expect(result).toEqual(responseData);
+      await waitFor(() => {
+        expect(mockedSaveEncounter).toHaveBeenCalledWith('/ws/rest/v1/encounter?v=full', {
+          method: 'POST',
+          body: JSON.stringify(mockVisit),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      });
+    });
   });
 
   describe('Filter Answer Options', () => {
@@ -244,7 +293,9 @@ describe('OHRI Forms:', () => {
       fireEvent.blur(artStartDateField, { target: { value: '05/02/2022' } });
 
       // verify
-      await act(async () => expect(artStartDateField.value).toBe(new Date('2022-05-02T00:00:00.000+0000').toLocaleDateString('en-US')));
+      await act(async () =>
+        expect(artStartDateField.value).toBe(new Date('2022-05-02T00:00:00.000+0000').toLocaleDateString('en-US')),
+      );
       await act(async () => expect(assumeTodayToBe).toBe('7/11/2022'));
       await act(async () => expect(monthsOnARTField.value).toBe('5'));
     });
@@ -283,7 +334,9 @@ describe('OHRI Forms:', () => {
       await act(async () => expect(mrn.value).toBe(''));
 
       // verify
-      await act(async () => expect(enrollmentDate.value).toBe(new Date('1975-07-06T00:00:00.000Z').toLocaleDateString('en-US')));
+      await act(async () =>
+        expect(enrollmentDate.value).toBe(new Date('1975-07-06T00:00:00.000Z').toLocaleDateString('en-US')),
+      );
       await act(async () => expect(mrn.value).toBe(''));
       await act(async () => expect(mrn).toBeVisible());
     });
@@ -322,8 +375,10 @@ describe('OHRI Forms:', () => {
     });
   });
 
-  describe("Concept references", () => {
-    const conceptResourcePath = when((url: string) => url.includes('/ws/rest/v1/concept?references=PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH'));
+  describe('Concept references', () => {
+    const conceptResourcePath = when((url: string) =>
+      url.includes('/ws/rest/v1/concept?references=PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH'),
+    );
 
     when(mockOpenmrsFetch)
       .calledWith(conceptResourcePath)
@@ -332,17 +387,17 @@ describe('OHRI Forms:', () => {
     it('should add default labels based on concept display and substitute mapping references with uuids', async () => {
       await act(async () => renderForm(null, reference_by_mapping_form));
 
-      const yes =  await screen.findAllByRole('radio', { name: 'Yes' }) as Array<HTMLInputElement>;
-      const no =  await screen.findAllByRole('radio', { name: 'No' }) as Array<HTMLInputElement>;
+      const yes = (await screen.findAllByRole('radio', { name: 'Yes' })) as Array<HTMLInputElement>;
+      const no = (await screen.findAllByRole('radio', { name: 'No' })) as Array<HTMLInputElement>;
       await assertFormHasAllFields(screen, [
         { fieldName: 'Cough', fieldType: 'radio' },
         { fieldName: 'Occurrence of trauma', fieldType: 'radio' },
       ]);
-      await act(async () => expect(no[0].value).toBe("3cd6f86c-26fe-102b-80cb-0017a47871b2"))
-      await act(async () => expect(no[1].value).toBe("3cd6f86c-26fe-102b-80cb-0017a47871b2"))
-      await act(async () => expect(yes[0].value).toBe("3cd6f600-26fe-102b-80cb-0017a47871b2"))
-      await act(async () => expect(yes[1].value).toBe("3cd6f600-26fe-102b-80cb-0017a47871b2"))
-    })
+      await act(async () => expect(no[0].value).toBe('3cd6f86c-26fe-102b-80cb-0017a47871b2'));
+      await act(async () => expect(no[1].value).toBe('3cd6f86c-26fe-102b-80cb-0017a47871b2'));
+      await act(async () => expect(yes[0].value).toBe('3cd6f600-26fe-102b-80cb-0017a47871b2'));
+      await act(async () => expect(yes[1].value).toBe('3cd6f600-26fe-102b-80cb-0017a47871b2'));
+    });
   });
 
   function renderForm(formUUID, formJson, intent?: string) {

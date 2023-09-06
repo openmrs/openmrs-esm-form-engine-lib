@@ -120,6 +120,9 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           evaluateFieldReadonlyProp(question, section.readonly, page.readonly, form.readonly);
           if (question.questionOptions.rendering == 'fixed-value' && !question['fixedValue']) {
             question['fixedValue'] = question.value;
+            question.questionOptions['isSubmittable'] = false;
+          } else {
+            question.questionOptions['isSubmittable'] = true;
           }
           flattenedFieldsTemp.push(question);
           if (question.type == 'obsGroup') {
@@ -402,6 +405,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       .filter(field => field.value || field.type == 'obsGroup') // filter out fields with empty values except groups
       .filter(field => !field.isParentHidden && !field.isHidden && (field.type == 'obs' || field.type == 'obsGroup'))
       .filter(field => !field['groupId']) // filter out grouped obs
+      .filter(field => field.questionOptions['isSubmittable'])
       .forEach(field => {
         if (field.type == 'obsGroup') {
           const obsGroup = {
