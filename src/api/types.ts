@@ -148,6 +148,7 @@ export interface OHRIFormQuestionOptions {
   /**
    * maxLength and maxLength are used to validate text field length
    */
+  conceptMappings?: Array<Record<string, string>>;
   maxLength?: string;
   minLength?: string;
   showDate?: string;
@@ -166,6 +167,8 @@ export interface OHRIFormQuestionOptions {
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view';
+
+export type conceptUUID = string;
 
 export type RenderType =
   | 'select'
