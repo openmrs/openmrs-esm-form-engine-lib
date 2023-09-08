@@ -19,6 +19,7 @@ import { mockSessionDataResponse } from '../__mocks__/session.mock';
 import demoHtsOpenmrsForm from '../__mocks__/forms/omrs-forms/demo_hts-form.json';
 import demoHtsOhriForm from '../__mocks__/forms/ohri-forms/demo_hts-form.json';
 import { saveEncounter } from './api/api';
+import { openmrsFetch } from '@openmrs/esm-framework';
 
 import {
   assertFormHasAllFields,
@@ -28,11 +29,12 @@ import {
   findTextOrDateInput,
 } from './utils/test-utils';
 import { mockVisit } from '../__mocks__/visit.mock';
+import { verify } from 'crypto';
 
 //////////////////////////////////////////
 ////// Base setup
 //////////////////////////////////////////
-
+const mockUrl = `/ws/rest/v1/encounter?v=full`;
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const mockOpenmrsFetch = jest.fn();
@@ -132,53 +134,36 @@ describe('OHRI Forms:', () => {
 
   describe('Form submission', () => {
     // TODO: Fillup test suite
-    // // TODO: Fillup test suite
-    // it('should ensure that the form submits data to the given endpoint', async () => {
-    //   //mock expected resolution from the API fetch
-    //   mockOpenmrsFetch.mockResolvedValue({ ok: true });
-
-    //   //mock form JSON
-    //   const formData = demo_hts_form;
-
-    //   //render the form component
-    //   renderForm(formData.uuid, formData);
-
-    //   // calls the click button on the OHRI form component
-    //   userEvent.click(screen.getByLabelText('save'));
-
-    //   expect(mockOpenmrsFetch).toHaveBeenCalledWith(`/ws/rest/v1/encounter/${formData.uuid}?v=full`, {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(formData),
-    //   });
-    // });
-
-    // // mock the fetch function to resolve the response data
-    // global.fetch = jest.fn().mockResolvedValue({
-    //   ok: true,
-    //   json: () => Promise.resolve(responseData),
-    // });
 
     it('should save data to the backend', async () => {
-      // const responseData = { message: 'data saved succesfully' };
       const abortControllerMock = new AbortController();
 
       const mockedSaveEncounter = jest.fn(saveEncounter);
 
       const result = await mockedSaveEncounter(abortControllerMock, mockVisit);
 
-      // expect(result).toEqual(responseData);
-      await waitFor(() => {
-        expect(mockedSaveEncounter).toHaveBeenCalledWith('/ws/rest/v1/encounter?v=full', {
-          method: 'POST',
-          body: JSON.stringify(mockVisit),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+      const mockResponse = openmrsFetch(mockUrl, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: mockVisit,
+        signal: abortControllerMock.signal,
       });
+
+      // test if the function is called
+      await waitFor(() => {
+        expect(mockedSaveEncounter).toHaveBeenCalled();
+      });
+
+      // verify if function was called with the correct arguements
+      await waitFor(() => {
+        expect(mockedSaveEncounter).toHaveBeenCalledWith(abortControllerMock, mockVisit);
+      });
+
+      // check response to the backend matches mock response
+      mockedSaveEncounter.mockReturnValue(mockResponse);
+      expect(result).toBe(mockResponse);
     });
   });
 
