@@ -4,20 +4,20 @@ import { useConfig } from '@openmrs/esm-framework';
 import { ConceptTrue, ConceptFalse } from '../constants';
 import { OHRIFormField, OHRIFormSchema } from '../api/types';
 
-export function useSchemaValidator(schema: OHRIFormSchema) {
-  //initializing state
+export function useSchemaValidator(schema: OHRIFormSchema, doValidate) {
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
-  const [fullArray, setFullArray] = useState<Array<OHRIFormField>>([]);
-  const [answersArray, setAnswersArray] = useState([]);
+  const [questionFields, setQuestionFields] = useState<Array<OHRIFormField>>([]);
+  const [answerFields, setAnswerFields] = useState([]);
+  const [isValidating, setIsValidating] = useState(true);
   const [conceptSet, setConceptSet] = useState<Set<string>>(new Set());
   const [answerConceptSet, setAnswerConceptSet] = useState<Set<string>>(new Set());
   const { dataTypeToRenderingMap, conceptDataTypes } = useConfig();
 
-  const unresolvedConceptsFunc = (fullArray, filteredSetArray) => {
-    const unresolvedConcepts = fullArray
-      ?.filter(fullArrayItem => {
-        return filteredSetArray?.includes(fullArrayItem.questionOptions.concept);
+  const findUnresolvedConcepts = (questionFields, filteredSetArray) => {
+    const unresolvedConcepts = questionFields
+      ?.filter(questionFieldsItem => {
+        return filteredSetArray?.includes(questionFieldsItem.questionOptions.concept);
       })
       ?.map(item => {
         return {
@@ -29,10 +29,10 @@ export function useSchemaValidator(schema: OHRIFormSchema) {
     setErrors(prevState => [...prevState, ...unresolvedConcepts]);
   };
 
-  const unresolvedAnswers = (fullArray, filteredSetArray) => {
-    const unresolvedConcepts = fullArray
-      ?.filter(fullArrayItem => {
-        return filteredSetArray?.includes(fullArrayItem.concept);
+  const unresolvedAnswers = (questionFields, filteredSetArray) => {
+    const unresolvedConcepts = questionFields
+      ?.filter(questionFieldsItem => {
+        return filteredSetArray?.includes(questionFieldsItem.concept);
       })
       ?.map(item => {
         return {
@@ -44,8 +44,8 @@ export function useSchemaValidator(schema: OHRIFormSchema) {
     setErrors(prevState => [...prevState, ...unresolvedConcepts]);
   };
 
-  const dataTypeChecker = (responseObject, fullArray) => {
-    fullArray
+  const dataTypeChecker = (responseObject, questionFields) => {
+    questionFields
       ?.filter(item => item.questionOptions.concept === responseObject.uuid)
       .map(item => {
         responseObject.datatype.name === conceptDataTypes.Boolean &&
@@ -92,13 +92,12 @@ export function useSchemaValidator(schema: OHRIFormSchema) {
       });
   };
 
-  //flattening fields and extracting search references
   useMemo(() => {
     if (schema) {
       schema.pages?.forEach(page =>
         page.sections?.forEach(section =>
           section.questions?.forEach(question => {
-            setFullArray(prevArray => [...prevArray, question]);
+            setQuestionFields(prevArray => [...prevArray, question]);
             const searchRef = question.questionOptions.concept
               ? question.questionOptions.concept
               : question.questionOptions.conceptMappings?.length
@@ -123,7 +122,7 @@ export function useSchemaValidator(schema: OHRIFormSchema) {
             const answers = question.questionOptions.answers;
             answers?.length &&
               answers.forEach(answer => {
-                setAnswersArray(prevArray => [...prevArray, answer]);
+                setAnswerFields(prevArray => [...prevArray, answer]);
                 const searchRef = answer.concept
                   ? answer.concept
                   : answer.conceptMappings?.length
@@ -145,7 +144,7 @@ export function useSchemaValidator(schema: OHRIFormSchema) {
 
             if (question.type === 'obsGroup') {
               question.questions.forEach(obsGrpQuestion => {
-                setFullArray(prevArray => [...prevArray, obsGrpQuestion]);
+                setQuestionFields(prevArray => [...prevArray, obsGrpQuestion]);
                 const searchRef = obsGrpQuestion.questionOptions.concept
                   ? obsGrpQuestion.questionOptions.concept
                   : obsGrpQuestion.questionOptions.conceptMappings?.length
@@ -167,7 +166,7 @@ export function useSchemaValidator(schema: OHRIFormSchema) {
                 const answers = obsGrpQuestion.questionOptions.answers;
                 answers?.length &&
                   answers.forEach(answer => {
-                    setAnswersArray(prevArray => [...prevArray, answer]);
+                    setAnswerFields(prevArray => [...prevArray, answer]);
                     const searchRef = answer.concept
                       ? answer.concept
                       : answer.conceptMappings?.length
@@ -201,18 +200,23 @@ export function useSchemaValidator(schema: OHRIFormSchema) {
 
   useEffect(() => {
     if (concepts?.length) {
-      unresolvedConceptsFunc(fullArray, filteredSet);
+      findUnresolvedConcepts(questionFields, filteredSet);
       concepts?.forEach(concept => {
-        dataTypeChecker(concept, fullArray);
+        dataTypeChecker(concept, questionFields);
       });
+      setIsValidating(prevValue => !prevValue);
     }
   }, [concepts]);
 
   useEffect(() => {
     if (answerConcepts?.length) {
-      unresolvedAnswers(answersArray, filteredSetAnswers);
+      unresolvedAnswers(answerFields, filteredSetAnswers);
     }
   }, [answerConcepts]);
 
-  return { errors, warnings };
+  if (!doValidate) {
+    return { errors: [], warnings: [], isValidating };
+  }
+
+  return { errors, warnings, isValidating };
 }

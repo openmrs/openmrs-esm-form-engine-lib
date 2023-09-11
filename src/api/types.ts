@@ -261,7 +261,7 @@ export interface DataSource<T> {
   toUuidAndDisplay(item: T): OpenmrsResource;
 }
 
-export interface ConfigObject {
+export interface datatypeToRenderingMapInterface {
   Numeric: Array<string>;
   Coded: Array<string>;
   Text: Array<string>;
