@@ -120,10 +120,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           evaluateFieldReadonlyProp(question, section.readonly, page.readonly, form.readonly);
           if (question.questionOptions.rendering == 'fixed-value' && !question['fixedValue']) {
             question['fixedValue'] = question.value;
-            question.questionOptions['isSubmittable'] = false;
-          } else {
-            question.questionOptions['isSubmittable'] = true;
-          }
           flattenedFieldsTemp.push(question);
           if (question.type == 'obsGroup') {
             question.questions.forEach(groupedField => {
