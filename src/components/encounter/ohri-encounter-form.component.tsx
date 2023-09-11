@@ -120,6 +120,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           evaluateFieldReadonlyProp(question, section.readonly, page.readonly, form.readonly);
           if (question.questionOptions.rendering == 'fixed-value' && !question['fixedValue']) {
             question['fixedValue'] = question.value;
+            }
           flattenedFieldsTemp.push(question);
           if (question.type == 'obsGroup') {
             question.questions.forEach(groupedField => {
