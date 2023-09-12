@@ -402,7 +402,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       .filter(field => field.value || field.type == 'obsGroup') // filter out fields with empty values except groups
       .filter(field => !field.isParentHidden && !field.isHidden && (field.type == 'obs' || field.type == 'obsGroup'))
       .filter(field => !field['groupId']) // filter out grouped obs
-      .filter(field => field.questionOptions.!isNotSubmittable)
+      .filter(field => !field.questionOptions.isNotSubmittable)
       .forEach(field => {
         if (field.type == 'obsGroup') {
           const obsGroup = {
