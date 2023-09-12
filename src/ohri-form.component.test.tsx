@@ -138,7 +138,7 @@ describe('OHRI Forms:', () => {
     it('should save data to the backend', async () => {
       const abortControllerMock = new AbortController();
 
-      const mockedSaveEncounter = jest.fn(saveEncounter);
+      const mockSaveEncounter = jest.fn(saveEncounter);
 
       const result = await mockedSaveEncounter(abortControllerMock, mockVisit);
 
