@@ -140,7 +140,7 @@ describe('OHRI Forms:', () => {
 
       const mockSaveEncounter = jest.fn(saveEncounter);
 
-      const result = await mockedSaveEncounter(abortControllerMock, mockVisit);
+      const result = await mockSaveEncounter(abortControllerMock, mockVisit);
 
       const mockResponse = openmrsFetch(mockUrl, {
         headers: {
@@ -153,16 +153,16 @@ describe('OHRI Forms:', () => {
 
       // test if the function is called
       await waitFor(() => {
-        expect(mockedSaveEncounter).toHaveBeenCalled();
+        expect(mockSaveEncounter).toHaveBeenCalled();
       });
 
       // verify if function was called with the correct arguements
       await waitFor(() => {
-        expect(mockedSaveEncounter).toHaveBeenCalledWith(abortControllerMock, mockVisit);
+        expect(mockSaveEncounter).toHaveBeenCalledWith(abortControllerMock, mockVisit);
       });
 
       // check response to the backend matches mock response
-      mockedSaveEncounter.mockReturnValue(mockResponse);
+      mockSaveEncounter.mockReturnValue(mockResponse);
       expect(result).toBe(mockResponse);
     });
   });
