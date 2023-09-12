@@ -148,7 +148,7 @@ export interface OHRIFormQuestionOptions {
   /**
    * maxLength and maxLength are used to validate text field length
    */
-  isSubmittable?: boolean;
+  isNotSubmittable?: boolean;
   maxLength?: string;
   minLength?: string;
   showDate?: string;
