@@ -28,6 +28,17 @@ export function getLocationsByTag(tag: string): Observable<{ uuid: string; displ
   );
 }
 
+export async function getPreviousEncounter(patientUuid: string, encounterType: string) {
+  const query = `patient=${patientUuid}&_sort=-_lastUpdated&_count=1&type=${encounterType}`;
+  let response = await openmrsFetch(`/ws/fhir2/R4/Encounter?${query}`);
+  if (response.data.entry.length) {
+    const latestEncounter = response.data.entry[0].resource.id;
+    response = await openmrsFetch(`/ws/rest/v1/encounter/${latestEncounter}?v=${encounterRepresentation}`)
+    return response.data;
+  }
+ return null;
+}
+
 export function fetchConceptNameByUuid(conceptUuid: string) {
   return openmrsFetch(`/ws/rest/v1/concept/${conceptUuid}/name?limit=1`).then(({ data }) => {
     if (data.results.length) {
@@ -90,21 +101,4 @@ export async function fetchClobData(form: OpenmrsForm): Promise<any | null> {
   const { data: clobDataResponse } = await openmrsFetch(clobDataUrl);
 
   return clobDataResponse;
-}
-
-export function getPreviousEncounter(patientUuid: string, encounterType: string) {
-  const query = `patient=${patientUuid}&_sort=-_lastUpdated&_count=1&type=${encounterType}`;
-  return openmrsFetch(`/ws/fhir2/R4/Encounter?${query}`).then(async ({ data }) => {
-    if (data.total > 0) {
-      const latestEncounter = data.entry[0].resource;
-      
-  const query = `encounterType=${encounterType}&patient=${patientUuid}`;
-   return openmrsFetch(`/ws/rest/v1/encounter/${latestEncounter.id}?${query}&limit=1&v=${encounterRepresentation}`,
-      ).then(({ data }) => {
-        return data.results.length ? data.results[0] : null;
-      });
-    } else {
-      return null;
-    }
-  });
 }
