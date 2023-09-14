@@ -29,7 +29,6 @@ import {
   findTextOrDateInput,
 } from './utils/test-utils';
 import { mockVisit } from '../__mocks__/visit.mock';
-import { verify } from 'crypto';
 
 //////////////////////////////////////////
 ////// Base setup
@@ -133,8 +132,6 @@ describe('OHRI Forms:', () => {
   });
 
   describe('Form submission', () => {
-    // TODO: Fillup test suite
-
     it('should save data to the backend', async () => {
       const abortControllerMock = new AbortController();
 
