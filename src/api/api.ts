@@ -95,15 +95,12 @@ export async function fetchClobData(form: OpenmrsForm): Promise<any | null> {
 export function getPreviousEncounter(patientUuid: string, encounterType: string) {
   const query = `patient=${patientUuid}&_sort=-_lastUpdated&_count=1&type=${encounterType}`;
   return openmrsFetch(`/ws/fhir2/R4/Encounter?${query}`).then(async ({ data }) => {
-  console.log('LUCY_FHIR', data);
     if (data.total > 0) {
       const latestEncounter = data.entry[0].resource;
-      console.log('TEST', latestEncounter.id);
       
   const query = `encounterType=${encounterType}&patient=${patientUuid}`;
    return openmrsFetch(`/ws/rest/v1/encounter/${latestEncounter.id}?${query}&limit=1&v=${encounterRepresentation}`,
       ).then(({ data }) => {
-        console.log('LUCY_REST', data);
         return data.results.length ? data.results[0] : null;
       });
     } else {
