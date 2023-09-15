@@ -2788,7 +2788,7 @@ __metadata:
     jest-when: ^3.5.2
     lodash-es: ^4.17.15
     openmrs: next
-    prettier: ^1.18.2
+    prettier: ^2.6.0
     pretty-quick: ^1.11.1
     react: ^18.2.0
     react-anchor-link-smooth-scroll: ^1.0.12
@@ -13272,12 +13272,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^1.18.2":
-  version: 1.19.1
-  resolution: "prettier@npm:1.19.1"
+"prettier@npm:^2.6.0":
+  version: 2.8.8
+  resolution: "prettier@npm:2.8.8"
   bin:
-    prettier: ./bin-prettier.js
-  checksum: bc78219e0f8173a808f4c6c8e0a137dd8ebd4fbe013e63fe1a37a82b48612f17b8ae8e18a992adf802ee2cf7428f14f084e7c2846ca5759cf4013c6e54810e1f
+    prettier: bin-prettier.js
+  checksum: b49e409431bf129dd89238d64299ba80717b57ff5a6d1c1a8b1a28b590d998a34e083fa13573bc732bb8d2305becb4c9a4407f8486c81fa7d55100eb08263cf8
   languageName: node
   linkType: hard
 
