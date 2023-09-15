@@ -1,5 +1,5 @@
 import { showToast } from '@openmrs/esm-framework';
-import { TFunction } from 'i18next';
+import { type TFunction } from 'i18next';
 
 export function reportError(error: Error, t: TFunction): void {
   if (error) {
