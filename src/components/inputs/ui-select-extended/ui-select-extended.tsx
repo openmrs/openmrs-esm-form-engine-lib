@@ -90,7 +90,7 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
     }
     return changes;
   };
-  return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
+  return encounterContext.sessionMode == 'view' ? (
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}
@@ -130,6 +130,7 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
               }}
               onChange={({ selectedItem }) => handleChange(selectedItem?.uuid)}
               disabled={question.disabled}
+              readOnly={question.readonly}
               onInputChange={value => {
                 inputValue.current = value;
                 if (question.questionOptions['isSearchable']) {

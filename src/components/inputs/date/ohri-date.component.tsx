@@ -132,7 +132,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
     }
   }, [field.value, time]);
 
-  return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
+  return encounterContext.sessionMode == 'view' ? (
     <OHRIFieldValueView
       label={question.label}
       value={field.value instanceof Date ? getDisplay(field.value, question.questionOptions.rendering) : field.value}
@@ -170,6 +170,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
                 invalidText={errors[0]?.message}
                 warn={warnings.length > 0}
                 warnText={warnings[0]?.message}
+                readOnly={question.readonly}
               />
             </DatePicker>
           </div>

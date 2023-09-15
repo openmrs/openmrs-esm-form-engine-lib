@@ -67,7 +67,7 @@ export interface OHRIFormSchema {
   readonly?: string | boolean;
   inlineRendering?: 'single-line' | 'multiline' | 'automatic';
   markdown?: any;
-  postSubmissionActions?: Array<string>;
+  postSubmissionActions?: Array<{ actionId: string; config?: Record<string, any> }>;
   formOptions?: {
     usePreviousValueDisabled: boolean;
   };
@@ -188,11 +188,14 @@ export type RenderType =
   | 'file';  //allow the form engine to recognize and handle the new file component
 
 export interface PostSubmissionAction {
-  applyAction(formSession: {
-    patient: fhir.Patient;
-    encounters: Array<OpenmrsEncounter>;
-    sessionMode: SessionMode;
-  }): void;
+  applyAction(
+    formSession: {
+      patient: fhir.Patient;
+      encounters: Array<OpenmrsEncounter>;
+      sessionMode: SessionMode;
+    },
+    config?: Record<string, any>,
+  ): void;
 }
 
 // OpenMRS Type Definitions
