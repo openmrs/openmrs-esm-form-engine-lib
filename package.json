@@ -85,7 +85,7 @@
     "jest-environment-jsdom": "^29.5.0",
     "jest-when": "^3.5.2",
     "openmrs": "next",
-    "prettier": "^3.0.0",
+    "prettier": "^2.6.0",
     "pretty-quick": "^1.11.1",
     "react": "^18.2.0",
     "react-i18next": "^11.18.1",
