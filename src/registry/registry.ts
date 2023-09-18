@@ -202,7 +202,7 @@ const fieldValidators: Array<ValidatorRegistryItem> = [
 const dataSources: Array<DataSourceRegistryItem> = [
   {
     id: 'concept_location',
-    component: new LocationDataSource('/ws/rest/v1/location?v=custom:(uuid,display)'),
+    component: new LocationDataSource(),
   },
 ];
 

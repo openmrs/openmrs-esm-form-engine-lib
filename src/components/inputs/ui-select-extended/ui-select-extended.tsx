@@ -29,7 +29,7 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
   const isProcessingSelection = useRef(false);
 
   const [dataSource, config] = useMemo(
-    () => [getDataSource(question.questionOptions['datasource'].id), question.questionOptions['datasource']?.config],
+    () => [getDataSource(question.questionOptions?.datasource?.id), question.questionOptions?.datasource?.config],
     [],
   );
 
@@ -56,7 +56,7 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
 
   useEffect(() => {
     // If not searchable, preload the items
-    if (dataSource && !isTrue(question.questionOptions['isSearchable'])) {
+    if (dataSource && !isTrue(question.questionOptions.isSearchable)) {
       setIsLoading(true);
       dataSource.fetchData(null, config).then(dataItems => {
         setItems(dataItems.map(dataSource.toUuidAndDisplay));
@@ -67,7 +67,7 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
 
   useEffect(() => {
     // get the data source
-    if (dataSource && isTrue(question.questionOptions['isSearchable']) && !isEmpty(searchTerm)) {
+    if (dataSource && isTrue(question.questionOptions.isSearchable) && !isEmpty(searchTerm)) {
       debouncedSearch(searchTerm, dataSource);
     }
   }, [dataSource, searchTerm]);

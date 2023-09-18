@@ -1,17 +1,12 @@
-import { openmrsFetch, OpenmrsResource } from '@openmrs/esm-framework';
-import { DataSource } from '../api/types';
+import { openmrsFetch } from '@openmrs/esm-framework';
+import { BaseOpenMRSDataSource } from './data-source';
 
-export class LocationDataSource implements DataSource<OpenmrsResource> {
-  private initialUrl: string;
-  private url: string;
-
-  constructor(url: string) {
-    this.initialUrl = url;
-    this.url = url;
+export class LocationDataSource extends BaseOpenMRSDataSource {
+  constructor(){
+    super("/ws/rest/v1/location?v=custom:(uuid,display)");
   }
 
   fetchData(searchTerm: string, config?: Record<string, any>): Promise<any[]> {
-    this.url = this.initialUrl;
     if (config?.tag) {
       let urlParts = this.url.split('?');
       this.url = `${urlParts[0]}?tag=${config.tag}&${urlParts[1]}`;
@@ -21,10 +16,4 @@ export class LocationDataSource implements DataSource<OpenmrsResource> {
     });
   }
 
-  toUuidAndDisplay(data: OpenmrsResource): OpenmrsResource {
-    if (typeof data.uuid === 'undefined' || typeof data.display === 'undefined') {
-      throw new Error();
-    }
-    return data;
-  }
 }
