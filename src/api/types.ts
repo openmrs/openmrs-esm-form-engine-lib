@@ -163,6 +163,8 @@ export interface OHRIFormQuestionOptions {
   };
   isDateTime?: { labelTrue: boolean; labelFalse: boolean };
   usePreviousValueDisabled?: boolean;
+  datasource?: { id: string; config?: Record<string, any> };
+  isSearchable?: boolean;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view';
@@ -251,7 +253,7 @@ export interface DataSource<T> {
   /**
    * Fetches arbitrary data from a data source
    */
-  fetchData(searchTerm?: string): Promise<Array<T>>;
+  fetchData(searchTerm?: string, config?: Record<string, any>): Promise<Array<T>>;
   /**
    * Maps a data source item to an object with a uuid and display property
    */

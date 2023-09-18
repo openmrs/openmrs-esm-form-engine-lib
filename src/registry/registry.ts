@@ -22,7 +22,8 @@ import { OHRIFormsStore } from '../constants';
 import OHRIExtensionParcel from '../components/extension/ohri-extension-parcel.component';
 import { EncounterDatetimeHandler } from '../submission-handlers/encounterDatetimeHandler';
 import { UISelectExtended } from '../components/inputs/ui-select-extended/ui-select-extended';
-
+import { BaseOpenMRSDataSource } from '../datasources/data-source';
+import { LocationDataSource } from '../datasources/location-data-source';
 export interface RegistryItem {
   id: string;
   component: any;
@@ -198,7 +199,12 @@ const fieldValidators: Array<ValidatorRegistryItem> = [
   },
 ];
 
-const dataSources: Array<DataSourceRegistryItem> = [];
+const dataSources: Array<DataSourceRegistryItem> = [
+  {
+    id: 'concept_location',
+    component: new LocationDataSource(),
+  },
+];
 
 export const getFieldComponent = renderType => {
   let lazy = baseFieldComponents.find(item => item.type == renderType || item?.alias == renderType)?.loadControl;
