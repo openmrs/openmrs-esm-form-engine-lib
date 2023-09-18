@@ -133,21 +133,42 @@ export class CommonExpressionHelpers {
     return resultViralLoadStatus ?? null;
   };
 
-  calcNextVisitDate = (followupDate, arvDispensedInDays) => {
-    let resultNextVisitDate: Date;
-    if (followupDate && arvDispensedInDays) {
-      resultNextVisitDate = new Date(followupDate.getTime() + arvDispensedInDays * 24 * 60 * 60 * 1000);
+  dispensedDoseInNumber = (dispensedDose: string) => {
+    if (dispensedDose == 'fba421cf-a483-4329-b8b1-6a3ef16081bc') {
+      return 30;
+    } else if (dispensedDose == '75d94023-7804-44f8-9998-9d678488af3e') {
+      return 60;
+    } else if (dispensedDose == '4abbd98d-0c07-42f4-920c-7bbf0f5824dc') {
+      return 90;
+    } else if (dispensedDose == '684c450f-878b-4b96-ab1b-2b539c30f033') {
+      return 120;
+    } else if (dispensedDose == 'e5f7cc4d-922a-4838-8c75-af9bdbb59bc8') {
+      return 180;
     }
-    return resultNextVisitDate ?? null;
+    else {
+      return 0;
+    }
+  }
+
+  calcNextVisitDate = (followupDate: Date, dispensedDose: string) => {
+    let dispensedDoseReturned = this.dispensedDoseInNumber(dispensedDose);
+    let resultNextVisitDate = {};
+    if (followupDate && dispensedDose) {
+      resultNextVisitDate = new Date(followupDate.getTime() + dispensedDoseReturned * 24 * 60 * 60 * 1000);
+    }
+    return followupDate && dispensedDose
+      ? resultNextVisitDate
+      : null;
   };
 
-  calcTreatmentEndDate = (followupDate: Date, arvDispensedInDays: number, patientStatus: string) => {
+  calcTreatmentEndDate = (followupDate: Date, dispensedDose: string, followupStatus: string) => {
+    let dispensedDoseReturned = this.dispensedDoseInNumber(dispensedDose);
     let resultTreatmentEndDate = {};
-    let extraDaysAdded = 30 + arvDispensedInDays;
-    if (followupDate && arvDispensedInDays && patientStatus == '160429AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA') {
+    let extraDaysAdded = 30 + dispensedDoseReturned;
+    if (followupDate && dispensedDose && followupStatus == '160429AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA') {
       resultTreatmentEndDate = new Date(followupDate.getTime() + extraDaysAdded * 24 * 60 * 60 * 1000);
     }
-    return followupDate && arvDispensedInDays && patientStatus == '160429AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+    return followupDate && dispensedDose && followupStatus == '160429AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
       ? resultTreatmentEndDate
       : null;
   };
@@ -240,7 +261,7 @@ export class CommonExpressionHelpers {
   };
 
   extractRepeatingGroupValues = (key: string | number | symbol, array: Record<string | number | symbol, unknown>[]) => {
-    const values = array.map(function(item) {
+    const values = array.map(function (item) {
       return item[key];
     });
     return values;
