@@ -2,44 +2,54 @@ import React, { useEffect, useState } from 'react';
 import { useField } from 'formik';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ToastNotification } from '@carbon/react';
-import { getFieldComponent, getHandler } from '../../registry/registry';
-import { isTrue } from '../../utils/boolean-utils';
+import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
-import { OHRIFormField, OHRIFormFieldProps } from '../../api/types';
+import { OHRIFormField, OHRIFormFieldProps, SubmissionHandler } from '../../api/types';
 import styles from './ohri-form-section.scss';
+import { getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
+
+interface FieldComponentMap {
+  fieldComponent: React.ComponentType<OHRIFormFieldProps>;
+  fieldDescriptor: OHRIFormField;
+  handler: SubmissionHandler;
+}
 
 const OHRIFormSection = ({ fields, onFieldChange }) => {
-  const [fieldToControlMap, setFieldToControlMap] = useState([]);
+  const [fieldComponentMapEntries, setFieldComponentMapEntries] = useState<FieldComponentMap[]>([]);
 
   useEffect(() => {
     Promise.all(
-      fields.map(field => {
-        return getFieldControl(field)?.then(result => ({ field, control: result.default }));
+      fields.map(async fieldDescriptor => {
+        const fieldComponent = await getFieldControlWithFallback(fieldDescriptor);
+        const handler = await getRegisteredFieldSubmissionHandler(fieldDescriptor.type);
+        return { fieldDescriptor, fieldComponent, handler };
       }),
     ).then(results => {
-      setFieldToControlMap(results);
+      setFieldComponentMapEntries(results);
     });
   }, [fields]);
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
       <div className={styles.sectionContainer}>
-        {fieldToControlMap
-          .filter(entry => !!entry)
+        {fieldComponentMapEntries
+          .filter(entry => entry?.fieldComponent)
           .map((entry, index) => {
-            const { control, field } = entry;
-            if (control) {
-              const qnFragment = React.createElement<OHRIFormFieldProps>(control, {
-                question: field,
-                onChange: onFieldChange,
-                key: index,
-                handler: getHandler(field.type),
-                useField,
-              });
-              return supportsUnspecified(field) && field.questionOptions.rendering != 'group' ? (
+            const { fieldComponent: FieldComponent, fieldDescriptor, handler } = entry;
+            if (FieldComponent) {
+              const qnFragment = (
+                <FieldComponent
+                  question={fieldDescriptor}
+                  onChange={onFieldChange}
+                  key={index}
+                  handler={handler}
+                  useField={useField}
+                />
+              );
+              return isUnspecifiedSupported(fieldDescriptor) && fieldDescriptor.questionOptions.rendering != 'group' ? (
                 <div key={index}>
                   {qnFragment}
-                  <OHRIUnspecified question={field} onChange={onFieldChange} handler={getHandler(field.type)} />
+                  <OHRIUnspecified question={fieldDescriptor} onChange={onFieldChange} handler={handler} />
                 </div>
               ) : (
                 <div key={index}>{qnFragment}</div>
@@ -67,29 +77,6 @@ function ErrorFallback({ error }) {
       subtitle={`Message: ${error.message}`}
       title="Error rendering field"
     />
-  );
-}
-
-export function getFieldControl(question: OHRIFormField) {
-  if (isMissingConcept(question)) {
-    // just render a disabled text input
-    question.disabled = true;
-    return getFieldComponent('text');
-  }
-  return getFieldComponent(question.questionOptions.rendering);
-}
-
-export function supportsUnspecified(question: OHRIFormField) {
-  return (
-    isTrue(question.unspecified) &&
-    question.questionOptions.rendering != 'toggle' &&
-    question.questionOptions.rendering != 'encounter-location'
-  );
-}
-
-function isMissingConcept(question: OHRIFormField) {
-  return (
-    question.type == 'obs' && !question.questionOptions.concept && question.questionOptions.rendering !== 'fixed-value'
   );
 }
 

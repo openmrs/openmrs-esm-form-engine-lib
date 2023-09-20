@@ -1,3 +1,4 @@
+import { registerExpressionHelper } from '..';
 import { OHRIFormField } from '../api/types';
 import { CommonExpressionHelpers } from './common-expression-helpers';
 import { checkReferenceToResolvedFragment, evaluateExpression, ExpressionContext } from './expression-runner';
@@ -231,6 +232,24 @@ describe('Common expression runner - evaluateExpression', () => {
     expect(Array.from(referredToPreventionServices.fieldDependants)).toStrictEqual(['bodyTemperature']);
     expect(Array.from(htsProviderRemarks.fieldDependants)).toStrictEqual(['bodyTemperature']);
   });
+
+  it('should support registered custom helper functions', () => {
+    // setup
+    function customHelper(a, b) {
+      return a + b;
+    }
+    registerExpressionHelper('customAdd', customHelper);
+
+    // verify
+    const result = evaluateExpression(
+      'customAdd(2, 3)',
+      { value: allFields[1], type: 'field' },
+      allFields,
+      {},
+      context,
+    );
+    expect(result).toEqual(5);
+  });
 });
 
 describe('Common expression runner - checkReferenceToResolvedFragment', () => {
@@ -293,6 +312,7 @@ describe('Common expression runner - validate helper functions', () => {
     valuesMap,
     allFieldsKeys,
   );
+
   it('should return true if value is empty, null or undefined', () => {
     let val = '';
 
