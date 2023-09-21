@@ -24,7 +24,6 @@ import { EncounterDatetimeHandler } from '../submission-handlers/encounterDateti
 import File from '../components/inputs/file/file.component';
 import { UISelectExtended } from '../components/inputs/ui-select-extended/ui-select-extended';
 
-
 export interface RegistryItem {
   id: string;
   component: any;
