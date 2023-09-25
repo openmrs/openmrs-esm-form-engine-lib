@@ -1,4 +1,5 @@
 import { OHRIFormField, OHRIFormPage, OHRIFormSection } from '../api/types';
+import { getRegisteredExpressionHelpers } from '../registry/registry';
 import { CommonExpressionHelpers } from './common-expression-helpers';
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
 
@@ -37,6 +38,7 @@ export function evaluateExpression(
 
   const expressionContext = {
     ...new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys),
+    ...getRegisteredExpressionHelpers(),
     ...context,
     fieldValues,
     patient,

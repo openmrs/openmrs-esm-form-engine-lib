@@ -3,7 +3,6 @@ import { FormGroup, Button } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { getHandler } from '../../registry/registry';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { OHRIFormField, OHRIFormFieldProps } from '../../api/types';
 import { OHRIObsGroup } from '../group/ohri-obs-group.component';
@@ -19,7 +18,9 @@ export const showAddButton = (limit: string | number, counter: number) => {
 
 export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange }) => {
   const { t } = useTranslation();
-  const { fields: allFormFields, encounterContext, obsGroupsToVoid } = React.useContext(OHRIFormContext);
+  const { fields: allFormFields, encounterContext, obsGroupsToVoid, formFieldHandlers } = React.useContext(
+    OHRIFormContext,
+  );
   const { values, setValues } = useFormikContext();
   const [counter, setCounter] = useState(1);
   const [obsGroups, setObsGroups] = useState([]);
@@ -62,7 +63,7 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
           ).then(result => {
             if (!isEmpty(result)) {
               values[childField.id] = result;
-              getHandler(childField.type).handleFieldSubmission(childField, result, encounterContext);
+              formFieldHandlers[childField.type].handleFieldSubmission(childField, result, encounterContext);
             }
           });
         }
@@ -119,7 +120,7 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
           <OHRIObsGroup
             question={question}
             onChange={onChange}
-            handler={getHandler('obsGroup')}
+            handler={formFieldHandlers[question.type]}
             deleteControl={index !== 0 ? deleteControl : null}
           />
         </div>

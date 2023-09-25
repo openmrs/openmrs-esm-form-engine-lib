@@ -7,11 +7,11 @@ import { OHRIFormContext } from '../../../ohri-form-context';
 import { getConceptNameAndUUID } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { isTrue } from '../../../utils/boolean-utils';
-import { getDataSource } from '../../../registry/registry';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
 import debounce from 'lodash-es/debounce';
 import { useTranslation } from 'react-i18next';
+import { getRegisteredDataSource } from '../../../registry/registry';
 
 export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onChange }) => {
   const { t } = useTranslation();
@@ -27,11 +27,11 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const isProcessingSelection = useRef(false);
+  const [dataSource, setDataSource] = useState(null);
 
-  const [dataSource, config] = useMemo(
-    () => [getDataSource(question.questionOptions?.datasource?.id), question.questionOptions?.datasource?.config],
-    [],
-  );
+  useEffect(() => {
+    getRegisteredDataSource(question.questionOptions?.datasource?.id).then(ds => setDataSource(ds));
+  }, [question.questionOptions?.datasource]);
 
   useEffect(() => {
     if (question['submission']) {
@@ -48,7 +48,7 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
 
   const debouncedSearch = debounce((searchterm, dataSource) => {
     setIsLoading(true);
-    dataSource.fetchData(searchterm, config).then(dataItems => {
+    dataSource.fetchData(searchterm, question.questionOptions?.datasource?.config).then(dataItems => {
       setItems(dataItems.map(dataSource.toUuidAndDisplay));
       setIsLoading(false);
     });
@@ -58,7 +58,7 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
     // If not searchable, preload the items
     if (dataSource && !isTrue(question.questionOptions.isSearchable)) {
       setIsLoading(true);
-      dataSource.fetchData(null, config).then(dataItems => {
+      dataSource.fetchData(null, question.questionOptions?.datasource?.config).then(dataItems => {
         setItems(dataItems.map(dataSource.toUuidAndDisplay));
         setIsLoading(false);
       });
