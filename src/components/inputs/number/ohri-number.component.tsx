@@ -70,7 +70,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
+  return encounterContext.sessionMode == 'view' ? (
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}
@@ -99,6 +99,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
             hideSteppers={true}
             onWheel={e => e.target.blur()}
             disabled={question.disabled}
+            readOnly={question.readonly}
             className={isFieldRequiredError ? styles.errorLabel : ''}
             warn={warnings.length > 0}
             warnText={warnings[0]?.message}

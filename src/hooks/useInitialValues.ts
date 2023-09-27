@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 import { EncounterContext, inferInitialValueFromDefaultFieldValue, isEmpty } from '..';
-import { OHRIFormField, OpenmrsEncounter } from '../api/types';
-import { getHandler } from '../registry/registry';
+import { OHRIFormField, OpenmrsEncounter, SubmissionHandler } from '../api/types';
 import { evaluateAsyncExpression } from '../utils/expression-runner';
 import { cloneObsGroup } from '../components/repeat/helpers';
 import { assignedObsIds } from '../submission-handlers/base-handlers';
+import { hasRendering } from '../utils/common-utils';
 
 export function useInitialValues(
   formFields: OHRIFormField[],
   encounter: OpenmrsEncounter,
   encounterContext: EncounterContext,
+  formFieldHandlers: Record<string, SubmissionHandler>,
 ) {
   const [asyncInitValues, setAsyncInitValues] = useState<Record<string, Promise<any>>>(null);
   const [initialValues, setInitialValues] = useState({});
@@ -28,7 +29,7 @@ export function useInitialValues(
           const field = formFields.find(field => field.id === key);
           try {
             if (!isEmpty(result)) {
-              getHandler(field.type).handleFieldSubmission(field, result, encounterContext);
+              formFieldHandlers[field.type].handleFieldSubmission(field, result, encounterContext);
             }
           } catch (error) {
             console.error(error);
@@ -53,14 +54,17 @@ export function useInitialValues(
       formFields
         .filter(field => isEmpty(field.value))
         .forEach(field => {
-          if (field.questionOptions.rendering == 'repeating') {
+          if (hasRendering(field, 'repeating')) {
             !field.questionOptions.repeatOptions?.isCloned && repeatableFields.push(field);
             return;
           }
-          const handler = getHandler(field.type);
-          let existingVal = handler?.getInitialValue(encounter, field, formFields);
+          let existingVal = formFieldHandlers[field.type]?.getInitialValue(encounter, field, formFields);
           if (isEmpty(existingVal) && !isEmpty(field.questionOptions.defaultValue)) {
-            existingVal = inferInitialValueFromDefaultFieldValue(field, encounterContext, handler);
+            existingVal = inferInitialValueFromDefaultFieldValue(
+              field,
+              encounterContext,
+              formFieldHandlers[field.type],
+            );
           }
           initialValues[field.id] = isEmpty(existingVal)
             ? emptyValues[field.questionOptions.rendering] ?? emptyValues.default
@@ -78,7 +82,14 @@ export function useInitialValues(
             !assignedObsIds.includes(obs.uuid),
         );
         return unMappedGroups.flatMap(group => {
-          const clone = cloneObsGroup(field, group, counter++, initialValues);
+          const clone = cloneObsGroup(field, group, counter++);
+          clone.questions.forEach(childField => {
+            initialValues[childField.id] = formFieldHandlers[field.type].getInitialValue(
+              { obs: [group] },
+              childField,
+              formFields,
+            );
+          });
           assignedObsIds.push(group.uuid);
           return [clone, ...clone.questions];
         });
@@ -107,7 +118,7 @@ export function useInitialValues(
             );
           }
           if (!isEmpty(field.questionOptions.defaultValue)) {
-            value = inferInitialValueFromDefaultFieldValue(field, encounterContext, getHandler(field.type));
+            value = inferInitialValueFromDefaultFieldValue(field, encounterContext, formFieldHandlers[field.type]);
           }
           if (!isEmpty(value)) {
             initialValues[field.id] = value;

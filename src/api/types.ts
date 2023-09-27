@@ -67,7 +67,7 @@ export interface OHRIFormSchema {
   readonly?: string | boolean;
   inlineRendering?: 'single-line' | 'multiline' | 'automatic';
   markdown?: any;
-  postSubmissionActions?: Array<string>;
+  postSubmissionActions?: Array<{ actionId: string; config?: Record<string, any> }>;
   formOptions?: {
     usePreviousValueDisabled: boolean;
   };
@@ -165,6 +165,8 @@ export interface OHRIFormQuestionOptions {
   usePreviousValueDisabled?: boolean;
   allowedFileTypes?: Array<string>;
   allowMultiple?: boolean;   //Allow Single File Attachments  and Multiple file attachments
+  datasource?: { id: string; config?: Record<string, any> };
+  isSearchable?: boolean;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view';
@@ -188,11 +190,14 @@ export type RenderType =
   | 'file';  //allow the form engine to recognize and handle the new file component
 
 export interface PostSubmissionAction {
-  applyAction(formSession: {
-    patient: fhir.Patient;
-    encounters: Array<OpenmrsEncounter>;
-    sessionMode: SessionMode;
-  }): void;
+  applyAction(
+    formSession: {
+      patient: fhir.Patient;
+      encounters: Array<OpenmrsEncounter>;
+      sessionMode: SessionMode;
+    },
+    config?: Record<string, any>,
+  ): void;
 }
 
 // OpenMRS Type Definitions
@@ -251,7 +256,7 @@ export interface DataSource<T> {
   /**
    * Fetches arbitrary data from a data source
    */
-  fetchData(searchTerm?: string): Promise<Array<T>>;
+  fetchData(searchTerm?: string, config?: Record<string, any>): Promise<Array<T>>;
   /**
    * Maps a data source item to an object with a uuid and display property
    */

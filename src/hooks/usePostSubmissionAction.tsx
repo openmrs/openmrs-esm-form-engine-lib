@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react';
 import { PostSubmissionAction } from '../api/types';
-import { getPostSubmissionActionById } from '../registry/registry';
+import { getRegisteredPostSubmissionAction } from '../registry/registry';
 
-export function usePostSubmissionAction(actionIds: Array<string>) {
-  const [actions, setActions] = useState<Array<PostSubmissionAction>>([]);
+export function usePostSubmissionAction(actionRefs: Array<{ actionId: string; config?: Record<string, any> }>) {
+  const [actions, setActions] = useState<Array<{ postAction: PostSubmissionAction; config: Record<string, any> }>>([]);
   useEffect(() => {
-    let actionArray = [];
-    if (actionIds) {
-      actionIds.map(actionId => {
-        getPostSubmissionActionById(actionId)?.then(response => actionArray.push(response.default));
+    const actionArray = [];
+    if (actionRefs?.length) {
+      actionRefs.map(ref => {
+        const actionId = typeof ref === 'string' ? ref : ref.actionId;
+        getRegisteredPostSubmissionAction(actionId)?.then(action =>
+          actionArray.push({ postAction: action, config: ref.config }),
+        );
       });
     }
     setActions(actionArray);
-  }, [actionIds]);
+  }, [actionRefs]);
 
   return actions;
 }

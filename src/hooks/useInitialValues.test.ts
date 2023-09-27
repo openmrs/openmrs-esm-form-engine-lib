@@ -3,6 +3,7 @@ import { useInitialValues } from './useInitialValues';
 import testEncounter from '../../__mocks__/use-initial-values/encounter.mock.json';
 import testPatient from '../../__mocks__/use-initial-values/patient.mock.json';
 import { OHRIFormField, OpenmrsEncounter } from '../api/types';
+import { ObsSubmissionHandler } from '../submission-handlers/base-handlers';
 
 const obsGroupMembers: Array<OHRIFormField> = [
   {
@@ -96,6 +97,8 @@ let allFormFields: Array<OHRIFormField> = [
   ...obsGroupMembers,
 ];
 
+const formFieldHandlers = { obs: ObsSubmissionHandler, obsGroup: ObsSubmissionHandler };
+
 const location = {
   uuid: '1ce1b7d4-c865-4178-82b0-5932e51503d6',
   display: 'Community Outreach',
@@ -115,12 +118,11 @@ jest.mock('../utils/expression-runner', () => {
   };
 });
 
-describe('useInialValues', () => {
+describe('useInitialValues', () => {
   const encounterDate = new Date();
 
   afterEach(() => {
-    allFormFields = allFormFields.slice(0, 6);
-    allFormFields.forEach(field => {
+    allFormFields.slice(0, 6).forEach(field => {
       delete field.value;
     });
   });
@@ -130,14 +132,19 @@ describe('useInialValues', () => {
 
     await act(async () => {
       hook = renderHook(() =>
-        useInitialValues(allFormFields, null, {
-          encounter: null,
-          patient: testPatient,
-          location,
-          sessionMode: 'enter',
-          encounterDate: encounterDate,
-          setEncounterDate: jest.fn,
-        }),
+        useInitialValues(
+          allFormFields,
+          null,
+          {
+            encounter: null,
+            patient: testPatient,
+            location,
+            sessionMode: 'enter',
+            encounterDate: encounterDate,
+            setEncounterDate: jest.fn,
+          },
+          formFieldHandlers,
+        ),
       );
     });
     const {
@@ -158,14 +165,19 @@ describe('useInialValues', () => {
 
     await act(async () => {
       hook = renderHook(() =>
-        useInitialValues(allFormFields, encounter, {
-          encounter: encounter,
-          patient: testPatient,
-          location,
-          sessionMode: 'enter',
-          encounterDate: encounterDate,
-          setEncounterDate: jest.fn,
-        }),
+        useInitialValues(
+          allFormFields,
+          encounter,
+          {
+            encounter: encounter,
+            patient: testPatient,
+            location,
+            sessionMode: 'enter',
+            encounterDate: encounterDate,
+            setEncounterDate: jest.fn,
+          },
+          formFieldHandlers,
+        ),
       );
     });
     const {
@@ -182,10 +194,10 @@ describe('useInialValues', () => {
       notes: 'Mother is in perfect condition',
       screening_methods: [],
       // child one
-      date_of_birth: '7/24/2023',
+      date_of_birth: new Date('2023-07-24T00:00:00.000+0000').toLocaleDateString('en-US'),
       infant_name: 'TBD',
       // child two
-      date_of_birth_1: '7/24/2023',
+      date_of_birth_1: new Date('2023-07-24T00:00:00.000+0000').toLocaleDateString('en-US'),
       infant_name_1: ' TDB II',
     });
     expect(allFormFields.find(field => field.id === 'date_of_birth_1')).not.toBeNull();
@@ -211,14 +223,19 @@ describe('useInialValues', () => {
     allFormFields.push(fieldWithCalculateExpression);
     await act(async () => {
       hook = renderHook(() =>
-        useInitialValues(allFormFields, null, {
-          encounter: null,
-          patient: testPatient,
-          location,
-          sessionMode: 'enter',
-          encounterDate: encounterDate,
-          setEncounterDate: jest.fn,
-        }),
+        useInitialValues(
+          allFormFields,
+          null,
+          {
+            encounter: null,
+            patient: testPatient,
+            location,
+            sessionMode: 'enter',
+            encounterDate: encounterDate,
+            setEncounterDate: jest.fn,
+          },
+          formFieldHandlers,
+        ),
       );
     });
     const {
@@ -231,7 +248,9 @@ describe('useInialValues', () => {
       notes: '',
       screening_methods: [],
       date_of_birth: '',
+      date_of_birth_1: '',
       infant_name: '',
+      infant_name_1: '',
       latest_mother_hiv_status: '664AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
     });
   });

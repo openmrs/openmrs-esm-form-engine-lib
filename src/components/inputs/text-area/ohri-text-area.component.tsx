@@ -48,7 +48,7 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
+  return encounterContext.sessionMode == 'view' ? (
     <div className={styles.formField}>
       <OHRIFieldValueView label={question.label} value={field.value} conceptName={conceptName} isInline={isInline} />
     </div>
@@ -68,6 +68,7 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
             onFocus={() => setPreviousValue(field.value)}
             rows={question.questionOptions.rows || 4}
             disabled={question.disabled}
+            readOnly={question.readonly}
             invalid={!isFieldRequiredError && errors.length > 0}
             invalidText={errors.length && errors[0].message}
             warn={warnings.length > 0}

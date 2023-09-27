@@ -221,8 +221,8 @@ describe('OHRI Forms:', () => {
       fireEvent.change(lmpField, { target: { value: '2022-07-06' } });
 
       // verify
-      await act(async () => expect(lmpField.value).toBe('7/6/2022'));
-      await act(async () => expect(eddField.value).toBe('4/12/2023'));
+      await act(async () => expect(lmpField.value).toBe(new Date('2022-07-06').toLocaleDateString('en-US')));
+      await act(async () => expect(eddField.value).toBe(new Date('2023-04-12').toLocaleDateString('en-US')));
     });
 
     it('Should evaluate months on ART', async () => {
@@ -244,7 +244,7 @@ describe('OHRI Forms:', () => {
       fireEvent.blur(artStartDateField, { target: { value: '05/02/2022' } });
 
       // verify
-      await act(async () => expect(artStartDateField.value).toBe('5/2/2022'));
+      await act(async () => expect(artStartDateField.value).toBe(new Date('2022-05-02T00:00:00.000+0000').toLocaleDateString('en-US')));
       await act(async () => expect(assumeTodayToBe).toBe('7/11/2022'));
       await act(async () => expect(monthsOnARTField.value).toBe('5'));
     });
@@ -283,7 +283,7 @@ describe('OHRI Forms:', () => {
       await act(async () => expect(mrn.value).toBe(''));
 
       // verify
-      await act(async () => expect(enrollmentDate.value).toBe('7/6/1975'));
+      await act(async () => expect(enrollmentDate.value).toBe(new Date('1975-07-06T00:00:00.000Z').toLocaleDateString('en-US')));
       await act(async () => expect(mrn.value).toBe(''));
       await act(async () => expect(mrn).toBeVisible());
     });

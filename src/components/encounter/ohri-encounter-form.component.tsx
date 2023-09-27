@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { SessionLocation, useLayoutType, Visit } from '@openmrs/esm-framework';
 import { ConceptFalse, ConceptTrue } from '../../constants';
-import { getHandler, getValidator } from '../../registry/registry';
 import {
   OHRIFormField,
   OHRIFormPage as OHRIFormPageProps,
@@ -30,6 +29,8 @@ import { useEncounter } from '../../hooks/useEncounter';
 import { useInitialValues } from '../../hooks/useInitialValues';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { useConcepts } from '../../hooks/useConcepts';
+import { useFormFieldHandlers } from '../../hooks/useFormFieldHandlers';
+import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
 
 interface OHRIEncounterFormProps {
   formJson: OHRIFormSchema;
@@ -147,10 +148,13 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     return [flattenedFieldsTemp, conceptReferencesTemp];
   }, []);
 
+  const formFieldHandlers = useFormFieldHandlers(flattenedFields);
+  const formFieldValidators = useFormFieldValidators(flattenedFields);
   const { initialValues: tempInitialValues, isBindingComplete } = useInitialValues(
     flattenedFields,
     encounter,
     encounterContext,
+    formFieldHandlers,
   );
 
   // look up concepts via their references
@@ -300,7 +304,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     node.value.isHidden = isHidden;
     if (type == 'field' && node.value?.questions?.length) {
       node.value?.questions.forEach(question => {
-        question.isHidden = isHidden;
+        question.isParentHidden = isHidden;
       });
     }
     // cascade visibility
@@ -491,11 +495,11 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   ) => {
     const field = fields.find(field => field.id == fieldName);
     const validators = Array.isArray(field.validators)
-      ? [{ type: 'OHRIBaseValidator' }, ...field.validators]
-      : [{ type: 'OHRIBaseValidator' }];
+      ? [{ type: 'default' }, ...field.validators]
+      : [{ type: 'default' }];
     // handle validation
     const basevalidatorConfig = {
-      expressionContext: { mode: sessionMode },
+      expressionContext: { patient, mode: sessionMode },
       values: { ...values, [fieldName]: value },
       fields,
     };
@@ -503,8 +507,10 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     const warnings = [];
     for (let validatorConfig of validators) {
       const errorsAndWarinings =
-        getValidator(validatorConfig.type)?.validate(field, value, { ...basevalidatorConfig, ...validatorConfig }) ||
-        [];
+        formFieldValidators[validatorConfig.type].validate(field, value, {
+          ...basevalidatorConfig,
+          ...validatorConfig,
+        }) || [];
       errors.push(...errorsAndWarinings.filter(error => error.resultType == 'error'));
       warnings.push(...errorsAndWarinings.filter(error => error.resultType == 'warning'));
     }
@@ -536,7 +542,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             result = isEmpty(result) ? '' : result;
             values[dependant.id] = result;
             setFieldValue(dependant.id, result);
-            getHandler(dependant.type).handleFieldSubmission(dependant, result, encounterContext);
+            formFieldHandlers[dependant.type].handleFieldSubmission(dependant, result, encounterContext);
           });
         }
         // evaluate hide
@@ -660,6 +666,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         workspaceLayout,
         isFieldInitializationComplete,
         isSubmitting,
+        formFieldHandlers,
       }}>
       <InstantEffect effect={addScrollablePages} />
       {form.pages.map((page, index) => {

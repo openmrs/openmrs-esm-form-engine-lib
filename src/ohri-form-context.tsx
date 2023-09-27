@@ -1,6 +1,6 @@
 import { LayoutType } from '@openmrs/esm-framework';
 import React from 'react';
-import { OHRIFormField, OpenmrsEncounter, SessionMode } from './api/types';
+import { OHRIFormField, OpenmrsEncounter, SessionMode, SubmissionHandler } from './api/types';
 
 type OHRIFormContextProps = {
   values: Record<string, any>;
@@ -14,6 +14,7 @@ type OHRIFormContextProps = {
   isSubmitting: boolean;
   layoutType?: LayoutType;
   workspaceLayout?: 'minimized' | 'maximized';
+  formFieldHandlers: Record<string, SubmissionHandler>;
 };
 
 export interface EncounterContext {
