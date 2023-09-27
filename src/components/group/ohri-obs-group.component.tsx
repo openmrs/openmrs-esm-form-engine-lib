@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { getHandler } from '../../registry/registry';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../api/types';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
-import { getFieldControl, supportsUnspecified } from '../section/ohri-form-section.component';
 import styles from './ohri-obs-group.scss';
+import { useField } from 'formik';
+import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
 
 export interface ObsGroupProps extends OHRIFormFieldProps {
   deleteControl?: any;
@@ -12,13 +12,13 @@ export interface ObsGroupProps extends OHRIFormFieldProps {
 
 export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteControl }) => {
   const [groupMembersControlMap, setGroupMembersControlMap] = useState([]);
-  const { encounterContext } = useContext(OHRIFormContext);
+  const { formFieldHandlers } = useContext(OHRIFormContext);
 
   useEffect(() => {
     if (question.questions) {
       Promise.all(
         question.questions.map(field => {
-          return getFieldControl(field)?.then(result => ({ field, control: result.default }));
+          return getFieldControlWithFallback(field)?.then(result => ({ field, control: result }));
         }),
       ).then(results => {
         setGroupMembersControlMap(results);
@@ -34,14 +34,15 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
           question: field,
           onChange: onChange,
           key: index,
-          handler: getHandler(field.type),
+          handler: formFieldHandlers[field.type],
+          useField,
         });
         return (
           <div className={`${styles.flexColumn} ${styles.obsGroupColumn} `}>
-            {supportsUnspecified(field) ? (
+            {isUnspecifiedSupported(field) ? (
               <>
                 {questionFragment}
-                <OHRIUnspecified question={field} onChange={onChange} handler={getHandler(field.type)} />
+                <OHRIUnspecified question={field} onChange={onChange} handler={formFieldHandlers[field.type]} />
               </>
             ) : (
               questionFragment

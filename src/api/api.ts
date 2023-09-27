@@ -27,11 +27,15 @@ export function getLocationsByTag(tag: string): Observable<{ uuid: string; displ
   );
 }
 
-export function getPreviousEncounter(patientUuid: string, encounterType) {
-  const query = `encounterType=${encounterType}&patient=${patientUuid}`;
-  return openmrsFetch(`/ws/rest/v1/encounter?${query}&limit=1&v=${encounterRepresentation}`).then(({ data }) => {
-    return data.results.length ? data.results[0] : null;
-  });
+export async function getPreviousEncounter(patientUuid: string, encounterType: string) {
+  const query = `patient=${patientUuid}&_sort=-_lastUpdated&_count=1&type=${encounterType}`;
+  let response = await openmrsFetch(`/ws/fhir2/R4/Encounter?${query}`);
+  if (response.data.entry.length) {
+    const latestEncounter = response.data.entry[0].resource.id;
+    response = await openmrsFetch(`/ws/rest/v1/encounter/${latestEncounter}?v=${encounterRepresentation}`)
+    return response.data;
+  }
+  return null;
 }
 
 export function fetchConceptNameByUuid(conceptUuid: string) {

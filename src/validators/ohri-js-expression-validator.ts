@@ -17,9 +17,9 @@ export const OHRIJSExpressionValidator: FieldValidator = {
     const FIELD_HAS_WARNINGS_MESSAGE = 'Field has warnings';
     config.expressionContext.myValue = value;
     return Object.keys(config)
-      .filter(key => key == 'failsWhenExpression' || key == 'warnsWhenExpression')
+      .filter(key => key === 'failsWhenExpression' || key === 'warnsWhenExpression')
       .flatMap(key => {
-        const isErrorValidator = key == 'failsWhenExpression';
+        const isErrorValidator = key === 'failsWhenExpression';
         return evaluateExpression(
           config[key],
           { value: field, type: 'field' },
