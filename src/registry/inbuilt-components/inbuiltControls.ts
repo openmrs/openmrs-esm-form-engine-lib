@@ -16,11 +16,23 @@ import OHRIToggle from '../../components/inputs/toggle/ohri-toggle.component';
 import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended';
 import { OHRIRepeat } from '../../components/repeat/ohri-repeat.component';
 import { RegistryItem } from '../registry';
-import { controlTemplates } from './control-templates';
 
 /**
  * @internal
  */
+const controlTemplates = [
+  {
+    name: 'drug',
+    baseControlComponent: UISelectExtended,
+    datasource: {
+      name: 'drug_datasource',
+      config: {
+        class: '8d490dfc-c2cc-11de-8d13-0010c6dffd0f',
+      },
+    },
+  },
+];
+
 export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFieldProps>>> = [
   {
     name: 'OHRIText',
@@ -111,7 +123,11 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFie
   },
   ...controlTemplates.map(template => ({
     name: `${template.name}Control`,
-    component: UISelectExtended,//template.baseControlComponent,
+    component: template.baseControlComponent,
     type: template.name.toLowerCase(),
   })),
 ];
+
+export const getControlTemplate = (name: string) => {
+  return controlTemplates.find(template => template.name === name);
+};

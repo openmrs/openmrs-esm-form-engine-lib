@@ -12,7 +12,7 @@ import { PreviousValueReview } from '../../previous-value-review/previous-value-
 import debounce from 'lodash-es/debounce';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
-import { useDataSourceConfig } from '../../../hooks/useDataSourceConfig';
+import { getControlTemplate } from '../../../registry/inbuilt-components/inbuiltControls';
 
 const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onChange }) => {
   const { t } = useTranslation();
@@ -29,11 +29,15 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   const [inputValue, setInputValue] = useState('');
   const isProcessingSelection = useRef(false);
   const [dataSource, setDataSource] = useState(null);
-
-  const config = useDataSourceConfig(question);
+  const [config, setConfig] = useState({});
 
   useEffect(() => {
     const datasourceName = question.questionOptions?.datasource?.name;
+    setConfig(
+      datasourceName
+        ? question.questionOptions.datasource?.config
+        : getControlTemplate(question.questionOptions.rendering)?.datasource?.config,
+    );
     getRegisteredDataSource(datasourceName ? datasourceName : question.questionOptions.rendering).then(ds =>
       setDataSource(ds),
     );
@@ -145,7 +149,6 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
                   return;
                 }
                 setInputValue(value);
-                //setFieldValue(question.id, '');
                 if (question.questionOptions['isSearchable']) {
                   setSearchTerm(value);
                 }

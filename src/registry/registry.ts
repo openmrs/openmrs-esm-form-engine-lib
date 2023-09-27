@@ -1,11 +1,10 @@
 import { DataSource, FieldValidator, OHRIFormFieldProps, PostSubmissionAction, SubmissionHandler } from '../api/types';
 import { getGlobalStore } from '@openmrs/esm-framework';
 import { OHRIFormsStore } from '../constants';
-import { inbuiltControls } from './inbuilt-components/inbuiltControls';
+import { getControlTemplate, inbuiltControls } from './inbuilt-components/inbuiltControls';
 import { inbuiltFieldSubmissionHandlers } from './inbuilt-components/inbuiltFieldSubmissionHandlers';
 import { inbuiltValidators } from './inbuilt-components/inbuiltValidators';
 import { inbuiltDataSources } from './inbuilt-components/inbuiltDataSources';
-import { getControlTemplate } from './inbuilt-components/control-templates';
 
 /**
  * @internal
