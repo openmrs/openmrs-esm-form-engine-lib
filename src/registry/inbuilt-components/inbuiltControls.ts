@@ -13,9 +13,10 @@ import OHRIDropdown from '../../components/inputs/select/ohri-dropdown.component
 import OHRITextArea from '../../components/inputs/text-area/ohri-text-area.component';
 import OHRIText from '../../components/inputs/text/ohri-text.component';
 import OHRIToggle from '../../components/inputs/toggle/ohri-toggle.component';
-import { UISelectExtended } from '../../components/inputs/ui-select-extended/ui-select-extended';
+import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended';
 import { OHRIRepeat } from '../../components/repeat/ohri-repeat.component';
 import { RegistryItem } from '../registry';
+import { controlTemplates } from './control-templates';
 
 /**
  * @internal
@@ -108,4 +109,9 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFie
     component: UISelectExtended,
     type: 'ui-select-extended',
   },
+  ...controlTemplates.map(template => ({
+    name: `${template.name}Control`,
+    component: UISelectExtended,//template.baseControlComponent,
+    type: template.name.toLowerCase(),
+  })),
 ];

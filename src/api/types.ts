@@ -163,7 +163,7 @@ export interface OHRIFormQuestionOptions {
   };
   isDateTime?: { labelTrue: boolean; labelFalse: boolean };
   usePreviousValueDisabled?: boolean;
-  datasource?: { id: string; config?: Record<string, any> };
+  datasource?: { name: string; config?: Record<string, any> };
   isSearchable?: boolean;
 }
 
