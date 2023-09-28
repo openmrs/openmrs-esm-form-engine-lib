@@ -81,6 +81,7 @@ export async function evaluateAsyncExpression(
 
   const expressionContext = {
     ...new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys),
+    ...getRegisteredExpressionHelpers(),
     ...context,
     fieldValues,
     patient,
