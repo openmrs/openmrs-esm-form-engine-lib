@@ -51,8 +51,6 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
     setFieldValue(question.id, value);
     field['value'] = value;
     field.onBlur(null);
-
-    console.log('This is the value from text: ', value);
   };
 
   useEffect(() => {

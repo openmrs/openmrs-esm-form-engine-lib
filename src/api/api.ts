@@ -14,10 +14,7 @@ export function saveEncounter(abortController: AbortController, payload, encount
     method: 'POST',
     body: payload,
     signal: abortController.signal,
-  })
-    .then(res => res.json())
-    .then(data => console.log(data))
-    .catch(err => console.log(err.message, err.responseBody));
+  });
 }
 
 export function getConcept(conceptUuid: string, v: string): Observable<any> {

@@ -1,5 +1,11 @@
 .saveFile{
-    margin-top: 10px;
-}.capturedImage{
-    margin: 10px;
+    margin: 0 10px;
+}
+.capturedImage{
+    margin: 10px 0;
+}
+.Image{
+    display: flex;
+    // justify-content: space-between; /* Space between buttons */
+    align-items: center; /* Vertically center the buttons */
 }
