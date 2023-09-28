@@ -1,0 +1,16 @@
+{
+    "finalSchema": "Schéma Final",
+    "formIntent": "Intention du Formulaire",
+    "formRender": "Rendu du Formulaire",
+    "formRenderMenuLink": "Rendu du Formulaire",
+    "formRenderTestTitle": "Test de Rendu du Formulaire",
+    "generatedForm": "Formulaire Généré",
+    "jsonEditorThe": "Thème de l'Éditeur JSON",
+    "jsonInput": "Entrée JSON",
+    "jsonSchemaHeader": "Schéma JSON",
+    "jsonText": "Saisissez le Texte JSON",
+    "render": "Afficher",
+    "selectForm": "--Sélectionnez l'Intention du Formulaire",
+    "submitForm": "Veuillez soumettre le formulaire"
+  }
+  

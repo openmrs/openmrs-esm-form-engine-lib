@@ -1,0 +1,454 @@
+## English 
+
+"label": "Introduction",
+"label": "",
+"label": "HTS Form Strategy",
+"label": "Visit Details",
+"label": "Visit Details",
+"label": "Encounter date",
+"label": "Pre-Test Counselling",
+"label": "Approach",
+"label": "Setting of HIV test",
+"label": "Community Level testing",
+"label": "Facility Level Testing",
+"label": "Community service delivery point",
+"label": "Drop In Centre",
+"label": "Workplace",
+"label": "Hotspot",
+"label": "Outreach Program",
+"label": "Home Based HIV Testing Program",
+"label": "Mobile Voluntary Counselling and Testing Program",
+"label": "Voluntary Counselling and Testing Center",
+"label": "Unknown",
+"label": "Other",
+"label": "Facility service delivery point",
+"label": "Post Natal Program",
+"label": "Family Planning Clinic",
+"label": "Antenatal Program",
+"label": "Comprehensive Care Centre",
+"label": "Sexually Transmitted Infection Program/Clinic",
+"label": "Nutrition Program",
+"label": "Tuberculosis Treatment Program",
+"label": "Labour and Delivery Unit",
+"label": "Inpatient Care or Hospitalization",
+"label": "Outpatient Department",
+"label": "Pediatric <5 Clinic",
+"label": "Other",
+"label": "Approach",
+"label": "Client initiated testing and counseling (CICT)",
+"label": "Provider-initiated testing and counseling (PITC)",
+"label": "Risk Assessment & Eligibility",
+"label": "Reason for this HIV test",
+"label": "Inconclusive HIV Result",
+"label": "Self Initiative",
+"label": "HIV Self Test Positive",
+"label": "Index Client Testing",
+"label": "Assisted Partner Notification (APN)",
+"label": "Other",
+"label": "Previously tested for HIV",
+"label": "Yes",
+"label": "No",
+"label": "Unknown",
+"label": "Duration since last HIV test",
+"label": "0-3 Months",
+"label": "3-6 Months",
+"label": "6-12 Months",
+"label": "More Than 12 Months",
+"label": "Unknown",
+"label": "Last HIV test result?",
+"label": "Positive",
+"label": "Negative",
+"label": "Inconclusive",
+"label": "Unknown",
+"label": "Sexually active",
+"label": "Yes",
+"label": "No",
+"label": "Unknown",
+"label": "Unprotected sex with a partner of unknown/positive HIV status in the past 12 months",
+"label": "Yes",
+"label": "No",
+"label": "Unknown",
+"label": "STI in the last 6 months",
+"label": "Yes",
+"label": "No",
+"label": "Unknown",
+"label": "Pregnant or considering becoming pregnant?",
+"label": "Yes"
+"label": "No"
+"label": "Unknown"
+"label": "Population Category",
+"label": "Population Category",
+"label": "General population",
+"label": "Key population",
+"label": "Priority population",
+"label": "Key Population Type",
+"label": "Intravenous drug user",
+"label": "Male who has sex with men",
+"label": "Prisoners",
+"label": "Sex worker",
+"label": "Transgender Persons",
+"label": "Priority Population Type",
+"label": "Adolescent Girls & Young Women",
+"label": "Client of sex worker",
+"label": "Fisher Folk",
+"label": "Long distance truck driver",
+"label": "Migrant Workers",
+"label": "Non-intravenous drug user",
+"label": "Refugee",
+"label": "Uniformed Forces",
+"label": "Other",
+"label": "Pre-Test Information",
+"label": "Eligible for HIV Testing",
+"label": "Yes",
+"label": "No",
+"label": "Unknown",
+"label": "TB/STI Screening",
+"label": "Tuberculosis Screening",
+"label": "TB screening",
+"label": "Abnormal Weight Loss",
+"label": "cough lasting more than 2 weeks",
+"label": "Fever lasting more than three weeks",
+"label": "Night sweats",
+"label": "None",
+"label": "STI Screening",
+"label": "Any of the following symptoms?",
+"label": "Genital Sore",
+"label": "Lower abdominal pain",
+"label": "Scrotal Mass",
+"label": "Vaginal discharge",
+"label": "Urethral Discharge",
+"label": "Normal",
+"label": "Notes",
+"label": "Comments",
+"label": "HTS Provider Comments"
+
+
+## Portuguese
+"Introduction": "Introdução"
+"": ""
+"HTS Form Strategy": "Estratégia do Formulário HTS"
+"Visit Details": "Detalhes da Visita"
+"Visit Details": "Detalhes da Visita"
+"Encounter date": "Data do Encontro"
+"Pre-Test Counselling": "Aconselhamento Pré-Teste"
+"Approach": "Abordagem"
+"Setting of HIV test": "Configuração do Teste de HIV"
+"Community Level testing": "Teste ao Nível da Comunidade"
+"Facility Level Testing": "Teste ao Nível da Instalação"
+"Community service delivery point": "Ponto de Atendimento da Comunidade"
+"Drop In Centre": "Centro de Atendimento Direto"
+"Workplace": "Local de Trabalho"
+"Hotspot": "Ponto de Acesso"
+"Outreach Program": "Programa de Divulgação"
+"Home Based HIV Testing Program": "Programa de Teste de HIV em Casa"
+"Mobile Voluntary Counselling and Testing Program": "Programa de Aconselhamento e Teste Voluntário Móvel"
+"Voluntary Counselling and Testing Center": "Centro de Aconselhamento e Teste Voluntário"
+"Unknown": "Desconhecido"
+"Other": "Outro"
+"Facility service delivery point": "Ponto de Atendimento da Instalação"
+"Post Natal Program": "Programa Pós-Natal"
+"Family Planning Clinic": "Clínica de Planeamento Familiar"
+"Antenatal Program": "Programa Pré-Natal"
+"Comprehensive Care Centre": "Centro de Cuidados Abrangentes"
+"Sexually Transmitted Infection Program/Clinic": "Programa/Clinica de Infeção Sexualmente Transmissível"
+"Nutrition Program": "Programa de Nutrição"
+"Tuberculosis Treatment Program": "Programa de Tratamento de Tuberculose"
+"Labour and Delivery Unit": "Unidade de Parto e Parto"
+"Inpatient Care or Hospitalization": "Cuidados Internos ou Hospitalização"
+"Outpatient Department": "Departamento de Ambulatório"
+"Pediatric <5 Clinic": "Clínica Pediátrica <5"
+"Other": "Outro"
+"Approach": "Abordagem"
+"Client initiated testing and counseling (CICT)": "Teste e Aconselhamento Iniciado pelo Cliente (CICT)"
+"Provider-initiated testing and counseling (PITC)": "Teste e Aconselhamento Iniciado pelo Fornecedor (PITC)"
+"Risk Assessment & Eligibility": "Avaliação de Risco e Elegibilidade"
+"Reason for this HIV test": "Motivo para este teste de HIV"
+"Inconclusive HIV Result": "Resultado Inconclusivo do HIV"
+"Self Initiative": "Iniciativa Pessoal"
+"HIV Self Test Positive": "Resultado Positivo no Teste de HIV em Casa"
+"Index Client Testing": "Teste do Cliente Índice"
+"Assisted Partner Notification (APN)": "Notificação de Parceiros Assistida (APN)"
+"Other": "Outro"
+"Previously tested for HIV": "Testado previamente para o HIV"
+"Yes": "Sim"
+"No": "Não"
+"Unknown": "Desconhecido"
+"Duration since last HIV test": "Duração desde o último teste de HIV"
+"0-3 Months": "0-3 Meses"
+"3-6 Months": "3-6 Meses"
+"6-12 Months": "6-12 Meses"
+"More Than 12 Months": "Mais de 12 Meses"
+"Unknown": "Desconhecido"
+"Last HIV test result?": "Último resultado do teste de HIV?"
+"Positive": "Positivo"
+"Negative": "Negativo"
+"Inconclusive": "Inconclusivo"
+"Unknown": "Desconhecido"
+"Sexually active": "Ativo Sexualmente"
+"Yes": "Sim"
+"No": "Não"
+"Unknown": "Desconhecido"
+"Unprotected sex with a partner of unknown/positive HIV status in the past 12 months": "Sexo sem proteção com um parceiro de status de HIV desconhecido/positivo nos últimos 12 meses"
+"Yes": "Sim"
+"No": "Não"
+"Unknown": "Desconhecido"
+"STI in the last 6 months": "IST nos últimos 6 meses"
+"Yes": "Sim"
+"No": "Não"
+"Unknown": "Desconhecido"
+"Pregnant or considering becoming pregnant?": "Grávida ou considerando engravidar?"
+"Yes": "Sim"
+"No": "Não"
+"Unknown": "Desconhecido"
+"Population Category": "Categoria de População"
+"Population Category": "Categoria de População"
+"General population": "População Geral"
+"Key population": "População-Chave"
+"Priority population": "População Prioritária"
+"Key Population Type": "Tipo de População-Chave"
+"Intravenous drug user": "Utilizador de Drogas Intravenosas"
+"Male who has sex with men": "Homem que tem sexo com homens"
+"Prisoners": "Reclusos"
+"Sex worker": "Trabalhador Sexual"
+"Transgender Persons": "Pessoas Transgênero"
+"Priority Population Type": "Tipo de População Prioritária"
+"Adolescent Girls & Young Women": "Adolescentes e Jovens Mulheres"
+"Client of sex worker": "Cliente de Trabalhador Sexual"
+"Fisher Folk": "Pescadores"
+"Long distance truck driver": "Motoristas de Caminhões de Longa Distância"
+"Migrant Workers": "Trabalhadores Migrantes"
+"Non-intravenous drug user": "Não Utilizador de Drogas Intravenosas"
+"Refugee": "Refugiado"
+"Uniformed Forces": "Forças Uniformizadas"
+"Other": "Outro"
+"Pre-Test Information": "Informações Pré-Teste"
+"Eligible for HIV Testing": "Elegível para Teste de HIV"
+"Yes": "Sim"
+"No": "Não"
+"Unknown": "Desconhecido"
+"TB/STI Screening": "Triagem de TB/IST"
+"Tuberculosis Screening": "Triagem de Tuberculose"
+"TB screening": "Triagem de TB"
+"Abnormal Weight Loss": "Perda de Peso Anormal"
+"cough lasting more than 2 weeks": "Tosse com duração de mais de 2 semanas"
+"Fever lasting more than three weeks": "Febre com duração de mais de três semanas"
+"Night sweats": "Suores Noturnos"
+"None": "Nenhum"
+"STI Screening": "Triagem de IST"
+"Any of the following symptoms?": "Algum dos seguintes sintomas?"
+"Genital Sore": "Úlcera Genital"
+"Lower abdominal pain": "Dor Abdominal Inferior"
+"Scrotal Mass": "Massa Escrotal"
+"Vaginal discharge": "Corrimento Vaginal"
+"Urethral Discharge": "Corrimento Uretral"
+"Normal": "Normal"
+"Notes": "Notas"
+"Comments": "Comentários"
+"HTS Provider Comments": "Comentários do Fornecedor de HTS"
+
+## Swahili 
+"label": "Introduction" - Utangulizi
+"label": "" - (Hakuna lebo iliyotolewa)
+"label": "HTS Form Strategy" - Mkakati wa Fomu ya HTS
+"label": "Visit Details" - Maelezo ya Ziara
+"label": "Encounter date" - Tarehe ya Mkutano
+"label": "Pre-Test Counselling" - Ushauri Kabla ya Kipimo
+"label": "Approach" - Njia
+"label": "Setting of HIV test" - Kuweka ya Kipimo cha HIV
+"label": "Community Level testing" - Vipimo Ngazi ya Jamii
+"label": "Facility Level Testing" - Vipimo Ngazi ya Kituo
+"label": "Community service delivery point" - Pointi ya Huduma ya Jamii
+"label": "Drop In Centre" - Kituo cha Kupita
+"label": "Workplace" - Mahali pa Kazi
+"label": "Hotspot" - Eneo Lenye Shughuli Sana
+"label": "Outreach Program" - Programu ya Kufikia
+"label": "Home Based HIV Testing Program" - Programu ya Kipimo cha HIV Nyumbani
+"label": "Mobile Voluntary Counselling and Testing Program" - Programu ya Ushauri na Vipimo vya HIV Kwa Simu
+"label": "Voluntary Counselling and Testing Center" - Kituo cha Ushauri na Vipimo vya HIV Kwa Hiari
+"label": "Unknown" - Isiyojulikana
+"label": "Other" - Nyingine
+"label": "Facility service delivery point" - Pointi ya Huduma ya Kituo
+"label": "Post Natal Program" - Programu ya Baada ya Kujifungua
+"label": "Family Planning Clinic" - Kliniki ya Uzazi wa Mpango
+"label": "Antenatal Program" - Programu ya Kabla ya Kujifungua
+"label": "Comprehensive Care Centre" - Kituo cha Huduma Kamili
+"label": "Sexually Transmitted Infection Program/Clinic" - Programu/Kliniki ya Maambukizi ya Kupitishwa Kwa Njia ya Kujamiiana
+"label": "Nutrition Program" - Programu ya Lishe
+"label": "Tuberculosis Treatment Program" - Programu ya Matibabu ya Kifua Kikuu
+"label": "Labour and Delivery Unit" - Kitengo cha Kujifungua na Kujifungua
+"label": "Inpatient Care or Hospitalization" - Huduma ya Wagonjwa wa Ndani au Kuwekwa Hospitalini
+"label": "Outpatient Department" - Idara ya Wagonjwa wa Nje
+"label": "Pediatric <5 Clinic" - Kliniki ya Watoto Chini ya Miaka 5
+"label": "Other" - Nyingine
+"label": "Approach" - Njia
+"label": "Client initiated testing and counseling (CICT)" - Kipimo na Ushauri wa Mteja (CICT) Kuanzishwa na Mteja
+"label": "Provider-initiated testing and counseling (PITC)" - Kipimo na Ushauri wa Mtoa Huduma (PITC) Kuanzishwa na Mtoa Huduma
+"label": "Risk Assessment & Eligibility" - Tathmini ya Hatari na Kustahiki
+"label": "Reason for this HIV test" - Sababu ya Kipimo cha HIV Hiki
+"label": "Inconclusive HIV Result" - Matokeo ya HIV Yasiyokuwa Dhahiri
+"label": "Self Initiative" - Kuanzisha Mwenyewe
+"label": "HIV Self Test Positive" - Kipimo cha HIV Cha Mwenyewe Kikionyesha Matokeo Chanya
+"label": "Index Client Testing" - Kipimo cha Mteja Mwanzo
+"label": "Assisted Partner Notification (APN)" - Taarifa ya Mshirika Iliyoandikwa (APN)
+"label": "Other" - Nyingine
+"label": "Previously tested for HIV" - Kupimwa Awali kwa HIV
+"label": "Yes" - Ndiyo
+"label": "No" - Hapana
+"label": "Unknown" - Isiyojulikana
+"label": "Duration since last HIV test" - Muda tangu Kipimo cha HIV cha Mwisho
+"label": "0-3 Months" - 0-3 Miezi
+"label": "3-6 Months" - 3-6 Miezi
+"label": "6-12 Months" - 6-12 Miezi
+"label": "More Than 12 Months" - Zaidi ya Miezi 12
+"label": "Last HIV test result?" - Matokeo ya Kipimo cha HIV cha Mwisho?
+"label": "Positive" - Chanya
+"label": "Negative" - Hasi
+"label": "Inconclusive" - Isiyojulikana
+"label": "Unknown" - Isiyojulikana
+"label": "Sexually active" - Kutokuwa na Shughuli ya Kujamiiana
+"label": "Yes" - Ndiyo
+"label": "No" - Hapana
+"label": "Unknown" - Isiyojulikana
+"label": "Unprotected sex with a partner of unknown/positive HIV status in the past 12 months" - Kujamiiana Bila Kinga na Mwenzi Asiyejulikana/aliye na Hali Chanya ya HIV katika Miezi 12 Iliyopita
+"label": "Yes" - Ndiyo
+"label": "No" - Hapana
+"label": "Unknown" - Isiyojulikana
+"label": "STI in the last 6 months" - Maambukizi ya Kupitishwa Kwa Njia ya Kujamiiana Katika Miezi 6 Iliyopita
+"label": "Yes" - Ndiyo
+"label": "No" - Hapana
+"label": "Unknown" - Isiyojulikana
+"label": "Pregnant or considering becoming pregnant?" - Mjamzito au Unafikiria Kuwa Mjamzito?
+"label": "Yes" - Ndiyo
+"label": "No" - Hapana
+"label": "Unknown" - Isiyojulikana
+"label": "Population Category" - Jamii ya Idadi ya Watu
+"label": "Population Category" - Jamii ya Idadi ya Watu
+"label": "General population" - Idadi ya Watu ya Kawaida
+"label": "Key population" - Idadi ya Watu ya Muhimu
+"label": "Priority population" - Idadi ya Watu ya Kipaumbele
+"label": "Key Population Type" - Aina ya Idadi ya Watu ya Muhimu
+
+## Swahili Form Translation 
+"Introduction": "Utangulizi",
+"": "(Hakuna lebo iliyotolewa)",
+"HTS Form Strategy": "Mkakati wa Fomu ya HTS",
+"Visit Details": "Maelezo ya Ziara",
+"Encounter date": "Tarehe ya Mkutano",
+"Pre-Test Counselling": "Ushauri Kabla ya Kipimo",
+"Approach": "Njia",
+"Setting of HIV test": "Kuweka ya Kipimo cha HIV",
+"Community Level testing": "Vipimo Ngazi ya Jamii",
+"Facility Level Testing": "Vipimo Ngazi ya Kituo",
+"Community service delivery point": "Pointi ya Huduma ya Jamii",
+"Drop In Centre": "Kituo cha Kupita",
+"Workplace": "Mahali pa Kazi",
+"Hotspot": "Eneo Lenye Shughuli Sana",
+"Outreach Program": "Programu ya Kufikia",
+"Home Based HIV Testing Program": "Programu ya Kipimo cha HIV Nyumbani",
+"Mobile Voluntary Counselling and Testing Program": "Programu ya Ushauri na Vipimo vya HIV Kwa Simu",
+"Voluntary Counselling and Testing Center": "Kituo cha Ushauri na Vipimo vya HIV Kwa Hiari",
+"Unknown": "Isiyojulikana",
+"Other": "Nyingine",
+"Facility service delivery point": "Pointi ya Huduma ya Kituo",
+"Post Natal Program": "Programu ya Baada ya Kujifungua",
+"Family Planning Clinic": "Kliniki ya Uzazi wa Mpango",
+"Antenatal Program": "Programu ya Kabla ya Kujifungua",
+"Comprehensive Care Centre": "Kituo cha Huduma Kamili",
+"Sexually Transmitted Infection Program/Clinic": "Programu/Kliniki ya Maambukizi ya Kupitishwa Kwa Njia ya Kujamiiana",
+"Nutrition Program": "Programu ya Lishe",
+"Tuberculosis Treatment Program": "Programu ya Matibabu ya Kifua Kikuu",
+"Labour and Delivery Unit": "Kitengo cha Kujifungua na Kujifungua",
+"Inpatient Care or Hospitalization": "Huduma ya Wagonjwa wa Ndani au Kuwekwa Hospitalini",
+"Outpatient Department": "Idara ya Wagonjwa wa Nje",
+"Pediatric <5 Clinic": "Kliniki ya Watoto Chini ya Miaka 5",
+"Approach": "Njia",
+"Client initiated testing and counseling (CICT)": "Kipimo na Ushauri wa Mteja (CICT) Kuanzishwa na Mteja",
+"Provider-initiated testing and counseling (PITC)": "Kipimo na Ushauri wa Mtoa Huduma (PITC) Kuanzishwa na Mtoa Huduma",
+"Risk Assessment & Eligibility": "Tathmini ya Hatari na Kustahiki",
+"Reason for this HIV test": "Sababu ya Kipimo cha HIV Hiki",
+"Inconclusive HIV Result": "Matokeo ya HIV Yasiyokuwa Dhahiri",
+"Self Initiative": "Kuanzisha Mwenyewe",
+"HIV Self Test Positive": "Kipimo cha HIV Cha Mwenyewe Kikionyesha Matokeo Chanya",
+"Index Client Testing": "Kipimo cha Mteja Mwanzo",
+"Assisted Partner Notification (APN)": "Taarifa ya Mshirika Iliyoandikwa (APN)",
+"Other": "Nyingine",
+"Previously tested for HIV": "Kupimwa Awali kwa HIV",
+"Yes": "Ndiyo",
+"No": "Hapana",
+"Unknown": "Isiyojulikana",
+"Duration since last HIV test": "Muda tangu Kipimo cha HIV cha Mwisho",
+"0-3 Months": "0-3 Miezi",
+"3-6 Months": "3-6 Miezi",
+"6-12 Months": "6-12 Miezi",
+"More Than 12 Months": "Zaidi ya Miezi 12",
+"Last HIV test result?": "Matokeo ya Kipimo cha HIV cha Mwisho?",
+"Positive": "Chanya",
+"Negative": "Hasi",
+"Inconclusive": "Isiyojulikana",
+"Unknown": "Isiyojulikana",
+"Sexually active": "Kutokuwa na Shughuli ya Kujamiiana",
+"Yes": "Ndiyo",
+"No": "Hapana",
+"Unknown": "Isiyojulikana",
+"Unprotected sex with a partner of unknown/positive HIV status in the past 12 months": "Kujamiiana Bila Kinga na Mwenzi Asiyejulikana/aliye na Hali Chanya ya HIV katika Miezi 12 Iliyopita",
+"Yes": "Ndiyo",
+"No": "Hapana",
+"Unknown": "Isiyojulikana",
+"STI in the last 6 months": "Maambukizi ya Kupitishwa Kwa Njia ya Kujamiiana Katika Miezi 6 Iliyopita",
+"Yes": "Ndiyo",
+"No": "Hapana",
+"Unknown": "Isiyojulikana",
+"Pregnant or considering becoming pregnant?": "Mjamzito au Unafikiria Kuwa Mjamzito?",
+"Yes": "Ndiyo",
+"No": "Hapana",
+"Unknown": "Isiyojulikana",
+"Population Category": "Jamii ya Idadi ya Watu",
+"Population Category": "Jamii ya Idadi ya Watu",
+"General population": "Idadi ya Watu ya Kawaida",
+"Key population": "Idadi ya Watu ya Muhimu",
+"Priority population": "Idadi ya Watu ya Kipaumbele",
+"Key Population Type": "Aina ya Idadi ya Watu ya Muhimu",
+"Intravenous drug user": "Mtumiaji wa Dawa za Kulevya Kwa Kudungwa Kwa Mshipa",
+"Male who has sex with men": "Mwanaume Anayejamiiana na Wanaume",
+"Prisoners": "Wafungwa",
+"Sex worker": "Mfanyakazi wa Ngono",
+"Transgender Persons": "Wat
+u wa Jinsia Isiyokuwa Dhahiri",
+"Priority Population Type": "Aina ya Idadi ya Watu ya Kipaumbele",
+"Adolescent Girls & Young Women": "Wasichana Wachanga na Wanawake Wadogo",
+"Client of sex worker": "Mteja wa Mfanyakazi wa Ngono",
+"Fisher Folk": "Wasilamu wa Samaki",
+"Long distance truck driver": "Dereva wa Malori ya Masafa Marefu",
+"Migrant Workers": "Wafanyakazi Wahamiaji",
+"Non-intravenous drug user": "Mtumiaji wa Dawa za Kulevya Kwa Kudungwa Kwa Mshipa",
+"Refugee": "Mkimbizi",
+"Uniformed Forces": "Vikosi vya Ulinzi na Usalama",
+"Other": "Nyingine",
+"Pre-Test Information": "Taarifa Kabla ya Kipimo",
+"Eligible for HIV Testing": "Anayestahili Kupimwa HIV",
+"Yes": "Ndiyo",
+"No": "Hapana",
+"Unknown": "Isiyojulikana",
+"TB/STI Screening": "Uchunguzi wa TB/STI",
+"Tuberculosis Screening": "Uchunguzi wa Kifua Kikuu",
+"TB screening": "Uchunguzi wa Kifua Kikuu",
+"Abnormal Weight Loss": "Upotevu wa Uzito Usio wa Kawaida",
+"cough lasting more than 2 weeks": "Kikohozi kinachodumu zaidi ya wiki 2",
+"Fever lasting more than three weeks": "Homa inayodumu zaidi ya wiki tatu",
+"Night sweats": "Kupiga Jasho Usiku",
+"None": "Hakuna",
+"STI Screening": "Uchunguzi wa STI",
+"Any of the following symptoms?": "Dalili zifuatazo?",
+"Genital Sore": "Vidonda vya Uzazi",
+"Lower abdominal pain": "Maumivu ya Tumbo la Chini",
+"Scrotal Mass": "Kitovu cha Wakiume",
+"Vaginal discharge": "Kutoka Ukeni",
+"Urethral Discharge": "Kutoka Urethra",
+"Normal": "Kawaida",
+"Notes": "Maoni",
+"Comments": "Maoni",
+"HTS Provider Comments": "Maoni ya Mtoa Huduma ya HTS"
+
+
+
+
