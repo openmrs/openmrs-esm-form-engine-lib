@@ -12,7 +12,7 @@ import { PreviousValueReview } from '../../previous-value-review/previous-value-
 import debounce from 'lodash-es/debounce';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
-import { getControlTemplate } from '../../../registry/inbuilt-components/inbuiltControls';
+import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
 
 const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onChange }) => {
   const { t } = useTranslation();
@@ -123,8 +123,6 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
               id={question.id}
               titleText={question.label}
               items={items}
-              isLoading={isLoading}
-              loadingMessage="loading..."
               itemToString={item => item?.display}
               selectedItem={items.find(item => item.uuid == field.value)}
               shouldFilterItem={({ item, inputValue }) => {
