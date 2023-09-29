@@ -1,5 +1,6 @@
 import { OHRIFormFieldProps } from '../../api/types';
 import OHRIExtensionParcel from '../../components/extension/ohri-extension-parcel.component';
+import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended';
 import { OHRIObsGroup } from '../../components/group/ohri-obs-group.component';
 import { OHRIContentSwitcher } from '../../components/inputs/content-switcher/ohri-content-switcher.component';
 import OHRIDate from '../../components/inputs/date/ohri-date.component';
@@ -13,13 +14,15 @@ import OHRIDropdown from '../../components/inputs/select/ohri-dropdown.component
 import OHRITextArea from '../../components/inputs/text-area/ohri-text-area.component';
 import OHRIText from '../../components/inputs/text/ohri-text.component';
 import OHRIToggle from '../../components/inputs/toggle/ohri-toggle.component';
-import { UISelectExtended } from '../../components/inputs/ui-select-extended/ui-select-extended';
 import { OHRIRepeat } from '../../components/repeat/ohri-repeat.component';
 import { RegistryItem } from '../registry';
+import { controlTemplates } from './control-templates';
+import { templateToComponentMap } from './template-component-map';
 
 /**
  * @internal
  */
+
 export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFieldProps>>> = [
   {
     name: 'OHRIText',
@@ -108,4 +111,9 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFie
     component: UISelectExtended,
     type: 'ui-select-extended',
   },
+  ...controlTemplates.map(template => ({
+    name: `${template.name}Control`,
+    component: templateToComponentMap.find(component => component.name === template.name).baseControlComponent,
+    type: template.name.toLowerCase(),
+  })),
 ];
