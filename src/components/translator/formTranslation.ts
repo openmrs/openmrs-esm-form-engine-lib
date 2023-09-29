@@ -1,16 +1,14 @@
-import htsPT from './hts_pre_test_DRAFT.PT.json';
-import htsSW from './hts_pre_test_DRAFT.SW.json';
-// import htsFR from './hts_pre_test_DRAFT.FR.json';
 
 const formLocale = (language) => {
   switch (language) {
     case 'sw':
-      return htsSW;
-    // case 'fr':
-    //   return htsFR;
+      return language.sw;
+    case 'en':
+      return language.en;
     case 'pt':
+      return language.pt;
     default:
-      return htsPT;
+      return language.en;
   }
 };
 

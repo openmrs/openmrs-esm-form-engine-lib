@@ -13,8 +13,6 @@ export const OHRILabel: React.FC<LabelProps> = ({ value, tooltipText }) => {
   const { t, i18n } = useTranslation('ohri', { i18n: i18next });
   const valueTranslated = t('value', value);
 
-  //TODO: Missing button for component change language instead of default language
-
   return (
     <div className={styles.label}>
       <DefinitionTooltip direction="bottom" tabIndex={0} tooltipText={tooltipText}>
