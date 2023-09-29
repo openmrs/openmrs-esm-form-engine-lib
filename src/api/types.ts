@@ -166,6 +166,7 @@ export interface OHRIFormQuestionOptions {
   allowedFileTypes?: Array<string>;
   allowMultiple?: boolean;   //Allow Single File Attachments  and Multiple file attachments
   datasource?: { id: string; config?: Record<string, any> };
+  datasource?: { name: string; config?: Record<string, any> };
   isSearchable?: boolean;
 }
 

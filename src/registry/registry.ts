@@ -14,6 +14,7 @@ import { inbuiltControls } from './inbuilt-components/inbuiltControls';
 import { inbuiltFieldSubmissionHandlers } from './inbuilt-components/inbuiltFieldSubmissionHandlers';
 import { inbuiltValidators } from './inbuilt-components/inbuiltValidators';
 import { inbuiltDataSources } from './inbuilt-components/inbuiltDataSources';
+import { getControlTemplate } from './inbuilt-components/control-templates';
 
 /**
  * @internal
@@ -327,10 +328,18 @@ export async function getRegisteredDataSource(name: string): Promise<DataSource<
   }
   let ds = inbuiltDataSources.find(dataSource => dataSource.name === name)?.component;
   if (!ds) {
-    const dataSourceImport = await getFormsStore()
-      .dataSources.find(ds => ds.name === name)
-      ?.load?.();
-    ds = dataSourceImport.default;
+    const template = getControlTemplate(name);
+    if (template) {
+      ds = inbuiltDataSources.find(dataSource => dataSource.name === template.datasource.name)?.component;
+    } else {
+      const dataSourceImport = await getFormsStore()
+        .dataSources.find(ds => ds.name === name)
+        ?.load?.();
+      if (!dataSourceImport) {
+        throw new Error('Datasource not found');
+      }
+      ds = dataSourceImport.default;
+    }
   }
   registryCache.dataSources[name] = ds;
   return ds;

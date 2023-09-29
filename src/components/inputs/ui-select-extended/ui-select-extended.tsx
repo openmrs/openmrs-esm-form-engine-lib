@@ -12,8 +12,9 @@ import { PreviousValueReview } from '../../previous-value-review/previous-value-
 import debounce from 'lodash-es/debounce';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
+import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
 
-export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onChange }) => {
+const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onChange }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, fields } = React.useContext(OHRIFormContext);
@@ -28,9 +29,18 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
   const [inputValue, setInputValue] = useState('');
   const isProcessingSelection = useRef(false);
   const [dataSource, setDataSource] = useState(null);
+  const [config, setConfig] = useState({});
 
   useEffect(() => {
-    getRegisteredDataSource(question.questionOptions?.datasource?.id).then(ds => setDataSource(ds));
+    const datasourceName = question.questionOptions?.datasource?.name;
+    setConfig(
+      datasourceName
+        ? question.questionOptions.datasource?.config
+        : getControlTemplate(question.questionOptions.rendering)?.datasource?.config,
+    );
+    getRegisteredDataSource(datasourceName ? datasourceName : question.questionOptions.rendering).then(ds =>
+      setDataSource(ds),
+    );
   }, [question.questionOptions?.datasource]);
 
   useEffect(() => {
@@ -48,7 +58,7 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
 
   const debouncedSearch = debounce((searchterm, dataSource) => {
     setIsLoading(true);
-    dataSource.fetchData(searchterm, question.questionOptions?.datasource?.config).then(dataItems => {
+    dataSource.fetchData(searchterm, config).then(dataItems => {
       setItems(dataItems.map(dataSource.toUuidAndDisplay));
       setIsLoading(false);
     });
@@ -58,7 +68,7 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
     // If not searchable, preload the items
     if (dataSource && !isTrue(question.questionOptions.isSearchable)) {
       setIsLoading(true);
-      dataSource.fetchData(null, question.questionOptions?.datasource?.config).then(dataItems => {
+      dataSource.fetchData(null, config).then(dataItems => {
         setItems(dataItems.map(dataSource.toUuidAndDisplay));
         setIsLoading(false);
       });
@@ -66,7 +76,6 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
   }, [dataSource]);
 
   useEffect(() => {
-    // get the data source
     if (dataSource && isTrue(question.questionOptions.isSearchable) && !isEmpty(searchTerm)) {
       debouncedSearch(searchTerm, dataSource);
     }
@@ -114,8 +123,6 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
               id={question.id}
               titleText={question.label}
               items={items}
-              isLoading={isLoading}
-              loadingMessage="loading..."
               itemToString={item => item?.display}
               selectedItem={items.find(item => item.uuid == field.value)}
               shouldFilterItem={({ item, inputValue }) => {
@@ -139,8 +146,7 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
                   isProcessingSelection.current = false;
                   return;
                 }
-                setInputValue('');
-                setFieldValue(question.id, '');
+                setInputValue(value);
                 if (question.questionOptions['isSearchable']) {
                   setSearchTerm(value);
                 }
@@ -162,3 +168,5 @@ export const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handl
     )
   );
 };
+
+export default UISelectExtended;
