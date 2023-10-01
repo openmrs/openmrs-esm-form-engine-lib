@@ -51,7 +51,9 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
     setCamImage(newImage);
     setCameraWidgetVisible(false);
 
-    const fileData = dataURItoFile(newImage);
+    const fileData = newImage.split(',')[1];
+
+    //  dataURItoFile(newImage);
     //   new FormData();
     // fileData.append('patient', 'b280078a-c0ce-443b-9997-3c66c63ec2f8');
     // fileData.append('file', dataURItoFile(newImage), 'test-image.png');
@@ -59,7 +61,7 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
     //   'json',
     //   JSON.stringify({
     //     person: 'b280078a-c0ce-443b-9997-3c66c63ec2f8',
-    //     concept: '1f3a89ef-e3b1-4171-be3a-4d4c1cd4e8c4',
+    //     concept: 'e65555cb-9afa-4e62-9354-dc197cc397fc',
     //     groupMembers: [],
     //     obsDatetime: new Date().toISOString(),
     //   }),
@@ -67,7 +69,17 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
 
     setFieldValue(question.id, fileData);
     question.value = handler?.handleFieldSubmission(question, fileData, encounterContext);
+    console.log('question.value: ', Array.from(question.value.value));
   };
+
+  useEffect(() => {
+    if (selectedFiles?.length) {
+      setCamImage(null);
+    }
+    if (camImage) {
+      setSelectedFiles([]);
+    }
+  }, [selectedFiles, camImage]);
 
   return (
     <div>
@@ -92,22 +104,6 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
         {camImage && (
           <div className={styles.capturedImage}>
             <img src={camImage} alt="Preview" width="200px" />
-          </div>
-        )}
-
-        {/* Display previews of selected files */}
-        {selectedFiles.length > 0 && (
-          <div className="file-previews">
-            {selectedFiles.map((file, index) => (
-              <div key={index} className="file-preview">
-                <p>{file.name}</p>
-                {file.type.includes('image') ? (
-                  <img src={URL.createObjectURL(file)} alt="Preview" width="40px" />
-                ) : (
-                  <span>File Icon</span>
-                )}
-              </div>
-            ))}
           </div>
         )}
       </div>
