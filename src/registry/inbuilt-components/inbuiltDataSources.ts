@@ -1,4 +1,5 @@
 import { DataSource } from '../../api/types';
+import { ClassArrayDataSource } from '../../datasources/class-array-datasource';
 import { ConceptDataSource } from '../../datasources/concept-data-source';
 import { LocationDataSource } from '../../datasources/location-data-source';
 import { RegistryItem } from '../registry';
@@ -15,6 +16,10 @@ export const inbuiltDataSources: Array<RegistryItem<DataSource<any>>> = [
     name: 'drug_datasource',
     component: new ConceptDataSource(),
   },
+  {
+    name: 'problem_datasource',
+    component: new ClassArrayDataSource(),
+  }
 ];
 
 export const validateInbuiltDatasource = (name: string) => {

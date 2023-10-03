@@ -259,3 +259,14 @@ export interface DataSource<T> {
    */
   toUuidAndDisplay(item: T): OpenmrsResource;
 }
+
+export interface ControlTemplate{
+  name: string,
+  datasource: DataSourceParameters
+}
+
+export interface DataSourceParameters{
+  name: string,
+  config?: Record<string, any>
+}
+

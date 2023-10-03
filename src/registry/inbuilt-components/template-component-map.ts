@@ -5,4 +5,8 @@ export const templateToComponentMap = [
     name: 'drug',
     baseControlComponent: UISelectExtended,
   },
+  {
+    name: 'problem',
+    baseControlComponent: UISelectExtended,
+  }
 ];
