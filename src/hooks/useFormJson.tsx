@@ -9,10 +9,10 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
   const [error, setError] = useState(validateFormsArgs(formUuid, rawFormJson));
   useEffect(() => {
     loadFormJson(formUuid, rawFormJson, formSessionIntent)
-      .then(formJson => {
+      .then((formJson) => {
         setFormJson({ ...formJson, encounter: encounterUuid });
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
         setError(new Error('Error loading form JSON: ' + error.message));
       });
@@ -45,26 +45,33 @@ export async function loadFormJson(
     ? { ...clobDataResponse, uuid: openmrsFormResponse.uuid }
     : rawFormJson;
 
+  // Sub forms
   const subformRefs = extractSubformRefs(formJson);
   const subforms = await loadSubforms(subformRefs, formSessionIntent);
   updateFormJsonWithSubforms(formJson, subforms);
+
+  // Form components
+  const formComponentsRefs = getReferencedForms(formJson);
+  // TODO: are form components supposed to have intents as well or can they inherit from the parent form?
+  const formComponents = await loadFormComponents(formComponentsRefs);
+  updateFormJsonWithSubforms(formJson, await loadSubforms(formComponents, formSessionIntent));
 
   return refineFormJson(formJson, formSessionIntent);
 }
 
 function extractSubformRefs(formJson: OHRIFormSchema): string[] {
   return formJson.pages
-    .filter(page => page.isSubform && !page.subform.form && page.subform?.name)
-    .map(page => page.subform?.name);
+    .filter((page) => page.isSubform && !page.subform.form && page.subform?.name)
+    .map((page) => page.subform?.name);
 }
 
 async function loadSubforms(subformRefs: string[], formSessionIntent?: string): Promise<OHRIFormSchema[]> {
-  return Promise.all(subformRefs.map(subform => loadFormJson(subform, null, formSessionIntent)));
+  return Promise.all(subformRefs.map((subform) => loadFormJson(subform, null, formSessionIntent)));
 }
 
 function updateFormJsonWithSubforms(formJson: OHRIFormSchema, subforms: OHRIFormSchema[]): void {
-  subforms.forEach(subform => {
-    const matchingPage = formJson.pages.find(page => page.subform?.name === subform.name);
+  subforms.forEach((subform) => {
+    const matchingPage = formJson.pages.find((page) => page.subform?.name === subform.name);
     if (matchingPage) {
       matchingPage.subform.form = subform;
     }
@@ -114,7 +121,7 @@ function removeInlineSubforms(formJson: OHRIFormSchema, formSessionIntent: strin
       !isTrue(page.isHidden) &&
       page.subform?.form?.encounterType === formJson.encounterType
     ) {
-      const nonSubformPages = page.subform.form.pages.filter(page => !isTrue(page.isSubform));
+      const nonSubformPages = page.subform.form.pages.filter((page) => !isTrue(page.isSubform));
       formJson.pages.splice(i, 1, ...refineFormJson(page.subform.form, formSessionIntent).pages);
     }
   }
@@ -129,4 +136,130 @@ function setEncounterType(formJson: OHRIFormSchema): void {
     formJson.encounterType = formJson.encounter;
     delete formJson.encounter;
   }
+}
+
+/**
+ * Functions to support reusable Form Components
+ */
+function getReferencedForms(formJson: OHRIFormSchema): Object {
+  const referencedForms: Array<any> = formJson.referencedForms;
+
+  if (!referencedForms) {
+    return;
+  }
+
+  const keyValReferencedForms: Object = {};
+  referencedForms.forEach((reference: any) => {
+    keyValReferencedForms[reference.alias] = reference.formName;
+  });
+
+  return keyValReferencedForms;
+}
+
+async function loadSubformss(subformRefs: string[], formSessionIntent?: string): Promise<OHRIFormSchema[]> {
+  return Promise.all(subformRefs.map((subform) => loadFormJson(subform, null, formSessionIntent)));
+}
+
+function loadFormComponents(schema: Object): Array<any> {
+  const referencedObjects: Array<any> = [];
+  this.extractPlaceholderObjects(schema, referencedObjects);
+  return referencedObjects;
+}
+
+function extractPlaceholderObjects(subSchema: any, objectsArray: Array<Object>): void {
+  if (!subSchema) {
+    return;
+  }
+  if (Array.isArray(subSchema)) {
+    for (let i = 0; i < subSchema.length; i++) {
+      if (subSchema[i]) {
+        this.extractPlaceholderObjects(subSchema[i], objectsArray);
+      }
+    }
+  } else if (typeof subSchema === 'object') {
+    if (subSchema.reference) {
+      objectsArray.push(subSchema);
+    } else if (this.isSchemaSubObjectExpandable(subSchema)) {
+      const toExpand = subSchema.pages || subSchema.sections || subSchema.questions;
+      this.extractPlaceholderObjects(toExpand, objectsArray);
+    }
+  }
+}
+
+function fillPlaceholderObject(placeHolderObject: Object, referenceObject: Object): Object {
+  for (const member in referenceObject) {
+    if (!placeHolderObject[member]) {
+      placeHolderObject[member] = referenceObject[member];
+    }
+  }
+  return placeHolderObject;
+}
+
+function replaceAllPlaceholdersWithActualObjects(
+  keyValReferencedForms: Object,
+  placeHoldersArray: Array<any>,
+): Array<any> {
+  placeHoldersArray.forEach((placeHolder) => {
+    const referencedObject: Object = this.getReferencedObject(placeHolder.reference, keyValReferencedForms);
+
+    if (referencedObject) {
+      console.error('Form compile: Error finding referenced object', placeHolder.reference);
+    } else {
+      placeHolder = this.fillPlaceholderObject(placeHolder, referencedObject);
+      placeHolder = this.removeExcludedQuestionsFromPlaceholder(placeHolder);
+      delete placeHolder['reference'];
+    }
+  });
+  return placeHoldersArray;
+}
+
+function removeObjectFromArray(array: Array<any>, object: Object): void {
+  const indexOfObject = array.indexOf(object);
+  if (indexOfObject === -1) {
+    return;
+  }
+
+  array.splice(indexOfObject, 1);
+}
+
+function removeExcludedQuestionsFromPlaceholder(placeHolder: any): Object {
+  if (Array.isArray(placeHolder.reference.excludeQuestions)) {
+    placeHolder.reference.excludeQuestions.forEach((excludedQuestionId) => {
+      const questionsArray: Array<any> = this.getQuestionsArrayByQuestionIdInSchema(placeHolder, excludedQuestionId);
+
+      if (!Array.isArray(questionsArray)) {
+        return;
+      }
+      const question = this.getQuestionByIdInSchema(questionsArray, excludedQuestionId);
+
+      this.removeObjectFromArray(questionsArray, question);
+    });
+  }
+  return placeHolder;
+}
+
+function getReferencedObject(referenceData: any, keyValReferencedForms: Object): Object {
+  if (referenceData.form) {
+    console.error('Form compile: reference missing form attribute', referenceData);
+    return;
+  }
+  if (keyValReferencedForms[referenceData.form]) {
+    console.error('Form compile: referenced form alias not found', referenceData);
+    return;
+  }
+  if (!referenceData.questionId) {
+    return this.getQuestionByIdInSchema(keyValReferencedForms[referenceData.form], referenceData.questionId);
+  }
+
+  if (!referenceData.page && !referenceData.section) {
+    return this.getSectionInSchemaByPageLabelBySectionLabel(
+      keyValReferencedForms[referenceData.form],
+      referenceData.page,
+      referenceData.section,
+    );
+  }
+  if (!referenceData.page) {
+    return this.getPageInSchemaByLabel(keyValReferencedForms[referenceData.form], referenceData.page);
+  }
+  console.error('Form compile: Unsupported reference type', referenceData.reference);
 }
