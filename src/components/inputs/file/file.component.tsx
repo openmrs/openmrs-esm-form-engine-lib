@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { FileUploader, Button } from '@carbon/react';
+import { FileUploader, Button, ModalHeader, ModalBody } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
@@ -16,7 +16,8 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext } = React.useContext(OHRIFormContext);
   const [camImage, setCamImage] = useState<string>(null);
-  const [selectedFiles, setSelectedFiles] = useState([]); // Add state for selected files
+  const [selectedFiles, setSelectedFiles] = useState(null); // Add state for selected files
+  const [obsResponse, setObseResponse] = useState(null);
 
   function dataURItoFile(dataURI: string) {
     const byteString = atob(dataURI.split(',')[1]);
@@ -33,7 +34,7 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
     }
 
     const blob = new Blob([buffer], { type: mimeString });
-    return blob;
+    return [blob, mimeString];
   }
 
   const labelDescription = question.questionOptions.allowedFileTypes
@@ -41,45 +42,76 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
     : t('fileUploadDescriptionAny', 'Upload any file type');
 
   const handleFileChange = event => {
-    const newSelectedFiles = Array.from(event.target.files);
+    const [newSelectedFiles] = Array.from(event.target.files);
+    console.log(newSelectedFiles);
     setSelectedFiles(newSelectedFiles);
     setFieldValue(question.id, newSelectedFiles); // Update form field value
     question.value = handler?.handleFieldSubmission(question, newSelectedFiles, encounterContext);
   };
 
   const setImages = newImage => {
-    setCamImage(newImage);
+    setSelectedFiles(newImage);
     setCameraWidgetVisible(false);
-
-    const fileData = newImage.split(',')[1];
-
-    //  dataURItoFile(newImage);
-    //   new FormData();
-    // fileData.append('patient', 'b280078a-c0ce-443b-9997-3c66c63ec2f8');
-    // fileData.append('file', dataURItoFile(newImage), 'test-image.png');
-    // fileData.append(
-    //   'json',
-    //   JSON.stringify({
-    //     person: 'b280078a-c0ce-443b-9997-3c66c63ec2f8',
-    //     concept: 'e65555cb-9afa-4e62-9354-dc197cc397fc',
-    //     groupMembers: [],
-    //     obsDatetime: new Date().toISOString(),
-    //   }),
-    // );
-
-    setFieldValue(question.id, fileData);
-    question.value = handler?.handleFieldSubmission(question, fileData, encounterContext);
-    console.log('question.value: ', Array.from(question.value.value));
+    setFieldValue(question.id, newImage);
+    question.value = handler?.handleFieldSubmission(question, newImage, encounterContext);
+    console.log(question.value);
   };
 
+  function savePatientPhoto(patientUuid: string, content: string, url: string, date: string, conceptUuid: string) {
+    const abortController = new AbortController();
+
+    const [blobData, mimeString] = dataURItoFile(content);
+
+    if (typeof mimeString === 'string') {
+      const fileExtension = mimeString.split('/')[1];
+    }
+
+    const formData = new FormData();
+
+    formData.append('patient', patientUuid);
+    formData.append('file', blobData, 'OHRIFileConceptTest.png');
+    formData.append(
+      'json',
+      JSON.stringify({
+        person: patientUuid,
+        concept: conceptUuid,
+        groupMembers: [],
+        obsDatetime: date,
+        //encounter: encounterUUID
+      }),
+    );
+
+    openmrsFetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data', //for submission to attachments endpoint
+      },
+      signal: abortController.signal,
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(resData => {
+        setObseResponse(resData);
+        console.log(resData);
+      })
+      .catch(err => console.log(err.message));
+
+    setCamImage(null);
+  }
+
+  const handleClick = useCallback(() => {
+    savePatientPhoto(
+      'b280078a-c0ce-443b-9997-3c66c63ec2f8',
+      camImage,
+      '/ws/rest/v1/obs',
+      new Date().toISOString(),
+      'dd7bddf7-3bc5-4417-ab7c-3954e58bd63a',
+    );
+  }, [camImage]);
+
   useEffect(() => {
-    if (selectedFiles?.length) {
-      setCamImage(null);
-    }
-    if (camImage) {
-      setSelectedFiles([]);
-    }
-  }, [selectedFiles, camImage]);
+    console.log(selectedFiles);
+  }, []);
 
   return (
     <div>
@@ -95,16 +127,23 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
         onChange={handleFileChange} // Use handleFileChange to update selectedFiles
       />
 
-      <div className={styles.Image}>
-        <div>
-          <Button onClick={() => setCameraWidgetVisible(prevState => !prevState)}>Capture image</Button>
-          {cameraWidgetVisible && <CameraCapture handleImages={setImages} />}
-        </div>
+      <div className={styles.camButton}>
+        <Button onClick={() => setCameraWidgetVisible(prevState => !prevState)}>Capture image</Button>
+        {cameraWidgetVisible && <CameraCapture handleImages={setImages} />}
+      </div>
 
-        {camImage && (
-          <div className={styles.capturedImage}>
-            <img src={camImage} alt="Preview" width="200px" />
-          </div>
+      <div className={styles.Image}>
+        {selectedFiles && (
+          <>
+            <div className={styles.capturedImage}>
+              <ModalHeader title="Captured image" />
+              <div>
+                <ModalBody>
+                  <img src={camImage} alt="Preview" width="200px" />
+                </ModalBody>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>

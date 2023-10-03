@@ -18,6 +18,50 @@ export function saveEncounter(abortController: AbortController, payload, encount
   });
 }
 
+export function saveAttachment(patientUuid, content, conceptUuid, date, encounterUUID, abortController) {
+  const url = '/ws/rest/v1/attachment';
+
+  // const formData = new FormData();
+  // formData.append('patient', patientUuid);
+  // formData.append('file', dataURItoFile(content), 'OHRIFileConceptTest.png');
+  // formData.append(
+  //   'json',
+  //   JSON.stringify({
+  //     person: patientUuid,
+  //     concept: conceptUuid,
+  //     groupMembers: [],
+  //     obsDatetime: date,
+  //     encounter: encounterUUID,
+  //   }),
+  // );
+
+  const formData = new FormData();
+
+  formData.append('fileCaption', 'OHRIFileConceptTest.png');
+  formData.append('patient', patientUuid);
+  formData.append('file', new File([''], 'OHRIFileConceptTest.png'), 'OHRIFileConceptTest.png');
+  formData.append('base64Content', content);
+  formData.append(
+    'json',
+    JSON.stringify({
+      person: patientUuid,
+      concept: conceptUuid,
+      groupMembers: [],
+      obsDatetime: date,
+      encounter: encounterUUID,
+    }),
+  );
+
+  return openmrsFetch(url, {
+    method: 'POST',
+    // headers: {
+    //   'Content-Type': 'multipart/form-data',
+    // },
+    signal: abortController.signal,
+    body: formData,
+  });
+}
+
 export function getConcept(conceptUuid: string, v: string): Observable<any> {
   return openmrsObservableFetch(`/ws/rest/v1/concept/${conceptUuid}?v=${v}`).pipe(map(response => response['data']));
 }
@@ -101,4 +145,22 @@ export async function fetchClobData(form: OpenmrsForm): Promise<any | null> {
   const { data: clobDataResponse } = await openmrsFetch(clobDataUrl);
 
   return clobDataResponse;
+}
+
+function dataURItoFile(dataURI: string) {
+  const byteString = atob(dataURI.split(',')[1]);
+  const mimeString = dataURI
+    .split(',')[0]
+    .split(':')[1]
+    .split(';')[0];
+
+  // write the bytes of the string to a typed array
+  const buffer = new Uint8Array(byteString.length);
+
+  for (let i = 0; i < byteString.length; i++) {
+    buffer[i] = byteString.charCodeAt(i);
+  }
+
+  const blob = new Blob([buffer], { type: mimeString });
+  return blob;
 }

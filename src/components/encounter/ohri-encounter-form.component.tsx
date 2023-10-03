@@ -23,7 +23,7 @@ import { isEmpty, isEmpty as isValueEmpty, OHRIFieldValidator } from '../../vali
 import { InstantEffect } from '../../utils/instant-effect';
 import { FormSubmissionHandler } from '../../ohri-form.component';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
-import { getPreviousEncounter, saveEncounter } from '../../api/api';
+import { getPreviousEncounter, saveAttachment, saveEncounter } from '../../api/api';
 import { isTrue } from '../../utils/boolean-utils';
 import { scrollIntoView } from '../../utils/ohri-sidebar';
 import { useEncounter } from '../../hooks/useEncounter';
@@ -402,6 +402,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       .filter(field => field.value || field.type == 'obsGroup') // filter out fields with empty values except groups
       .filter(field => !field.isParentHidden && !field.isHidden && (field.type == 'obs' || field.type == 'obsGroup'))
       .filter(field => !field['groupId']) // filter out grouped obs
+      .filter(field => field.questionOptions.rendering !== 'file')
       .forEach(field => {
         if (field.type == 'obsGroup') {
           const obsGroup = {
@@ -479,9 +480,51 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
 
     if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {
       const ac = new AbortController();
-      return saveEncounter(ac, encounterForSubmission, encounter?.uuid);
+      return saveEncounter(ac, encounterForSubmission, encounter?.uuid)
+        .then(response => response.json())
+
+        .then(encounter => {
+          // console.log(encounter)
+          fields
+            ?.filter(field => field?.questionOptions.rendering === 'file')
+            .forEach(field => {
+              // console.log(field);
+              saveAttachment(
+                encounter.patient.uuid,
+                field?.value?.value,
+                field?.questionOptions.concept,
+                new Date().toISOString(),
+                encounter.uuid,
+                ac,
+              )
+                .then(res => res.json())
+                .then(data => console.log('attachments response:', data));
+            });
+        });
     }
   };
+
+  // const savedEncounter =
+  // const date = new Date().toISOString();
+  // savedEncounter
+  //   .then(response => response.json())
+  //   .then(encounter => {
+  //     // console.log(encounter.uuid);
+  //     fields
+  //       .filter(field => field.questionOptions.rendering === 'file')
+  //       .forEach(field => {
+  //         saveAttachment(
+  //           encounter.patient.uuid,
+  //           field.value.value,
+  //           field.questionOptions.concept,
+  //           date,
+  //           encounter.uuid,
+  //           ac,
+  //         )
+  //           .then(res => res.json())
+  //           .then(data => console.log('attachments response:', data));
+  //       });
+  //   });
 
   const onFieldChange = (
     fieldName: string,

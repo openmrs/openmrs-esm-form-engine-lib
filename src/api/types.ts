@@ -165,6 +165,7 @@ export interface OHRIFormQuestionOptions {
   usePreviousValueDisabled?: boolean;
   allowedFileTypes?: Array<string>;
   allowMultiple?: boolean; //Allow Single File Attachments  and Multiple file attachments
+  isTansient?: boolean;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view';
