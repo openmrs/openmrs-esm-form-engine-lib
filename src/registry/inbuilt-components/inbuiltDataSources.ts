@@ -15,6 +15,10 @@ export const inbuiltDataSources: Array<RegistryItem<DataSource<any>>> = [
     name: 'drug_datasource',
     component: new ConceptDataSource(),
   },
+  {
+    name: 'problem_datasource',
+    component: new ConceptDataSource(),
+  },
 ];
 
 export const validateInbuiltDatasource = (name: string) => {
