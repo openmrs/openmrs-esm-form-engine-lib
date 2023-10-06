@@ -103,21 +103,7 @@ describe("OHRI Forms:", () => {
     cleanup();
     jest.useRealTimers();
   });
-const encounterContext: EncounterContext = {
-  patient: {
-    id: '833db896-c1f0-11eb-8529-0242ac130003',
-  },
-  location: {
-    uuid: '41e6e516-c1f0-11eb-8529-0242ac130003',
-  },
-  encounter: {
-    uuid: '873455da-3ec4-453c-b565-7c1fe35426be',
-    obs: [],
-  },
-  sessionMode: 'enter',
-  encounterDate: new Date(2023, 8, 29),
-  setEncounterDate: value => {},
-};
+  
   it("Should render by the form json without dying", async () => {
     await act(async () => renderForm(null, hts_poc_1_1));
     await assertFormHasAllFields(screen, [
