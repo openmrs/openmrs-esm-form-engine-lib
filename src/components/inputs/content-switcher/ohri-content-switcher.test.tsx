@@ -63,6 +63,7 @@ const renderForm = intialValues => {
               fields: [question],
               isFieldInitializationComplete: true,
               isSubmitting: false,
+              formFieldHandlers: { 'obs': ObsSubmissionHandler }
             }}>
             <OHRIContentSwitcher question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
           </OHRIFormContext.Provider>

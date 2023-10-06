@@ -78,7 +78,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
+  return encounterContext.sessionMode == 'view' ? (
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}
@@ -111,6 +111,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
             invalidText={errors[0]?.message}
             warn={warnings.length > 0}
             warnText={warnings[0]?.message}
+            readOnly={question.readonly}
           />
         </div>
         <div className={styles.formField} style={{ marginTop: '0.125rem' }}>
