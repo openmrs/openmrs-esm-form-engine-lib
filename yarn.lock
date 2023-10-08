@@ -2793,11 +2793,13 @@ __metadata:
     react: ^18.2.0
     react-anchor-link-smooth-scroll: ^1.0.12
     react-error-boundary: 4.0.10
+    react-html5-camera-photo: 1.5.11
     react-i18next: ^11.18.1
     react-markdown: ^7.1.0
     react-scroll: ^1.8.2
     react-test-renderer: ^16.9.0
     react-waypoint: ^10.3.0
+    react-webcam: ^7.1.1
     rxjs: ^6.6.3
     semver: ^7.3.5
     swc-loader: ^0.2.3
@@ -2811,6 +2813,7 @@ __metadata:
     "@carbon/react": 1.x
     "@openmrs/esm-framework": 4.x
     react: ^18.2.0
+    react-html5-camera-photo: 1.5.11
     react-i18next: 11.x
     rxjs: 6.x
   languageName: unknown
@@ -10756,6 +10759,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jslib-html5-camera-photo@npm:3.3.4":
+  version: 3.3.4
+  resolution: "jslib-html5-camera-photo@npm:3.3.4"
+  checksum: 10e9ae58a6e3a0b812c0dfef17d697cf814f7e0e6ac766e1f80b9e49a9d73173b169211c8f606563c3c7e788103c88f2e0084b3b6d6722547378f1d3f179531f
+  languageName: node
+  linkType: hard
+
 "json-buffer@npm:3.0.1":
   version: 3.0.1
   resolution: "json-buffer@npm:3.0.1"
@@ -13624,6 +13634,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-html5-camera-photo@npm:1.5.11":
+  version: 1.5.11
+  resolution: "react-html5-camera-photo@npm:1.5.11"
+  dependencies:
+    jslib-html5-camera-photo: 3.3.4
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 9bf171c56d7cdf1b8d001d4344ca89f53e829505e27c265b93d591826a676a396c4494025ae0f0628e9ff73f138957aba7c95ab9dc59a1804dbb4e6b55549e56
+  languageName: node
+  linkType: hard
+
 "react-i18next@npm:^11.18.1, react-i18next@npm:^11.7.0":
   version: 11.18.6
   resolution: "react-i18next@npm:11.18.6"
@@ -13750,6 +13772,16 @@ __metadata:
   peerDependencies:
     react: ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
   checksum: 5a476432cd4a55ae022b33f82610a1addae92912ec88111cf33c17ef473bbbfc2c695714cb3bd60911259c92c5b6349f80033b022bf1e59e1a4be9b198a70a7a
+  languageName: node
+  linkType: hard
+
+"react-webcam@npm:^7.1.1":
+  version: 7.1.1
+  resolution: "react-webcam@npm:7.1.1"
+  peerDependencies:
+    react: ">=16.2.0"
+    react-dom: ">=16.2.0"
+  checksum: 98310037b477ff8a99ca9ee67151389cbc24fe1d3f2fd5ff8afabca7b703c88d8a4275d85c2f1a4ac428602f4e1f0f9375a23379efc88b6ed88cd25e988a4e65
   languageName: node
   linkType: hard
 

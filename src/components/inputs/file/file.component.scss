@@ -1,11 +1,63 @@
+.label{
+  font-family: IBM Plex Sans;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 30px; /* 128.571% */
+  letter-spacing: 0.16px;
+  color: #525252,
+}
 .saveFile{
-    margin: 0;
+  margin: 0;
 }
+
 .capturedImage{
-    margin: 0;
+  width: 100%;
 }
-.Image{
+
+.Caption{
     display: flex;
-    // justify-content: space-between; /* Space between buttons */
-    align-items: center; /* Vertically center the buttons */
+}
+.closeIcon{
+    margin: 0 1rem;
+}
+
+.uploadSelector{
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.selectorButton{
+  margin-right: 1rem;
+}
+
+.Caption{
+  margin-top: 5px;
+}
+
+.imageDescription {
+  margin-top: 5px;
+  }
+
+.fileUploader{
+  background-color: rgb(255, 255, 255);
+  padding: 1rem;
+}
+
+.cameraUploader{
+  margin: 1rem 0;
+  background-color: white;
+  padding: 1rem;
+}
+.camButton{
+  margin-bottom: 1rem;
+}
+
+.cameraPreview{
+  margin-top: 1rem;
+}
+
+.imageContent{
+  padding: 0;
+  margin: 0;
 }

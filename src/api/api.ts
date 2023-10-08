@@ -21,26 +21,24 @@ export function saveEncounter(abortController: AbortController, payload, encount
 export function saveAttachment(patientUuid, content, conceptUuid, date, encounterUUID, abortController) {
   const url = '/ws/rest/v1/attachment';
 
-  // const formData = new FormData();
-  // formData.append('patient', patientUuid);
-  // formData.append('file', dataURItoFile(content), 'OHRIFileConceptTest.png');
-  // formData.append(
-  //   'json',
-  //   JSON.stringify({
-  //     person: patientUuid,
-  //     concept: conceptUuid,
-  //     groupMembers: [],
-  //     obsDatetime: date,
-  //     encounter: encounterUUID,
-  //   }),
-  // );
-
   const formData = new FormData();
 
-  formData.append('fileCaption', 'OHRIFileConceptTest.png');
+  const cameraUploadType = content
+    ?.split(';')[0]
+    .split(':')[1]
+    .split('/')[1];
+
+  const fileCaption = typeof content === 'object' ? content.name : `camera-upload.${cameraUploadType}`;
+
+  formData.append('fileCaption', fileCaption);
   formData.append('patient', patientUuid);
-  formData.append('file', new File([''], 'OHRIFileConceptTest.png'), 'OHRIFileConceptTest.png');
-  formData.append('base64Content', content);
+
+  if (typeof content === 'object') {
+    formData.append('file', content);
+  } else {
+    formData.append('file', new File([''], 'OHRIFileConceptTest.png'), 'OHRIFileConceptTest.png');
+    formData.append('base64Content', content);
+  }
   formData.append(
     'json',
     JSON.stringify({

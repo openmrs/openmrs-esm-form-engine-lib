@@ -482,13 +482,10 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       const ac = new AbortController();
       return saveEncounter(ac, encounterForSubmission, encounter?.uuid)
         .then(response => response.json())
-
         .then(encounter => {
-          // console.log(encounter)
           fields
             ?.filter(field => field?.questionOptions.rendering === 'file')
             .forEach(field => {
-              // console.log(field);
               saveAttachment(
                 encounter.patient.uuid,
                 field?.value?.value,
@@ -496,35 +493,11 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
                 new Date().toISOString(),
                 encounter.uuid,
                 ac,
-              )
-                .then(res => res.json())
-                .then(data => console.log('attachments response:', data));
+              );
             });
         });
     }
   };
-
-  // const savedEncounter =
-  // const date = new Date().toISOString();
-  // savedEncounter
-  //   .then(response => response.json())
-  //   .then(encounter => {
-  //     // console.log(encounter.uuid);
-  //     fields
-  //       .filter(field => field.questionOptions.rendering === 'file')
-  //       .forEach(field => {
-  //         saveAttachment(
-  //           encounter.patient.uuid,
-  //           field.value.value,
-  //           field.questionOptions.concept,
-  //           date,
-  //           encounter.uuid,
-  //           ac,
-  //         )
-  //           .then(res => res.json())
-  //           .then(data => console.log('attachments response:', data));
-  //       });
-  //   });
 
   const onFieldChange = (
     fieldName: string,

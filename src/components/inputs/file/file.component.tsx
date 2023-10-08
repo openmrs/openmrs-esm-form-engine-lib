@@ -1,151 +1,161 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { FileUploader, Button, ModalHeader, ModalBody } from '@carbon/react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { FileUploader, Button } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
+import { isTrue } from '../../../utils/boolean-utils';
+import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFormContext } from '../../../ohri-form-context';
-import CameraCapture from '../camera/camera.component';
-import { openmrsFetch } from '@openmrs/esm-framework';
+import Camera from '../camera/camera.component';
+import { Close } from '@carbon/react/icons';
 import styles from './file.component.scss';
+import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 
 interface FileProps extends OHRIFormFieldProps {}
+type AllowedModes = 'uploader' | 'camera' | '';
 
 const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
   const { t } = useTranslation();
   const [cameraWidgetVisible, setCameraWidgetVisible] = useState(false);
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext } = React.useContext(OHRIFormContext);
-  const [camImage, setCamImage] = useState<string>(null);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
   const [selectedFiles, setSelectedFiles] = useState(null); // Add state for selected files
-  const [obsResponse, setObseResponse] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [conceptName, setConceptName] = useState('Loading...');
+  const [uploadMode, setUploadMode] = useState<AllowedModes>('');
 
-  function dataURItoFile(dataURI: string) {
-    const byteString = atob(dataURI.split(',')[1]);
-    const mimeString = dataURI
-      .split(',')[0]
-      .split(':')[1]
-      .split(';')[0];
-
-    // write the bytes of the string to a typed array
-    const buffer = new Uint8Array(byteString.length);
-
-    for (let i = 0; i < byteString.length; i++) {
-      buffer[i] = byteString.charCodeAt(i);
+  const isInline = useMemo(() => {
+    if (encounterContext.sessionMode == 'view' || isTrue(question.readonly)) {
+      return isInlineView(question.inlineRendering, layoutType, workspaceLayout);
     }
-
-    const blob = new Blob([buffer], { type: mimeString });
-    return [blob, mimeString];
-  }
-
+    return false;
+  }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
   const labelDescription = question.questionOptions.allowedFileTypes
-    ? t('fileUploadDescription', `Upload one of the following file types: ${question.questionOptions.allowedFileTypes}`)
+    ? t(
+        'fileUploadDescription',
+        `Upload one of the following file types: ${question.questionOptions.allowedFileTypes.map(
+          eachItem => ` ${eachItem}`,
+        )}`,
+      )
     : t('fileUploadDescriptionAny', 'Upload any file type');
 
   const handleFileChange = event => {
-    const [newSelectedFiles] = Array.from(event.target.files);
-    console.log(newSelectedFiles);
+    const [newSelectedFiles]: File[] = Array.from(event.target.files);
     setSelectedFiles(newSelectedFiles);
+    setImagePreview(null);
     setFieldValue(question.id, newSelectedFiles); // Update form field value
     question.value = handler?.handleFieldSubmission(question, newSelectedFiles, encounterContext);
   };
 
   const setImages = newImage => {
     setSelectedFiles(newImage);
+    setImagePreview(newImage);
     setCameraWidgetVisible(false);
     setFieldValue(question.id, newImage);
     question.value = handler?.handleFieldSubmission(question, newImage, encounterContext);
-    console.log(question.value);
   };
 
-  function savePatientPhoto(patientUuid: string, content: string, url: string, date: string, conceptUuid: string) {
-    const abortController = new AbortController();
+  const titleStyles = {
+    color: '#161616',
+    'font-size': '.875rem',
+    'font-weight': '600',
+    'letter-spacing': '.16px',
+    'line-height': '1.2857',
+    'margin-bottom': '0.5rem',
+  };
 
-    const [blobData, mimeString] = dataURItoFile(content);
-
-    if (typeof mimeString === 'string') {
-      const fileExtension = mimeString.split('/')[1];
-    }
-
-    const formData = new FormData();
-
-    formData.append('patient', patientUuid);
-    formData.append('file', blobData, 'OHRIFileConceptTest.png');
-    formData.append(
-      'json',
-      JSON.stringify({
-        person: patientUuid,
-        concept: conceptUuid,
-        groupMembers: [],
-        obsDatetime: date,
-        //encounter: encounterUUID
-      }),
-    );
-
-    openmrsFetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'multipart/form-data', //for submission to attachments endpoint
-      },
-      signal: abortController.signal,
-      body: formData,
-    })
-      .then(response => response.json())
-      .then(resData => {
-        setObseResponse(resData);
-        console.log(resData);
-      })
-      .catch(err => console.log(err.message));
-
-    setCamImage(null);
-  }
-
-  const handleClick = useCallback(() => {
-    savePatientPhoto(
-      'b280078a-c0ce-443b-9997-3c66c63ec2f8',
-      camImage,
-      '/ws/rest/v1/obs',
-      new Date().toISOString(),
-      'dd7bddf7-3bc5-4417-ab7c-3954e58bd63a',
-    );
-  }, [camImage]);
+  const descriptionStyles = {
+    color: '#525252',
+    'font-size': '.875rem',
+    'font-weight': 400,
+    'letter-spacing': '.16px',
+    'line-height': 1.28572,
+    margin: '1rem 0 1.5rem 0',
+  };
 
   useEffect(() => {
-    console.log(selectedFiles);
-  }, []);
+    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
+      setConceptName(conceptTooltip);
+    });
+  }, [conceptName]);
 
-  return (
+  return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
     <div>
-      <FileUploader
-        accept={question.questionOptions.allowedFileTypes ?? []}
-        buttonKind="primary"
-        buttonLabel={t('addFile', 'Add files')}
-        filenameStatus="edit"
-        iconDescription="Clear file"
-        labelDescription={labelDescription}
-        labelTitle={t('fileUploadTitle', 'Upload')}
-        multiple={question.questionOptions.allowMultiple}
-        onChange={handleFileChange} // Use handleFileChange to update selectedFiles
-      />
-
-      <div className={styles.camButton}>
-        <Button onClick={() => setCameraWidgetVisible(prevState => !prevState)}>Capture image</Button>
-        {cameraWidgetVisible && <CameraCapture handleImages={setImages} />}
+      <div className={styles.label}>{question.label}</div>
+      <div className={styles.uploadSelector}>
+        <div className={styles.selectorButton}>
+          <Button disabled={true} onClick={() => setUploadMode('uploader')}>
+            Upload image
+          </Button>
+        </div>
+        <div className={styles.selectorButton}>
+          <Button disabled={true} onClick={() => setUploadMode('camera')}>
+            Camera capture
+          </Button>
+        </div>
       </div>
-
-      <div className={styles.Image}>
-        {selectedFiles && (
-          <>
+    </div>
+  ) : (
+    <div>
+      <div className={styles.label}>{question.label}</div>
+      <div className={styles.uploadSelector}>
+        <div className={styles.selectorButton}>
+          <Button onClick={() => setUploadMode('uploader')}>Upload image</Button>
+        </div>
+        <div className={styles.selectorButton}>
+          <Button onClick={() => setUploadMode('camera')}>Camera capture</Button>
+        </div>
+      </div>
+      {uploadMode === 'uploader' && (
+        <div className={styles.fileUploader}>
+          <FileUploader
+            accept={question.questionOptions.allowedFileTypes ?? []}
+            buttonKind="primary"
+            buttonLabel={t('addFile', 'Add files')}
+            filenameStatus="edit"
+            iconDescription="Clear file"
+            labelDescription={labelDescription}
+            labelTitle={t('fileUploadTitle', 'Upload')}
+            multiple={question.questionOptions.allowMultiple}
+            onChange={handleFileChange} // Use handleFileChange to update selectedFiles
+          />
+        </div>
+      )}
+      {uploadMode === 'camera' && (
+        <div className={styles.cameraUploader}>
+          <div className={styles.camButton}>
+            <p style={titleStyles}>Camera</p>
+            <p style={descriptionStyles}>Capture image via camera</p>
+            <Button onClick={() => setCameraWidgetVisible(prevState => !prevState)} size="md">
+              {cameraWidgetVisible ? 'Close camera' : 'Add camera image'}
+            </Button>
+          </div>
+          {cameraWidgetVisible && (
+            <div className={styles.cameraPreview}>
+              <Camera handleImages={setImages} />
+            </div>
+          )}
+          {imagePreview && (
             <div className={styles.capturedImage}>
-              <ModalHeader title="Captured image" />
-              <div>
-                <ModalBody>
-                  <img src={camImage} alt="Preview" width="200px" />
-                </ModalBody>
+              <div className={styles.imageContent}>
+                <img src={imagePreview} alt="Preview" width="200px" />
+                <div className={styles.Caption}>
+                  <p>{'Camera uploaded photo'}</p>
+                  <div
+                    tabIndex={0}
+                    role="button"
+                    onClick={() => {
+                      setImagePreview(null);
+                    }}
+                    className={styles.closeIcon}>
+                    <Close />
+                  </div>
+                </div>
               </div>
             </div>
-          </>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
