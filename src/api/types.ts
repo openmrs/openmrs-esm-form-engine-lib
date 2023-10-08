@@ -148,6 +148,7 @@ export interface OHRIFormQuestionOptions {
   /**
    * maxLength and maxLength are used to validate text field length
    */
+  isTransient?: boolean;
   maxLength?: string;
   minLength?: string;
   showDate?: string;
@@ -165,6 +166,8 @@ export interface OHRIFormQuestionOptions {
   usePreviousValueDisabled?: boolean;
   allowedFileTypes?: Array<string>;
   allowMultiple?: boolean; //Allow Single File Attachments  and Multiple file attachments
+  datasource?: { name: string; config?: Record<string, any> };
+  isSearchable?: boolean;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view';
@@ -254,9 +257,19 @@ export interface DataSource<T> {
   /**
    * Fetches arbitrary data from a data source
    */
-  fetchData(searchTerm?: string): Promise<Array<T>>;
+  fetchData(searchTerm?: string, config?: Record<string, any>): Promise<Array<T>>;
   /**
    * Maps a data source item to an object with a uuid and display property
    */
   toUuidAndDisplay(item: T): OpenmrsResource;
+}
+
+export interface ControlTemplate {
+  name: string;
+  datasource: DataSourceParameters;
+}
+
+export interface DataSourceParameters {
+  name: string;
+  config?: Record<string, any>;
 }

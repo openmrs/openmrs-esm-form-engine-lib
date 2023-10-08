@@ -3,6 +3,7 @@ import { useInitialValues } from './useInitialValues';
 import testEncounter from '../../__mocks__/use-initial-values/encounter.mock.json';
 import testPatient from '../../__mocks__/use-initial-values/patient.mock.json';
 import { OHRIFormField, OpenmrsEncounter } from '../api/types';
+import { ObsSubmissionHandler } from '../submission-handlers/base-handlers';
 
 const obsGroupMembers: Array<OHRIFormField> = [
   {
@@ -96,6 +97,8 @@ let allFormFields: Array<OHRIFormField> = [
   ...obsGroupMembers,
 ];
 
+const formFieldHandlers = { obs: ObsSubmissionHandler, obsGroup: ObsSubmissionHandler };
+
 const location = {
   uuid: '1ce1b7d4-c865-4178-82b0-5932e51503d6',
   display: 'Community Outreach',
@@ -129,14 +132,19 @@ describe('useInitialValues', () => {
 
     await act(async () => {
       hook = renderHook(() =>
-        useInitialValues(allFormFields, null, {
-          encounter: null,
-          patient: testPatient,
-          location,
-          sessionMode: 'enter',
-          encounterDate: encounterDate,
-          setEncounterDate: jest.fn,
-        }),
+        useInitialValues(
+          allFormFields,
+          null,
+          {
+            encounter: null,
+            patient: testPatient,
+            location,
+            sessionMode: 'enter',
+            encounterDate: encounterDate,
+            setEncounterDate: jest.fn,
+          },
+          formFieldHandlers,
+        ),
       );
     });
     const {
@@ -157,14 +165,19 @@ describe('useInitialValues', () => {
 
     await act(async () => {
       hook = renderHook(() =>
-        useInitialValues(allFormFields, encounter, {
-          encounter: encounter,
-          patient: testPatient,
-          location,
-          sessionMode: 'enter',
-          encounterDate: encounterDate,
-          setEncounterDate: jest.fn,
-        }),
+        useInitialValues(
+          allFormFields,
+          encounter,
+          {
+            encounter: encounter,
+            patient: testPatient,
+            location,
+            sessionMode: 'enter',
+            encounterDate: encounterDate,
+            setEncounterDate: jest.fn,
+          },
+          formFieldHandlers,
+        ),
       );
     });
     const {
@@ -210,14 +223,19 @@ describe('useInitialValues', () => {
     allFormFields.push(fieldWithCalculateExpression);
     await act(async () => {
       hook = renderHook(() =>
-        useInitialValues(allFormFields, null, {
-          encounter: null,
-          patient: testPatient,
-          location,
-          sessionMode: 'enter',
-          encounterDate: encounterDate,
-          setEncounterDate: jest.fn,
-        }),
+        useInitialValues(
+          allFormFields,
+          null,
+          {
+            encounter: null,
+            patient: testPatient,
+            location,
+            sessionMode: 'enter',
+            encounterDate: encounterDate,
+            setEncounterDate: jest.fn,
+          },
+          formFieldHandlers,
+        ),
       );
     });
     const {

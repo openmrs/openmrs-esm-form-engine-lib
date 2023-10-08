@@ -1,0 +1,241 @@
+{
+    "name": "Service Enrolment Form",
+    "version": "1",
+    "published": true,
+    "retired": false,
+    "pages": [
+      {
+        "label": "Introduction",
+        "sections": [
+          {
+            "label": "",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "type": "markdown",
+                "questionOptions": {
+                  "rendering": "markdown"
+                },
+                "id": "fooMarkdown",
+                "value": [
+                  "**Use this form to:** Enrolment/Re-enrol a client for HIV Care"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Client Profile",
+        "sections": [
+          {
+            "label": "Client Details",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "label": "Enrolment Date",
+                "type": "obs",
+                "questionOptions": {
+                  "isTransient": "true",
+                  "rendering": "date",
+                  "concept": "160555AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                },
+                "behaviours": [
+                  {
+                    "intent": "*",
+                    "required": "true",
+                    "unspecified": "true",
+                    "hide": {
+                      "hideWhenExpression": "false"
+                    },
+                    "validators": [
+                      {
+                        "type": "date",
+                        "allowFutureDates": "false"
+                      },
+                      {
+                        "type": "js_expression",
+                        "failsWhenExpression": "isDateBefore(myValue, '1980-01-01')"
+                      }
+                    ]
+                  }
+                ],
+                "id": "hivEnrolmentDate"
+              },
+              {
+                "label": "Unique ID",
+                "type": "obs",
+                "questionOptions": {
+                  "rendering": "text",
+                  "concept": "162576AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                },
+                "behaviours": [
+                  {
+                    "intent": "*",
+                    "required": "true",
+                    "unspecified": "true",
+                    "hide": {
+                      "hideWhenExpression": "false"
+                    },
+                    "validators": [
+                      {
+                        "type": "js_expression",
+                        "failsWhenExpression": "isEmpty(patientIdentifier)"
+                      }
+                    ]
+                  }
+                ],
+                "id": "patientIdentifier"
+              },
+              {
+                "label": "Patient Type at Enrolment",
+                "type": "obs",
+                "questionOptions": {
+                  "rendering": "radio",
+                  "concept": "83e40f2c-c316-43e6-a12e-20a338100281",
+                  "answers": [
+                    {
+                      "concept": "163532AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                      "label": "Mother enrolled in PMTCT program",
+                      "conceptMappings": []
+                    },
+                    {
+                      "concept": "159833AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                      "label": "Re-enrol",
+                      "conceptMappings": []
+                    },
+                    {
+                      "concept": "160563AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                      "label": "Transfer in",
+                      "conceptMappings": []
+                    },
+                    {
+                      "concept": "164144AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                      "label": "New client",
+                      "conceptMappings": []
+                    }
+                  ]
+                },
+                "behaviours": [
+                  {
+                    "intent": "*",
+                    "required": "true",
+                    "unspecified": "false",
+                    "hide": {
+                      "hideWhenExpression": "false"
+                    }
+                  }
+                ],
+                "id": "clientDescription"
+              },
+              {
+                "label": "Population Category",
+                "type": "obs",
+                "questionOptions": {
+                  "rendering": "radio",
+                  "concept": "166432AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "answers": [
+                    {
+                      "concept": "166431AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                      "label": "Key population",
+                      "conceptMappings": [
+                        {
+                          "type": "SNOMED-CT",
+                          "value": "385436007"
+                        }
+                      ]
+                    },
+                    {
+                      "concept": "166430AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                      "label": "General population",
+                      "conceptMappings": [
+                        {
+                          "type": "SNOMED-CT",
+                          "value": "385436007"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "behaviours": [
+                  {
+                    "intent": "*",
+                    "required": "true",
+                    "unspecified": "true",
+                    "hide": {
+                      "hideWhenExpression": "false"
+                    }
+                  }
+                ],
+                "id": "clientPopulationCategory"
+              }
+            ]
+          }
+        ]
+      },
+  
+      {
+        "label": "Notes",
+        "sections": [
+          {
+            "label": "Enrollment notes",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "label": "General notes",
+                "type": "obs",
+                "questionOptions": {
+                  "rendering": "textarea",
+                  "concept": "165095AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "rows": "",
+                  "conceptMappings": [
+                    {
+                      "type": "AMPATH",
+                      "value": "1915"
+                    },
+                    {
+                      "type": "AMPATH",
+                      "value": "1915"
+                    },
+                    {
+                      "type": "LOINC",
+                      "value": "48767-8"
+                    },
+                    {
+                      "type": "CIEL",
+                      "value": "160632"
+                    }
+                  ]
+                },
+                "id": "generalNotes",
+                "behaviours": [
+                  {
+                    "intent": "*",
+                    "required": "false",
+                    "unspecified": "false",
+                    "hide": {
+                      "hideWhenExpression": "false"
+                    },
+                    "validators": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "availableIntents": [
+      {
+        "intent": "*",
+        "display": "Service Enrolment Form"
+      }
+    ],
+    "processor": "EncounterFormProcessor",
+    "uuid": "8f713e0e-94a0-3c57-9024-69520933802a",
+    "referencedForms": [],
+    "encounterType": "7e54cd64-f9c3-11eb-8e6a-57478ce139b0",
+    "encounter": "Care and Treatment Service Enrolment",
+    "allowUnspecifiedAll": true
+  }
+  
