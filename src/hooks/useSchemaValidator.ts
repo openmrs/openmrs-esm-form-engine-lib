@@ -16,42 +16,42 @@ export function useSchemaValidator(schema: OHRIFormSchema, doValidate) {
 
   const findUnresolvedConcepts = (questionFields, filteredSetArray) => {
     const unresolvedConcepts = questionFields
-      ?.filter(questionFieldsItem => {
+      ?.filter((questionFieldsItem) => {
         return filteredSetArray?.includes(questionFieldsItem.questionOptions.concept);
       })
-      ?.map(item => {
+      ?.map((item) => {
         return {
           errorMessage: `❓ Field Concept "${item.questionOptions.concept}" not found`,
           field: item,
         };
       });
 
-    setErrors(prevState => [...prevState, ...unresolvedConcepts]);
+    setErrors((prevState) => [...prevState, ...unresolvedConcepts]);
   };
 
   const unresolvedAnswers = (questionFields, filteredSetArray) => {
     const unresolvedConcepts = questionFields
-      ?.filter(questionFieldsItem => {
+      ?.filter((questionFieldsItem) => {
         return filteredSetArray?.includes(questionFieldsItem.concept);
       })
-      ?.map(item => {
+      ?.map((item) => {
         return {
           errorMessage: `Answer Concept "${item.concept}" not found`,
           field: item,
         };
       });
 
-    setErrors(prevState => [...prevState, ...unresolvedConcepts]);
+    setErrors((prevState) => [...prevState, ...unresolvedConcepts]);
   };
 
   const dataTypeChecker = (responseObject, questionFields) => {
     questionFields
-      ?.filter(item => item.questionOptions.concept === responseObject.uuid)
-      .map(item => {
+      ?.filter((item) => item.questionOptions.concept === responseObject.uuid)
+      .map((item) => {
         responseObject.datatype.name === conceptDataTypes.Boolean &&
-          item.questionOptions.answers.forEach(answer => {
+          item.questionOptions.answers.forEach((answer) => {
             if (![ConceptTrue, ConceptFalse].includes(answer.concept)) {
-              setErrors(prevErrors => [
+              setErrors((prevErrors) => [
                 ...prevErrors,
                 {
                   errorMessage: `❌ concept "${item.questionOptions.concept}" of type "boolean" has a non-boolean answer "${answer.label}"`,
@@ -62,9 +62,9 @@ export function useSchemaValidator(schema: OHRIFormSchema, doValidate) {
           });
 
         responseObject.datatype.name === conceptDataTypes.Coded &&
-          item.questionOptions.answers.forEach(answer => {
-            if (!responseObject.answers?.some(answerObject => answerObject.uuid === answer.concept)) {
-              setWarnings(prevWarnings => [
+          item.questionOptions.answers.forEach((answer) => {
+            if (!responseObject.answers?.some((answerObject) => answerObject.uuid === answer.concept)) {
+              setWarnings((prevWarnings) => [
                 ...prevWarnings,
                 {
                   warningMessage: `⚠️ answer: "${answer.label}" - "${answer.concept}" does not exist in the response answers but exists in the form`,
@@ -76,7 +76,7 @@ export function useSchemaValidator(schema: OHRIFormSchema, doValidate) {
 
         dataTypeToRenderingMap.hasOwnProperty(responseObject?.datatype?.name) &&
           !dataTypeToRenderingMap[responseObject.datatype.name].includes(item.questionOptions.rendering) &&
-          setErrors(prevErrors => [
+          setErrors((prevErrors) => [
             ...prevErrors,
             {
               errorMessage: `❌ ${item.questionOptions.concept}: datatype "${responseObject.datatype.display}" doesn't match control type "${item.questionOptions.rendering}"`,
@@ -85,7 +85,7 @@ export function useSchemaValidator(schema: OHRIFormSchema, doValidate) {
           ]);
 
         !dataTypeToRenderingMap.hasOwnProperty(responseObject.datatype.name) &&
-          setErrors(prevErrors => [
+          setErrors((prevErrors) => [
             ...prevErrors,
             { errorMessage: `Untracked datatype "${responseObject.datatype.display}"`, field: item },
           ]);
@@ -94,23 +94,23 @@ export function useSchemaValidator(schema: OHRIFormSchema, doValidate) {
 
   useMemo(() => {
     if (schema) {
-      schema.pages?.forEach(page =>
-        page.sections?.forEach(section =>
-          section.questions?.forEach(question => {
-            setQuestionFields(prevArray => [...prevArray, question]);
+      schema.pages?.forEach((page) =>
+        page.sections?.forEach((section) =>
+          section.questions?.forEach((question) => {
+            setQuestionFields((prevArray) => [...prevArray, question]);
             const searchRef = question.questionOptions.concept
               ? question.questionOptions.concept
               : question.questionOptions.conceptMappings?.length
               ? question.questionOptions.conceptMappings
-                  ?.map(mapping => {
+                  ?.map((mapping) => {
                     return `${mapping.type}:${mapping.value}`;
                   })
                   .join(',')
               : '';
             if (searchRef) {
-              setConceptSet(conceptSet => new Set(conceptSet).add(searchRef));
+              setConceptSet((conceptSet) => new Set(conceptSet).add(searchRef));
             } else {
-              setErrors(prevErrors => [
+              setErrors((prevErrors) => [
                 ...prevErrors,
                 {
                   errorMessage: `❓ Question object has no UUID / Mappings`,
@@ -121,21 +121,21 @@ export function useSchemaValidator(schema: OHRIFormSchema, doValidate) {
 
             const answers = question.questionOptions.answers;
             answers?.length &&
-              answers.forEach(answer => {
-                setAnswerFields(prevArray => [...prevArray, answer]);
+              answers.forEach((answer) => {
+                setAnswerFields((prevArray) => [...prevArray, answer]);
                 const searchRef = answer.concept
                   ? answer.concept
                   : answer.conceptMappings?.length
                   ? answer.conceptMappings
-                      .map(mapping => {
+                      .map((mapping) => {
                         return `${mapping.type}:${mapping.value}`;
                       })
                       .join(',')
                   : '';
                 if (searchRef) {
-                  setAnswerConceptSet(prevAnswerSet => new Set(prevAnswerSet).add(searchRef));
+                  setAnswerConceptSet((prevAnswerSet) => new Set(prevAnswerSet).add(searchRef));
                 } else {
-                  setErrors(prevErrors => [
+                  setErrors((prevErrors) => [
                     ...prevErrors,
                     { errorMessage: `❌ Answer object has no UUID / Mappings`, field: question },
                   ]);
@@ -143,21 +143,21 @@ export function useSchemaValidator(schema: OHRIFormSchema, doValidate) {
               });
 
             if (question.type === 'obsGroup') {
-              question.questions.forEach(obsGrpQuestion => {
-                setQuestionFields(prevArray => [...prevArray, obsGrpQuestion]);
+              question.questions.forEach((obsGrpQuestion) => {
+                setQuestionFields((prevArray) => [...prevArray, obsGrpQuestion]);
                 const searchRef = obsGrpQuestion.questionOptions.concept
                   ? obsGrpQuestion.questionOptions.concept
                   : obsGrpQuestion.questionOptions.conceptMappings?.length
                   ? obsGrpQuestion.questionOptions.conceptMappings
-                      ?.map(mapping => {
+                      ?.map((mapping) => {
                         return `${mapping.type}:${mapping.value}`;
                       })
                       .join(',')
                   : '';
                 if (searchRef) {
-                  setConceptSet(conceptSet => new Set(conceptSet).add(searchRef));
+                  setConceptSet((conceptSet) => new Set(conceptSet).add(searchRef));
                 } else {
-                  setErrors(prevErrors => [
+                  setErrors((prevErrors) => [
                     ...prevErrors,
                     { errorMessage: `❓ Question object has no UUID / Mappings`, field: obsGrpQuestion },
                   ]);
@@ -165,21 +165,21 @@ export function useSchemaValidator(schema: OHRIFormSchema, doValidate) {
 
                 const answers = obsGrpQuestion.questionOptions.answers;
                 answers?.length &&
-                  answers.forEach(answer => {
-                    setAnswerFields(prevArray => [...prevArray, answer]);
+                  answers.forEach((answer) => {
+                    setAnswerFields((prevArray) => [...prevArray, answer]);
                     const searchRef = answer.concept
                       ? answer.concept
                       : answer.conceptMappings?.length
                       ? answer.conceptMappings
-                          .map(mapping => {
+                          .map((mapping) => {
                             return `${mapping.type}:${mapping.value}`;
                           })
                           .join(',')
                       : '';
                     if (searchRef) {
-                      setAnswerConceptSet(prevAnswerSet => new Set(prevAnswerSet).add(searchRef));
+                      setAnswerConceptSet((prevAnswerSet) => new Set(prevAnswerSet).add(searchRef));
                     } else {
-                      setErrors(prevErrors => [
+                      setErrors((prevErrors) => [
                         ...prevErrors,
                         { errorMessage: `❌ Answer object has no UUID / Mappings`, field: obsGrpQuestion },
                       ]);
@@ -194,17 +194,19 @@ export function useSchemaValidator(schema: OHRIFormSchema, doValidate) {
   }, [schema]);
 
   const { concepts, filteredSet, isLoading } = useDatatype(conceptSet);
-  const { concepts: answerConcepts, filteredSet: filteredSetAnswers, isLoading: isLoadingAnswers } = useDatatype(
-    answerConceptSet,
-  );
+  const {
+    concepts: answerConcepts,
+    filteredSet: filteredSetAnswers,
+    isLoading: isLoadingAnswers,
+  } = useDatatype(answerConceptSet);
 
   useEffect(() => {
     if (concepts?.length) {
       findUnresolvedConcepts(questionFields, filteredSet);
-      concepts?.forEach(concept => {
+      concepts?.forEach((concept) => {
         dataTypeChecker(concept, questionFields);
       });
-      setIsValidating(prevValue => !prevValue);
+      setIsValidating((prevValue) => !prevValue);
     }
   }, [concepts]);
 
