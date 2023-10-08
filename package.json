@@ -39,7 +39,6 @@
     "lodash-es": "^4.17.15",
     "react-anchor-link-smooth-scroll": "^1.0.12",
     "react-error-boundary": "4.0.10",
-    "react-html5-camera-photo": "1.5.11",
     "react-markdown": "^7.1.0",
     "react-scroll": "^1.8.2",
     "react-test-renderer": "^16.9.0",
@@ -52,7 +51,6 @@
     "@carbon/react": "1.x",
     "@openmrs/esm-framework": "4.x",
     "react": "^18.2.0",
-    "react-html5-camera-photo": "1.5.11",
     "react-i18next": "11.x",
     "rxjs": "6.x"
   },

@@ -3118,7 +3118,6 @@ __metadata:
     react: ^18.2.0
     react-anchor-link-smooth-scroll: ^1.0.12
     react-error-boundary: 4.0.10
-    react-html5-camera-photo: 1.5.11
     react-i18next: ^11.18.1
     react-markdown: ^7.1.0
     react-scroll: ^1.8.2
@@ -3138,7 +3137,6 @@ __metadata:
     "@carbon/react": 1.x
     "@openmrs/esm-framework": 4.x
     react: ^18.2.0
-    react-html5-camera-photo: 1.5.11
     react-i18next: 11.x
     rxjs: 6.x
   languageName: unknown
@@ -12002,13 +12000,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jslib-html5-camera-photo@npm:3.3.4":
-  version: 3.3.4
-  resolution: "jslib-html5-camera-photo@npm:3.3.4"
-  checksum: 10e9ae58a6e3a0b812c0dfef17d697cf814f7e0e6ac766e1f80b9e49a9d73173b169211c8f606563c3c7e788103c88f2e0084b3b6d6722547378f1d3f179531f
-  languageName: node
-  linkType: hard
-
 "json-buffer@npm:3.0.1":
   version: 3.0.1
   resolution: "json-buffer@npm:3.0.1"
@@ -14874,18 +14865,6 @@ __metadata:
   version: 2.0.4
   resolution: "react-fast-compare@npm:2.0.4"
   checksum: 06046595f90a4e3e3a56f40a8078c00aa71bdb064ddb98343f577f546aa22e888831fd45f009c93b34707cc842b4c637737e956fd13d6f80607ee92fb9cf9a1c
-  languageName: node
-  linkType: hard
-
-"react-html5-camera-photo@npm:1.5.11":
-  version: 1.5.11
-  resolution: "react-html5-camera-photo@npm:1.5.11"
-  dependencies:
-    jslib-html5-camera-photo: 3.3.4
-  peerDependencies:
-    react: ">=16.8.0"
-    react-dom: ">=16.8.0"
-  checksum: 9bf171c56d7cdf1b8d001d4344ca89f53e829505e27c265b93d591826a676a396c4494025ae0f0628e9ff73f138957aba7c95ab9dc59a1804dbb4e6b55549e56
   languageName: node
   linkType: hard
 
