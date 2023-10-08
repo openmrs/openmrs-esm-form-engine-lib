@@ -15,6 +15,7 @@ import OHRITextArea from '../../components/inputs/text-area/ohri-text-area.compo
 import OHRIText from '../../components/inputs/text/ohri-text.component';
 import OHRIToggle from '../../components/inputs/toggle/ohri-toggle.component';
 import { OHRIRepeat } from '../../components/repeat/ohri-repeat.component';
+import File from '../../components/inputs/file/file.component';
 import { RegistryItem } from '../registry';
 import { controlTemplates } from './control-templates';
 import { templateToComponentMap } from './template-component-map';
@@ -110,6 +111,11 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFie
     name: 'UISelectExtended',
     component: UISelectExtended,
     type: 'ui-select-extended',
+  },
+  {
+    name: 'File',
+    component: File,
+    type: 'file',
   },
   ...controlTemplates.map(template => ({
     name: `${template.name}Control`,
