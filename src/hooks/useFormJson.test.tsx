@@ -8,6 +8,10 @@ import nestedForm1Skeleton from '../../__mocks__/forms/omrs-forms/nested-form1.j
 import nestedForm2Skeleton from '../../__mocks__/forms/omrs-forms/nested-form2.json';
 import nestedForm1Body from '../../__mocks__/forms/ohri-forms/nested-form1.json';
 import nestedForm2Body from '../../__mocks__/forms/ohri-forms/nested-form2.json';
+import formComponent from '../../__mocks__/forms/omrs-forms/form-component.json';
+import artComponent from '../../__mocks__/forms/omrs-forms/component_art.json';
+import hospitalizationComponent from '../../__mocks__/forms/omrs-forms/component_hospitalization.json';
+import preclinicReviewComponent from '../../__mocks__/forms/omrs-forms/component_preclinic-review.json';
 
 const MINI_FORM_NAME = 'Mini Form';
 const MINI_FORM_UUID = '112d73b4-79e5-4be8-b9ae-d0840f00d4cf';
@@ -20,6 +24,11 @@ const PARENT_FORM_SCHEMA_VALUE_REF = '1ad1fccc-d279-46a0-8980-1d91afd6ba67';
 const SUB_FORM_NAME = 'Nested Form Two';
 const SUB_FORM_UUID = '8304e5ff-6324-4863-ac51-8fcbc6812b13';
 const SUB_FORM_SCHEMA_VALUE_REF = 'ca52a95c-8bb4-4a9f-a0cf-f0df437592da';
+
+const COMPONENT_FORM_NAME = 'Form Component';
+const COMPONENT_ART = 'component_art';
+const COMPONENT_HOSPITALIZATION = 'component_hospitalization';
+const COMPONENT_PRECLINIC_REVIEW = 'component_preclinic-review';
 
 // Base setup
 const mockOpenmrsFetch = openmrsFetch as jest.Mock;
@@ -57,6 +66,20 @@ when(mockOpenmrsFetch)
 when(mockOpenmrsFetch)
   .calledWith(buildPath(MINI_FORM_SCHEMA_VALUE_REF))
   .mockResolvedValue({ data: miniFormBody });
+
+// form components
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(COMPONENT_FORM_NAME))
+  .mockResolvedValue({ data: { results: [formComponent] } });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(COMPONENT_ART))
+  .mockResolvedValue({ data: { results: [artComponent] } });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(COMPONENT_HOSPITALIZATION))
+  .mockResolvedValue({ data: { results: [hospitalizationComponent] } });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(COMPONENT_PRECLINIC_REVIEW))
+  .mockResolvedValue({ data: { results: [preclinicReviewComponent] } });
 
 describe('useFormJson', () => {
   it('should fetch basic form by name', async () => {
@@ -108,6 +131,20 @@ describe('useFormJson', () => {
     // verify subforms
     verifyEmbeddedForms(hook.result.current.formJson);
   });
+
+  it('should load sub components in combined raw form json', async () => {
+    let hook = null;
+    await act(async () => {
+      hook = renderHook(() => useFormJson(null, formComponent, null, null));
+    });
+
+    expect(hook.result.current.isLoading).toBe(false);
+    expect(hook.result.current.error).toBe(undefined);
+    expect(hook.result.current.formJson.name).toBe(COMPONENT_FORM_NAME);
+
+    // verify subforms
+    verifyFormComponents(hook.result.current.formJson);
+  });
 });
 
 function buildPath(path: string) {
@@ -115,6 +152,15 @@ function buildPath(path: string) {
 }
 
 function verifyEmbeddedForms(formJson) {
+  // assert that the nestedForm2's (level one subform) pages have been aligned with the parent because they share the same encounterType
+  expect(formJson.pages.length).toBe(3);
+  // the mini form (it's not flattened into the parent form because it has a different encounterType)
+  const nestedSubform = formJson.pages[2].subform.form;
+  expect(nestedSubform.name).toBe(MINI_FORM_NAME);
+  expect(nestedSubform.pages.length).toBe(1);
+}
+
+function verifyFormComponents(formJson) {
   // assert that the nestedForm2's (level one subform) pages have been aligned with the parent because they share the same encounterType
   expect(formJson.pages.length).toBe(3);
   // the mini form (it's not flattened into the parent form because it has a different encounterType)

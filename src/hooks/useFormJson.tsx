@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { OHRIFormSchema } from '../api/types';
+import { FormComponent, OHRIFormSchema, ReferencedForm } from '../api/types';
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
 import { fetchOpenMRSForm, fetchClobData } from '../api/api';
@@ -52,9 +52,10 @@ export async function loadFormJson(
 
   // Form components
   const formComponentsRefs = getReferencedForms(formJson);
-  // TODO: are form components supposed to have intents as well or can they inherit from the parent form?
-  const formComponents = await loadFormComponents(formComponentsRefs);
-  updateFormJsonWithSubforms(formJson, await loadSubforms(formComponents, formSessionIntent));
+  const resolvedFormComponents = await loadFormComponents(formComponentsRefs);
+  const formComponents = mapFormComponents(formComponentsRefs, resolvedFormComponents);
+
+  updateFormJsonWithComponents(formJson, formComponents);
 
   return refineFormJson(formJson, formSessionIntent);
 }
@@ -141,26 +142,39 @@ function setEncounterType(formJson: OHRIFormSchema): void {
 /**
  * Functions to support reusable Form Components
  */
-function getReferencedForms(formJson: OHRIFormSchema): Object {
+function getReferencedForms(formJson: OHRIFormSchema): Array<ReferencedForm> {
   const referencedForms: Array<any> = formJson.referencedForms;
-
   if (!referencedForms) {
-    return;
+    return [];
   }
+  return referencedForms;
+}
 
-  const keyValReferencedForms: Object = {};
-  referencedForms.forEach((reference: any) => {
-    keyValReferencedForms[reference.alias] = reference.formName;
+async function loadFormComponents(formComponentRefs: Array<ReferencedForm>): Promise<OHRIFormSchema[]> {
+  return Promise.all(formComponentRefs.map((formComponent) => loadFormJson(formComponent.formName, null, null)));
+}
+
+function mapFormComponents(formComponentRefs: Array<ReferencedForm>, formComponents: Array<OHRIFormSchema>) {
+  const formComponentsMap: Map<string, OHRIFormSchema> = new Map();
+
+  formComponents.forEach((formComponent) => {
+    formComponentsMap.set(formComponent.name, formComponent);
   });
 
-  return keyValReferencedForms;
+  return formComponentsMap;
 }
 
-async function loadSubformss(subformRefs: string[], formSessionIntent?: string): Promise<OHRIFormSchema[]> {
-  return Promise.all(subformRefs.map((subform) => loadFormJson(subform, null, formSessionIntent)));
+function updateFormJsonWithComponents(formJson: OHRIFormSchema, formComponents: Map<string, OHRIFormSchema>): void {
+  // form components
+  formComponents.forEach((subform) => {
+    const matchingPage = formJson.pages.find((page) => page.subform?.name === subform.name);
+    if (matchingPage) {
+      matchingPage.subform.form = subform;
+    }
+  });
 }
 
-function loadFormComponents(schema: Object): Array<any> {
+function loadFormComponents2(schema: Object): Array<any> {
   const referencedObjects: Array<any> = [];
   this.extractPlaceholderObjects(schema, referencedObjects);
   return referencedObjects;
