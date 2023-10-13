@@ -23,10 +23,7 @@ export function saveAttachment(patientUuid, content, conceptUuid, date, encounte
 
   const formData = new FormData();
 
-  const cameraUploadType = content
-    ?.split(';')[0]
-    .split(':')[1]
-    .split('/')[1];
+  const cameraUploadType = content?.split(';')[0].split(':')[1].split('/')[1];
 
   const fileCaption = typeof content === 'object' ? content.name : `camera-upload.${cameraUploadType}`;
 
@@ -36,7 +33,7 @@ export function saveAttachment(patientUuid, content, conceptUuid, date, encounte
   if (typeof content === 'object') {
     formData.append('file', content);
   } else {
-    formData.append('file', new File([''], 'OHRIFileConceptTest.png'), 'OHRIFileConceptTest.png');
+    formData.append('file', new File([''], `camera-upload.${cameraUploadType}`), `camera-upload.${cameraUploadType}`);
     formData.append('base64Content', content);
   }
   formData.append(
@@ -52,16 +49,13 @@ export function saveAttachment(patientUuid, content, conceptUuid, date, encounte
 
   return openmrsFetch(url, {
     method: 'POST',
-    // headers: {
-    //   'Content-Type': 'multipart/form-data',
-    // },
     signal: abortController.signal,
     body: formData,
   });
 }
 
 export function getConcept(conceptUuid: string, v: string): Observable<any> {
-  return openmrsObservableFetch(`/ws/rest/v1/concept/${conceptUuid}?v=${v}`).pipe(map(response => response['data']));
+  return openmrsObservableFetch(`/ws/rest/v1/concept/${conceptUuid}?v=${v}`).pipe(map((response) => response['data']));
 }
 
 export function getLocationsByTag(tag: string): Observable<{ uuid: string; display: string }[]> {
@@ -147,10 +141,7 @@ export async function fetchClobData(form: OpenmrsForm): Promise<any | null> {
 
 function dataURItoFile(dataURI: string) {
   const byteString = atob(dataURI.split(',')[1]);
-  const mimeString = dataURI
-    .split(',')[0]
-    .split(':')[1]
-    .split(';')[0];
+  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
 
   // write the bytes of the string to a typed array
   const buffer = new Uint8Array(byteString.length);

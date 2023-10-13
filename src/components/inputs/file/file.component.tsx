@@ -30,16 +30,17 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
     }
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
+
   const labelDescription = question.questionOptions.allowedFileTypes
     ? t(
         'fileUploadDescription',
         `Upload one of the following file types: ${question.questionOptions.allowedFileTypes.map(
-          eachItem => ` ${eachItem}`,
+          (eachItem) => ` ${eachItem}`,
         )}`,
       )
     : t('fileUploadDescriptionAny', 'Upload any file type');
 
-  const handleFileChange = event => {
+  const handleFileChange = (event) => {
     const [newSelectedFiles]: File[] = Array.from(event.target.files);
     setSelectedFiles(newSelectedFiles);
     setImagePreview(null);
@@ -47,7 +48,7 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
     question.value = handler?.handleFieldSubmission(question, newSelectedFiles, encounterContext);
   };
 
-  const setImages = newImage => {
+  const setImages = (newImage) => {
     setSelectedFiles(newImage);
     setImagePreview(newImage);
     setCameraWidgetVisible(false);
@@ -55,26 +56,8 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
     question.value = handler?.handleFieldSubmission(question, newImage, encounterContext);
   };
 
-  const titleStyles = {
-    color: '#161616',
-    'font-size': '.875rem',
-    'font-weight': '600',
-    'letter-spacing': '.16px',
-    'line-height': '1.2857',
-    'margin-bottom': '0.5rem',
-  };
-
-  const descriptionStyles = {
-    color: '#525252',
-    'font-size': '.875rem',
-    'font-weight': 400,
-    'letter-spacing': '.16px',
-    'line-height': 1.28572,
-    margin: '1rem 0 1.5rem 0',
-  };
-
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
+    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);
@@ -124,9 +107,9 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
       {uploadMode === 'camera' && (
         <div className={styles.cameraUploader}>
           <div className={styles.camButton}>
-            <p style={titleStyles}>Camera</p>
-            <p style={descriptionStyles}>Capture image via camera</p>
-            <Button onClick={() => setCameraWidgetVisible(prevState => !prevState)} size="md">
+            <p className={styles.titleStyles}>Camera</p>
+            <p className={styles.descriptionStyles}>Capture image via camera</p>
+            <Button onClick={() => setCameraWidgetVisible((prevState) => !prevState)} size="md">
               {cameraWidgetVisible ? 'Close camera' : 'Add camera image'}
             </Button>
           </div>
