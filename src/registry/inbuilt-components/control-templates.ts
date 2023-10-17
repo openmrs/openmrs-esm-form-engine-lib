@@ -15,7 +15,7 @@ export const controlTemplates: Array<ControlTemplate> = [
     datasource: {
       name: 'problem_datasource',
       config: {
-        class: ['8d4918b0-c2cc-11de-8d13-0010c6dffd0f', '8d492954-c2cc-11de-8d13-0010c6dffd0f'],
+        class: ['8d4918b0-c2cc-11de-8d13-0010c6dffd0f', '8d492954-c2cc-11de-8d13-0010c6dffd0f','8d492b2a-c2cc-11de-8d13-0010c6dffd0f'],
       },
     },
   },
