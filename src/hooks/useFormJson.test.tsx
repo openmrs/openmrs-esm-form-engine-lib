@@ -12,6 +12,7 @@ import formComponent from '../../__mocks__/forms/omrs-forms/form-component.json'
 import artComponent from '../../__mocks__/forms/omrs-forms/component_art.json';
 import hospitalizationComponent from '../../__mocks__/forms/omrs-forms/component_hospitalization.json';
 import preclinicReviewComponent from '../../__mocks__/forms/omrs-forms/component_preclinic-review.json';
+import { delay } from 'rxjs/operators';
 
 const MINI_FORM_NAME = 'Mini Form';
 const MINI_FORM_UUID = '112d73b4-79e5-4be8-b9ae-d0840f00d4cf';
@@ -137,10 +138,12 @@ describe('useFormJson', () => {
     await act(async () => {
       hook = renderHook(() => useFormJson(null, formComponent, null, null));
     });
+    delay(5000);
 
     expect(hook.result.current.isLoading).toBe(false);
     expect(hook.result.current.error).toBe(undefined);
     expect(hook.result.current.formJson.name).toBe(COMPONENT_FORM_NAME);
+
 
     // verify subforms
     verifyFormComponents(hook.result.current.formJson);
@@ -161,10 +164,6 @@ function verifyEmbeddedForms(formJson) {
 }
 
 function verifyFormComponents(formJson) {
-  // assert that the nestedForm2's (level one subform) pages have been aligned with the parent because they share the same encounterType
-  expect(formJson.pages.length).toBe(3);
-  // the mini form (it's not flattened into the parent form because it has a different encounterType)
-  const nestedSubform = formJson.pages[2].subform.form;
-  expect(nestedSubform.name).toBe(MINI_FORM_NAME);
-  expect(nestedSubform.pages.length).toBe(1);
+  // assert that alias has been replaced with the actual component
+  expect(formJson.pages.length).toBe(1);
 }

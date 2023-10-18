@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FormComponent, OHRIFormSchema, ReferencedForm } from '../api/types';
+import { OHRIFormSchema, OHRIFormSection, ReferencedForm } from '../api/types';
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
 import { fetchOpenMRSForm, fetchClobData } from '../api/api';
@@ -53,8 +53,7 @@ export async function loadFormJson(
   // Form components
   const formComponentsRefs = getReferencedForms(formJson);
   const resolvedFormComponents = await loadFormComponents(formComponentsRefs);
-  const formComponents = mapFormComponents(formComponentsRefs, resolvedFormComponents);
-
+  const formComponents = mapFormComponents(resolvedFormComponents);
   updateFormJsonWithComponents(formJson, formComponents);
 
   return refineFormJson(formJson, formSessionIntent);
@@ -154,7 +153,7 @@ async function loadFormComponents(formComponentRefs: Array<ReferencedForm>): Pro
   return Promise.all(formComponentRefs.map((formComponent) => loadFormJson(formComponent.formName, null, null)));
 }
 
-function mapFormComponents(formComponentRefs: Array<ReferencedForm>, formComponents: Array<OHRIFormSchema>) {
+function mapFormComponents(formComponents: Array<OHRIFormSchema>): Map<string, OHRIFormSchema> {
   const formComponentsMap: Map<string, OHRIFormSchema> = new Map();
 
   formComponents.forEach((formComponent) => {
@@ -165,115 +164,49 @@ function mapFormComponents(formComponentRefs: Array<ReferencedForm>, formCompone
 }
 
 function updateFormJsonWithComponents(formJson: OHRIFormSchema, formComponents: Map<string, OHRIFormSchema>): void {
-  // form components
-  formComponents.forEach((subform) => {
-    const matchingPage = formJson.pages.find((page) => page.subform?.name === subform.name);
-    if (matchingPage) {
-      matchingPage.subform.form = subform;
-    }
+  formComponents.forEach((component, alias) => {
+    //loop through pages and search sections for reference key
+    formJson.pages.forEach((page) => {
+      if (page.sections) {
+        page.sections.forEach((section) => {
+          if (section.reference && section.reference.form === alias) {
+            // resolve referenced component section
+            let resolvedFormSection = getReferencedFormSection(section, component);
+            // add resulting referenced component section to section
+            Object.assign(section, resolvedFormSection);
+          }
+        });
+      }
+    });
   });
 }
 
-function loadFormComponents2(schema: Object): Array<any> {
-  const referencedObjects: Array<any> = [];
-  this.extractPlaceholderObjects(schema, referencedObjects);
-  return referencedObjects;
-}
+function getReferencedFormSection(formSection: OHRIFormSection, formComponent: OHRIFormSchema): OHRIFormSection {
+  let referencedFormSection: OHRIFormSection;
 
-function extractPlaceholderObjects(subSchema: any, objectsArray: Array<Object>): void {
-  if (!subSchema) {
-    return;
-  }
-  if (Array.isArray(subSchema)) {
-    for (let i = 0; i < subSchema.length; i++) {
-      if (subSchema[i]) {
-        this.extractPlaceholderObjects(subSchema[i], objectsArray);
-      }
-    }
-  } else if (typeof subSchema === 'object') {
-    if (subSchema.reference) {
-      objectsArray.push(subSchema);
-    } else if (this.isSchemaSubObjectExpandable(subSchema)) {
-      const toExpand = subSchema.pages || subSchema.sections || subSchema.questions;
-      this.extractPlaceholderObjects(toExpand, objectsArray);
+  // search for component page and section reference from component
+  let matchingComponentPage = formComponent.pages.filter((page) => page.label === formSection.reference.page);
+  if (matchingComponentPage.length > 0) {
+    let matchingComponentSection = matchingComponentPage[0].sections.filter(
+      (componentSection) => componentSection.label === formSection.reference.section,
+    );
+    if (matchingComponentSection.length > 0) {
+      referencedFormSection = matchingComponentSection[0];
     }
   }
+
+  return filterExcludedQuestions(referencedFormSection);
 }
 
-function fillPlaceholderObject(placeHolderObject: Object, referenceObject: Object): Object {
-  for (const member in referenceObject) {
-    if (!placeHolderObject[member]) {
-      placeHolderObject[member] = referenceObject[member];
-    }
-  }
-  return placeHolderObject;
-}
-
-function replaceAllPlaceholdersWithActualObjects(
-  keyValReferencedForms: Object,
-  placeHoldersArray: Array<any>,
-): Array<any> {
-  placeHoldersArray.forEach((placeHolder) => {
-    const referencedObject: Object = this.getReferencedObject(placeHolder.reference, keyValReferencedForms);
-
-    if (referencedObject) {
-      console.error('Form compile: Error finding referenced object', placeHolder.reference);
-    } else {
-      placeHolder = this.fillPlaceholderObject(placeHolder, referencedObject);
-      placeHolder = this.removeExcludedQuestionsFromPlaceholder(placeHolder);
-      delete placeHolder['reference'];
-    }
-  });
-  return placeHoldersArray;
-}
-
-function removeObjectFromArray(array: Array<any>, object: Object): void {
-  const indexOfObject = array.indexOf(object);
-  if (indexOfObject === -1) {
-    return;
-  }
-
-  array.splice(indexOfObject, 1);
-}
-
-function removeExcludedQuestionsFromPlaceholder(placeHolder: any): Object {
-  if (Array.isArray(placeHolder.reference.excludeQuestions)) {
-    placeHolder.reference.excludeQuestions.forEach((excludedQuestionId) => {
-      const questionsArray: Array<any> = this.getQuestionsArrayByQuestionIdInSchema(placeHolder, excludedQuestionId);
-
-      if (!Array.isArray(questionsArray)) {
-        return;
-      }
-      const question = this.getQuestionByIdInSchema(questionsArray, excludedQuestionId);
-
-      this.removeObjectFromArray(questionsArray, question);
+function filterExcludedQuestions(formSection: OHRIFormSection): OHRIFormSection {
+  if (formSection.reference.excludeQuestions) {
+    const excludeQuestions = formSection.reference.excludeQuestions;
+    formSection.questions = formSection.questions.filter((question) => {
+      return !excludeQuestions.includes(question.id);
     });
   }
-  return placeHolder;
-}
+  // delete reference from section
+  delete formSection.reference;
 
-function getReferencedObject(referenceData: any, keyValReferencedForms: Object): Object {
-  if (referenceData.form) {
-    console.error('Form compile: reference missing form attribute', referenceData);
-    return;
-  }
-  if (keyValReferencedForms[referenceData.form]) {
-    console.error('Form compile: referenced form alias not found', referenceData);
-    return;
-  }
-  if (!referenceData.questionId) {
-    return this.getQuestionByIdInSchema(keyValReferencedForms[referenceData.form], referenceData.questionId);
-  }
-
-  if (!referenceData.page && !referenceData.section) {
-    return this.getSectionInSchemaByPageLabelBySectionLabel(
-      keyValReferencedForms[referenceData.form],
-      referenceData.page,
-      referenceData.section,
-    );
-  }
-  if (!referenceData.page) {
-    return this.getPageInSchemaByLabel(keyValReferencedForms[referenceData.form], referenceData.page);
-  }
-  console.error('Form compile: Unsupported reference type', referenceData.reference);
+  return formSection;
 }
