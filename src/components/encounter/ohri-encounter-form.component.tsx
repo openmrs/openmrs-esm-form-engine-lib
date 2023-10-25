@@ -154,7 +154,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     flattenedFields,
     encounter,
     encounterContext,
-    formFieldHandlers || {},
+    formFieldHandlers,
   );
 
   // look up concepts via their references
