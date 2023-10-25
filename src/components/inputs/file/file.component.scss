@@ -16,10 +16,11 @@
 }
 
 .Caption{
-    display: flex;
+  display: flex;
 }
+
 .closeIcon{
-    margin: 0 1rem;
+  margin: 0 1rem;
 }
 
 .uploadSelector{
@@ -79,3 +80,17 @@
   line-height: 1.28572;
   margin-bottom: 1rem;
 };
+.editModeImage{
+  background-color: white;
+  padding: 1rem;
+}
+
+.pdfThumbnail {
+  cursor: pointer;
+  background-color: gray;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 5rem;
+  height: 5rem;
+}

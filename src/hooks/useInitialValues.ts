@@ -22,11 +22,11 @@ export function useInitialValues(
   useEffect(() => {
     const asyncItemsKeys = Object.keys(asyncInitValues ?? {});
     if (asyncItemsKeys.length) {
-      Promise.all(asyncItemsKeys.map(key => asyncInitValues[key])).then(results => {
+      Promise.all(asyncItemsKeys.map((key) => asyncInitValues[key])).then((results) => {
         asyncItemsKeys.forEach((key, index) => {
           const result = isEmpty(results[index]) ? '' : results[index];
           initialValues[key] = result;
-          const field = formFields.find(field => field.id === key);
+          const field = formFields.find((field) => field.id === key);
           try {
             if (!isEmpty(result)) {
               formFieldHandlers[field.type].handleFieldSubmission(field, result, encounterContext);
@@ -52,13 +52,15 @@ export function useInitialValues(
     };
     if (encounter) {
       formFields
-        .filter(field => isEmpty(field.value))
-        .forEach(field => {
+        .filter((field) => isEmpty(field.value))
+        .filter((field) => field.questionOptions.rendering !== 'file')
+        .forEach((field) => {
           if (hasRendering(field, 'repeating')) {
             !field.questionOptions.repeatOptions?.isCloned && repeatableFields.push(field);
             return;
           }
           let existingVal = formFieldHandlers[field.type]?.getInitialValue(encounter, field, formFields);
+
           if (isEmpty(existingVal) && !isEmpty(field.questionOptions.defaultValue)) {
             existingVal = inferInitialValueFromDefaultFieldValue(
               field,
@@ -69,21 +71,22 @@ export function useInitialValues(
           initialValues[field.id] = isEmpty(existingVal)
             ? emptyValues[field.questionOptions.rendering] ?? emptyValues.default
             : existingVal;
+
           if (field.unspecified) {
             initialValues[`${field.id}-unspecified`] = !!!existingVal;
           }
         });
-      const flatenedFields = repeatableFields.flatMap(field => {
+      const flatenedFields = repeatableFields.flatMap((field) => {
         let counter = 1;
         const unMappedGroups = encounter.obs.filter(
-          obs =>
+          (obs) =>
             obs.concept.uuid === field.questionOptions.concept &&
             obs.uuid != field.value?.uuid &&
             !assignedObsIds.includes(obs.uuid),
         );
-        return unMappedGroups.flatMap(group => {
+        return unMappedGroups.flatMap((group) => {
           const clone = cloneObsGroup(field, group, counter++);
-          clone.questions.forEach(childField => {
+          clone.questions.forEach((childField) => {
             initialValues[childField.id] = formFieldHandlers[field.type].getInitialValue(
               { obs: [group] },
               childField,
@@ -101,8 +104,10 @@ export function useInitialValues(
     } else {
       const tempAsyncValues = {};
       formFields
-        .filter(field => field.questionOptions.rendering !== 'repeating' && field.questionOptions.rendering !== 'group')
-        .forEach(field => {
+        .filter(
+          (field) => field.questionOptions.rendering !== 'repeating' && field.questionOptions.rendering !== 'group',
+        )
+        .forEach((field) => {
           let value = null;
           if (field.questionOptions.calculate && !asyncInitValues?.[field.id] && !tempAsyncValues[field.id]) {
             // evaluate initial value from calculate expression
@@ -132,6 +137,39 @@ export function useInitialValues(
       setAsyncInitValues({ ...(asyncInitValues ?? {}), ...tempAsyncValues });
     }
     setInitialValues({ ...initialValues });
+  }, [encounter]);
+
+  useEffect(() => {
+    const emptyValues = {
+      checkbox: [],
+      toggle: false,
+      default: '',
+    };
+    const attachmentFields = formFields.filter((field) => field.questionOptions.rendering === 'file');
+
+    if (attachmentFields.length) {
+      if (encounter) {
+        Promise.all(
+          attachmentFields.map((field) => {
+            return formFieldHandlers[field.type]?.getInitialValue(encounter, field, formFields);
+          }),
+        ).then((responses) => {
+          responses.forEach((responseValue, index) => {
+            const eachField = attachmentFields[index];
+
+            const filteredResponseValue = responseValue['results'].filter(
+              (eachResponse) => eachResponse.comment === eachField.id,
+            );
+
+            initialValues[eachField.id] = isEmpty(responseValue)
+              ? emptyValues[eachField.questionOptions.rendering] ?? emptyValues.default
+              : filteredResponseValue;
+
+            setInitialValues({ ...initialValues });
+          });
+        });
+      }
+    }
   }, [encounter]);
 
   return {

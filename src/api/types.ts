@@ -11,7 +11,12 @@ export interface SubmissionHandler {
    *
    * @returns the `initialValue`
    */
-  getInitialValue: (encounter: OpenmrsEncounter, field: OHRIFormField, allFormFields?: Array<OHRIFormField>) => {};
+  getInitialValue: (
+    encounter: OpenmrsEncounter,
+    field: OHRIFormField,
+    allFormFields?: Array<OHRIFormField>,
+    context?: EncounterContext,
+  ) => {};
 
   /**
    * Handles field submission.
@@ -165,7 +170,7 @@ export interface OHRIFormQuestionOptions {
   isDateTime?: { labelTrue: boolean; labelFalse: boolean };
   usePreviousValueDisabled?: boolean;
   allowedFileTypes?: Array<string>;
-  allowMultiple?: boolean; //Allow Single File Attachments  and Multiple file attachments
+  allowMultiple?: boolean;
   datasource?: { name: string; config?: Record<string, any> };
   isSearchable?: boolean;
 }
@@ -188,7 +193,7 @@ export type RenderType =
   | 'textarea'
   | 'toggle'
   | 'fixed-value'
-  | 'file'; //allow the form engine to recognize and handle the new file component
+  | 'file';
 
 export interface PostSubmissionAction {
   applyAction(
@@ -272,4 +277,22 @@ export interface ControlTemplate {
 export interface DataSourceParameters {
   name: string;
   config?: Record<string, any>;
+}
+
+export interface AttachmentResponse {
+  bytesContentFamily: string;
+  bytesMimeType: string;
+  comment: string;
+  dateTime: string;
+  uuid: string;
+}
+
+export interface Attachment {
+  id: string;
+  src: string;
+  title: string;
+  description: string;
+  dateTime: string;
+  bytesMimeType: string;
+  bytesContentFamily: string;
 }

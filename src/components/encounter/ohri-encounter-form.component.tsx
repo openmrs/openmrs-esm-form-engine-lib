@@ -87,6 +87,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const [obsGroupsToVoid, setObsGroupsToVoid] = useState([]);
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
+  const [initValues, setInitValues] = useState({});
   const layoutType = useLayoutType();
 
   const encounterContext = useMemo(
@@ -100,8 +101,9 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       form: form,
       visit: visit,
       setEncounterDate,
+      initValues: initValues,
     }),
-    [encounter, form?.encounter, location, patient, previousEncounter, sessionMode],
+    [encounter, form?.encounter, location, patient, previousEncounter, sessionMode, initValues],
   );
   const { encounterRole } = useEncounterRole();
 
@@ -109,9 +111,9 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const [flattenedFields, conceptReferences] = useMemo(() => {
     const flattenedFieldsTemp = [];
     const conceptReferencesTemp = new Set<string>();
-    form.pages?.forEach(page =>
-      page.sections?.forEach(section => {
-        section.questions?.forEach(question => {
+    form.pages?.forEach((page) =>
+      page.sections?.forEach((section) => {
+        section.questions?.forEach((question) => {
           // explicitly set blank values to null
           // TODO: shouldn't we be setting to the default behaviour?
           section.inlineRendering = isEmpty(section.inlineRendering) ? null : section.inlineRendering;
@@ -124,7 +126,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           }
           flattenedFieldsTemp.push(question);
           if (question.type == 'obsGroup') {
-            question.questions.forEach(groupedField => {
+            question.questions.forEach((groupedField) => {
               // set group id
               groupedField['groupId'] = question.id;
               flattenedFieldsTemp.push(groupedField);
@@ -133,12 +135,12 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         });
       }),
     );
-    flattenedFieldsTemp.forEach(field => {
+    flattenedFieldsTemp.forEach((field) => {
       if (field.questionOptions?.concept) {
         conceptReferencesTemp.add(field.questionOptions.concept);
       }
       if (field.questionOptions?.answers) {
-        field.questionOptions.answers.forEach(answer => {
+        field.questionOptions.answers.forEach((answer) => {
           if (answer.concept) {
             conceptReferencesTemp.add(answer.concept);
           }
@@ -157,17 +159,23 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     formFieldHandlers,
   );
 
+  useEffect(() => {
+    if (tempInitialValues) {
+      setInitValues(tempInitialValues);
+    }
+  }, [tempInitialValues]);
+
   // look up concepts via their references
   const { concepts, isLoading: isLoadingConcepts } = useConcepts(conceptReferences);
 
   const addScrollablePages = useCallback(() => {
-    formJson.pages.forEach(page => {
+    formJson.pages.forEach((page) => {
       if (!page.isSubform) {
         scrollablePages.add(page);
       }
     });
     return () => {
-      formJson.pages.forEach(page => {
+      formJson.pages.forEach((page) => {
         if (!page.isSubform) {
           scrollablePages.delete(page);
         }
@@ -187,15 +195,15 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   useEffect(() => {
     if (Object.keys(tempInitialValues ?? {}).length && !isFieldInitializationComplete) {
       setFields(
-        flattenedFields.map(field => {
+        flattenedFields.map((field) => {
           if (field.hide) {
             evalHide({ value: field, type: 'field' }, flattenedFields, tempInitialValues);
           } else {
             field.isHidden = false;
           }
           field.questionOptions.answers
-            ?.filter(answer => !isEmpty(answer.hide?.hideWhenExpression))
-            .forEach(answer => {
+            ?.filter((answer) => !isEmpty(answer.hide?.hideWhenExpression))
+            .forEach((answer) => {
               answer.isHidden = evaluateExpression(
                 answer.hide.hideWhenExpression,
                 { value: field, type: 'field' },
@@ -242,7 +250,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           field.questionOptions.concept = matchingConcept ? matchingConcept.uuid : field.questionOptions.concept;
           field.label = field.label ? field.label : matchingConcept?.display;
           if (field.questionOptions.answers) {
-            field.questionOptions.answers = field.questionOptions.answers.map(answer => {
+            field.questionOptions.answers = field.questionOptions.answers.map((answer) => {
               const matchingAnswerConcept = findConceptByReference(answer.concept, concepts);
               return {
                 ...answer,
@@ -256,13 +264,13 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         }),
       );
 
-      form?.pages?.forEach(page => {
+      form?.pages?.forEach((page) => {
         if (page.hide) {
           evalHide({ value: page, type: 'page' }, flattenedFields, tempInitialValues);
         } else {
           page.isHidden = false;
         }
-        page?.sections?.forEach(section => {
+        page?.sections?.forEach((section) => {
           if (section.hide) {
             evalHide({ value: section, type: 'section' }, flattenedFields, tempInitialValues);
           } else {
@@ -280,7 +288,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
 
   useEffect(() => {
     if (sessionMode == 'enter' && !isTrue(formJson.formOptions?.usePreviousValueDisabled)) {
-      getPreviousEncounter(patient?.id, formJson?.encounterType).then(data => {
+      getPreviousEncounter(patient?.id, formJson?.encounterType).then((data) => {
         setPreviousEncounter(data);
         setIsLoadingPreviousEncounter(false);
       });
@@ -303,13 +311,13 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     });
     node.value.isHidden = isHidden;
     if (type == 'field' && node.value?.questions?.length) {
-      node.value?.questions.forEach(question => {
+      node.value?.questions.forEach((question) => {
         question.isParentHidden = isHidden;
       });
     }
     // cascade visibility
     if (type == 'page') {
-      value['sections'].forEach(section => {
+      value['sections'].forEach((section) => {
         section.isParentHidden = isHidden;
         cascadeVisibityToChildFields(isHidden, section, allFields, obsGroupsToVoid, setFieldValue);
       });
@@ -321,11 +329,11 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
 
   const addObs = useCallback((obsList: Array<any>, obs: any) => {
     if (Array.isArray(obs)) {
-      obs.forEach(o => {
+      obs.forEach((o) => {
         if (isValueEmpty(o.groupMembers)) {
           delete o.groupMembers;
         } else {
-          o.groupMembers.forEach(obsChild => {
+          o.groupMembers.forEach((obsChild) => {
             if (isValueEmpty(obsChild.groupMembers)) {
               delete obsChild.groupMembers;
             }
@@ -337,7 +345,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       if (isValueEmpty(obs.groupMembers)) {
         delete obs.groupMembers;
       } else {
-        obs.groupMembers.forEach(obsChild => {
+        obs.groupMembers.forEach((obsChild) => {
           if (isValueEmpty(obsChild.groupMembers)) {
             delete obsChild.groupMembers;
           }
@@ -373,16 +381,16 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   }, [invalidFields]);
 
   const validate = useCallback(
-    values => {
+    (values) => {
       let errorFields = [];
       let formHasErrors = false;
       // handle field validation
       fields
-        .filter(field => !field.isParentHidden && !field.disabled && !field.isHidden && !isTrue(field.readonly))
-        .filter(field => field['submission']?.unspecified != true)
-        .forEach(field => {
+        .filter((field) => !field.isParentHidden && !field.disabled && !field.isHidden && !isTrue(field.readonly))
+        .filter((field) => field['submission']?.unspecified != true)
+        .forEach((field) => {
           const errors =
-            OHRIFieldValidator.validate(field, values[field.id]).filter(error => error.resultType == 'error') ?? [];
+            OHRIFieldValidator.validate(field, values[field.id]).filter((error) => error.resultType == 'error') ?? [];
           if (errors.length) {
             errorFields.push(field);
             field['submission'] = {
@@ -403,12 +411,12 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const handleFormSubmit = (values: Record<string, any>) => {
     const obsForSubmission = [];
     fields
-      .filter(field => field.value || field.type == 'obsGroup') // filter out fields with empty values except groups
-      .filter(field => !field.isParentHidden && !field.isHidden && (field.type == 'obs' || field.type == 'obsGroup'))
-      .filter(field => !field['groupId']) // filter out grouped obs
-      .filter(field => field.questionOptions.rendering !== 'file')
-      .filter(field => !field.questionOptions.isTransient) //filter out fields marked as transient
-      .forEach(field => {
+      .filter((field) => field.value || field.type == 'obsGroup') // filter out fields with empty values except groups
+      .filter((field) => !field.isParentHidden && !field.isHidden && (field.type == 'obs' || field.type == 'obsGroup'))
+      .filter((field) => !field['groupId']) // filter out grouped obs
+      .filter((field) => field.questionOptions.rendering !== 'file')
+      .filter((field) => !field.questionOptions.isTransient && field.questionOptions.rendering !== 'file')
+      .forEach((field) => {
         if (field.type == 'obsGroup') {
           const obsGroup = {
             person: patient?.id,
@@ -421,7 +429,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             voided: false,
           };
           let hasValue = false;
-          field.questions.forEach(groupedField => {
+          field.questions.forEach((groupedField) => {
             if (groupedField.value) {
               hasValue = true;
               if (Array.isArray(groupedField.value)) {
@@ -438,15 +446,16 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       });
 
     // Add voided obs groups
-    obsGroupsToVoid.forEach(obs => addObs(obsForSubmission, obs));
+    obsGroupsToVoid.forEach((obs) => addObs(obsForSubmission, obs));
     let encounterForSubmission: OpenmrsEncounter = {};
     if (encounter) {
       Object.assign(encounterForSubmission, encounter);
       encounterForSubmission['location'] = encounterLocation.uuid;
       // update encounter providers
       const hasCurrentProvider =
-        encounterForSubmission['encounterProviders'].findIndex(encProvider => encProvider.provider.uuid == provider) !==
-        -1;
+        encounterForSubmission['encounterProviders'].findIndex(
+          (encProvider) => encProvider.provider.uuid == provider,
+        ) !== -1;
       if (!hasCurrentProvider) {
         encounterForSubmission['encounterProviders'] = [
           ...encounterForSubmission.encounterProviders,
@@ -486,17 +495,17 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {
       const ac = new AbortController();
       return saveEncounter(ac, encounterForSubmission, encounter?.uuid)
-        .then(response => response.json())
-        .then(encounter => {
+        .then((response) => response.data)
+        .then((encounter) => {
           fields
-            ?.filter(field => field?.questionOptions.rendering === 'file')
-            .forEach(field => {
-              saveAttachment(
-                encounter.patient.uuid,
-                field?.value?.value,
+            ?.filter((field) => field?.questionOptions.rendering === 'file')
+            .forEach((field) => {
+              return saveAttachment(
+                encounter?.patient.uuid,
+                field,
                 field?.questionOptions.concept,
                 new Date().toISOString(),
-                encounter.uuid,
+                encounter?.uuid,
                 ac,
               );
             });
@@ -510,7 +519,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     setErrors: (errors: Array<ValidationResult>) => void,
     setWarnings: (warnings: Array<ValidationResult>) => void,
   ) => {
-    const field = fields.find(field => field.id == fieldName);
+    const field = fields.find((field) => field.id == fieldName);
     const validators = Array.isArray(field.validators)
       ? [{ type: 'default' }, ...field.validators]
       : [{ type: 'default' }];
@@ -528,22 +537,22 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           ...basevalidatorConfig,
           ...validatorConfig,
         }) || [];
-      errors.push(...errorsAndWarinings.filter(error => error.resultType == 'error'));
-      warnings.push(...errorsAndWarinings.filter(error => error.resultType == 'warning'));
+      errors.push(...errorsAndWarinings.filter((error) => error.resultType == 'error'));
+      warnings.push(...errorsAndWarinings.filter((error) => error.resultType == 'warning'));
     }
     setErrors?.(errors);
     setWarnings?.(warnings);
     if (errors.length) {
-      setInvalidFields(invalidFields => [...invalidFields, field]);
+      setInvalidFields((invalidFields) => [...invalidFields, field]);
     } else {
-      setInvalidFields(invalidFields => invalidFields.filter(item => item !== field));
+      setInvalidFields((invalidFields) => invalidFields.filter((item) => item !== field));
     }
     if (field.questionOptions.rendering == 'toggle') {
       value = value ? ConceptTrue : ConceptFalse;
     }
     if (field.fieldDependants) {
-      field.fieldDependants.forEach(dep => {
-        const dependant = fields.find(f => f.id == dep);
+      field.fieldDependants.forEach((dep) => {
+        const dependant = fields.find((f) => f.id == dep);
         // evaluate calculated value
         if (dependant.questionOptions.calculate?.calculateExpression) {
           evaluateAsyncExpression(
@@ -555,7 +564,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
               mode: sessionMode,
               patient,
             },
-          ).then(result => {
+          ).then((result) => {
             result = isEmpty(result) ? '' : result;
             values[dependant.id] = result;
             setFieldValue(dependant.id, result);
@@ -568,8 +577,8 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           voidObsValueOnFieldHidden(dependant, obsGroupsToVoid, setFieldValue);
         }
         dependant?.questionOptions.answers
-          ?.filter(answer => !isEmpty(answer.hide?.hideWhenExpression))
-          .forEach(answer => {
+          ?.filter((answer) => !isEmpty(answer.hide?.hideWhenExpression))
+          .forEach((answer) => {
             answer.isHidden = evaluateExpression(
               answer.hide?.hideWhenExpression,
               { value: dependant, type: 'field' },
@@ -623,19 +632,19 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           });
         }
         let fields_temp = [...fields];
-        const index = fields_temp.findIndex(f => f.id == dep);
+        const index = fields_temp.findIndex((f) => f.id == dep);
         fields_temp[index] = dependant;
         setFields(fields_temp);
       });
     }
     if (field.sectionDependants) {
-      field.sectionDependants.forEach(dependant => {
+      field.sectionDependants.forEach((dependant) => {
         for (let i = 0; i < form.pages.length; i++) {
           const section = form.pages[i].sections.find((section, _sectionIndex) => section.label == dependant);
           if (section) {
             evalHide({ value: section, type: 'section' }, fields, { ...values, [fieldName]: value });
             if (isTrue(section.isHidden)) {
-              section.questions.forEach(field => {
+              section.questions.forEach((field) => {
                 field.isParentHidden = true;
                 voidObsValueOnFieldHidden(field, obsGroupsToVoid, setFieldValue);
               });
@@ -646,19 +655,19 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       });
     }
     if (field.pageDependants) {
-      field.pageDependants?.forEach(dep => {
-        const dependant = form.pages.find(f => f.label == dep);
+      field.pageDependants?.forEach((dep) => {
+        const dependant = form.pages.find((f) => f.label == dep);
         evalHide({ value: dependant, type: 'page' }, fields, { ...values, [fieldName]: value });
         if (isTrue(dependant.isHidden)) {
-          dependant.sections.forEach(section => {
-            section.questions.forEach(field => {
+          dependant.sections.forEach((section) => {
+            section.questions.forEach((field) => {
               field.isParentHidden = true;
               voidObsValueOnFieldHidden(field, obsGroupsToVoid, setFieldValue);
             });
           });
         }
         let form_temp = form;
-        const index = form_temp.pages.findIndex(page => page.label == dep);
+        const index = form_temp.pages.findIndex((page) => page.label == dep);
         form_temp[index] = dependant;
         setForm(form_temp);
       });
@@ -688,8 +697,8 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       <InstantEffect effect={addScrollablePages} />
       {form.pages.map((page, index) => {
         const pageHasNoVisibleContent =
-          page.sections.every(section => section.isHidden) ||
-          page.sections.every(section => section.questions.every(question => question.isHidden)) ||
+          page.sections.every((section) => section.isHidden) ||
+          page.sections.every((section) => section.questions.every((question) => question.isHidden)) ||
           isTrue(page.isHidden);
 
         if (!page.isSubform && pageHasNoVisibleContent) {

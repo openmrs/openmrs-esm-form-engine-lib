@@ -7,12 +7,12 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import Camera from '../camera/camera.component';
-import { Close } from '@carbon/react/icons';
+import { Close, DocumentPdf } from '@carbon/react/icons';
 import styles from './file.component.scss';
-import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
+import { createGalleryEntry } from '../../../utils/common-utils';
 
 interface FileProps extends OHRIFormFieldProps {}
-type AllowedModes = 'uploader' | 'camera' | '';
+type AllowedModes = 'uploader' | 'camera' | 'edit' | '';
 
 const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
   const { t } = useTranslation();
@@ -23,6 +23,30 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [conceptName, setConceptName] = useState('Loading...');
   const [uploadMode, setUploadMode] = useState<AllowedModes>('');
+
+  useEffect(() => {
+    if (encounterContext.sessionMode === 'edit') {
+      setUploadMode('edit');
+    }
+  }, []);
+
+  const myInitVal = useMemo(() => {
+    const initialValuesObject = encounterContext.initValues;
+    const attachmentValue = Object.keys(initialValuesObject)
+      .filter((key) => key === question.id)
+      .reduce((cur, key) => {
+        return Object.assign(cur, { [key]: initialValuesObject[key] });
+      }, {});
+    return attachmentValue;
+  }, [encounterContext]);
+
+  const attachmentValue = useMemo(() => {
+    const firstValue = Object?.values(myInitVal)[0];
+    if (firstValue) {
+      const attachment = createGalleryEntry(firstValue?.[0]);
+      return attachment;
+    }
+  }, [myInitVal]);
 
   const isInline = useMemo(() => {
     if (encounterContext.sessionMode == 'view' || isTrue(question.readonly)) {
@@ -44,7 +68,7 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
     const [newSelectedFiles]: File[] = Array.from(event.target.files);
     setSelectedFiles(newSelectedFiles);
     setImagePreview(null);
-    setFieldValue(question.id, newSelectedFiles); // Update form field value
+    setFieldValue(question.id, newSelectedFiles);
     question.value = handler?.handleFieldSubmission(question, newSelectedFiles, encounterContext);
   };
 
@@ -77,18 +101,42 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
           </Button>
         </div>
       </div>
+      <div className={styles.editModeImage}>
+        <div className={styles.imageContent}>
+          {attachmentValue.bytesContentFamily === 'PDF' ? (
+            <div className={styles.pdfThumbnail} role="button" tabIndex={0}>
+              <DocumentPdf size={24} />
+            </div>
+          ) : (
+            <img src={attachmentValue.src} alt="Preview" width="200px" />
+          )}
+        </div>
+      </div>
     </div>
   ) : (
     <div>
       <div className={styles.label}>{question.label}</div>
       <div className={styles.uploadSelector}>
         <div className={styles.selectorButton}>
-          <Button onClick={() => setUploadMode('uploader')}>Upload image</Button>
+          <Button onClick={() => setUploadMode('uploader')}>Upload file</Button>
         </div>
         <div className={styles.selectorButton}>
           <Button onClick={() => setUploadMode('camera')}>Camera capture</Button>
         </div>
       </div>
+      {uploadMode === 'edit' && attachmentValue && (
+        <div className={styles.editModeImage}>
+          <div className={styles.imageContent}>
+            {attachmentValue.bytesContentFamily === 'PDF' ? (
+              <div className={styles.pdfThumbnail} role="button" tabIndex={0}>
+                <DocumentPdf size={24} />
+              </div>
+            ) : (
+              <img src={attachmentValue.src} alt="Preview" width="200px" />
+            )}
+          </div>
+        </div>
+      )}
       {uploadMode === 'uploader' && (
         <div className={styles.fileUploader}>
           <FileUploader
@@ -100,7 +148,7 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
             labelDescription={labelDescription}
             labelTitle={t('fileUploadTitle', 'Upload')}
             multiple={question.questionOptions.allowMultiple}
-            onChange={handleFileChange} // Use handleFileChange to update selectedFiles
+            onChange={handleFileChange}
           />
         </div>
       )}

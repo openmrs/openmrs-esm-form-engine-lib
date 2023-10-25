@@ -18,14 +18,14 @@ export function saveEncounter(abortController: AbortController, payload, encount
   });
 }
 
-export function saveAttachment(patientUuid, content, conceptUuid, date, encounterUUID, abortController) {
+export function saveAttachment(patientUuid, field, conceptUuid, date, encounterUUID, abortController) {
   const url = '/ws/rest/v1/attachment';
 
+  const content = field?.value.value;
+  const cameraUploadType = typeof content === 'string' && content?.split(';')[0].split(':')[1].split('/')[1];
+
   const formData = new FormData();
-
-  const cameraUploadType = content?.split(';')[0].split(':')[1].split('/')[1];
-
-  const fileCaption = typeof content === 'object' ? content.name : `camera-upload.${cameraUploadType}`;
+  const fileCaption = field.id;
 
   formData.append('fileCaption', fileCaption);
   formData.append('patient', patientUuid);
@@ -36,22 +36,21 @@ export function saveAttachment(patientUuid, content, conceptUuid, date, encounte
     formData.append('file', new File([''], `camera-upload.${cameraUploadType}`), `camera-upload.${cameraUploadType}`);
     formData.append('base64Content', content);
   }
-  formData.append(
-    'json',
-    JSON.stringify({
-      person: patientUuid,
-      concept: conceptUuid,
-      groupMembers: [],
-      obsDatetime: date,
-      encounter: encounterUUID,
-    }),
-  );
+  formData.append('encounter', encounterUUID);
+  formData.append('obsDatetime', date);
 
   return openmrsFetch(url, {
     method: 'POST',
     signal: abortController.signal,
     body: formData,
   });
+}
+
+export function getAttachmentByUuid(patientUuid: string, encounterUuid: string, abortController: AbortController) {
+  const attachmentUrl = '/ws/rest/v1/attachment';
+  return openmrsFetch(`${attachmentUrl}?patient=${patientUuid}&encounter=${encounterUuid}`, {
+    signal: abortController.signal,
+  }).then((response) => response.data);
 }
 
 export function getConcept(conceptUuid: string, v: string): Observable<any> {
