@@ -416,7 +416,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             location: encounterLocation,
             order: null,
             groupMembers: [],
-            uuid: field?.value?.uuid,
+            uuid: encounter?.obs?.find(m => m.concept.uuid == field.questionOptions.concept)?.uuid,
             voided: false,
           };
           let hasValue = false;
