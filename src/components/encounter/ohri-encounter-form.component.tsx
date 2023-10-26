@@ -409,6 +409,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       .filter(field => !field.questionOptions.isTransient) //filter out fields marked as transient
       .forEach(field => {
         if (field.type == 'obsGroup') {
+          const obsGroupUuid = encounter?.obs?.find(m => m.concept.uuid == field.questionOptions.concept)?.uuid
           const obsGroup = {
             person: patient?.id,
             obsDatetime: encounterDate,
@@ -416,7 +417,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             location: encounterLocation,
             order: null,
             groupMembers: [],
-            uuid: field?.value?.uuid,
+            uuid: obsGroupUuid,
             voided: false,
           };
           let hasValue = false;
