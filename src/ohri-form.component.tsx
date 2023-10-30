@@ -201,15 +201,28 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
           // Post Submission Actions
           if (postSubmissionHandlers) {
             await Promise.all(
-              postSubmissionHandlers.map(({ postAction, config }) => {
-                postAction.applyAction(
-                  {
-                    patient,
-                    sessionMode,
-                    encounters: results.map(encounterResult => encounterResult.data),
-                  },
-                  config,
-                );
+              postSubmissionHandlers.map(async ({ postAction, config, actionId }) => {
+                try {
+                  await postAction.applyAction(
+                    {
+                      patient,
+                      sessionMode,
+                      encounters: results.map(encounterResult => encounterResult.data),
+                    },
+                    config,
+                  );
+                } catch (error) {
+                  const errorMessages = extractErrorMessagesFromResponse(error);
+                  showToast({
+                    description: t('errorDescription', errorMessages.join(', ')),
+                    title: t(
+                      'errorDescriptionTitle',
+                      actionId ? actionId.replace(/([a-z])([A-Z])/g, '$1 $2') : 'Post Submission Error',
+                    ),
+                    kind: 'error',
+                    critical: true,
+                  });
+                }
               }),
             );
           }
