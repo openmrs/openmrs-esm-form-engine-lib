@@ -125,9 +125,9 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           flattenedFieldsTemp.push(question);
           if (question.type == 'obsGroup') {
             question.questions.forEach(groupedField => {
-          if (groupedField.questionOptions.rendering == 'fixed-value' && !groupedField['fixedValue']) {
-            groupedField['fixedValue'] = groupedField.value;
-          }
+            if (groupedField.questionOptions.rendering == 'fixed-value' && !groupedField['fixedValue']) {
+              groupedField['fixedValue'] = groupedField.value;
+            }
               // set group id
               groupedField['groupId'] = question.id;
               flattenedFieldsTemp.push(groupedField);
