@@ -24,7 +24,7 @@ export function hasRendering(field: OHRIFormField, rendering: RenderType) {
   return field.questionOptions.rendering === rendering;
 }
 
-export function createGalleryEntry(data: AttachmentResponse): Attachment {
+export function createAttachment(data: AttachmentResponse): Attachment {
   const attachmentUrl = '/ws/rest/v1/attachment';
   return {
     id: data.uuid,

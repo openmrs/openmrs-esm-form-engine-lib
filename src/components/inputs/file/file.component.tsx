@@ -9,7 +9,7 @@ import { OHRIFormContext } from '../../../ohri-form-context';
 import Camera from '../camera/camera.component';
 import { Close, DocumentPdf } from '@carbon/react/icons';
 import styles from './file.component.scss';
-import { createGalleryEntry } from '../../../utils/common-utils';
+import { createAttachment } from '../../../utils/common-utils';
 
 interface FileProps extends OHRIFormFieldProps {}
 type AllowedModes = 'uploader' | 'camera' | 'edit' | '';
@@ -43,7 +43,7 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
   const attachmentValue = useMemo(() => {
     const firstValue = Object?.values(myInitVal)[0];
     if (firstValue) {
-      const attachment = createGalleryEntry(firstValue?.[0]);
+      const attachment = createAttachment(firstValue?.[0]);
       return attachment;
     }
   }, [myInitVal]);

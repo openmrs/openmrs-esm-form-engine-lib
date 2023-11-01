@@ -78,9 +78,7 @@ export class CommonExpressionHelpers {
   };
 
   addDaysToDate = (date: Date, days: number): Date => {
-    return dayjs(date)
-      .add(days, 'day')
-      .toDate();
+    return dayjs(date).add(days, 'day').toDate();
   };
 
   useFieldValue = (questionId: string) => {
@@ -240,7 +238,7 @@ export class CommonExpressionHelpers {
   };
 
   extractRepeatingGroupValues = (key: string | number | symbol, array: Record<string | number | symbol, unknown>[]) => {
-    const values = array.map(function(item) {
+    const values = array.map(function (item) {
       return item[key];
     });
     return values;
@@ -311,39 +309,4 @@ export function registerDependency(node: FormNode, determinant: OHRIFormField) {
       }
       determinant.fieldDependants.add(node.value['id']);
   }
-}
-
-export function dataURItoFile(dataURI: string) {
-  const byteString = atob(dataURI.split(',')[1]);
-  const mimeString = dataURI
-    .split(',')[0]
-    .split(':')[1]
-    .split(';')[0];
-
-  // write the bytes of the string to a typed array
-  const buffer = new Uint8Array(byteString.length);
-
-  for (let i = 0; i < byteString.length; i++) {
-    buffer[i] = byteString.charCodeAt(i);
-  }
-
-  const blob = new Blob([buffer], { type: mimeString });
-  return { blob, mimeString };
-}
-
-export function fileToBase64(fileObject) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      const base64String = reader.result;
-      resolve(base64String);
-    };
-
-    reader.onerror = error => {
-      reject(error);
-    };
-
-    reader.readAsDataURL(fileObject);
-  });
 }
