@@ -3,7 +3,7 @@ import { OHRIFormField, SubmissionHandler } from '../api/types';
 import { getRegisteredFieldSubmissionHandler } from '..';
 
 export function useFormFieldHandlers(fields: OHRIFormField[]) {
-  const [formFieldHandlers, setFormFieldHandlers] = useState<Record<string, SubmissionHandler>>();
+  const [formFieldHandlers, setFormFieldHandlers] = useState<Record<string, SubmissionHandler>>({});
 
   useEffect(() => {
     const supportedTypes = new Set<string>();

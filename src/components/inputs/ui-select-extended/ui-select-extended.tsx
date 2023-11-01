@@ -130,7 +130,7 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
                   // Carbon's initial call at component mount
                   return true;
                 }
-                return item.display.toLowerCase().includes(inputValue.toLowerCase());
+                return item.display?.toLowerCase().includes(inputValue.toLowerCase());
               }}
               onChange={({ selectedItem }) => {
                 isProcessingSelection.current = true;

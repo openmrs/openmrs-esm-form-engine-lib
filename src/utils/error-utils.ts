@@ -24,10 +24,16 @@ export function reportError(error: Error, t: TFunction): void {
  */
 export function extractErrorMessagesFromResponse(errorObject) {
   const fieldErrors = errorObject?.responseBody?.error?.fieldErrors;
+  const globalErrors = errorObject?.responseBody?.error?.globalErrors;
 
-  if (!fieldErrors) {
+  if ((!fieldErrors || Object.keys(fieldErrors).length === 0) && !globalErrors) {
     return [errorObject?.responseBody?.error?.message ?? errorObject?.message];
   }
 
-  return Object.values(fieldErrors).flatMap((errors: Array<Error>) => errors.map(error => error.message));
+  if(globalErrors){
+    return globalErrors.flatMap((error) => error.message);
+  }else{
+    return Object.values(fieldErrors).flatMap((errors: Array<Error>) => errors.map(error => error.message));
+  }
+  
 }

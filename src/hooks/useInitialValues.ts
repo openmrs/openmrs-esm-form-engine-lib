@@ -41,7 +41,7 @@ export function useInitialValues(
     } else if (asyncInitValues) {
       setHasResolvedCalculatedValues(true);
     }
-  }, [asyncInitValues]);
+  }, [asyncInitValues, formFieldHandlers]);
 
   useEffect(() => {
     const repeatableFields = [];
@@ -50,6 +50,9 @@ export function useInitialValues(
       toggle: false,
       default: '',
     };
+    if (!Object.keys(formFieldHandlers).length) {
+      return;
+    }
     if (encounter) {
       formFields
         .filter((field) => isEmpty(field.value))
@@ -137,7 +140,7 @@ export function useInitialValues(
       setAsyncInitValues({ ...(asyncInitValues ?? {}), ...tempAsyncValues });
     }
     setInitialValues({ ...initialValues });
-  }, [encounter]);
+  }, [encounter, formFieldHandlers]);
 
   useEffect(() => {
     const emptyValues = {
