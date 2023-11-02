@@ -20,10 +20,6 @@ import { mockPatient } from "../__mocks__/patient.mock";
 import { mockSessionDataResponse } from "../__mocks__/session.mock";
 import demoHtsOpenmrsForm from "../__mocks__/forms/omrs-forms/demo_hts-form.json";
 import demoHtsOhriForm from "../__mocks__/forms/ohri-forms/demo_hts-form.json";
-import { saveEncounter } from "./api/api";
-import { getLocale, openmrsFetch } from "@openmrs/esm-framework";
-import { ObsSubmissionHandler } from './submission-handlers/base-handlers';
-import { EncounterContext } from './ohri-form-context';
 
 import {
   assertFormHasAllFields,
