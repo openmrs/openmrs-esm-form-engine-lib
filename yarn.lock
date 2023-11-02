@@ -3123,6 +3123,7 @@ __metadata:
     react-scroll: ^1.8.2
     react-test-renderer: ^16.9.0
     react-waypoint: ^10.3.0
+    react-webcam: ^7.1.1
     rxjs: ^6.6.3
     semver: ^7.3.5
     swc-loader: ^0.2.3
@@ -15008,6 +15009,16 @@ __metadata:
   peerDependencies:
     react: ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
   checksum: 5a476432cd4a55ae022b33f82610a1addae92912ec88111cf33c17ef473bbbfc2c695714cb3bd60911259c92c5b6349f80033b022bf1e59e1a4be9b198a70a7a
+  languageName: node
+  linkType: hard
+
+"react-webcam@npm:^7.1.1":
+  version: 7.1.1
+  resolution: "react-webcam@npm:7.1.1"
+  peerDependencies:
+    react: ">=16.2.0"
+    react-dom: ">=16.2.0"
+  checksum: 98310037b477ff8a99ca9ee67151389cbc24fe1d3f2fd5ff8afabca7b703c88d8a4275d85c2f1a4ac428602f4e1f0f9375a23379efc88b6ed88cd25e988a4e65
   languageName: node
   linkType: hard
 

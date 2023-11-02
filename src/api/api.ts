@@ -7,6 +7,7 @@ import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
   const url = !!encounterUuid ? `/ws/rest/v1/encounter/${encounterUuid}?v=full` : `/ws/rest/v1/encounter?v=full`;
+
   return openmrsFetch(url, {
     headers: {
       'Content-Type': 'application/json',
@@ -17,8 +18,43 @@ export function saveEncounter(abortController: AbortController, payload, encount
   });
 }
 
+export function saveAttachment(patientUuid, field, conceptUuid, date, encounterUUID, abortController) {
+  const url = '/ws/rest/v1/attachment';
+
+  const content = field?.value.value;
+  const cameraUploadType = typeof content === 'string' && content?.split(';')[0].split(':')[1].split('/')[1];
+
+  const formData = new FormData();
+  const fileCaption = field.id;
+
+  formData.append('fileCaption', fileCaption);
+  formData.append('patient', patientUuid);
+
+  if (typeof content === 'object') {
+    formData.append('file', content);
+  } else {
+    formData.append('file', new File([''], `camera-upload.${cameraUploadType}`), `camera-upload.${cameraUploadType}`);
+    formData.append('base64Content', content);
+  }
+  formData.append('encounter', encounterUUID);
+  formData.append('obsDatetime', date);
+
+  return openmrsFetch(url, {
+    method: 'POST',
+    signal: abortController.signal,
+    body: formData,
+  });
+}
+
+export function getAttachmentByUuid(patientUuid: string, encounterUuid: string, abortController: AbortController) {
+  const attachmentUrl = '/ws/rest/v1/attachment';
+  return openmrsFetch(`${attachmentUrl}?patient=${patientUuid}&encounter=${encounterUuid}`, {
+    signal: abortController.signal,
+  }).then((response) => response.data);
+}
+
 export function getConcept(conceptUuid: string, v: string): Observable<any> {
-  return openmrsObservableFetch(`/ws/rest/v1/concept/${conceptUuid}?v=${v}`).pipe(map(response => response['data']));
+  return openmrsObservableFetch(`/ws/rest/v1/concept/${conceptUuid}?v=${v}`).pipe(map((response) => response['data']));
 }
 
 export function getLocationsByTag(tag: string): Observable<{ uuid: string; display: string }[]> {
@@ -32,7 +68,7 @@ export async function getPreviousEncounter(patientUuid: string, encounterType: s
   let response = await openmrsFetch(`/ws/fhir2/R4/Encounter?${query}`);
   if (response.data.entry.length) {
     const latestEncounter = response.data.entry[0].resource.id;
-    response = await openmrsFetch(`/ws/rest/v1/encounter/${latestEncounter}?v=${encounterRepresentation}`)
+    response = await openmrsFetch(`/ws/rest/v1/encounter/${latestEncounter}?v=${encounterRepresentation}`);
     return response.data;
   }
   return null;
@@ -100,4 +136,19 @@ export async function fetchClobData(form: OpenmrsForm): Promise<any | null> {
   const { data: clobDataResponse } = await openmrsFetch(clobDataUrl);
 
   return clobDataResponse;
+}
+
+function dataURItoFile(dataURI: string) {
+  const byteString = atob(dataURI.split(',')[1]);
+  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+  // write the bytes of the string to a typed array
+  const buffer = new Uint8Array(byteString.length);
+
+  for (let i = 0; i < byteString.length; i++) {
+    buffer[i] = byteString.charCodeAt(i);
+  }
+
+  const blob = new Blob([buffer], { type: mimeString });
+  return blob;
 }

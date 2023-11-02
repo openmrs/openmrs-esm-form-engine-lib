@@ -1,10 +1,10 @@
 import dayjs from 'dayjs';
-import { getConcept } from '../api/api';
+import { getConcept, getAttachmentByUuid } from '../api/api';
 import { ConceptTrue } from '../constants';
 import { EncounterContext } from '../ohri-form-context';
 import { OHRIFormField, OpenmrsEncounter, OpenmrsObs, SubmissionHandler } from '../api/types';
 import { parseToLocalDateTime } from '../utils/ohri-form-helper';
-import { flattenObsList } from '../utils/common-utils';
+import { flattenObsList, hasRendering } from '../utils/common-utils';
 
 // Temporarily holds observations that have already been binded with matching fields
 export let assignedObsIds: string[] = [];
@@ -44,6 +44,10 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     return field.value;
   },
   getInitialValue: (encounter: OpenmrsEncounter, field: OHRIFormField, allFormFields: Array<OHRIFormField>) => {
+    if (hasRendering(field, 'file')) {
+      const ac = new AbortController();
+      return getAttachmentByUuid(encounter.patient['uuid'], encounter.uuid, ac);
+    }
     const matchedObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field);
     const rendering = field.questionOptions.rendering;
     if (matchedObs?.length) {
@@ -51,16 +55,16 @@ export const ObsSubmissionHandler: SubmissionHandler = {
         assignedObsIds.push(matchedObs[0].obsGroup?.uuid);
       }
       if (rendering == 'checkbox') {
-        assignedObsIds.push(...matchedObs.map(obs => obs.uuid));
+        assignedObsIds.push(...matchedObs.map((obs) => obs.uuid));
         field.value = matchedObs;
-        return field.value.map(o => o.value.uuid);
+        return field.value.map((o) => o.value.uuid);
       }
       const obs = matchedObs[0];
       field.value = JSON.parse(JSON.stringify(obs));
       assignedObsIds.push(obs.uuid);
       if (rendering == 'radio' || rendering == 'content-switcher') {
         getConcept(field.questionOptions.concept, 'custom:(uuid,display,datatype:(uuid,display,name))').subscribe(
-          result => {
+          (result) => {
             if (result.datatype.name == 'Boolean') {
               field.value.value = obs.value.uuid;
             }
@@ -93,15 +97,15 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     }
     if (field.questionOptions.rendering == 'checkbox') {
       return value.map(
-        chosenOption => field.questionOptions.answers.find(option => option.concept == chosenOption)?.label,
+        (chosenOption) => field.questionOptions.answers.find((option) => option.concept == chosenOption)?.label,
       );
     }
     if (rendering == 'content-switcher' || rendering == 'select' || rendering == 'toggle') {
       const concept = typeof field.value.value === 'object' ? field.value.value.uuid : field.value.value;
-      return field.questionOptions.answers.find(option => option.concept == concept)?.label;
+      return field.questionOptions.answers.find((option) => option.concept == concept)?.label;
     }
     if (rendering == 'radio') {
-      return field.questionOptions.answers.find(option => option.concept == value)?.label;
+      return field.questionOptions.answers.find((option) => option.concept == value)?.label;
     }
     return value;
   },
@@ -123,7 +127,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
       }
       return {
         value: obs.value?.uuid,
-        display: field.questionOptions.answers.find(option => option.concept == obs.value?.uuid)?.label,
+        display: field.questionOptions.answers.find((option) => option.concept == obs.value?.uuid)?.label,
       };
     }
     return null;
@@ -182,12 +186,12 @@ export const findObsByFormField = (
   claimedObsIds: string[],
   field: OHRIFormField,
 ): OpenmrsObs[] => {
-  const obs = obsList.filter(o => o.formFieldPath == `ohri-forms-${field.id}`);
+  const obs = obsList.filter((o) => o.formFieldPath == `ohri-forms-${field.id}`);
   // We shall fall back to mapping by the associated concept
   // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
   if (!obs?.length) {
-    const obsByConcept = obsList.filter(obs => obs.concept.uuid == field.questionOptions.concept);
-    return claimedObsIds?.length ? obsByConcept.filter(obs => !claimedObsIds.includes(obs.uuid)) : obsByConcept;
+    const obsByConcept = obsList.filter((obs) => obs.concept.uuid == field.questionOptions.concept);
+    return claimedObsIds?.length ? obsByConcept.filter((obs) => !claimedObsIds.includes(obs.uuid)) : obsByConcept;
   }
   return obs;
 };
@@ -196,8 +200,8 @@ const multiSelectObsHandler = (field: OHRIFormField, values: Array<string>, cont
   if (!field.value) {
     field.value = [];
   }
-  values.forEach(value => {
-    const obs = field.value.find(o => {
+  values.forEach((value) => {
+    const obs = field.value.find((o) => {
       if (typeof o.value == 'string') {
         return o.value == value;
       }
@@ -212,9 +216,9 @@ const multiSelectObsHandler = (field: OHRIFormField, values: Array<string>, cont
 
   // void or remove unchecked options
   field.questionOptions.answers
-    .filter(opt => !values.some(v => v == opt.concept))
-    .forEach(opt => {
-      const observations = field.value.filter(o => {
+    .filter((opt) => !values.some((v) => v == opt.concept))
+    .forEach((opt) => {
+      const observations = field.value.filter((o) => {
         if (typeof o.value == 'string') {
           return o.value == opt.concept;
         }
@@ -223,11 +227,11 @@ const multiSelectObsHandler = (field: OHRIFormField, values: Array<string>, cont
       if (!observations.length) {
         return;
       }
-      observations.forEach(obs => {
+      observations.forEach((obs) => {
         if (context.sessionMode == 'edit' && obs.uuid) {
           obs.voided = true;
         } else {
-          field.value = field.value.filter(o => o.value !== opt.concept);
+          field.value = field.value.filter((o) => o.value !== opt.concept);
         }
       });
     });

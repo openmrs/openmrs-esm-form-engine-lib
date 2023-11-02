@@ -43,6 +43,7 @@
     "react-scroll": "^1.8.2",
     "react-test-renderer": "^16.9.0",
     "react-waypoint": "^10.3.0",
+    "react-webcam": "^7.1.1",
     "semver": "^7.3.5",
     "yup": "^0.29.1"
   },

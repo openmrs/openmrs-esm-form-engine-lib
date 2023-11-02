@@ -78,9 +78,7 @@ export class CommonExpressionHelpers {
   };
 
   addDaysToDate = (date: Date, days: number): Date => {
-    return dayjs(date)
-      .add(days, 'day')
-      .toDate();
+    return dayjs(date).add(days, 'day').toDate();
   };
 
   useFieldValue = (questionId: string) => {
@@ -240,7 +238,7 @@ export class CommonExpressionHelpers {
   };
 
   extractRepeatingGroupValues = (key: string | number | symbol, array: Record<string | number | symbol, unknown>[]) => {
-    const values = array.map(function(item) {
+    const values = array.map(function (item) {
       return item[key];
     });
     return values;
