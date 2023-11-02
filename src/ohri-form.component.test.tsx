@@ -21,7 +21,7 @@ import { mockSessionDataResponse } from "../__mocks__/session.mock";
 import demoHtsOpenmrsForm from "../__mocks__/forms/omrs-forms/demo_hts-form.json";
 import demoHtsOhriForm from "../__mocks__/forms/ohri-forms/demo_hts-form.json";
 import { saveEncounter } from "./api/api";
-import { openmrsFetch } from "@openmrs/esm-framework";
+import { getLocale, openmrsFetch } from "@openmrs/esm-framework";
 import { ObsSubmissionHandler } from './submission-handlers/base-handlers';
 import { EncounterContext } from './ohri-form-context';
 
@@ -55,6 +55,8 @@ when(mockOpenmrsFetch)
 when(mockOpenmrsFetch)
   .calledWith(clobdataResourcePath)
   .mockReturnValue({ data: demoHtsOhriForm });
+
+  const locale = window.i18next.language == 'en'? 'en-GB' : window.i18next.language;
 
 //////////////////////////////////////////
 ////// Mocks
@@ -214,7 +216,7 @@ describe("OHRI Forms:", () => {
       fireEvent.click(generalPopulationField);
 
       // Assert that Transient Field has a value
-      expect(enrolmentDateField.value).toBe("9/9/2023")
+      expect(enrolmentDateField.value).toBe("09/09/2023")
 
       // Simulate a successful form submission
       await act(async () => {
@@ -343,18 +345,19 @@ describe("OHRI Forms:", () => {
       // verify
       await act(async () =>
         expect(lmpField.value).toBe(
-          new Date("2022-07-06").toLocaleDateString("en-US")
+          new Date("2022-07-06").toLocaleDateString(locale)
         )
       );
       await act(async () =>
         expect(eddField.value).toBe(
-          new Date("2023-04-12").toLocaleDateString("en-US")
+          new Date("2023-04-12").toLocaleDateString(locale)
         )
       );
     });
 
     it("Should evaluate months on ART", async () => {
       // setup
+      console.log(locale);
       await act(async () => renderForm(null, months_on_art_form));
       jest.useFakeTimers();
       jest.setSystemTime(new Date(2022, 9, 1));
@@ -376,11 +379,11 @@ describe("OHRI Forms:", () => {
       // verify
       await act(async () =>
         expect(artStartDateField.value).toBe(
-          new Date("2022-05-02T00:00:00.000+0000").toLocaleDateString("en-US")
+          new Date("2022-02-05T00:00:00.000+0000").toLocaleDateString(locale)
         )
       );
       await act(async () => expect(assumeTodayToBe).toBe("7/11/2022"));
-      await act(async () => expect(monthsOnARTField.value).toBe("5"));
+      await act(async () => expect(monthsOnARTField.value).toBe("7"));
     });
 
     it("Should evaluate viral load status", async () => {
@@ -431,7 +434,7 @@ describe("OHRI Forms:", () => {
       // verify
       await act(async () =>
         expect(enrollmentDate.value).toBe(
-          new Date("1975-07-06T00:00:00.000Z").toLocaleDateString("en-US")
+          new Date("1975-07-06T00:00:00.000Z").toLocaleDateString(locale)
         )
       );
       await act(async () => expect(mrn.value).toBe(""));
