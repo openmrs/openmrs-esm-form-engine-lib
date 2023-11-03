@@ -10,8 +10,10 @@ import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
 import styles from './ohri-date.scss';
+import { formatDate } from '@openmrs/esm-framework';
 
-const dateFormatter = new Intl.DateTimeFormat(window.navigator.language);
+const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
+const dateFormatter = new Intl.DateTimeFormat(locale);
 
 const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
   const [field, meta] = useField(question.id);
@@ -104,7 +106,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
           const rawDate = new Date(prevValue.value);
 
           prevValue = {
-            display: dayjs(prevValue.value).format('M/D/YYYY HH:mm'),
+            display: formatDate(prevValue.value, { mode: 'wide' }),
             value: [rawDate],
           };
         } else {
@@ -156,15 +158,13 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
                 id={question.id}
                 placeholder={placeholder}
                 labelText={question.label}
-                value={
-                  field.value instanceof Date ? field.value.toLocaleDateString(window.navigator.language) : field.value
-                }
+                value={field.value instanceof Date ? field.value.toLocaleDateString(locale) : field.value}
                 // Added for testing purposes.
                 // Notes:
                 // Something strange is happening with the way events are propagated and handled by Carbon.
                 // When we manually trigger an onchange event using the 'fireEvent' lib, the handler below will
                 // be triggered as opposed to the former handler that only gets triggered at runtime.
-                onChange={e => onDateChange([dayjs(e.target.value, 'DD/MM/YYYY').toDate()])}
+                onChange={e => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
                 disabled={question.disabled}
                 invalid={!isFieldRequiredError && errors.length > 0}
                 invalidText={errors[0]?.message}
