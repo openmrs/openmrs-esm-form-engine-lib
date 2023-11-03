@@ -66,7 +66,7 @@ export function getLocationsByTag(tag: string): Observable<{ uuid: string; displ
 export async function getPreviousEncounter(patientUuid: string, encounterType: string) {
   const query = `patient=${patientUuid}&_sort=-_lastUpdated&_count=1&type=${encounterType}`;
   let response = await openmrsFetch(`/ws/fhir2/R4/Encounter?${query}`);
-  if (response.data.entry.length) {
+  if (response?.data?.entry?.length) {
     const latestEncounter = response.data.entry[0].resource.id;
     response = await openmrsFetch(`/ws/rest/v1/encounter/${latestEncounter}?v=${encounterRepresentation}`);
     return response.data;
