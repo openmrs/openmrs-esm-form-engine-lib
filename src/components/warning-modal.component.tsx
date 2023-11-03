@@ -2,12 +2,12 @@ import React from 'react';
 import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 
 type Props = {
-  onClose: () => void;
+  onCancel: () => void;
   onShowWarningModal: (showWarningModal: boolean) => void;
   t: (key: string, fallback: string) => string;
 };
 
-const WarningModal: React.FC<Props> = ({ onClose, onShowWarningModal, t }) => {
+const WarningModal: React.FC<Props> = ({ onCancel, onShowWarningModal, t }) => {
   return (
     <ComposedModal preventCloseOnClickOutside open={true} onClose={() => onShowWarningModal(false)}>
       <ModalHeader title={t('discardChanges', 'Discard changes?')}></ModalHeader>
@@ -23,7 +23,12 @@ const WarningModal: React.FC<Props> = ({ onClose, onShowWarningModal, t }) => {
         <Button kind="secondary" onClick={() => onShowWarningModal(false)}>
           {t('cancel', 'Cancel')}
         </Button>
-        <Button kind="danger" onClick={onClose}>
+        <Button
+          kind="danger"
+          onClick={() => {
+            onShowWarningModal(false);
+            onCancel && onCancel();
+          }}>
           {t('confirm', 'Confirm')}
         </Button>
       </ModalFooter>
