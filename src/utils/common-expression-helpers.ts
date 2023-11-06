@@ -248,15 +248,7 @@ export class CommonExpressionHelpers {
     return values;
   };
 
-  calcBMIZscore = (height: number, weight: number) => {
-    let result: number;
-    if (height && weight) {
-      result = height - weight;
-    }
-    return result;
-  };
-
-  calcWeightForHeightZscore(height, weight) {
+  calcWeightForHeightZscore(weightForHeightRef, height, weight) {
     let refSection;
     let formattedSDValue;
     if (height && weight) {
@@ -267,7 +259,9 @@ export class CommonExpressionHelpers {
     if (height < standardHeightMin || height > standardMaxHeight) {
       formattedSDValue = -4;
     } else {
-      return parseFloat(Object['Length']).toFixed(1) === height;
+      refSection = filter(weightForHeightRef, (refObject) => {
+        return parseFloat(refObject['Length']).toFixed(1) === height;
+      });
     }
 
     const refSectionObject = first(refSection);
