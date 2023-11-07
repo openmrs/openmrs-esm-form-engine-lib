@@ -10,6 +10,7 @@ import { OHRIFormField } from '../api/types';
 import { FormNode } from './expression-runner';
 import { isEmpty as isValueEmpty } from '../validators/ohri-form-validator';
 import * as apiFunctions from '../api/api';
+import hfaFemaleBelow5 from '../zscore/hfa_girls_below5.json';
 
 export class CommonExpressionHelpers {
   node: FormNode = null;
@@ -248,153 +249,6 @@ export class CommonExpressionHelpers {
     return values;
   };
 
-  calcWeightForHeightZscore(weightForHeightRef, height, weight) {
-    let refSection;
-    let formattedSDValue;
-    if (height && weight) {
-      height = parseFloat(height).toFixed(1);
-    }
-    const standardHeightMin = 45;
-    const standardMaxHeight = 110;
-    if (height < standardHeightMin || height > standardMaxHeight) {
-      formattedSDValue = -4;
-    } else {
-      refSection = filter(weightForHeightRef, (refObject) => {
-        return parseFloat(refObject['Length']).toFixed(1) === height;
-      });
-    }
-
-    const refSectionObject = first(refSection);
-    if (refSectionObject) {
-      const refObjectValues = Object.keys(refSectionObject)
-        .map((key) => refSectionObject[key])
-        .map((x) => x);
-      const refObjectKeys = Object.keys(refSectionObject);
-      const minimumValue = refObjectValues[1];
-      const minReferencePoint = [];
-      if (weight < minimumValue) {
-        minReferencePoint.push(minimumValue);
-      } else {
-        forEach(refObjectValues, (value) => {
-          if (value <= weight) {
-            minReferencePoint.push(value);
-          }
-        });
-      }
-      const lastReferenceValue = last(minReferencePoint);
-      const lastValueIndex = findIndex(refObjectValues, (o) => {
-        return o === lastReferenceValue;
-      });
-      const SDValue = refObjectKeys[lastValueIndex];
-      formattedSDValue = SDValue.replace('SD', '');
-      if (formattedSDValue.includes('neg')) {
-        formattedSDValue = formattedSDValue.substring(1, 0);
-        formattedSDValue = '-' + formattedSDValue;
-      }
-      if (
-        formattedSDValue === 'S' ||
-        formattedSDValue === 'L' ||
-        formattedSDValue === 'M' ||
-        formattedSDValue === '-5'
-      ) {
-        formattedSDValue = '-4';
-      }
-    }
-
-    return height && weight ? formattedSDValue : null;
-  }
-
-  calcBMIForAgeZscore(bmiForAgeRef, height: number, weight: number) {
-    let bmi;
-    const maxAgeInDays = 1856;
-    if (height && weight) {
-      bmi = (weight / (((height / 100) * height) / 100)).toFixed(1);
-    }
-    const refSectionObject = first(bmiForAgeRef);
-    let formattedSDValue;
-    if (refSectionObject) {
-      const refObjectValues = Object.keys(refSectionObject)
-        .map((key) => refSectionObject[key])
-        .map((x) => x);
-      const refObjectKeys = Object.keys(refSectionObject);
-      const minimumValue = refObjectValues[1];
-      const minReferencePoint = [];
-      if (bmi < minimumValue) {
-        minReferencePoint.push(minimumValue);
-      } else {
-        forEach(refObjectValues, (value) => {
-          if (value <= bmi) {
-            minReferencePoint.push(value);
-          }
-        });
-      }
-      const lastReferenceValue = last(minReferencePoint);
-      const lastValueIndex = findIndex(refObjectValues, (o) => {
-        return o === lastReferenceValue;
-      });
-      const SDValue = refObjectKeys[lastValueIndex];
-      formattedSDValue = SDValue.replace('SD', '');
-      if (formattedSDValue.includes('neg')) {
-        formattedSDValue = formattedSDValue.substring(1, 0);
-        formattedSDValue = '-' + formattedSDValue;
-      }
-
-      if (
-        formattedSDValue === 'S' ||
-        formattedSDValue === 'L' ||
-        formattedSDValue === 'M' ||
-        formattedSDValue === '-5'
-      ) {
-        formattedSDValue = '-4';
-      }
-    }
-
-    return bmi && refSectionObject ? formattedSDValue : null;
-  }
-
-  calcHeightForAgeZscore(heightForAgeRef, height, weight) {
-    const refSectionObject = first(heightForAgeRef);
-    let formattedSDValue;
-    if (refSectionObject) {
-      const refObjectValues = Object.keys(refSectionObject)
-        .map((key) => refSectionObject[key])
-        .map((x) => x);
-      const refObjectKeys = Object.keys(refSectionObject);
-      const minimumValue = refObjectValues[1];
-      const minReferencePoint = [];
-      if (height < minimumValue) {
-        minReferencePoint.push(minimumValue);
-      } else {
-        forEach(refObjectValues, (value) => {
-          if (value <= height) {
-            minReferencePoint.push(value);
-          }
-        });
-      }
-      const lastReferenceValue = last(minReferencePoint);
-      const lastValueIndex = findIndex(refObjectValues, (o) => {
-        return o === lastReferenceValue;
-      });
-      const SDValue = refObjectKeys[lastValueIndex];
-      formattedSDValue = SDValue.replace('SD', '');
-      if (formattedSDValue.includes('neg')) {
-        formattedSDValue = formattedSDValue.substring(1, 0);
-        formattedSDValue = '-' + formattedSDValue;
-      }
-
-      if (
-        formattedSDValue === 'S' ||
-        formattedSDValue === 'L' ||
-        formattedSDValue === 'M' ||
-        formattedSDValue === '-5'
-      ) {
-        formattedSDValue = '-4';
-      }
-    }
-
-    return height && weight && refSectionObject ? formattedSDValue : null;
-  }
-
   calcGravida(parityTerm, parityAbortion) {
     let gravida = 0;
     if (parityTerm === parseInt(parityTerm)) {
@@ -435,6 +289,145 @@ export class CommonExpressionHelpers {
   resolve = (lazy: Promise<unknown>) => {
     return Promise.resolve(lazy);
   };
+}
+
+export function calcWeightForHeightZscore(weightForHeightRef, height, weight) {
+  const scoreRefModel = {
+    weightForHeightRef: null,
+    heightForAgeRef: null,
+    bmiForAgeRef: null,
+  };
+
+  scoreRefModel.weightForHeightRef = hfaFemaleBelow5;
+  let refSection;
+  let formattedSDValue;
+  if (height && weight) {
+    height = parseFloat(height).toFixed(1);
+  }
+  const standardHeightMin = 45;
+  const standardMaxHeight = 110;
+  if (height < standardHeightMin || height > standardMaxHeight) {
+    formattedSDValue = -4;
+  } else {
+    refSection = filter(weightForHeightRef, (refObject) => {
+      return parseFloat(refObject['Length']).toFixed(1) === height;
+    });
+  }
+
+  const refSectionObject = first(refSection);
+  if (refSectionObject) {
+    const refObjectValues = Object.keys(refSectionObject)
+      .map((key) => refSectionObject[key])
+      .map((x) => x);
+    const refObjectKeys = Object.keys(refSectionObject);
+    const minimumValue = refObjectValues[1];
+    const minReferencePoint = [];
+    if (weight < minimumValue) {
+      minReferencePoint.push(minimumValue);
+    } else {
+      forEach(refObjectValues, (value) => {
+        if (value <= weight) {
+          minReferencePoint.push(value);
+        }
+      });
+    }
+    const lastReferenceValue = last(minReferencePoint);
+    const lastValueIndex = findIndex(refObjectValues, (o) => {
+      return o === lastReferenceValue;
+    });
+    const SDValue = refObjectKeys[lastValueIndex];
+    formattedSDValue = SDValue.replace('SD', '');
+    if (formattedSDValue.includes('neg')) {
+      formattedSDValue = formattedSDValue.substring(1, 0);
+      formattedSDValue = '-' + formattedSDValue;
+    }
+    if (formattedSDValue === 'S' || formattedSDValue === 'L' || formattedSDValue === 'M' || formattedSDValue === '-5') {
+      formattedSDValue = '-4';
+    }
+  }
+
+  return height && weight ? formattedSDValue : null;
+}
+
+export function calcBMIForAgeZscore(bmiForAgeRef, height, weight) {
+  let bmi;
+  const maxAgeInDays = 1856;
+  if (height && weight) {
+    bmi = (weight / (((height / 100) * height) / 100)).toFixed(1);
+  }
+  const refSectionObject = first(bmiForAgeRef);
+  let formattedSDValue;
+  if (refSectionObject) {
+    const refObjectValues = Object.keys(refSectionObject)
+      .map((key) => refSectionObject[key])
+      .map((x) => x);
+    const refObjectKeys = Object.keys(refSectionObject);
+    const minimumValue = refObjectValues[1];
+    const minReferencePoint = [];
+    if (bmi < minimumValue) {
+      minReferencePoint.push(minimumValue);
+    } else {
+      forEach(refObjectValues, (value) => {
+        if (value <= bmi) {
+          minReferencePoint.push(value);
+        }
+      });
+    }
+    const lastReferenceValue = last(minReferencePoint);
+    const lastValueIndex = findIndex(refObjectValues, (o) => {
+      return o === lastReferenceValue;
+    });
+    const SDValue = refObjectKeys[lastValueIndex];
+    formattedSDValue = SDValue.replace('SD', '');
+    if (formattedSDValue.includes('neg')) {
+      formattedSDValue = formattedSDValue.substring(1, 0);
+      formattedSDValue = '-' + formattedSDValue;
+    }
+
+    if (formattedSDValue === 'S' || formattedSDValue === 'L' || formattedSDValue === 'M' || formattedSDValue === '-5') {
+      formattedSDValue = '-4';
+    }
+  }
+
+  return bmi && refSectionObject ? formattedSDValue : null;
+}
+
+export function calcHeightForAgeZscore(heightForAgeRef, height, weight) {
+  const refSectionObject = first(heightForAgeRef);
+  let formattedSDValue;
+  if (refSectionObject) {
+    const refObjectValues = Object.keys(refSectionObject)
+      .map((key) => refSectionObject[key])
+      .map((x) => x);
+    const refObjectKeys = Object.keys(refSectionObject);
+    const minimumValue = refObjectValues[1];
+    const minReferencePoint = [];
+    if (height < minimumValue) {
+      minReferencePoint.push(minimumValue);
+    } else {
+      forEach(refObjectValues, (value) => {
+        if (value <= height) {
+          minReferencePoint.push(value);
+        }
+      });
+    }
+    const lastReferenceValue = last(minReferencePoint);
+    const lastValueIndex = findIndex(refObjectValues, (o) => {
+      return o === lastReferenceValue;
+    });
+    const SDValue = refObjectKeys[lastValueIndex];
+    formattedSDValue = SDValue.replace('SD', '');
+    if (formattedSDValue.includes('neg')) {
+      formattedSDValue = formattedSDValue.substring(1, 0);
+      formattedSDValue = '-' + formattedSDValue;
+    }
+
+    if (formattedSDValue === 'S' || formattedSDValue === 'L' || formattedSDValue === 'M' || formattedSDValue === '-5') {
+      formattedSDValue = '-4';
+    }
+  }
+
+  return height && weight && refSectionObject ? formattedSDValue : null;
 }
 
 export function registerDependency(node: FormNode, determinant: OHRIFormField) {
