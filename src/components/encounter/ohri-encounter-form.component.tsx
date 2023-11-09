@@ -413,7 +413,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
 
   const handleFormSubmit = (values: Record<string, any>) => {
     const obsForSubmission = [];
-    console.log("fields",fields);
     fields
       .filter((field) => field.value || field.type == 'obsGroup') // filter out fields with empty values except groups
       .filter((field) => !field.isParentHidden && !field.isHidden && (field.type == 'obs' || field.type == 'obsGroup'))
@@ -422,7 +421,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       .forEach((field) => {
         if (field.type == 'obsGroup') {
           const obsGroupUuid = fields?.find(f => !f.id.includes('_'))?.questions?.find(f => Object.keys(f)[0])?.value?.obsGroup?.uuid;
-          console.log("obsGroupUuid",obsGroupUuid);
           const obsGroup = {
             person: patient?.id,
             obsDatetime: encounterDate,
