@@ -7,16 +7,9 @@ import bfaFemale5Above from '../zscore/bfa_girls_5_above.json';
 import wflFemaleBelow5 from '../zscore/wfl_girls_below5.json';
 import hfaFemale5Above from '../zscore/hfa_girls_5_above.json';
 import hfaFemaleBelow5 from '../zscore/hfa_girls_below5.json';
-import { formatDate } from '@openmrs/esm-framework';
-// import { CommonExpressionHelpers } from './common-expression-helpers';
-import {
-  calcWeightForHeightZscore,
-  calcBMIForAgeZscore,
-  calcHeightForAgeZscore,
-} from '../utils/common-expression-helpers';
+import dayjs from 'dayjs';
 
-// get score reference by gender,birth date and period reported
-function getZRefByGenderAndAge(gender, birthDate, refdate) {
+export function getZRefByGenderAndAge(gender, birthDate, refdate) {
   const scoreRefModel = {
     weightForHeightRef: null,
     heightForAgeRef: null,
@@ -50,19 +43,6 @@ function getZRefByGenderAndAge(gender, birthDate, refdate) {
   return scoreRefModel;
 }
 
-function getZScoreByGenderAndAge(gender, birthDate, refdate, height, weight) {
-  const scoreModel = {
-    weightForHeight: null,
-    heightForAge: null,
-    bmiForAge: null,
-  };
-  const refModel = getZRefByGenderAndAge(gender, birthDate, refdate);
-  scoreModel.bmiForAge = calcBMIForAgeZscore(refModel.bmiForAgeRef, height, weight);
-  scoreModel.weightForHeight = calcWeightForHeightZscore(refModel.weightForHeightRef, height, weight);
-  scoreModel.heightForAge = calcHeightForAgeZscore(refModel.heightForAgeRef, height, weight);
-  return scoreModel;
-}
-
 function getScoreReference(refData, searchKey, searchValue): any {
   return filter(refData, (refObject) => {
     return refObject[searchKey] === searchValue;
@@ -71,8 +51,8 @@ function getScoreReference(refData, searchKey, searchValue): any {
 
 function getAge(birthdate, refDate, ageIn) {
   if (birthdate && refDate && ageIn) {
-    const todayMoment: any = formatDate(refDate);
-    const birthDateMoment: any = formatDate(birthdate);
+    const todayMoment: any = dayjs(refDate);
+    const birthDateMoment: any = dayjs(birthdate);
     return todayMoment.diff(birthDateMoment, ageIn);
   }
   return null;
