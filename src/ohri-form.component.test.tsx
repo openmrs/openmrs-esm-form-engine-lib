@@ -7,6 +7,10 @@ import hts_poc_1_1 from "../__mocks__/packages/hiv/forms/hts_poc/1.1.json";
 import bmi_form from "../__mocks__/forms/ohri-forms/bmi-test-form.json";
 import bsa_form from "../__mocks__/forms/ohri-forms/bsa-test-form.json";
 import edd_form from "../__mocks__/forms/ohri-forms/edd-test-form.json";
+import wh_zscore from "../__mocks__/forms/ohri-forms/zscore-weight-height-form.json";
+import BMI_Zscore from "../__mocks__/forms/ohri-forms/zscore-bmi-for-age-form.json";
+import WA_Zscore from "../__mocks__/forms/ohri-forms/zscore-height-for-age-form copy.json";
+import { CommonExpressionHelpers } from './utils/common-expression-helpers';
 import filter_answer_options_form from "../__mocks__/forms/ohri-forms/filter-answer-options-test-form.json";
 import test_enrolment_form from "../__mocks__/forms/ohri-forms/test-enrolment-form.json";
 import next_visit_form from "../__mocks__/forms/ohri-forms/next-visit-test-form.json";
@@ -324,6 +328,71 @@ describe("OHRI Forms:", () => {
       await act(async () => expect(heightField.value).toBe("190.5"));
       await act(async () => expect(weightField.value).toBe("95"));
       await act(async () => expect(bsaField.value).toBe("2.24"));
+    });
+
+    it("Should evaluate Weight for Height Zscore result", async () => {
+      // setup
+      await act(async () => renderForm(null, wh_zscore));
+
+      const bsaField = await findTextOrDateInput(screen, "Weight for Height Zscore result");
+      const heightField = await findNumberInput(screen, "Height");
+      const weightField = await findNumberInput(screen, "Weight");
+      await act(async () => expect(heightField.value).toBe(""));
+      await act(async () => expect(weightField.value).toBe(""));
+      await act(async () => expect(bsaField.value).toBe(""));
+
+      // replay
+      fireEvent.blur(heightField, { target: { value: 110 } });
+      fireEvent.blur(weightField, { target: { value: 45 } });
+
+      // verify
+      await act(async () => expect(heightField.value).toBe("110"));
+      await act(async () => expect(weightField.value).toBe("45"));
+      await act(async () => expect(bsaField.value).toBe("4"));
+    });
+
+    it("Should evaluate BMI for Age Zscore result", async () => {
+      // setup
+      await act(async () => renderForm(null, BMI_Zscore));
+
+      const bmiAgeField = await findTextOrDateInput(screen, "BMI for Age Zscore result");
+      const heightField = await findNumberInput(screen, "Height");
+      const weightField = await findNumberInput(screen, "Weight");
+      await act(async () => expect(heightField.value).toBe(""));
+      await act(async () => expect(weightField.value).toBe(""));
+      await act(async () => expect(bmiAgeField.value).toBe(""));
+
+      // replay
+      fireEvent.blur(heightField, { target: { value: 150 } });
+      fireEvent.blur(weightField, { target: { value: 50 } });
+
+      const bmiValue = (50 / ((150 / 100) * (150 / 100))).toFixed(1);
+
+      // verify
+      await act(async () => expect(heightField.value).toBe("150"));
+      await act(async () => expect(weightField.value).toBe("50"));
+      await act(async () => expect(bmiAgeField.value).toBe(bmiValue));
+    });
+
+    it("Should evaluate Height for Age Zscore result", async () => {
+      const patient = {
+        birthDate: '2000-01-01',
+        height: 150,
+      };
+      // setup
+      await act(async () => renderForm(null, WA_Zscore, patient.birthDate));
+
+      const HaZscoreField = await findTextOrDateInput(screen, "Height for Age Zscore result");
+      const heightField = await findNumberInput(screen, "Height");
+      await act(async () => expect(heightField.value).toBe(""));
+      await act(async () => expect(HaZscoreField.value).toBe(""));
+
+      // replay
+      fireEvent.blur(heightField, { target: { value: 150 } });
+
+      // verify
+      await act(async () => expect(heightField.value).toBe("150"));
+      await act(async () => expect(HaZscoreField.value).toBe("4"));
     });
 
     it("Should evaluate EDD", async () => {
