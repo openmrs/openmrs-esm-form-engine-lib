@@ -24,7 +24,7 @@ export function evaluateExpression(
   if (!expression?.trim()) {
     return null;
   }
-  const allFieldsKeys = fields.map(f => f.id);
+  const allFieldsKeys = fields.map((f) => f.id);
   const parts = parseExpression(expression.trim());
   // register dependencies
   findAndRegisterReferencedFields(node, parts, fields);
@@ -67,7 +67,7 @@ export async function evaluateAsyncExpression(
   if (!expression?.trim()) {
     return null;
   }
-  const allFieldsKeys = fields.map(f => f.id);
+  const allFieldsKeys = fields.map((f) => f.id);
   let parts = parseExpression(expression.trim());
   // register dependencies
   findAndRegisterReferencedFields(node, parts, fields);

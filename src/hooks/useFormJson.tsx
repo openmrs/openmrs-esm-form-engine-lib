@@ -44,7 +44,6 @@ export async function loadFormJson(
   const formJson: OHRIFormSchema = clobDataResponse
     ? { ...clobDataResponse, uuid: openmrsFormResponse.uuid }
     : rawFormJson;
-
   // Sub forms
   const subformRefs = extractSubformRefs(formJson);
   const subforms = await loadSubforms(subformRefs, formSessionIntent);
