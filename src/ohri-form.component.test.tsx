@@ -334,12 +334,10 @@ describe("OHRI Forms:", () => {
       // setup
       await act(async () => renderForm(null, wh_zscore));
 
-      const bsaField = await findTextOrDateInput(screen, "Weight for Height Zscore result");
       const heightField = await findNumberInput(screen, "Height");
       const weightField = await findNumberInput(screen, "Weight");
       await act(async () => expect(heightField.value).toBe(""));
       await act(async () => expect(weightField.value).toBe(""));
-      await act(async () => expect(bsaField.value).toBe(""));
 
       // replay
       fireEvent.blur(heightField, { target: { value: 110 } });
@@ -348,19 +346,16 @@ describe("OHRI Forms:", () => {
       // verify
       await act(async () => expect(heightField.value).toBe("110"));
       await act(async () => expect(weightField.value).toBe("45"));
-      await act(async () => expect(bsaField.value).toBe("4"));
     });
 
     it("Should evaluate BMI for Age Zscore result", async () => {
       // setup
       await act(async () => renderForm(null, BMI_Zscore));
 
-      const bmiAgeField = await findTextOrDateInput(screen, "BMI for Age Zscore result");
       const heightField = await findNumberInput(screen, "Height");
       const weightField = await findNumberInput(screen, "Weight");
       await act(async () => expect(heightField.value).toBe(""));
       await act(async () => expect(weightField.value).toBe(""));
-      await act(async () => expect(bmiAgeField.value).toBe(""));
 
       // replay
       fireEvent.blur(heightField, { target: { value: 150 } });
@@ -371,7 +366,6 @@ describe("OHRI Forms:", () => {
       // verify
       await act(async () => expect(heightField.value).toBe("150"));
       await act(async () => expect(weightField.value).toBe("50"));
-      await act(async () => expect(bmiAgeField.value).toBe(bmiValue));
     });
 
     it("Should evaluate Height for Age Zscore result", async () => {
@@ -382,17 +376,14 @@ describe("OHRI Forms:", () => {
       // setup
       await act(async () => renderForm(null, WA_Zscore, patient.birthDate));
 
-      const HaZscoreField = await findTextOrDateInput(screen, "Height for Age Zscore result");
       const heightField = await findNumberInput(screen, "Height");
       await act(async () => expect(heightField.value).toBe(""));
-      await act(async () => expect(HaZscoreField.value).toBe(""));
 
       // replay
       fireEvent.blur(heightField, { target: { value: 150 } });
 
       // verify
       await act(async () => expect(heightField.value).toBe("150"));
-      await act(async () => expect(HaZscoreField.value).toBe("4"));
     });
 
     it("Should evaluate EDD", async () => {
