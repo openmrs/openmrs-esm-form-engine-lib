@@ -30,10 +30,9 @@ export function extractErrorMessagesFromResponse(errorObject) {
     return [errorObject?.responseBody?.error?.message ?? errorObject?.message];
   }
 
-  if(globalErrors){
+  if (globalErrors) {
     return globalErrors.flatMap((error) => error.message);
-  }else{
-    return Object.values(fieldErrors).flatMap((errors: Array<Error>) => errors.map(error => error.message));
+  } else {
+    return Object.values(fieldErrors).flatMap((errors: Array<Error>) => errors.map((error) => error.message));
   }
-  
 }
