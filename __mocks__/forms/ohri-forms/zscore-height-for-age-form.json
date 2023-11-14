@@ -1,5 +1,5 @@
 {
-    "name":"Test BMI for Age Zscore",
+    "name":"Test Height for Age Zscore",
     "pages":[
       {
         "label":"Zscore",
@@ -48,7 +48,7 @@
                 "questionOptions":{
                   "rendering":"number",
                   "calculate":{
-                    "calculateExpression":"calcBMIForAgeZscore( 'height', 'weight')"
+                    "calculateExpression":"calcHeightForAgeZscore( 'height', 'weight')"
                   },
                   "concept":"1342AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                 },
