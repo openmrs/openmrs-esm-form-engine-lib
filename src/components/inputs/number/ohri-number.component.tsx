@@ -27,7 +27,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
     }
   }, [question['submission']]);
 
-  field.onBlur = (event) => {
+  field.onBlur = event => {
     if (event && event.target.value != field.value) {
       // testing purposes only
       field.value = event.target.value;
@@ -58,7 +58,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
   }, [encounterContext?.previousEncounter]);
 
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
+    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);
@@ -89,15 +89,15 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
             invalid={!isFieldRequiredError && errors.length > 0}
             invalidText={errors[0]?.message}
             label={question.label}
-            max={question.unspecified ? undefined : question.questionOptions.max}
-            min={question.unspecified ? undefined : question.questionOptions.min}
+            max={question.questionOptions.max || undefined}
+            min={question.questionOptions.min || undefined}
             name={question.id}
             value={field.value || ''}
             onFocus={() => setPreviousValue(field.value)}
             allowEmpty={true}
             size="lg"
             hideSteppers={true}
-            onWheel={(e) => e.target.blur()}
+            onWheel={e => e.target.blur()}
             disabled={question.disabled}
             readOnly={question.readonly}
             className={isFieldRequiredError ? styles.errorLabel : ''}
