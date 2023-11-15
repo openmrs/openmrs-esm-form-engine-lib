@@ -202,14 +202,28 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
             await Promise.all(
               postSubmissionHandlers.map(async ({ postAction, config, actionId }) => {
                 try {
-                  await postAction.applyAction(
-                    {
-                      patient,
-                      sessionMode,
-                      encounters: results.map((encounterResult) => encounterResult.data),
-                    },
-                    config,
-                  );
+                  const encounterData = [];
+                  if (results) {
+                    results.forEach((result) => {
+                      if (result?.data) {
+                        encounterData.push(result.data);
+                      }
+                    });
+                    if (encounterData.length) {
+                      await postAction.applyAction(
+                        {
+                          patient,
+                          sessionMode,
+                          encounters: encounterData,
+                        },
+                        config,
+                      );
+                    } else {
+                      throw new Error('No encounter data to process post submission action');
+                    }
+                  } else {
+                    throw new Error('No handlers available to process post submission action');
+                  }
                 } catch (error) {
                   const errorMessages = extractErrorMessagesFromResponse(error);
                   showToast({

@@ -126,7 +126,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           }
           flattenedFieldsTemp.push(question);
           if (question.type == 'obsGroup') {
-            question.questions.forEach(groupedField => {
+            question.questions.forEach((groupedField) => {
               if (groupedField.questionOptions.rendering == 'fixed-value' && !groupedField['fixedValue']) {
                 groupedField['fixedValue'] = groupedField.value;
               }
@@ -419,9 +419,8 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       .filter((field) => !field['groupId']) // filter out grouped obs
       .filter((field) => !field.questionOptions.isTransient && field.questionOptions.rendering !== 'file')
       .forEach((field) => {
-
         if (field.type == 'obsGroup') {
-          const obsGroupUuid = encounter?.obs?.find(m => m.concept.uuid == field.questionOptions.concept)?.uuid
+          const obsGroupUuid = encounter?.obs?.find((m) => m.concept.uuid == field.questionOptions.concept)?.uuid;
           const obsGroup = {
             person: patient?.id,
             obsDatetime: encounterDate,
@@ -498,22 +497,21 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
 
     if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {
       const ac = new AbortController();
-      return saveEncounter(ac, encounterForSubmission, encounter?.uuid)
-        .then((response) => response.data)
-        .then((encounter) => {
-          fields
-            ?.filter((field) => field?.questionOptions.rendering === 'file')
-            .map((field) => {
-              return saveAttachment(
-                encounter?.patient.uuid,
-                field,
-                field?.questionOptions.concept,
-                new Date().toISOString(),
-                encounter?.uuid,
-                ac,
-              );
-            });
+      return saveEncounter(ac, encounterForSubmission, encounter?.uuid).then((response) => {
+        const encounter = response.data;
+        const fileFields = fields?.filter((field) => field?.questionOptions.rendering === 'file');
+        const saveAttachmentPromises = fileFields.map((field) => {
+          return saveAttachment(
+            encounter?.patient.uuid,
+            field,
+            field?.questionOptions.concept,
+            new Date().toISOString(),
+            encounter?.uuid,
+            ac,
+          );
         });
+        return Promise.all(saveAttachmentPromises).then(() => response);
+      });
     }
   };
 
