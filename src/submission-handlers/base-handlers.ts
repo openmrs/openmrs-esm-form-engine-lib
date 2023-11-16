@@ -98,15 +98,15 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     }
     if (field.questionOptions.rendering == 'checkbox') {
       return value.map(
-        (chosenOption) => field.questionOptions.answers.find((option) => option.concept == chosenOption)?.label,
+        (chosenOption) => field.questionOptions.answers?.find((option) => option.concept == chosenOption)?.label,
       );
     }
     if (rendering == 'content-switcher' || rendering == 'select' || rendering == 'toggle') {
       const concept = typeof field.value.value === 'object' ? field.value.value.uuid : field.value.value;
-      return field.questionOptions.answers.find((option) => option.concept == concept)?.label;
+      return field.questionOptions.answers?.find((option) => option.concept == concept)?.label;
     }
     if (rendering == 'radio') {
-      return field.questionOptions.answers.find((option) => option.concept == value)?.label;
+      return field.questionOptions.answers?.find((option) => option.concept == value)?.label;
     }
     return value;
   },
