@@ -54,11 +54,11 @@ export const OHRIUnspecified: React.FC<OHRIFormFieldProps> = ({ question, onChan
     }
   }, [question.value]);
 
-  const handleOnChange = useCallback(value => {
+  const handleOnChange = (value) => {
     setFieldValue(`${question.id}-unspecified`, value.target.checked);
     onChange(question.id, field.value, setErrors, setWarnings);
     question.value = handler?.handleFieldSubmission(question, field.value, encounterContext);
-  }, []);
+  };
 
   return (
     !question.isHidden &&
