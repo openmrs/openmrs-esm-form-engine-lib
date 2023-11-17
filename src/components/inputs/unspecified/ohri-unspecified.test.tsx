@@ -4,6 +4,8 @@ import React from 'react';
 import { OHRIFormField, EncounterContext, OHRIFormContext } from '../../..';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 import { OHRIUnspecified } from './ohri-unspecified.component';
+import { findTextOrDateInput } from '../../../utils/test-utils';
+import OHRIDate from '../date/ohri-date.component';
 
 const question: OHRIFormField = {
   label: 'Visit Date',
@@ -28,13 +30,13 @@ const encounterContext: EncounterContext = {
   },
   sessionMode: 'enter',
   encounterDate: new Date(2020, 11, 29),
-  setEncounterDate: value => {},
+  setEncounterDate: (value) => {},
 };
 
-const renderForm = intialValues => {
+const renderForm = (intialValues) => {
   render(
     <Formik initialValues={intialValues} onSubmit={null}>
-      {props => (
+      {(props) => (
         <Form>
           <OHRIFormContext.Provider
             value={{
@@ -47,8 +49,9 @@ const renderForm = intialValues => {
               fields: [question],
               isFieldInitializationComplete: true,
               isSubmitting: false,
-              formFieldHandlers: { 'obs': ObsSubmissionHandler }
+              formFieldHandlers: { obs: ObsSubmissionHandler },
             }}>
+            <OHRIDate question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
             <OHRIUnspecified question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
           </OHRIFormContext.Provider>
         </Form>
@@ -73,5 +76,25 @@ describe('Unspecified', () => {
     // assert unchecked
     fireEvent.click(unspecifiedCheckbox);
     expect(unspecifiedCheckbox).not.toBeChecked();
+  });
+
+  it('Should clear field value when the "Unspecified" checkbox is clicked', async () => {
+    //setup
+    await renderForm({});
+    const unspecifiedCheckbox = screen.getByRole('checkbox', { name: /Unspecified/ });
+    const visitDateField = await findTextOrDateInput(screen, 'Visit Date');
+
+    // assert initial state
+    expect(unspecifiedCheckbox).not.toBeChecked();
+    expect((await visitDateField).value).toBe('');
+
+    //Assert date change
+    fireEvent.blur(visitDateField, { target: { value: '2023-09-09T00:00:00.000Z' } });
+    expect(visitDateField.value).toBe('09/09/2023');
+
+    // assert checked
+    fireEvent.click(unspecifiedCheckbox);
+    expect(unspecifiedCheckbox).toBeChecked();
+    expect(visitDateField.value).toBe('');
   });
 });
