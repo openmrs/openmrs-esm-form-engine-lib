@@ -9,7 +9,7 @@ import styles from './ohri-unspecified.scss';
 
 export const OHRIUnspecified: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
   const [field, meta] = useField(`${question.id}-unspecified`);
-  const { setFieldValue, encounterContext } = React.useContext(OHRIFormContext);
+  const { setFieldValue, encounterContext, fields } = React.useContext(OHRIFormContext);
   const [previouslyUnspecified, setPreviouslyUnspecified] = useState(false);
   const hideCheckBox = encounterContext.sessionMode == 'view';
   const [errors, setErrors] = useState([]);
@@ -54,11 +54,14 @@ export const OHRIUnspecified: React.FC<OHRIFormFieldProps> = ({ question, onChan
     }
   }, [question.value]);
 
-  const handleOnChange = (value) => {
-    setFieldValue(`${question.id}-unspecified`, value.target.checked);
-    onChange(question.id, field.value, setErrors, setWarnings);
-    question.value = handler?.handleFieldSubmission(question, field.value, encounterContext);
-  };
+  const handleOnChange = useCallback(
+    (value) => {
+      setFieldValue(`${question.id}-unspecified`, value.target.checked);
+      onChange(question.id, field.value, setErrors, setWarnings);
+      question.value = handler?.handleFieldSubmission(question, field.value, encounterContext);
+    },
+    [fields],
+  );
 
   return (
     !question.isHidden &&
