@@ -1,0 +1,43 @@
+{
+  "name": "Form Component",
+  "referencedForms": [
+    {
+      "formName": "component_preclinic-review",
+      "alias": "pcr"
+    },
+    {
+      "formName": "component_art",
+      "alias": "art"
+    }
+  ],
+  "pages": [
+    {
+      "label": "Pre-Clinic Review",
+      "sections": [
+        {
+          "reference": {
+            "form": "pcr",
+            "page": "Pre-clinic Review",
+            "section": "Pre-clinic Review"
+          }
+        }
+      ]
+    },
+    {
+      "label": "ART History",
+      "sections": [
+        {
+          "reference": {
+            "form": "art",
+            "page": "ART ",
+            "section": "ART History",
+            "excludeQuestions": ["current_art_regimen_ped"]
+          }
+        }
+      ]
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "uuid": "af7c1fe6-d669-414e-b066-e9733f0de7b8",
+  "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe"
+}

@@ -8,10 +8,12 @@ import nestedForm1Skeleton from '../../__mocks__/forms/omrs-forms/nested-form1.j
 import nestedForm2Skeleton from '../../__mocks__/forms/omrs-forms/nested-form2.json';
 import nestedForm1Body from '../../__mocks__/forms/ohri-forms/nested-form1.json';
 import nestedForm2Body from '../../__mocks__/forms/ohri-forms/nested-form2.json';
-import formComponent from '../../__mocks__/forms/omrs-forms/form-component.json';
-import artComponent from '../../__mocks__/forms/omrs-forms/component_art.json';
-import hospitalizationComponent from '../../__mocks__/forms/omrs-forms/component_hospitalization.json';
-import preclinicReviewComponent from '../../__mocks__/forms/omrs-forms/component_preclinic-review.json';
+import formComponentSkeleton from '../../__mocks__/forms/omrs-forms/form-component.json';
+import formComponentBody from '../../__mocks__/forms/ohri-forms/form-component.json';
+import artComponentSkeleton from '../../__mocks__/forms/omrs-forms/component_art.json';
+import artComponentBody from '../../__mocks__/forms/ohri-forms/component_art.json';
+import preclinicReviewComponentSkeleton from '../../__mocks__/forms/omrs-forms/component_preclinic-review.json';
+import preclinicReviewComponentBody from '../../__mocks__/forms/ohri-forms/component_preclinic-review.json';
 
 const MINI_FORM_NAME = 'Mini Form';
 const MINI_FORM_UUID = '112d73b4-79e5-4be8-b9ae-d0840f00d4cf';
@@ -26,9 +28,14 @@ const SUB_FORM_UUID = '8304e5ff-6324-4863-ac51-8fcbc6812b13';
 const SUB_FORM_SCHEMA_VALUE_REF = 'ca52a95c-8bb4-4a9f-a0cf-f0df437592da';
 
 const COMPONENT_FORM_NAME = 'Form Component';
+const COMPONENT_FORM_UUID = 'af7c1fe6-d669-414e-b066-e9733f0de7b8';
+const COMPONENT_FORM_SCHEMA_VALUE_REF = '74d06044-850f-11ee-b9d1-0242ac120002';
 const COMPONENT_ART = 'component_art';
-const COMPONENT_HOSPITALIZATION = 'component_hospitalization';
+const COMPONENT_ART_UUID = '2f063f32-7f8a-11ee-b962-0242ac120002';
+const COMPONENT_ART_SCHEMA_VALUE_REF = '74d06044-850f-11ee-b9d1-0242ac120003';
 const COMPONENT_PRECLINIC_REVIEW = 'component_preclinic-review';
+const COMPONENT_PRECLINIC_REVIEW_UUID = '2f063f32-7f8a-11ee-b962-0242ac120004';
+const COMPONENT_PRECLINIC_REVIEW_SCHEMA_VALUE_REF = '74d06044-850f-11ee-b9d1-0242ac120004';
 
 // Base setup
 const mockOpenmrsFetch = openmrsFetch as jest.Mock;
@@ -70,16 +77,33 @@ when(mockOpenmrsFetch)
 // form components
 when(mockOpenmrsFetch)
   .calledWith(buildPath(COMPONENT_FORM_NAME))
-  .mockResolvedValue({ data: { results: [formComponent] } });
+  .mockResolvedValue({ data: { results: [formComponentSkeleton] } });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(COMPONENT_FORM_UUID))
+  .mockResolvedValue({ data: formComponentSkeleton });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(COMPONENT_FORM_SCHEMA_VALUE_REF))
+  .mockResolvedValue({ data: formComponentBody });
+
 when(mockOpenmrsFetch)
   .calledWith(buildPath(COMPONENT_ART))
-  .mockResolvedValue({ data: { results: [artComponent] } });
+  .mockResolvedValue({ data: { results: [artComponentSkeleton] } });
 when(mockOpenmrsFetch)
-  .calledWith(buildPath(COMPONENT_HOSPITALIZATION))
-  .mockResolvedValue({ data: { results: [hospitalizationComponent] } });
+  .calledWith(buildPath(COMPONENT_ART_UUID))
+  .mockResolvedValue({ data: artComponentSkeleton });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(COMPONENT_ART_SCHEMA_VALUE_REF))
+  .mockResolvedValue({ data: artComponentBody });
+
 when(mockOpenmrsFetch)
   .calledWith(buildPath(COMPONENT_PRECLINIC_REVIEW))
-  .mockResolvedValue({ data: { results: [preclinicReviewComponent] } });
+  .mockResolvedValue({ data: { results: [preclinicReviewComponentSkeleton] } });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(COMPONENT_PRECLINIC_REVIEW_UUID))
+  .mockResolvedValue({ data: preclinicReviewComponentSkeleton });
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(COMPONENT_PRECLINIC_REVIEW_SCHEMA_VALUE_REF))
+  .mockResolvedValue({ data: preclinicReviewComponentBody });
 
 describe('useFormJson', () => {
   it('should fetch basic form by name', async () => {
@@ -135,16 +159,14 @@ describe('useFormJson', () => {
   it('should load form components in combined raw form json', async () => {
     let hook = null;
     await act(async () => {
-      hook = renderHook(() => useFormJson(null, formComponent, null, null));
+      hook = renderHook(() => useFormJson(null, formComponentBody, null, null));
     });
-    console.log("Test Status", hook.result.current.isLoading);
     expect(hook.result.current.isLoading).toBe(false);
     expect(hook.result.current.error).toBe(undefined);
     expect(hook.result.current.formJson.name).toBe(COMPONENT_FORM_NAME);
 
-
-    // verify subforms
-    // verifyFormComponents(hook.result.current.formJson);
+    // verify form components have been loaded
+    verifyFormComponents(hook.result.current.formJson);
   });
 });
 
@@ -163,5 +185,5 @@ function verifyEmbeddedForms(formJson) {
 
 function verifyFormComponents(formJson) {
   // assert that alias has been replaced with the actual component
-  expect(formJson.pages.length).toBe(1);
+  expect(formJson.pages.length).toBe(2);
 }

@@ -1,73 +1,38 @@
 {
+  "uuid": "af7c1fe6-d669-414e-b066-e9733f0de7b8",
+  "display": "Form Component",
   "name": "Form Component",
-  "referencedForms": [
-    {
-      "formName": "component_preclinic-review",
-      "alias": "pcr"
+  "description": null,
+  "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe",
+  "version": "1.0",
+  "build": null,
+  "published": false,
+  "formFields": [],
+  "retired": false,
+  "auditInfo": {
+    "creator": {
+      "uuid": "82f18b44-6814-11e8-923f-e9a88dcb533f",
+      "display": "admin",
+      "links": [
+        {
+          "rel": "self",
+          "uri": "http://ohri-demo.globalhealthapp.net/openmrs/ws/rest/v1/user/82f18b44-6814-11e8-923f-e9a88dcb533f",
+          "resourceAlias": "user"
+        }
+      ]
     },
+    "dateCreated": "2023-04-10T07:15:01.000+0000",
+    "changedBy": null,
+    "dateChanged": null
+  },
+  "resources": [
     {
-      "formName": "component_hospitalization",
-      "alias": "hosp"
-    },
-    {
-      "formName": "component_art",
-      "alias": "art"
+      "uuid": "c6c14f84-2aee-45f9-928e-57ac4a2ac557",
+      "name": "JSON schema",
+      "valueReference": "74d06044-850f-11ee-b9d1-0242ac120002",
+      "display": "JSON schema",
+      "resourceVersion": "1.9"
     }
   ],
-  "pages": [
-    {
-      "label": "Pre-Clinic Review",
-      "sections": [
-        {
-          "reference": {
-            "form": "pcr",
-            "page": "Pre-clinic Review",
-            "section": "Pre-clinic Review"
-          }
-        }
-      ]
-    },
-    {
-      "label": "Medical History",
-      "sections": [
-        {
-          "reference": {
-            "form": "pcr",
-            "page": "Pre-clinic Review",
-            "section": "Social History"
-          }
-        },
-        {
-          "reference": {
-            "form": "pcr",
-            "page": "Pre-clinic Review",
-            "section": "Prevention With Positives"
-          }
-        },
-        {
-          "reference": {
-            "form": "hosp",
-            "page": "Hospitalization",
-            "section": "Hospitalization History"
-          }
-        }
-      ]
-    },
-    {
-      "label": "ART History",
-      "sections": [
-        {
-          "reference": {
-            "form": "art",
-            "page": "ART ",
-            "section": "ART History",
-            "excludeQuestions": ["current_art_regimen_ped"]
-          }
-        }
-      ]
-    }
-  ],
-  "processor": "EncounterFormProcessor",
-  "uuid": "af7c1fe6-d669-414e-b066-e9733f0de7a8",
-  "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe"
+  "resourceVersion": "1.9"
 }
