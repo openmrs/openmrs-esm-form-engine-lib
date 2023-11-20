@@ -46,7 +46,7 @@
                 "label":"Weight for Height Zscore result",
                 "type":"obs",
                 "questionOptions":{
-                  "rendering":"number",
+                  "rendering":"text",
                   "calculate":{
                     "calculateExpression":"calcWeightForHeightZscore( 'height', 'weight')"
                   },
