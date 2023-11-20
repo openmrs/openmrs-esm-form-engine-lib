@@ -201,19 +201,21 @@ const multiSelectObsHandler = (field: OHRIFormField, values: Array<string>, cont
   if (!field.value) {
     field.value = [];
   }
-  values.forEach((value) => {
-    const obs = field.value.find((o) => {
-      if (typeof o.value == 'string') {
-        return o.value == value;
+  if (Array.isArray(values)) {
+    values.forEach((value) => {
+      const obs = field.value.find((o) => {
+        if (typeof o.value == 'string') {
+          return o.value == value;
+        }
+        return o.value.uuid == value;
+      });
+      if (obs && obs.voided) {
+        obs.voided = false;
+      } else {
+        obs || field.value.push(constructObs(value, context, field));
       }
-      return o.value.uuid == value;
     });
-    if (obs && obs.voided) {
-      obs.voided = false;
-    } else {
-      obs || field.value.push(constructObs(value, context, field));
-    }
-  });
+  }
 
   // void or remove unchecked options
   field.questionOptions.answers
