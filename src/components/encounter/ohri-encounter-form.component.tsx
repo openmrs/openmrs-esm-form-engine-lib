@@ -520,7 +520,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     value: any,
     setErrors: (errors: Array<ValidationResult>) => void,
     setWarnings: (warnings: Array<ValidationResult>) => void,
-    isUnspecified: Boolean,
+    isUnspecified: boolean,
   ) => {
     const field = fields.find((field) => field.id == fieldName);
     const validators = Array.isArray(field.validators)
