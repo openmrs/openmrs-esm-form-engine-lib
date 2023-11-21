@@ -63,34 +63,26 @@ describe('OHRI Forms:', () => {
     cleanup();
     jest.useRealTimers();
   });
+  it('Should evaluate Height for Age Zscore result', async () => {
+    // setup
+    await act(async () => renderForm(null, WA_Zscore));
 
-  describe('Calcuated values', () => {
-    afterEach(() => {
-      cleanup();
-    });
+    const HeightAgeField = await findNumberInput(screen, 'Height for Age Zscore result');
+    const heightField = await findNumberInput(screen, 'Height');
+    const weightField = await findNumberInput(screen, 'Weight');
 
-    it('Should evaluate Height for Age Zscore result', async () => {
-      // setup
-      await act(async () => renderForm(null, WA_Zscore));
+    await act(async () => expect(heightField.value).toBe(''));
+    // let assumeAgeToBe = "1/01/2006"
 
-      const HeightAgeField = await findNumberInput(screen, 'Height for Age Zscore result');
-      const heightField = await findNumberInput(screen, 'Height');
-      const weightField = await findNumberInput(screen, 'Weight');
+    // replay
+    fireEvent.blur(heightField, { target: { value: 150 } });
+    fireEvent.blur(weightField, { target: { value: 45 } });
 
-      await act(async () => expect(heightField.value).toBe(''));
-      // let assumeAgeToBe = "1/01/2006"
-
-      // replay
-      fireEvent.blur(heightField, { target: { value: 150 } });
-      fireEvent.blur(weightField, { target: { value: 45 } });
-
-      // verify
-      await act(async () => expect(heightField.value).toBe('150'));
-      await act(async () => expect(weightField.value).toBe('45'));
-      await act(async () => expect(HeightAgeField.value).toBe('4'));
-    });
+    // verify
+    await act(async () => expect(heightField.value).toBe('150'));
+    await act(async () => expect(weightField.value).toBe('45'));
+    await act(async () => expect(HeightAgeField.value).toBe('4'));
   });
-
   function renderForm(formUUID, formJson, intent?: string) {
     return act(() => {
       render(

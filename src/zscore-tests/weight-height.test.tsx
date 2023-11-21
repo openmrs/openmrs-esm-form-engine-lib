@@ -63,34 +63,26 @@ describe('OHRI Forms:', () => {
     cleanup();
     jest.useRealTimers();
   });
+  it('Should evaluate Weight for Height Zscore result', async () => {
+    // setup
+    await act(async () => renderForm(null, wh_zscore));
 
-  describe('Calcuated values', () => {
-    afterEach(() => {
-      cleanup();
-    });
+    const WHField = await findTextOrDateInput(screen, 'Weight for Height Zscore result');
+    const heightField = await findNumberInput(screen, 'Height');
+    const weightField = await findNumberInput(screen, 'Weight');
+    await act(async () => expect(heightField.value).toBe(''));
+    await act(async () => expect(weightField.value).toBe(''));
+    await act(async () => expect(WHField.value).toBe(''));
 
-    it('Should evaluate Weight for Height Zscore result', async () => {
-      // setup
-      await act(async () => renderForm(null, wh_zscore));
+    // replay
+    fireEvent.blur(heightField, { target: { value: 110 } });
+    fireEvent.blur(weightField, { target: { value: 45 } });
 
-      const WHField = await findTextOrDateInput(screen, 'Weight for Height Zscore result');
-      const heightField = await findNumberInput(screen, 'Height');
-      const weightField = await findNumberInput(screen, 'Weight');
-      await act(async () => expect(heightField.value).toBe(''));
-      await act(async () => expect(weightField.value).toBe(''));
-      await act(async () => expect(WHField.value).toBe(''));
-
-      // replay
-      fireEvent.blur(heightField, { target: { value: 110 } });
-      fireEvent.blur(weightField, { target: { value: 45 } });
-
-      // verify
-      await act(async () => expect(heightField.value).toBe('110'));
-      await act(async () => expect(weightField.value).toBe('45'));
-      await act(async () => expect(WHField.value).toBe('4'));
-    });
+    // verify
+    await act(async () => expect(heightField.value).toBe('110'));
+    await act(async () => expect(weightField.value).toBe('45'));
+    await act(async () => expect(WHField.value).toBe('4'));
   });
-
   function renderForm(formUUID, formJson, intent?: string) {
     return act(() => {
       render(
