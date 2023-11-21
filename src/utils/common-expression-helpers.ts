@@ -1,11 +1,16 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
-
+import findIndex from 'lodash/findIndex';
+import filter from 'lodash/filter';
+import first from 'lodash/first';
+import forEach from 'lodash/forEach';
+import last from 'lodash/last';
 import { OHRIFormField } from '../api/types';
 import { FormNode } from './expression-runner';
 import { isEmpty as isValueEmpty } from '../validators/ohri-form-validator';
 import * as apiFunctions from '../api/api';
+import { getZRefByGenderAndAge } from './zscore-service';
 
 export class CommonExpressionHelpers {
   node: FormNode = null;
@@ -257,6 +262,159 @@ export class CommonExpressionHelpers {
     }
     return gravida;
   }
+
+  calcWeightForHeightZscore = (height, weight) => {
+    const birthDate = new Date(this.patient.birthDate);
+    const weightForHeightRef = getZRefByGenderAndAge(this.patient.sex, birthDate, new Date()).weightForHeightRef;
+    let refSection;
+    let formattedSDValue;
+    if (height && weight) {
+      height = parseFloat(height).toFixed(1);
+    }
+    const standardHeightMin = 45;
+    const standardMaxHeight = 110;
+    if (height < standardHeightMin || height > standardMaxHeight) {
+      formattedSDValue = -4;
+    } else {
+      refSection = filter(weightForHeightRef, (refObject) => {
+        return parseFloat(refObject['Length']).toFixed(1) === height;
+      });
+    }
+
+    const refSectionObject = first(refSection);
+    if (refSectionObject) {
+      const refObjectValues = Object.keys(refSectionObject)
+        .map((key) => refSectionObject[key])
+        .map((x) => x);
+      const refObjectKeys = Object.keys(refSectionObject);
+      const minimumValue = refObjectValues[1];
+      const minReferencePoint = [];
+      if (weight < minimumValue) {
+        minReferencePoint.push(minimumValue);
+      } else {
+        forEach(refObjectValues, (value) => {
+          if (value <= weight) {
+            minReferencePoint.push(value);
+          }
+        });
+      }
+      const lastReferenceValue = last(minReferencePoint);
+      const lastValueIndex = findIndex(refObjectValues, (o) => {
+        return o === lastReferenceValue;
+      });
+      const SDValue = refObjectKeys[lastValueIndex];
+      formattedSDValue = SDValue.replace('SD', '');
+      if (formattedSDValue.includes('neg')) {
+        formattedSDValue = formattedSDValue.substring(1, 0);
+        formattedSDValue = '-' + formattedSDValue;
+      }
+      if (
+        formattedSDValue === 'S' ||
+        formattedSDValue === 'L' ||
+        formattedSDValue === 'M' ||
+        formattedSDValue === '-5'
+      ) {
+        formattedSDValue = '-4';
+      }
+    }
+
+    return height && weight ? formattedSDValue : null;
+  };
+
+  calcBMIForAgeZscore = (height, weight) => {
+    const birthDate = new Date(this.patient.birthDate);
+    const bmiForAgeRef = getZRefByGenderAndAge(this.patient.sex, birthDate, new Date()).bmiForAgeRef;
+    let bmi;
+    const maxAgeInDays = 1856;
+    if (height && weight) {
+      bmi = (weight / (((height / 100) * height) / 100)).toFixed(1);
+    }
+    const refSectionObject = first(bmiForAgeRef);
+    let formattedSDValue;
+    if (refSectionObject) {
+      const refObjectValues = Object.keys(refSectionObject)
+        .map((key) => refSectionObject[key])
+        .map((x) => x);
+      const refObjectKeys = Object.keys(refSectionObject);
+      const minimumValue = refObjectValues[1];
+      const minReferencePoint = [];
+      if (bmi < minimumValue) {
+        minReferencePoint.push(minimumValue);
+      } else {
+        forEach(refObjectValues, (value) => {
+          if (value <= bmi) {
+            minReferencePoint.push(value);
+          }
+        });
+      }
+      const lastReferenceValue = last(minReferencePoint);
+      const lastValueIndex = findIndex(refObjectValues, (o) => {
+        return o === lastReferenceValue;
+      });
+      const SDValue = refObjectKeys[lastValueIndex];
+      formattedSDValue = SDValue.replace('SD', '');
+      if (formattedSDValue.includes('neg')) {
+        formattedSDValue = formattedSDValue.substring(1, 0);
+        formattedSDValue = '-' + formattedSDValue;
+      }
+
+      if (
+        formattedSDValue === 'S' ||
+        formattedSDValue === 'L' ||
+        formattedSDValue === 'M' ||
+        formattedSDValue === '-5'
+      ) {
+        formattedSDValue = '-4';
+      }
+    }
+
+    return bmi && refSectionObject ? formattedSDValue : null;
+  };
+
+  calcHeightForAgeZscore = (height, weight) => {
+    const birthDate = new Date(this.patient.birthDate);
+    const heightForAgeRef = getZRefByGenderAndAge(this.patient.sex, birthDate, new Date()).heightForAgeRef;
+    const refSectionObject = first(heightForAgeRef);
+    let formattedSDValue;
+    if (refSectionObject) {
+      const refObjectValues = Object.keys(refSectionObject)
+        .map((key) => refSectionObject[key])
+        .map((x) => x);
+      const refObjectKeys = Object.keys(refSectionObject);
+      const minimumValue = refObjectValues[1];
+      const minReferencePoint = [];
+      if (height < minimumValue) {
+        minReferencePoint.push(minimumValue);
+      } else {
+        forEach(refObjectValues, (value) => {
+          if (value <= height) {
+            minReferencePoint.push(value);
+          }
+        });
+      }
+      const lastReferenceValue = last(minReferencePoint);
+      const lastValueIndex = findIndex(refObjectValues, (o) => {
+        return o === lastReferenceValue;
+      });
+      const SDValue = refObjectKeys[lastValueIndex];
+      formattedSDValue = SDValue.replace('SD', '');
+      if (formattedSDValue.includes('neg')) {
+        formattedSDValue = formattedSDValue.substring(1, 0);
+        formattedSDValue = '-' + formattedSDValue;
+      }
+
+      if (
+        formattedSDValue === 'S' ||
+        formattedSDValue === 'L' ||
+        formattedSDValue === 'M' ||
+        formattedSDValue === '-5'
+      ) {
+        formattedSDValue = '-4';
+      }
+    }
+
+    return height && weight && refSectionObject ? formattedSDValue : null;
+  };
 
   calcTimeDifference = (obsDate: Date | dayjs.Dayjs, timeFrame: 'd' | 'w' | 'm' | 'y') => {
     let daySinceLastObs: number | string = '';
