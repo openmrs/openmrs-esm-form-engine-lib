@@ -124,6 +124,7 @@ export interface OHRIFormFieldProps {
     value: any,
     setErrors: (errors: Array<ValidationResult>) => void,
     setWarnings: (warnings: Array<ValidationResult>) => void,
+    isUnspecified?: boolean,
   ) => void;
   handler: SubmissionHandler;
   // This is of util to components defined out of the engine

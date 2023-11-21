@@ -520,6 +520,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     value: any,
     setErrors: (errors: Array<ValidationResult>) => void,
     setWarnings: (warnings: Array<ValidationResult>) => void,
+    isUnspecified: boolean,
   ) => {
     const field = fields.find((field) => field.id == fieldName);
     const validators = Array.isArray(field.validators)
@@ -533,14 +534,16 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     };
     const errors = [];
     const warnings = [];
-    for (let validatorConfig of validators) {
-      const errorsAndWarinings =
-        formFieldValidators[validatorConfig.type].validate(field, value, {
-          ...basevalidatorConfig,
-          ...validatorConfig,
-        }) || [];
-      errors.push(...errorsAndWarinings.filter((error) => error.resultType == 'error'));
-      warnings.push(...errorsAndWarinings.filter((error) => error.resultType == 'warning'));
+    if (!isUnspecified) {
+      for (let validatorConfig of validators) {
+        const errorsAndWarinings =
+          formFieldValidators[validatorConfig.type].validate(field, value, {
+            ...basevalidatorConfig,
+            ...validatorConfig,
+          }) || [];
+        errors.push(...errorsAndWarinings.filter((error) => error.resultType == 'error'));
+        warnings.push(...errorsAndWarinings.filter((error) => error.resultType == 'warning'));
+      }
     }
     setErrors?.(errors);
     setWarnings?.(warnings);
