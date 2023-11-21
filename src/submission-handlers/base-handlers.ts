@@ -219,7 +219,7 @@ const multiSelectObsHandler = (field: OHRIFormField, values: Array<string>, cont
 
   // void or remove unchecked options
   field.questionOptions.answers
-    .filter((opt) => !values.some((v) => v == opt.concept))
+    .filter((opt) => Array.isArray(values) && !values?.some((v) => v == opt.concept))
     .forEach((opt) => {
       const observations = field.value.filter((o) => {
         if (typeof o.value == 'string') {
