@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { OHRIFormSchema } from '../api/types';
+import { OHRIFormSchema, OHRIFormSection, ReferencedForm } from '../api/types';
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
 import { fetchOpenMRSForm, fetchClobData } from '../api/api';
@@ -9,10 +9,10 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
   const [error, setError] = useState(validateFormsArgs(formUuid, rawFormJson));
   useEffect(() => {
     loadFormJson(formUuid, rawFormJson, formSessionIntent)
-      .then(formJson => {
+      .then((formJson) => {
         setFormJson({ ...formJson, encounter: encounterUuid });
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
         setError(new Error('Error loading form JSON: ' + error.message));
       });
@@ -45,26 +45,33 @@ export async function loadFormJson(
     ? { ...clobDataResponse, uuid: openmrsFormResponse.uuid }
     : rawFormJson;
 
+  // Sub forms
   const subformRefs = extractSubformRefs(formJson);
   const subforms = await loadSubforms(subformRefs, formSessionIntent);
   updateFormJsonWithSubforms(formJson, subforms);
+
+  // Form components
+  const formComponentsRefs = getReferencedForms(formJson);
+  const resolvedFormComponents = await loadFormComponents(formComponentsRefs);
+  const formComponents = mapFormComponents(resolvedFormComponents);
+  updateFormJsonWithComponents(formJson, formComponents);
 
   return refineFormJson(formJson, formSessionIntent);
 }
 
 function extractSubformRefs(formJson: OHRIFormSchema): string[] {
   return formJson.pages
-    .filter(page => page.isSubform && !page.subform.form && page.subform?.name)
-    .map(page => page.subform?.name);
+    .filter((page) => page.isSubform && !page.subform.form && page.subform?.name)
+    .map((page) => page.subform?.name);
 }
 
 async function loadSubforms(subformRefs: string[], formSessionIntent?: string): Promise<OHRIFormSchema[]> {
-  return Promise.all(subformRefs.map(subform => loadFormJson(subform, null, formSessionIntent)));
+  return Promise.all(subformRefs.map((subform) => loadFormJson(subform, null, formSessionIntent)));
 }
 
 function updateFormJsonWithSubforms(formJson: OHRIFormSchema, subforms: OHRIFormSchema[]): void {
-  subforms.forEach(subform => {
-    const matchingPage = formJson.pages.find(page => page.subform?.name === subform.name);
+  subforms.forEach((subform) => {
+    const matchingPage = formJson.pages.find((page) => page.subform?.name === subform.name);
     if (matchingPage) {
       matchingPage.subform.form = subform;
     }
@@ -114,7 +121,7 @@ function removeInlineSubforms(formJson: OHRIFormSchema, formSessionIntent: strin
       !isTrue(page.isHidden) &&
       page.subform?.form?.encounterType === formJson.encounterType
     ) {
-      const nonSubformPages = page.subform.form.pages.filter(page => !isTrue(page.isSubform));
+      const nonSubformPages = page.subform.form.pages.filter((page) => !isTrue(page.isSubform));
       formJson.pages.splice(i, 1, ...refineFormJson(page.subform.form, formSessionIntent).pages);
     }
   }
@@ -129,4 +136,77 @@ function setEncounterType(formJson: OHRIFormSchema): void {
     formJson.encounterType = formJson.encounter;
     delete formJson.encounter;
   }
+}
+
+/**
+ * Functions to support reusable Form Components
+ */
+function getReferencedForms(formJson: OHRIFormSchema): Array<ReferencedForm> {
+  const referencedForms: Array<any> = formJson?.referencedForms;
+  if (!referencedForms) {
+    return [];
+  }
+  return referencedForms;
+}
+
+async function loadFormComponents(formComponentRefs: Array<ReferencedForm>): Promise<OHRIFormSchema[]> {
+  return Promise.all(formComponentRefs.map((formComponent) => loadFormJson(formComponent.formName, null, null)));
+}
+
+function mapFormComponents(formComponents: Array<OHRIFormSchema>): Map<string, OHRIFormSchema> {
+  const formComponentsMap: Map<string, OHRIFormSchema> = new Map();
+
+  formComponents.forEach((formComponent) => {
+    formComponentsMap.set(formComponent.name, formComponent);
+  });
+
+  return formComponentsMap;
+}
+
+function updateFormJsonWithComponents(formJson: OHRIFormSchema, formComponents: Map<string, OHRIFormSchema>): void {
+  formComponents.forEach((component, alias) => {
+    //loop through pages and search sections for reference key
+    formJson.pages.forEach((page) => {
+      if (page.sections) {
+        page.sections.forEach((section) => {
+          if (section.reference && section.reference.form === alias) {
+            // resolve referenced component section
+            let resolvedFormSection = getReferencedFormSection(section, component);
+            // add resulting referenced component section to section
+            Object.assign(section, resolvedFormSection);
+          }
+        });
+      }
+    });
+  });
+}
+
+function getReferencedFormSection(formSection: OHRIFormSection, formComponent: OHRIFormSchema): OHRIFormSection {
+  let referencedFormSection: OHRIFormSection;
+
+  // search for component page and section reference from component
+  let matchingComponentPage = formComponent.pages.filter((page) => page.label === formSection.reference.page);
+  if (matchingComponentPage.length > 0) {
+    let matchingComponentSection = matchingComponentPage[0].sections.filter(
+      (componentSection) => componentSection.label === formSection.reference.section,
+    );
+    if (matchingComponentSection.length > 0) {
+      referencedFormSection = matchingComponentSection[0];
+    }
+  }
+
+  return filterExcludedQuestions(referencedFormSection);
+}
+
+function filterExcludedQuestions(formSection: OHRIFormSection): OHRIFormSection {
+  if (formSection.reference.excludeQuestions) {
+    const excludeQuestions = formSection.reference.excludeQuestions;
+    formSection.questions = formSection.questions.filter((question) => {
+      return !excludeQuestions.includes(question.id);
+    });
+  }
+  // delete reference from section
+  delete formSection.reference;
+
+  return formSection;
 }

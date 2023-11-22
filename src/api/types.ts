@@ -139,6 +139,7 @@ export interface OHRIFormSection {
   questions: Array<OHRIFormField>;
   inlineRendering?: 'single-line' | 'multiline' | 'automatic';
   readonly?: string | boolean;
+  reference?: FormReference;
 }
 
 export interface OHRIFormQuestionOptions {
@@ -296,4 +297,16 @@ export interface Attachment {
   dateTime: string;
   bytesMimeType: string;
   bytesContentFamily: string;
+}
+
+export interface FormReference {
+  form: string;
+  page: string;
+  section: string;
+  excludeQuestions?: Array<string>;
+}
+
+export interface ReferencedForm {
+  formName: string;
+  alias: string;
 }

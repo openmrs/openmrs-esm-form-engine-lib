@@ -30,14 +30,14 @@
 				}
 			]
 		},
-        {
-            "isSubform": "true",
-            "subform": {
-                "name": "Mini Form"
-            }
-        }
+		{
+			"isSubform": "true",
+			"subform": {
+				"name": "Mini Form"
+			}
+		}
 	],
-  "processor": "EncounterFormProcessor",
-  "uuid": "8304e5ff-6324-4863-ac51-8fcbc6812b13",
-  "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe"
+	"processor": "EncounterFormProcessor",
+	"uuid": "8304e5ff-6324-4863-ac51-8fcbc6812b13",
+	"encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe"
 }

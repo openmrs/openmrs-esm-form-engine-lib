@@ -174,37 +174,37 @@ jobs:
           branch: chore/bump-form-engine
           base: main
 
-  bump-form_builder:
-    runs-on: ubuntu-latest
+  # bump-form_builder:
+  #   runs-on: ubuntu-latest
 
-    needs: pre_release
+  #   needs: pre_release
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          repository: openmrs/openmrs-esm-form-builder
-          ref: main
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: openmrs/openmrs-esm-form-builder
+  #         ref: main
 
-      - name: Install dependencies
-        run: yarn
+  #     - name: Install dependencies
+  #       run: yarn
 
-      - name: Bump form engine
-        run: yarn ci:bump-form-engine-lib
+  #     - name: Bump form engine
+  #       run: yarn ci:bump-form-engine-lib
 
-      - name: Commit changes
-        run: |
-          git config user.email "github-actions@github.com"
-          git config user.name "GitHub Actions"
-          git add yarn.lock
-          git commit -m "(chore) bump-form-engine"
+  #     - name: Commit changes
+  #       run: |
+  #         git config user.email "github-actions@github.com"
+  #         git config user.name "GitHub Actions"
+  #         git add yarn.lock
+  #         git commit -m "(chore) bump-form-engine"
 
-      - name: Create PR
-        uses: peter-evans/create-pull-request@v3
-        with:
-          token: ${{ secrets.ACTIONS_OHRI_PAT }}
-          commit-message: "(chore) Bump `@openmrs/openmrs-form-engine-lib`"
-          title: "(chore) Bump `@openmrs/openmrs-form-engine-lib`"
-          body: "This is an automated PR that bumps the [form engine library](https://github.com/openmrs/openmrs-form-engine-lib) to the newest available version tagged `next`."
-          branch: chore/bump-form-engine
-          base: main
+  #     - name: Create PR
+  #       uses: peter-evans/create-pull-request@v3
+  #       with:
+          # token: ${{ secrets.ACTIONS_OHRI_PAT }}
+  #         commit-message: "(chore) Bump `@openmrs/openmrs-form-engine-lib`"
+  #         title: "(chore) Bump `@openmrs/openmrs-form-engine-lib`"
+  #         body: "This is an automated PR that bumps the [form engine library](https://github.com/openmrs/openmrs-form-engine-lib) to the newest available version tagged `next`."
+  #         branch: chore/bump-form-engine
+  #         base: main

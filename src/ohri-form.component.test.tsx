@@ -101,7 +101,7 @@ describe("OHRI Forms:", () => {
     cleanup();
     jest.useRealTimers();
   });
-  
+
   it("Should render by the form json without dying", async () => {
     await act(async () => renderForm(null, hts_poc_1_1));
     await assertFormHasAllFields(screen, [
@@ -190,7 +190,7 @@ describe("OHRI Forms:", () => {
 
       // Add assertions for a successful submission
       expect(saveEncounterMock).toBeCalledTimes(1);
-      expect(saveEncounterMock).toHaveBeenCalledWith(expect.any(AbortController), expect.any(Object), undefined);      
+      expect(saveEncounterMock).toHaveBeenCalledWith(expect.any(AbortController), expect.any(Object), undefined);
       expect(saveEncounterMock).toHaveReturned();
     });
 
@@ -223,7 +223,7 @@ describe("OHRI Forms:", () => {
       const [abortController, encounter, encounterUuid] = saveEncounterMock.mock.calls[0];
       expect(encounter.obs.length).toEqual(3);
       expect(encounter.obs.find(obs => obs.formFieldPath === "ohri-forms-hivEnrolmentDate")).toBeUndefined();
-      
+
     });
 
   });
@@ -353,7 +353,6 @@ describe("OHRI Forms:", () => {
 
     it("Should evaluate months on ART", async () => {
       // setup
-      console.log(locale);
       await act(async () => renderForm(null, months_on_art_form));
       jest.useFakeTimers();
       jest.setSystemTime(new Date(2022, 9, 1));

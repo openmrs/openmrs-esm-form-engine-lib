@@ -1,0 +1,38 @@
+{
+  "uuid": "2f063f32-7f8a-11ee-b962-0242ac120004",
+  "display": "component_preclinic-review",
+  "name": "component_preclinic-review",
+  "description": null,
+  "encounterType": "",
+  "version": "1.0",
+  "build": null,
+  "published": false,
+  "formFields": [],
+  "retired": false,
+  "auditInfo": {
+    "creator": {
+      "uuid": "82f18b44-6814-11e8-923f-e9a88dcb533f",
+      "display": "admin",
+      "links": [
+        {
+          "rel": "self",
+          "uri": "http://ohri-demo.globalhealthapp.net/openmrs/ws/rest/v1/user/82f18b44-6814-11e8-923f-e9a88dcb533f",
+          "resourceAlias": "user"
+        }
+      ]
+    },
+    "dateCreated": "2023-04-10T07:15:01.000+0000",
+    "changedBy": null,
+    "dateChanged": null
+  },
+  "resources": [
+    {
+      "uuid": "c6c14f84-2aee-45f9-928e-57ac4a2ac555",
+      "name": "JSON schema",
+      "valueReference": "74d06044-850f-11ee-b9d1-0242ac120004",
+      "display": "JSON schema",
+      "resourceVersion": "1.9"
+    }
+  ],
+  "resourceVersion": "1.9"
+}
