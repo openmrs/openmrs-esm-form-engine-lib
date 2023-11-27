@@ -99,6 +99,7 @@ export interface OHRIFormField {
   type: string;
   questionOptions: OHRIFormQuestionOptions;
   id: string;
+  uuid?: string;
   groupId?: string;
   questions?: Array<OHRIFormField>;
   value?: any;

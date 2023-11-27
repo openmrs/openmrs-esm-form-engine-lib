@@ -18,16 +18,19 @@ export const showAddButton = (limit: string | number, counter: number) => {
 
 export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange }) => {
   const { t } = useTranslation();
-  const { fields: allFormFields, encounterContext, obsGroupsToVoid, formFieldHandlers } = React.useContext(
-    OHRIFormContext,
-  );
+  const {
+    fields: allFormFields,
+    encounterContext,
+    obsGroupsToVoid,
+    formFieldHandlers,
+  } = React.useContext(OHRIFormContext);
   const { values, setValues } = useFormikContext();
   const [counter, setCounter] = useState(1);
   const [obsGroups, setObsGroups] = useState([]);
 
   useEffect(() => {
     const groups = allFormFields.filter(
-      field => field.questionOptions.concept === question.questionOptions.concept && field.id.startsWith(question.id),
+      (field) => field.questionOptions.concept === question.questionOptions.concept && field.id.startsWith(question.id),
     );
     setCounter(groups.length);
     setObsGroups(groups);
@@ -37,7 +40,7 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
     (counter: number) => {
       const clonedGroupingField = cloneObsGroup(question, null, counter);
       // run necessary expressions
-      clonedGroupingField.questions.forEach(childField => {
+      clonedGroupingField.questions.forEach((childField) => {
         if (childField.hide?.hideWhenExpression) {
           childField.isHidden = evaluateExpression(
             childField.hide.hideWhenExpression,
@@ -60,7 +63,7 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
               mode: encounterContext.sessionMode,
               patient: encounterContext.patient,
             },
-          ).then(result => {
+          ).then((result) => {
             if (!isEmpty(result)) {
               values[childField.id] = result;
               formFieldHandlers[childField.type].handleFieldSubmission(childField, result, encounterContext);
@@ -83,12 +86,12 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
       delete question.value.value;
       obsGroupsToVoid.push(question.value);
     }
-    setObsGroups(obsGroups.filter(q => q.id !== question.id));
+    setObsGroups(obsGroups.filter((q) => q.id !== question.id));
 
     // cleanup
-    const dueFields = [question.id, ...question.questions.map(q => q.id)];
-    dueFields.forEach(field => {
-      const index = allFormFields.findIndex(f => f.id === field);
+    const dueFields = [question.id, ...question.questions.map((q) => q.id)];
+    dueFields.forEach((field) => {
+      const index = allFormFields.findIndex((f) => f.id === field);
       allFormFields.splice(index, 1);
       delete values[field];
     });
@@ -96,7 +99,7 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
 
   const nodes = obsGroups.map((question, index) => {
     const deleteControl =
-      obsGroups.length > 1 ? (
+      obsGroups.length > 1 && encounterContext.sessionMode !== 'view' ? (
         <div>
           <div className={styles.removeButton}>
             <Button
@@ -138,7 +141,7 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
             kind="tertiary"
             onClick={() => {
               const nextCount = counter + 1;
-              handleAdd(nextCount);
+              handleAdd(counter);
               setCounter(nextCount);
             }}>
             <span>{question.questionOptions.repeatOptions?.addText || `${t('add', 'Add')}`}</span>

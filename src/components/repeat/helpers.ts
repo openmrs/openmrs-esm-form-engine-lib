@@ -6,8 +6,9 @@ export function cloneObsGroup(srcField: OHRIFormField, obsGroup: any, idSuffix: 
   const clonedField = cloneDeep(srcField) as OHRIFormField;
   clonedField.questionOptions.repeatOptions = { ...(clonedField.questionOptions.repeatOptions ?? {}), isCloned: true };
   clonedField.value = obsGroup;
+  clonedField.uuid = obsGroup?.uuid;
   clonedField.id = `${clonedField.id}_${idSuffix}`;
-  clonedField.questions.forEach(childField => {
+  clonedField.questions.forEach((childField) => {
     originalGroupMembersIds.push(childField.id);
     childField.id = `${childField.id}_${idSuffix}`;
     childField['groupId'] = clonedField.id;
@@ -23,7 +24,7 @@ export function cloneObsGroup(srcField: OHRIFormField, obsGroup: any, idSuffix: 
       );
     }
     if (childField.validators?.length) {
-      childField.validators.forEach(validator => {
+      childField.validators.forEach((validator) => {
         if (validator.type === 'js_expression') {
           validator.failsWhenExpression = updateFieldIdInExpression(
             validator.failsWhenExpression,
@@ -46,7 +47,7 @@ export function cloneObsGroup(srcField: OHRIFormField, obsGroup: any, idSuffix: 
 
 export const updateFieldIdInExpression = (expression: string, index: number, questionIds: string[]) => {
   let uniqueQuestionIds = [...new Set(questionIds)];
-  uniqueQuestionIds.forEach(id => {
+  uniqueQuestionIds.forEach((id) => {
     if (expression.match(id)) {
       expression = expression.replace(new RegExp(id, 'g'), `${id}_${index}`);
     }

@@ -22,6 +22,18 @@ export async function findSelectInput(screen, name: string): Promise<HTMLInputEl
   return await screen.findByRole('button', { name });
 }
 
+export async function findAllRadioGroupInputs(screen, name: string): Promise<Array<HTMLInputElement>> {
+  return await screen.queryAllByRole('group', { name });
+}
+
+export async function findAllRadioGroupMembers(screen, name: string): Promise<Array<HTMLInputElement>> {
+  return await screen.queryAllByRole('radio', { name });
+}
+
+export async function findAllTextOrDateInputs(screen, name: string): Promise<Array<HTMLInputElement>> {
+  return await screen.queryAllByRole('textbox', { name });
+}
+
 const fieldTypeToGetterMap = {
   text: findTextOrDateInput,
   date: findTextOrDateInput,
@@ -38,5 +50,5 @@ export async function assertFormHasAllFields(screen, fields: Array<{ fieldName: 
   const fieldsInDom = await Promise.all(
     fields.map(({ fieldName, fieldType }) => fieldTypeToGetterMap[fieldType](screen, fieldName)),
   );
-  await Promise.all(fieldsInDom.map(field => expect(field).toBeInTheDocument()));
+  await Promise.all(fieldsInDom.map((field) => expect(field).toBeInTheDocument()));
 }

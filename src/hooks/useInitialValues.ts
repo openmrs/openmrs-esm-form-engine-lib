@@ -79,6 +79,12 @@ export function useInitialValues(
             initialValues[`${field.id}-unspecified`] = !!!existingVal;
           }
         });
+      repeatableFields.forEach((field) => {
+        let initializedRepeatField = formFields.find((initField) => initField.id === field.id);
+        if (initializedRepeatField) {
+          initializedRepeatField.uuid = initializedRepeatField.questions[0]?.value?.obsGroup?.uuid;
+        }
+      });
       const flatenedFields = repeatableFields.flatMap((field) => {
         let counter = 1;
         const unMappedGroups = encounter.obs.filter(
