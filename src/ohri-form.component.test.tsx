@@ -33,6 +33,7 @@ import { mockSessionDataResponse } from '../__mocks__/session.mock';
 import demoHtsOpenmrsForm from '../__mocks__/forms/omrs-forms/demo_hts-form.json';
 import demoHtsOhriForm from '../__mocks__/forms/ohri-forms/demo_hts-form.json';
 import obsGroup_test_form from '../__mocks__/forms/ohri-forms/obs-group-test_form.json';
+import labour_and_delivery_test_form from '../__mocks__/forms/ohri-forms/labour_and_delivery_test_form.json';
 
 import {
   assertFormHasAllFields,
@@ -206,6 +207,13 @@ describe('OHRI Forms:', () => {
       const [abortController, encounter, encounterUuid] = saveEncounterMock.mock.calls[0];
       expect(encounter.obs.length).toEqual(3);
       expect(encounter.obs.find((obs) => obs.formFieldPath === 'ohri-forms-hivEnrolmentDate')).toBeUndefined();
+    });
+  });
+
+  describe('Labour and delovery validation', () => {
+    it('should validate that Number of babies field is required', async () => {
+      await act(async () => renderForm(null, labour_and_delivery_test_form));
+      screen.debug();
     });
   });
 

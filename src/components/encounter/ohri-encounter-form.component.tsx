@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { SessionLocation, useLayoutType, Visit } from '@openmrs/esm-framework';
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { SessionLocation, showToast, useLayoutType, Visit } from '@openmrs/esm-framework';
 import { ConceptFalse, ConceptTrue } from '../../constants';
 import {
   OHRIFormField,
@@ -14,8 +14,10 @@ import { OHRIFormContext } from '../../ohri-form-context';
 import {
   cascadeVisibityToChildFields,
   evaluateFieldReadonlyProp,
+  evaluateLNDform,
   findConceptByReference,
   findPagesWithErrors,
+  validateLNDbirthCount,
   voidObsValueOnFieldHidden,
 } from '../../utils/ohri-form-helper';
 import { isEmpty, isEmpty as isValueEmpty, OHRIFieldValidator } from '../../validators/ohri-form-validator';
@@ -53,6 +55,7 @@ interface OHRIEncounterFormProps {
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
   setSelectedPage: (page: string) => void;
   isSubmitting: boolean;
+  setIsSubmitting?: Dispatch<SetStateAction<boolean>>;
 }
 
 export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
@@ -76,6 +79,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   allInitialValues,
   setAllInitialValues,
   isSubmitting,
+  setIsSubmitting,
 }) => {
   const [fields, setFields] = useState<Array<OHRIFormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
@@ -493,6 +497,22 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         visit: visit?.uuid,
       };
     }
+
+    if (encounterForSubmission.form.uuid === '1e5614d6-5306-11e6-beb8-9e71128cae77') {
+      const LNDfieldValidation = validateLNDbirthCount(encounterForSubmission);
+      if (LNDfieldValidation) {
+        setIsSubmitting(false);
+        showToast({
+          description: LNDfieldValidation,
+          title: 'Invalid entry',
+          kind: 'error',
+          critical: true,
+        });
+        throw new Error('Invalid entry');
+      }
+    }
+
+    // evaluateLNDform(encounter, setIsSubmitting);
 
     if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {
       const ac = new AbortController();

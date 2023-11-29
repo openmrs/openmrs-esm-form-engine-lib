@@ -1,12 +1,59 @@
 import dayjs from 'dayjs';
-import { LayoutType } from '@openmrs/esm-framework';
+import { LayoutType, showToast } from '@openmrs/esm-framework';
 import { fetchConceptNameByUuid } from '../api/api';
 import { ConceptTrue } from '../constants';
 import { EncounterContext } from '../ohri-form-context';
-import { OHRIFormField, OHRIFormPage, OHRIFormSection, SubmissionHandler } from '../api/types';
+import { OHRIFormField, OHRIFormPage, OHRIFormSection, OpenmrsEncounter, SubmissionHandler } from '../api/types';
 import { OHRIDefaultFieldValueValidator } from '../validators/default-value-validator';
 import { isEmpty } from '../validators/ohri-form-validator';
 import { isTrue } from './boolean-utils';
+import { Dispatch, SetStateAction } from 'react';
+
+export const validateLNDbirthCount = (encounter: OpenmrsEncounter) => {
+  //pulling value of birth count entered
+  if (!encounter) {
+    const errorMessage = 'Missing encounter';
+    console.error(errorMessage);
+    return errorMessage;
+  }
+
+  const { obs: obsArray } = encounter;
+  const birthInfoObs = obsArray.filter((eachObs) => eachObs.concept === '1c70c490-cafa-4c95-9fdd-a30b62bb78b8');
+  const [birthCount] = obsArray.filter((eachObs) => eachObs.formFieldPath === 'ohri-forms-birth_count');
+
+  if (!birthCount || !Object.keys(birthCount)?.length) {
+    const errorMessage = 'Missing birth count';
+    console.error(errorMessage);
+    return errorMessage;
+  }
+  if (!birthInfoObs || !birthInfoObs?.length) {
+    const errorMessage = 'Missing birth information';
+    console.error(errorMessage);
+    return errorMessage;
+  }
+
+  if (birthInfoObs.length !== birthCount.value) {
+    return `Invalid input at 'birth_count'. Expected length: ${birthInfoObs.length}`;
+  }
+
+  return null;
+};
+
+export const evaluateLNDform = (encounter: OpenmrsEncounter, setIsSubmitting: Dispatch<SetStateAction<boolean>>) => {
+  if (encounter.form.uuid === '1e5614d6-5306-11e6-beb8-9e71128cae77') {
+    const LNDfieldValidation = validateLNDbirthCount(encounter);
+    if (LNDfieldValidation) {
+      setIsSubmitting(false);
+      showToast({
+        description: LNDfieldValidation,
+        title: 'Invalid entry',
+        kind: 'error',
+        critical: true,
+      });
+      throw new Error('Invalid entry');
+    }
+  }
+};
 
 export function cascadeVisibityToChildFields(
   visibility: boolean,
@@ -15,13 +62,13 @@ export function cascadeVisibityToChildFields(
   obsToVoidList: Array<Record<string, any>>,
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
 ) {
-  const candidateIds = section.questions.map(q => q.id);
+  const candidateIds = section.questions.map((q) => q.id);
   allFields
-    .filter(field => candidateIds.includes(field.id))
-    .forEach(field => {
+    .filter((field) => candidateIds.includes(field.id))
+    .forEach((field) => {
       field.isParentHidden = visibility;
       if (field.questionOptions.rendering == 'group') {
-        field.questions.forEach(member => {
+        field.questions.forEach((member) => {
           member.isParentHidden = visibility;
         });
       }
@@ -46,7 +93,7 @@ export function inferInitialValueFromDefaultFieldValue(
 }
 
 export function getConceptNameAndUUID(conceptUuid: string) {
-  return fetchConceptNameByUuid(conceptUuid).then(conceptName => {
+  return fetchConceptNameByUuid(conceptUuid).then((conceptName) => {
     return `Concept Name: ${conceptName} \n UUID: ${conceptUuid}`;
   });
 }
@@ -83,8 +130,8 @@ export function voidObsValueOnFieldHidden(
     const isValueIterable = Array.isArray(field.value);
     const iterableValue = isValueIterable ? field.value : [field.value];
     iterableValue
-      .filter(val => !!val.uuid)
-      .forEach(val => {
+      .filter((val) => !!val.uuid)
+      .forEach((val) => {
         val.voided = true;
         obsToVoidList.push(val);
       });
@@ -98,9 +145,9 @@ export function findPagesWithErrors(pages: Set<OHRIFormPage>, errorFields: OHRIF
   let allFormPages = [...pages];
   if (errorFields?.length) {
     //Find pages each of the errors belong to
-    errorFields.forEach(field => {
-      allFormPages.forEach(page => {
-        let errorPage = page.sections.find(section => section.questions.find(question => question === field));
+    errorFields.forEach((field) => {
+      allFormPages.forEach((page) => {
+        let errorPage = page.sections.find((section) => section.questions.find((question) => question === field));
         if (errorPage && !pagesWithErrors.includes(page.label)) {
           pagesWithErrors.push(page.label);
         }
@@ -132,8 +179,8 @@ export function findConceptByReference(reference: string, concepts) {
     // handle mapping
     const [source, code] = reference.split(':');
 
-    return concepts?.find(concept => {
-      return concept?.conceptMappings?.find(mapping => {
+    return concepts?.find((concept) => {
+      return concept?.conceptMappings?.find((mapping) => {
         return (
           mapping?.conceptReferenceTerm?.conceptSource?.name.toUpperCase() === source.toUpperCase() &&
           mapping?.conceptReferenceTerm?.code.toUpperCase() === code.toUpperCase()
@@ -142,7 +189,7 @@ export function findConceptByReference(reference: string, concepts) {
     });
   } else {
     // handle uuid
-    return concepts?.find(concept => {
+    return concepts?.find((concept) => {
       return concept.uuid === reference;
     });
   }
