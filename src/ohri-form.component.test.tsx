@@ -210,10 +210,97 @@ describe('OHRI Forms:', () => {
     });
   });
 
-  describe('Labour and delovery validation', () => {
-    it('should validate that Number of babies field is required', async () => {
+  describe('Labour and delivery validation', () => {
+    fit('should validate that number of babies field is required', async () => {
       await act(async () => renderForm(null, labour_and_delivery_test_form));
-      screen.debug();
+
+      const birthInfoLabel = await screen.findByText(/Number of babies born from this pregnancy/);
+
+      expect(birthInfoLabel).toBeInTheDocument();
+      expect(birthInfoLabel).toHaveStyle('color: #525252');
+
+      await act(async () => {
+        fireEvent.click(screen.getByText(/save/i));
+      });
+
+      expect(birthInfoLabel).toHaveStyle({ color: '#da1e28' });
+    });
+
+    fit('should show error toast when the birth count does not match birth info count', async () => {
+      await act(async () => renderForm(null, labour_and_delivery_test_form));
+
+      //visit date field
+      const visitDateField = await findTextOrDateInput(screen, 'Visit Date');
+      expect(visitDateField).toBeInTheDocument();
+      fireEvent.blur(visitDateField, { target: { value: '2023-09-09T00:00:00.000Z' } });
+
+      //Missing radio button in "Was client booked" field
+      const wasClientBookedLabel = await screen.findByText(
+        'Was this client booked (Does Client have a pink book?) at ANC?',
+      );
+      const clientBookedMissingRadioButton = wasClientBookedLabel.closest('label').querySelector('[value="Missing"]');
+      expect(clientBookedMissingRadioButton).toBeInTheDocument();
+      fireEvent.click(clientBookedMissingRadioButton);
+
+      //PTrackerId field
+      const PtrackerIdField = await findTextOrDateInput(screen, 'PTracker ID');
+      expect(PtrackerIdField).toBeInTheDocument();
+      fireEvent.blur(PtrackerIdField, { target: { value: '10203F23453423' } });
+
+      //Missing radio button in "ANC HIV test status" field
+      const ancTestStatusLabel = await screen.findByText('ANC HIV test status');
+      const ancTestStatusMissingRadioButton = ancTestStatusLabel.closest('label').querySelector('[value="Missing"]');
+      expect(ancTestStatusMissingRadioButton).toBeInTheDocument();
+      fireEvent.click(ancTestStatusMissingRadioButton);
+
+      //Missing radio button in "HIV Test Status at maternity/delivery" field
+      const statusAtMaternityLabel = await screen.findByText('HIV Test Status at maternity/delivery');
+      const testAtMaternityMissingRadioButton = statusAtMaternityLabel
+        .closest('label')
+        .querySelector('[value="Missing"]');
+      expect(testAtMaternityMissingRadioButton).toBeInTheDocument();
+      fireEvent.click(testAtMaternityMissingRadioButton);
+
+      //Missing radio button in "Viral Load test done?" field
+      const viralLoadTestLabel = await screen.findByText('Viral Load test done?');
+      const viralLoadTestMissingRadioButton = viralLoadTestLabel.closest('label').querySelector('[value="Missing"]');
+      expect(viralLoadTestMissingRadioButton).toBeInTheDocument();
+      fireEvent.click(viralLoadTestMissingRadioButton);
+
+      //Missing radio button in "Mother's status" field
+      const motherStatusLabel = await screen.findByText("Mother's status");
+      const MotherStatusMissingRadioButton = motherStatusLabel.closest('label').querySelector('[value="Missing"]');
+      expect(MotherStatusMissingRadioButton).toBeInTheDocument();
+      fireEvent.click(MotherStatusMissingRadioButton);
+
+      //Number of babies born from this pregnancy
+      const birthCount = await findNumberInput(screen, 'Number of babies born from this pregnancy');
+      expect(birthCount).toBeInTheDocument();
+      fireEvent.blur(birthCount, { target: { value: 3 } });
+
+      //Male radio button in "Sex" field
+      const sexLabel = await screen.findByText('Sex');
+      const maleSexRadioButton = sexLabel.closest('label').querySelector('[value="Male"]');
+      expect(maleSexRadioButton).toBeInTheDocument();
+      fireEvent.click(maleSexRadioButton);
+
+      //Missing radio button in "infant status" field
+      const infantStatusLabel = await screen.findByText('Infant Status at birth');
+      const infantStatusMissingRadioButton = infantStatusLabel.closest('label').querySelector('[value="Missing"]');
+      expect(infantStatusMissingRadioButton).toBeInTheDocument();
+      fireEvent.click(infantStatusMissingRadioButton);
+
+      // date of birth field
+      const dateOfBirth = await findTextOrDateInput(screen, 'Date of Birth');
+      expect(dateOfBirth).toBeInTheDocument();
+      fireEvent.blur(birthCount, { target: { value: '2023-09-09T00:00:00.000Z' } });
+
+      //saving form
+      await act(async () => {
+        fireEvent.submit(screen.getByText(/save/i));
+      });
+
+      expect("Invalid input at 'birth_count'. Expected length: 1").toBeInTheDocument();
     });
   });
 

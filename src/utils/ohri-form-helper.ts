@@ -10,7 +10,6 @@ import { isTrue } from './boolean-utils';
 import { Dispatch, SetStateAction } from 'react';
 
 export const validateLNDbirthCount = (encounter: OpenmrsEncounter) => {
-  //pulling value of birth count entered
   if (!encounter) {
     const errorMessage = 'Missing encounter';
     console.error(errorMessage);
@@ -26,6 +25,7 @@ export const validateLNDbirthCount = (encounter: OpenmrsEncounter) => {
     console.error(errorMessage);
     return errorMessage;
   }
+
   if (!birthInfoObs || !birthInfoObs?.length) {
     const errorMessage = 'Missing birth information';
     console.error(errorMessage);

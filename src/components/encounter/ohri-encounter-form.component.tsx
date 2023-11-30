@@ -512,8 +512,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       }
     }
 
-    // evaluateLNDform(encounter, setIsSubmitting);
-
     if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {
       const ac = new AbortController();
       return saveEncounter(ac, encounterForSubmission, encounter?.uuid).then((response) => {
