@@ -49,6 +49,7 @@ import {
   findTextOrDateInput,
 } from './utils/test-utils';
 import { mockVisit } from '../__mocks__/visit.mock';
+import { showToast } from '@openmrs/esm-framework';
 
 //////////////////////////////////////////
 ////// Base setup
@@ -228,6 +229,8 @@ describe('OHRI Forms:', () => {
     });
 
     fit('should show error toast when the birth count does not match birth info count', async () => {
+      const mockShowToast = showToast as jest.Mock;
+
       await act(async () => renderForm(null, labour_and_delivery_test_form));
 
       //Number of babies born from this pregnancy
@@ -259,9 +262,7 @@ describe('OHRI Forms:', () => {
         fireEvent.click(screen.getByText(/save/i));
       });
 
-      expect(screen.getByText(/save/i)).toHaveBeenClicked();
-
-      expect(screen.getByText(/Invalid entry/)).toBeInTheDocument();
+      expect(mockShowToast).toHaveBeenCalled();
     });
   });
 
