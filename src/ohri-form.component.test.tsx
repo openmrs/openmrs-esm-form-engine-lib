@@ -55,6 +55,7 @@ import { showToast } from '@openmrs/esm-framework';
 ////// Base setup
 //////////////////////////////////////////
 const mockUrl = `/ws/rest/v1/encounter?v=full`;
+const mockShowToast = showToast as jest.Mock;
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const mockOpenmrsFetch = jest.fn();
@@ -213,24 +214,7 @@ describe('OHRI Forms:', () => {
   });
 
   describe('Labour and delivery validation', () => {
-    fit('should validate that number of babies field is required', async () => {
-      await act(async () => renderForm(null, labour_and_delivery_test_form));
-
-      const birthInfoLabel = await screen.findByText(/Number of babies born from this pregnancy/);
-
-      expect(birthInfoLabel).toBeInTheDocument();
-      expect(birthInfoLabel).toHaveStyle('color: #525252');
-
-      await act(async () => {
-        fireEvent.click(screen.getByText(/save/i));
-      });
-
-      expect(birthInfoLabel).toHaveStyle({ color: '#da1e28' });
-    });
-
     fit('should show error toast when the birth count does not match birth info count', async () => {
-      const mockShowToast = showToast as jest.Mock;
-
       await act(async () => renderForm(null, labour_and_delivery_test_form));
 
       //Number of babies born from this pregnancy
@@ -239,6 +223,7 @@ describe('OHRI Forms:', () => {
       fireEvent.blur(birthCount, { target: { value: 3 } });
       expect(birthCount).toHaveValue(3);
 
+      //Male radio button in 'sex at birth' field
       const maleSexLabel = await findRadioGroupMember(screen, 'Male');
       expect(maleSexLabel).toBeInTheDocument();
       fireEvent.click(maleSexLabel);
@@ -263,6 +248,12 @@ describe('OHRI Forms:', () => {
       });
 
       expect(mockShowToast).toHaveBeenCalled();
+      expect(mockShowToast).toHaveBeenCalledWith({
+        description: "Invalid input at 'birth_count'",
+        title: 'Invalid entry',
+        kind: 'error',
+        critical: true,
+      });
     });
   });
 

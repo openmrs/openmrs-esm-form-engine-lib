@@ -7,7 +7,6 @@ import { OHRIFormField, OHRIFormPage, OHRIFormSection, OpenmrsEncounter, Submiss
 import { OHRIDefaultFieldValueValidator } from '../validators/default-value-validator';
 import { isEmpty } from '../validators/ohri-form-validator';
 import { isTrue } from './boolean-utils';
-import { Dispatch, SetStateAction } from 'react';
 
 export const validateLNDbirthCount = (encounter: OpenmrsEncounter) => {
   if (!encounter) {
@@ -33,26 +32,10 @@ export const validateLNDbirthCount = (encounter: OpenmrsEncounter) => {
   }
 
   if (birthInfoObs.length !== birthCount.value) {
-    return `Invalid input at 'birth_count'. Expected length: ${birthInfoObs.length}`;
+    return `Invalid input at 'birth_count'`;
   }
 
   return null;
-};
-
-export const evaluateLNDform = (encounter: OpenmrsEncounter, setIsSubmitting: Dispatch<SetStateAction<boolean>>) => {
-  if (encounter.form.uuid === '1e5614d6-5306-11e6-beb8-9e71128cae77') {
-    const LNDfieldValidation = validateLNDbirthCount(encounter);
-    if (LNDfieldValidation) {
-      setIsSubmitting(false);
-      showToast({
-        description: LNDfieldValidation,
-        title: 'Invalid entry',
-        kind: 'error',
-        critical: true,
-      });
-      throw new Error('Invalid entry');
-    }
-  }
 };
 
 export function cascadeVisibityToChildFields(

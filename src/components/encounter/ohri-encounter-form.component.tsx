@@ -14,7 +14,6 @@ import { OHRIFormContext } from '../../ohri-form-context';
 import {
   cascadeVisibityToChildFields,
   evaluateFieldReadonlyProp,
-  evaluateLNDform,
   findConceptByReference,
   findPagesWithErrors,
   validateLNDbirthCount,

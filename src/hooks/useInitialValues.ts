@@ -89,7 +89,7 @@ export function useInitialValues(
         let counter = 1;
         const unMappedGroups = encounter.obs.filter(
           (obs) =>
-            obs.concept.uuid === field.questionOptions.concept &&
+            obs.concept['uuid'] === field.questionOptions.concept &&
             obs.uuid != field.value?.uuid &&
             !assignedObsIds.includes(obs.uuid),
         );
