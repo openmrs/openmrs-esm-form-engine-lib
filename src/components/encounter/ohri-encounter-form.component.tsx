@@ -8,6 +8,7 @@ import {
   OpenmrsEncounter,
   SessionMode,
   ValidationResult,
+  TobsGroupCounter,
 } from '../../api/types';
 import OHRIFormPage from '../page/ohri-form-page';
 import { OHRIFormContext } from '../../ohri-form-context';
@@ -91,6 +92,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
+  const [obsGroupCounter, setObsGroupCounter] = useState<Array<TobsGroupCounter | null>>([]);
   const layoutType = useLayoutType();
 
   const encounterContext = useMemo(
@@ -105,6 +107,8 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       visit: visit,
       setEncounterDate,
       initValues: initValues,
+      obsGroupCounter: obsGroupCounter,
+      setObsGroupCounter: setObsGroupCounter,
     }),
     [encounter, form?.encounter, location, patient, previousEncounter, sessionMode, initValues],
   );
@@ -415,6 +419,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   );
 
   const handleFormSubmit = (values: Record<string, any>) => {
+    console.log('obsGroupCounter at submission', obsGroupCounter);
     const obsForSubmission = [];
     fields
       .filter((field) => field.value || field.type == 'obsGroup') // filter out fields with empty values except groups
@@ -433,6 +438,22 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             uuid: field.uuid,
             voided: false,
           };
+
+          //validate obs group count against limit
+          const limit = field.questionOptions.repeatOptions?.limit;
+          const counter = obsGroupCounter?.filter((eachItem) => eachItem.fieldId === field.id)[0]?.obsGroupCount;
+
+          if (limit && counter && counter !== Number(limit)) {
+            setIsSubmitting(false);
+            showToast({
+              description: 'obsGroup count does not match limit specified',
+              title: 'Invalid entry',
+              kind: 'error',
+              critical: true,
+            });
+            throw new Error('obsGroup count does not match limit specified');
+          }
+
           let hasValue = false;
           field.questions.forEach((groupedField) => {
             if (groupedField.value) {
@@ -495,20 +516,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         },
         visit: visit?.uuid,
       };
-    }
-
-    if (encounterForSubmission.form.uuid === '1e5614d6-5306-11e6-beb8-9e71128cae77') {
-      const LNDfieldValidation = validateLNDbirthCount(encounterForSubmission);
-      if (LNDfieldValidation) {
-        setIsSubmitting(false);
-        showToast({
-          description: LNDfieldValidation,
-          title: 'Invalid entry',
-          kind: 'error',
-          critical: true,
-        });
-        throw new Error('Invalid entry');
-      }
     }
 
     if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {

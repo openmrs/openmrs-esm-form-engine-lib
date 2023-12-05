@@ -249,7 +249,7 @@ describe('OHRI Forms:', () => {
 
       expect(mockShowToast).toHaveBeenCalled();
       expect(mockShowToast).toHaveBeenCalledWith({
-        description: "Invalid input at 'birth_count'",
+        description: 'obsGroup count does not match limit specified',
         title: 'Invalid entry',
         kind: 'error',
         critical: true,
