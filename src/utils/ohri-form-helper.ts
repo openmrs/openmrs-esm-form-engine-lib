@@ -8,36 +8,6 @@ import { OHRIDefaultFieldValueValidator } from '../validators/default-value-vali
 import { isEmpty } from '../validators/ohri-form-validator';
 import { isTrue } from './boolean-utils';
 
-export const validateLNDbirthCount = (encounter: OpenmrsEncounter) => {
-  if (!encounter) {
-    const errorMessage = 'Missing encounter';
-    console.error(errorMessage);
-    return errorMessage;
-  }
-
-  const { obs: obsArray } = encounter;
-  const birthInfoObs = obsArray.filter((eachObs) => eachObs.concept === '1c70c490-cafa-4c95-9fdd-a30b62bb78b8');
-  const [birthCount] = obsArray.filter((eachObs) => eachObs.formFieldPath === 'ohri-forms-birth_count');
-
-  if (!birthCount || !Object.keys(birthCount)?.length) {
-    const errorMessage = 'Missing birth count';
-    console.error(errorMessage);
-    return errorMessage;
-  }
-
-  if (!birthInfoObs || !birthInfoObs?.length) {
-    const errorMessage = 'Missing birth information';
-    console.error(errorMessage);
-    return errorMessage;
-  }
-
-  if (birthInfoObs.length !== birthCount.value) {
-    return `Invalid input at 'birth_count'`;
-  }
-
-  return null;
-};
-
 export function cascadeVisibityToChildFields(
   visibility: boolean,
   section: OHRIFormSection,

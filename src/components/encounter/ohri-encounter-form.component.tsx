@@ -17,7 +17,6 @@ import {
   evaluateFieldReadonlyProp,
   findConceptByReference,
   findPagesWithErrors,
-  validateLNDbirthCount,
   voidObsValueOnFieldHidden,
 } from '../../utils/ohri-form-helper';
 import { isEmpty, isEmpty as isValueEmpty, OHRIFieldValidator } from '../../validators/ohri-form-validator';
