@@ -419,7 +419,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   );
 
   const handleFormSubmit = (values: Record<string, any>) => {
-    console.log('obsGroupCounter at submission', obsGroupCounter);
     const obsForSubmission = [];
     fields
       .filter((field) => field.value || field.type == 'obsGroup') // filter out fields with empty values except groups
