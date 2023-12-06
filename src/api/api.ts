@@ -20,6 +20,20 @@ export function saveEncounter(abortController: AbortController, payload, encount
   });
 }
 
+// save an order
+export function saveOrder(abortController: AbortController, payload, orderUuid?: string) {
+  const url = !!orderUuid ? `/ws/rest/v1/order/${orderUuid}?v=full` : `/ws/rest/v1/order?v=full`;
+
+  return openmrsFetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+    body: payload,
+    signal: abortController.signal,
+  });
+}
+
 export function saveAttachment(patientUuid, field, conceptUuid, date, encounterUUID, abortController) {
   const url = '/ws/rest/v1/attachment';
 

@@ -211,6 +211,28 @@ export interface PostSubmissionAction {
   ): void;
 }
 
+export interface Order {
+  uuid(uuid: any): unknown;
+  formFieldPath: string;
+  type: string;
+  action: string;
+  urgency: string;
+  dateActivated: string;
+  careSetting: string;
+  groupMembers: Order[];
+  encounter: string;
+  patient: string;
+  concept: string;
+  orderer: string;
+}
+
+export interface FormProcessor {
+  // Retrieves child processors associated with this form processor
+  getChildProcessors(): FormProcessor[];
+
+  // Runs business logic
+  process<T>(obj: T): T;
+}
 // OpenMRS Type Definitions
 export interface OpenmrsEncounter {
   uuid?: string;
