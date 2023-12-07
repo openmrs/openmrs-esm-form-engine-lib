@@ -1,0 +1,36 @@
+{
+    "name": "Field tester",
+    "pages": [
+      {
+        "label": "One",
+        "sections": [
+          {
+            "label": "Sec One",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "label": "Text question",
+                "type": "obs",
+                "required": false,
+                "id": "id_text",
+                "questionInfo":"sample tooltip info for text",
+                "questionOptions": {
+                  "rendering": "text",
+                  "concept": "928def39-33c1-4ddb-8430-165db28448c8",
+                  "conceptMappings": [],
+                  "answers": []
+                },
+                "validators": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "processor": "EncounterFormProcessor",
+    "encounterType": "e22e39fd-7db2-45e7-80f1-60fa0d5a4378",
+    "referencedForms": [],
+    "uuid": "0859d9ad-2ed4-48db-96eb-7b0ce0c9903e",
+    "description": "A form containing most fields, to be used for testing purposes",
+    "version": "1.0"
+  }

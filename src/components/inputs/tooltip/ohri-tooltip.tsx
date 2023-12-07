@@ -12,7 +12,7 @@ export const OHRITooltip: React.FC<OHRITooltipProps> = ({ field }) => {
   return (
     <span>
       <Tooltip align="right" label={field.questionInfo} description={field.questionInfo}>
-        <button className={styles.tooltip} type="button">
+        <button className={styles.tooltip} type="button" data-testid={field.id}>
           <Information />
         </button>
       </Tooltip>
