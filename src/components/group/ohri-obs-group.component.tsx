@@ -5,6 +5,7 @@ import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.componen
 import styles from './ohri-obs-group.scss';
 import { useField } from 'formik';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
+import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
 
 export interface ObsGroupProps extends OHRIFormFieldProps {
   deleteControl?: any;
@@ -17,16 +18,16 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
   useEffect(() => {
     if (question.questions) {
       Promise.all(
-        question.questions.map(field => {
-          return getFieldControlWithFallback(field)?.then(result => ({ field, control: result }));
+        question.questions.map((field) => {
+          return getFieldControlWithFallback(field)?.then((result) => ({ field, control: result }));
         }),
-      ).then(results => {
+      ).then((results) => {
         setGroupMembersControlMap(results);
       });
     }
   }, [question.questions]);
   const groupContent = groupMembersControlMap
-    .filter(groupMemberMapItem => !!groupMemberMapItem && !groupMemberMapItem.field.isHidden)
+    .filter((groupMemberMapItem) => !!groupMemberMapItem && !groupMemberMapItem.field.isHidden)
     .map((groupMemberMapItem, index) => {
       const { control, field } = groupMemberMapItem;
       if (control) {
@@ -40,12 +41,18 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
         return (
           <div className={`${styles.flexColumn} ${styles.obsGroupColumn} `}>
             {isUnspecifiedSupported(field) ? (
-              <>
+              <div className={styles.parent}>
                 {questionFragment}
-                <OHRIUnspecified question={field} onChange={onChange} handler={formFieldHandlers[field.type]} />
-              </>
+                <div className={styles.tooltipWithUnspecified}>
+                  <OHRIUnspecified question={field} onChange={onChange} handler={formFieldHandlers[field.type]} />
+                  {field.questionInfo && <OHRITooltip field={field} />}
+                </div>
+              </div>
             ) : (
-              questionFragment
+              <div className={styles.parent}>
+                {questionFragment}
+                <div className={styles.tooltip}>{field.questionInfo && <OHRITooltip field={field} />}</div>
+              </div>
             )}
           </div>
         );

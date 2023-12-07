@@ -5,6 +5,23 @@
   margin-bottom: 3.063rem;
 }
 
+.parent{
+  width: fit-content;
+}
+
+.tooltipWithUnspecified{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tooltip{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
 .sectionTitle {
   max-width: 200px;
   font-size: 1rem;
