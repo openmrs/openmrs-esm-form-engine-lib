@@ -1,10 +1,7 @@
 import { SubmissionHandler } from '../../api/types';
-import {
-  ObsSubmissionHandler,
-  EncounterLocationSubmissionHandler,
-  OrderSubmissionHandler,
-} from '../../submission-handlers/base-handlers';
+import { ObsSubmissionHandler, EncounterLocationSubmissionHandler } from '../../submission-handlers/base-handlers';
 import { EncounterDatetimeHandler } from '../../submission-handlers/encounterDatetimeHandler';
+import { OrderSubmissionHandler } from '../../submission-handlers/orderHandler';
 import { RegistryItem } from '../registry';
 
 /**

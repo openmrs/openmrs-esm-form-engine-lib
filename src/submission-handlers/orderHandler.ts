@@ -1,3 +1,4 @@
+import { OpenmrsResource } from '@openmrs/esm-framework';
 import { OHRIFormField, OpenmrsEncounter, Order, SubmissionHandler } from '../api/types';
 import { EncounterContext } from '../ohri-form-context';
 
@@ -13,16 +14,19 @@ export const OrderSubmissionHandler: SubmissionHandler = {
     allFormFields?: OHRIFormField[],
     context?: EncounterContext,
   ): {} {
-    const rendering = field.questionOptions.rendering;
+    const matchedOrders = findOrdersByFormField(encounter.orders, field);
 
-    throw new Error('Function not implemented.');
+    if (matchedOrders?.length) {
+      field.value = JSON.parse(JSON.stringify(matchedOrders));
+    }
+    return '';
   },
   handleFieldSubmission: function (field: OHRIFormField, value: any, context: EncounterContext): {} {
     if (field.questionOptions.rendering == 'checkbox') {
       return multiSelectOrdersHandler(field, value, context);
     }
     if (field.questionOptions.rendering == 'toggle') {
-      return constructOrder(value, context, field);
+      return constructOrder(value, context);
     }
   },
   getDisplayValue: function (field: OHRIFormField, value: any) {
@@ -47,7 +51,7 @@ export const OrderSubmissionHandler: SubmissionHandler = {
 };
 
 // orders helpers
-const constructOrder = (value: any, context: EncounterContext, field: OHRIFormField) => {
+const constructOrder = (value: any, context: EncounterContext) => {
   return {
     action: 'new',
     urgency: 'ROUTINE',
@@ -56,11 +60,7 @@ const constructOrder = (value: any, context: EncounterContext, field: OHRIFormFi
   };
 };
 
-export const findOrderByFormField = (
-  ordersList: Array<Order>,
-  claimedOrderIds: string[],
-  field: OHRIFormField,
-): Order[] => {
+export const findOrdersByFormField = (ordersList: Array<OpenmrsResource>, field: OHRIFormField): OpenmrsResource[] => {
   const orders = ordersList.filter((o) => o.formFieldPath == `ohri-forms-${field.id}`);
   // We shall fall back to mapping by the associated concept
   // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
@@ -70,14 +70,16 @@ export const findOrderByFormField = (
   }
   return orders;
 };
-function multiSelectOrdersHandler(field: OHRIFormField, values: Array<string>, context: EncounterContext): {} {
+
+function multiSelectOrdersHandler(field: OHRIFormField, values: Array<string>, context: EncounterContext) {
   if (!field.value) {
     field.value = [];
   }
 
   if (Array.isArray(values)) {
     values.forEach((value) => {
-      field.value.push(constructOrder(value, context, field));
+      field.value.push(constructOrder(value, context));
     });
   }
+  return [];
 }
