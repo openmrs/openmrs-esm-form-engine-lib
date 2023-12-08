@@ -8,7 +8,7 @@ import {
   OpenmrsEncounter,
   SessionMode,
   ValidationResult,
-  TobsGroupCounter,
+  RepeatObsGroupCounter,
 } from '../../api/types';
 import OHRIFormPage from '../page/ohri-form-page';
 import { OHRIFormContext } from '../../ohri-form-context';
@@ -91,7 +91,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
-  const [obsGroupCounter, setObsGroupCounter] = useState<Array<TobsGroupCounter | null>>([]);
+  const [obsGroupCounter, setObsGroupCounter] = useState<Array<RepeatObsGroupCounter | null>>([]);
   const layoutType = useLayoutType();
 
   const encounterContext = useMemo(

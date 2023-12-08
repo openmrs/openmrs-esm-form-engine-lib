@@ -1,9 +1,9 @@
 import dayjs from 'dayjs';
-import { LayoutType, showToast } from '@openmrs/esm-framework';
+import { LayoutType } from '@openmrs/esm-framework';
 import { fetchConceptNameByUuid } from '../api/api';
 import { ConceptTrue } from '../constants';
 import { EncounterContext } from '../ohri-form-context';
-import { OHRIFormField, OHRIFormPage, OHRIFormSection, OpenmrsEncounter, SubmissionHandler } from '../api/types';
+import { OHRIFormField, OHRIFormPage, OHRIFormSection, SubmissionHandler } from '../api/types';
 import { OHRIDefaultFieldValueValidator } from '../validators/default-value-validator';
 import { isEmpty } from '../validators/ohri-form-validator';
 import { isTrue } from './boolean-utils';

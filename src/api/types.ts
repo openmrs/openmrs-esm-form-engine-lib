@@ -312,7 +312,7 @@ export interface ReferencedForm {
   alias: string;
 }
 
-export type TobsGroupCounter = {
+export type RepeatObsGroupCounter = {
   fieldId: string;
   obsGroupCount: number;
   limit?: number;

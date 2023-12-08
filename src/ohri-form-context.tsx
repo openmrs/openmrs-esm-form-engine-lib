@@ -1,6 +1,6 @@
 import { LayoutType } from '@openmrs/esm-framework';
 import React from 'react';
-import { TobsGroupCounter, OHRIFormField, OpenmrsEncounter, SessionMode, SubmissionHandler } from './api/types';
+import { RepeatObsGroupCounter, OHRIFormField, OpenmrsEncounter, SessionMode, SubmissionHandler } from './api/types';
 
 type OHRIFormContextProps = {
   values: Record<string, any>;
