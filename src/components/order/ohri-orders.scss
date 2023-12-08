@@ -1,0 +1,36 @@
+.flexColumn {
+    display: flex;
+    flex-direction: column;
+    margin-right: 2.5rem;
+    flex: 1;
+  }
+  
+  .flexRow {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  .ordersColumn {
+    max-width: 18rem;
+  }
+  
+  .ordersColumn input[class*="cds--date-picker__input"] {
+    width: 18rem !important;
+  }
+  
+  .ordersColumn > div, .ordersColumn div[class*="cds--number"] {
+    margin-top: 0 !important;
+  }
+  
+  /** Targets carbon's multiselect */
+  .ordersColumn > div > div > div {
+    max-width: 18rem !important;
+  }
+  
+  /** Targets carbon's dropdown */
+  .ordersColumn > div > div > div > div {
+    max-width: 18rem !important;
+  }
+  
