@@ -6,20 +6,18 @@
 }
 
 .parent{
-  width: fit-content;
+  width: 360px;
 }
 
 .tooltipWithUnspecified{
   display: flex;
   justify-content: space-between;
-  // align-items: center;
 }
 
 .tooltip{
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  // margin-top: 0.5rem;
 }
 
 .sectionTitle {
