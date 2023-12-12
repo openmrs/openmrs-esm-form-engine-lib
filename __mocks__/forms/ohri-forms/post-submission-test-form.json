@@ -1,0 +1,116 @@
+{
+    "name": "TB Case Enrollment Form",
+    "published": true,
+    "retired": false,
+    "pages": [
+        {
+            "label": "TB Enrollment",
+            "sections": [
+              {
+                "label": "TB Program",
+                "isExpanded": "true",
+                "questions": [
+                  {
+                    "label": "TB Program to enrol",
+                    "type": "obs",
+                    "required": false,
+                    "id": "tbProgramType",
+                    "questionOptions": {
+                      "rendering": "radio",
+                      "concept": "163775AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                      "conceptMappings": [],
+                      "answers": [
+                        {
+                          "concept": "160541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                          "label": "Drug-susceptible (DS) TB Program"
+                        },
+                        {
+                          "concept": "160052AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                          "label": "Drug Resistant (DR) TB program"
+                        }
+                      ]
+                    },
+                    "validators": []
+                  },
+                  {
+                    "label": "Date enrolled in tuberculosis (TB) care",
+                    "type": "obs",
+                    "required": true,
+                    "id": "tbRegDate",
+                    "questionOptions": {
+                      "rendering": "date",
+                      "concept": "161552AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                      "conceptMappings": [
+                        {
+                          "relationship": "SAME-AS",
+                          "type": "CIEL",
+                          "value": "161552"
+                        },
+                        {
+                          "relationship": "NARROWER-THAN",
+                          "type": "SNOMED CT",
+                          "value": "413946009"
+                        }
+                      ],
+                      "answers": []
+                    },
+                    "validators": []
+                  },
+                  {
+                    "label": "DS TB Treatment Number",
+                    "type": "obs",
+                    "required": false,
+                    "id": "dsServiceID",
+                    "questionOptions": {
+                      "rendering": "number",
+                      "concept": "161654AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                      "conceptMappings": [
+                        {
+                          "relationship": "SAME-AS",
+                          "type": "CIEL",
+                          "value": "161654"
+                        }
+                      ],
+                      "answers": []
+                    },
+                    "validators": []
+                  }
+                ]
+              }
+            ]
+          }  
+    ],
+    "availableIntents": [
+        {
+          "intent": "*",
+          "display": "TB Case Enrollment Form"
+        }
+      ],
+      "processor": "EncounterFormProcessor",
+      "encounterType": "9a199b59-b185-485b-b9b3-a9754e65ae57",
+      "postSubmissionActions": [
+        {
+          "actionId": "ProgramEnrollmentSubmissionAction",
+          "enabled":"tbProgramType === '160541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'",
+          "config": {
+          "enrollmentDate": "tbRegDate",
+          "programUuid": "58005eb2-4560-4ada-b7bb-67a5cffa0a27",
+          "completionDate": "outcomeTBRx"
+        }
+      },
+      {
+        "actionId": "ProgramEnrollmentSubmissionAction",
+        "enabled":"tbProgramType === '160052AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'",
+        "config": {
+        "enrollmentDate": "utbRegDate",
+        "programUuid": "00f37871-0578-4ebc-af1d-e4b3ce75310d",
+        "completionDate": "outcomeTBRx"
+      }
+    }
+      ],
+      "encounter": "TB Program Enrolment",
+      "referencedForms": [],
+      "uuid": "9ad909d2-64a9-437d-9a40-301d50cae1f6",
+      "description": "This form enrols a client to the respective TB Program",
+      "version": "1.0"   
+}

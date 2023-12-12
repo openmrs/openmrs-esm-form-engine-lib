@@ -207,6 +207,7 @@ export interface PostSubmissionAction {
       sessionMode: SessionMode;
     },
     config?: Record<string, any>,
+    enabled?: string,
   ): void;
 }
 

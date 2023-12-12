@@ -37,6 +37,9 @@ import demoHtsOhriForm from '../__mocks__/forms/ohri-forms/demo_hts-form.json';
 import obsGroup_test_form from '../__mocks__/forms/ohri-forms/obs-group-test_form.json';
 import labour_and_delivery_test_form from '../__mocks__/forms/ohri-forms/labour_and_delivery_test_form.json';
 import sample_fields_form from '../__mocks__/forms/ohri-forms/sample_fields.json';
+import postSubmission_test_form from '../__mocks__/forms/ohri-forms/post-submission-test-form.json';
+import { getRegisteredPostSubmissionAction } from './registry/registry';
+import { isPostSubmissionEnabled } from './utils/program-enrolment-helper';
 
 import {
   assertFormHasAllFields,
@@ -52,6 +55,7 @@ import {
 } from './utils/test-utils';
 import { mockVisit } from '../__mocks__/visit.mock';
 import { showToast } from '@openmrs/esm-framework';
+import { PostSubmissionAction } from './api/types';
 
 //////////////////////////////////////////
 ////// Base setup
@@ -100,6 +104,10 @@ jest.mock('../src/api/api', () => {
     saveEncounter: jest.fn(),
   };
 });
+// Mock getRegisteredPostSubmissionAction
+jest.mock('./registry/registry', () => ({
+  getRegisteredPostSubmissionAction: jest.fn(),
+}));
 
 describe('OHRI Forms:', () => {
   afterEach(() => {
@@ -233,6 +241,65 @@ describe('OHRI Forms:', () => {
       const [abortController, encounter, encounterUuid] = saveEncounterMock.mock.calls[0];
       expect(encounter.obs.length).toEqual(3);
       expect(encounter.obs.find((obs) => obs.formFieldPath === 'ohri-forms-hivEnrolmentDate')).toBeUndefined();
+    });
+    fit('should evaluate post submission enabled flag expression', () => {
+      const encounters = [
+        {
+          uuid: '47cfe95b-357a-48f8-aa70-63eb5ae51916',
+          obs: [
+            {
+              formFieldPath: 'ohri-forms-tbProgramType',
+              value: {
+                display: 'Tuberculosis treatment program',
+                uuid: '160541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+              },
+            },
+            {
+              formFieldPath: 'ohri-forms-tbRegDate',
+              value: '2023-12-05T00:00:00.000+0000',
+            },
+          ],
+        },
+      ];
+
+      const expression1 = "tbProgramType === '160541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'";
+      const expression2 = "tbProgramType === '160052AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'";
+      let enabled = isPostSubmissionEnabled(expression1, encounters);
+      expect(enabled).toEqual(true);
+      enabled = isPostSubmissionEnabled(expression2, encounters);
+      expect(enabled).toEqual(false);
+    });
+    it('Should test post submission actions', async () => {
+      const mockPostSubmissionAction = {
+        postAction: {
+          applyAction: jest.fn(),
+        },
+        config: {},
+        actionId: 'ProgramEnrollmentSubmissionAction',
+        enabled: 'some_expression',
+      };
+
+      // Set up mocks
+      getRegisteredPostSubmissionAction.mockResolvedValue(mockPostSubmissionAction);
+      // Render the form
+      await act(async () => renderForm(null, postSubmission_test_form));
+      const drugSensitiveProgramField = await findRadioGroupMember(screen, 'Drug-susceptible (DS) TB Program');
+      const enrolmentDateField = await findTextOrDateInput(screen, 'Date enrolled in tuberculosis (TB) care');
+      const treatmentNumber = await findNumberInput(screen, 'DS TB Treatment Number');
+
+      // Simulate user interaction
+      fireEvent.click(drugSensitiveProgramField);
+      fireEvent.blur(enrolmentDateField, { target: { value: '2023-12-12T00:00:00.000Z' } });
+      fireEvent.blur(treatmentNumber, { target: { value: '11200' } });
+
+      // Simulate a successful form submission
+      await act(async () => {
+        fireEvent.submit(screen.getByText(/save/i));
+      });
+
+      //Assertions
+      // Verify that getRegisteredPostSubmissionAction was called
+      expect(getRegisteredPostSubmissionAction).toHaveBeenCalledWith('ProgramEnrollmentSubmissionAction');
     });
   });
 
@@ -555,7 +622,7 @@ describe('OHRI Forms:', () => {
       await act(async () => expect(birthDateFields.length).toBe(2));
     });
 
-    fit('Should test deletion of a group', async () => {
+    it('Should test deletion of a group', async () => {
       //Setup
       await act(async () => renderForm(null, obsGroup_test_form));
       let femaleRadios = await findAllRadioGroupMembers(screen, 'Female');
