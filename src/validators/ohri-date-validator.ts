@@ -9,8 +9,8 @@ export const OHRIDateValidator: FieldValidator = {
     if (errors.length) {
       return errors;
     }
-    if (value && !isTrue(config?.allowFutureDates)) {
-      return value.getTime() > now.getTime()
+    if (value && !isTrue(config?.allowFutureDates)) {      
+      return value.getTime && value.getTime() > now.getTime()
         ? [{ resultType: 'error', errCode: 'value.invalid', message: 'Future dates not allowed' }]
         : [];
     }
