@@ -38,22 +38,18 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
           handler: formFieldHandlers[field.type],
           useField,
         });
+
         return (
           <div className={`${styles.flexColumn} ${styles.obsGroupColumn} `}>
-            {isUnspecifiedSupported(field) ? (
-              <div className={styles.parent}>
-                {questionFragment}
-                <div className={styles.tooltipWithUnspecified}>
+            <div className={styles.parent}>
+              {questionFragment}
+              <div className={isUnspecifiedSupported(field) ? styles.tooltipWithUnspecified : styles.tooltip}>
+                {isUnspecifiedSupported(field) && (
                   <OHRIUnspecified question={field} onChange={onChange} handler={formFieldHandlers[field.type]} />
-                  {field.questionInfo && <OHRITooltip field={field} />}
-                </div>
+                )}
+                {field.questionInfo && <OHRITooltip field={field} />}
               </div>
-            ) : (
-              <div className={styles.parent}>
-                {questionFragment}
-                <div className={styles.tooltip}>{field.questionInfo && <OHRITooltip field={field} />}</div>
-              </div>
-            )}
+            </div>
           </div>
         );
       }

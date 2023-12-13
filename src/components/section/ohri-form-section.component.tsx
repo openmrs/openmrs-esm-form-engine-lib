@@ -48,21 +48,19 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                   useField={useField}
                 />
               );
-              return isUnspecifiedSupported(fieldDescriptor) && fieldDescriptor.questionOptions.rendering != 'group' ? (
+
+              return (
                 <div key={index} className={styles.parent}>
                   {qnFragment}
-                  <div className={styles.tooltipWithUnspecified}>
-                    <OHRIUnspecified question={fieldDescriptor} onChange={onFieldChange} handler={handler} />
+                  <div
+                    className={
+                      isUnspecifiedSupported(fieldDescriptor) ? styles.tooltipWithUnspecified : styles.tooltip
+                    }>
+                    {isUnspecifiedSupported(fieldDescriptor) &&
+                      fieldDescriptor.questionOptions.rendering != 'group' && (
+                        <OHRIUnspecified question={fieldDescriptor} onChange={onFieldChange} handler={handler} />
+                      )}
                     {fieldDescriptor.questionInfo && <OHRITooltip field={fieldDescriptor} />}
-                  </div>
-                </div>
-              ) : (
-                <div key={index}>
-                  <div className={styles.parent}>
-                    {qnFragment}
-                    <div className={styles.tooltip}>
-                      {fieldDescriptor.questionInfo && <OHRITooltip field={fieldDescriptor} />}
-                    </div>
                   </div>
                 </div>
               );
