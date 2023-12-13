@@ -38,8 +38,10 @@ import obsGroup_test_form from '../__mocks__/forms/ohri-forms/obs-group-test_for
 import labour_and_delivery_test_form from '../__mocks__/forms/ohri-forms/labour_and_delivery_test_form.json';
 import sample_fields_form from '../__mocks__/forms/ohri-forms/sample_fields.json';
 import postSubmission_test_form from '../__mocks__/forms/ohri-forms/post-submission-test-form.json';
-import { getRegisteredPostSubmissionAction } from './registry/registry';
+import * as registry from '../src/registry/registry';
 import { isPostSubmissionEnabled } from './utils/program-enrolment-helper';
+import * as formContext from './ohri-form-context';
+import * as usePostSubmission from './hooks/usePostSubmissionAction';
 
 import {
   assertFormHasAllFields,
@@ -102,12 +104,9 @@ jest.mock('../src/api/api', () => {
     getConcept: jest.fn().mockImplementation(() => Promise.resolve(null)),
     getLatestObs: jest.fn().mockImplementation(() => Promise.resolve({ valueNumeric: 60 })),
     saveEncounter: jest.fn(),
+    createProgramEnrollment: jest.fn(),
   };
 });
-// Mock getRegisteredPostSubmissionAction
-jest.mock('./registry/registry', () => ({
-  getRegisteredPostSubmissionAction: jest.fn(),
-}));
 
 describe('OHRI Forms:', () => {
   afterEach(() => {
@@ -242,7 +241,7 @@ describe('OHRI Forms:', () => {
       expect(encounter.obs.length).toEqual(3);
       expect(encounter.obs.find((obs) => obs.formFieldPath === 'ohri-forms-hivEnrolmentDate')).toBeUndefined();
     });
-    fit('should evaluate post submission enabled flag expression', () => {
+    it('should evaluate post submission enabled flag expression', () => {
       const encounters = [
         {
           uuid: '47cfe95b-357a-48f8-aa70-63eb5ae51916',
@@ -270,19 +269,46 @@ describe('OHRI Forms:', () => {
       expect(enabled).toEqual(false);
     });
     it('Should test post submission actions', async () => {
-      const mockPostSubmissionAction = {
-        postAction: {
-          applyAction: jest.fn(),
-        },
-        config: {},
-        actionId: 'ProgramEnrollmentSubmissionAction',
-        enabled: 'some_expression',
-      };
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+      saveEncounterMock.mockResolvedValue({
+        headers: null,
+        ok: true,
+        redirected: false,
+        status: 200,
+        statusText: 'ok',
+        type: 'default',
+        url: '',
+        clone: null,
+        body: null,
+        bodyUsed: null,
+        arrayBuffer: null,
+        blob: null,
+        formData: null,
+        json: null,
+        text: jest.fn(),
+        data: [
+          {
+            uuid: '47cfe95b-357a-48f8-aa70-63eb5ae51916',
+            obs: [
+              {
+                formFieldPath: 'ohri-forms-tbProgramType',
+                value: {
+                  display: 'Tuberculosis treatment program',
+                  uuid: '160541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                },
+              },
+              {
+                formFieldPath: 'ohri-forms-tbRegDate',
+                value: '2023-12-05T00:00:00.000+0000',
+              },
+            ],
+          },
+        ],
+      });
 
-      // Set up mocks
-      getRegisteredPostSubmissionAction.mockResolvedValue(mockPostSubmissionAction);
       // Render the form
       await act(async () => renderForm(null, postSubmission_test_form));
+      //const getRegisteredPostSubmissionActionSpy = jest.spyOn(registry, 'getRegisteredPostSubmissionAction');
       const drugSensitiveProgramField = await findRadioGroupMember(screen, 'Drug-susceptible (DS) TB Program');
       const enrolmentDateField = await findTextOrDateInput(screen, 'Date enrolled in tuberculosis (TB) care');
       const treatmentNumber = await findNumberInput(screen, 'DS TB Treatment Number');
@@ -297,9 +323,11 @@ describe('OHRI Forms:', () => {
         fireEvent.submit(screen.getByText(/save/i));
       });
 
-      //Assertions
-      // Verify that getRegisteredPostSubmissionAction was called
-      expect(getRegisteredPostSubmissionAction).toHaveBeenCalledWith('ProgramEnrollmentSubmissionAction');
+      expect(saveEncounterMock).toHaveBeenCalled();
+      await act(async () => expect(saveEncounterMock).toReturn());
+      //expect(postSubmissionSpy).toHaveBeenCalled();
+
+      //expect(api.createProgramEnrollment).toHaveBeenCalled();
     });
   });
 

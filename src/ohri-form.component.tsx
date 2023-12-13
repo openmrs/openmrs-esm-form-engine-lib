@@ -211,7 +211,6 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                       }
                     });
                     if (encounterData.length) {
-                      //pass enabled here
                       const isActionEnabled = enabled ? isPostSubmissionEnabled(enabled, encounterData) : true;
                       if (isActionEnabled) {
                         await postAction.applyAction(
