@@ -116,6 +116,7 @@ export interface OHRIFormField {
   inlineRendering?: 'single-line' | 'multiline' | 'automatic';
   validators?: Array<Record<string, any>>;
   behaviours?: Array<Record<string, any>>;
+  questionInfo?: string;
 }
 
 export interface OHRIFormFieldProps {

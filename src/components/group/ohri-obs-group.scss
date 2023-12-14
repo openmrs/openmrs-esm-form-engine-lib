@@ -16,10 +16,6 @@
   max-width: 18rem;
 }
 
-.obsGroupColumn input[class*="cds--date-picker__input"] {
-  width: 18rem !important;
-}
-
 .obsGroupColumn > div, .obsGroupColumn div[class*="cds--number"] {
   margin-top: 0 !important;
 }
@@ -32,4 +28,21 @@
 /** Targets carbon's dropdown */
 .obsGroupColumn > div > div > div > div {
   max-width: 18rem !important;
+}
+
+.parent{
+  width: 360px;
+}
+
+.tooltipWithUnspecified{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tooltip{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 0.5rem;
 }

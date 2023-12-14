@@ -7,6 +7,8 @@ import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.componen
 import { OHRIFormField, OHRIFormFieldProps, SubmissionHandler } from '../../api/types';
 import styles from './ohri-form-section.scss';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
+import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
+import { subtle } from 'crypto';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<OHRIFormFieldProps>;
@@ -19,12 +21,12 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
 
   useEffect(() => {
     Promise.all(
-      fields.map(async fieldDescriptor => {
+      fields.map(async (fieldDescriptor) => {
         const fieldComponent = await getFieldControlWithFallback(fieldDescriptor);
         const handler = await getRegisteredFieldSubmissionHandler(fieldDescriptor.type);
         return { fieldDescriptor, fieldComponent, handler };
       }),
-    ).then(results => {
+    ).then((results) => {
       setFieldComponentMapEntries(results);
     });
   }, [fields]);
@@ -33,7 +35,7 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
     <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
       <div className={styles.sectionContainer}>
         {fieldComponentMapEntries
-          .filter(entry => entry?.fieldComponent)
+          .filter((entry) => entry?.fieldComponent)
           .map((entry, index) => {
             const { fieldComponent: FieldComponent, fieldDescriptor, handler } = entry;
             if (FieldComponent) {
@@ -46,13 +48,21 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                   useField={useField}
                 />
               );
-              return isUnspecifiedSupported(fieldDescriptor) && fieldDescriptor.questionOptions.rendering != 'group' ? (
-                <div key={index}>
+
+              return (
+                <div key={index} className={styles.parent}>
                   {qnFragment}
-                  <OHRIUnspecified question={fieldDescriptor} onChange={onFieldChange} handler={handler} />
+                  <div
+                    className={
+                      isUnspecifiedSupported(fieldDescriptor) ? styles.tooltipWithUnspecified : styles.tooltip
+                    }>
+                    {isUnspecifiedSupported(fieldDescriptor) &&
+                      fieldDescriptor.questionOptions.rendering != 'group' && (
+                        <OHRIUnspecified question={fieldDescriptor} onChange={onFieldChange} handler={handler} />
+                      )}
+                    {fieldDescriptor.questionInfo && <OHRITooltip field={fieldDescriptor} />}
+                  </div>
                 </div>
-              ) : (
-                <div key={index}>{qnFragment}</div>
               );
             }
           })}
