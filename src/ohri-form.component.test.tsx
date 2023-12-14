@@ -11,6 +11,7 @@ import {
   getAllByRole,
   queryAllByRole,
   within,
+  findByTestId,
 } from '@testing-library/react';
 import { when } from 'jest-when';
 import * as api from '../src/api/api';
@@ -35,6 +36,7 @@ import demoHtsOpenmrsForm from '../__mocks__/forms/omrs-forms/demo_hts-form.json
 import demoHtsOhriForm from '../__mocks__/forms/ohri-forms/demo_hts-form.json';
 import obsGroup_test_form from '../__mocks__/forms/ohri-forms/obs-group-test_form.json';
 import labour_and_delivery_test_form from '../__mocks__/forms/ohri-forms/labour_and_delivery_test_form.json';
+import sample_fields_form from '../__mocks__/forms/ohri-forms/sample_fields.json';
 
 import {
   assertFormHasAllFields,
@@ -152,6 +154,27 @@ describe('OHRI Forms:', () => {
     }
   });
   // Form submission
+
+  describe('Question Info', () => {
+    fit('Should ascertain that each field with questionInfo passed will display a tooltip', async () => {
+      //render the test form
+      await act(async () => renderForm(null, sample_fields_form));
+
+      //check for text field
+      const textField = await findTextOrDateInput(screen, 'Text question');
+      expect(textField).toBeInTheDocument();
+
+      // check for tooltip icon on text field
+      const textFIeldTooltip = await screen.findByTestId('id_text');
+      expect(textFIeldTooltip).toBeInTheDocument();
+
+      //testing for the tooltip
+      fireEvent.mouseOver(textFIeldTooltip);
+      const textFieldTooltipMessage = await screen.findByText(/sample tooltip info for text/i);
+      expect(textFieldTooltipMessage).toBeInTheDocument();
+    });
+  });
+
   describe('Form submission', () => {
     it('Should validate form submission', async () => {
       // Mock the form submission function to simulate success
