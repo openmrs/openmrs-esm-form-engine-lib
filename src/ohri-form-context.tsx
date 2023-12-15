@@ -1,6 +1,6 @@
 import { LayoutType } from '@openmrs/esm-framework';
 import React from 'react';
-import { RepeatObsGroupCounter, OHRIFormField, OpenmrsEncounter, SessionMode, SubmissionHandler } from './api/types';
+import { OHRIFormField, OpenmrsEncounter, SessionMode, SubmissionHandler } from './api/types';
 
 type OHRIFormContextProps = {
   values: Record<string, any>;
@@ -26,7 +26,6 @@ export interface EncounterContext {
   encounterDate: Date;
   setEncounterDate(value: Date): void;
   initValues?: Record<string, any>;
-  setObsGroupCounter?: any;
 }
 
 export const OHRIFormContext = React.createContext<OHRIFormContextProps | undefined>(undefined);
