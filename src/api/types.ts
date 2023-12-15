@@ -229,7 +229,7 @@ export interface OpenmrsEncounter {
 }
 
 export interface OpenmrsObs extends OpenmrsResource {
-  concept: string | OpenmrsResource;
+  concept: OpenmrsResource;
   obsDatetime: string | Date;
   obsGroup: OpenmrsObs;
   groupMembers: Array<OpenmrsObs>;
@@ -312,9 +312,3 @@ export interface ReferencedForm {
   formName: string;
   alias: string;
 }
-
-export type RepeatObsGroupCounter = {
-  fieldId: string;
-  obsGroupCount: number;
-  limit?: number;
-};

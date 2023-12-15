@@ -10,7 +10,6 @@ import {
   findAllByRole,
   getAllByRole,
   queryAllByRole,
-  within,
   findByTestId,
 } from '@testing-library/react';
 import { when } from 'jest-when';
@@ -35,7 +34,6 @@ import { mockSessionDataResponse } from '../__mocks__/session.mock';
 import demoHtsOpenmrsForm from '../__mocks__/forms/omrs-forms/demo_hts-form.json';
 import demoHtsOhriForm from '../__mocks__/forms/ohri-forms/demo_hts-form.json';
 import obsGroup_test_form from '../__mocks__/forms/ohri-forms/obs-group-test_form.json';
-import labour_and_delivery_test_form from '../__mocks__/forms/ohri-forms/labour_and_delivery_test_form.json';
 import sample_fields_form from '../__mocks__/forms/ohri-forms/sample_fields.json';
 
 import {
@@ -51,13 +49,11 @@ import {
   findTextOrDateInput,
 } from './utils/test-utils';
 import { mockVisit } from '../__mocks__/visit.mock';
-import { showToast } from '@openmrs/esm-framework';
 
 //////////////////////////////////////////
 ////// Base setup
 //////////////////////////////////////////
 const mockUrl = `/ws/rest/v1/encounter?v=full`;
-const mockShowToast = showToast as jest.Mock;
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const mockOpenmrsFetch = jest.fn();
@@ -233,50 +229,6 @@ describe('OHRI Forms:', () => {
       const [abortController, encounter, encounterUuid] = saveEncounterMock.mock.calls[0];
       expect(encounter.obs.length).toEqual(3);
       expect(encounter.obs.find((obs) => obs.formFieldPath === 'ohri-forms-hivEnrolmentDate')).toBeUndefined();
-    });
-  });
-
-  describe('Labour and delivery validation', () => {
-    fit('should show error toast when the birth count does not match birth info count', async () => {
-      await act(async () => renderForm(null, labour_and_delivery_test_form));
-
-      //Number of babies born from this pregnancy
-      const birthCount = await findNumberInput(screen, 'Number of babies born from this pregnancy');
-      expect(birthCount).toBeInTheDocument();
-      fireEvent.blur(birthCount, { target: { value: 3 } });
-      expect(birthCount).toHaveValue(3);
-
-      //Male radio button in 'sex at birth' field
-      const maleSexLabel = await findRadioGroupMember(screen, 'Male');
-      expect(maleSexLabel).toBeInTheDocument();
-      fireEvent.click(maleSexLabel);
-      expect(maleSexLabel).toBeChecked();
-
-      //Missing radio button in "infant status" field
-      const infantStatus = await findRadioGroupInput(screen, 'Infant Status at birth');
-      const infantStatusMissingLabel = await within(infantStatus).findByRole('radio', { name: 'Missing' });
-      expect(infantStatusMissingLabel).toBeInTheDocument();
-      fireEvent.click(infantStatusMissingLabel);
-      expect(infantStatusMissingLabel).toBeChecked();
-
-      // date of birth field
-      const dateOfBirth = await findTextOrDateInput(screen, 'Date of Birth');
-      expect(dateOfBirth).toBeInTheDocument();
-      fireEvent.blur(dateOfBirth, { target: { value: '11/03/2022' } });
-      expect(dateOfBirth).toHaveValue('11/03/2022');
-
-      //saving form
-      await act(async () => {
-        fireEvent.click(screen.getByText(/save/i));
-      });
-
-      expect(mockShowToast).toHaveBeenCalled();
-      expect(mockShowToast).toHaveBeenCalledWith({
-        description: 'obsGroup count does not match limit specified',
-        title: 'Invalid entry',
-        kind: 'error',
-        critical: true,
-      });
     });
   });
 

@@ -332,7 +332,6 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                         handlers={handlers}
                         workspaceLayout={workspaceLayout}
                         isSubmitting={isSubmitting}
-                        setIsSubmitting={setIsSubmitting}
                       />
                     </div>
                     {workspaceLayout === 'minimized' && (

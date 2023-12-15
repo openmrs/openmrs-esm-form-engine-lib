@@ -36,13 +36,6 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
     setObsGroups(groups);
   }, [allFormFields, question]);
 
-  useEffect(() => {
-    encounterContext.setObsGroupCounter((prevValue) => [
-      { fieldId: question.id, obsGroupCount: counter },
-      ...prevValue,
-    ]);
-  }, [counter]);
-
   const handleAdd = useCallback(
     (counter: number) => {
       const clonedGroupingField = cloneObsGroup(question, null, counter);
