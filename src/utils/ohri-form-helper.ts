@@ -15,13 +15,13 @@ export function cascadeVisibityToChildFields(
   obsToVoidList: Array<Record<string, any>>,
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
 ) {
-  const candidateIds = section.questions.map(q => q.id);
+  const candidateIds = section.questions.map((q) => q.id);
   allFields
-    .filter(field => candidateIds.includes(field.id))
-    .forEach(field => {
+    .filter((field) => candidateIds.includes(field.id))
+    .forEach((field) => {
       field.isParentHidden = visibility;
       if (field.questionOptions.rendering == 'group') {
-        field.questions.forEach(member => {
+        field.questions.forEach((member) => {
           member.isParentHidden = visibility;
         });
       }
@@ -46,7 +46,7 @@ export function inferInitialValueFromDefaultFieldValue(
 }
 
 export function getConceptNameAndUUID(conceptUuid: string) {
-  return fetchConceptNameByUuid(conceptUuid).then(conceptName => {
+  return fetchConceptNameByUuid(conceptUuid).then((conceptName) => {
     return `Concept Name: ${conceptName} \n UUID: ${conceptUuid}`;
   });
 }
@@ -83,8 +83,8 @@ export function voidObsValueOnFieldHidden(
     const isValueIterable = Array.isArray(field.value);
     const iterableValue = isValueIterable ? field.value : [field.value];
     iterableValue
-      .filter(val => !!val.uuid)
-      .forEach(val => {
+      .filter((val) => !!val.uuid)
+      .forEach((val) => {
         val.voided = true;
         obsToVoidList.push(val);
       });
@@ -98,9 +98,9 @@ export function findPagesWithErrors(pages: Set<OHRIFormPage>, errorFields: OHRIF
   let allFormPages = [...pages];
   if (errorFields?.length) {
     //Find pages each of the errors belong to
-    errorFields.forEach(field => {
-      allFormPages.forEach(page => {
-        let errorPage = page.sections.find(section => section.questions.find(question => question === field));
+    errorFields.forEach((field) => {
+      allFormPages.forEach((page) => {
+        let errorPage = page.sections.find((section) => section.questions.find((question) => question === field));
         if (errorPage && !pagesWithErrors.includes(page.label)) {
           pagesWithErrors.push(page.label);
         }
@@ -132,8 +132,8 @@ export function findConceptByReference(reference: string, concepts) {
     // handle mapping
     const [source, code] = reference.split(':');
 
-    return concepts?.find(concept => {
-      return concept?.conceptMappings?.find(mapping => {
+    return concepts?.find((concept) => {
+      return concept?.conceptMappings?.find((mapping) => {
         return (
           mapping?.conceptReferenceTerm?.conceptSource?.name.toUpperCase() === source.toUpperCase() &&
           mapping?.conceptReferenceTerm?.code.toUpperCase() === code.toUpperCase()
@@ -142,7 +142,7 @@ export function findConceptByReference(reference: string, concepts) {
     });
   } else {
     // handle uuid
-    return concepts?.find(concept => {
+    return concepts?.find((concept) => {
       return concept.uuid === reference;
     });
   }

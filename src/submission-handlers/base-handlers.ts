@@ -191,7 +191,7 @@ export const findObsByFormField = (
   // We shall fall back to mapping by the associated concept
   // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
   if (!obs?.length) {
-    const obsByConcept = obsList.filter((obs) => obs.concept.uuid == field.questionOptions.concept);
+    const obsByConcept = obsList.filter((obs) => obs.concept['uuid'] == field.questionOptions.concept);
     return claimedObsIds?.length ? obsByConcept.filter((obs) => !claimedObsIds.includes(obs.uuid)) : obsByConcept;
   }
   return obs;
