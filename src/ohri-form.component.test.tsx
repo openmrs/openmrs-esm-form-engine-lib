@@ -236,8 +236,8 @@ describe('OHRI Forms:', () => {
     });
   });
 
-  describe('Labour and delivery validation', () => {
-    fit('should show error toast when the birth count does not match birth info count', async () => {
+  describe('obs group count validation', () => {
+    fit('should show error toast when the obs group count does not match the number count specified', async () => {
       await act(async () => renderForm(null, labour_and_delivery_test_form));
 
       //Number of babies born from this pregnancy
