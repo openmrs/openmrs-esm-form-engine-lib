@@ -39,7 +39,7 @@ import labour_and_delivery_test_form from '../__mocks__/forms/ohri-forms/labour_
 import sample_fields_form from '../__mocks__/forms/ohri-forms/sample_fields.json';
 import postSubmission_test_form from '../__mocks__/forms/ohri-forms/post-submission-test-form.json';
 import * as registry from '../src/registry/registry';
-import { isPostSubmissionEnabled } from './utils/program-enrolment-helper';
+import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import * as formContext from './ohri-form-context';
 import * as usePostSubmission from './hooks/usePostSubmissionAction';
 
@@ -263,9 +263,9 @@ describe('OHRI Forms:', () => {
 
       const expression1 = "tbProgramType === '160541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'";
       const expression2 = "tbProgramType === '160052AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'";
-      let enabled = isPostSubmissionEnabled(expression1, encounters);
+      let enabled = evaluatePostSubmissionExpression(expression1, encounters);
       expect(enabled).toEqual(true);
-      enabled = isPostSubmissionEnabled(expression2, encounters);
+      enabled = evaluatePostSubmissionExpression(expression2, encounters);
       expect(enabled).toEqual(false);
     });
     it('Should test post submission actions', async () => {

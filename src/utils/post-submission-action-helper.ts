@@ -1,4 +1,4 @@
-export function isPostSubmissionEnabled(expression: string, encounters: any[]): boolean {
+export function evaluatePostSubmissionExpression(expression: string, encounters: any[]): boolean {
   const encounter = encounters[0];
   const regx = /(?:\w+|'(?:\\'|[^'\n])*')/g;
   let match;
@@ -38,7 +38,7 @@ export function isPostSubmissionEnabled(expression: string, encounters: any[]): 
 
     return eval(replacedExpression);
   } catch (error) {
-    throw new Error('Error evaluating enabled flag expression');
+    throw new Error('Error evaluating expression');
   }
 }
 

@@ -28,7 +28,7 @@ import LoadingIcon from './components/loaders/loading.component';
 import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
 import WarningModal from './components/warning-modal.component';
 import styles from './ohri-form.component.scss';
-import { isPostSubmissionEnabled } from './utils/program-enrolment-helper';
+import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 
 interface OHRIFormProps {
   patientUUID: string;
@@ -211,7 +211,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                       }
                     });
                     if (encounterData.length) {
-                      const isActionEnabled = enabled ? isPostSubmissionEnabled(enabled, encounterData) : true;
+                      const isActionEnabled = enabled ? evaluatePostSubmissionExpression(enabled, encounterData) : true;
                       if (isActionEnabled) {
                         await postAction.applyAction(
                           {

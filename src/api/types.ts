@@ -319,3 +319,10 @@ export type RepeatObsGroupCounter = {
   obsGroupCount: number;
   limit?: number;
 };
+export interface ProgramEnrollmentPayload {
+  patient: string;
+  program: string;
+  dateEnrolled: string;
+  dateCompleted?: string;
+  location: string;
+}

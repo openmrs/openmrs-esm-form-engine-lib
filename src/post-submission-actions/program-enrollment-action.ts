@@ -1,6 +1,6 @@
 import { showToast } from '@openmrs/esm-framework';
 import { createProgramEnrollment, getPatientEnrolledPrograms, updateProgramEnrollment } from '../api/api';
-import { PostSubmissionAction } from '../api/types';
+import { PostSubmissionAction, ProgramEnrollmentPayload } from '../api/types';
 import dayjs from 'dayjs';
 
 export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
@@ -18,11 +18,11 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
 
     if (programUuid) {
       const abortController = new AbortController();
-      const payload = {
+      const payload: ProgramEnrollmentPayload = {
         patient: patient.id,
         program: programUuid,
         dateEnrolled: enrollmentDate ? dayjs(enrollmentDate).format() : null,
-        dateCompleted: completionDate ? dayjs(enrollmentDate).format() : null,
+        dateCompleted: completionDate ? dayjs(completionDate).format() : null,
         location: encounterLocation,
       };
 
@@ -58,15 +58,15 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
         );
       } else {
         const patientEnrolledPrograms = await getPatientEnrolledPrograms(patient.id);
-        let patientTBEnrollment = null;
+        let patientProgramEnrollment = null;
         if (patientEnrolledPrograms) {
-          patientTBEnrollment = patientEnrolledPrograms.results.find(
+          patientProgramEnrollment = patientEnrolledPrograms.results.find(
             (enrollment) => enrollment.program.uuid === programUuid && enrollment.dateCompleted === null,
           );
         }
 
-        if (patientTBEnrollment) {
-          updateProgramEnrollment(patientTBEnrollment.uuid, payload, abortController).subscribe(
+        if (patientProgramEnrollment) {
+          updateProgramEnrollment(patientProgramEnrollment.uuid, payload, abortController).subscribe(
             (response) => {
               if (response.status === 200) {
                 showToast({
@@ -89,7 +89,7 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
         }
       }
     } else {
-      throw new Error('There is no program to enroll to');
+      throw new Error('Please provide Program Uuid to enroll patient to.');
     }
   },
 };
