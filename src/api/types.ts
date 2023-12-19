@@ -312,3 +312,9 @@ export interface ReferencedForm {
   formName: string;
   alias: string;
 }
+
+export type RepeatObsGroupCounter = {
+  fieldId: string;
+  obsGroupCount: number;
+  limit?: number;
+};

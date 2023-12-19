@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { SessionLocation, useLayoutType, Visit } from '@openmrs/esm-framework';
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { SessionLocation, showToast, useLayoutType, Visit } from '@openmrs/esm-framework';
 import { ConceptFalse, ConceptTrue } from '../../constants';
 import {
   OHRIFormField,
@@ -8,6 +8,7 @@ import {
   OpenmrsEncounter,
   SessionMode,
   ValidationResult,
+  RepeatObsGroupCounter,
 } from '../../api/types';
 import OHRIFormPage from '../page/ohri-form-page';
 import { OHRIFormContext } from '../../ohri-form-context';
@@ -53,6 +54,7 @@ interface OHRIEncounterFormProps {
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
   setSelectedPage: (page: string) => void;
   isSubmitting: boolean;
+  setIsSubmitting?: Dispatch<SetStateAction<boolean>>;
 }
 
 export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
@@ -76,6 +78,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   allInitialValues,
   setAllInitialValues,
   isSubmitting,
+  setIsSubmitting,
 }) => {
   const [fields, setFields] = useState<Array<OHRIFormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
@@ -88,6 +91,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
+  const [obsGroupCounter, setObsGroupCounter] = useState<Array<RepeatObsGroupCounter>>([]);
   const layoutType = useLayoutType();
 
   const encounterContext = useMemo(
@@ -102,6 +106,8 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       visit: visit,
       setEncounterDate,
       initValues: initValues,
+      obsGroupCounter: obsGroupCounter,
+      setObsGroupCounter: setObsGroupCounter,
     }),
     [encounter, form?.encounter, location, patient, previousEncounter, sessionMode, initValues],
   );
@@ -430,6 +436,22 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             uuid: field.uuid,
             voided: false,
           };
+
+          //validate obs group count against limit
+          const limit = field.questionOptions.repeatOptions?.limit;
+          const counter = obsGroupCounter?.filter((eachItem) => eachItem.fieldId === field.id)[0]?.obsGroupCount;
+
+          if (limit && counter && counter !== Number(limit)) {
+            setIsSubmitting(false);
+            showToast({
+              description: 'obsGroup count does not match limit specified',
+              title: 'Invalid entry',
+              kind: 'error',
+              critical: true,
+            });
+            throw new Error('obsGroup count does not match limit specified');
+          }
+
           let hasValue = false;
           field.questions.forEach((groupedField) => {
             if (groupedField.value) {

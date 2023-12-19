@@ -1,0 +1,378 @@
+{
+  "name": "Labour & Delivery Form",
+  "version": "1",
+  "published": true,
+  "retired": false,
+  "encounter": "Labor and Delivery",
+  "pages": [
+    {
+      "label": "Mother Details",
+      "sections": [
+        {
+          "label": "Mother And Infant Status",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Number of babies born from this pregnancy",
+              "type": "obs",
+              "id": "birth_count",
+              "questionOptions": {
+                "concept": "1568AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rendering": "number",
+                "max": "10",
+                "min": "1"
+              },
+              "behaviours": [
+                {
+                  "intent": "*",
+                  "required": "true",
+                  "unspecified": "false",
+                  "hide": {
+                    "hideWhenExpression": "false"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Infant Details",
+      "sections": [
+        {
+          "label": "Children Details",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "id": "childrenDetails",
+              "label": "Children Details",
+              "type": "obsGroup",
+              "questionOptions": {
+                "rendering": "repeating",
+                "concept": "1c70c490-cafa-4c95-9fdd-a30b62bb78b8",
+                "repeatOptions": {
+                  "limitExpression": "useFieldValue('birth_count')"
+                }
+              },
+              "behaviours": [
+                {
+                  "intent": "*",
+                  "required": "false",
+                  "unspecified": "false",
+                  "hide": {
+                    "hideWhenExpression": ""
+                  },
+                  "validators": []
+                }
+              ],
+              "questions": [
+                {
+                  "label": "Sex",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "radio",
+                    "concept": "1587AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "answers": [
+                      {
+                        "concept": "1535AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Female"
+                      },
+                      {
+                        "concept": "1534AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Male"
+                      }
+                    ]
+                  },
+                  "id": "childSex",
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "true",
+                      "unspecified": "true",
+                      "hide": {
+                        "hideWhenExpression": "false"
+                      },
+                      "validators": []
+                    }
+                  ]
+                },
+                {
+                  "label": "Date of Birth",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "date",
+                    "concept": "164802AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "weeksList": ""
+                  },
+                  "id": "birthDate",
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "true",
+                      "unspecified": "true",
+                      "hide": {
+                        "hideWhenExpression": "false"
+                      },
+                      "validators": [
+                        {
+                          "type": "date",
+                          "allowFutureDates": "false"
+                        },
+                        {
+                          "type": "js_expression",
+                          "failsWhenExpression": "!isDateEqualTo(myValue, useFieldValue('visit_date'))",
+                          "message": "Child birth date should be the same as the visit date!"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "Infant Status at birth",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "radio",
+                    "concept": "159917AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "answers": [
+                      {
+                        "concept": "151849AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Infant alive"
+                      },
+                      {
+                        "concept": "154223AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Infant Died (Neonatal Death)"
+                      },
+                      {
+                        "concept": "125872AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Still Birth"
+                      },
+                      {
+                        "concept": "54b96458-6585-4c4c-a5b1-b3ca7f1be351",
+                        "label": "Missing"
+                      }
+                    ]
+                  },
+                  "id": "infantStatus",
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "true",
+                      "hide": {
+                        "hideWhenExpression": "false"
+                      },
+                      "validators": []
+                    }
+                  ]
+                },
+                {
+                  "label": "Infant Feeding at discharge",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "radio",
+                    "concept": "1151AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "answers": [
+                      {
+                        "concept": "5526AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "EBF=Exclusive Breastfeeding"
+                      },
+                      {
+                        "concept": "1595AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "RF=Replacement feeding"
+                      },
+                      {
+                        "concept": "54b96458-6585-4c4c-a5b1-b3ca7f1be351",
+                        "label": "Missing"
+                      }
+                    ]
+                  },
+                  "id": "infantFeeding",
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "true",
+                      "hide": {
+                        "hideWhenExpression": "infantStatus !== '151849AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' && infantStatus !== '154223AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+                      },
+                      "validators": []
+                    }
+                  ]
+                },
+                {
+                  "label": "Type of still birth",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "radio",
+                    "concept": "125872AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "answers": [
+                      {
+                        "concept": "159916AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Fresh"
+                      },
+                      {
+                        "concept": "135436AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Macerated"
+                      },
+                      {
+                        "concept": "54b96458-6585-4c4c-a5b1-b3ca7f1be351",
+                        "label": "Missing"
+                      }
+                    ]
+                  },
+                  "id": "stillBirthType",
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "true",
+                      "hide": {
+                        "hideWhenExpression": "infantStatus !== '125872AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+                      },
+                      "validators": []
+                    }
+                  ]
+                },
+                {
+                  "label": "Infant Received ARV",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "radio",
+                    "concept": "1148AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "answers": [
+                      {
+                        "concept": "83a60fef-31c6-4937-907b-42ced15474e3",
+                        "label": "NVP Prophylaxis daily up to 6 weeks"
+                      },
+                      {
+                        "concept": "99b29c50-fc67-11e8-8eb2-f2801f1b9fd1",
+                        "label": "Infant received NVP + AZT prophylaxis up to 6 weeks"
+                      },
+                      {
+                        "concept": "127750AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Refused ARV Prophylaxis"
+                      },
+                      {
+                        "concept": "1754AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Stock-out of ARV Prophylaxis"
+                      },
+                      {
+                        "concept": "54b96458-6585-4c4c-a5b1-b3ca7f1be351",
+                        "label": "Missing"
+                      }
+                    ]
+                  },
+                  "id": "receivedARV",
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "true",
+                      "hide": {
+                        "hideWhenExpression": "infantStatus !== '151849AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' && infantStatus !== '154223AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+                      },
+                      "validators": []
+                    }
+                  ]
+                },
+                {
+                  "label": "Reason for refusing infant ARV prophylaxis",
+                  "type": "obs",
+                  "id": "refused_prophylaxis",
+                  "questionOptions": {
+                    "concept": "163322AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "rendering": "textarea"
+                  },
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "true",
+                      "unspecified": "true",
+                      "hide": {
+                        "hideWhenExpression": "receivedARV !== '127750AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "Date of Death",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "date",
+                    "concept": "1543AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "weeksList": ""
+                  },
+                  "id": "deathDate",
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "true",
+                      "unspecified": "true",
+                      "hide": {
+                        "hideWhenExpression": "infantStatus !== '154223AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+                      },
+                      "validators": [
+                        {
+                          "type": "date",
+                          "allowFutureDates": "false"
+                        },
+                        {
+                          "type": "js_expression",
+                          "failsWhenExpression": "myValue > today() || myValue <= '1/1/1950'"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "Infant PTracker ID",
+                  "type": "obs",
+                  "id": "infantPtrackerid",
+                  "readonly": "true",
+                  "questionOptions": {
+                    "concept": "164803AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "rendering": "text",
+                    "calculate": {
+                      "calculateExpression": "!isEmpty('MotherPtracker_id') ? myValue = customGenerateInfantPTrackerId(node.value.id, MotherPtracker_id) : ''"
+                    }
+                  },
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "true",
+                      "hide": {
+                        "hideWhenExpression": "infantStatus === '125872AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+                      },
+                      "validators": [
+                        {
+                          "type": "js_expression",
+                          "failsWhenExpression": "!/^[0-9]{5}[A-Z]{1}[0-9]{7,8}$$/.test(myValue)",
+                          "message": "Invalid Ptracker number"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "availableIntents": [
+    {
+      "intent": "*",
+      "display": "Labour & Delivery Form"
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "uuid": "1e5614d6-5306-11e6-beb8-9e71128cae77",
+  "referencedForms": [],
+  "encounterType": "6dc5308d-27c9-4d49-b16f-2c5e3c759757",
+  "postSubmissionActions": [
+    "MotherToChildLinkageSubmissionAction",
+    "ArtSubmissionAction"
+  ],
+  "allowUnspecifiedAll": true,
+  "formOptions": {
+    "usePreviousValueDisabled": "true"
+  }
+}
