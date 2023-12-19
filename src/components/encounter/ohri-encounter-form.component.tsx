@@ -91,7 +91,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
-  const [obsGroupCounter, setObsGroupCounter] = useState<Array<RepeatObsGroupCounter | null>>([]);
+  const [obsGroupCounter, setObsGroupCounter] = useState<Array<RepeatObsGroupCounter>>([]);
   const layoutType = useLayoutType();
 
   const encounterContext = useMemo(
