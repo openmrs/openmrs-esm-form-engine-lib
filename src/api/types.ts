@@ -64,7 +64,7 @@ export interface OHRIFormSchema {
   pages: Array<OHRIFormPage>;
   processor: string;
   uuid: string;
-  referencedForms: [];
+  referencedForms: Array<ReferencedForm>;
   encounterType: string;
   encounter?: string | OpenmrsEncounter;
   allowUnspecifiedAll?: boolean;
@@ -319,6 +319,7 @@ export type RepeatObsGroupCounter = {
   obsGroupCount: number;
   limit?: number;
 };
+
 export interface ProgramEnrollmentPayload {
   patient: string;
   program: string;
