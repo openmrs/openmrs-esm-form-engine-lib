@@ -163,7 +163,7 @@ describe('OHRI Forms:', () => {
   // Form submission
 
   describe('Question Info', () => {
-    fit('Should ascertain that each field with questionInfo passed will display a tooltip', async () => {
+    it('Should ascertain that each field with questionInfo passed will display a tooltip', async () => {
       //render the test form
       await act(async () => renderForm(null, sample_fields_form));
 
@@ -332,7 +332,7 @@ describe('OHRI Forms:', () => {
   });
 
   describe('obs group count validation', () => {
-    fit('should show error toast when the obs group count does not match the number count specified', async () => {
+    it('should show error toast when the obs group count does not match the number count specified', async () => {
       await act(async () => renderForm(null, labour_and_delivery_test_form));
 
       //Number of babies born from this pregnancy
