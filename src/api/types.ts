@@ -207,6 +207,7 @@ export interface PostSubmissionAction {
       sessionMode: SessionMode;
     },
     config?: Record<string, any>,
+    enabled?: string,
   ): void;
 }
 
@@ -318,3 +319,10 @@ export type RepeatObsGroupCounter = {
   obsGroupCount: number;
   limit?: number;
 };
+export interface ProgramEnrollmentPayload {
+  patient: string;
+  program: string;
+  dateEnrolled: string;
+  dateCompleted?: string;
+  location: string;
+}

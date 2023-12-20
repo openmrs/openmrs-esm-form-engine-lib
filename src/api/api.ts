@@ -2,8 +2,10 @@ import { openmrsFetch, openmrsObservableFetch } from '@openmrs/esm-framework';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { encounterRepresentation } from '../constants';
-import { OpenmrsForm } from './types';
+import { OpenmrsForm, ProgramEnrollmentPayload } from './types';
 import { isUuid } from '../utils/boolean-utils';
+
+const BASE_WS_API_URL = '/ws/rest/v1/';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
   const url = !!encounterUuid ? `/ws/rest/v1/encounter/${encounterUuid}?v=full` : `/ws/rest/v1/encounter?v=full`;
@@ -151,4 +153,50 @@ function dataURItoFile(dataURI: string) {
 
   const blob = new Blob([buffer], { type: mimeString });
   return blob;
+}
+
+//Program Enrollment
+export function getPatientEnrolledPrograms(patientUuid: string) {
+  return openmrsFetch(
+    `${BASE_WS_API_URL}programenrollment?patient=${patientUuid}&v=custom:(uuid,display,program,dateEnrolled,dateCompleted,location:(uuid,display))`,
+  ).then(({ data }) => {
+    if (data) {
+      return data;
+    }
+    return null;
+  });
+}
+
+export function createProgramEnrollment(payload: ProgramEnrollmentPayload, abortController: AbortController) {
+  if (!payload) {
+    throw new Error('Program enrollment cannot be created because no payload is supplied');
+  }
+  const { program, patient, dateEnrolled, dateCompleted, location } = payload;
+  return openmrsObservableFetch(`${BASE_WS_API_URL}programenrollment`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: { program, patient, dateEnrolled, dateCompleted, location },
+    signal: abortController.signal,
+  });
+}
+
+export function updateProgramEnrollment(
+  programEnrollmentUuid: string,
+  payload: ProgramEnrollmentPayload,
+  abortController: AbortController,
+) {
+  if (!payload || !programEnrollmentUuid) {
+    throw new Error('Program enrollment cannot be edited without a payload or a program Uuid');
+  }
+  const { dateEnrolled, dateCompleted, location } = payload;
+  return openmrsObservableFetch(`${BASE_WS_API_URL}programenrollment/${programEnrollmentUuid}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: { dateEnrolled, dateCompleted, location },
+    signal: abortController.signal,
+  });
 }

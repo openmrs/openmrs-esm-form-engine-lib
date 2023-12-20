@@ -33,13 +33,13 @@ const encounterContext: EncounterContext = {
   },
   sessionMode: 'enter',
   encounterDate: new Date(2023, 8, 29),
-  setEncounterDate: value => {},
+  setEncounterDate: (value) => {},
 };
 
-const renderForm = intialValues => {
+const renderForm = (intialValues) => {
   render(
     <Formik initialValues={intialValues} onSubmit={null}>
-      {props => (
+      {(props) => (
         <Form>
           <OHRIFormContext.Provider
             value={{
@@ -79,7 +79,7 @@ jest.mock('../../../registry/registry', () => ({
         display: 'Muyenga',
       },
     ]),
-    toUuidAndDisplay: data => data,
+    toUuidAndDisplay: (data) => data,
   }),
 }));
 

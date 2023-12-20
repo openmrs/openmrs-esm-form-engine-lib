@@ -367,10 +367,6 @@
   "uuid": "1e5614d6-5306-11e6-beb8-9e71128cae77",
   "referencedForms": [],
   "encounterType": "6dc5308d-27c9-4d49-b16f-2c5e3c759757",
-  "postSubmissionActions": [
-    "MotherToChildLinkageSubmissionAction",
-    "ArtSubmissionAction"
-  ],
   "allowUnspecifiedAll": true,
   "formOptions": {
     "usePreviousValueDisabled": "true"

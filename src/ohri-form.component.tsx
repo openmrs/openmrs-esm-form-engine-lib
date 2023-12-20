@@ -28,6 +28,7 @@ import LoadingIcon from './components/loaders/loading.component';
 import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
 import WarningModal from './components/warning-modal.component';
 import styles from './ohri-form.component.scss';
+import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 
 interface OHRIFormProps {
   patientUUID: string;
@@ -200,7 +201,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
           // Post Submission Actions
           if (postSubmissionHandlers) {
             await Promise.all(
-              postSubmissionHandlers.map(async ({ postAction, config, actionId }) => {
+              postSubmissionHandlers.map(async ({ postAction, config, actionId, enabled }) => {
                 try {
                   const encounterData = [];
                   if (results) {
@@ -210,14 +211,17 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                       }
                     });
                     if (encounterData.length) {
-                      await postAction.applyAction(
-                        {
-                          patient,
-                          sessionMode,
-                          encounters: encounterData,
-                        },
-                        config,
-                      );
+                      const isActionEnabled = enabled ? evaluatePostSubmissionExpression(enabled, encounterData) : true;
+                      if (isActionEnabled) {
+                        await postAction.applyAction(
+                          {
+                            patient,
+                            sessionMode,
+                            encounters: encounterData,
+                          },
+                          config,
+                        );
+                      }
                     } else {
                       throw new Error('No encounter data to process post submission action');
                     }

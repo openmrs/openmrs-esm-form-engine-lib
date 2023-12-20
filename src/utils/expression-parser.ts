@@ -63,10 +63,10 @@ export function linkReferencedFieldValues(
   tokens: string[],
 ): string {
   const processedTokens = [];
-  tokens.forEach(token => {
+  tokens.forEach((token) => {
     if (hasParentheses(token)) {
       let tokenWithUnresolvedArgs = token;
-      extractArgs(token).forEach(arg => {
+      extractArgs(token).forEach((arg) => {
         const referencedField = findReferencedFieldIfExists(arg, fields);
         if (referencedField) {
           tokenWithUnresolvedArgs = replaceFieldRefWithValuePath(
@@ -141,9 +141,9 @@ export function findAndRegisterReferencedFields(
   tokens: string[],
   fields: Array<OHRIFormField>,
 ): void {
-  tokens.forEach(token => {
+  tokens.forEach((token) => {
     if (hasParentheses(token)) {
-      extractArgs(token).forEach(arg => {
+      extractArgs(token).forEach((arg) => {
         registerDependency(fieldNode, findReferencedFieldIfExists(arg, fields));
       });
     } else {
@@ -157,5 +157,5 @@ function findReferencedFieldIfExists(fieldId: string, fields: OHRIFormField[]): 
   if (/^'+|'+$/.test(fieldId)) {
     fieldId = fieldId.replace(/^'|'$/g, '');
   }
-  return fields.find(field => field.id === fieldId);
+  return fields.find((field) => field.id === fieldId);
 }
