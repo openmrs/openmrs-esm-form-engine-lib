@@ -308,7 +308,6 @@ describe('OHRI Forms:', () => {
 
       // Render the form
       await act(async () => renderForm(null, postSubmission_test_form));
-      //const getRegisteredPostSubmissionActionSpy = jest.spyOn(registry, 'getRegisteredPostSubmissionAction');
       const drugSensitiveProgramField = await findRadioGroupMember(screen, 'Drug-susceptible (DS) TB Program');
       const enrolmentDateField = await findTextOrDateInput(screen, 'Date enrolled in tuberculosis (TB) care');
       const treatmentNumber = await findNumberInput(screen, 'DS TB Treatment Number');
@@ -325,9 +324,6 @@ describe('OHRI Forms:', () => {
 
       expect(saveEncounterMock).toHaveBeenCalled();
       await act(async () => expect(saveEncounterMock).toReturn());
-      //expect(postSubmissionSpy).toHaveBeenCalled();
-
-      //expect(api.createProgramEnrollment).toHaveBeenCalled();
     });
   });
 
