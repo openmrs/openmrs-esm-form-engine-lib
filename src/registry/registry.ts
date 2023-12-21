@@ -124,21 +124,34 @@ export async function getRegisteredFieldSubmissionHandler(type: string): Promise
 }
 
 export async function getRegisteredPostSubmissionAction(actionId: string) {
-  if (registryCache.postSubmissionActions[actionId]) {
-    return registryCache.postSubmissionActions[actionId];
+  const cachedAction = registryCache.postSubmissionActions[actionId];
+  if (cachedAction) {
+    return cachedAction;
   }
-  let lazy = await inbuiltPostSubmissionActions.find((registration) => registration.name === actionId)?.load;
-  let actionImport = (await lazy()) ?? null;
-  if (!actionImport) {
-    lazy = getFormsStore().postSubmissionActions.find((registration) => registration.name === actionId)?.load;
-    if (lazy) {
-      actionImport = await lazy();
-      registryCache.postSubmissionActions[actionId] = actionImport.default;
-    } else {
-      console.error(`No loader found for PostSubmissionAction registration of id: ${actionId}`);
-    }
+
+  const inbuiltRegistration = inbuiltPostSubmissionActions.find((registration) => registration.name === actionId);
+
+  if (inbuiltRegistration) {
+    const lazy = inbuiltRegistration.load;
+    const actionImport = await lazy();
+    registryCache.postSubmissionActions[actionId] = actionImport.default;
+    return actionImport.default;
   }
-  return actionImport.default ?? null;
+
+  const formsStoreRegistration = getFormsStore().postSubmissionActions.find(
+    (registration) => registration.name === actionId,
+  );
+
+  if (formsStoreRegistration) {
+    const lazy = formsStoreRegistration.load;
+    const actionImport = await lazy();
+    registryCache.postSubmissionActions[actionId] = actionImport.default;
+    return actionImport.default;
+  } else {
+    console.error(`No loader found for PostSubmissionAction registration of id: ${actionId}`);
+  }
+
+  return null;
 }
 
 export async function getRegisteredValidator(name: string): Promise<FieldValidator> {
