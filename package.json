@@ -103,5 +103,5 @@
     "@carbon/react": "1.13.0",
     "dayjs": "^1.10.4"
   },
-  "packageManager": "yarn@3.2.2"
+  "packageManager": "yarn@4.0.2"
 }
