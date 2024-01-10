@@ -14,6 +14,9 @@ const question: OHRIFormField = {
     concept: '160540AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
     datasource: {
       name: 'location_datasource',
+      config: {
+        tag: 'test-tag',
+      },
     },
   },
   value: null,
@@ -161,5 +164,28 @@ describe('UISelectExtended Component', () => {
       expect(screen.queryByText('Kololo')).not.toBeInTheDocument();
       expect(screen.queryByText('Muyenga')).not.toBeInTheDocument();
     });
+  });
+  it('Should set the correct value for the config parameter', async () => {
+    // Mock the data source fetch behavior
+    const expectedConfigValue = {
+      tag: 'test-tag',
+    };
+
+    // Mock the getRegisteredDataSource function
+    jest.mock('../../../registry/registry', () => ({
+      getRegisteredDataSource: jest.fn().mockResolvedValue({
+        fetchData: jest.fn().mockResolvedValue([]),
+        toUuidAndDisplay: (data) => data,
+        config: expectedConfigValue,
+      }),
+    }));
+
+    await act(async () => {
+      await renderForm({});
+    });
+    const config = question.questionOptions.datasource.config;
+
+    // Assert that the config is set with the expected configuration value
+    expect(config).toEqual(expectedConfigValue);
   });
 });

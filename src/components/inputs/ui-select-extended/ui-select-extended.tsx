@@ -38,7 +38,7 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
         ? question.questionOptions.datasource?.config
         : getControlTemplate(question.questionOptions.rendering)?.datasource?.config,
     );
-    getRegisteredDataSource(datasourceName ? datasourceName : question.questionOptions.rendering).then(ds =>
+    getRegisteredDataSource(datasourceName ? datasourceName : question.questionOptions.rendering).then((ds) =>
       setDataSource(ds),
     );
   }, [question.questionOptions?.datasource]);
@@ -50,7 +50,7 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
     }
   }, [question['submission']]);
 
-  const handleChange = value => {
+  const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
     question.value = handler?.handleFieldSubmission(question, value, encounterContext);
@@ -58,7 +58,7 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
 
   const debouncedSearch = debounce((searchterm, dataSource) => {
     setIsLoading(true);
-    dataSource.fetchData(searchterm, config).then(dataItems => {
+    dataSource.fetchData(searchterm, config).then((dataItems) => {
       setItems(dataItems.map(dataSource.toUuidAndDisplay));
       setIsLoading(false);
     });
@@ -68,21 +68,21 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
     // If not searchable, preload the items
     if (dataSource && !isTrue(question.questionOptions.isSearchable)) {
       setIsLoading(true);
-      dataSource.fetchData(null, config).then(dataItems => {
+      dataSource.fetchData(null, config).then((dataItems) => {
         setItems(dataItems.map(dataSource.toUuidAndDisplay));
         setIsLoading(false);
       });
     }
-  }, [dataSource]);
+  }, [dataSource, config]);
 
   useEffect(() => {
     if (dataSource && isTrue(question.questionOptions.isSearchable) && !isEmpty(searchTerm)) {
       debouncedSearch(searchTerm, dataSource);
     }
-  }, [dataSource, searchTerm]);
+  }, [dataSource, searchTerm, config]);
 
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
+    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);
@@ -102,7 +102,7 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
         label={question.label}
         value={
           field.value
-            ? handler?.getDisplayValue(question, items.find(item => item.uuid == field.value)?.display)
+            ? handler?.getDisplayValue(question, items.find((item) => item.uuid == field.value)?.display)
             : field.value
         }
         conceptName={conceptName}
@@ -123,8 +123,8 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
               id={question.id}
               titleText={question.label}
               items={items}
-              itemToString={item => item?.display}
-              selectedItem={items.find(item => item.uuid == field.value)}
+              itemToString={(item) => item?.display}
+              selectedItem={items.find((item) => item.uuid == field.value)}
               shouldFilterItem={({ item, inputValue }) => {
                 if (!inputValue) {
                   // Carbon's initial call at component mount
@@ -138,7 +138,7 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
               }}
               disabled={question.disabled}
               readOnly={question.readonly}
-              onInputChange={value => {
+              onInputChange={(value) => {
                 if (isProcessingSelection.current) {
                   // Notes:
                   // When the user selects a value, both the onChange and onInputChange functions are invoked sequentially.
@@ -157,7 +157,7 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
             <div>
               <PreviousValueReview
                 value={previousValueForReview.value}
-                displayText={items.find(item => item.uuid == previousValueForReview.value)?.display}
+                displayText={items.find((item) => item.uuid == previousValueForReview.value)?.display}
                 setValue={handleChange}
               />
             </div>
