@@ -27,14 +27,14 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
     }
   }, [question['submission']]);
 
-  const handleChange = value => {
+  const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
     question.value = handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
+    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);
@@ -80,7 +80,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
             onChange={handleChange}
             orientation="vertical">
             {question.questionOptions.answers
-              .filter(answer => !answer.isHidden)
+              .filter((answer) => !answer.isHidden)
               .map((answer, index) => {
                 return (
                   <RadioButton
@@ -101,7 +101,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
               </div>
             ))}
         </FormGroup>
-        {previousValueForReview ? (
+        {/* {previousValueForReview ? (
           <FormGroup legendText={null}>
             <PreviousValueReview
               value={previousValueForReview.value}
@@ -109,7 +109,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
               setValue={handleChange}
             />
           </FormGroup>
-        ) : null}
+        ) : null} */}
       </div>
     )
   );

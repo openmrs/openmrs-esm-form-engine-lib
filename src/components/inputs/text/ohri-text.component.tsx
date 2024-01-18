@@ -95,7 +95,7 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
               maxLength={question.questionOptions.max || TextInput.maxLength}
             />
           </div>
-          {previousValueForReview && (
+          {/* {previousValueForReview && (
             <div>
               <PreviousValueReview
                 value={previousValueForReview.value}
@@ -103,7 +103,7 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
                 setValue={setPrevValue}
               />
             </div>
-          )}
+          )} */}
         </div>
       </>
     )

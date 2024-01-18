@@ -67,7 +67,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
   const { placeholder, carbonDateformat } = useMemo(() => {
     const formatObj = dateFormatter.formatToParts(new Date());
     const placeholder = formatObj
-      .map(obj => {
+      .map((obj) => {
         switch (obj.type) {
           case 'day':
             return 'dd';
@@ -81,7 +81,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
       })
       .join('');
     const carbonDateformat = formatObj
-      .map(obj => {
+      .map((obj) => {
         switch (obj.type) {
           case 'day':
             return 'd';
@@ -119,7 +119,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
   }, [encounterContext?.previousEncounter]);
 
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
+    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);
@@ -164,7 +164,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
                 // Something strange is happening with the way events are propagated and handled by Carbon.
                 // When we manually trigger an onchange event using the 'fireEvent' lib, the handler below will
                 // be triggered as opposed to the former handler that only gets triggered at runtime.
-                onChange={e => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
+                onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
                 disabled={question.disabled}
                 invalid={!isFieldRequiredError && errors.length > 0}
                 invalidText={errors[0]?.message}
@@ -196,7 +196,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
           ) : (
             ''
           )}
-          {previousValueForReview && (
+          {/* {previousValueForReview && (
             <div className={`${styles.formField}`}>
               <PreviousValueReview
                 value={previousValueForReview.value}
@@ -204,7 +204,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
                 setValue={onDateChange}
               />
             </div>
-          )}
+          )} */}
         </div>
       </>
     )

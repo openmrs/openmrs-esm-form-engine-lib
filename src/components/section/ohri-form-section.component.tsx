@@ -8,7 +8,8 @@ import { OHRIFormField, OHRIFormFieldProps, SubmissionHandler } from '../../api/
 import styles from './ohri-form-section.scss';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
 import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
-import { subtle } from 'crypto';
+import { OHRIFormContext } from '../../ohri-form-context';
+import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<OHRIFormFieldProps>;
@@ -17,7 +18,10 @@ interface FieldComponentMap {
 }
 
 const OHRIFormSection = ({ fields, onFieldChange }) => {
+  //previous values state to live here
   const [fieldComponentMapEntries, setFieldComponentMapEntries] = useState<FieldComponentMap[]>([]);
+  const { encounterContext } = React.useContext(OHRIFormContext);
+  console.log(encounterContext);
 
   useEffect(() => {
     Promise.all(
@@ -46,6 +50,7 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                   key={index}
                   handler={handler}
                   useField={useField}
+                  //can pass in optional previous value here if available
                 />
               );
 
@@ -62,6 +67,11 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                       )}
                     {fieldDescriptor.questionInfo && <OHRITooltip field={fieldDescriptor} />}
                   </div>
+                  {encounterContext.previousEncounter && (
+                    <div className={styles.previousValue}>
+                      <PreviousValueReview value="placeholder" displayText="placeholder" setValue={() => null} />
+                    </div>
+                  )}
                 </div>
               );
             }
