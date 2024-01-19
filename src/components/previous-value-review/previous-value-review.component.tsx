@@ -8,27 +8,30 @@ type Props = {
   value: string;
   displayText: string;
   setValue: (value) => void;
+  field?: string;
   hideHeader?: boolean;
 };
 
-export const PreviousValueReview: React.FC<Props> = ({ value, displayText, setValue, hideHeader }) => {
+export const PreviousValueReview: React.FC<Props> = ({ value, displayText, setValue, field, hideHeader }) => {
   const { t } = useTranslation();
 
   return (
     <div className={styles.formField}>
-      {!hideHeader && <span className="cds--label">{t('previousValue', 'Previous value')}</span>}
       <div className={styles.row}>
-        <OHRIValueDisplay value={displayText} />
-        <Button
-          className={styles.reuseButton}
-          kind="ghost"
-          onClick={e => {
-            e.preventDefault();
-            setValue(value);
-          }}>
-          {t('reuse', 'Reuse')}
-        </Button>
+        {!hideHeader && <div>{t('previousValue', 'Previous value:')}</div>}
+        <div className={styles.value}>
+          <OHRIValueDisplay value={displayText} />
+        </div>
       </div>
+      <Button
+        className={styles.reuseButton}
+        kind="ghost"
+        onClick={(e) => {
+          e.preventDefault();
+          setValue((prevValue) => [...prevValue, { field: field, value: value }]);
+        }}>
+        {t('reuse', 'Reuse')}
+      </Button>
     </div>
   );
 };

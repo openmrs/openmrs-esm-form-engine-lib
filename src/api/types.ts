@@ -131,6 +131,7 @@ export interface OHRIFormFieldProps {
   handler: SubmissionHandler;
   // This is of util to components defined out of the engine
   useField?: (fieldId: string) => [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
+  previousValue?: Record<string, any>;
 }
 export interface OHRIFormSection {
   hide?: HideProps;
