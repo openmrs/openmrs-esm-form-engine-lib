@@ -18,7 +18,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [warnings, setWarnings] = useState([]);
-  const [previousValueForReview, setPreviousValueForReview] = useState(null);
+  // const [previousValueForReview, setPreviousValueForReview] = useState(null);
 
   useEffect(() => {
     if (question['submission']) {
@@ -50,21 +50,20 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
 
   useEffect(() => {
     if (previousValue) {
-      console.log('number prev value: ', previousValue);
       setFieldValue(question.id, previousValue.value);
       field['value'] = previousValue.value;
       field.onBlur(null);
     }
   }, [previousValue]);
 
-  useEffect(() => {
-    if (encounterContext?.previousEncounter && !isTrue(question.questionOptions.usePreviousValueDisabled)) {
-      const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-      if (!isEmpty(prevValue?.value)) {
-        setPreviousValueForReview(prevValue);
-      }
-    }
-  }, [encounterContext?.previousEncounter]);
+  // useEffect(() => {
+  //   if (encounterContext?.previousEncounter && !isTrue(question.questionOptions.usePreviousValueDisabled)) {
+  //     const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
+  //     if (!isEmpty(prevValue?.value)) {
+  //       setPreviousValueForReview(prevValue);
+  //     }
+  //   }
+  // }, [encounterContext?.previousEncounter]);
 
   useEffect(() => {
     getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {

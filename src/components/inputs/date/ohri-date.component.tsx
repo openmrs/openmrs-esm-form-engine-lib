@@ -15,7 +15,7 @@ import { formatDate } from '@openmrs/esm-framework';
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
 
-const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
   const [errors, setErrors] = useState([]);
@@ -25,6 +25,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [time, setTime] = useState('');
 
+  previousValue && console.log('previous value for date', previousValue.value);
   useEffect(() => {
     if (question['submission']) {
       question['submission'].errors && setErrors(question['submission'].errors);
@@ -46,6 +47,17 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
     onTimeChange(false, true);
     question.value = handler?.handleFieldSubmission(question, refinedDate, encounterContext);
   };
+
+  useEffect(() => {
+    if (previousValue) {
+      const { value: date } = previousValue;
+      const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
+      setFieldValue(question.id, refinedDate);
+      onChange(question.id, refinedDate, setErrors, setWarnings);
+      onTimeChange(false, true);
+      question.value = handler?.handleFieldSubmission(question, refinedDate, encounterContext);
+    }
+  }, [previousValue]);
 
   const onTimeChange = (event, useValue = false) => {
     if (useValue) {
