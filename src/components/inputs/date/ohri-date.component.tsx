@@ -25,7 +25,6 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [time, setTime] = useState('');
 
-  previousValue && console.log('previous value for date', previousValue.value);
   useEffect(() => {
     if (question['submission']) {
       question['submission'].errors && setErrors(question['submission'].errors);

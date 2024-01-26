@@ -36,6 +36,8 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
     });
   }, [fields]);
 
+  // console.log(encounterContext.previousEncounter);
+
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
       <div className={styles.sectionContainer}>
@@ -61,7 +63,7 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                 ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)
                 : { value: 'no previous value' };
 
-              // console.log(prevValue);
+              // console.log(fieldDescriptor.id, prevValue);
               return (
                 <div key={index} className={styles.parent}>
                   {qnFragment}

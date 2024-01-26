@@ -10,7 +10,7 @@ import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.compo
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
 import styles from './ohri-radio.scss';
 
-const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
   const [errors, setErrors] = useState([]);
@@ -48,6 +48,14 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
       }
     }
   }, [encounterContext?.previousEncounter]);
+
+  useEffect(() => {
+    if (previousValue) {
+      setFieldValue(question.id, previousValue.value);
+      onChange(question.id, previousValue.value, setErrors, setWarnings);
+      question.value = handler?.handleFieldSubmission(question, previousValue.value, encounterContext);
+    }
+  }, [previousValue]);
 
   const isInline = useMemo(() => {
     if (encounterContext.sessionMode == 'view' || isTrue(question.readonly)) {

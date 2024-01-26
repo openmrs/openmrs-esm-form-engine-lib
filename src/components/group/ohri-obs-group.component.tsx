@@ -6,14 +6,20 @@ import styles from './ohri-obs-group.scss';
 import { useField } from 'formik';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
 import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
+import { isTrue } from '../../utils/boolean-utils';
+import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
 
 export interface ObsGroupProps extends OHRIFormFieldProps {
   deleteControl?: any;
 }
 
 export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteControl }) => {
+  const [previousValues, setPreviousValues] = useState<Array<Record<string, any>>>([]);
   const [groupMembersControlMap, setGroupMembersControlMap] = useState([]);
   const { formFieldHandlers } = useContext(OHRIFormContext);
+  const { encounterContext, fields: fieldsFromEncounter } = React.useContext(OHRIFormContext);
+
+  // console.log('obsgroup', encounterContext.previousEncounter);
 
   useEffect(() => {
     if (question.questions) {
@@ -39,6 +45,16 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
           useField,
         });
 
+        const prevValue = encounterContext.previousEncounter
+          ? formFieldHandlers[field.type]?.getPreviousValue(
+              field,
+              encounterContext.previousEncounter,
+              fieldsFromEncounter,
+            )
+          : { value: 'no previous value' };
+
+        // console.log(field.id, prevValue);
+
         return (
           <div className={`${styles.flexColumn} ${styles.obsGroupColumn} `}>
             <div className={styles.parent}>
@@ -49,6 +65,18 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
                 )}
                 {field.questionInfo && <OHRITooltip field={field} />}
               </div>
+              {encounterContext?.previousEncounter &&
+                prevValue &&
+                !isTrue(field.questionOptions.usePreviousValueDisabled) && (
+                  <div className={styles.previousValue}>
+                    <PreviousValueReview
+                      value={prevValue?.value}
+                      displayText={prevValue?.display}
+                      setValue={setPreviousValues}
+                      field={field.id}
+                    />
+                  </div>
+                )}
             </div>
           </div>
         );

@@ -11,15 +11,15 @@ import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.compo
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
 import styles from './ohri-text.scss';
 
-const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
-  const [previousValue, setPreviousValue] = useState();
+  // const [previousValue, setPreviousValue] = useState();
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const [conceptName, setConceptName] = useState('Loading...');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const [previousValueForReview, setPreviousValueForReview] = useState(null);
+  // const [previousValueForReview, setPreviousValueForReview] = useState(null);
 
   useEffect(() => {
     if (question['submission']) {
@@ -28,14 +28,22 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
     }
   }, [question['submission']]);
 
+  // useEffect(() => {
+  //   if (encounterContext?.previousEncounter && !isTrue(question.questionOptions.usePreviousValueDisabled)) {
+  //     const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
+  //     if (!isEmpty(prevValue?.value)) {
+  //       setPreviousValueForReview(prevValue);
+  //     }
+  //   }
+  // }, [encounterContext?.previousEncounter]);
+
   useEffect(() => {
-    if (encounterContext?.previousEncounter && !isTrue(question.questionOptions.usePreviousValueDisabled)) {
-      const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-      if (!isEmpty(prevValue?.value)) {
-        setPreviousValueForReview(prevValue);
-      }
+    if (previousValue) {
+      setFieldValue(question.id, previousValue.value);
+      field['value'] = previousValue.value;
+      field.onBlur(null);
     }
-  }, [encounterContext?.previousEncounter]);
+  }, [previousValue]);
 
   field.onBlur = () => {
     if (field.value && question.unspecified) {
@@ -84,7 +92,7 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
               labelText={question.label}
               name={question.id}
               value={field.value || ''}
-              onFocus={() => setPreviousValue(field.value)}
+              // onFocus={() => setPreviousValue(field.value)}
               disabled={question.disabled}
               readOnly={question.readonly}
               invalid={!isFieldRequiredError && errors.length > 0}
