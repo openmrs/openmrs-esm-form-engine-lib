@@ -5,7 +5,7 @@ import { OHRIValueDisplay } from '../value/ohri-value.component';
 import styles from './previous-value-review.scss';
 
 type Props = {
-  value: string;
+  value: any;
   displayText: string;
   setValue: (value) => void;
   field?: string;
@@ -28,7 +28,8 @@ export const PreviousValueReview: React.FC<Props> = ({ value, displayText, setVa
         kind="ghost"
         onClick={(e) => {
           e.preventDefault();
-          setValue((prevValue) => [...prevValue, { field: field, value: value }]);
+          setValue((prevValue) => [...prevValue, { field: field, value: Array.isArray(value) ? value : value.value }]);
+          // these variables are poorly renamed, will refactor
         }}>
         {t('reuse', 'Reuse')}
       </Button>

@@ -1,53 +1,61 @@
-@use '@carbon/colors';
+// @use '@carbon/colors';
 
-.section {
-  border-radius: solid 1px rgba(107, 104, 104, 0.5);
-  margin-bottom: 3.063rem;
-}
+// .section {
+//   border-radius: solid 1px rgba(107, 104, 104, 0.5);
+//   margin-bottom: 3.063rem;
+// }
 
-.parent{
-  width: 360px;
-}
+// .parent{
+//   // width: 360px;
+//   background-color: aqua;
+// }
 
-.tooltipWithUnspecified{
-  display: flex;
-  justify-content: space-between;
-}
+// .tooltipWithUnspecified{
+//   display: flex;
+//   justify-content: space-between;
+//   background-color: rgb(217, 77, 77);
+// }
 
-.tooltip{
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
+// .tooltip{
+//   display: flex;
+//   justify-content: flex-end;
+//   align-items: center;
+//   background-color: rgb(217, 77, 77);
+// }
 
-.sectionTitle {
-  max-width: 200px;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.38;
-  color: colors.$gray-70;
-  margin-bottom: 0.5rem;
-}
+// .sectionTitle {
+//   max-width: 200px;
+//   font-size: 1rem;
+//   font-weight: 600;
+//   line-height: 1.38;
+//   color: colors.$gray-70;
+//   margin-bottom: 0.5rem;
+// }
 
-.sectionContainer {
-  margin-top: 1.438rem;
-  width: 90%;
-}
+// .sectionContainer {
+//   margin-top: 1.438rem;
+//   // width: 90%;
+//   background-color: antiquewhite;
+//   // display: grid;
+//   // grid-template-columns: 1fr 1fr 1fr;
+//   // justify-content: space-between;
+//   // align-items: center;
+// }
 
-// This rule is breaking styling for embedded widgets
-// To should be more specific 
-.sectionContainer :global(.cds--fieldset) {
-  margin-bottom: 0;
-}
+// // This rule is breaking styling for embedded widgets
+// // To should be more specific 
+// .sectionContainer :global(.cds--fieldset) {
+//   margin-bottom: 0;
+// }
 
-.sectionContainer > div {
-  margin-bottom: 1rem;
-}
+// .sectionContainer > div {
+//   margin-bottom: 1rem;
+// }
 
-.sectionContainer :global(.cds--label) {
-  text-align: left;
-}
+// .sectionContainer :global(.cds--label) {
+//   text-align: left;
+// }
 
-.previousValue{
-  
-}
+// .previousValue{
+//   background-color: yellowgreen;
+// }

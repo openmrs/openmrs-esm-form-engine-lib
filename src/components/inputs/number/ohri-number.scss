@@ -1,25 +1,25 @@
-@use '@carbon/colors';
+// @use '@carbon/colors';
 
-.formField {
-  margin-top: 10px;
-}
+// .formField {
+//   margin-top: 10px;
+// }
 
-.formField > div > div > label {
-  color: colors.$gray-70;
-}
+// .formField > div > div > label {
+//   color: colors.$gray-70;
+// }
 
-.numberInputWrapper :global(.cds--number) {
-  @extend .formField;
-  width: 22.313rem;
-  font-size: 0.875rem;
-}
+// .numberInputWrapper :global(.cds--number) {
+//   @extend .formField;
+//   // width: 45rem;
+//   font-size: 0.875rem;
+// }
 
-.row {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-}
+// .row {
+//   display: flex;
+//   flex-direction: row;
+//   align-items: baseline;
+// }
 
-.errorLabel label {
-  color: colors.$red-60;
-}
+// .errorLabel label {
+//   color: colors.$red-60;
+// }

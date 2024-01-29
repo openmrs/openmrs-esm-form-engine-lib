@@ -1,37 +1,37 @@
-@use '@carbon/colors';
+// @use '@carbon/colors';
 
-.datetime > div {
-  flex: none !important;
-  box-sizing: content-box !important;
-}
+// .datetime > div {
+//   flex: none !important;
+//   box-sizing: content-box !important;
+// }
 
-.datePickerOverrides input {
-  width: 22.313rem !important;
-}
+// .datePickerOverrides input {
+//   width: 22.313rem !important;
+// }
 
-.disabled label {
-  color: colors.$gray-70 !important;
-}
+// .disabled label {
+//   color: colors.$gray-70 !important;
+// }
 
-.errorLabel label {
-  color: colors.$red-60 !important;
-}
+// .errorLabel label {
+//   color: colors.$red-60 !important;
+// }
 
-.formField :global(.bx--time-picker__input-field) {
-  width: auto;
-  margin-left: 5rem;
-}
+// .formField :global(.bx--time-picker__input-field) {
+//   // width: auto;
+//   margin-left: 5rem;
+// }
 
-.formField :global(.bx--label--disabled) {
-  margin-left: 5rem;
-}
-.timePicker {
-  width: 6.57rem;
-  padding-left: 0.2rem;
-}
+// .formField :global(.bx--label--disabled) {
+//   margin-left: 5rem;
+// }
+// .timePicker {
+//   width: 6.57rem;
+//   padding-left: 0.2rem;
+// }
 
-.row {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-}
+// .row {
+//   display: flex;
+//   flex-direction: row;
+//   align-items: baseline;
+// }

@@ -6,6 +6,7 @@ import { OHRIFormField, OpenmrsEncounter, OpenmrsObs, SubmissionHandler } from '
 import { parseToLocalDateTime } from '../utils/ohri-form-helper';
 import { flattenObsList, hasRendering } from '../utils/common-utils';
 import { formatDate } from '@openmrs/esm-framework';
+import { render } from '@testing-library/react';
 
 // Temporarily holds observations that have already been binded with matching fields
 export let assignedObsIds: string[] = [];
@@ -113,6 +114,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
   getPreviousValue: (field: OHRIFormField, encounter: OpenmrsEncounter, allFormFields: Array<OHRIFormField>) => {
     let matchedObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field);
     const rendering = field.questionOptions.rendering;
+    // rendering == 'checkbox' && console.log(field.id, rendering, matchedObs);
     if (matchedObs.length) {
       const obs = matchedObs[0];
       assignedObsIds.push(obs.uuid);
@@ -125,6 +127,14 @@ export const ObsSubmissionHandler: SubmissionHandler = {
           return { value: dateObj, display: dayjs(dateObj).format('YYYY-MM-DD HH:mm') };
         }
         return { value: obs.value, display: obs.value };
+      }
+      if (rendering == 'checkbox') {
+        return matchedObs.map((each) => {
+          return {
+            value: each.value?.uuid,
+            display: each.value?.name?.name,
+          };
+        });
       }
       return {
         value: obs.value?.uuid,

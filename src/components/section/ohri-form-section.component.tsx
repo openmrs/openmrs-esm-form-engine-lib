@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useField } from 'formik';
 import { ErrorBoundary } from 'react-error-boundary';
-import { ToastNotification } from '@carbon/react';
+import { ToastNotification, Grid, Column, Row } from '@carbon/react';
 import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
 import { OHRIFormField, OHRIFormFieldProps, SubmissionHandler } from '../../api/types';
@@ -11,6 +11,7 @@ import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
 import { isTrue } from '../../utils/boolean-utils';
+import { getPreviousEncounter } from '../../api/api';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<OHRIFormFieldProps>;
@@ -18,8 +19,12 @@ interface FieldComponentMap {
   handler: SubmissionHandler;
 }
 
+//move this to helper file
+function previousValueDisplayForCheckbox(previosValueItems: Object[]): String {
+  return previosValueItems.map((eachItem) => eachItem['display']).join(', ');
+}
+
 const OHRIFormSection = ({ fields, onFieldChange }) => {
-  //previous values state to live here
   const [previousValues, setPreviousValues] = useState<Array<Record<string, any>>>([]);
   const [fieldComponentMapEntries, setFieldComponentMapEntries] = useState<FieldComponentMap[]>([]);
   const { encounterContext, fields: fieldsFromEncounter } = React.useContext(OHRIFormContext);
@@ -36,8 +41,6 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
     });
   }, [fields]);
 
-  // console.log(encounterContext.previousEncounter);
-
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
       <div className={styles.sectionContainer}>
@@ -45,6 +48,11 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
           .filter((entry) => entry?.fieldComponent)
           .map((entry, index) => {
             const { fieldComponent: FieldComponent, fieldDescriptor, handler } = entry;
+
+            const prevValue = encounterContext.previousEncounter
+              ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)
+              : { value: 'no previous value' };
+
             if (FieldComponent) {
               const previousValue = previousValues?.find((searchItem) => searchItem.field === fieldDescriptor.id);
               const qnFragment = (
@@ -55,15 +63,13 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                   handler={handler}
                   useField={useField}
                   previousValue={previousValue}
-                  //can pass in optional previous value here if available
                 />
               );
 
-              const prevValue = encounterContext.previousEncounter
-                ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)
-                : { value: 'no previous value' };
+              const prevCheckboxDisplayValue = Array.isArray(prevValue)
+                ? previousValueDisplayForCheckbox(prevValue)
+                : null;
 
-              // console.log(fieldDescriptor.id, prevValue);
               return (
                 <div key={index} className={styles.parent}>
                   {qnFragment}
@@ -82,8 +88,12 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                     !isTrue(fieldDescriptor.questionOptions.usePreviousValueDisabled) && (
                       <div className={styles.previousValue}>
                         <PreviousValueReview
-                          value={prevValue?.value}
-                          displayText={prevValue?.display}
+                          value={prevValue}
+                          displayText={
+                            fieldDescriptor.questionOptions.rendering == 'checkbox'
+                              ? prevCheckboxDisplayValue
+                              : prevValue?.display
+                          }
                           setValue={setPreviousValues}
                           field={fieldDescriptor.id}
                         />

@@ -114,15 +114,6 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
             step="0.01"
           />
         </div>
-        {/* {previousValueForReview && (
-          <div>
-            <PreviousValueReview
-              value={previousValueForReview.value}
-              displayText={previousValueForReview.display}
-              setValue={setPrevValue}
-            />
-          </div>
-        )} */}
       </div>
     )
   );
