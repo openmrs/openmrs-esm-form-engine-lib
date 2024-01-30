@@ -3,7 +3,7 @@
 .formField {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   // background-color: red;
   > div > div > label {
     color: colors.$gray-70;
