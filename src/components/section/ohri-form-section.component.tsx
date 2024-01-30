@@ -71,7 +71,7 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                 : null;
 
               return (
-                <div key={index} className={styles.parent}>
+                <div key={index} className={styles.parentResizer}>
                   {qnFragment}
                   <div
                     className={

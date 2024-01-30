@@ -5,22 +5,19 @@
 //   margin-bottom: 3.063rem;
 // }
 
-// .parent{
-//   // width: 360px;
-//   background-color: aqua;
+// .parentResizer{
+// //   max-width: 360px;
 // }
 
 .unspecifiedQuestionInfoSpaceBetween{
   display: flex;
   justify-content: space-between;
-//   background-color: rgb(217, 77, 77);
 }
 
 .questionInfoFlexEnd{
   display: flex;
   justify-content: flex-end;
   align-items: center;
-//   background-color: rgb(217, 77, 77);
 }
 
 // .sectionTitle {
