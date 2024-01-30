@@ -75,7 +75,9 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                   {qnFragment}
                   <div
                     className={
-                      isUnspecifiedSupported(fieldDescriptor) ? styles.tooltipWithUnspecified : styles.tooltip
+                      isUnspecifiedSupported(fieldDescriptor)
+                        ? styles.unspecifiedQuestionInfoSpaceBetween
+                        : styles.questionInfoFlexEnd
                     }>
                     {isUnspecifiedSupported(fieldDescriptor) &&
                       fieldDescriptor.questionOptions.rendering != 'group' && (

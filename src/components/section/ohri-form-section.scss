@@ -10,18 +10,18 @@
 //   background-color: aqua;
 // }
 
-// .tooltipWithUnspecified{
-//   display: flex;
-//   justify-content: space-between;
+.unspecifiedQuestionInfoSpaceBetween{
+  display: flex;
+  justify-content: space-between;
 //   background-color: rgb(217, 77, 77);
-// }
+}
 
-// .tooltip{
-//   display: flex;
-//   justify-content: flex-end;
-//   align-items: center;
+.questionInfoFlexEnd{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 //   background-color: rgb(217, 77, 77);
-// }
+}
 
 // .sectionTitle {
 //   max-width: 200px;

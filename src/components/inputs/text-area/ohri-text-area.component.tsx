@@ -9,7 +9,12 @@ import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
 import styles from './ohri-text-area.scss';
 
-const OHRITextArea: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+const OHRITextArea: React.FC<OHRIFormFieldProps> = ({
+  question,
+  onChange,
+  handler,
+  previousValue: previousValueProp,
+}) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
   const [previousValue, setPreviousValue] = useState();
@@ -36,7 +41,14 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
   };
 
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
+    if (previousValueProp) {
+      setFieldValue(question.id, previousValueProp.value);
+      field['value'] = previousValueProp.value;
+    }
+  }, [previousValueProp]);
+
+  useEffect(() => {
+    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);

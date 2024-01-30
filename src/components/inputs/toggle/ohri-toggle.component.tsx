@@ -9,11 +9,11 @@ import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.compo
 import { isEmpty } from '../../../validators/ohri-form-validator';
 import styles from './ohri-toggle.scss';
 
-const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
   const [conceptName, setConceptName] = useState('Loading...');
-  const handleChange = value => {
+  const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, null, null);
     question.value = handler?.handleFieldSubmission(question, value, encounterContext);
@@ -28,7 +28,16 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
   }, []);
 
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
+    if (previousValue) {
+      const { value } = previousValue;
+      setFieldValue(question.id, value);
+      onChange(question.id, value, null, null);
+      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+    }
+  }, [previousValue]);
+
+  useEffect(() => {
+    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);

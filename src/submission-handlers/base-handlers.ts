@@ -136,9 +136,15 @@ export const ObsSubmissionHandler: SubmissionHandler = {
           };
         });
       }
+      if (rendering == 'toggle') {
+        return {
+          value: obs.value?.uuid,
+          display: obs.value?.name?.name,
+        };
+      }
       return {
         value: obs.value?.uuid,
-        display: field.questionOptions.answers.find((option) => option.concept == obs.value?.uuid)?.label,
+        display: field.questionOptions.answers?.find((option) => option.concept == obs.value?.uuid)?.label,
       };
     }
     return null;

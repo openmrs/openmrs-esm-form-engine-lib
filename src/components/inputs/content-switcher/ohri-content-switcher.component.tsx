@@ -8,7 +8,7 @@ import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
 import styles from './ohri-content-switcher.scss';
 
-export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
   const [errors, setErrors] = useState([]);
@@ -20,19 +20,28 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
     }
   }, [question]);
 
-  const handleChange = value => {
+  useEffect(() => {
+    if (previousValue) {
+      const { value } = previousValue;
+      setFieldValue(question.id, value);
+      onChange(question.id, value, setErrors, null);
+      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+    }
+  }, [previousValue]);
+
+  const handleChange = (value) => {
     setFieldValue(question.id, value?.name);
     onChange(question.id, value?.name, setErrors, null);
     question.value = handler?.handleFieldSubmission(question, value?.name, encounterContext);
   };
 
   const selectedIndex = useMemo(
-    () => question.questionOptions.answers.findIndex(option => option.concept == field.value),
+    () => question.questionOptions.answers.findIndex((option) => option.concept == field.value),
     [field.value, question.questionOptions.answers],
   );
 
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
+    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
   }, [conceptName, question.questionOptions.concept]);
