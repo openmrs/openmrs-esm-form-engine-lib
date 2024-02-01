@@ -8,7 +8,8 @@ import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-he
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-import styles from './ohri-radio.scss';
+// import styles from './ohri-radio.scss';
+import styles from '../../section/ohri-form-section.scss';
 
 const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -78,7 +79,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
       <div className={styles.row}>
         <FormGroup
           legendText={question.label}
-          className={isFieldRequiredError ? styles.errorLegend : undefined}
+          className={`${styles.boldedLegend} ${isFieldRequiredError ? styles.errorLegend : undefined}`}
           disabled={question.disabled}
           invalid={!isFieldRequiredError && errors.length > 0}>
           <RadioButtonGroup

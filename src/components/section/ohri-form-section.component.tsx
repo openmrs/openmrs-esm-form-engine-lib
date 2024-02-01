@@ -71,8 +71,27 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                 : null;
 
               return (
-                <div key={index} className={styles.parentResizer}>
-                  {qnFragment}
+                <div
+                  key={index}
+                  className={`${fieldDescriptor.setWidthConstraint ? styles.controlWidthConstrained : ''} ${
+                    styles.parentResizer
+                  }`}>
+                  <div
+                    className={
+                      fieldDescriptor.questionInfo
+                        ? fieldDescriptor.questionOptions.rendering !== 'radio'
+                          ? styles.questionInfoCentralized
+                          : styles.controlAndQuestionInfo
+                        : styles.default
+                    }>
+                    <div className={styles.controlFullWidth}>{qnFragment}</div>
+                    {fieldDescriptor.questionInfo && (
+                      <div className={styles.questionInfoNextToLabel}>
+                        {' '}
+                        <OHRITooltip field={fieldDescriptor} />{' '}
+                      </div>
+                    )}
+                  </div>
                   <div
                     className={
                       isUnspecifiedSupported(fieldDescriptor)
@@ -83,7 +102,12 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                       fieldDescriptor.questionOptions.rendering != 'group' && (
                         <OHRIUnspecified question={fieldDescriptor} onChange={onFieldChange} handler={handler} />
                       )}
-                    {fieldDescriptor.questionInfo && <OHRITooltip field={fieldDescriptor} />}
+                    {/* {fieldDescriptor.questionInfo && (
+                      <div>
+                        {' '}
+                        <OHRITooltip field={fieldDescriptor} />{' '}
+                      </div>
+                    )} */}
                   </div>
                   {encounterContext?.previousEncounter &&
                     prevValue &&

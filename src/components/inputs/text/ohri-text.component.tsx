@@ -9,7 +9,8 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-import styles from './ohri-text.scss';
+// import styles from './ohri-text.scss';
+import styles from '../../section/ohri-form-section.scss';
 
 const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -83,9 +84,9 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
       <>
         <div className={`${styles.formField} ${styles.row}`}>
           <div
-            className={
+            className={`${styles.boldedLabel} ${
               isFieldRequiredError ? `${styles.textInputOverrides} ${styles.errorLabel}` : styles.textInputOverrides
-            }>
+            }`}>
             <TextInput
               {...field}
               id={question.id}

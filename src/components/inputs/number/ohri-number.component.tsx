@@ -8,7 +8,8 @@ import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.compo
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-import styles from './ohri-number.scss';
+// import styles from './ohri-number.scss';
+import styles from '../../section/ohri-form-section.scss';
 
 const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -108,7 +109,10 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
             onWheel={(e) => e.target.blur()}
             disabled={question.disabled}
             readOnly={question.readonly}
-            className={isFieldRequiredError ? styles.errorLabel : ''}
+            // className={(styles.boldedLabel, isFieldRequiredError ? styles.errorLabel : '')}
+            className={`${styles.controlWidthConstrained} ${styles.boldedLabel} ${
+              isFieldRequiredError ? styles.errorLabel : ''
+            }`}
             warn={warnings.length > 0}
             warnText={warnings[0]?.message}
             step="0.01"

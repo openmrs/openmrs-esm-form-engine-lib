@@ -2,12 +2,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../api/types';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
-import styles from './ohri-obs-group.scss';
+// import styles from './ohri-obs-group.scss';
 import { useField } from 'formik';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
 import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
 import { isTrue } from '../../utils/boolean-utils';
 import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
+import styles from '../section/ohri-form-section.scss';
 
 export interface ObsGroupProps extends OHRIFormFieldProps {
   deleteControl?: any;
@@ -43,7 +44,7 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
 
         return (
           <div className={`${styles.flexColumn} ${styles.obsGroupColumn} `}>
-            <div className={styles.parent}>
+            <div className={styles.parentResizer}>
               {questionFragment}
               <div className={isUnspecifiedSupported(field) ? styles.tooltipWithUnspecified : styles.tooltip}>
                 {isUnspecifiedSupported(field) && (

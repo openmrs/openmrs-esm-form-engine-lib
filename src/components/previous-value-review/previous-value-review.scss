@@ -2,7 +2,7 @@
 
 .formField {
   display: flex;
-  justify-content: space-between;
+  // justify-content: space-between;
   align-items: center;
   // background-color: red;
   > div > div > label {
@@ -13,10 +13,16 @@
 .row {
   display: flex;
   justify-content: flex-start;
+  align-items: center;
+  color: colors.$gray-60;
+  font-size: 0.7rem;
   // background-color: bisque;
 }
 
 .value {
+  display: flex;
+  align-items: center;
   padding-left: 0.5rem;
+  font-size: 12px !important;
   // background-color: aqua;
 }

@@ -9,7 +9,8 @@ import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-import styles from './ohri-date.scss';
+// import styles from './ohri-date.scss';
+import styles from '../../section/ohri-form-section.scss';
 import { formatDate } from '@openmrs/esm-framework';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
@@ -161,9 +162,9 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
               datePickerType="single"
               onChange={onDateChange}
               // Investigate these styles
-              className={`${styles.datePickerOverrides} ${isFieldRequiredError ? styles.errorLabel : ''} ${
-                question.disabled || isTrue(question.readonly) ? styles.disabled : ''
-              }`}
+              className={`${styles.boldedLabel} ${styles.datePickerOverrides} ${
+                isFieldRequiredError ? styles.errorLabel : ''
+              } ${question.disabled || isTrue(question.readonly) ? styles.disabled : ''}`}
               dateFormat={carbonDateformat}>
               <DatePickerInput
                 id={question.id}

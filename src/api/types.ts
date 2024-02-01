@@ -117,6 +117,7 @@ export interface OHRIFormField {
   validators?: Array<Record<string, any>>;
   behaviours?: Array<Record<string, any>>;
   questionInfo?: string;
+  setWidthConstraint?: boolean;
 }
 
 export interface OHRIFormFieldProps {
