@@ -2,6 +2,8 @@
 
 .formField {
   display: flex;
+  margin-top: 0.25rem;
+  margin-bottom: 1.5rem;
   // justify-content: space-between;
   align-items: center;
   // background-color: red;
@@ -26,3 +28,14 @@
   font-size: 12px !important;
   // background-color: aqua;
 }
+
+.reuseButton{
+  font-size: 0.7rem;
+  margin: 0 1rem;
+  color: colors.$blue-60;;
+}
+
+.reuseButton:hover{
+  cursor: pointer;
+}
+

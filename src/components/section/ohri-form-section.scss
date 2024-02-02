@@ -6,7 +6,6 @@
 // }
 
 .parentResizer{
-//   max-width: 360px;
 // background-color: aquamarine;
 margin-top: 0.5rem;
 margin-bottom: 0.5rem;
@@ -18,15 +17,17 @@ margin-bottom: 0.5rem;
 //   background-color: antiquewhite;
 }
 
-.default{
-
+.flexBasisOff{
+  flex: 0 0 auto;      
 }
 
-.controlFullWidth{
-flex-basis: 100%;
+.flexBasisOn{
+  flex-basis: 100%;      
 }
-.controlConstrainedWidth{
 
+.control{
+// flex-basis: 100%;
+// flex: 0 0 auto;
 }
 
 .questionInfoFlexEnd{
@@ -36,7 +37,7 @@ flex-basis: 100%;
 //   background-color: antiquewhite;
 }
 
-.controlAndQuestionInfo{
+.questionInfoDefault{
     display: flex;
 }
 
@@ -44,10 +45,15 @@ flex-basis: 100%;
     display: flex;
     // justify-content: space-between;
     align-items: center !important;
+    
+    > .questionInfoControl{
+        padding-top: 1.5rem;
+    }
 }
 
-.questionInfoNextToLabel{
+.questionInfoControl{
     margin: 0 0.25rem
+
 }
 
 
@@ -56,7 +62,7 @@ flex-basis: 100%;
   }
   
 .boldedLabel label{
-  font-weight: 500;
+  font-weight: 600;
   color: colors.$black-100;
 }
 

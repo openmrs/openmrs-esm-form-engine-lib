@@ -23,7 +23,8 @@ export const PreviousValueReview: React.FC<Props> = ({ value, displayText, setVa
           <OHRIValueDisplay value={displayText} />
         </div>
       </div>
-      <Button
+      {/* <Button
+        size="sm"
         className={styles.reuseButton}
         kind="ghost"
         onClick={(e) => {
@@ -32,7 +33,18 @@ export const PreviousValueReview: React.FC<Props> = ({ value, displayText, setVa
           // these variables are poorly renamed, will refactor
         }}>
         {t('reuse', 'Reuse')}
-      </Button>
+      </Button> */}
+      <div
+        className={styles.reuseButton}
+        role="button"
+        tabIndex={0}
+        onClick={(e) => {
+          e.preventDefault();
+          setValue((prevValue) => [...prevValue, { field: field, value: Array.isArray(value) ? value : value.value }]);
+          // these variables are poorly renamed, will refactor
+        }}>
+        reuse value
+      </div>
     </div>
   );
 };

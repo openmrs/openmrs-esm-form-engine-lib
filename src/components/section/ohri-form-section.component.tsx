@@ -71,27 +71,34 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                 : null;
 
               return (
-                <div
-                  key={index}
-                  className={`${fieldDescriptor.setWidthConstraint ? styles.controlWidthConstrained : ''} ${
-                    styles.parentResizer
-                  }`}>
+                <div key={index} className={styles.parentResizer}>
                   <div
                     className={
-                      fieldDescriptor.questionInfo
-                        ? fieldDescriptor.questionOptions.rendering !== 'radio'
+                      fieldDescriptor.questionInfo &&
+                      `${
+                        fieldDescriptor.questionOptions.rendering !== 'radio'
                           ? styles.questionInfoCentralized
-                          : styles.controlAndQuestionInfo
-                        : styles.default
+                          : styles.questionInfoDefault
+                      }
+                      `
                     }>
-                    <div className={styles.controlFullWidth}>{qnFragment}</div>
+                    <div
+                      className={`${
+                        fieldDescriptor.questionOptions.rendering == 'radio' ||
+                        fieldDescriptor.questionOptions.rendering == 'date'
+                          ? styles.flexBasisOff
+                          : styles.flexBasisOn
+                      } ${fieldDescriptor.setWidthConstraint && styles.controlWidthConstrained} ${styles.control}`}>
+                      {qnFragment}
+                    </div>
                     {fieldDescriptor.questionInfo && (
-                      <div className={styles.questionInfoNextToLabel}>
+                      <div className={styles.questionInfoControl}>
                         {' '}
                         <OHRITooltip field={fieldDescriptor} />{' '}
                       </div>
                     )}
                   </div>
+
                   <div
                     className={
                       isUnspecifiedSupported(fieldDescriptor)
