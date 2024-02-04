@@ -25,16 +25,15 @@ margin-bottom: 0.5rem;
   flex-basis: 100%;      
 }
 
-.control{
-// flex-basis: 100%;
-// flex: 0 0 auto;
-}
+// .control{
+// // flex-basis: 100%;
+// // flex: 0 0 auto;
+// }
 
 .questionInfoFlexEnd{
   display: flex;
   justify-content: flex-end;
   align-items: center;
-//   background-color: antiquewhite;
 }
 
 .questionInfoDefault{
@@ -43,7 +42,6 @@ margin-bottom: 0.5rem;
 
 .questionInfoCentralized{
     display: flex;
-    // justify-content: space-between;
     align-items: center !important;
     
     > .questionInfoControl{
@@ -55,11 +53,6 @@ margin-bottom: 0.5rem;
     margin: 0 0.25rem
 
 }
-
-
-.previousValue{
-    // background-color: yellowgreen;
-  }
   
 .boldedLabel label{
   font-weight: 600;
@@ -71,9 +64,14 @@ margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
+.errorLegend legend {
+  color: colors.$red-60 !important;
+  font-weight: 600;
+}
+
 .boldedLegend legend {
     color: colors.$black-100 !important;
-    font-weight: 700;
+    font-weight: 600;
   }
 
 .controlWidthConstrained{

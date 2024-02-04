@@ -6,7 +6,8 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
-import styles from './ohri-content-switcher.scss';
+// import styles from './ohri-content-switcher.scss';
+import styles from '../../section/ohri-form-section.scss';
 
 export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -65,7 +66,7 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
   ) : (
     !question.isHidden && (
       <div className={styles.textContainer}>
-        <FormGroup legendText={question.label} className={errors.length ? styles.errorLegend : ''}>
+        <FormGroup legendText={question.label} className={errors.length ? styles.errorLegend : styles.boldedLegend}>
           <ContentSwitcher onChange={handleChange} selectedIndex={selectedIndex} className={styles.selectedOption}>
             {question.questionOptions.answers.map((option, index) => (
               <Switch

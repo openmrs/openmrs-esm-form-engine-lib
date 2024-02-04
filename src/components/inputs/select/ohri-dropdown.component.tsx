@@ -8,7 +8,8 @@ import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.compo
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-import styles from './ohri-dropdown.scss';
+// import styles from './ohri-dropdown.scss';
+import styles from '../../section/ohri-form-section.scss';
 
 const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -86,7 +87,7 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
   ) : (
     !question.isHidden && (
       <div className={`${styles.formInputField} ${styles.row}`}>
-        <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.dropdown}` : styles.dropdown}>
+        <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : styles.boldedLabel}>
           <Dropdown
             id={question.id}
             titleText={question.label}
