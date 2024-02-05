@@ -187,24 +187,26 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
             </DatePicker>
           </div>
           {question?.questionOptions.rendering === 'datetime' ? (
-            <TimePicker
-              // This classname doesn't seem to exist
-              className={styles.timePicker}
-              id={question.id}
-              labelText="Time:"
-              placeholder="HH:MM"
-              pattern="(1[012]|[1-9]):[0-5][0-9])$"
-              type="time"
-              disabled={!field.value ? true : false}
-              value={
-                time
-                  ? time
-                  : field.value instanceof Date
-                  ? field.value.toLocaleDateString(window.navigator.language)
-                  : field.value
-              }
-              onChange={onTimeChange}
-            />
+            <div className={styles.timePickerSpacing}>
+              <TimePicker
+                // This classname doesn't seem to exist
+                className={styles.timePicker}
+                id={question.id}
+                labelText="Time:"
+                placeholder="HH:MM"
+                pattern="(1[012]|[1-9]):[0-5][0-9])$"
+                type="time"
+                disabled={!field.value ? true : false}
+                value={
+                  time
+                    ? time
+                    : field.value instanceof Date
+                    ? field.value.toLocaleDateString(window.navigator.language)
+                    : field.value
+                }
+                onChange={onTimeChange}
+              />{' '}
+            </div>
           ) : (
             ''
           )}

@@ -11,7 +11,6 @@ import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
 import { isTrue } from '../../utils/boolean-utils';
-import { getPreviousEncounter } from '../../api/api';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<OHRIFormFieldProps>;
@@ -85,10 +84,11 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                     <div
                       className={`${
                         fieldDescriptor.questionOptions.rendering == 'radio' ||
-                        fieldDescriptor.questionOptions.rendering == 'date'
-                          ? styles.flexBasisOff
+                        fieldDescriptor.questionOptions.rendering == 'date' ||
+                        fieldDescriptor.questionOptions.rendering == 'datetime'
+                          ? ''
                           : styles.flexBasisOn
-                      } ${fieldDescriptor.setWidthConstraint && styles.controlWidthConstrained} ${styles.control}`}>
+                      } ${fieldDescriptor.setWidthConstraint && styles.controlWidthConstrained}`}>
                       {qnFragment}
                     </div>
                     {fieldDescriptor.questionInfo && (
@@ -109,12 +109,6 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                       fieldDescriptor.questionOptions.rendering != 'group' && (
                         <OHRIUnspecified question={fieldDescriptor} onChange={onFieldChange} handler={handler} />
                       )}
-                    {/* {fieldDescriptor.questionInfo && (
-                      <div>
-                        {' '}
-                        <OHRITooltip field={fieldDescriptor} />{' '}
-                      </div>
-                    )} */}
                   </div>
                   {encounterContext?.previousEncounter &&
                     prevValue &&

@@ -3,7 +3,7 @@
 .formField {
   display: flex;
   margin-top: 0.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.25rem;
   // justify-content: space-between;
   align-items: center;
   // background-color: red;
@@ -17,20 +17,19 @@
   justify-content: flex-start;
   align-items: center;
   color: colors.$gray-60;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   // background-color: bisque;
 }
 
 .value {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   padding-left: 0.5rem;
-  font-size: 12px !important;
   // background-color: aqua;
 }
 
 .reuseButton{
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   margin: 0 1rem;
   color: colors.$blue-60;;
 }

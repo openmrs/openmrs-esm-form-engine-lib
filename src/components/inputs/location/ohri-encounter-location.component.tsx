@@ -8,7 +8,8 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFormField } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
-import styles from './ohri-encounter-location.scss';
+// import styles from './ohri-encounter-location.scss';
+import styles from '../../section/ohri-form-section.scss';
 
 export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; onChange: any }> = ({ question }) => {
   const [field, meta] = useField(question.id);
@@ -18,20 +19,15 @@ export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; on
 
   useEffect(() => {
     if (question.questionOptions.locationTag) {
-      getLocationsByTag(
-        question.questionOptions.locationTag
-          .trim()
-          .split(' ')
-          .join('%20'),
-      ).subscribe(
-        results => setLocations(results),
-        error => createErrorHandler(),
+      getLocationsByTag(question.questionOptions.locationTag.trim().split(' ').join('%20')).subscribe(
+        (results) => setLocations(results),
+        (error) => createErrorHandler(),
       );
     }
   }, []);
 
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
+    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);
@@ -47,13 +43,13 @@ export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; on
     </div>
   ) : (
     !question.isHidden && (
-      <div className={`${styles.formInputField} ${styles.multiselectOverride} ${styles.flexRow}`}>
+      <div className={`${styles.formInputField} ${styles.multiselectOverride} ${styles.flexRow} ${styles.boldedLabel}`}>
         <Dropdown
           id={question.id}
           titleText={question.label}
           label="Choose location"
           items={locations}
-          itemToString={item => item.display}
+          itemToString={(item) => item.display}
           selectedItem={field.value}
           onChange={({ selectedItem }) => {
             setFieldValue(question.id, selectedItem);

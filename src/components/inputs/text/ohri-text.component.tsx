@@ -82,7 +82,7 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   ) : (
     !question.isHidden && (
       <>
-        <div className={`${styles.formField} ${styles.row}`}>
+        <div className={`${styles.formField} ${styles.row} ${styles.flexBasisOn}`}>
           <div
             className={`${styles.boldedLabel} ${
               isFieldRequiredError ? `${styles.textInputOverrides} ${styles.errorLabel}` : styles.textInputOverrides
