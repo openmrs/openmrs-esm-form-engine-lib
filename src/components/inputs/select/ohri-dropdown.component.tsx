@@ -7,8 +7,6 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
-import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-// import styles from './ohri-dropdown.scss';
 import styles from '../../section/ohri-form-section.scss';
 
 const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
@@ -18,7 +16,6 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
   const [errors, setErrors] = useState([]);
   const [conceptName, setConceptName] = useState('Loading...');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
@@ -61,15 +58,6 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
     });
   }, [conceptName]);
 
-  useEffect(() => {
-    if (encounterContext?.previousEncounter && !isTrue(question.questionOptions.usePreviousValueDisabled)) {
-      const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-      if (!isEmpty(prevValue?.value)) {
-        setPreviousValueForReview(prevValue);
-      }
-    }
-  }, [encounterContext?.previousEncounter]);
-
   const isInline = useMemo(() => {
     if (encounterContext.sessionMode == 'view' || isTrue(question.readonly)) {
       return isInlineView(question.inlineRendering, layoutType, workspaceLayout);
@@ -106,15 +94,6 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
             warnText={warnings.length && warnings[0].message}
           />
         </div>
-        {/* {previousValueForReview && (
-          <div>
-            <PreviousValueReview
-              value={previousValueForReview.value}
-              displayText={previousValueForReview.display}
-              setValue={handleChange}
-            />
-          </div>
-        )} */}
       </div>
     )
   );

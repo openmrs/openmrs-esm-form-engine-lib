@@ -7,7 +7,6 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
-// import styles from './ohri-text-area.scss';
 import styles from '../../section/ohri-form-section.scss';
 
 const OHRITextArea: React.FC<OHRIFormFieldProps> = ({

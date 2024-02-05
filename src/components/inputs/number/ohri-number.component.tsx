@@ -7,19 +7,15 @@ import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-he
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
-import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-// import styles from './ohri-number.scss';
 import styles from '../../section/ohri-form-section.scss';
 
 const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
-  // const [previousValue, setPreviousValue] = useState();
   const [conceptName, setConceptName] = useState('Loading...');
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [warnings, setWarnings] = useState([]);
-  // const [previousValueForReview, setPreviousValueForReview] = useState(null);
 
   useEffect(() => {
     if (question['submission']) {
@@ -43,12 +39,6 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
     }
   };
 
-  const setPrevValue = (value: any) => {
-    setFieldValue(question.id, value);
-    field['value'] = value;
-    field.onBlur(null);
-  };
-
   useEffect(() => {
     if (previousValue) {
       setFieldValue(question.id, previousValue.value);
@@ -56,15 +46,6 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
       field.onBlur(null);
     }
   }, [previousValue]);
-
-  // useEffect(() => {
-  //   if (encounterContext?.previousEncounter && !isTrue(question.questionOptions.usePreviousValueDisabled)) {
-  //     const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-  //     if (!isEmpty(prevValue?.value)) {
-  //       setPreviousValueForReview(prevValue);
-  //     }
-  //   }
-  // }, [encounterContext?.previousEncounter]);
 
   useEffect(() => {
     getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
@@ -102,14 +83,12 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
             min={question.questionOptions.min || undefined}
             name={question.id}
             value={field.value || ''}
-            // onFocus={() => setPreviousValue(field.value)}
             allowEmpty={true}
             size="lg"
             hideSteppers={true}
             onWheel={(e) => e.target.blur()}
             disabled={question.disabled}
             readOnly={question.readonly}
-            // className={(styles.boldedLabel, isFieldRequiredError ? styles.errorLabel : '')}
             className={`${styles.controlWidthConstrained} ${styles.boldedLabel} ${
               isFieldRequiredError ? styles.errorLabel : ''
             }`}

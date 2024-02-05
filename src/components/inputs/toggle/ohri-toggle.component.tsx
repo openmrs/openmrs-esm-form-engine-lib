@@ -7,7 +7,8 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { isEmpty } from '../../../validators/ohri-form-validator';
-import styles from './ohri-toggle.scss';
+// import styles from './ohri-toggle.scss';
+import styles from '../../section/ohri-form-section.scss';
 
 const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -60,7 +61,7 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
     </div>
   ) : (
     !question.isHidden && (
-      <div className={styles.formField}>
+      <div className={`${styles.formField} ${styles.boldedLabel}`}>
         <Toggle
           labelText={question.label}
           id={question.id}

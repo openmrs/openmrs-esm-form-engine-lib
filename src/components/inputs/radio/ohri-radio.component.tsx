@@ -7,8 +7,6 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
-import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-// import styles from './ohri-radio.scss';
 import styles from '../../section/ohri-form-section.scss';
 
 const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
@@ -17,8 +15,6 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
   const [errors, setErrors] = useState([]);
   const [conceptName, setConceptName] = useState('Loading...');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const [previousValueForReview, setPreviousValueForReview] = useState(null);
-  const [paddingBottom, setPaddingBottom] = useState('3.1rem');
   const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
@@ -39,16 +35,6 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);
-
-  useEffect(() => {
-    if (encounterContext?.previousEncounter && !isTrue(question.questionOptions.usePreviousValueDisabled)) {
-      const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-      if (!isEmpty(prevValue?.value)) {
-        setPreviousValueForReview(prevValue);
-        setPaddingBottom(question.questionOptions.answers.length > 2 ? '3.1rem' : '1.2rem');
-      }
-    }
-  }, [encounterContext?.previousEncounter]);
 
   useEffect(() => {
     if (previousValue) {
@@ -110,15 +96,6 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
               </div>
             ))}
         </FormGroup>
-        {/* {previousValueForReview ? (
-          <FormGroup legendText={null}>
-            <PreviousValueReview
-              value={previousValueForReview.value}
-              displayText={previousValueForReview.display}
-              setValue={handleChange}
-            />
-          </FormGroup>
-        ) : null} */}
       </div>
     )
   );

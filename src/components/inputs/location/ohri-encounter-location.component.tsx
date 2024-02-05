@@ -8,7 +8,6 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFormField } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
-// import styles from './ohri-encounter-location.scss';
 import styles from '../../section/ohri-form-section.scss';
 
 export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; onChange: any }> = ({ question }) => {

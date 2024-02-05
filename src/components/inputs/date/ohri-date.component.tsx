@@ -8,8 +8,6 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
-import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-// import styles from './ohri-date.scss';
 import styles from '../../section/ohri-form-section.scss';
 import { formatDate } from '@openmrs/esm-framework';
 
@@ -210,15 +208,6 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
           ) : (
             ''
           )}
-          {/* {previousValueForReview && (
-            <div className={`${styles.formField}`}>
-              <PreviousValueReview
-                value={previousValueForReview.value}
-                displayText={previousValueForReview.display}
-                setValue={onDateChange}
-              />
-            </div>
-          )} */}
         </div>
       </>
     )
