@@ -30,8 +30,12 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   const isProcessingSelection = useRef(false);
   const [dataSource, setDataSource] = useState(null);
   const [config, setConfig] = useState({});
-  const [savedSearchableItemDisplay, setSavedSearchableItemDisplay] = useState('');
   const [savedSearchableItem, setSavedSearchableItem] = useState({});
+
+  interface DisplayableItem {
+    uuid: string;
+    display: string;
+  }
 
   useEffect(() => {
     const datasourceName = question.questionOptions?.datasource?.name;
@@ -71,7 +75,6 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   const processSearchableValues = (value) => {
     dataSource.fetchData(null, config, value).then((dataItem) => {
       setSavedSearchableItem(dataItem);
-      setSavedSearchableItemDisplay(dataItem.display);
       setIsLoading(false);
     });
   };
@@ -99,7 +102,7 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
       isTrue(question.questionOptions.isSearchable) &&
       isEmpty(searchTerm) &&
       field.value &&
-      !savedSearchableItemDisplay
+      !Object.keys(savedSearchableItem).length
     ) {
       setIsLoading(true);
       processSearchableValues(field.value);
@@ -152,7 +155,11 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
               titleText={question.label}
               items={items}
               itemToString={(item) => item?.display}
-              selectedItem={items.find((item) => item.uuid == field.value) || savedSearchableItem}
+              selectedItem={
+                encounterContext.sessionMode === 'enter'
+                  ? items.find((item) => item.uuid == field.value)
+                  : items.find((item) => item.uuid == field.value) || savedSearchableItem
+              }
               shouldFilterItem={({ item, inputValue }) => {
                 if (!inputValue) {
                   // Carbon's initial call at component mount
@@ -186,7 +193,8 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
               <PreviousValueReview
                 value={previousValueForReview.value}
                 displayText={
-                  items.find((item) => item.uuid == previousValueForReview.value)?.display || savedSearchableItemDisplay
+                  items.find((item) => item.uuid == previousValueForReview.value)?.display ||
+                  (savedSearchableItem as DisplayableItem).display
                 }
                 setValue={handleChange}
               />
