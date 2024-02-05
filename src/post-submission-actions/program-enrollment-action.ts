@@ -66,6 +66,9 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
         }
 
         if (patientProgramEnrollment) {
+          if (!payload.dateEnrolled) {
+            payload.dateEnrolled = patientProgramEnrollment.dateEnrolled;
+          }
           updateProgramEnrollment(patientProgramEnrollment.uuid, payload, abortController).subscribe(
             (response) => {
               if (response.status === 200) {
