@@ -6,20 +6,21 @@ export class ConceptDataSource extends BaseOpenMRSDataSource {
     super('/ws/rest/v1/concept?name=&searchType=fuzzy&v=custom:(uuid,display,conceptClass:(uuid,display))');
   }
 
-  fetchData(searchTerm: string, config?: Record<string, any>): Promise<any[]> {
+  fetchData(searchTerm: string, config?: Record<string, any>, uuid?: string): Promise<any[]> {
+    let apiUrl = this.url;
     if (config?.class) {
       if (typeof config.class == 'string') {
-        let urlParts = this.url.split('name=');
-        this.url = `${urlParts[0]}&name=&class=${config.class}&${urlParts[1]}`;
+        let urlParts = apiUrl.split('name=');
+        apiUrl = `${urlParts[0]}&name=&class=${config.class}&${urlParts[1]}`;
       } else {
-        return openmrsFetch(searchTerm ? `${this.url}&q=${searchTerm}` : this.url).then(({ data }) => {
+        return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
           return data.results.filter(
             concept => concept.conceptClass && config.class.includes(concept.conceptClass.uuid),
           );
         });
       }
     }
-    return openmrsFetch(searchTerm ? `${this.url}&q=${searchTerm}` : this.url).then(({ data }) => {
+    return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
       return data.results;
     });
   }

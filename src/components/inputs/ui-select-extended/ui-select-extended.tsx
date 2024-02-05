@@ -30,6 +30,12 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   const isProcessingSelection = useRef(false);
   const [dataSource, setDataSource] = useState(null);
   const [config, setConfig] = useState({});
+  const [savedSearchableItem, setSavedSearchableItem] = useState({});
+
+  interface DisplayableItem {
+    uuid: string;
+    display: string;
+  }
 
   useEffect(() => {
     const datasourceName = question.questionOptions?.datasource?.name;
@@ -57,12 +63,21 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   };
 
   const debouncedSearch = debounce((searchterm, dataSource) => {
+    setItems([]);
     setIsLoading(true);
     dataSource.fetchData(searchterm, config).then((dataItems) => {
       setItems(dataItems.map(dataSource.toUuidAndDisplay));
+
       setIsLoading(false);
     });
   }, 300);
+
+  const processSearchableValues = (value) => {
+    dataSource.fetchData(null, config, value).then((dataItem) => {
+      setSavedSearchableItem(dataItem);
+      setIsLoading(false);
+    });
+  };
 
   useEffect(() => {
     // If not searchable, preload the items
@@ -82,6 +97,19 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   }, [dataSource, searchTerm, config]);
 
   useEffect(() => {
+    if (
+      dataSource &&
+      isTrue(question.questionOptions.isSearchable) &&
+      isEmpty(searchTerm) &&
+      field.value &&
+      !Object.keys(savedSearchableItem).length
+    ) {
+      setIsLoading(true);
+      processSearchableValues(field.value);
+    }
+  }, [field.value]);
+
+  useEffect(() => {
     getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
@@ -92,6 +120,9 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
       const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
       if (!isEmpty(prevValue?.value)) {
         setPreviousValueForReview(prevValue);
+        if (question.questionOptions.isSearchable) {
+          processSearchableValues(prevValue.value);
+        }
       }
     }
   }, [encounterContext?.previousEncounter]);
@@ -124,7 +155,11 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
               titleText={question.label}
               items={items}
               itemToString={(item) => item?.display}
-              selectedItem={items.find((item) => item.uuid == field.value)}
+              selectedItem={
+                encounterContext.sessionMode === 'enter'
+                  ? items.find((item) => item.uuid == field.value)
+                  : items.find((item) => item.uuid == field.value) || savedSearchableItem
+              }
               shouldFilterItem={({ item, inputValue }) => {
                 if (!inputValue) {
                   // Carbon's initial call at component mount
@@ -146,8 +181,8 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
                   isProcessingSelection.current = false;
                   return;
                 }
-                setInputValue(value);
-                if (question.questionOptions['isSearchable']) {
+
+                if (question.questionOptions.isSearchable) {
                   setSearchTerm(value);
                 }
               }}
@@ -157,7 +192,10 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
             <div>
               <PreviousValueReview
                 value={previousValueForReview.value}
-                displayText={items.find((item) => item.uuid == previousValueForReview.value)?.display}
+                displayText={
+                  items.find((item) => item.uuid == previousValueForReview.value)?.display ||
+                  (savedSearchableItem as DisplayableItem).display
+                }
                 setValue={handleChange}
               />
             </div>
