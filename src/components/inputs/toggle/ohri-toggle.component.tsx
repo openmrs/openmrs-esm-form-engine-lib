@@ -7,13 +7,14 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { isEmpty } from '../../../validators/ohri-form-validator';
-// import styles from './ohri-toggle.scss';
 import styles from '../../section/ohri-form-section.scss';
+import { booleanConceptToBoolean } from '../../../utils/common-expression-helpers';
 
 const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
   const [conceptName, setConceptName] = useState('Loading...');
+
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, null, null);
@@ -30,7 +31,7 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
 
   useEffect(() => {
     if (previousValue) {
-      const { value } = previousValue;
+      const value = booleanConceptToBoolean(previousValue.value);
       setFieldValue(question.id, value);
       onChange(question.id, value, null, null);
       question.value = handler?.handleFieldSubmission(question, value, encounterContext);
@@ -61,9 +62,10 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
     </div>
   ) : (
     !question.isHidden && (
-      <div className={`${styles.formField} ${styles.boldedLabel}`}>
+      <div className={`${styles.formField} ${styles.boldedLegend}`}>
         <Toggle
           labelText={question.label}
+          classname={styles.boldedLegend}
           id={question.id}
           labelA={question.questionOptions.toggleOptions.labelFalse}
           labelB={question.questionOptions.toggleOptions.labelTrue}
