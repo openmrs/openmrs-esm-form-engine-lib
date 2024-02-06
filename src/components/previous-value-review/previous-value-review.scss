@@ -4,9 +4,7 @@
   display: flex;
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
-  // justify-content: space-between;
   align-items: center;
-  // background-color: red;
   > div > div > label {
     color: colors.$gray-70;
   }
@@ -18,14 +16,12 @@
   align-items: center;
   color: colors.$gray-60;
   font-size: 0.8rem;
-  // background-color: bisque;
 }
 
 .value {
   display: flex;
   align-items: baseline;
   padding-left: 0.5rem;
-  // background-color: aqua;
 }
 
 .reuseButton{

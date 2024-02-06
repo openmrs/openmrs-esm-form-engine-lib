@@ -114,7 +114,6 @@ export const ObsSubmissionHandler: SubmissionHandler = {
   getPreviousValue: (field: OHRIFormField, encounter: OpenmrsEncounter, allFormFields: Array<OHRIFormField>) => {
     let matchedObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field);
     const rendering = field.questionOptions.rendering;
-    // rendering == 'checkbox' && console.log(field.id, rendering, matchedObs);
     if (matchedObs.length) {
       const obs = matchedObs[0];
       assignedObsIds.push(obs.uuid);

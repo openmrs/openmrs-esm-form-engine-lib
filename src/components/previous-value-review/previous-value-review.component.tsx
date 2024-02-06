@@ -23,17 +23,6 @@ export const PreviousValueReview: React.FC<Props> = ({ value, displayText, setVa
           <OHRIValueDisplay value={displayText} />
         </div>
       </div>
-      {/* <Button
-        size="sm"
-        className={styles.reuseButton}
-        kind="ghost"
-        onClick={(e) => {
-          e.preventDefault();
-          setValue((prevValue) => [...prevValue, { field: field, value: Array.isArray(value) ? value : value.value }]);
-          // these variables are poorly renamed, will refactor
-        }}>
-        {t('reuse', 'Reuse')}
-      </Button> */}
       <div
         className={styles.reuseButton}
         role="button"
