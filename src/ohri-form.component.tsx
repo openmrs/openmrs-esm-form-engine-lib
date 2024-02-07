@@ -287,7 +287,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                   </div>
                 )}
                 <div className={styles.ohriFormBody}>
-                  {showSidebar && (
+                  {showSidebar && sessionMode !== 'view' && (
                     <OHRIFormSidebar
                       isFormSubmitting={isSubmitting}
                       pagesWithErrors={pagesWithErrors}
@@ -339,30 +339,31 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                         setIsSubmitting={setIsSubmitting}
                       />
                     </div>
-                    {workspaceLayout === 'minimized' && (
-                      <ButtonSet className={styles.minifiedButtons}>
-                        <Button
-                          kind="secondary"
-                          onClick={() => {
-                            if (mode !== 'view' && isFormTouched) {
-                              setShowWarningModal(true);
-                              return;
-                            }
+                    {workspaceLayout === 'minimized' ||
+                      (sessionMode == 'view' && (
+                        <ButtonSet className={styles.minifiedButtons}>
+                          <Button
+                            kind="secondary"
+                            onClick={() => {
+                              if (mode !== 'view' && isFormTouched) {
+                                setShowWarningModal(true);
+                                return;
+                              }
 
-                            onCancel && onCancel();
-                            handleClose && handleClose();
-                          }}>
-                          {mode === 'view' ? 'Close' : 'Cancel'}
-                        </Button>
-                        <Button type="submit" disabled={mode === 'view' || isSubmitting}>
-                          {isSubmitting ? (
-                            <InlineLoading description={t('submitting', 'Submitting') + '...'} />
-                          ) : (
-                            <span>{t('save', 'Save')}</span>
-                          )}
-                        </Button>
-                      </ButtonSet>
-                    )}
+                              onCancel && onCancel();
+                              handleClose && handleClose();
+                            }}>
+                            {mode === 'view' ? 'Close' : 'Cancel'}
+                          </Button>
+                          <Button type="submit" disabled={mode === 'view' || isSubmitting}>
+                            {isSubmitting ? (
+                              <InlineLoading description={t('submitting', 'Submitting') + '...'} />
+                            ) : (
+                              <span>{t('save', 'Save')}</span>
+                            )}
+                          </Button>
+                        </ButtonSet>
+                      ))}
                   </div>
                 </div>
               </div>
