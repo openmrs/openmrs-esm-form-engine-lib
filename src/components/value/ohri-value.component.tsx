@@ -13,13 +13,13 @@ export const OHRIValueDisplay = ({ value }) => {
   if (Array.isArray(value)) {
     return <OHRIListDisplay valueArray={value} />;
   }
-  return <span className={styles.value}>{value}</span>;
+  return <div className={styles.value}>{value}</div>;
 };
 
 const OHRIListDisplay = ({ valueArray }) => {
   return (
     <ul>
-      {valueArray.map(item => (
+      {valueArray.map((item) => (
         <li className={styles.item}>{item}</li>
       ))}
     </ul>
