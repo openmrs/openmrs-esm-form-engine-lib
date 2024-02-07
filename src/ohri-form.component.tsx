@@ -313,7 +313,11 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     )}
                     <div
                       className={`${styles.formContentBody}
-                    ${workspaceLayout === 'minimized' ? `${styles.minifiedFormContentBody}` : ''}
+                    ${
+                      workspaceLayout === 'minimized' || sessionMode == 'view'
+                        ? `${styles.minifiedFormContentBody}`
+                        : ''
+                    }
                   `}>
                       <OHRIEncounterForm
                         formJson={refinedFormJson}

@@ -33,7 +33,10 @@
 }
 
 .formSection {
+  margin: 1rem;
   flex: 1 1 65%;
+  background-color: colors.$gray-10;
+  padding: 1rem;
 }
 
 .formSection > div > fieldset {
