@@ -303,7 +303,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     />
                   )}
                   <div className={styles.formContent}>
-                    {workspaceLayout != 'minimized' && patient?.id && (
+                    {workspaceLayout != 'minimized' && !patient?.id && (
                       <PatientBanner patient={patient} hideActionsOverflow={true} />
                     )}
                     {refinedFormJson.markdown && (
