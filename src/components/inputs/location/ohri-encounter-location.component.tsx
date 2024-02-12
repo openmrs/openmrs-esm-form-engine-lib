@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Dropdown } from '@carbon/react';
 import { useField } from 'formik';
 import { createErrorHandler } from '@openmrs/esm-framework';
-import { getConceptNameAndUUID } from '../../../utils/ohri-form-helper';
+import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { getLocationsByTag } from '../../../api/api';
 import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFormField } from '../../../api/types';
@@ -12,37 +12,44 @@ import styles from './ohri-encounter-location.scss';
 
 export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; onChange: any }> = ({ question }) => {
   const [field, meta] = useField(question.id);
-  const { setEncounterLocation, setFieldValue, encounterContext } = useContext(OHRIFormContext);
+  const { setEncounterLocation, setFieldValue, layoutType, workspaceLayout, encounterContext } =
+    useContext(OHRIFormContext);
   const [locations, setLocations] = useState([]);
   const [conceptName, setConceptName] = useState('Loading...');
 
   useEffect(() => {
     if (question.questionOptions.locationTag) {
-      getLocationsByTag(
-        question.questionOptions.locationTag
-          .trim()
-          .split(' ')
-          .join('%20'),
-      ).subscribe(
-        results => setLocations(results),
-        error => createErrorHandler(),
+      getLocationsByTag(question.questionOptions.locationTag.trim().split(' ').join('%20')).subscribe(
+        (results) => setLocations(results),
+        (error) => createErrorHandler(),
       );
     }
   }, []);
 
+  const isInline = useMemo(() => {
+    if (
+      encounterContext.sessionMode == 'view' ||
+      encounterContext.sessionMode == 'embedded-view' ||
+      isTrue(question.readonly)
+    ) {
+      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
+    }
+    return false;
+  }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
+
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
+    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);
 
-  return encounterContext.sessionMode == 'view' ? (
+  return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}
         value={field.value ? field.value.display : field.value}
         conceptName={conceptName}
-        isInline
+        isInline={isInline}
       />
     </div>
   ) : (
@@ -53,7 +60,7 @@ export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; on
           titleText={question.label}
           label="Choose location"
           items={locations}
-          itemToString={item => item.display}
+          itemToString={(item) => item.display}
           selectedItem={field.value}
           onChange={({ selectedItem }) => {
             setFieldValue(question.id, selectedItem);

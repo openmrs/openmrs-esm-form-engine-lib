@@ -1,13 +1,12 @@
 // @use '@carbon/colors';
 
-.value{
-  // background-color: pink;
-}
-.flexrow{
+.value{}
+
+.inlineFlexrow{
   display: flex;
   flex-wrap: wrap;
 }
-.flexColumn{
+.inlineFlexColumn{
   width: 300px
 }
 

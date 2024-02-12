@@ -20,31 +20,37 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
     }
   }, [question]);
 
-  const handleChange = value => {
+  const handleChange = (value) => {
     setFieldValue(question.id, value?.name);
     onChange(question.id, value?.name, setErrors, null);
     question.value = handler?.handleFieldSubmission(question, value?.name, encounterContext);
   };
 
   const selectedIndex = useMemo(
-    () => question.questionOptions.answers.findIndex(option => option.concept == field.value),
+    () => question.questionOptions.answers.findIndex((option) => option.concept == field.value),
     [field.value, question.questionOptions.answers],
   );
 
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
+    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
   }, [conceptName, question.questionOptions.concept]);
 
   const isInline = useMemo(() => {
-    if (encounterContext.sessionMode == 'view' || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout);
+    if (
+      encounterContext.sessionMode == 'view' ||
+      encounterContext.sessionMode == 'embedded-view' ||
+      isTrue(question.readonly)
+    ) {
+      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
     }
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
+  return encounterContext.sessionMode == 'view' ||
+    encounterContext.sessionMode == 'embedded-view' ||
+    isTrue(question.readonly) ? (
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}

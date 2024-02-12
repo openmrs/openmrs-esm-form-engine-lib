@@ -3,7 +3,7 @@ import { LayoutType } from '@openmrs/esm-framework';
 import { fetchConceptNameByUuid } from '../api/api';
 import { ConceptTrue } from '../constants';
 import { EncounterContext } from '../ohri-form-context';
-import { OHRIFormField, OHRIFormPage, OHRIFormSection, SubmissionHandler } from '../api/types';
+import { OHRIFormField, OHRIFormPage, OHRIFormSection, SessionMode, SubmissionHandler } from '../api/types';
 import { OHRIDefaultFieldValueValidator } from '../validators/default-value-validator';
 import { isEmpty } from '../validators/ohri-form-validator';
 import { isTrue } from './boolean-utils';
@@ -55,7 +55,11 @@ export function isInlineView(
   renderingType: 'single-line' | 'multiline' | 'automatic',
   layoutType: LayoutType,
   workspaceLayout: 'minimized' | 'maximized',
-) {
+  sessionMode: SessionMode,
+): boolean {
+  if (sessionMode == 'embedded-view') {
+    return sessionMode == 'embedded-view';
+  }
   if (renderingType == 'automatic') {
     return workspaceLayout == 'maximized' && layoutType.endsWith('desktop');
   }

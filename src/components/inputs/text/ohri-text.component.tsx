@@ -60,13 +60,17 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
   }, [conceptName]);
 
   const isInline = useMemo(() => {
-    if (encounterContext.sessionMode == 'view' || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout);
+    if (
+      encounterContext.sessionMode == 'view' ||
+      encounterContext.sessionMode == 'embedded-view' ||
+      isTrue(question.readonly)
+    ) {
+      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
     }
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' ? (
+  return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <div className={styles.formField}>
       <OHRIFieldValueView label={question.label} value={field.value} conceptName={conceptName} isInline={isInline} />
     </div>

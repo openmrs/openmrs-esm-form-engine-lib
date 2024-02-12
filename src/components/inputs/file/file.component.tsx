@@ -49,8 +49,12 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
   }, [myInitVal]);
 
   const isInline = useMemo(() => {
-    if (encounterContext.sessionMode == 'view' || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout);
+    if (
+      encounterContext.sessionMode == 'view' ||
+      encounterContext.sessionMode == 'embedded-view' ||
+      isTrue(question.readonly)
+    ) {
+      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
     }
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);

@@ -27,7 +27,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
     }
   }, [question['submission']]);
 
-  field.onBlur = event => {
+  field.onBlur = (event) => {
     if (event && event.target.value != field.value) {
       // testing purposes only
       field.value = event.target.value;
@@ -58,19 +58,23 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
   }, [encounterContext?.previousEncounter]);
 
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
+    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);
 
   const isInline = useMemo(() => {
-    if (encounterContext.sessionMode == 'view' || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout);
+    if (
+      encounterContext.sessionMode == 'view' ||
+      encounterContext.sessionMode == 'embedded-view' ||
+      isTrue(question.readonly)
+    ) {
+      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
     }
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' ? (
+  return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}
@@ -97,7 +101,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
             allowEmpty={true}
             size="lg"
             hideSteppers={true}
-            onWheel={e => e.target.blur()}
+            onWheel={(e) => e.target.blur()}
             disabled={question.disabled}
             readOnly={question.readonly}
             className={isFieldRequiredError ? styles.errorLabel : ''}

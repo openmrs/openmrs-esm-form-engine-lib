@@ -13,7 +13,7 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
   const [conceptName, setConceptName] = useState('Loading...');
-  const handleChange = value => {
+  const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, null, null);
     question.value = handler?.handleFieldSubmission(question, value, encounterContext);
@@ -28,19 +28,23 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
   }, []);
 
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then(conceptTooltip => {
+    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);
 
   const isInline = useMemo(() => {
-    if (encounterContext.sessionMode == 'view' || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout);
+    if (
+      encounterContext.sessionMode == 'view' ||
+      encounterContext.sessionMode == 'embedded-view' ||
+      isTrue(question.readonly)
+    ) {
+      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
     }
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' ? (
+  return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}
