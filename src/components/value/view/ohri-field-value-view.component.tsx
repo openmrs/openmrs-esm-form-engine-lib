@@ -14,15 +14,13 @@ interface OHRIFieldValueViewProps {
 export const OHRIFieldValueView: React.FC<OHRIFieldValueViewProps> = ({ label, conceptName, value, isInline }) => (
   <div className={styles.readonly}>
     {isInline && (
-      <div className={styles.formField}>
-        <Row>
-          <Column lg={5} md={5}>
-            <OHRILabel value={label} tooltipText={conceptName} />
-          </Column>
-          <Column className={styles.value}>
-            {!isEmpty(value) ? <OHRIValueDisplay value={value} /> : <OHRIValueEmpty />}
-          </Column>
-        </Row>
+      <div className={styles.inlineFlexrow}>
+        <div className={styles.inlineFlexColumn}>
+          <OHRILabel value={label} tooltipText={conceptName} />
+        </div>
+        <div className={`${styles.inlineFlexColumn}`}>
+          {value ? <OHRIValueDisplay value={value} /> : <OHRIValueEmpty />}
+        </div>
       </div>
     )}
     {!isInline && (
@@ -33,14 +31,3 @@ export const OHRIFieldValueView: React.FC<OHRIFieldValueViewProps> = ({ label, c
     )}
   </div>
 );
-
-// isInline ? (
-//   <div className={styles.inlineFlexrow}>
-//     <div className={styles.inlineFlexColumn}>
-//       <OHRILabel value={label} tooltipText={conceptName} />
-//     </div>
-//     <div className={`${styles.inlineFlexColumn}`}>
-//       {value ? <OHRIValueDisplay value={value} /> : <OHRIValueEmpty />}
-//     </div>
-//   </div>
-// ) : null

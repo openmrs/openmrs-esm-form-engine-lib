@@ -1,6 +1,25 @@
-// @use '@carbon/colors';
+@use '@carbon/colors';
 
-.value{}
+.formField {
+  margin-top: 10px;
+}
+
+.formField > div > div > label {
+  color: colors.$gray-70;
+}
+
+.readonly {
+  border-bottom: 0.5px colors.$gray-30;
+  border-style: solid;
+}
+
+.readonly > div {
+  padding-bottom: 7px !important;
+}
+
+.value {
+  color: colors.$gray-70;
+}
 
 .inlineFlexrow{
   display: flex;
@@ -9,6 +28,3 @@
 .inlineFlexColumn{
   width: 300px
 }
-
-
-
