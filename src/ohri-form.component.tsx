@@ -116,9 +116,18 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
 
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
+
   const showSidebar = useMemo(() => {
     return workspaceLayout !== 'minimized' && scrollablePages.size > 0 && sessionMode !== 'embedded-view';
   }, [workspaceLayout, scrollablePages.size, sessionMode]);
+
+  const showPatientBanner = useMemo(() => {
+    return workspaceLayout != 'minimized' && patient?.id && sessionMode != 'embedded-view';
+  }, [patient?.id, sessionMode, workspaceLayout]);
+
+  const showButtonSet = useMemo(() => {
+    return workspaceLayout === 'minimized' && sessionMode != 'embedded-view';
+  }, [sessionMode, workspaceLayout]);
 
   useEffect(() => {
     const extDetails = {
@@ -287,7 +296,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                   </div>
                 )}
                 <div className={styles.ohriFormBody}>
-                  {showSidebar && sessionMode !== 'view' && (
+                  {showSidebar && (
                     <OHRIFormSidebar
                       isFormSubmitting={isSubmitting}
                       pagesWithErrors={pagesWithErrors}
@@ -303,9 +312,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     />
                   )}
                   <div className={styles.formContent}>
-                    {workspaceLayout != 'minimized' && !patient?.id && sessionMode != 'embedded-view' && (
-                      <PatientBanner patient={patient} hideActionsOverflow={true} />
-                    )}
+                    {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow={true} />}
                     {refinedFormJson.markdown && (
                       <div className={styles.markdownContainer}>
                         <ReactMarkdown children={refinedFormJson.markdown.join('\n')} />
@@ -343,7 +350,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                         setIsSubmitting={setIsSubmitting}
                       />
                     </div>
-                    {sessionMode == 'view' && (
+                    {showButtonSet && (
                       <ButtonSet className={styles.minifiedButtons}>
                         <Button
                           kind="secondary"

@@ -12,7 +12,7 @@ interface OHRIFieldValueViewProps {
   conceptName: string;
 }
 export const OHRIFieldValueView: React.FC<OHRIFieldValueViewProps> = ({ label, conceptName, value, isInline }) => (
-  <div className={styles.readonly}>
+  <>
     {isInline && (
       <div className={styles.inlineFlexrow}>
         <div className={styles.inlineFlexColumn}>
@@ -24,10 +24,12 @@ export const OHRIFieldValueView: React.FC<OHRIFieldValueViewProps> = ({ label, c
       </div>
     )}
     {!isInline && (
-      <div className={styles.formField}>
-        <OHRILabel value={label} tooltipText={conceptName} />
-        <div className={styles.value}>{value ? <OHRIValueDisplay value={value} /> : <OHRIValueEmpty />}</div>
+      <div className={styles.readonly}>
+        <div className={styles.formField}>
+          <OHRILabel value={label} tooltipText={conceptName} />
+          <div className={styles.value}>{value ? <OHRIValueDisplay value={value} /> : <OHRIValueEmpty />}</div>
+        </div>
       </div>
     )}
-  </div>
+  </>
 );
