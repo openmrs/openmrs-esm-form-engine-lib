@@ -8,8 +8,6 @@ import { OHRIFormField, OHRIFormFieldProps, SubmissionHandler } from '../../api/
 import styles from './ohri-form-section.scss';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
 import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
-import { subtle } from 'crypto';
-import { OHRIFormContext } from '../../ohri-form-context';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<OHRIFormFieldProps>;
@@ -19,8 +17,6 @@ interface FieldComponentMap {
 
 const OHRIFormSection = ({ fields, onFieldChange }) => {
   const [fieldComponentMapEntries, setFieldComponentMapEntries] = useState<FieldComponentMap[]>([]);
-  const { encounterContext } = React.useContext(OHRIFormContext);
-  const { sessionMode } = encounterContext;
 
   useEffect(() => {
     Promise.all(
