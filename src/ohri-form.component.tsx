@@ -148,8 +148,10 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       },
     };
 
-    registerExtension(extDetails);
-    attach(PatientChartWorkspaceHeaderSlot, extDetails.name);
+    if (sessionMode != 'embedded-view') {
+      registerExtension(extDetails);
+      attach(PatientChartWorkspaceHeaderSlot, extDetails.name);
+    }
 
     return () => {
       detach(PatientChartWorkspaceHeaderSlot, extDetails.name);
