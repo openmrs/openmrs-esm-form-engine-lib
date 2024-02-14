@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ComboBox, InlineLoading } from '@carbon/react';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
-import styles from './ui-select-extended.scss';
+import styles from '../../section/ohri-form-section.scss';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { getConceptNameAndUUID } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
 
-const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onChange }) => {
+const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onChange, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, fields } = React.useContext(OHRIFormContext);
@@ -56,6 +56,15 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
     question.value = handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
+  useEffect(() => {
+    if (previousValue) {
+      isProcessingSelection.current = true;
+      setFieldValue(question.id, previousValue.value);
+      onChange(question.id, previousValue.value, setErrors, setWarnings);
+      question.value = handler?.handleFieldSubmission(question, previousValue.value, encounterContext);
+    }
+  }, [previousValue]);
+
   const debouncedSearch = debounce((searchterm, dataSource) => {
     setIsLoading(true);
     dataSource.fetchData(searchterm, config).then((dataItems) => {
@@ -87,14 +96,14 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
     });
   }, [conceptName]);
 
-  useEffect(() => {
-    if (encounterContext?.previousEncounter && !question.questionOptions.usePreviousValueDisabled) {
-      const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-      if (!isEmpty(prevValue?.value)) {
-        setPreviousValueForReview(prevValue);
-      }
-    }
-  }, [encounterContext?.previousEncounter]);
+  // useEffect(() => {
+  //   if (encounterContext?.previousEncounter && !question.questionOptions.usePreviousValueDisabled) {
+  //     const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
+  //     if (!isEmpty(prevValue?.value)) {
+  //       setPreviousValueForReview(prevValue);
+  //     }
+  //   }
+  // }, [encounterContext?.previousEncounter]);
 
   return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
     <div className={styles.formField}>
@@ -114,11 +123,7 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
       <>
         <div className={`${styles.formInputField} ${styles.row}`}>
           <div
-            className={
-              isFieldRequiredError
-                ? `${styles.errorLabel} ${styles.multiselectOverride}`
-                : `${styles.multiselectOverride}`
-            }>
+            className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : `${styles.boldedLabel}`}>
             <ComboBox
               id={question.id}
               titleText={question.label}
@@ -153,15 +158,6 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
               }}
             />
           </div>
-          {previousValueForReview && (
-            <div>
-              <PreviousValueReview
-                value={previousValueForReview.value}
-                displayText={items.find((item) => item.uuid == previousValueForReview.value)?.display}
-                setValue={handleChange}
-              />
-            </div>
-          )}
         </div>
         {isLoading && <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />}
       </>

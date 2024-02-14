@@ -6,7 +6,6 @@ import { OHRIFormField, OpenmrsEncounter, OpenmrsObs, SubmissionHandler } from '
 import { parseToLocalDateTime } from '../utils/ohri-form-helper';
 import { flattenObsList, hasRendering } from '../utils/common-utils';
 import { formatDate } from '@openmrs/esm-framework';
-import { render } from '@testing-library/react';
 
 // Temporarily holds observations that have already been binded with matching fields
 export let assignedObsIds: string[] = [];
