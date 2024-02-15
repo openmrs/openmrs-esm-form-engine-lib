@@ -8,7 +8,7 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFormField } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
-import styles from '../../section/ohri-form-section.scss';
+import styles from './ohri-encounter-location.scss';
 
 export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; onChange: any }> = ({ question }) => {
   const [field, meta] = useField(question.id);
@@ -32,17 +32,15 @@ export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; on
   }, [conceptName]);
 
   return encounterContext.sessionMode == 'view' ? (
-    <div className={styles.formField}>
-      <OHRIFieldValueView
-        label={question.label}
-        value={field.value ? field.value.display : field.value}
-        conceptName={conceptName}
-        isInline
-      />
-    </div>
+    <OHRIFieldValueView
+      label={question.label}
+      value={field.value ? field.value.display : field.value}
+      conceptName={conceptName}
+      isInline
+    />
   ) : (
     !question.isHidden && (
-      <div className={`${styles.formInputField} ${styles.multiselectOverride} ${styles.flexRow} ${styles.boldedLabel}`}>
+      <div className={`${styles.boldedLabel}`}>
         <Dropdown
           id={question.id}
           titleText={question.label}

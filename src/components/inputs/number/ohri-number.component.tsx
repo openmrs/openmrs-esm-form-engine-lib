@@ -7,7 +7,7 @@ import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-he
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
-import styles from '../../section/ohri-form-section.scss';
+import styles from './ohri-number.scss';
 
 const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -86,8 +86,8 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
           onWheel={(e) => e.target.blur()}
           disabled={question.disabled}
           readOnly={question.readonly}
-          className={`${styles.controlWidthConstrained} ${styles.boldedLabel} ${
-            isFieldRequiredError ? styles.errorLabel : ''
+          className={`${styles.controlWidthConstrained} ${
+            isFieldRequiredError ? styles.errorLabel : styles.boldedLabel
           }`}
           warn={warnings.length > 0}
           warnText={warnings[0]?.message}

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ComboBox, InlineLoading } from '@carbon/react';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
-import styles from '../../section/ohri-form-section.scss';
+import styles from './ui-select-extended.scss';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { getConceptNameAndUUID } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';

@@ -8,7 +8,7 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
-import styles from '../../section/ohri-form-section.scss';
+import styles from './ohri-date.scss';
 import { formatDate } from '@openmrs/esm-framework';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;

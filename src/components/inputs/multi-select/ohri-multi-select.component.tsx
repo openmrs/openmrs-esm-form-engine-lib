@@ -9,7 +9,7 @@ import { OHRIValueEmpty } from '../../value/ohri-value.component';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
-import styles from '../../section/ohri-form-section.scss';
+import styles from './ohri-multi-select.scss';
 
 export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();

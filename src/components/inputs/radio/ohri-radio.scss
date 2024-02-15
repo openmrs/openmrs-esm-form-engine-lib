@@ -1,0 +1,27 @@
+@use '@carbon/colors';
+
+.errorLegend legend {
+    color: colors.$red-60 !important;
+    font-weight: 600;
+}
+
+.boldedLegend legend {
+    color: colors.$black-100 !important;
+    font-weight: 600;
+}
+
+.warningLabel {
+    display: block;
+    max-height: 12.5rem;
+    overflow: visible;
+    font-weight: 400;
+    color: colors.$gray-70;
+}
+
+.errorLabel {
+    display: block;
+    max-height: 12.5rem;
+    overflow: visible;
+    font-weight: 400;
+    color: colors.$red-60;
+}
