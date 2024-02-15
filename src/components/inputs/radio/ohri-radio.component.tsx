@@ -37,7 +37,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
   }, [conceptName]);
 
   useEffect(() => {
-    if (previousValue) {
+    if (!isEmpty(previousValue)) {
       setFieldValue(question.id, previousValue.value);
       onChange(question.id, previousValue.value, setErrors, setWarnings);
       question.value = handler?.handleFieldSubmission(question, previousValue.value, encounterContext);
@@ -52,51 +52,47 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
-    <div className={styles.formField}>
-      <OHRIFieldValueView
-        label={question.label}
-        value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={conceptName}
-        isInline={isInline}
-      />
-    </div>
+    <OHRIFieldValueView
+      label={question.label}
+      value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
+      conceptName={conceptName}
+      isInline={isInline}
+    />
   ) : (
     !question.isHidden && (
-      <div className={styles.row}>
-        <FormGroup
-          legendText={question.label}
-          className={isFieldRequiredError ? styles.errorLegend : styles.boldedLegend}
-          disabled={question.disabled}
-          invalid={!isFieldRequiredError && errors.length > 0}>
-          <RadioButtonGroup
-            defaultSelected="default-selected"
-            name={question.id}
-            valueSelected={field.value}
-            onChange={handleChange}
-            orientation="vertical">
-            {question.questionOptions.answers
-              .filter((answer) => !answer.isHidden)
-              .map((answer, index) => {
-                return (
-                  <RadioButton
-                    id={`${question.id}-${answer.label}`}
-                    labelText={answer.label}
-                    value={answer.concept}
-                    key={index}
-                  />
-                );
-              })}
-          </RadioButtonGroup>
-          {(!isFieldRequiredError && errors?.length > 0) ||
-            (warnings.length > 0 && (
-              <div className={errors.length ? styles.errorLabel : warnings.length ? styles.warningLabel : ''}>
-                <div className={`cds--form-requirement`}>
-                  {errors.length ? errors[0].message : warnings.length ? warnings[0].message : null}
-                </div>
+      <FormGroup
+        legendText={question.label}
+        className={isFieldRequiredError ? styles.errorLegend : styles.boldedLegend}
+        disabled={question.disabled}
+        invalid={!isFieldRequiredError && errors.length > 0}>
+        <RadioButtonGroup
+          defaultSelected="default-selected"
+          name={question.id}
+          valueSelected={field.value}
+          onChange={handleChange}
+          orientation="vertical">
+          {question.questionOptions.answers
+            .filter((answer) => !answer.isHidden)
+            .map((answer, index) => {
+              return (
+                <RadioButton
+                  id={`${question.id}-${answer.label}`}
+                  labelText={answer.label}
+                  value={answer.concept}
+                  key={index}
+                />
+              );
+            })}
+        </RadioButtonGroup>
+        {(!isFieldRequiredError && errors?.length > 0) ||
+          (warnings.length > 0 && (
+            <div className={errors.length ? styles.errorLabel : warnings.length ? styles.warningLabel : ''}>
+              <div className={`cds--form-requirement`}>
+                {errors.length ? errors[0].message : warnings.length ? warnings[0].message : null}
               </div>
-            ))}
-        </FormGroup>
-      </div>
+            </div>
+          ))}
+      </FormGroup>
     )
   );
 };

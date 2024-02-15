@@ -6,7 +6,7 @@ import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.compo
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIValueEmpty } from '../../value/ohri-value.component';
-import { fieldRequiredErrCode } from '../../../validators/ohri-form-validator';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import styles from '../../section/ohri-form-section.scss';
@@ -66,7 +66,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
   };
 
   useEffect(() => {
-    if (previousValue) {
+    if (!isEmpty(previousValue)) {
       const valuesToSet = previousValue.value.map((eachItem) => eachItem.value);
       setFieldValue(question.id, valuesToSet);
       onChange(question.id, valuesToSet, setErrors, setWarnings);
@@ -88,14 +88,12 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' ? (
-    <div className={styles.formField}>
-      <OHRIFieldValueView
-        label={question.label}
-        value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={conceptName}
-        isInline={isInline}
-      />
-    </div>
+    <OHRIFieldValueView
+      label={question.label}
+      value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
+      conceptName={conceptName}
+      isInline={isInline}
+    />
   ) : (
     !question.isHidden && (
       <>
@@ -118,9 +116,9 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
             readOnly={question.readonly}
           />
         </div>
-        <div className={styles.formField} style={{ marginTop: '0.125rem' }}>
+        <div style={{ marginTop: '0.125rem' }}>
           {field.value?.length ? (
-            <UnorderedList className={styles.list}>
+            <UnorderedList>
               {handler?.getDisplayValue(question, field.value)?.map((displayValue) => displayValue + ', ')}
             </UnorderedList>
           ) : (

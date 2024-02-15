@@ -40,7 +40,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
   };
 
   useEffect(() => {
-    if (previousValue) {
+    if (!isEmpty(previousValue)) {
       setFieldValue(question.id, previousValue.value);
       field['value'] = previousValue.value;
       field.onBlur(null);
@@ -61,42 +61,38 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' ? (
-    <div className={styles.formField}>
-      <OHRIFieldValueView
-        label={question.label}
-        value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={conceptName}
-        isInline={isInline}
-      />
-    </div>
+    <OHRIFieldValueView
+      label={question.label}
+      value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
+      conceptName={conceptName}
+      isInline={isInline}
+    />
   ) : (
     !question.isHidden && (
-      <div className={`${styles.numberInputWrapper} ${styles.row}`}>
-        <div>
-          <NumberInput
-            {...field}
-            id={question.id}
-            invalid={!isFieldRequiredError && errors.length > 0}
-            invalidText={errors[0]?.message}
-            label={question.label}
-            max={question.questionOptions.max || undefined}
-            min={question.questionOptions.min || undefined}
-            name={question.id}
-            value={field.value || ''}
-            allowEmpty={true}
-            size="lg"
-            hideSteppers={true}
-            onWheel={(e) => e.target.blur()}
-            disabled={question.disabled}
-            readOnly={question.readonly}
-            className={`${styles.controlWidthConstrained} ${styles.boldedLabel} ${
-              isFieldRequiredError ? styles.errorLabel : ''
-            }`}
-            warn={warnings.length > 0}
-            warnText={warnings[0]?.message}
-            step="0.01"
-          />
-        </div>
+      <div>
+        <NumberInput
+          {...field}
+          id={question.id}
+          invalid={!isFieldRequiredError && errors.length > 0}
+          invalidText={errors[0]?.message}
+          label={question.label}
+          max={question.questionOptions.max || undefined}
+          min={question.questionOptions.min || undefined}
+          name={question.id}
+          value={field.value || ''}
+          allowEmpty={true}
+          size="lg"
+          hideSteppers={true}
+          onWheel={(e) => e.target.blur()}
+          disabled={question.disabled}
+          readOnly={question.readonly}
+          className={`${styles.controlWidthConstrained} ${styles.boldedLabel} ${
+            isFieldRequiredError ? styles.errorLabel : ''
+          }`}
+          warn={warnings.length > 0}
+          warnText={warnings[0]?.message}
+          step="0.01"
+        />
       </div>
     )
   );

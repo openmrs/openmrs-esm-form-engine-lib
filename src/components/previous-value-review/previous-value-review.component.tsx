@@ -1,18 +1,17 @@
 import React from 'react';
-import { Button } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { OHRIValueDisplay } from '../value/ohri-value.component';
 import styles from './previous-value-review.scss';
 
 type Props = {
-  value: any;
+  previousValue: any;
   displayText: string;
   setValue: (value) => void;
   field?: string;
   hideHeader?: boolean;
 };
 
-export const PreviousValueReview: React.FC<Props> = ({ value, displayText, setValue, field, hideHeader }) => {
+export const PreviousValueReview: React.FC<Props> = ({ previousValue, displayText, setValue, field, hideHeader }) => {
   const { t } = useTranslation();
 
   return (
@@ -29,7 +28,10 @@ export const PreviousValueReview: React.FC<Props> = ({ value, displayText, setVa
         tabIndex={0}
         onClick={(e) => {
           e.preventDefault();
-          setValue((prevValue) => [...prevValue, { field: field, value: Array.isArray(value) ? value : value.value }]);
+          setValue((prevValue) => [
+            ...prevValue,
+            { field: field, value: Array.isArray(previousValue) ? previousValue : previousValue.value },
+          ]);
           // these variables are poorly renamed, will refactor
         }}>
         reuse value

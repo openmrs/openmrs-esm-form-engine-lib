@@ -61,29 +61,25 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' ? (
-    <div className={styles.formField}>
-      <OHRIFieldValueView label={question.label} value={field.value} conceptName={conceptName} isInline={isInline} />
-    </div>
+    <OHRIFieldValueView label={question.label} value={field.value} conceptName={conceptName} isInline={isInline} />
   ) : (
     !question.isHidden && (
-      <div className={styles.formField}>
-        <div className={isFieldRequiredError ? styles.errorLabel : styles.boldedLabel}>
-          <TextArea
-            {...field}
-            id={question.id}
-            labelText={question.label}
-            name={question.id}
-            value={field.value || ''}
-            onFocus={() => setPreviousValue(field.value)}
-            rows={question.questionOptions.rows || 4}
-            disabled={question.disabled}
-            readOnly={question.readonly}
-            invalid={!isFieldRequiredError && errors.length > 0}
-            invalidText={errors.length && errors[0].message}
-            warn={warnings.length > 0}
-            warnText={warnings.length && warnings[0].message}
-          />
-        </div>
+      <div className={isFieldRequiredError ? styles.errorLabel : styles.boldedLabel}>
+        <TextArea
+          {...field}
+          id={question.id}
+          labelText={question.label}
+          name={question.id}
+          value={field.value || ''}
+          onFocus={() => setPreviousValue(field.value)}
+          rows={question.questionOptions.rows || 4}
+          disabled={question.disabled}
+          readOnly={question.readonly}
+          invalid={!isFieldRequiredError && errors.length > 0}
+          invalidText={errors.length && errors[0].message}
+          warn={warnings.length > 0}
+          warnText={warnings.length && warnings[0].message}
+        />
       </div>
     )
   );

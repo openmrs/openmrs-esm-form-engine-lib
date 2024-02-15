@@ -117,9 +117,16 @@ export interface OHRIFormField {
   validators?: Array<Record<string, any>>;
   behaviours?: Array<Record<string, any>>;
   questionInfo?: string;
-  setWidthConstraint?: boolean;
+  constrainMaxWidth?: boolean;
 }
-
+// export interface multiSelectValue {
+//   value: string;
+//   display: string;
+// }
+// export interface previousValue {
+//   field: string;
+//   value: string | number | Date | multiSelectValue[];
+// }
 export interface OHRIFormFieldProps {
   question: OHRIFormField;
   onChange: (

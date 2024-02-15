@@ -47,7 +47,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   };
 
   useEffect(() => {
-    if (previousValue) {
+    if (!isEmpty(previousValue)) {
       const { value: date } = previousValue;
       const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
       setFieldValue(question.id, refinedDate);
@@ -154,15 +154,13 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   ) : (
     !question.isHidden && (
       <>
-        <div className={`${styles.formField} ${styles.row} ${styles.datetime}`}>
+        <div className={`${styles.datetime}`}>
           <div>
             <DatePicker
               datePickerType="single"
               onChange={onDateChange}
               // Investigate these styles
-              className={`${styles.boldedLabel} ${styles.datePickerOverrides} ${
-                isFieldRequiredError ? styles.errorLabel : ''
-              } ${question.disabled || isTrue(question.readonly) ? styles.disabled : ''}`}
+              className={`${styles.boldedLabel} ${isFieldRequiredError ? styles.errorLabel : ''}`}
               dateFormat={carbonDateformat}>
               <DatePickerInput
                 id={question.id}
@@ -187,8 +185,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
           {question?.questionOptions.rendering === 'datetime' ? (
             <div className={styles.timePickerSpacing}>
               <TimePicker
-                // This classname doesn't seem to exist
-                className={styles.timePicker}
+                className={styles.boldedLabel}
                 id={question.id}
                 labelText="Time:"
                 placeholder="HH:MM"

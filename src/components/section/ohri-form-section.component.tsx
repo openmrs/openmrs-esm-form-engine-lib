@@ -48,12 +48,13 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
           .map((entry, index) => {
             const { fieldComponent: FieldComponent, fieldDescriptor, handler } = entry;
 
-            const prevValue = encounterContext.previousEncounter
+            const previousFieldValue = encounterContext.previousEncounter
               ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)
-              : { value: 'no previous value' };
+              : null;
 
             if (FieldComponent) {
               const previousValue = previousValues?.find((searchItem) => searchItem.field === fieldDescriptor.id);
+
               const qnFragment = (
                 <FieldComponent
                   question={fieldDescriptor}
@@ -65,8 +66,8 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                 />
               );
 
-              const prevCheckboxDisplayValue = Array.isArray(prevValue)
-                ? previousValueDisplayForCheckbox(prevValue)
+              const previousCheckboxDisplayValue = Array.isArray(previousFieldValue)
+                ? previousValueDisplayForCheckbox(previousFieldValue)
                 : null;
 
               return (
@@ -88,7 +89,7 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                         fieldDescriptor.questionOptions.rendering == 'datetime'
                           ? ''
                           : styles.flexBasisOn
-                      } ${fieldDescriptor.setWidthConstraint && styles.controlWidthConstrained}`}>
+                      } ${fieldDescriptor.constrainMaxWidth && styles.controlWidthConstrained}`}>
                       {qnFragment}
                     </div>
                     {fieldDescriptor.questionInfo && (
@@ -99,27 +100,22 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                     )}
                   </div>
 
-                  <div
-                    className={
-                      isUnspecifiedSupported(fieldDescriptor)
-                        ? styles.unspecifiedQuestionInfoSpaceBetween
-                        : styles.questionInfoFlexEnd
-                    }>
+                  <div className={styles.unspecifiedContainer}>
                     {isUnspecifiedSupported(fieldDescriptor) &&
                       fieldDescriptor.questionOptions.rendering != 'group' && (
                         <OHRIUnspecified question={fieldDescriptor} onChange={onFieldChange} handler={handler} />
                       )}
                   </div>
                   {encounterContext?.previousEncounter &&
-                    prevValue &&
+                    previousFieldValue &&
                     !isTrue(fieldDescriptor.questionOptions.usePreviousValueDisabled) && (
                       <div className={styles.previousValue}>
                         <PreviousValueReview
-                          value={prevValue}
+                          previousValue={previousFieldValue}
                           displayText={
                             fieldDescriptor.questionOptions.rendering == 'checkbox'
-                              ? prevCheckboxDisplayValue
-                              : prevValue?.display
+                              ? previousCheckboxDisplayValue
+                              : previousFieldValue?.display
                           }
                           setValue={setPreviousValues}
                           field={fieldDescriptor.id}

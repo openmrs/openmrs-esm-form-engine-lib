@@ -24,7 +24,6 @@
 
 .ohriFormContainer :global(.cds--label) {
   font-size: 0.875rem;
-  // width: 18rem;
 }
 
 .formContent {
@@ -52,7 +51,7 @@
 .minifiedButtons {
   width: 100%;
   height: 63.5px;
-  position: absolute ;
+  position: absolute;
   bottom: 0;
 }
 
@@ -61,11 +60,10 @@
   height: 3.9rem;
 }
 
-.minifiedButtons > button {
+.minifiedButtons>button {
   width: 50%;
 }
 
 .markdownContainer {
   padding: 1rem;
 }
-

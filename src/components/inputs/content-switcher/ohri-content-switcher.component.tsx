@@ -7,6 +7,7 @@ import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.compo
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
 import styles from '../../section/ohri-form-section.scss';
+import { isEmpty } from '../../../validators/ohri-form-validator';
 
 export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -21,7 +22,7 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
   }, [question]);
 
   useEffect(() => {
-    if (previousValue) {
+    if (!isEmpty(previousValue)) {
       const { value } = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, null);
@@ -54,31 +55,29 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
-    <div className={styles.formField}>
-      <OHRIFieldValueView
-        label={question.label}
-        value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={conceptName}
-        isInline={isInline}
-      />
-    </div>
+    <OHRIFieldValueView
+      label={question.label}
+      value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
+      conceptName={conceptName}
+      isInline={isInline}
+    />
   ) : (
     !question.isHidden && (
-      <div className={styles.textContainer}>
-        <FormGroup legendText={question.label} className={errors.length ? styles.errorLegend : styles.boldedLegend}>
-          <ContentSwitcher onChange={handleChange} selectedIndex={selectedIndex} className={styles.selectedOption}>
-            {question.questionOptions.answers.map((option, index) => (
-              <Switch
-                className={selectedIndex === index ? styles.switchOverrides : styles.sansSwitchOverrides}
-                name={option.concept || option.value}
-                text={option.label}
-                key={index}
-                disabled={question.disabled}
-              />
-            ))}
-          </ContentSwitcher>
-        </FormGroup>
-      </div>
+      // <div className={styles.textContainer}>
+      <FormGroup legendText={question.label} className={errors.length ? styles.errorLegend : styles.boldedLegend}>
+        <ContentSwitcher onChange={handleChange} selectedIndex={selectedIndex} className={styles.selectedOption}>
+          {question.questionOptions.answers.map((option, index) => (
+            <Switch
+              className={selectedIndex === index ? styles.switchOverrides : styles.sansSwitchOverrides}
+              name={option.concept || option.value}
+              text={option.label}
+              key={index}
+              disabled={question.disabled}
+            />
+          ))}
+        </ContentSwitcher>
+      </FormGroup>
+      // </div>
     )
   );
 };

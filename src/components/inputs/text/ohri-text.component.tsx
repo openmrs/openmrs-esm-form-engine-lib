@@ -8,7 +8,6 @@ import { fieldRequiredErrCode } from '../../../validators/ohri-form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
-import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
 import styles from '../../section/ohri-form-section.scss';
 
 const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
@@ -27,7 +26,7 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   }, [question['submission']]);
 
   useEffect(() => {
-    if (previousValue) {
+    if (!isEmpty(previousValue)) {
       setFieldValue(question.id, previousValue.value);
       field['value'] = previousValue.value;
       field.onBlur(null);
@@ -64,34 +63,27 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' ? (
-    <div className={styles.formField}>
-      <OHRIFieldValueView label={question.label} value={field.value} conceptName={conceptName} isInline={isInline} />
-    </div>
+    <OHRIFieldValueView label={question.label} value={field.value} conceptName={conceptName} isInline={isInline} />
   ) : (
     !question.isHidden && (
       <>
-        <div className={`${styles.formField} ${styles.row} ${styles.flexBasisOn}`}>
-          <div
-            className={`${styles.boldedLabel} ${
-              isFieldRequiredError ? `${styles.textInputOverrides} ${styles.errorLabel}` : styles.textInputOverrides
-            }`}>
-            <TextInput
-              {...field}
-              id={question.id}
-              labelText={question.label}
-              name={question.id}
-              value={field.value || ''}
-              onFocus={''}
-              disabled={question.disabled}
-              readOnly={question.readonly}
-              invalid={!isFieldRequiredError && errors.length > 0}
-              invalidText={errors.length && errors[0].message}
-              warn={warnings.length > 0}
-              warnText={warnings.length && warnings[0].message}
-              onInvalid={(e) => e.preventDefault()}
-              maxLength={question.questionOptions.max || TextInput.maxLength}
-            />
-          </div>
+        <div className={`${styles.boldedLabel} ${isFieldRequiredError ? ` ${styles.errorLabel}` : ''}`}>
+          <TextInput
+            {...field}
+            id={question.id}
+            labelText={question.label}
+            name={question.id}
+            value={field.value || ''}
+            onFocus={''}
+            disabled={question.disabled}
+            readOnly={question.readonly}
+            invalid={!isFieldRequiredError && errors.length > 0}
+            invalidText={errors.length && errors[0].message}
+            warn={warnings.length > 0}
+            warnText={warnings.length && warnings[0].message}
+            onInvalid={(e) => e.preventDefault()}
+            maxLength={question.questionOptions.max || TextInput.maxLength}
+          />
         </div>
       </>
     )

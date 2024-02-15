@@ -57,7 +57,7 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   };
 
   useEffect(() => {
-    if (previousValue) {
+    if (!isEmpty(previousValue)) {
       isProcessingSelection.current = true;
       setFieldValue(question.id, previousValue.value);
       onChange(question.id, previousValue.value, setErrors, setWarnings);
@@ -96,68 +96,54 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
     });
   }, [conceptName]);
 
-  // useEffect(() => {
-  //   if (encounterContext?.previousEncounter && !question.questionOptions.usePreviousValueDisabled) {
-  //     const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-  //     if (!isEmpty(prevValue?.value)) {
-  //       setPreviousValueForReview(prevValue);
-  //     }
-  //   }
-  // }, [encounterContext?.previousEncounter]);
-
   return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
-    <div className={styles.formField}>
-      <OHRIFieldValueView
-        label={question.label}
-        value={
-          field.value
-            ? handler?.getDisplayValue(question, items.find((item) => item.uuid == field.value)?.display)
-            : field.value
-        }
-        conceptName={conceptName}
-        isInline
-      />
-    </div>
+    <OHRIFieldValueView
+      label={question.label}
+      value={
+        field.value
+          ? handler?.getDisplayValue(question, items.find((item) => item.uuid == field.value)?.display)
+          : field.value
+      }
+      conceptName={conceptName}
+      isInline
+    />
   ) : (
     !question.isHidden && (
       <>
-        <div className={`${styles.formInputField} ${styles.row}`}>
-          <div
-            className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : `${styles.boldedLabel}`}>
-            <ComboBox
-              id={question.id}
-              titleText={question.label}
-              items={items}
-              itemToString={(item) => item?.display}
-              selectedItem={items.find((item) => item.uuid == field.value)}
-              shouldFilterItem={({ item, inputValue }) => {
-                if (!inputValue) {
-                  // Carbon's initial call at component mount
-                  return true;
-                }
-                return item.display?.toLowerCase().includes(inputValue.toLowerCase());
-              }}
-              onChange={({ selectedItem }) => {
-                isProcessingSelection.current = true;
-                handleChange(selectedItem?.uuid);
-              }}
-              disabled={question.disabled}
-              readOnly={question.readonly}
-              onInputChange={(value) => {
-                if (isProcessingSelection.current) {
-                  // Notes:
-                  // When the user selects a value, both the onChange and onInputChange functions are invoked sequentially.
-                  // Issue: onInputChange modifies the search term, unnecessarily triggering a search.
-                  isProcessingSelection.current = false;
-                  return;
-                }
-                setInputValue(value);
-                if (question.questionOptions['isSearchable']) {
-                  setSearchTerm(value);
-                }
-              }}
-            />
-          </div>
+        <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : `${styles.boldedLabel}`}>
+          <ComboBox
+            id={question.id}
+            titleText={question.label}
+            items={items}
+            itemToString={(item) => item?.display}
+            selectedItem={items.find((item) => item.uuid == field.value)}
+            shouldFilterItem={({ item, inputValue }) => {
+              if (!inputValue) {
+                // Carbon's initial call at component mount
+                return true;
+              }
+              return item.display?.toLowerCase().includes(inputValue.toLowerCase());
+            }}
+            onChange={({ selectedItem }) => {
+              isProcessingSelection.current = true;
+              handleChange(selectedItem?.uuid);
+            }}
+            disabled={question.disabled}
+            readOnly={question.readonly}
+            onInputChange={(value) => {
+              if (isProcessingSelection.current) {
+                // Notes:
+                // When the user selects a value, both the onChange and onInputChange functions are invoked sequentially.
+                // Issue: onInputChange modifies the search term, unnecessarily triggering a search.
+                isProcessingSelection.current = false;
+                return;
+              }
+              setInputValue(value);
+              if (question.questionOptions['isSearchable']) {
+                setSearchTerm(value);
+              }
+            }}
+          />
         </div>
         {isLoading && <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />}
       </>

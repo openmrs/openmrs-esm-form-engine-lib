@@ -30,7 +30,7 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
   }, []);
 
   useEffect(() => {
-    if (previousValue) {
+    if (!isEmpty(previousValue)) {
       const value = booleanConceptToBoolean(previousValue.value);
       setFieldValue(question.id, value);
       onChange(question.id, value, null, null);
@@ -52,20 +52,18 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' ? (
-    <div className={styles.formField}>
-      <OHRIFieldValueView
-        label={question.label}
-        value={!isEmpty(field.value) ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={conceptName}
-        isInline={isInline}
-      />
-    </div>
+    <OHRIFieldValueView
+      label={question.label}
+      value={!isEmpty(field.value) ? handler?.getDisplayValue(question, field.value) : field.value}
+      conceptName={conceptName}
+      isInline={isInline}
+    />
   ) : (
     !question.isHidden && (
-      <div className={`${styles.formField} ${styles.boldedLegend}`}>
+      <div className={styles.boldedLabel}>
         <Toggle
           labelText={question.label}
-          classname={styles.boldedLegend}
+          classname={styles.boldedLabel}
           id={question.id}
           labelA={question.questionOptions.toggleOptions.labelFalse}
           labelB={question.questionOptions.toggleOptions.labelTrue}

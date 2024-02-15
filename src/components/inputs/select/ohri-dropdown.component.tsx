@@ -32,7 +32,7 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
   };
 
   useEffect(() => {
-    if (previousValue) {
+    if (!isEmpty(previousValue)) {
       const { value } = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
@@ -74,26 +74,24 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
     />
   ) : (
     !question.isHidden && (
-      <div className={`${styles.formInputField} ${styles.row}`}>
-        <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : styles.boldedLabel}>
-          <Dropdown
-            id={question.id}
-            titleText={question.label}
-            label="Choose an option"
-            items={question.questionOptions.answers
-              .filter((answer) => !answer.isHidden)
-              .map((item) => item.value || item.concept)}
-            itemToString={itemToString}
-            selectedItem={field.value}
-            onChange={({ selectedItem }) => handleChange(selectedItem)}
-            disabled={question.disabled}
-            readOnly={question.readonly}
-            invalid={!isFieldRequiredError && errors.length > 0}
-            invalidText={errors.length && errors[0].message}
-            warn={warnings.length > 0}
-            warnText={warnings.length && warnings[0].message}
-          />
-        </div>
+      <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : styles.boldedLabel}>
+        <Dropdown
+          id={question.id}
+          titleText={question.label}
+          label="Choose an option"
+          items={question.questionOptions.answers
+            .filter((answer) => !answer.isHidden)
+            .map((item) => item.value || item.concept)}
+          itemToString={itemToString}
+          selectedItem={field.value}
+          onChange={({ selectedItem }) => handleChange(selectedItem)}
+          disabled={question.disabled}
+          readOnly={question.readonly}
+          invalid={!isFieldRequiredError && errors.length > 0}
+          invalidText={errors.length && errors[0].message}
+          warn={warnings.length > 0}
+          warnText={warnings.length && warnings[0].message}
+        />
       </div>
     )
   );
