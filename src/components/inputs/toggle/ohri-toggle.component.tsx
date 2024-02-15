@@ -34,11 +34,7 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
   }, [conceptName]);
 
   const isInline = useMemo(() => {
-    if (
-      encounterContext.sessionMode == 'view' ||
-      encounterContext.sessionMode == 'embedded-view' ||
-      isTrue(question.readonly)
-    ) {
+    if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
       return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
     }
     return false;

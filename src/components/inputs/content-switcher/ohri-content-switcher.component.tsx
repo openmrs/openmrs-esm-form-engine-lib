@@ -38,11 +38,7 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
   }, [conceptName, question.questionOptions.concept]);
 
   const isInline = useMemo(() => {
-    if (
-      encounterContext.sessionMode == 'view' ||
-      encounterContext.sessionMode == 'embedded-view' ||
-      isTrue(question.readonly)
-    ) {
+    if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
       return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
     }
     return false;
