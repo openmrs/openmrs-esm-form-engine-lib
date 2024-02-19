@@ -58,7 +58,7 @@ export function isInlineView(
   sessionMode: SessionMode,
 ): boolean {
   if (sessionMode == 'embedded-view') {
-    return sessionMode == 'embedded-view';
+    return true;
   }
   if (renderingType == 'automatic') {
     return workspaceLayout == 'maximized' && layoutType.endsWith('desktop');
