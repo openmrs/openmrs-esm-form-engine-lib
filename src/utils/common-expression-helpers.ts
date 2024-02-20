@@ -470,9 +470,7 @@ export function registerDependency(node: FormNode, determinant: OHRIFormField) {
   }
 }
 
-type ConceptValue = typeof ConceptTrue | typeof ConceptFalse;
-
-export const booleanConceptToBoolean = (booleanConceptRepresentation: ConceptValue): Boolean => {
+export const booleanConceptToBoolean = (booleanConceptRepresentation): boolean => {
   if (!booleanConceptRepresentation) {
     throw new Error('booleanConceptRepresentation cannot be a null value');
   }

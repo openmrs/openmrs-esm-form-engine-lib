@@ -28,11 +28,12 @@ export const PreviousValueReview: React.FC<Props> = ({ previousValue, displayTex
         tabIndex={0}
         onClick={(e) => {
           e.preventDefault();
-          setValue((prevValue) => [
-            ...prevValue,
-            { field: field, value: Array.isArray(previousValue) ? previousValue : previousValue.value },
-          ]);
-          // these variables are poorly renamed, will refactor
+          setValue((prevValue) => {
+            return {
+              ...prevValue,
+              [field]: Array.isArray(previousValue) ? previousValue : previousValue.value,
+            };
+          });
         }}>
         reuse value
       </div>

@@ -41,8 +41,8 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      setFieldValue(question.id, previousValue.value);
-      field['value'] = previousValue.value;
+      setFieldValue(question.id, previousValue);
+      field['value'] = previousValue;
       field.onBlur(null);
     }
   }, [previousValue]);

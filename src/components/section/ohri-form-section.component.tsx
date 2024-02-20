@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useField } from 'formik';
 import { ErrorBoundary } from 'react-error-boundary';
-import { ToastNotification, Grid, Column, Row } from '@carbon/react';
+import { ToastNotification } from '@carbon/react';
 import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
-import { OHRIFormField, OHRIFormFieldProps, SubmissionHandler } from '../../api/types';
+import { OHRIFormField, OHRIFormFieldProps, previousValue, SubmissionHandler } from '../../api/types';
 import styles from './ohri-form-section.scss';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
 import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
@@ -24,9 +24,11 @@ function previousValueDisplayForCheckbox(previosValueItems: Object[]): String {
 }
 
 const OHRIFormSection = ({ fields, onFieldChange }) => {
-  const [previousValues, setPreviousValues] = useState<Array<Record<string, any>>>([]);
+  const [previousValues, setPreviousValues] = useState<Record<string, previousValue>>({});
   const [fieldComponentMapEntries, setFieldComponentMapEntries] = useState<FieldComponentMap[]>([]);
   const { encounterContext, fields: fieldsFromEncounter } = React.useContext(OHRIFormContext);
+
+  previousValues && console.log(previousValues);
 
   useEffect(() => {
     Promise.all(
@@ -53,8 +55,6 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
               : null;
 
             if (FieldComponent) {
-              const previousValue = previousValues?.find((searchItem) => searchItem.field === fieldDescriptor.id);
-
               const qnFragment = (
                 <FieldComponent
                   question={fieldDescriptor}
@@ -62,7 +62,7 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                   key={index}
                   handler={handler}
                   useField={useField}
-                  previousValue={previousValue}
+                  previousValue={previousValues[fieldDescriptor.id]}
                 />
               );
 

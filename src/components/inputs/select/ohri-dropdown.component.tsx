@@ -33,7 +33,7 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      const { value } = previousValue;
+      const value = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
       question.value = handler?.handleFieldSubmission(question, value, encounterContext);

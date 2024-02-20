@@ -59,9 +59,9 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   useEffect(() => {
     if (!isEmpty(previousValue)) {
       isProcessingSelection.current = true;
-      setFieldValue(question.id, previousValue.value);
-      onChange(question.id, previousValue.value, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, previousValue.value, encounterContext);
+      setFieldValue(question.id, previousValue);
+      onChange(question.id, previousValue, setErrors, setWarnings);
+      question.value = handler?.handleFieldSubmission(question, previousValue, encounterContext);
     }
   }, [previousValue]);
 

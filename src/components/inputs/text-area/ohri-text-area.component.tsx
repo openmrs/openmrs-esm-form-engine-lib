@@ -42,8 +42,8 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({
 
   useEffect(() => {
     if (previousValueProp) {
-      setFieldValue(question.id, previousValueProp.value);
-      field['value'] = previousValueProp.value;
+      setFieldValue(question.id, previousValueProp);
+      field['value'] = previousValueProp;
     }
   }, [previousValueProp]);
 

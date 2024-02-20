@@ -66,8 +66,8 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
   };
 
   useEffect(() => {
-    if (!isEmpty(previousValue)) {
-      const valuesToSet = previousValue.value.map((eachItem) => eachItem.value);
+    if (!isEmpty(previousValue) && Array.isArray(previousValue)) {
+      const valuesToSet = previousValue.map((eachItem) => eachItem.value);
       setFieldValue(question.id, valuesToSet);
       onChange(question.id, valuesToSet, setErrors, setWarnings);
       question.value = handler?.handleFieldSubmission(question, valuesToSet, encounterContext);

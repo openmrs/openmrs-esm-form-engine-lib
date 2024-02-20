@@ -38,9 +38,9 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      setFieldValue(question.id, previousValue.value);
-      onChange(question.id, previousValue.value, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, previousValue.value, encounterContext);
+      setFieldValue(question.id, previousValue);
+      onChange(question.id, previousValue, setErrors, setWarnings);
+      question.value = handler?.handleFieldSubmission(question, previousValue, encounterContext);
     }
   }, [previousValue]);
 

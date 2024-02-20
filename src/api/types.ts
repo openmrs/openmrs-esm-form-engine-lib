@@ -119,14 +119,10 @@ export interface OHRIFormField {
   questionInfo?: string;
   constrainMaxWidth?: boolean;
 }
-// export interface multiSelectValue {
-//   value: string;
-//   display: string;
-// }
-// export interface previousValue {
-//   field: string;
-//   value: string | number | Date | multiSelectValue[];
-// }
+export interface previousValue {
+  field: string;
+  value: string | number | Date | boolean | previousValue[];
+}
 export interface OHRIFormFieldProps {
   question: OHRIFormField;
   onChange: (
@@ -139,7 +135,7 @@ export interface OHRIFormFieldProps {
   handler: SubmissionHandler;
   // This is of util to components defined out of the engine
   useField?: (fieldId: string) => [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
-  previousValue?: Record<string, any>;
+  previousValue?: previousValue;
 }
 export interface OHRIFormSection {
   hide?: HideProps;

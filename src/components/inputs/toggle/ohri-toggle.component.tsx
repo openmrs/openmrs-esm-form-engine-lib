@@ -31,7 +31,7 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      const value = booleanConceptToBoolean(previousValue.value);
+      const value = booleanConceptToBoolean(previousValue);
       setFieldValue(question.id, value);
       onChange(question.id, value, null, null);
       question.value = handler?.handleFieldSubmission(question, value, encounterContext);
