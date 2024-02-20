@@ -9,7 +9,7 @@ export interface FormNode {
 }
 
 export interface ExpressionContext {
-  mode: 'enter' | 'edit' | 'view';
+  mode: 'enter' | 'edit' | 'view' | 'embedded-view';
   myValue?: any;
   patient: any;
 }

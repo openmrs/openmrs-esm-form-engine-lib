@@ -4,7 +4,7 @@ import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
 import styles from './ui-select-extended.scss';
 import { OHRIFormContext } from '../../../ohri-form-context';
-import { getConceptNameAndUUID } from '../../../utils/ohri-form-helper';
+import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { isTrue } from '../../../utils/boolean-utils';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
@@ -17,7 +17,7 @@ import { getControlTemplate } from '../../../registry/inbuilt-components/control
 const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onChange }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, fields } = React.useContext(OHRIFormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
   const [conceptName, setConceptName] = useState('Loading...');
   const [items, setItems] = useState([]);
   const [warnings, setWarnings] = useState([]);
@@ -36,6 +36,13 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
     uuid: string;
     display: string;
   }
+
+  const isInline = useMemo(() => {
+    if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
+      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
+    }
+    return false;
+  }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   useEffect(() => {
     const datasourceName = question.questionOptions?.datasource?.name;
@@ -127,7 +134,9 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
     }
   }, [encounterContext?.previousEncounter]);
 
-  return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
+  return encounterContext.sessionMode == 'view' ||
+    encounterContext.sessionMode == 'embedded-view' ||
+    isTrue(question.readonly) ? (
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}
@@ -137,7 +146,7 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
             : field.value
         }
         conceptName={conceptName}
-        isInline
+        isInline={isInline}
       />
     </div>
   ) : (

@@ -179,7 +179,7 @@ export interface OHRIFormQuestionOptions {
   isSearchable?: boolean;
 }
 
-export type SessionMode = 'edit' | 'enter' | 'view';
+export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
 
 export type RenderType =
   | 'select'

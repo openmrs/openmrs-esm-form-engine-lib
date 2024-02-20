@@ -116,9 +116,18 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
 
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
+
   const showSidebar = useMemo(() => {
-    return workspaceLayout !== 'minimized' && scrollablePages.size > 0;
-  }, [workspaceLayout, scrollablePages.size]);
+    return workspaceLayout !== 'minimized' && scrollablePages.size > 0 && sessionMode !== 'embedded-view';
+  }, [workspaceLayout, scrollablePages.size, sessionMode]);
+
+  const showPatientBanner = useMemo(() => {
+    return workspaceLayout != 'minimized' && patient?.id && sessionMode != 'embedded-view';
+  }, [patient?.id, sessionMode, workspaceLayout]);
+
+  const showButtonSet = useMemo(() => {
+    return workspaceLayout === 'minimized' && sessionMode != 'embedded-view';
+  }, [sessionMode, workspaceLayout]);
 
   useEffect(() => {
     const extDetails = {
@@ -139,8 +148,10 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       },
     };
 
-    registerExtension(extDetails);
-    attach(PatientChartWorkspaceHeaderSlot, extDetails.name);
+    if (sessionMode != 'embedded-view') {
+      registerExtension(extDetails);
+      attach(PatientChartWorkspaceHeaderSlot, extDetails.name);
+    }
 
     return () => {
       detach(PatientChartWorkspaceHeaderSlot, extDetails.name);
@@ -303,9 +314,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     />
                   )}
                   <div className={styles.formContent}>
-                    {workspaceLayout != 'minimized' && patient?.id && (
-                      <PatientBanner patient={patient} hideActionsOverflow={true} />
-                    )}
+                    {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow={true} />}
                     {refinedFormJson.markdown && (
                       <div className={styles.markdownContainer}>
                         <ReactMarkdown children={refinedFormJson.markdown.join('\n')} />
@@ -313,7 +322,11 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     )}
                     <div
                       className={`${styles.formContentBody}
-                    ${workspaceLayout === 'minimized' ? `${styles.minifiedFormContentBody}` : ''}
+                    ${
+                      workspaceLayout === 'minimized' || sessionMode == 'view'
+                        ? `${styles.minifiedFormContentBody}`
+                        : ''
+                    }
                   `}>
                       <OHRIEncounterForm
                         formJson={refinedFormJson}
@@ -339,7 +352,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                         setIsSubmitting={setIsSubmitting}
                       />
                     </div>
-                    {workspaceLayout === 'minimized' && (
+                    {showButtonSet && (
                       <ButtonSet className={styles.minifiedButtons}>
                         <Button
                           kind="secondary"
