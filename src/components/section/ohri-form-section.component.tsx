@@ -28,8 +28,6 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
   const [fieldComponentMapEntries, setFieldComponentMapEntries] = useState<FieldComponentMap[]>([]);
   const { encounterContext, fields: fieldsFromEncounter } = React.useContext(OHRIFormContext);
 
-  previousValues && console.log(previousValues);
-
   useEffect(() => {
     Promise.all(
       fields.map(async (fieldDescriptor) => {
