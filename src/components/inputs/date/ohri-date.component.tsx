@@ -32,8 +32,8 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   }, [question['submission']]);
 
   const isInline = useMemo(() => {
-    if (encounterContext.sessionMode == 'view' || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout);
+    if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
+      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
     }
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
@@ -144,7 +144,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
     }
   }, [field.value, time]);
 
-  return encounterContext.sessionMode == 'view' ? (
+  return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <OHRIFieldValueView
       label={question.label}
       value={field.value instanceof Date ? getDisplay(field.value, question.questionOptions.rendering) : field.value}

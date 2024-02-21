@@ -45,19 +45,21 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
   }, [previousValue]);
 
   const isInline = useMemo(() => {
-    if (encounterContext.sessionMode == 'view' || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout);
+    if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
+      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
     }
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
-    <OHRIFieldValueView
-      label={question.label}
-      value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-      conceptName={conceptName}
-      isInline={isInline}
-    />
+  return encounterContext.sessionMode == 'view' ||
+    encounterContext.sessionMode == 'embedded-view' ||
+    isTrue(question.readonly) ? (
+      <OHRIFieldValueView
+        label={question.label}
+        value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
+        conceptName={conceptName}
+        isInline={isInline}
+      />
   ) : (
     !question.isHidden && (
       <FormGroup
@@ -89,6 +91,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
             <div className={errors.length ? styles.errorLabel : warnings.length ? styles.warningLabel : ''}>
               <div className={`cds--form-requirement`}>
                 {errors.length ? errors[0].message : warnings.length ? warnings[0].message : null}
+
               </div>
             </div>
           ))}

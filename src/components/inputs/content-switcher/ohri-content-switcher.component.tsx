@@ -21,6 +21,7 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
     }
   }, [question]);
 
+
   useEffect(() => {
     if (!isEmpty(previousValue)) {
       const { value } = previousValue;
@@ -48,19 +49,24 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
   }, [conceptName, question.questionOptions.concept]);
 
   const isInline = useMemo(() => {
-    if (encounterContext.sessionMode == 'view' || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout);
+    if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
+      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
     }
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
-    <OHRIFieldValueView
-      label={question.label}
-      value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-      conceptName={conceptName}
-      isInline={isInline}
-    />
+  return encounterContext.sessionMode == 'view' ||
+    encounterContext.sessionMode == 'embedded-view' ||
+    isTrue(question.readonly) ? (
+    <div className={styles.formField}>
+      <OHRIFieldValueView
+        label={question.label}
+        value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
+        conceptName={conceptName}
+        isInline={isInline}
+      />
+    </div>
+    
   ) : (
     !question.isHidden && (
       <FormGroup legendText={question.label} className={errors.length ? styles.errorLegend : styles.boldedLegend}>
