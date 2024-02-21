@@ -41,6 +41,11 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFie
     type: 'date',
   },
   {
+    name: 'OHRITime',
+    component: OHRIDate,
+    type: 'time',
+  },
+  {
     name: 'OHRINumber',
     component: OHRINumber,
     type: 'number',

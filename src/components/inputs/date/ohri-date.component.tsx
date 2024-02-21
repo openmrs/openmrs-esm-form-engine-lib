@@ -174,7 +174,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
               />
             </DatePicker>
           </div>
-          {question?.questionOptions.rendering === 'datetime' ? (
+          {question?.questionOptions.rendering === 'time' || question?.questionOptions.rendering === 'datetime' ? (
             <TimePicker
               // This classname doesn't seem to exist
               className={styles.timePicker}
