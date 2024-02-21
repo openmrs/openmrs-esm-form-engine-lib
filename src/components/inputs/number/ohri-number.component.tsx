@@ -95,7 +95,6 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
           step="0.01"
         />
       </div>
-    )
   );
 };
 
