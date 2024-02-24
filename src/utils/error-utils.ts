@@ -9,7 +9,6 @@ export function reportError(error: Error, t: TFunction): void {
       title: t('errorDescriptionTitle', 'Error'),
       kind: 'error',
       critical: true,
-      millis: 7000,
     });
   }
 }
