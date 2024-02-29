@@ -17,6 +17,11 @@ export function getFieldControlWithFallback(question: OHRIFormField) {
     return getRegisteredControl('text');
   }
 
+  //Rendering overrides for existing AFE form schemas
+  if (question.type === 'encounterLocation') {
+    question.questionOptions.rendering = 'encounter-location';
+  }
+
   // Retrieve the registered control based on the specified rendering
   return getRegisteredControl(question.questionOptions.rendering);
 }
