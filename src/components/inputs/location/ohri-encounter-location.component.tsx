@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { Dropdown } from '@carbon/react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Dropdown, ComboBox } from '@carbon/react';
 import { useField } from 'formik';
 import { createErrorHandler } from '@openmrs/esm-framework';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
-import { getLocationsByTag } from '../../../api/api';
+import { getAllLocations, getLocationsByTag } from '../../../api/api';
 import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFormField } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
@@ -16,14 +16,23 @@ export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; on
     useContext(OHRIFormContext);
   const [locations, setLocations] = useState([]);
   const [conceptName, setConceptName] = useState('Loading...');
+  const isProcessingSelection = useRef(false);
+  const [inputValue, setInputValue] = useState('');
 
   useEffect(() => {
-    if (question.questionOptions.locationTag) {
-      getLocationsByTag(question.questionOptions.locationTag.trim().split(' ').join('%20')).subscribe(
+    const fetchLocations = () => {
+      const locationTag = question.questionOptions.locationTag;
+      const locationTagQueryParam = locationTag ? locationTag.trim().split(' ').join('%20') : '';
+
+      const locationObservable = locationTag ? getLocationsByTag(locationTagQueryParam) : getAllLocations();
+
+      locationObservable.subscribe(
         (results) => setLocations(results),
         (error) => createErrorHandler(),
       );
-    }
+    };
+
+    fetchLocations();
   }, []);
 
   const isInline = useMemo(() => {
@@ -51,19 +60,32 @@ export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; on
   ) : (
     !question.isHidden && (
       <div className={`${styles.formInputField} ${styles.multiselectOverride} ${styles.flexRow}`}>
-        <Dropdown
+        <ComboBox
           id={question.id}
           titleText={question.label}
-          label="Choose location"
           items={locations}
-          itemToString={(item) => item.display}
-          selectedItem={field.value}
+          itemToString={(item) => item?.display}
+          selectedItem={locations.find((item) => item.uuid == field.value)}
+          shouldFilterItem={({ item, inputValue }) => {
+            if (!inputValue) {
+              // Carbon's initial call at component mount
+              return true;
+            }
+            return item.display?.toLowerCase().includes(inputValue.toLowerCase());
+          }}
           onChange={({ selectedItem }) => {
+            isProcessingSelection.current = true;
             setFieldValue(question.id, selectedItem);
             setEncounterLocation(selectedItem);
           }}
-          readOnly={question.readonly}
           disabled={question.disabled}
+          readOnly={question.readonly}
+          onInputChange={(value) => {
+            if (isProcessingSelection.current) {
+              isProcessingSelection.current = false;
+              return;
+            }
+          }}
         />
       </div>
     )
