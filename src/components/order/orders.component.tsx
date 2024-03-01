@@ -39,18 +39,7 @@ export const OHRIOrders: React.FC<OrdersProps> = ({ question, onChange, deleteCo
           handler: formFieldHandlers[field.type],
           useField,
         });
-        return (
-          <div className={`${styles.flexColumn} ${styles.ordersColumn} `}>
-            {isUnspecifiedSupported(field) ? (
-              <>
-                {questionFragment}
-                <OHRIUnspecified question={field} onChange={onChange} handler={formFieldHandlers[field.type]} />
-              </>
-            ) : (
-              questionFragment
-            )}
-          </div>
-        );
+        return <div className={`${styles.flexColumn} ${styles.ordersColumn} `}>{questionFragment}</div>;
       }
     });
   if (groupContent && deleteControl) {
