@@ -62,7 +62,7 @@ export interface HideProps {
 export interface OHRIFormSchema {
   name: string;
   pages: Array<OHRIFormPage>;
-  processor: FormProcessor;
+  processor: string;
   uuid: string;
   referencedForms: Array<ReferencedForm>;
   encounterType: string;
