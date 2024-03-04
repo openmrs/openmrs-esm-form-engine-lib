@@ -71,10 +71,11 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
+      const { value } = previousValue;
       isProcessingSelection.current = true;
-      setFieldValue(question.id, previousValue);
-      onChange(question.id, previousValue, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, previousValue, encounterContext);
+      setFieldValue(question.id, value);
+      onChange(question.id, value, setErrors, setWarnings);
+      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
     }
   }, [previousValue]);
 
@@ -134,16 +135,16 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   return encounterContext.sessionMode == 'view' ||
     encounterContext.sessionMode == 'embedded-view' ||
     isTrue(question.readonly) ? (
-      <OHRIFieldValueView
-        label={question.label}
-        value={
-          field.value
-            ? handler?.getDisplayValue(question, items.find((item) => item.uuid == field.value)?.display)
-            : field.value
-        }
-        conceptName={conceptName}
-        isInline={isInline}
-      />
+    <OHRIFieldValueView
+      label={question.label}
+      value={
+        field.value
+          ? handler?.getDisplayValue(question, items.find((item) => item.uuid == field.value)?.display)
+          : field.value
+      }
+      conceptName={conceptName}
+      isInline={isInline}
+    />
   ) : (
     !question.isHidden && (
       <>

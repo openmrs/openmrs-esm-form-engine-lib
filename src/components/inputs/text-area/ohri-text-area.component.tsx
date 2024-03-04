@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { TextArea } from '@carbon/react';
 import { useField } from 'formik';
-import { fieldRequiredErrCode } from '../../../validators/ohri-form-validator';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
@@ -41,9 +41,9 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({
   };
 
   useEffect(() => {
-    if (previousValueProp) {
-      setFieldValue(question.id, previousValueProp);
-      field['value'] = previousValueProp;
+    if (!isEmpty(previousValueProp)) {
+      setFieldValue(question.id, previousValueProp.value);
+      field['value'] = previousValueProp.value;
     }
   }, [previousValueProp]);
 
@@ -61,7 +61,7 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
-      <OHRIFieldValueView label={question.label} value={field.value} conceptName={conceptName} isInline={isInline} />
+    <OHRIFieldValueView label={question.label} value={field.value} conceptName={conceptName} isInline={isInline} />
   ) : (
     !question.isHidden && (
       <div className={isFieldRequiredError ? styles.errorLabel : styles.boldedLabel}>

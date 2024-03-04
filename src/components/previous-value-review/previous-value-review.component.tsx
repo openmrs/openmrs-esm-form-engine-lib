@@ -31,7 +31,7 @@ export const PreviousValueReview: React.FC<Props> = ({ previousValue, displayTex
           setValue((prevValue) => {
             return {
               ...prevValue,
-              [field]: Array.isArray(previousValue) ? previousValue : previousValue.value,
+              [field]: previousValue,
             };
           });
         }}>

@@ -471,13 +471,14 @@ export function registerDependency(node: FormNode, determinant: OHRIFormField) {
 }
 
 export const booleanConceptToBoolean = (booleanConceptRepresentation): boolean => {
+  const { value } = booleanConceptRepresentation;
   if (!booleanConceptRepresentation) {
     throw new Error('booleanConceptRepresentation cannot be a null value');
   }
-  if (booleanConceptRepresentation == ConceptTrue) {
+  if (value == ConceptTrue) {
     return true;
   }
-  if (booleanConceptRepresentation == ConceptFalse) {
+  if (value == ConceptFalse) {
     return false;
   }
 };

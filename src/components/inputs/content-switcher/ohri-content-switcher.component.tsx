@@ -21,7 +21,6 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
     }
   }, [question]);
 
-
   useEffect(() => {
     if (!isEmpty(previousValue)) {
       const { value } = previousValue;
@@ -66,7 +65,6 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
         isInline={isInline}
       />
     </div>
-    
   ) : (
     !question.isHidden && (
       <FormGroup legendText={question.label} className={errors.length ? styles.errorLegend : styles.boldedLegend}>

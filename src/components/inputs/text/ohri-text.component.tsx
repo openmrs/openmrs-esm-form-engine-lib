@@ -27,8 +27,9 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      setFieldValue(question.id, previousValue);
-      field['value'] = previousValue;
+      const { value } = previousValue;
+      setFieldValue(question.id, value);
+      field['value'] = value;
       field.onBlur(null);
     }
   }, [previousValue]);
@@ -63,11 +64,11 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
-      <OHRIFieldValueView label={question.label} value={field.value} conceptName={conceptName} isInline={isInline} />
+    <OHRIFieldValueView label={question.label} value={field.value} conceptName={conceptName} isInline={isInline} />
   ) : (
     !question.isHidden && (
       <>
-        <div className={`${styles.boldedLabel} ${isFieldRequiredError ? ` ${styles.errorLabel}` : ''}`}>
+        <div className={`${styles.boldedLabel} ${isFieldRequiredError ? styles.errorLabel : ''}`}>
           <TextInput
             {...field}
             id={question.id}

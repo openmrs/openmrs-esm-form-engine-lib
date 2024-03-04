@@ -38,9 +38,10 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      setFieldValue(question.id, previousValue);
-      onChange(question.id, previousValue, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, previousValue, encounterContext);
+      const { value } = previousValue;
+      setFieldValue(question.id, value);
+      onChange(question.id, value, setErrors, setWarnings);
+      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
     }
   }, [previousValue]);
 
@@ -54,12 +55,12 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
   return encounterContext.sessionMode == 'view' ||
     encounterContext.sessionMode == 'embedded-view' ||
     isTrue(question.readonly) ? (
-      <OHRIFieldValueView
-        label={question.label}
-        value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={conceptName}
-        isInline={isInline}
-      />
+    <OHRIFieldValueView
+      label={question.label}
+      value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
+      conceptName={conceptName}
+      isInline={isInline}
+    />
   ) : (
     !question.isHidden && (
       <FormGroup
@@ -91,7 +92,6 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
             <div className={errors.length ? styles.errorLabel : warnings.length ? styles.warningLabel : ''}>
               <div className={`cds--form-requirement`}>
                 {errors.length ? errors[0].message : warnings.length ? warnings[0].message : null}
-
               </div>
             </div>
           ))}

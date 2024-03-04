@@ -52,18 +52,18 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
-      <OHRIFieldValueView
-        label={question.label}
-        value={!isEmpty(field.value) ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={conceptName}
-        isInline={isInline}
-      />
+    <OHRIFieldValueView
+      label={question.label}
+      value={!isEmpty(field.value) ? handler?.getDisplayValue(question, field.value) : field.value}
+      conceptName={conceptName}
+      isInline={isInline}
+    />
   ) : (
     !question.isHidden && (
       <div className={styles.boldedLabel}>
         <Toggle
           labelText={question.label}
-          classname={styles.boldedLabel}
+          className={styles.boldedLabel}
           id={question.id}
           labelA={question.questionOptions.toggleOptions.labelFalse}
           labelB={question.questionOptions.toggleOptions.labelTrue}

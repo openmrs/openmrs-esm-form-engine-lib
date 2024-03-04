@@ -41,8 +41,9 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      setFieldValue(question.id, previousValue);
-      field['value'] = previousValue;
+      const { value } = previousValue;
+      setFieldValue(question.id, value);
+      field['value'] = value;
       field.onBlur(null);
     }
   }, [previousValue]);
@@ -71,30 +72,28 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
     </div>
   ) : (
     <div>
-        <NumberInput
-          {...field}
-          id={question.id}
-          invalid={!isFieldRequiredError && errors.length > 0}
-          invalidText={errors[0]?.message}
-          label={question.label}
-          max={question.questionOptions.max || undefined}
-          min={question.questionOptions.min || undefined}
-          name={question.id}
-          value={field.value || ''}
-          allowEmpty={true}
-          size="lg"
-          hideSteppers={true}
-          onWheel={(e) => e.target.blur()}
-          disabled={question.disabled}
-          readOnly={question.readonly}
-          className={`${styles.controlWidthConstrained} ${
-            isFieldRequiredError ? styles.errorLabel : styles.boldedLabel
-          }`}
-          warn={warnings.length > 0}
-          warnText={warnings[0]?.message}
-          step="0.01"
-        />
-      </div>
+      <NumberInput
+        {...field}
+        id={question.id}
+        invalid={!isFieldRequiredError && errors.length > 0}
+        invalidText={errors[0]?.message}
+        label={question.label}
+        max={question.questionOptions.max || undefined}
+        min={question.questionOptions.min || undefined}
+        name={question.id}
+        value={field.value || ''}
+        allowEmpty={true}
+        size="lg"
+        hideSteppers={true}
+        onWheel={(e) => e.target.blur()}
+        disabled={question.disabled}
+        readOnly={question.readonly}
+        className={`${styles.controlWidthConstrained} ${isFieldRequiredError ? styles.errorLabel : styles.boldedLabel}`}
+        warn={warnings.length > 0}
+        warnText={warnings[0]?.message}
+        step="0.01"
+      />
+    </div>
   );
 };
 

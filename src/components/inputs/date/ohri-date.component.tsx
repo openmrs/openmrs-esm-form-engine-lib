@@ -48,7 +48,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      const date = previousValue;
+      const date = previousValue.value;
       const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
       setFieldValue(question.id, refinedDate);
       onChange(question.id, refinedDate, setErrors, setWarnings);
