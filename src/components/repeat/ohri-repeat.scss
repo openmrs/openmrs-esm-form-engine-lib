@@ -11,7 +11,6 @@
 
 .removeButton {
   @extend .flexColumn;
-  padding-top: 1.2rem;
   margin-left: 0.5rem;
 }
 
@@ -20,10 +19,7 @@
 }
 
 .separator {
-  border-top: 1px solid #bbb;
-  margin-bottom: 2rem; 
-  width: 85%;
-  float: left;
+  margin-bottom: 1rem; 
 }
 
 .container {

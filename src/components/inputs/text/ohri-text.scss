@@ -9,3 +9,7 @@
     color: colors.$red-60;
     font-weight: 600;
 }
+
+:global(.cds--text-input__readonly-icon){
+  display: none;
+}

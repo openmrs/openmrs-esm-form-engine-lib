@@ -9,3 +9,8 @@
     color: colors.$red-60;
     font-weight: 600;
 }
+
+:global(.cds--list--unordered:not(.cds--list--nested))
+   {
+  margin-left: 0rem;
+}
