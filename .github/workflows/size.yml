@@ -14,8 +14,7 @@ jobs:
       TURBO_TEAM: ${{ github.repository_owner }}
 
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
       - name: Setup a local cache server for Turborepo
         uses: felixmosh/turborepo-gh-artifacts@v3
         with:
