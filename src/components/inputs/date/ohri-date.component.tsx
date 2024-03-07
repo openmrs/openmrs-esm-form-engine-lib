@@ -154,7 +154,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   ) : (
     !question.isHidden && (
       <>
-        <div className={`${styles.datetime}`}>
+        <div className={styles.datetime}>
           <div>
             <DatePicker
               datePickerType="single"

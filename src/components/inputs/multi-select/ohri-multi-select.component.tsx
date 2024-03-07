@@ -96,7 +96,6 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
         isInline={isInline}
       />
     </div>
-
   ) : (
     !question.isHidden && (
       <>
@@ -119,7 +118,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
             readOnly={question.readonly}
           />
         </div>
-        <div style={{ marginTop: '0.125rem' }}>
+        <div className={styles.selectionDisplay}>
           {field.value?.length ? (
             <UnorderedList>
               {handler?.getDisplayValue(question, field.value)?.map((displayValue) => displayValue + ', ')}
