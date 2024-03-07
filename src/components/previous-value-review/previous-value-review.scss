@@ -5,7 +5,8 @@
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
   align-items: center;
-  > div > div > label {
+
+  >div>div>label {
     color: colors.$gray-70;
   }
 }
@@ -24,13 +25,13 @@
   padding-left: 0.5rem;
 }
 
-.reuseButton{
+.reuseButton {
   font-size: 0.8rem;
   margin: 0 1rem;
-  color: colors.$blue-60;;
+  color: colors.$blue-60;
+  ;
 }
 
-.reuseButton:hover{
+.reuseButton:hover {
   cursor: pointer;
 }
-

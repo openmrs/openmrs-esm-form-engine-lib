@@ -1,11 +1,11 @@
 @use '@carbon/colors';
 
 .errorLegend legend {
-    color: colors.$red-60 !important;
-    font-weight: 600;
+  color: colors.$red-60 !important;
+  font-weight: 600;
 }
 
 .boldedLegend legend {
-    color: colors.$black-100 !important;
-    font-weight: 600;
+  color: colors.$black-100 !important;
+  font-weight: 600;
 }
