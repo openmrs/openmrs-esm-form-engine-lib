@@ -75,7 +75,6 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
             labelText={question.label}
             name={question.id}
             value={field.value || ''}
-            onFocus={''}
             disabled={question.disabled}
             readOnly={question.readonly}
             invalid={!isFieldRequiredError && errors.length > 0}
