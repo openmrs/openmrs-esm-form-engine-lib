@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { TextArea } from '@carbon/react';
 import { useField } from 'formik';
-import { fieldRequiredErrCode } from '../../../validators/ohri-form-validator';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
@@ -9,7 +9,12 @@ import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
 import styles from './ohri-text-area.scss';
 
-const OHRITextArea: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+const OHRITextArea: React.FC<OHRIFormFieldProps> = ({
+  question,
+  onChange,
+  handler,
+  previousValue: previousValueProp,
+}) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
   const [previousValue, setPreviousValue] = useState();
@@ -36,6 +41,14 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
   };
 
   useEffect(() => {
+    if (!isEmpty(previousValueProp)) {
+      const { value } = previousValueProp;
+      setFieldValue(question.id, value);
+      field['value'] = value;
+    }
+  }, [previousValueProp]);
+
+  useEffect(() => {
     getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
@@ -49,32 +62,25 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
-    <div className={styles.formField}>
-      <OHRIFieldValueView label={question.label} value={field.value} conceptName={conceptName} isInline={isInline} />
-    </div>
+    <OHRIFieldValueView label={question.label} value={field.value} conceptName={conceptName} isInline={isInline} />
   ) : (
     !question.isHidden && (
-      <div className={styles.formField}>
-        <div
-          className={
-            isFieldRequiredError ? `${styles.textInputOverrides} ${styles.errorLabel}` : styles.textInputOverrides
-          }>
-          <TextArea
-            {...field}
-            id={question.id}
-            labelText={question.label}
-            name={question.id}
-            value={field.value || ''}
-            onFocus={() => setPreviousValue(field.value)}
-            rows={question.questionOptions.rows || 4}
-            disabled={question.disabled}
-            readOnly={question.readonly}
-            invalid={!isFieldRequiredError && errors.length > 0}
-            invalidText={errors.length && errors[0].message}
-            warn={warnings.length > 0}
-            warnText={warnings.length && warnings[0].message}
-          />
-        </div>
+      <div className={isFieldRequiredError ? styles.errorLabel : styles.boldedLabel}>
+        <TextArea
+          {...field}
+          id={question.id}
+          labelText={question.label}
+          name={question.id}
+          value={field.value || ''}
+          onFocus={() => setPreviousValue(field.value)}
+          rows={question.questionOptions.rows || 4}
+          disabled={question.disabled}
+          readOnly={question.readonly}
+          invalid={!isFieldRequiredError && errors.length > 0}
+          invalidText={errors.length && errors[0].message}
+          warn={warnings.length > 0}
+          warnText={warnings.length && warnings[0].message}
+        />
       </div>
     )
   );

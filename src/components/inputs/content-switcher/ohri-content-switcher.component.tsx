@@ -7,8 +7,9 @@ import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.compo
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
 import styles from './ohri-content-switcher.scss';
+import { isEmpty } from '../../../validators/ohri-form-validator';
 
-export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
   const [errors, setErrors] = useState([]);
@@ -19,6 +20,15 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
       setErrors(question['submission']?.errors);
     }
   }, [question]);
+
+  useEffect(() => {
+    if (!isEmpty(previousValue)) {
+      const { value } = previousValue;
+      setFieldValue(question.id, value);
+      onChange(question.id, value, setErrors, null);
+      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+    }
+  }, [previousValue]);
 
   const handleChange = (value) => {
     setFieldValue(question.id, value?.name);
@@ -57,21 +67,18 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
     </div>
   ) : (
     !question.isHidden && (
-      <div className={styles.textContainer}>
-        <FormGroup legendText={question.label} className={errors.length ? styles.errorLegend : ''}>
-          <ContentSwitcher onChange={handleChange} selectedIndex={selectedIndex} className={styles.selectedOption}>
-            {question.questionOptions.answers.map((option, index) => (
-              <Switch
-                className={selectedIndex === index ? styles.switchOverrides : styles.sansSwitchOverrides}
-                name={option.concept || option.value}
-                text={option.label}
-                key={index}
-                disabled={question.disabled}
-              />
-            ))}
-          </ContentSwitcher>
-        </FormGroup>
-      </div>
+      <FormGroup legendText={question.label} className={errors.length ? styles.errorLegend : styles.boldedLegend}>
+        <ContentSwitcher onChange={handleChange} selectedIndex={selectedIndex} className={styles.selectedOption}>
+          {question.questionOptions.answers.map((option, index) => (
+            <Switch
+              name={option.concept || option.value}
+              text={option.label}
+              key={index}
+              disabled={question.disabled}
+            />
+          ))}
+        </ContentSwitcher>
+      </FormGroup>
     )
   );
 };

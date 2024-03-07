@@ -1,55 +1,15 @@
 @use '@carbon/colors';
 
-.formField {
-  margin-top: 10px;
-  }
-  
-.formField > div > div > label {
-  color: colors.$gray-70;
-  }
-  
-.multiselectOverride {
-  width: auto;
-  padding-bottom: 15px;
-  }
-  
-  .multiselectOverride > div > div {
-    width: 22.313rem !important;
-  }
-  
-.multiselectOverride > div div div input {
-    border: 0 !important;
-    border-bottom: 1px solid #8d8d8d !important;
-  }
-.flexRow {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  width: 100%;
-  }
-.row {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  }
+.boldedLabel label {
+  font-weight: 600;
+  color: colors.$black-100;
+}
 
 .errorLabel label {
-  color: colors.$red-60 !important;
-  }
-  
-.formInputField {
-  @extend .formField;
-  width: auto;
-  
-  > div > div > label {
-    max-width: auto;
-  }
-  
-  > div > div > div {
-    width: 22.313rem !important;
-    }
-  }
+  color: colors.$red-60;
+  font-weight: 600;
+}
 
 .loader {
   padding: 0.25rem 0.5rem;
-  }
+}

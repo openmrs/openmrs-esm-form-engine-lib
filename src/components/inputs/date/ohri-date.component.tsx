@@ -8,14 +8,13 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
-import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
 import styles from './ohri-date.scss';
 import { formatDate } from '@openmrs/esm-framework';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
 
-const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
   const [errors, setErrors] = useState([]);
@@ -46,6 +45,17 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
     onTimeChange(false, true);
     question.value = handler?.handleFieldSubmission(question, refinedDate, encounterContext);
   };
+
+  useEffect(() => {
+    if (!isEmpty(previousValue)) {
+      const date = previousValue.value;
+      const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
+      setFieldValue(question.id, refinedDate);
+      onChange(question.id, refinedDate, setErrors, setWarnings);
+      onTimeChange(false, true);
+      question.value = handler?.handleFieldSubmission(question, refinedDate, encounterContext);
+    }
+  }, [previousValue]);
 
   const onTimeChange = (event, useValue = false) => {
     if (useValue) {
@@ -144,15 +154,13 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
   ) : (
     !question.isHidden && (
       <>
-        <div className={`${styles.formField} ${styles.row} ${styles.datetime}`}>
+        <div className={styles.datetime}>
           <div>
             <DatePicker
               datePickerType="single"
               onChange={onDateChange}
               // Investigate these styles
-              className={`${styles.datePickerOverrides} ${isFieldRequiredError ? styles.errorLabel : ''} ${
-                question.disabled || isTrue(question.readonly) ? styles.disabled : ''
-              }`}
+              className={`${styles.boldedLabel} ${isFieldRequiredError ? styles.errorLabel : ''}`}
               dateFormat={carbonDateformat}>
               <DatePickerInput
                 id={question.id}
@@ -175,35 +183,27 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler })
             </DatePicker>
           </div>
           {question?.questionOptions.rendering === 'datetime' ? (
-            <TimePicker
-              // This classname doesn't seem to exist
-              className={styles.timePicker}
-              id={question.id}
-              labelText="Time:"
-              placeholder="HH:MM"
-              pattern="(1[012]|[1-9]):[0-5][0-9])$"
-              type="time"
-              disabled={!field.value ? true : false}
-              value={
-                time
-                  ? time
-                  : field.value instanceof Date
-                  ? field.value.toLocaleDateString(window.navigator.language)
-                  : field.value
-              }
-              onChange={onTimeChange}
-            />
+            <div className={styles.timePickerSpacing}>
+              <TimePicker
+                className={styles.boldedLabel}
+                id={question.id}
+                labelText="Time:"
+                placeholder="HH:MM"
+                pattern="(1[012]|[1-9]):[0-5][0-9])$"
+                type="time"
+                disabled={!field.value ? true : false}
+                value={
+                  time
+                    ? time
+                    : field.value instanceof Date
+                    ? field.value.toLocaleDateString(window.navigator.language)
+                    : field.value
+                }
+                onChange={onTimeChange}
+              />{' '}
+            </div>
           ) : (
             ''
-          )}
-          {previousValueForReview && (
-            <div className={`${styles.formField}`}>
-              <PreviousValueReview
-                value={previousValueForReview.value}
-                displayText={previousValueForReview.display}
-                setValue={onDateChange}
-              />
-            </div>
           )}
         </div>
       </>

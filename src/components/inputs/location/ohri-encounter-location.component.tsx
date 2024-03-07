@@ -57,9 +57,10 @@ export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; on
         isInline={isInline}
       />
     </div>
+
   ) : (
     !question.isHidden && (
-      <div className={`${styles.formInputField} ${styles.multiselectOverride} ${styles.flexRow}`}>
+      <div className={`${styles.boldedLabel} ${styles.formInputField} ${styles.multiselectOverride} ${styles.flexRow}`}>
         <ComboBox
           id={question.id}
           titleText={question.label}

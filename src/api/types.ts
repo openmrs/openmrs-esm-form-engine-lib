@@ -117,8 +117,12 @@ export interface OHRIFormField {
   validators?: Array<Record<string, any>>;
   behaviours?: Array<Record<string, any>>;
   questionInfo?: string;
+  constrainMaxWidth?: boolean;
 }
-
+export interface previousValue {
+  field: string;
+  value: string | number | Date | boolean | previousValue[];
+}
 export interface OHRIFormFieldProps {
   question: OHRIFormField;
   onChange: (
@@ -131,6 +135,7 @@ export interface OHRIFormFieldProps {
   handler: SubmissionHandler;
   // This is of util to components defined out of the engine
   useField?: (fieldId: string) => [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
+  previousValue?: previousValue;
 }
 export interface OHRIFormSection {
   hide?: HideProps;

@@ -1,9 +1,12 @@
 @use '@carbon/colors';
 
-.formField {
-  margin-top: 10px;
+.boldedLabel label {
+  font-weight: 600;
+  color: colors.$black-100;
 }
 
-.formField > div > div > label {
-  color: colors.$gray-70;
+:global(.cds--toggle__label-text) {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: colors.$black-100;
 }
