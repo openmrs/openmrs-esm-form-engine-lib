@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "TIMING=1 eslint src --ext .ts,.tsx --fix",
     "verify": "turbo lint typescript && yarn run test",
-    "prettier": "prettier --config prettier.config.js --write \"src/**/*.{ts,tsx}\"",
+    "prettier": "prettier --config prettier.config.js --write \"src/**/*.{ts,tsx}\" --list-different",
     "typescript": "tsc",
     "test": "jest --config ./jest.config.js --passWithNoTests",
     "build": "webpack --mode production",
@@ -103,5 +103,5 @@
     "@carbon/react": "1.13.0",
     "dayjs": "^1.10.4"
   },
-  "packageManager": "yarn@4.0.2"
+  "packageManager": "yarn@4.1.1"
 }
