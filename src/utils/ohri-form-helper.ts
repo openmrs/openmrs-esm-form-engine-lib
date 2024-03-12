@@ -68,9 +68,9 @@ export function isInlineView(
 
 export function evaluateFieldReadonlyProp(
   field: OHRIFormField,
-  sectionReadonly: string | boolean,
-  pageReadonly: string | boolean,
-  formReadonly: string | boolean,
+  sectionReadonly: boolean,
+  pageReadonly: boolean,
+  formReadonly: boolean,
 ) {
   if (!isEmpty(field.readonly)) {
     return;

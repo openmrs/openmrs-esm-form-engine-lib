@@ -11,14 +11,14 @@ interface JSExpressionValidatorConfig {
 }
 
 export const OHRIJSExpressionValidator: FieldValidator = {
-  validate: function(field: OHRIFormField, value: any, config: JSExpressionValidatorConfig) {
+  validate: function (field: OHRIFormField, value: any, config: JSExpressionValidatorConfig) {
     const INVALID_VALUE_ERR_CODE = 'value.invalid';
     const INVALID_VALUE_ERR_MESSAGE = 'Invalid value';
     const FIELD_HAS_WARNINGS_MESSAGE = 'Field has warnings';
     config.expressionContext.myValue = value;
     return Object.keys(config)
-      .filter(key => key === 'failsWhenExpression' || key === 'warnsWhenExpression')
-      .flatMap(key => {
+      .filter((key) => key === 'failsWhenExpression' || key === 'warnsWhenExpression')
+      .flatMap((key) => {
         const isErrorValidator = key === 'failsWhenExpression';
         return evaluateExpression(
           config[key],
@@ -34,8 +34,8 @@ export const OHRIJSExpressionValidator: FieldValidator = {
                 message: config.message
                   ? config.message
                   : isErrorValidator
-                  ? INVALID_VALUE_ERR_MESSAGE
-                  : FIELD_HAS_WARNINGS_MESSAGE,
+                    ? INVALID_VALUE_ERR_MESSAGE
+                    : FIELD_HAS_WARNINGS_MESSAGE,
               },
             ]
           : [];

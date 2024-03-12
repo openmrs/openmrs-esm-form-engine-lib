@@ -6,15 +6,12 @@ import { OHRIFormFieldProps } from '../../api/types';
 
 const OHRIExtensionParcel: React.FC<OHRIFormFieldProps> = ({ question }) => {
   const { encounterContext, isSubmitting } = useContext(OHRIFormContext);
-  const submissionNotifier = useMemo(
-    () => new BehaviorSubject<{ isSubmitting: boolean }>({ isSubmitting: false }),
-    [],
-  );
+  const submissionNotifier = useMemo(() => new BehaviorSubject<{ isSubmitting: boolean }>({ isSubmitting: false }), []);
 
-  const state = useMemo(() => ({ patientUuid: encounterContext.patient.id, submissionNotifier }), [
-    encounterContext.patient.id,
-    submissionNotifier,
-  ]);
+  const state = useMemo(
+    () => ({ patientUuid: encounterContext.patient.id, submissionNotifier }),
+    [encounterContext.patient.id, submissionNotifier],
+  );
 
   useEffect(() => {
     if (question.questionOptions.extensionSlotName && question.questionOptions.extensionId) {

@@ -17,7 +17,7 @@ export function useFormsConfig(moduleName: string, configPath: string) {
 
   useEffect(() => {
     if (moduleName && configPath) {
-      getConfig(moduleName).then(c => {
+      getConfig(moduleName).then((c) => {
         setConfig({ config, ...get(c, configPath, config) });
       });
     }

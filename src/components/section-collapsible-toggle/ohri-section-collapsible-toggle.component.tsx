@@ -9,7 +9,7 @@ const OHRISectionCollapsibleToggle = () => {
   const metas = useExtensionSlotMeta('patient-chart-workspace-header-slot');
   const callBack = metas['ohri-form-header-toggle-ext']?.handleCollapse;
 
-  const toggleCollapsedStatus = e => {
+  const toggleCollapsedStatus = (e) => {
     callBack && callBack(e);
   };
 
