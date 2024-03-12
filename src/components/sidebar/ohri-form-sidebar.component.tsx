@@ -108,7 +108,7 @@ function OHRIFormSidebar({
           style={{ width: '11rem', marginTop: mode == 'view' ? '1.5rem' : '0' }}
           kind="tertiary"
           onClick={() => {
-            onCancel && onCancel();
+            onCancel && handleClose();
             handleClose && handleClose();
           }}>
           {mode == 'view' ? 'Close' : 'Cancel'}

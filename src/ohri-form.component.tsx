@@ -132,13 +132,13 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   useEffect(() => {
     const extDetails = {
       name: 'ohri-form-header-toggle-ext',
-      moduleName: meta?.moduleName || '@openmrs/esm-ohri-app',
+      moduleName: meta?.moduleName || '@ohri/openmrs-esm-ohri-core-app',
       slot: PatientChartWorkspaceHeaderSlot,
       load: getAsyncLifecycle(
         () => import('./components/section-collapsible-toggle/ohri-section-collapsible-toggle.component'),
         {
           featureName: 'ohri-form-header-toggle',
-          moduleName: meta?.moduleName || '@openmrs/esm-ohri-app',
+          moduleName: meta?.moduleName || '@ohri/openmrs-esm-ohri-core-app',
         },
       ),
       meta: {
@@ -362,7 +362,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                               return;
                             }
 
-                            onCancel && onCancel();
+                            onCancel && handleClose();
                             handleClose && handleClose();
                           }}>
                           {mode === 'view' ? 'Close' : 'Cancel'}
