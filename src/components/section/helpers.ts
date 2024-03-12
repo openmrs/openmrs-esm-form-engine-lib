@@ -21,7 +21,9 @@ export function getFieldControlWithFallback(question: OHRIFormField) {
   if (question.type === 'encounterLocation') {
     question.questionOptions.rendering = 'encounter-location';
   }
-
+  if (question.type === 'encounterProvider') {
+    return getRegisteredControl('encounterProvider');
+  }
   // Retrieve the registered control based on the specified rendering
   return getRegisteredControl(question.questionOptions.rendering);
 }

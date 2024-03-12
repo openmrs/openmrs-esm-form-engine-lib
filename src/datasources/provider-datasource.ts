@@ -1,9 +1,9 @@
 import { openmrsFetch } from '@openmrs/esm-framework';
 import { BaseOpenMRSDataSource } from './data-source';
 
-export class LocationDataSource extends BaseOpenMRSDataSource {
+export class ProviderDataSource extends BaseOpenMRSDataSource {
   constructor() {
-    super('/ws/rest/v1/location?v=custom:(uuid,display)');
+    super('/ws/rest/v1/provider?v=custom:(uuid,display)');
   }
 
   fetchData(searchTerm: string, config?: Record<string, any>, uuid?: string): Promise<any[]> {
@@ -19,6 +19,7 @@ export class LocationDataSource extends BaseOpenMRSDataSource {
 
     return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
       if (data.results) {
+        console.log(data.results);
         return data.results;
       }
       return data;

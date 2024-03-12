@@ -120,6 +120,6 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFie
   ...controlTemplates.map((template) => ({
     name: `${template.name}Control`,
     component: templateToComponentMap.find((component) => component.name === template.name).baseControlComponent,
-    type: template.name.toLowerCase(),
+    type: template.name,
   })),
 ];

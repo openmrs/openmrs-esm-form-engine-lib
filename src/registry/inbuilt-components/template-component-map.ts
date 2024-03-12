@@ -8,5 +8,9 @@ export const templateToComponentMap = [
   {
     name: 'problem',
     baseControlComponent: UISelectExtended,
-  }
+  },
+  {
+    name: 'encounterProvider',
+    baseControlComponent: UISelectExtended,
+  },
 ];

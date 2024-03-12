@@ -45,7 +45,10 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   useEffect(() => {
-    const datasourceName = question.questionOptions?.datasource?.name;
+    let datasourceName = question.questionOptions?.datasource?.name;
+    if (question.type === 'encounterProvider') {
+      datasourceName = question.type;
+    }
     setConfig(
       datasourceName
         ? question.questionOptions.datasource?.config
