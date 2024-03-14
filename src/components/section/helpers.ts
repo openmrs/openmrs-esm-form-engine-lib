@@ -17,13 +17,6 @@ export function getFieldControlWithFallback(question: OHRIFormField) {
     return getRegisteredControl('text');
   }
 
-  //Rendering overrides for existing AFE form schemas
-  if (question.type === 'encounterLocation') {
-    question.questionOptions.rendering = 'encounter-location';
-  }
-  if (question.type === 'encounterProvider') {
-    return getRegisteredControl('encounterProvider');
-  }
   // Retrieve the registered control based on the specified rendering
   return getRegisteredControl(question.questionOptions.rendering);
 }
@@ -43,4 +36,20 @@ export function hasMissingConcept(question: OHRIFormField) {
   return (
     question.type == 'obs' && !question.questionOptions.concept && question.questionOptions.rendering !== 'fixed-value'
   );
+}
+
+/**
+ * Make schema transformations especially for originally AFE schemas to match the RFE schema
+ */
+export function transformQuestion(question: OHRIFormField) {
+  switch (question.type) {
+    case 'encounterProvider':
+      question.questionOptions.rendering = 'encounter-provider';
+      break;
+    case 'encounterLocation':
+      question.questionOptions.rendering = 'encounter-location';
+      break;
+    default:
+      break;
+  }
 }

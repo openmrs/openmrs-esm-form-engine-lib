@@ -19,7 +19,6 @@ export class ProviderDataSource extends BaseOpenMRSDataSource {
 
     return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
       if (data.results) {
-        console.log(data.results);
         return data.results;
       }
       return data;

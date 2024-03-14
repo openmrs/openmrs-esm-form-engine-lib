@@ -44,13 +44,16 @@ const encounterContext: EncounterContext = {
   },
   sessionMode: 'enter',
   encounterDate: new Date(2020, 11, 29),
-  setEncounterDate: value => {},
+  setEncounterDate: (value) => {},
+
+  encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
+  setEncounterProvider: jest.fn,
 };
 
-const renderForm = intialValues => {
+const renderForm = (intialValues) => {
   render(
     <Formik initialValues={intialValues} onSubmit={null}>
-      {props => (
+      {(props) => (
         <Form>
           <OHRIFormContext.Provider
             value={{
@@ -63,7 +66,7 @@ const renderForm = intialValues => {
               fields: [question],
               isFieldInitializationComplete: true,
               isSubmitting: false,
-              formFieldHandlers: { 'obs': ObsSubmissionHandler }
+              formFieldHandlers: { obs: ObsSubmissionHandler },
             }}>
             <OHRIContentSwitcher question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
           </OHRIFormContext.Provider>

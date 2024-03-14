@@ -713,7 +713,6 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       value={{
         values,
         setFieldValue,
-        setEncounterProvider: setEncounterProvider,
         setEncounterLocation: setEncounterLocation,
         setObsGroupsToVoid: setObsGroupsToVoid,
         obsGroupsToVoid: obsGroupsToVoid,

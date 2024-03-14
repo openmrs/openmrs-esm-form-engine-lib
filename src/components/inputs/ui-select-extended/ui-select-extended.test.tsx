@@ -37,6 +37,8 @@ const encounterContext: EncounterContext = {
   sessionMode: 'enter',
   encounterDate: new Date(2023, 8, 29),
   setEncounterDate: (value) => {},
+  encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
+  setEncounterProvider: jest.fn,
 };
 
 const renderForm = (intialValues) => {

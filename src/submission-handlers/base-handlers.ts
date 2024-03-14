@@ -165,6 +165,12 @@ export const EncounterLocationSubmissionHandler: SubmissionHandler = {
   getDisplayValue: (field: OHRIFormField, value) => {
     return value.display;
   },
+  getPreviousValue: (field: OHRIFormField, encounter: any, allFormFields: Array<OHRIFormField>) => {
+    return {
+      display: encounter.location.name,
+      uuid: encounter.location.uuid,
+    };
+  },
 };
 
 ///////////////////////////////

@@ -199,6 +199,7 @@ export type RenderType =
   | 'group'
   | 'content-switcher'
   | 'encounter-location'
+  | 'encounter-provider'
   | 'textarea'
   | 'toggle'
   | 'fixed-value'

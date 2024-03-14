@@ -11,7 +11,7 @@ export const controlTemplates: Array<ControlTemplate> = [
     },
   },
   {
-    name: 'encounterProvider',
+    name: 'encounter-provider',
     datasource: {
       name: 'provider_datasource',
     },

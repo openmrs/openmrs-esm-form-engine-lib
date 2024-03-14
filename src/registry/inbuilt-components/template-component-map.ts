@@ -10,7 +10,7 @@ export const templateToComponentMap = [
     baseControlComponent: UISelectExtended,
   },
   {
-    name: 'encounterProvider',
+    name: 'encounter-provider',
     baseControlComponent: UISelectExtended,
   },
 ];

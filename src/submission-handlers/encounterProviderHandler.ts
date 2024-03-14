@@ -1,5 +1,4 @@
 import { SubmissionHandler } from '..';
-import { getEncounterProviders } from '../api/api';
 import { OpenmrsEncounter, OHRIFormField } from '../api/types';
 import { EncounterContext } from '../ohri-form-context';
 
@@ -9,7 +8,8 @@ export const EncounterProviderHandler: SubmissionHandler = {
     return value;
   },
   getInitialValue: (encounter: OpenmrsEncounter, field: OHRIFormField, allFormFields?: OHRIFormField[]) => {
-    return new Date(); // TO DO: pick it from the visit if present
+    const encounterProvider = encounter.encounterProviders[0]?.provider;
+    return encounterProvider ? encounterProvider.uuid : null;
   },
 
   getDisplayValue: (field: OHRIFormField, value: any) => {
@@ -19,6 +19,7 @@ export const EncounterProviderHandler: SubmissionHandler = {
     return value;
   },
   getPreviousValue: (field: OHRIFormField, encounter: OpenmrsEncounter, allFormFields: Array<OHRIFormField>) => {
-    return null;
+    const encounterProvider = encounter.encounterProviders[0]?.provider;
+    return encounterProvider ? { value: encounterProvider.uuid, display: encounterProvider.name } : null;
   },
 };

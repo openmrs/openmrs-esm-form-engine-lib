@@ -71,12 +71,6 @@ export function getAllLocations(): Observable<{ uuid: string; display: string }[
   );
 }
 
-export function getEncounterProviders(): Observable<{ uuid: string; display: string }[]> {
-  return openmrsObservableFetch(`/ws/rest/v1/provider?v=custom:(uuid,display)`).pipe(
-    map(({ data }) => data['results']),
-  );
-}
-
 export async function getPreviousEncounter(patientUuid: string, encounterType: string) {
   const query = `patient=${patientUuid}&_sort=-_lastUpdated&_count=1&type=${encounterType}`;
   let response = await openmrsFetch(`/ws/fhir2/R4/Encounter?${query}`);
