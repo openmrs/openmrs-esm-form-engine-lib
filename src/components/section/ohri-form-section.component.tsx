@@ -6,22 +6,16 @@ import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
 import { OHRIFormField, OHRIFormFieldProps, previousValue, SubmissionHandler } from '../../api/types';
 import styles from './ohri-form-section.scss';
-import { getFieldControlWithFallback, isUnspecifiedSupported, transformQuestion } from './helpers';
+import { formatPreviousValueDisplayText, getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
 import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
 import { isTrue } from '../../utils/boolean-utils';
-import { formatDate } from '@openmrs/esm-framework';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<OHRIFormFieldProps>;
   fieldDescriptor: OHRIFormField;
   handler: SubmissionHandler;
-}
-
-//move this to helper file
-function previousValueDisplayForCheckbox(previosValueItems: Object[]): String {
-  return previosValueItems.map((eachItem) => eachItem['display']).join(', ');
 }
 
 const OHRIFormSection = ({ fields, onFieldChange }) => {
@@ -32,7 +26,6 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
   useEffect(() => {
     Promise.all(
       fields.map(async (fieldDescriptor) => {
-        transformQuestion(fieldDescriptor);
         const fieldComponent = await getFieldControlWithFallback(fieldDescriptor);
         const handler = await getRegisteredFieldSubmissionHandler(fieldDescriptor.type);
         return { fieldDescriptor, fieldComponent, handler };
@@ -65,10 +58,6 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                   previousValue={previousValues[fieldDescriptor.id]}
                 />
               );
-
-              const previousCheckboxDisplayValue = Array.isArray(previousFieldValue)
-                ? previousValueDisplayForCheckbox(previousFieldValue)
-                : null;
 
               return (
                 <div key={index} className={styles.parentResizer}>
@@ -112,13 +101,7 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                       <div className={styles.previousValue}>
                         <PreviousValueReview
                           previousValue={previousFieldValue}
-                          displayText={
-                            fieldDescriptor.questionOptions.rendering === 'date'
-                              ? formatDate(previousFieldValue)
-                              : fieldDescriptor.questionOptions.rendering == 'checkbox'
-                              ? previousCheckboxDisplayValue
-                              : previousFieldValue?.display
-                          }
+                          displayText={formatPreviousValueDisplayText(fieldDescriptor, previousFieldValue)}
                           setValue={setPreviousValues}
                           field={fieldDescriptor.id}
                         />

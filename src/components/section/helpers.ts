@@ -1,3 +1,4 @@
+import { formatDate } from '@openmrs/esm-framework';
 import { OHRIFormField } from '../../api/types';
 import { getRegisteredControl } from '../../registry/registry';
 import { isTrue } from '../../utils/boolean-utils';
@@ -38,18 +39,16 @@ export function hasMissingConcept(question: OHRIFormField) {
   );
 }
 
-/**
- * Make schema transformations especially for originally AFE schemas to match the RFE schema
- */
-export function transformQuestion(question: OHRIFormField) {
-  switch (question.type) {
-    case 'encounterProvider':
-      question.questionOptions.rendering = 'encounter-provider';
-      break;
-    case 'encounterLocation':
-      question.questionOptions.rendering = 'encounter-location';
-      break;
-    default:
-      break;
-  }
+function previousValueDisplayForCheckbox(previosValueItems: Object[]): String {
+  return previosValueItems.map((eachItem) => eachItem['display']).join(', ');
 }
+
+export const formatPreviousValueDisplayText = (question: OHRIFormField, previousFieldValue: any) => {
+  if (question.questionOptions.rendering === 'date') {
+    return formatDate(previousFieldValue);
+  }
+  if (question.questionOptions.rendering === 'checkbox') {
+    return Array.isArray(previousFieldValue) ? previousValueDisplayForCheckbox(previousFieldValue) : null;
+  }
+  return previousFieldValue?.display;
+};
