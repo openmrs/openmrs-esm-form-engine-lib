@@ -333,3 +333,10 @@ export interface ProgramEnrollmentPayload {
   dateCompleted?: string;
   location: string;
 }
+
+/**
+ * Defines logic that transforms the form schema
+ */
+export interface FormSchemaTransformer {
+  transform: (form: OHRIFormSchema) => void;
+}

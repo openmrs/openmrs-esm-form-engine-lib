@@ -3,6 +3,7 @@ import { OHRIFormField, OHRIFormSchema, OHRIFormSection, ReferencedForm } from '
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
 import { fetchOpenMRSForm, fetchClobData } from '../api/api';
+import { transformSchema } from '../transformers/form-schema-transformer';
 
 export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: string, formSessionIntent: string) {
   const [formJson, setFormJson] = useState<OHRIFormSchema>(null);
@@ -57,7 +58,7 @@ export async function loadFormJson(
   updateFormJsonWithComponents(formJson, formComponents);
 
   //Make schema transformations if any
-  transformSchema(formJson);
+  await transformSchema(formJson);
 
   return refineFormJson(formJson, formSessionIntent);
 }
@@ -182,38 +183,6 @@ function updateFormJsonWithComponents(formJson: OHRIFormSchema, formComponents: 
       }
     });
   });
-}
-
-const transformSchema = (formJson: OHRIFormSchema) => {
-  formJson.pages.forEach((page) => {
-    if (page.sections) {
-      let sections = page.sections;
-      sections.forEach((section) => {
-        if (section.questions) {
-          let questions = section.questions;
-          questions.map((question) => {
-            transformQuestion(question);
-          });
-        }
-      });
-    }
-  });
-};
-
-/**
- * Make question transformations especially for originally AFE schemas to match the RFE schema
- */
-export function transformQuestion(question: OHRIFormField) {
-  switch (question.type) {
-    case 'encounterProvider':
-      question.questionOptions.rendering = 'encounter-provider';
-      break;
-    case 'encounterLocation':
-      question.questionOptions.rendering = 'encounter-location';
-      break;
-    default:
-      break;
-  }
 }
 
 function getReferencedFormSection(formSection: OHRIFormSection, formComponent: OHRIFormSchema): OHRIFormSection {

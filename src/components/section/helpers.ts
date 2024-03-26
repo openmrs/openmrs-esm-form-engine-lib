@@ -43,12 +43,13 @@ function previousValueDisplayForCheckbox(previosValueItems: Object[]): String {
   return previosValueItems.map((eachItem) => eachItem['display']).join(', ');
 }
 
-export const formatPreviousValueDisplayText = (question: OHRIFormField, previousFieldValue: any) => {
-  if (question.questionOptions.rendering === 'date') {
-    return formatDate(previousFieldValue);
+export const formatPreviousValueDisplayText = (question: OHRIFormField, value: any) => {
+  switch (question.questionOptions.rendering) {
+    case 'date':
+      return formatDate(value);
+    case 'checkbox':
+      return Array.isArray(value) ? previousValueDisplayForCheckbox(value) : null;
+    default:
+      return value?.display;
   }
-  if (question.questionOptions.rendering === 'checkbox') {
-    return Array.isArray(previousFieldValue) ? previousValueDisplayForCheckbox(previousFieldValue) : null;
-  }
-  return previousFieldValue?.display;
 };
