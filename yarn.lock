@@ -3131,7 +3131,7 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^4.3.0"
     fork-ts-checker-webpack-plugin: "npm:^6.3.3"
     formik: "npm:^2.2.6"
-    husky: "npm:^8.0.3"
+    husky: "npm:^8.0.0"
     identity-obj-proxy: "npm:^3.0.0"
     jest: "npm:^29.5.0"
     jest-cli: "npm:^29.5.0"
@@ -10546,7 +10546,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"husky@npm:^8.0.3":
+"husky@npm:^8.0.0":
   version: 8.0.3
   resolution: "husky@npm:8.0.3"
   bin:
