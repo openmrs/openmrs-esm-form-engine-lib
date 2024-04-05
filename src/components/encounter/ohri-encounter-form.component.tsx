@@ -368,12 +368,14 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
     if (invalidFields?.length) {
       setPagesWithErrors(findPagesWithErrors(scrollablePages, invalidFields));
 
+      let firstRadioGroupMemberDomId;
+
       switch (invalidFields[0].questionOptions.rendering) {
         case 'date':
           scrollIntoView(invalidFields[0].id, false);
           break;
         case 'radio':
-          const firstRadioGroupMemberDomId = `${invalidFields[0].id}-${invalidFields[0].questionOptions.answers[0].label}`;
+          firstRadioGroupMemberDomId = `${invalidFields[0].id}-${invalidFields[0].questionOptions.answers[0].label}`;
           scrollIntoView(firstRadioGroupMemberDomId, true);
           break;
         case 'checkbox':

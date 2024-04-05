@@ -76,7 +76,7 @@ export function useInitialValues(
             : existingVal;
 
           if (field.unspecified) {
-            initialValues[`${field.id}-unspecified`] = !!!existingVal;
+            initialValues[`${field.id}-unspecified`] = !existingVal;
           }
         });
       repeatableFields.forEach((field) => {
