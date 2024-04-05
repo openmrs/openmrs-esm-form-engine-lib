@@ -118,6 +118,8 @@ export interface OHRIFormField {
   behaviours?: Array<Record<string, any>>;
   questionInfo?: string;
   constrainMaxWidth?: boolean;
+  // to store the full concept object
+  meta: Record<string, any>;
 }
 export interface previousValue {
   field: string;
