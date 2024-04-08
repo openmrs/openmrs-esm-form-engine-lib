@@ -199,6 +199,7 @@ export type RenderType =
   | 'group'
   | 'content-switcher'
   | 'encounter-location'
+  | 'encounter-provider'
   | 'textarea'
   | 'toggle'
   | 'fixed-value'
@@ -331,4 +332,16 @@ export interface ProgramEnrollmentPayload {
   dateEnrolled: string;
   dateCompleted?: string;
   location: string;
+}
+
+/**
+ * A form schema transformer is used to bridge the gap caused by different variations of form schemas
+ * in the OpenMRS JSON schema-based form-entry world. It fine-tunes custom schemas to be compliant
+ * with the React Form Engine.
+ */
+export interface FormSchemaTransformer {
+  /**
+   * Transforms the raw schema to be compatible with the React Form Engine.
+   */
+  transform: (form: OHRIFormSchema) => OHRIFormSchema;
 }

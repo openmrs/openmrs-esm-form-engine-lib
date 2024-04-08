@@ -83,6 +83,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const [fields, setFields] = useState<Array<OHRIFormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
   const [encounterDate, setEncounterDate] = useState(formSessionDate);
+  const [encounterProvider, setEncounterProvider] = useState(provider);
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(formJson);
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
@@ -92,6 +93,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
   const [obsGroupCounter, setObsGroupCounter] = useState<Array<RepeatObsGroupCounter>>([]);
+
   const layoutType = useLayoutType();
 
   const encounterContext = useMemo(
@@ -102,9 +104,12 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       location: location,
       sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
       encounterDate: formSessionDate,
+      encounterProvider: provider,
       form: form,
       visit: visit,
       setEncounterDate,
+      setEncounterProvider,
+      setEncounterLocation,
       initValues: initValues,
       obsGroupCounter: obsGroupCounter,
       setObsGroupCounter: setObsGroupCounter,
@@ -480,13 +485,13 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       // update encounter providers
       const hasCurrentProvider =
         encounterForSubmission['encounterProviders'].findIndex(
-          (encProvider) => encProvider.provider.uuid == provider,
+          (encProvider) => encProvider.provider.uuid == encounterProvider,
         ) !== -1;
       if (!hasCurrentProvider) {
         encounterForSubmission['encounterProviders'] = [
           ...encounterForSubmission.encounterProviders,
           {
-            provider: provider,
+            provider: encounterProvider,
             encounterRole: encounterRole?.uuid,
           },
         ];
@@ -506,7 +511,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
         encounterType: formJson.encounterType,
         encounterProviders: [
           {
-            provider: provider,
+            provider: encounterProvider,
             encounterRole: encounterRole?.uuid,
           },
         ],

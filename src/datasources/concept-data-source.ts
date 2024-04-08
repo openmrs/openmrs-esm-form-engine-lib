@@ -1,9 +1,9 @@
-import { openmrsFetch } from '@openmrs/esm-framework';
+import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { BaseOpenMRSDataSource } from './data-source';
 
 export class ConceptDataSource extends BaseOpenMRSDataSource {
   constructor() {
-    super('/ws/rest/v1/concept?name=&searchType=fuzzy&v=custom:(uuid,display,conceptClass:(uuid,display))');
+    super(`${restBaseUrl}concept?name=&searchType=fuzzy&v=custom:(uuid,display,conceptClass:(uuid,display))`);
   }
 
   fetchData(searchTerm: string, config?: Record<string, any>, uuid?: string): Promise<any[]> {
@@ -15,7 +15,7 @@ export class ConceptDataSource extends BaseOpenMRSDataSource {
       } else {
         return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
           return data.results.filter(
-            concept => concept.conceptClass && config.class.includes(concept.conceptClass.uuid),
+            (concept) => concept.conceptClass && config.class.includes(concept.conceptClass.uuid),
           );
         });
       }

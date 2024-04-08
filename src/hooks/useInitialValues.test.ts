@@ -122,7 +122,7 @@ describe('useInitialValues', () => {
   const encounterDate = new Date();
 
   afterEach(() => {
-    allFormFields.slice(0, 6).forEach(field => {
+    allFormFields.slice(0, 6).forEach((field) => {
       delete field.value;
     });
   });
@@ -142,6 +142,9 @@ describe('useInitialValues', () => {
             sessionMode: 'enter',
             encounterDate: encounterDate,
             setEncounterDate: jest.fn,
+            encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
+            setEncounterProvider: jest.fn,
+            setEncounterLocation: jest.fn,
           },
           formFieldHandlers,
         ),
@@ -175,6 +178,9 @@ describe('useInitialValues', () => {
             sessionMode: 'enter',
             encounterDate: encounterDate,
             setEncounterDate: jest.fn,
+            encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
+            setEncounterProvider: jest.fn,
+            setEncounterLocation: jest.fn,
           },
           formFieldHandlers,
         ),
@@ -200,8 +206,8 @@ describe('useInitialValues', () => {
       date_of_birth_1: new Date('2023-07-24T00:00:00.000+0000').toLocaleDateString('en-US'),
       infant_name_1: ' TDB II',
     });
-    expect(allFormFields.find(field => field.id === 'date_of_birth_1')).not.toBeNull();
-    expect(allFormFields.find(field => field.id === 'infant_name_1')).not.toBeNull();
+    expect(allFormFields.find((field) => field.id === 'date_of_birth_1')).not.toBeNull();
+    expect(allFormFields.find((field) => field.id === 'infant_name_1')).not.toBeNull();
   });
 
   it('should verify that the "isBindingComplete" flag is set to true only when the resolution of calculated values are completed', async () => {
@@ -233,6 +239,9 @@ describe('useInitialValues', () => {
             sessionMode: 'enter',
             encounterDate: encounterDate,
             setEncounterDate: jest.fn,
+            encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
+            setEncounterProvider: jest.fn,
+            setEncounterLocation: jest.fn,
           },
           formFieldHandlers,
         ),
