@@ -40,9 +40,7 @@ export interface FieldSubmissionHandlerRegistration extends ComponentRegistratio
   type: string;
 }
 
-export interface FormScemaTransformerRegistration extends ComponentRegistration<FormSchemaTransformer> {
-  type: string;
-}
+export interface FormSchemaTransformerRegistration extends ComponentRegistration<FormSchemaTransformer> {}
 
 export interface FormsRegistryStoreState {
   controls: CustomControlRegistration[];
@@ -51,7 +49,7 @@ export interface FormsRegistryStoreState {
   postSubmissionActions: ComponentRegistration<PostSubmissionAction>[];
   dataSources: ComponentRegistration<DataSource<any>>[];
   expressionHelpers: Record<string, Function>;
-  formTransformers: FormScemaTransformerRegistration[];
+  formSchemaTransformers: FormSchemaTransformerRegistration[];
 }
 
 interface FormRegistryCache {
@@ -60,7 +58,7 @@ interface FormRegistryCache {
   fieldSubmissionHandlers: Record<string, SubmissionHandler>;
   postSubmissionActions: Record<string, PostSubmissionAction>;
   dataSources: Record<string, DataSource<any>>;
-  formTransformers: Record<string, FormSchemaTransformer>;
+  formSchemaTransformers: Record<string, FormSchemaTransformer>;
 }
 
 const registryCache: FormRegistryCache = {
@@ -69,7 +67,7 @@ const registryCache: FormRegistryCache = {
   fieldSubmissionHandlers: {},
   postSubmissionActions: {},
   dataSources: {},
-  formTransformers: {},
+  formSchemaTransformers: {},
 };
 
 // Registers
@@ -98,15 +96,15 @@ export function registerExpressionHelper(name: string, fn: Function) {
   getFormsStore().expressionHelpers[name] = fn;
 }
 
-export function registereformSchemaTransformers(registration: FormScemaTransformerRegistration) {
+export function registereformSchemaTransformers(registration: FormSchemaTransformerRegistration) {
   const store = getFormsStore();
-  const existingIndex = store.formTransformers.findIndex((reg) => reg.name === registration.name);
+  const existingIndex = store.formSchemaTransformers.findIndex((reg) => reg.name === registration.name);
 
   if (existingIndex !== -1) {
     // If registration with the same name exists, override it
-    store.formTransformers[existingIndex] = registration;
+    store.formSchemaTransformers[existingIndex] = registration;
   } else {
-    store.formTransformers.push(registration);
+    store.formSchemaTransformers.push(registration);
   }
 }
 
@@ -153,12 +151,12 @@ export async function getRegisteredFieldSubmissionHandler(type: string): Promise
 export async function getRegisteredFormSchemaTransformers(): Promise<FormSchemaTransformer[]> {
   const transformers = [];
 
-  const cachedTransformers = registryCache.formTransformers;
+  const cachedTransformers = registryCache.formSchemaTransformers;
   if (Object.keys(cachedTransformers).length) {
     return Object.values(cachedTransformers);
   }
 
-  const formTransformersFromStore = getFormsStore().formTransformers || [];
+  const formTransformersFromStore = getFormsStore().formSchemaTransformers || [];
   const customTransformers = await Promise.all(
     formTransformersFromStore.map(async (transformer) => {
       const transformerImport = await transformer.load?.();
@@ -171,7 +169,7 @@ export async function getRegisteredFormSchemaTransformers(): Promise<FormSchemaT
 
   transformers.forEach((transformer) => {
     const inbuiltTransformer = inbuiltFormTransformers.find((t) => t.component === transformer);
-    registryCache.formTransformers[inbuiltTransformer.name] = transformer;
+    registryCache.formSchemaTransformers[inbuiltTransformer.name] = transformer;
   });
 
   return transformers;
@@ -258,6 +256,6 @@ function getFormsStore(): FormsRegistryStoreState {
     fieldValidators: [],
     fieldSubmissionHandlers: [],
     dataSources: [],
-    formTransformers: [],
+    formSchemaTransformers: [],
   }).getState();
 }
