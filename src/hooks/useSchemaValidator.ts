@@ -4,15 +4,52 @@ import { useConfig } from '@openmrs/esm-framework';
 import { ConceptTrue, ConceptFalse } from '../constants';
 import { OHRIFormField, OHRIFormSchema } from '../api/types';
 
-export function useSchemaValidator(schema: OHRIFormSchema, doValidate) {
+export function useSchemaValidator(schema: OHRIFormSchema, doValidate: Boolean) {
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const [questionFields, setQuestionFields] = useState<Array<OHRIFormField>>([]);
   const [answerFields, setAnswerFields] = useState([]);
   const [isValidating, setIsValidating] = useState(true);
-  const [conceptSet, setConceptSet] = useState<Set<string>>(new Set());
-  const [answerConceptSet, setAnswerConceptSet] = useState<Set<string>>(new Set());
-  const { dataTypeToRenderingMap, conceptDataTypes } = useConfig();
+  const [conceptSet, setConceptSet] = useState<Set<string>>();
+  const [answerConceptSet, setAnswerConceptSet] = useState<Set<string>>();
+  const { dataTypeToRenderingMap, conceptDataTypes } = useConfig({
+    // externalModuleName: '@openmrs/openmrs-form-engine-lib',
+  });
+
+  if (!schema) {
+    throw new Error('Form schema is not provided');
+  }
+
+  useMemo(() => {
+    let questionSearchReferences = [];
+    let nullSearchReferenceErrors = [];
+
+    schema.pages?.forEach((page) =>
+      page.sections?.forEach((section) =>
+        section.questions?.forEach((question) => {
+          if (question.type === 'obsGroup') {
+            question.questions.forEach((obsGrpQuestion) => {
+              const fieldConceptReference = extractQuestionSearchReferenceFromField(obsGrpQuestion);
+              if (fieldConceptReference) questionSearchReferences.push(fieldConceptReference);
+              else {
+                nullSearchReferenceErrors.push[`${obsGrpQuestion.id} has no search reference`];
+              }
+            });
+          } else {
+            const fieldConceptReference = extractQuestionSearchReferenceFromField(question);
+            if (fieldConceptReference) {
+              questionSearchReferences.push(fieldConceptReference);
+            }
+          }
+        }),
+      ),
+    );
+    setConceptSet(new Set(questionSearchReferences));
+    setErrors((previousErrors) => ({
+      ...previousErrors,
+      nullSearchReferenceErrors: nullSearchReferenceErrors,
+    }));
+  }, [schema]);
 
   const findUnresolvedConcepts = (questionFields, filteredSetArray) => {
     const unresolvedConcepts = questionFields
@@ -92,106 +129,20 @@ export function useSchemaValidator(schema: OHRIFormSchema, doValidate) {
       });
   };
 
-  useMemo(() => {
-    if (schema) {
-      schema.pages?.forEach((page) =>
-        page.sections?.forEach((section) =>
-          section.questions?.forEach((question) => {
-            setQuestionFields((prevArray) => [...prevArray, question]);
-            const searchRef = question.questionOptions.concept
-              ? question.questionOptions.concept
-              : question.questionOptions.conceptMappings?.length
-              ? question.questionOptions.conceptMappings
-                  ?.map((mapping) => {
-                    return `${mapping.type}:${mapping.value}`;
-                  })
-                  .join(',')
-              : '';
-            if (searchRef) {
-              setConceptSet((conceptSet) => new Set(conceptSet).add(searchRef));
-            } else {
-              setErrors((prevErrors) => [
-                ...prevErrors,
-                {
-                  errorMessage: `❓ Question object has no UUID / Mappings`,
-                  field: question,
-                },
-              ]);
-            }
+  function extractQuestionSearchReferenceFromField(formField) {
+    setQuestionFields((prevArray) => [...prevArray, formField]);
+    const searchRef = formField.questionOptions.concept
+      ? formField.questionOptions.concept
+      : formField.questionOptions.conceptMappings?.length
+      ? formField.questionOptions.conceptMappings
+          ?.map((mapping) => {
+            return `${mapping.type}:${mapping.value}`;
+          })
+          .join(',')
+      : '';
 
-            const answers = question.questionOptions.answers;
-            answers?.length &&
-              answers.forEach((answer) => {
-                setAnswerFields((prevArray) => [...prevArray, answer]);
-                const searchRef = answer.concept
-                  ? answer.concept
-                  : answer.conceptMappings?.length
-                  ? answer.conceptMappings
-                      .map((mapping) => {
-                        return `${mapping.type}:${mapping.value}`;
-                      })
-                      .join(',')
-                  : '';
-                if (searchRef) {
-                  setAnswerConceptSet((prevAnswerSet) => new Set(prevAnswerSet).add(searchRef));
-                } else {
-                  setErrors((prevErrors) => [
-                    ...prevErrors,
-                    { errorMessage: `❌ Answer object has no UUID / Mappings`, field: question },
-                  ]);
-                }
-              });
-
-            if (question.type === 'obsGroup') {
-              question.questions.forEach((obsGrpQuestion) => {
-                setQuestionFields((prevArray) => [...prevArray, obsGrpQuestion]);
-                const searchRef = obsGrpQuestion.questionOptions.concept
-                  ? obsGrpQuestion.questionOptions.concept
-                  : obsGrpQuestion.questionOptions.conceptMappings?.length
-                  ? obsGrpQuestion.questionOptions.conceptMappings
-                      ?.map((mapping) => {
-                        return `${mapping.type}:${mapping.value}`;
-                      })
-                      .join(',')
-                  : '';
-                if (searchRef) {
-                  setConceptSet((conceptSet) => new Set(conceptSet).add(searchRef));
-                } else {
-                  setErrors((prevErrors) => [
-                    ...prevErrors,
-                    { errorMessage: `❓ Question object has no UUID / Mappings`, field: obsGrpQuestion },
-                  ]);
-                }
-
-                const answers = obsGrpQuestion.questionOptions.answers;
-                answers?.length &&
-                  answers.forEach((answer) => {
-                    setAnswerFields((prevArray) => [...prevArray, answer]);
-                    const searchRef = answer.concept
-                      ? answer.concept
-                      : answer.conceptMappings?.length
-                      ? answer.conceptMappings
-                          .map((mapping) => {
-                            return `${mapping.type}:${mapping.value}`;
-                          })
-                          .join(',')
-                      : '';
-                    if (searchRef) {
-                      setAnswerConceptSet((prevAnswerSet) => new Set(prevAnswerSet).add(searchRef));
-                    } else {
-                      setErrors((prevErrors) => [
-                        ...prevErrors,
-                        { errorMessage: `❌ Answer object has no UUID / Mappings`, field: obsGrpQuestion },
-                      ]);
-                    }
-                  });
-              });
-            }
-          }),
-        ),
-      );
-    }
-  }, [schema]);
+    return searchRef;
+  }
 
   const { concepts, filteredSet, isLoading } = useDatatype(conceptSet);
   const {
