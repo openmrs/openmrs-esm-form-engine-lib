@@ -1,6 +1,6 @@
 import { FormSchemaTransformer, OHRIFormField, OHRIFormSchema } from '../api/types';
 
-export const AngularFormTransformer: FormSchemaTransformer = {
+export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
   transform: (form: OHRIFormSchema) => {
     form.pages.forEach((page) => {
       if (page.sections) {
@@ -15,6 +15,7 @@ export const AngularFormTransformer: FormSchemaTransformer = {
         });
       }
     });
+    return form;
   },
 };
 

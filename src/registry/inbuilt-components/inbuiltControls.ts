@@ -58,11 +58,6 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFie
     type: 'content-switcher',
   },
   {
-    name: 'OHRIEncounterLocationPicker',
-    component: OHRIEncounterLocationPicker,
-    type: 'encounter-location',
-  },
-  {
     name: 'OHRIDropdown',
     component: OHRIDropdown,
     type: 'select',

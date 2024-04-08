@@ -3,25 +3,13 @@ import { BaseOpenMRSDataSource } from './data-source';
 
 export class ProviderDataSource extends BaseOpenMRSDataSource {
   constructor() {
-    super(`${restBaseUrl}/provider?v=custom:(uuid,display)`);
+    super(null);
   }
 
-  fetchData(searchTerm: string, config?: Record<string, any>, uuid?: string): Promise<any[]> {
-    let apiUrl = this.url;
-    const urlParts = apiUrl.split('?');
-    if (config?.tag) {
-      apiUrl = `${urlParts[0]}?tag=${config.tag}&${urlParts[1]}`;
-    }
-    //overwrite url if there's a uuid value, meaning we are in edit mode
-    if (uuid) {
-      apiUrl = `${urlParts[0]}/${uuid}?${urlParts[1]}`;
-    }
-
-    return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
-      if (data.results) {
-        return data.results;
-      }
-      return data;
-    });
+  async fetchData(searchTerm: string, config?: Record<string, any>): Promise<any[]> {
+    const rep = 'v=custom:(uuid,display)';
+    const url = `${restBaseUrl}/provider?${rep}`;
+    const { data } = await openmrsFetch(searchTerm ? `${url}&q=${searchTerm}` : url);
+    return data?.results;
   }
 }

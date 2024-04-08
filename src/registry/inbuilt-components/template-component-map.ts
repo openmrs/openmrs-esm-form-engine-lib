@@ -13,4 +13,8 @@ export const templateToComponentMap = [
     name: 'encounter-provider',
     baseControlComponent: UISelectExtended,
   },
+  {
+    name: 'encounter-location',
+    baseControlComponent: UISelectExtended,
+  },
 ];

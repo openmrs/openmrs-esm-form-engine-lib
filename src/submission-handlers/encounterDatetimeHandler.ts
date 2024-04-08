@@ -8,11 +8,11 @@ export const EncounterDatetimeHandler: SubmissionHandler = {
     return value;
   },
   getInitialValue: (encounter: OpenmrsEncounter, field: OHRIFormField, allFormFields?: OHRIFormField[]) => {
-    return encounter.encounterDatetime ? new Date(encounter.encounterDatetime) : new Date();
+    return encounter?.encounterDatetime ? new Date(encounter.encounterDatetime) : new Date();
   },
 
   getDisplayValue: (field: OHRIFormField, value: any) => {
-    return field.value ? field.value : null;
+    return field.value;
   },
   getPreviousValue: (field: OHRIFormField, encounter: OpenmrsEncounter, allFormFields?: OHRIFormField[]) => {
     return new Date(encounter.encounterDatetime);

@@ -109,6 +109,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
       visit: visit,
       setEncounterDate,
       setEncounterProvider,
+      setEncounterLocation,
       initValues: initValues,
       obsGroupCounter: obsGroupCounter,
       setObsGroupCounter: setObsGroupCounter,

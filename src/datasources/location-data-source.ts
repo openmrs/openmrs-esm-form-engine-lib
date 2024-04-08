@@ -3,7 +3,7 @@ import { BaseOpenMRSDataSource } from './data-source';
 
 export class LocationDataSource extends BaseOpenMRSDataSource {
   constructor() {
-    super(`${restBaseUrl}location?v=custom:(uuid,display)`);
+    super(`${restBaseUrl}/location?v=custom:(uuid,display)`);
   }
 
   fetchData(searchTerm: string, config?: Record<string, any>, uuid?: string): Promise<any[]> {

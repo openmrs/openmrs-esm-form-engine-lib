@@ -18,6 +18,7 @@ export function useInitialValues(
   const [isEncounterBindingComplete, setIsEncounterBindingComplete] = useState(
     encounterContext.sessionMode === 'enter',
   );
+  const encounterContextInitializableTypes = ['encounterProvider', 'encounterDatetime', 'encounterLocation'];
 
   useEffect(() => {
     const asyncItemsKeys = Object.keys(asyncInitValues ?? {});
@@ -130,6 +131,9 @@ export function useInitialValues(
                 patient: encounterContext.patient,
               },
             );
+          }
+          if (encounterContextInitializableTypes.includes(field.type)) {
+            value = formFieldHandlers[field.type]?.getInitialValue(encounter, field, formFields, encounterContext);
           }
           if (!isEmpty(field.questionOptions.defaultValue)) {
             value = inferInitialValueFromDefaultFieldValue(field, encounterContext, formFieldHandlers[field.type]);

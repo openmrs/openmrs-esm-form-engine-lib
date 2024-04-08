@@ -47,6 +47,7 @@ const encounterContext: EncounterContext = {
   setEncounterDate: (value) => {},
   encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
   setEncounterProvider: jest.fn,
+  setEncounterLocation: jest.fn,
 };
 
 const renderForm = (intialValues) => {

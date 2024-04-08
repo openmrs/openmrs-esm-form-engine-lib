@@ -58,9 +58,9 @@ export async function loadFormJson(
   updateFormJsonWithComponents(formJson, formComponents);
 
   //Make schema transformations if any
-  await transformSchema(formJson);
+  const transformedSchema = await transformSchema(formJson);
 
-  return refineFormJson(formJson, formSessionIntent);
+  return refineFormJson(transformedSchema, formSessionIntent);
 }
 
 function extractSubformRefs(formJson: OHRIFormSchema): string[] {

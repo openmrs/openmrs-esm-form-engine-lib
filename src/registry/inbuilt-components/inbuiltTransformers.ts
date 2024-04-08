@@ -1,10 +1,10 @@
 import { FormSchemaTransformer } from '../../api/types';
-import { AngularFormTransformer } from '../../transformers/AFETransformer';
+import { AngularFormEngineSchemaTransformer } from '../../transformers/angular-fe-schema-transformer';
 import { RegistryItem } from '../registry';
 
 export const inbuiltFormTransformers: Array<RegistryItem<FormSchemaTransformer>> = [
   {
-    name: 'AFESChemaTransformer',
-    component: AngularFormTransformer,
+    name: 'AngularFormEngineSchemaTransformer',
+    component: AngularFormEngineSchemaTransformer,
   },
 ];

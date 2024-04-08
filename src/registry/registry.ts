@@ -99,7 +99,15 @@ export function registerExpressionHelper(name: string, fn: Function) {
 }
 
 export function registereformSchemaTransformers(registration: FormScemaTransformerRegistration) {
-  getFormsStore().formTransformers.push(registration);
+  const store = getFormsStore();
+  const existingIndex = store.formTransformers.findIndex((reg) => reg.name === registration.name);
+
+  if (existingIndex !== -1) {
+    // If registration with the same name exists, override it
+    store.formTransformers[existingIndex] = registration;
+  } else {
+    store.formTransformers.push(registration);
+  }
 }
 
 // Getters
@@ -142,44 +150,29 @@ export async function getRegisteredFieldSubmissionHandler(type: string): Promise
   return handler;
 }
 
-export async function getRegisteredformSchemaTransformers(): Promise<FormSchemaTransformer[]> {
+export async function getRegisteredFormSchemaTransformers(): Promise<FormSchemaTransformer[]> {
   const transformers = [];
 
-  // Fetch from cache if available
   const cachedTransformers = registryCache.formTransformers;
   if (Object.keys(cachedTransformers).length) {
-    for (const key in cachedTransformers) {
-      if (Object.prototype.hasOwnProperty.call(cachedTransformers, key)) {
-        transformers.push(cachedTransformers[key]);
-      }
-    }
-    return transformers;
+    return Object.values(cachedTransformers);
   }
 
-  //Get custom transformers
-  const formTransformersFromStore = getFormsStore().formTransformers;
-  if (Array.isArray(formTransformersFromStore)) {
-    const customTransformers = await Promise.all(
-      formTransformersFromStore.map(async (transformer) => {
-        const transformerImport = await transformer.load?.();
-        return transformerImport?.default;
-      }),
-    );
-    transformers.push(...customTransformers.filter((transformer) => transformer !== undefined));
-  }
+  const formTransformersFromStore = getFormsStore().formTransformers || [];
+  const customTransformers = await Promise.all(
+    formTransformersFromStore.map(async (transformer) => {
+      const transformerImport = await transformer.load?.();
+      return transformerImport?.default;
+    }),
+  );
+  transformers.push(...customTransformers.filter((transformer) => transformer !== undefined));
 
-  if (inbuiltFormTransformers.length) {
-    for (const inbuiltTransformer of inbuiltFormTransformers) {
-      transformers.push(inbuiltTransformer.component);
-    }
-  }
+  transformers.push(...inbuiltFormTransformers.map((inbuiltTransformer) => inbuiltTransformer.component));
 
-  // Cache all fetched transformers
-  for (const transformer of transformers) {
-    registryCache.formTransformers[
-      inbuiltFormTransformers.find((inbuiltTransformer) => inbuiltTransformer.component === transformer).name
-    ] = transformer;
-  }
+  transformers.forEach((transformer) => {
+    const inbuiltTransformer = inbuiltFormTransformers.find((t) => t.component === transformer);
+    registryCache.formTransformers[inbuiltTransformer.name] = transformer;
+  });
 
   return transformers;
 }
