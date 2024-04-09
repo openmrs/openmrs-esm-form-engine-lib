@@ -118,7 +118,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
 
   const showSidebar = useMemo(() => {
-    return workspaceLayout !== 'minimized' && scrollablePages.size > 0 && sessionMode !== 'embedded-view';
+    return workspaceLayout !== 'minimized' && scrollablePages.size > 1 && sessionMode !== 'embedded-view';
   }, [workspaceLayout, scrollablePages.size, sessionMode]);
 
   const showPatientBanner = useMemo(() => {
@@ -126,8 +126,8 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   }, [patient?.id, sessionMode, workspaceLayout]);
 
   const showButtonSet = useMemo(() => {
-    return workspaceLayout === 'minimized' && sessionMode != 'embedded-view';
-  }, [sessionMode, workspaceLayout]);
+    return workspaceLayout === 'minimized' || 'maximized'  && sessionMode != 'embedded-view' && scrollablePages.size <= 1;
+  }, [sessionMode, workspaceLayout,scrollablePages]);
 
   useEffect(() => {
     const extDetails = {
