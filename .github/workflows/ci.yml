@@ -131,7 +131,7 @@ jobs:
           git commit -m "(chore) bump-form-engine"
 
       - name: Create PR
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.ACTIONS_OHRI_PAT }}
           commit-message: "(chore) Bump `@openmrs/openmrs-form-engine-lib`"

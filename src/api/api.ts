@@ -8,7 +8,7 @@ import { isUuid } from '../utils/boolean-utils';
 const BASE_WS_API_URL = '/ws/rest/v1/';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
-  const url = !!encounterUuid ? `/ws/rest/v1/encounter/${encounterUuid}?v=full` : `/ws/rest/v1/encounter?v=full`;
+  const url = encounterUuid ? `/ws/rest/v1/encounter/${encounterUuid}?v=full` : `/ws/rest/v1/encounter?v=full`;
 
   return openmrsFetch(url, {
     headers: {

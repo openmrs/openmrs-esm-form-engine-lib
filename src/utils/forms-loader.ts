@@ -271,11 +271,11 @@ function isPositiveInteger(x) {
 }
 
 function formsVersionComparator(v1, v2) {
-  var v1parts = v1.split('.');
-  var v2parts = v2.split('.');
+  let v1parts = v1.split('.');
+  let v2parts = v2.split('.');
   // First, validate both numbers are true version numbers
   function validateParts(parts) {
-    for (var i = 0; i < parts.length; ++i) {
+    for (let i = 0; i < parts.length; ++i) {
       if (!isPositiveInteger(parts[i])) {
         return false;
       }
@@ -285,7 +285,7 @@ function formsVersionComparator(v1, v2) {
   if (!validateParts(v1parts) || !validateParts(v2parts)) {
     return NaN;
   }
-  for (var i = 0; i < v1parts.length; ++i) {
+  for (let i = 0; i < v1parts.length; ++i) {
     if (v2parts.length === i) {
       return 1;
     }

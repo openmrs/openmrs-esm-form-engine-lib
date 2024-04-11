@@ -1,6 +1,7 @@
 import { DataSource } from '../../api/types';
 import { ConceptDataSource } from '../../datasources/concept-data-source';
 import { LocationDataSource } from '../../datasources/location-data-source';
+import { ProviderDataSource } from '../../datasources/provider-datasource';
 import { RegistryItem } from '../registry';
 
 /**
@@ -18,6 +19,10 @@ export const inbuiltDataSources: Array<RegistryItem<DataSource<any>>> = [
   {
     name: 'problem_datasource',
     component: new ConceptDataSource(),
+  },
+  {
+    name: 'provider_datasource',
+    component: new ProviderDataSource(),
   },
 ];
 

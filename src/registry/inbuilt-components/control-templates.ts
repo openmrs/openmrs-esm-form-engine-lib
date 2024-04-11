@@ -11,6 +11,18 @@ export const controlTemplates: Array<ControlTemplate> = [
     },
   },
   {
+    name: 'encounter-provider',
+    datasource: {
+      name: 'provider_datasource',
+    },
+  },
+  {
+    name: 'encounter-location',
+    datasource: {
+      name: 'location_datasource',
+    },
+  },
+  {
     name: 'problem',
     datasource: {
       name: 'problem_datasource',

@@ -17,6 +17,9 @@ const encounterContext: EncounterContext = {
   sessionMode: 'enter',
   encounterDate: new Date(2020, 11, 29),
   setEncounterDate: (value) => {},
+  encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
+  setEncounterProvider: jest.fn,
+  setEncounterLocation: jest.fn,
 };
 
 describe('ObsSubmissionHandler - handleFieldSubmission', () => {

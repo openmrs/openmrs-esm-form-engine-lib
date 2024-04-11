@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Dropdown, ComboBox } from '@carbon/react';
+import { ComboBox } from '@carbon/react';
 import { useField } from 'formik';
 import { createErrorHandler } from '@openmrs/esm-framework';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';

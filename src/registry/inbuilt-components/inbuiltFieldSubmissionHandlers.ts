@@ -1,6 +1,8 @@
 import { SubmissionHandler } from '../../api/types';
-import { ObsSubmissionHandler, EncounterLocationSubmissionHandler } from '../../submission-handlers/base-handlers';
+import { ObsSubmissionHandler } from '../../submission-handlers/base-handlers';
 import { EncounterDatetimeHandler } from '../../submission-handlers/encounterDatetimeHandler';
+import { EncounterLocationSubmissionHandler } from '../../submission-handlers/encounterLocationHandler';
+import { EncounterProviderHandler } from '../../submission-handlers/encounterProviderHandler';
 import { RegistryItem } from '../registry';
 
 /**
@@ -26,5 +28,10 @@ export const inbuiltFieldSubmissionHandlers: Array<RegistryItem<SubmissionHandle
     name: 'EncounterDatetimeHandler',
     component: EncounterDatetimeHandler,
     type: 'encounterDatetime',
+  },
+  {
+    name: 'EncounterProviderHandler',
+    component: EncounterProviderHandler,
+    type: 'encounterProvider',
   },
 ];

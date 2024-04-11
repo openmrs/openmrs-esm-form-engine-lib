@@ -30,7 +30,7 @@ export function evaluatePostSubmissionExpression(expression: string, encounters:
 
     if (Object.keys(fieldToValueMap).length) {
       replacedExpression = expression.replace(/(\w+)/g, (match) => {
-        return fieldToValueMap.hasOwnProperty(match) ? fieldToValueMap[match] : match;
+        return Object.prototype.hasOwnProperty.call(fieldToValueMap, match) ? fieldToValueMap[match] : match;
       });
     } else {
       replacedExpression = expression;

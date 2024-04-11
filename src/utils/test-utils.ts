@@ -14,12 +14,12 @@ export async function findRadioGroupMember(screen, name: string): Promise<HTMLIn
   return await screen.findByRole('radio', { name });
 }
 
-export async function findMultiSelectInput(screen, name: string): Promise<HTMLInputElement> {
-  return await screen.findByRole('combobox', { name });
+export async function findMultiSelectInput(screen, nameSubstring: string): Promise<HTMLInputElement> {
+  return await screen.findByRole('combobox', { name: new RegExp(nameSubstring, 'i') });
 }
 
 export async function findSelectInput(screen, name: string): Promise<HTMLInputElement> {
-  return await screen.findByRole('button', { name });
+  return await screen.findByRole('combobox', { name });
 }
 
 export async function findAllRadioGroupInputs(screen, name: string): Promise<Array<HTMLInputElement>> {

@@ -98,6 +98,7 @@ export function linkReferencedFieldValues(
  */
 export function extractArgs(expression: string): string[] {
   const args = [];
+  // eslint-disable-next-line no-useless-escape
   const regx = /(?:\w+|'(?:\\'|[^'\n])*')(?=[,\)]|\s*(?=\)))/g;
   let match;
   while ((match = regx.exec(expression))) {
