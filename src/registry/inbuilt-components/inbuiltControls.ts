@@ -63,11 +63,6 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFie
     type: 'content-switcher',
   },
   {
-    name: 'OHRIEncounterLocationPicker',
-    component: OHRIEncounterLocationPicker,
-    type: 'encounter-location',
-  },
-  {
     name: 'OHRIDropdown',
     component: OHRIDropdown,
     type: 'select',
@@ -122,9 +117,9 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFie
     component: File,
     type: 'file',
   },
-  ...controlTemplates.map(template => ({
+  ...controlTemplates.map((template) => ({
     name: `${template.name}Control`,
-    component: templateToComponentMap.find(component => component.name === template.name).baseControlComponent,
-    type: template.name.toLowerCase(),
+    component: templateToComponentMap.find((component) => component.name === template.name).baseControlComponent,
+    type: template.name,
   })),
 ];

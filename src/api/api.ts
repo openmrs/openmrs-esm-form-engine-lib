@@ -8,7 +8,7 @@ import { isUuid } from '../utils/boolean-utils';
 const BASE_WS_API_URL = '/ws/rest/v1/';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
-  const url = !!encounterUuid ? `/ws/rest/v1/encounter/${encounterUuid}?v=full` : `/ws/rest/v1/encounter?v=full`;
+  const url = encounterUuid ? `/ws/rest/v1/encounter/${encounterUuid}?v=full` : `/ws/rest/v1/encounter?v=full`;
 
   return openmrsFetch(url, {
     headers: {
@@ -61,6 +61,12 @@ export function getConcept(conceptUuid: string, v: string): Observable<any> {
 
 export function getLocationsByTag(tag: string): Observable<{ uuid: string; display: string }[]> {
   return openmrsObservableFetch(`/ws/rest/v1/location?tag=${tag}&v=custom:(uuid,display)`).pipe(
+    map(({ data }) => data['results']),
+  );
+}
+
+export function getAllLocations(): Observable<{ uuid: string; display: string }[]> {
+  return openmrsObservableFetch(`/ws/rest/v1/location?v=custom:(uuid,display)`).pipe(
     map(({ data }) => data['results']),
   );
 }

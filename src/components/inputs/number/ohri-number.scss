@@ -1,25 +1,15 @@
 @use '@carbon/colors';
 
-.formField {
-  margin-top: 10px;
-}
-
-.formField > div > div > label {
-  color: colors.$gray-70;
-}
-
-.numberInputWrapper :global(.cds--number) {
-  @extend .formField;
-  width: 22.313rem;
-  font-size: 0.875rem;
-}
-
-.row {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
+.boldedLabel label {
+  font-weight: 600;
+  color: colors.$black-100;
 }
 
 .errorLabel label {
   color: colors.$red-60;
+  font-weight: 600;
+}
+
+.controlWidthConstrained {
+  max-width: 18rem;
 }

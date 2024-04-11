@@ -1,3 +1,4 @@
+import { formatDate } from '@openmrs/esm-framework';
 import { OHRIFormField } from '../../api/types';
 import { getRegisteredControl } from '../../registry/registry';
 import { isTrue } from '../../utils/boolean-utils';
@@ -37,3 +38,18 @@ export function hasMissingConcept(question: OHRIFormField) {
     question.type == 'obs' && !question.questionOptions.concept && question.questionOptions.rendering !== 'fixed-value'
   );
 }
+
+function previousValueDisplayForCheckbox(previosValueItems: Object[]): String {
+  return previosValueItems.map((eachItem) => eachItem['display']).join(', ');
+}
+
+export const formatPreviousValueDisplayText = (question: OHRIFormField, value: any) => {
+  switch (question.questionOptions.rendering) {
+    case 'date':
+      return formatDate(value);
+    case 'checkbox':
+      return Array.isArray(value) ? previousValueDisplayForCheckbox(value) : null;
+    default:
+      return value?.display;
+  }
+};

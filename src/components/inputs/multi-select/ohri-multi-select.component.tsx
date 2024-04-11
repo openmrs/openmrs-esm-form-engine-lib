@@ -6,12 +6,12 @@ import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.compo
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIValueEmpty } from '../../value/ohri-value.component';
-import { fieldRequiredErrCode } from '../../../validators/ohri-form-validator';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import styles from './ohri-multi-select.scss';
 
-export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
@@ -66,6 +66,15 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
   };
 
   useEffect(() => {
+    if (!isEmpty(previousValue) && Array.isArray(previousValue)) {
+      const valuesToSet = previousValue.map((eachItem) => eachItem.value);
+      setFieldValue(question.id, valuesToSet);
+      onChange(question.id, valuesToSet, setErrors, setWarnings);
+      question.value = handler?.handleFieldSubmission(question, valuesToSet, encounterContext);
+    }
+  }, [previousValue]);
+
+  useEffect(() => {
     getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
@@ -90,12 +99,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
   ) : (
     !question.isHidden && (
       <>
-        <div
-          className={
-            isFieldRequiredError
-              ? `${styles.multiselectOverride} ${styles.errorLabel}`
-              : `${styles.multiselectOverride}`
-          }>
+        <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : `${styles.boldedLabel}`}>
           <FilterableMultiSelect
             placeholder={t('filterItemsInMultiselect', 'Search...')}
             onChange={handleSelectItemsChange}
@@ -114,9 +118,9 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
             readOnly={question.readonly}
           />
         </div>
-        <div className={styles.formField} style={{ marginTop: '0.125rem' }}>
+        <div className={styles.selectionDisplay}>
           {field.value?.length ? (
-            <UnorderedList className={styles.list}>
+            <UnorderedList>
               {handler?.getDisplayValue(question, field.value)?.map((displayValue) => displayValue + ', ')}
             </UnorderedList>
           ) : (

@@ -9,7 +9,7 @@ import {
   detach,
   getAsyncLifecycle,
   registerExtension,
-  showToast,
+  showSnackbar,
   useSession,
   Visit,
 } from '@openmrs/esm-framework';
@@ -114,11 +114,10 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const [isFormTouched, setIsFormTouched] = useState(false);
   const [showWarningModal, setShowWarningModal] = useState(false);
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
-
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
 
   const showSidebar = useMemo(() => {
-    return workspaceLayout !== 'minimized' && scrollablePages.size > 0 && sessionMode !== 'embedded-view';
+    return workspaceLayout !== 'minimized' && scrollablePages.size > 1 && sessionMode !== 'embedded-view';
   }, [workspaceLayout, scrollablePages.size, sessionMode]);
 
   const showPatientBanner = useMemo(() => {
@@ -126,8 +125,10 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   }, [patient?.id, sessionMode, workspaceLayout]);
 
   const showButtonSet = useMemo(() => {
-    return workspaceLayout === 'minimized' && sessionMode != 'embedded-view';
-  }, [sessionMode, workspaceLayout]);
+    return (
+      workspaceLayout === 'minimized' || ('maximized' && sessionMode != 'embedded-view' && scrollablePages.size <= 1)
+    );
+  }, [sessionMode, workspaceLayout, scrollablePages]);
 
   useEffect(() => {
     const extDetails = {
@@ -195,18 +196,18 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       Promise.all(submissions)
         .then(async (results) => {
           if (mode === 'edit') {
-            showToast({
-              description: t('updatedRecordDescription', 'The patient encounter was updated'),
+            showSnackbar({
               title: t('updatedRecord', 'Record updated'),
+              subtitle: t('updatedRecordDescription', 'The patient encounter was updated'),
               kind: 'success',
-              critical: true,
+              isLowContrast: true,
             });
           } else {
-            showToast({
-              description: t('createdRecordDescription', 'A new encounter was created'),
+            showSnackbar({
               title: t('createdRecord', 'Record created'),
+              subtitle: t('createdRecordDescription', 'A new encounter was created'),
               kind: 'success',
-              critical: true,
+              isLowContrast: true,
             });
           }
           // Post Submission Actions
@@ -241,14 +242,14 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                   }
                 } catch (error) {
                   const errorMessages = extractErrorMessagesFromResponse(error);
-                  showToast({
-                    description: t('errorDescription', errorMessages.join(', ')),
+                  showSnackbar({
                     title: t(
                       'errorDescriptionTitle',
                       actionId ? actionId.replace(/([a-z])([A-Z])/g, '$1 $2') : 'Post Submission Error',
                     ),
+                    subtitle: t('errorDescription', errorMessages.join(', ')),
                     kind: 'error',
-                    critical: true,
+                    isLowContrast: false,
                   });
                 }
               }),
@@ -258,11 +259,11 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
         })
         .catch((error) => {
           const errorMessages = extractErrorMessagesFromResponse(error);
-          showToast({
-            description: t('errorDescription', errorMessages.join(', ')),
+          showSnackbar({
             title: t('errorDescriptionTitle', 'Error on saving form'),
+            subtitle: t('errorDescription', errorMessages.join(', ')),
             kind: 'error',
-            critical: true,
+            isLowContrast: false,
           });
         })
         .finally(() => {
@@ -279,7 +280,8 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       onSubmit={(values, { setSubmitting }) => {
         handleFormSubmit(values);
         setSubmitting(false);
-      }}>
+      }}
+    >
       {(props) => {
         setIsFormTouched(props.dirty);
 
@@ -327,7 +329,8 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                         ? `${styles.minifiedFormContentBody}`
                         : ''
                     }
-                  `}>
+                  `}
+                    >
                       <OHRIEncounterForm
                         formJson={refinedFormJson}
                         patient={patient}
@@ -364,14 +367,15 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
 
                             onCancel && onCancel();
                             handleClose && handleClose();
-                          }}>
+                          }}
+                        >
                           {mode === 'view' ? 'Close' : 'Cancel'}
                         </Button>
                         <Button type="submit" disabled={mode === 'view' || isSubmitting}>
                           {isSubmitting ? (
                             <InlineLoading description={t('submitting', 'Submitting') + '...'} />
                           ) : (
-                            <span>{t('save', 'Save')}</span>
+                            <span>{`${t('save', 'Save')}`}</span>
                           )}
                         </Button>
                       </ButtonSet>

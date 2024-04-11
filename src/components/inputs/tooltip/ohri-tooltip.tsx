@@ -11,7 +11,7 @@ interface OHRITooltipProps {
 export const OHRITooltip: React.FC<OHRITooltipProps> = ({ field }) => {
   return (
     <span>
-      <Tooltip align="right" label={field.questionInfo} description={field.questionInfo}>
+      <Tooltip align="top" label={field.questionInfo} description={field.questionInfo}>
         <button className={styles.tooltip} type="button" data-testid={field.id}>
           <Information />
         </button>

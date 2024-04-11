@@ -1,35 +1,27 @@
 @use '@carbon/colors';
 
-.formField {
-  margin-top: 10px;
-}
-
-.formField > div > div > label {
-  color: colors.$gray-70;
-}
-
-.row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.errorLabel :global(.cds--form-requirement) {
-  display: block;
-  max-height: 12.5rem;
-  overflow: visible;
-  font-weight: 400;
-  color: colors.$red-60;
-}
-
 .errorLegend legend {
-  color: colors.$red-60 !important;
+    color: colors.$red-60 !important;
+    font-weight: 600;
 }
 
-.warningLabel :global(.cds--form-requirement) {
-  display: block;
-  max-height: 12.5rem;
-  overflow: visible;
-  font-weight: 400;
-  color: colors.$gray-70;
+.boldedLegend legend {
+    color: colors.$black-100 !important;
+    font-weight: 600;
+}
+
+.warningLabel {
+    display: block;
+    max-height: 12.5rem;
+    overflow: visible;
+    font-weight: 400;
+    color: colors.$gray-70;
+}
+
+.errorLabel {
+    display: block;
+    max-height: 12.5rem;
+    overflow: visible;
+    font-weight: 400;
+    color: colors.$red-60;
 }

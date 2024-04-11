@@ -8,11 +8,13 @@ import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-he
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { isEmpty } from '../../../validators/ohri-form-validator';
 import styles from './ohri-toggle.scss';
+import { booleanConceptToBoolean } from '../../../utils/common-expression-helpers';
 
-const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
   const [conceptName, setConceptName] = useState('Loading...');
+
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, null, null);
@@ -28,6 +30,15 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
   }, []);
 
   useEffect(() => {
+    if (!isEmpty(previousValue)) {
+      const value = booleanConceptToBoolean(previousValue);
+      setFieldValue(question.id, value);
+      onChange(question.id, value, null, null);
+      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+    }
+  }, [previousValue]);
+
+  useEffect(() => {
     getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
       setConceptName(conceptTooltip);
     });
@@ -41,19 +52,18 @@ const OHRIToggle: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler 
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
-    <div className={styles.formField}>
-      <OHRIFieldValueView
-        label={question.label}
-        value={!isEmpty(field.value) ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={conceptName}
-        isInline={isInline}
-      />
-    </div>
+    <OHRIFieldValueView
+      label={question.label}
+      value={!isEmpty(field.value) ? handler?.getDisplayValue(question, field.value) : field.value}
+      conceptName={conceptName}
+      isInline={isInline}
+    />
   ) : (
     !question.isHidden && (
-      <div className={styles.formField}>
+      <div className={styles.boldedLabel}>
         <Toggle
           labelText={question.label}
+          className={styles.boldedLabel}
           id={question.id}
           labelA={question.questionOptions.toggleOptions.labelFalse}
           labelB={question.questionOptions.toggleOptions.labelTrue}

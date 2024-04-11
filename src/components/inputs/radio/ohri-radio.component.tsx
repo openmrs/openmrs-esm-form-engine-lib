@@ -7,17 +7,14 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
-import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
 import styles from './ohri-radio.scss';
 
-const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
   const [errors, setErrors] = useState([]);
   const [conceptName, setConceptName] = useState('Loading...');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const [previousValueForReview, setPreviousValueForReview] = useState(null);
-  const [paddingBottom, setPaddingBottom] = useState('3.1rem');
   const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
@@ -40,14 +37,13 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
   }, [conceptName]);
 
   useEffect(() => {
-    if (encounterContext?.previousEncounter && !isTrue(question.questionOptions.usePreviousValueDisabled)) {
-      const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-      if (!isEmpty(prevValue?.value)) {
-        setPreviousValueForReview(prevValue);
-        setPaddingBottom(question.questionOptions.answers.length > 2 ? '3.1rem' : '1.2rem');
-      }
+    if (!isEmpty(previousValue)) {
+      const { value } = previousValue;
+      setFieldValue(question.id, value);
+      onChange(question.id, value, setErrors, setWarnings);
+      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
     }
-  }, [encounterContext?.previousEncounter]);
+  }, [previousValue]);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -59,60 +55,47 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }
   return encounterContext.sessionMode == 'view' ||
     encounterContext.sessionMode == 'embedded-view' ||
     isTrue(question.readonly) ? (
-    <div className={styles.formField}>
-      <OHRIFieldValueView
-        label={question.label}
-        value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={conceptName}
-        isInline={isInline}
-      />
-    </div>
+    <OHRIFieldValueView
+      label={question.label}
+      value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
+      conceptName={conceptName}
+      isInline={isInline}
+    />
   ) : (
     !question.isHidden && (
-      <div className={styles.row}>
-        <FormGroup
-          legendText={question.label}
-          className={isFieldRequiredError ? styles.errorLegend : undefined}
-          disabled={question.disabled}
-          invalid={!isFieldRequiredError && errors.length > 0}>
-          <RadioButtonGroup
-            defaultSelected="default-selected"
-            name={question.id}
-            valueSelected={field.value}
-            onChange={handleChange}
-            orientation="vertical">
-            {question.questionOptions.answers
-              .filter((answer) => !answer.isHidden)
-              .map((answer, index) => {
-                return (
-                  <RadioButton
-                    id={`${question.id}-${answer.label}`}
-                    labelText={answer.label}
-                    value={answer.concept}
-                    key={index}
-                  />
-                );
-              })}
-          </RadioButtonGroup>
-          {(!isFieldRequiredError && errors?.length > 0) ||
-            (warnings.length > 0 && (
-              <div className={errors.length ? styles.errorLabel : warnings.length ? styles.warningLabel : ''}>
-                <div className={`cds--form-requirement`}>
-                  {errors.length ? errors[0].message : warnings.length ? warnings[0].message : null}
-                </div>
+      <FormGroup
+        legendText={question.label}
+        className={isFieldRequiredError ? styles.errorLegend : styles.boldedLegend}
+        disabled={question.disabled}
+        invalid={!isFieldRequiredError && errors.length > 0}>
+        <RadioButtonGroup
+          defaultSelected="default-selected"
+          name={question.id}
+          valueSelected={field.value}
+          onChange={handleChange}
+          orientation="vertical">
+          {question.questionOptions.answers
+            .filter((answer) => !answer.isHidden)
+            .map((answer, index) => {
+              return (
+                <RadioButton
+                  id={`${question.id}-${answer.label}`}
+                  labelText={answer.label}
+                  value={answer.concept}
+                  key={index}
+                />
+              );
+            })}
+        </RadioButtonGroup>
+        {(!isFieldRequiredError && errors?.length > 0) ||
+          (warnings.length > 0 && (
+            <div className={errors.length ? styles.errorLabel : warnings.length ? styles.warningLabel : ''}>
+              <div className={`cds--form-requirement`}>
+                {errors.length ? errors[0].message : warnings.length ? warnings[0].message : null}
               </div>
-            ))}
-        </FormGroup>
-        {previousValueForReview ? (
-          <FormGroup legendText={null}>
-            <PreviousValueReview
-              value={previousValueForReview.value}
-              displayText={previousValueForReview.display}
-              setValue={handleChange}
-            />
-          </FormGroup>
-        ) : null}
-      </div>
+            </div>
+          ))}
+      </FormGroup>
     )
   );
 };

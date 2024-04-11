@@ -1,4 +1,11 @@
-import { DataSource, FieldValidator, OHRIFormFieldProps, PostSubmissionAction, SubmissionHandler } from '../api/types';
+import {
+  DataSource,
+  FieldValidator,
+  FormSchemaTransformer,
+  OHRIFormFieldProps,
+  PostSubmissionAction,
+  SubmissionHandler,
+} from '../api/types';
 import { getGlobalStore } from '@openmrs/esm-framework';
 import { OHRIFormsStore } from '../constants';
 import { inbuiltControls } from './inbuilt-components/inbuiltControls';
@@ -7,6 +14,7 @@ import { inbuiltValidators } from './inbuilt-components/inbuiltValidators';
 import { inbuiltDataSources } from './inbuilt-components/inbuiltDataSources';
 import { getControlTemplate } from './inbuilt-components/control-templates';
 import { inbuiltPostSubmissionActions } from './inbuilt-components/InbuiltPostSubmissionActions';
+import { inbuiltFormTransformers } from './inbuilt-components/inbuiltTransformers';
 
 /**
  * @internal
@@ -32,6 +40,8 @@ export interface FieldSubmissionHandlerRegistration extends ComponentRegistratio
   type: string;
 }
 
+export interface FormSchemaTransformerRegistration extends ComponentRegistration<FormSchemaTransformer> {}
+
 export interface FormsRegistryStoreState {
   controls: CustomControlRegistration[];
   fieldValidators: ComponentRegistration<FieldValidator>[];
@@ -39,6 +49,7 @@ export interface FormsRegistryStoreState {
   postSubmissionActions: ComponentRegistration<PostSubmissionAction>[];
   dataSources: ComponentRegistration<DataSource<any>>[];
   expressionHelpers: Record<string, Function>;
+  formSchemaTransformers: FormSchemaTransformerRegistration[];
 }
 
 interface FormRegistryCache {
@@ -47,6 +58,7 @@ interface FormRegistryCache {
   fieldSubmissionHandlers: Record<string, SubmissionHandler>;
   postSubmissionActions: Record<string, PostSubmissionAction>;
   dataSources: Record<string, DataSource<any>>;
+  formSchemaTransformers: Record<string, FormSchemaTransformer>;
 }
 
 const registryCache: FormRegistryCache = {
@@ -55,6 +67,7 @@ const registryCache: FormRegistryCache = {
   fieldSubmissionHandlers: {},
   postSubmissionActions: {},
   dataSources: {},
+  formSchemaTransformers: {},
 };
 
 // Registers
@@ -81,6 +94,18 @@ export function registerCustomDataSource(registration: ComponentRegistration<Dat
 
 export function registerExpressionHelper(name: string, fn: Function) {
   getFormsStore().expressionHelpers[name] = fn;
+}
+
+export function registereformSchemaTransformers(registration: FormSchemaTransformerRegistration) {
+  const store = getFormsStore();
+  const existingIndex = store.formSchemaTransformers.findIndex((reg) => reg.name === registration.name);
+
+  if (existingIndex !== -1) {
+    // If registration with the same name exists, override it
+    store.formSchemaTransformers[existingIndex] = registration;
+  } else {
+    store.formSchemaTransformers.push(registration);
+  }
 }
 
 // Getters
@@ -121,6 +146,33 @@ export async function getRegisteredFieldSubmissionHandler(type: string): Promise
   }
   registryCache.fieldSubmissionHandlers[type] = handler;
   return handler;
+}
+
+export async function getRegisteredFormSchemaTransformers(): Promise<FormSchemaTransformer[]> {
+  const transformers = [];
+
+  const cachedTransformers = registryCache.formSchemaTransformers;
+  if (Object.keys(cachedTransformers).length) {
+    return Object.values(cachedTransformers);
+  }
+
+  const formTransformersFromStore = getFormsStore().formSchemaTransformers || [];
+  const customTransformers = await Promise.all(
+    formTransformersFromStore.map(async (transformer) => {
+      const transformerImport = await transformer.load?.();
+      return transformerImport?.default;
+    }),
+  );
+  transformers.push(...customTransformers.filter((transformer) => transformer !== undefined));
+
+  transformers.push(...inbuiltFormTransformers.map((inbuiltTransformer) => inbuiltTransformer.component));
+
+  transformers.forEach((transformer) => {
+    const inbuiltTransformer = inbuiltFormTransformers.find((t) => t.component === transformer);
+    registryCache.formSchemaTransformers[inbuiltTransformer.name] = transformer;
+  });
+
+  return transformers;
 }
 
 export async function getRegisteredPostSubmissionAction(actionId: string) {
@@ -204,5 +256,6 @@ function getFormsStore(): FormsRegistryStoreState {
     fieldValidators: [],
     fieldSubmissionHandlers: [],
     dataSources: [],
+    formSchemaTransformers: [],
   }).getState();
 }

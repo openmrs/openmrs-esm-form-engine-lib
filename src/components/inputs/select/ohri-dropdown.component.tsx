@@ -7,17 +7,15 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
-import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
 import styles from './ohri-dropdown.scss';
 
-const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
   const [items, setItems] = React.useState([]);
   const [errors, setErrors] = useState([]);
   const [conceptName, setConceptName] = useState('Loading...');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
@@ -32,6 +30,15 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
     onChange(question.id, value, setErrors, setWarnings);
     question.value = handler?.handleFieldSubmission(question, value, encounterContext);
   };
+
+  useEffect(() => {
+    if (!isEmpty(previousValue)) {
+      const { value } = previousValue;
+      setFieldValue(question.id, value);
+      onChange(question.id, value, setErrors, setWarnings);
+      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+    }
+  }, [previousValue]);
 
   const itemToString = (item) => {
     const answer = question.questionOptions.answers.find((opt) =>
@@ -51,15 +58,6 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
     });
   }, [conceptName]);
 
-  useEffect(() => {
-    if (encounterContext?.previousEncounter && !isTrue(question.questionOptions.usePreviousValueDisabled)) {
-      const prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-      if (!isEmpty(prevValue?.value)) {
-        setPreviousValueForReview(prevValue);
-      }
-    }
-  }, [encounterContext?.previousEncounter]);
-
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
       return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
@@ -76,35 +74,24 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
     />
   ) : (
     !question.isHidden && (
-      <div className={`${styles.formInputField} ${styles.row}`}>
-        <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.dropdown}` : styles.dropdown}>
-          <Dropdown
-            id={question.id}
-            titleText={question.label}
-            label="Choose an option"
-            items={question.questionOptions.answers
-              .filter((answer) => !answer.isHidden)
-              .map((item) => item.value || item.concept)}
-            itemToString={itemToString}
-            selectedItem={field.value}
-            onChange={({ selectedItem }) => handleChange(selectedItem)}
-            disabled={question.disabled}
-            readOnly={question.readonly}
-            invalid={!isFieldRequiredError && errors.length > 0}
-            invalidText={errors.length && errors[0].message}
-            warn={warnings.length > 0}
-            warnText={warnings.length && warnings[0].message}
-          />
-        </div>
-        {previousValueForReview && (
-          <div>
-            <PreviousValueReview
-              value={previousValueForReview.value}
-              displayText={previousValueForReview.display}
-              setValue={handleChange}
-            />
-          </div>
-        )}
+      <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : styles.boldedLabel}>
+        <Dropdown
+          id={question.id}
+          titleText={question.label}
+          label="Choose an option"
+          items={question.questionOptions.answers
+            .filter((answer) => !answer.isHidden)
+            .map((item) => item.value || item.concept)}
+          itemToString={itemToString}
+          selectedItem={field.value}
+          onChange={({ selectedItem }) => handleChange(selectedItem)}
+          disabled={question.disabled}
+          readOnly={question.readonly}
+          invalid={!isFieldRequiredError && errors.length > 0}
+          invalidText={errors.length && errors[0].message}
+          warn={warnings.length > 0}
+          warnText={warnings.length && warnings[0].message}
+        />
       </div>
     )
   );

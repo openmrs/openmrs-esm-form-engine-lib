@@ -25,6 +25,9 @@ export interface EncounterContext {
   sessionMode: SessionMode;
   encounterDate: Date;
   setEncounterDate(value: Date): void;
+  encounterProvider: string;
+  setEncounterProvider(value: string): void;
+  setEncounterLocation(value: any): void;
   initValues?: Record<string, any>;
   setObsGroupCounter?: any;
 }

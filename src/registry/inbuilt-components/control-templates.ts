@@ -11,16 +11,32 @@ export const controlTemplates: Array<ControlTemplate> = [
     },
   },
   {
+    name: 'encounter-provider',
+    datasource: {
+      name: 'provider_datasource',
+    },
+  },
+  {
+    name: 'encounter-location',
+    datasource: {
+      name: 'location_datasource',
+    },
+  },
+  {
     name: 'problem',
     datasource: {
       name: 'problem_datasource',
       config: {
-        class: ['8d4918b0-c2cc-11de-8d13-0010c6dffd0f', '8d492954-c2cc-11de-8d13-0010c6dffd0f','8d492b2a-c2cc-11de-8d13-0010c6dffd0f'],
+        class: [
+          '8d4918b0-c2cc-11de-8d13-0010c6dffd0f',
+          '8d492954-c2cc-11de-8d13-0010c6dffd0f',
+          '8d492b2a-c2cc-11de-8d13-0010c6dffd0f',
+        ],
       },
     },
   },
 ];
 
 export const getControlTemplate = (name: string) => {
-  return controlTemplates.find(template => template.name === name);
+  return controlTemplates.find((template) => template.name === name);
 };

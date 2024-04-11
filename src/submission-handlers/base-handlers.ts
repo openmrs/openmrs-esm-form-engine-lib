@@ -5,7 +5,6 @@ import { EncounterContext } from '../ohri-form-context';
 import { OHRIFormField, OpenmrsEncounter, OpenmrsObs, SubmissionHandler } from '../api/types';
 import { parseToLocalDateTime } from '../utils/ohri-form-helper';
 import { flattenObsList, hasRendering } from '../utils/common-utils';
-import { formatDate } from '@openmrs/esm-framework';
 
 // Temporarily holds observations that have already been binded with matching fields
 export let assignedObsIds: string[] = [];
@@ -126,30 +125,26 @@ export const ObsSubmissionHandler: SubmissionHandler = {
         }
         return { value: obs.value, display: obs.value };
       }
+      if (rendering == 'checkbox') {
+        return matchedObs.map((each) => {
+          return {
+            value: each.value?.uuid,
+            display: each.value?.name?.name,
+          };
+        });
+      }
+      if (rendering == 'toggle') {
+        return {
+          value: obs.value?.uuid,
+          display: obs.value?.name?.name,
+        };
+      }
       return {
         value: obs.value?.uuid,
-        display: field.questionOptions.answers.find((option) => option.concept == obs.value?.uuid)?.label,
+        display: field.questionOptions.answers?.find((option) => option.concept == obs.value?.uuid)?.label,
       };
     }
     return null;
-  },
-};
-
-/**
- * Encounter location handler
- */
-export const EncounterLocationSubmissionHandler: SubmissionHandler = {
-  handleFieldSubmission: (field: OHRIFormField, value: any, context: EncounterContext) => {
-    return null;
-  },
-  getInitialValue: (encounter: any, field: OHRIFormField) => {
-    return {
-      display: encounter.location.name,
-      uuid: encounter.location.uuid,
-    };
-  },
-  getDisplayValue: (field: OHRIFormField, value) => {
-    return value.display;
   },
 };
 

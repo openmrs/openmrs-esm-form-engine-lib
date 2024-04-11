@@ -117,8 +117,12 @@ export interface OHRIFormField {
   validators?: Array<Record<string, any>>;
   behaviours?: Array<Record<string, any>>;
   questionInfo?: string;
+  constrainMaxWidth?: boolean;
 }
-
+export interface previousValue {
+  field: string;
+  value: string | number | Date | boolean | previousValue[];
+}
 export interface OHRIFormFieldProps {
   question: OHRIFormField;
   onChange: (
@@ -131,6 +135,7 @@ export interface OHRIFormFieldProps {
   handler: SubmissionHandler;
   // This is of util to components defined out of the engine
   useField?: (fieldId: string) => [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
+  previousValue?: previousValue;
 }
 export interface OHRIFormSection {
   hide?: HideProps;
@@ -195,6 +200,7 @@ export type RenderType =
   | 'group'
   | 'content-switcher'
   | 'encounter-location'
+  | 'encounter-provider'
   | 'textarea'
   | 'toggle'
   | 'fixed-value'
@@ -327,4 +333,16 @@ export interface ProgramEnrollmentPayload {
   dateEnrolled: string;
   dateCompleted?: string;
   location: string;
+}
+
+/**
+ * A form schema transformer is used to bridge the gap caused by different variations of form schemas
+ * in the OpenMRS JSON schema-based form-entry world. It fine-tunes custom schemas to be compliant
+ * with the React Form Engine.
+ */
+export interface FormSchemaTransformer {
+  /**
+   * Transforms the raw schema to be compatible with the React Form Engine.
+   */
+  transform: (form: OHRIFormSchema) => OHRIFormSchema;
 }

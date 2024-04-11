@@ -11,6 +11,7 @@ import { FormNode } from './expression-runner';
 import { isEmpty as isValueEmpty } from '../validators/ohri-form-validator';
 import * as apiFunctions from '../api/api';
 import { getZRefByGenderAndAge } from './zscore-service';
+import { ConceptFalse, ConceptTrue } from '../constants';
 
 export class CommonExpressionHelpers {
   node: FormNode = null;
@@ -468,3 +469,16 @@ export function registerDependency(node: FormNode, determinant: OHRIFormField) {
       determinant.fieldDependants.add(node.value['id']);
   }
 }
+
+export const booleanConceptToBoolean = (booleanConceptRepresentation): boolean => {
+  const { value } = booleanConceptRepresentation;
+  if (!booleanConceptRepresentation) {
+    throw new Error('booleanConceptRepresentation cannot be a null value');
+  }
+  if (value == ConceptTrue) {
+    return true;
+  }
+  if (value == ConceptFalse) {
+    return false;
+  }
+};
