@@ -13,7 +13,7 @@
     "build": "webpack --mode production",
     "coverage": "yarn test --coverage",
     "analyze": "webpack --mode=production --env.analyze=true",
-    "postinstall": "husky install"
+    "prepare": "husky install"
   },
   "browserslist": [
     "extends browserslist-config-openmrs"
