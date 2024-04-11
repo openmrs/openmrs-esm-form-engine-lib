@@ -67,7 +67,8 @@ const renderForm = (intialValues) => {
               isFieldInitializationComplete: true,
               isSubmitting: false,
               formFieldHandlers: { obs: ObsSubmissionHandler },
-            }}>
+            }}
+          >
             <OHRIDropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
           </OHRIFormContext.Provider>
         </Form>
@@ -85,7 +86,7 @@ describe('dropdown input field', () => {
   it('should record new obs', async () => {
     await renderForm({});
     // setup
-    const dropdownWidget = screen.getByRole('button', { name: /Patient past program./ });
+    const dropdownWidget = screen.getByRole('combobox', { name: /Patient past program./ });
 
     // assert initial values
     await act(async () => {
@@ -128,7 +129,7 @@ describe('dropdown input field', () => {
       value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
     };
     await renderForm({ 'patient-past-program': question.value.value });
-    const dropdownWidget = screen.getByRole('button', { name: /Patient past program./ });
+    const dropdownWidget = screen.getByRole('combobox', { name: /Patient past program./ });
 
     // do some edits
     fireEvent.click(dropdownWidget);
