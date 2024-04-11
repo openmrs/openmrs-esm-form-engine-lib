@@ -1,18 +1,4 @@
-import {
-  render,
-  fireEvent,
-  screen,
-  cleanup,
-  act,
-  waitFor,
-  getByText,
-  prettyDOM,
-  findAllByRole,
-  getAllByRole,
-  queryAllByRole,
-  within,
-  findByTestId,
-} from '@testing-library/react';
+import { render, fireEvent, screen, cleanup, act, within } from '@testing-library/react';
 import { when } from 'jest-when';
 import * as api from '../src/api/api';
 import React from 'react';
@@ -38,14 +24,10 @@ import obsGroup_test_form from '../__mocks__/forms/ohri-forms/obs-group-test_for
 import labour_and_delivery_test_form from '../__mocks__/forms/ohri-forms/labour_and_delivery_test_form.json';
 import sample_fields_form from '../__mocks__/forms/ohri-forms/sample_fields.json';
 import postSubmission_test_form from '../__mocks__/forms/ohri-forms/post-submission-test-form.json';
-import * as registry from '../src/registry/registry';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
-import * as formContext from './ohri-form-context';
-import * as usePostSubmission from './hooks/usePostSubmissionAction';
 
 import {
   assertFormHasAllFields,
-  findAllRadioGroupInputs,
   findAllRadioGroupMembers,
   findAllTextOrDateInputs,
   findMultiSelectInput,
@@ -57,7 +39,6 @@ import {
 } from './utils/test-utils';
 import { mockVisit } from '../__mocks__/visit.mock';
 import { showToast } from '@openmrs/esm-framework';
-import { PostSubmissionAction } from './api/types';
 
 //////////////////////////////////////////
 ////// Base setup
@@ -140,7 +121,7 @@ describe('OHRI Forms:', () => {
       fail("Field with title 'Community service delivery point' should not be found");
     } catch (err) {
       expect(
-        err.message.includes('Unable to find role="button" and name "Community service delivery point"'),
+        err.message.includes('Unable to find role="combobox" and name "Community service delivery point"'),
       ).toBeTruthy();
     }
 
@@ -157,7 +138,7 @@ describe('OHRI Forms:', () => {
       await findMultiSelectInput(screen, 'TB screening');
       fail("Field with title 'TB screening' should not be found");
     } catch (err) {
-      expect(err.message.includes('Unable to find role="combobox" and name "TB screening"')).toBeTruthy();
+      expect(err.message.includes('Unable to find role="combobox" and name `/TB screening/i`')).toBeTruthy();
     }
   });
   // Form submission
@@ -622,8 +603,7 @@ describe('OHRI Forms:', () => {
       let femaleRadios = await findAllRadioGroupMembers(screen, 'Female');
       let maleRadios = await findAllRadioGroupMembers(screen, 'Male');
       let birthDateFields = await findAllTextOrDateInputs(screen, 'Date of Birth');
-
-      const addButton = await findSelectInput(screen, 'Add');
+      const addButton = await screen.findByRole('button', { name: 'Add' });
 
       //Verify
       await act(async () => expect(femaleRadio).toBeInTheDocument());
@@ -653,7 +633,7 @@ describe('OHRI Forms:', () => {
       let maleRadios = await findAllRadioGroupMembers(screen, 'Male');
       let birthDateFields = await findAllTextOrDateInputs(screen, 'Date of Birth');
 
-      const addButton = await findSelectInput(screen, 'Add');
+      const addButton = await screen.findByRole('button', { name: 'Add' });
 
       //Verify Initial state
       await act(async () => expect(femaleRadios.length).toBe(1));
@@ -663,7 +643,7 @@ describe('OHRI Forms:', () => {
       //Add repeat group
       await act(async () => fireEvent.click(addButton));
 
-      const deleteButton = await findSelectInput(screen, 'danger');
+      const deleteButton = await screen.findByRole('button', { name: 'danger' });
       femaleRadios = await findAllRadioGroupMembers(screen, 'Female');
       maleRadios = await findAllRadioGroupMembers(screen, 'Male');
       birthDateFields = await findAllTextOrDateInputs(screen, 'Date of Birth');
