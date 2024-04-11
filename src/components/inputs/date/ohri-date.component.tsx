@@ -155,7 +155,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
     !question.isHidden && (
       <>
         <div className={`${styles.formField} ${styles.row} ${styles.datetime}`}>
-        { question?.questionOptions.rendering === 'date' || question?.questionOptions.rendering === 'datetime' ? (
+        {question?.questionOptions.rendering === 'date' || question?.questionOptions.rendering === 'datetime' ? (
             <DatePicker
               datePickerType="single"
               onChange={onDateChange}
@@ -182,7 +182,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
               />
             </DatePicker>
           ) : null }
-          { question?.questionOptions.rendering === 'datetime' ? (
+          {question?.questionOptions.rendering === 'time' || question?.questionOptions?.rendering === 'datetime' ? (
             <div className={styles.timePickerSpacing}>
               <TimePicker
                 className={styles.boldedLabel}
@@ -197,7 +197,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
                     ? time
                     : field.value instanceof Date
                     ? field.value.toLocaleDateString(window.navigator.language)
-                    : field.value
+                    : new Date().toLocaleString(window.navigator.language)
                 }
                 onChange={onTimeChange}
               />{' '}
