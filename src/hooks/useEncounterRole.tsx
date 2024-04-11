@@ -6,7 +6,7 @@ export function useEncounterRole() {
     '/ws/rest/v1/encounterrole?v=custom:(uuid,display,name)',
     openmrsFetch,
   );
-  const clinicalEncounterRole = data?.data.results.find(encounterRole => encounterRole.name === 'Clinician');
+  const clinicalEncounterRole = data?.data.results.find((encounterRole) => encounterRole.name === 'Clinician');
 
   if (clinicalEncounterRole) {
     return { encounterRole: clinicalEncounterRole, error, isLoading };

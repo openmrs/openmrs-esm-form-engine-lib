@@ -16,7 +16,7 @@ const encounterContext: EncounterContext = {
   },
   sessionMode: 'enter',
   encounterDate: new Date(2020, 11, 29),
-  setEncounterDate: value => {},
+  setEncounterDate: (value) => {},
 };
 
 describe('ObsSubmissionHandler - handleFieldSubmission', () => {
@@ -823,7 +823,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
       const originalModule = jest.requireActual('../api/api');
       return {
         getConcept: jest.fn(() => {
-          return new Observable(sub => {
+          return new Observable((sub) => {
             sub.next({
               uuid: '1492AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
               display: 'Ever tested positive for HIV before?',

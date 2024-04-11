@@ -22,5 +22,5 @@ export const inbuiltDataSources: Array<RegistryItem<DataSource<any>>> = [
 ];
 
 export const validateInbuiltDatasource = (name: string) => {
-  return inbuiltDataSources.some(datasource => datasource.name === name);
+  return inbuiltDataSources.some((datasource) => datasource.name === name);
 };

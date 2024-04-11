@@ -25,37 +25,37 @@ function OHRIFormSidebar({
     }
   }, [defaultPage, scrollablePages]);
 
-  const joinWord = value => {
+  const joinWord = (value) => {
     return value.replace(/\s/g, '');
   };
 
   const unspecifiedFields = useMemo(() => {
     return (
       Object.keys(values)
-        .filter(key => key.endsWith('-unspecified'))
+        .filter((key) => key.endsWith('-unspecified'))
         // find parent control
-        .map(key => key.split('-unspecified')[0])
+        .map((key) => key.split('-unspecified')[0])
         // factor-out those with values
-        .filter(key => isEmpty(values[key]))
+        .filter((key) => isEmpty(values[key]))
         // return the unspecified control keys
-        .map(key => `${key}-unspecified`)
+        .map((key) => `${key}-unspecified`)
     );
   }, [values]);
 
-  const handleClick = selected => {
+  const handleClick = (selected) => {
     const activeID = selected.replace(/\s/g, '');
     setActiveLink(selected);
     scrollIntoView(activeID);
   };
 
   const markAllAsUnspecified = useCallback(
-    toggled => {
+    (toggled) => {
       if (toggled) {
-        unspecifiedFields.forEach(field => {
+        unspecifiedFields.forEach((field) => {
           values[field] = true;
         });
       } else {
-        unspecifiedFields.forEach(field => {
+        unspecifiedFields.forEach((field) => {
           values[field] = false;
         });
       }

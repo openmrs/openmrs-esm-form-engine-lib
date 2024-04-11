@@ -57,7 +57,6 @@ export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; on
         isInline={isInline}
       />
     </div>
-
   ) : (
     !question.isHidden && (
       <div className={`${styles.boldedLabel} ${styles.formInputField} ${styles.multiselectOverride} ${styles.flexRow}`}>

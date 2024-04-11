@@ -8,5 +8,5 @@ export const templateToComponentMap = [
   {
     name: 'problem',
     baseControlComponent: UISelectExtended,
-  }
+  },
 ];
