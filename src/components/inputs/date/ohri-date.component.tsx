@@ -133,7 +133,6 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
       setConceptName(conceptTooltip);
     });
   }, [conceptName]);
-
   useEffect(() => {
     if (!time && field.value) {
       if (field.value instanceof Date) {
@@ -143,7 +142,14 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
       }
     }
   }, [field.value, time]);
-
+  
+  useEffect(() => {
+    if(question?.questionOptions?.rendering === 'time' || question?.questionOptions?.rendering === 'datetime') {
+      const currentDate = new Date(Date.now());
+      setFieldValue(question.id, currentDate);
+    }
+  },[question?.questionOptions?.rendering]);
+  
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <OHRIFieldValueView
       label={question.label}
@@ -191,7 +197,6 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
                 placeholder="HH:MM"
                 pattern="(1[012]|[1-9]):[0-5][0-9])$"
                 type="time"
-                disabled={!field.value ? true : false}
                 value={
                   time
                     ? time
