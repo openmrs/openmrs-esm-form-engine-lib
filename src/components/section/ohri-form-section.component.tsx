@@ -97,7 +97,8 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                   </div>
                   {encounterContext?.previousEncounter &&
                     previousFieldValue &&
-                    !isTrue(fieldDescriptor.questionOptions.usePreviousValueDisabled) && (
+                    (isTrue(fieldDescriptor.questionOptions.enablePreviousValue) ||
+                      fieldDescriptor.historicalExpression) && (
                       <div className={styles.previousValue}>
                         <PreviousValueReview
                           previousValue={previousFieldValue}
