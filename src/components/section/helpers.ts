@@ -46,7 +46,7 @@ function previousValueDisplayForCheckbox(previosValueItems: Object[]): String {
 export const formatPreviousValueDisplayText = (question: OHRIFormField, value: any) => {
   switch (question.questionOptions.rendering) {
     case 'date':
-      return formatDate(value);
+      return formatDate(new Date(value?.display));
     case 'checkbox':
       return Array.isArray(value) ? previousValueDisplayForCheckbox(value) : null;
     default:
