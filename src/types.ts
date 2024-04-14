@@ -124,6 +124,7 @@ export interface FormField {
   validators?: Array<Record<string, any>>;
   behaviours?: Array<Record<string, any>>;
   questionInfo?: string;
+  historicalExpression?: string;
   constrainMaxWidth?: boolean;
   meta?: {
     concept?: OpenmrsResource;
@@ -199,7 +200,7 @@ export interface FormQuestionOptions {
     calculateExpression: string;
   };
   isDateTime?: { labelTrue: boolean; labelFalse: boolean };
-  usePreviousValueDisabled?: boolean;
+  enablePreviousValue?: boolean;
   allowedFileTypes?: Array<string>;
   allowMultiple?: boolean;
   datasource?: { name: string; config?: Record<string, any> };
