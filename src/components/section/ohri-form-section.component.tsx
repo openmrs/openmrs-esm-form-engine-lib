@@ -75,7 +75,8 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                       className={`${
                         fieldDescriptor.questionOptions.rendering == 'radio' ||
                         fieldDescriptor.questionOptions.rendering == 'date' ||
-                        fieldDescriptor.questionOptions.rendering == 'datetime'
+                        fieldDescriptor.questionOptions.rendering == 'datetime' ||
+                        fieldDescriptor.questionOptions.rendering == 'number'
                           ? ''
                           : styles.flexBasisOn
                       } ${fieldDescriptor.constrainMaxWidth && styles.controlWidthConstrained}`}>
@@ -83,8 +84,7 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                     </div>
                     {fieldDescriptor.questionInfo && (
                       <div className={styles.questionInfoControl}>
-                        {' '}
-                        <OHRITooltip field={fieldDescriptor} />{' '}
+                        <OHRITooltip field={fieldDescriptor} />
                       </div>
                     )}
                   </div>
