@@ -108,7 +108,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   }, []);
 
   useEffect(() => {
-    if (encounterContext?.previousEncounter && !isTrue(question.questionOptions.enablePreviousValue)) {
+    if (encounterContext?.previousEncounter && isTrue(question.questionOptions.enablePreviousValue)) {
       let prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
 
       if (!isEmpty(prevValue?.value)) {
