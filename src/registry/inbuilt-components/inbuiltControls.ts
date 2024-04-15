@@ -19,6 +19,7 @@ import File from '../../components/inputs/file/file.component';
 import { RegistryItem } from '../registry';
 import { controlTemplates } from './control-templates';
 import { templateToComponentMap } from './template-component-map';
+import WorkspaceLauncher from '../../components/inputs/workspace-launcher/workspace-launcher';
 
 /**
  * @internal
@@ -111,6 +112,11 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFie
     name: 'File',
     component: File,
     type: 'file',
+  },
+  {
+    name: 'WorkspaceLauncher',
+    component: WorkspaceLauncher,
+    type: 'workspace-launcher',
   },
   ...controlTemplates.map((template) => ({
     name: `${template.name}Control`,
