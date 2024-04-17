@@ -11,6 +11,7 @@ import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
 import { isTrue } from '../../utils/boolean-utils';
+import classNames from 'classnames';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<OHRIFormFieldProps>;
@@ -59,29 +60,28 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                 />
               );
 
+              const flexBasisOnClass = classNames({
+                [styles.flexBasisOn]:
+                  fieldDescriptor.questionOptions.rendering == 'select' ||
+                  fieldDescriptor.questionOptions.rendering == 'textarea' ||
+                  fieldDescriptor.questionOptions.rendering == 'text' ||
+                  fieldDescriptor.questionOptions.rendering == 'checkbox' ||
+                  fieldDescriptor.questionOptions.rendering == 'ui-select-extended' ||
+                  fieldDescriptor.questionOptions.rendering == 'content-switcher',
+                [styles.controlWidthConstrained]: fieldDescriptor.constrainMaxWidth,
+              });
+
+              const questionInfoClass = classNames({
+                [styles.questionInfoDefault]:
+                  fieldDescriptor.questionInfo && fieldDescriptor.questionOptions.rendering == 'radio',
+                [styles.questionInfoCentralized]:
+                  fieldDescriptor.questionInfo && fieldDescriptor.questionOptions.rendering !== 'radio',
+              });
+
               return (
                 <div key={index} className={styles.parentResizer}>
-                  <div
-                    className={
-                      fieldDescriptor.questionInfo &&
-                      `${
-                        fieldDescriptor.questionOptions.rendering !== 'radio'
-                          ? styles.questionInfoCentralized
-                          : styles.questionInfoDefault
-                      }
-                      `
-                    }>
-                    <div
-                      className={`${
-                        fieldDescriptor.questionOptions.rendering == 'radio' ||
-                        fieldDescriptor.questionOptions.rendering == 'date' ||
-                        fieldDescriptor.questionOptions.rendering == 'datetime' ||
-                        fieldDescriptor.questionOptions.rendering == 'number'
-                          ? ''
-                          : styles.flexBasisOn
-                      } ${fieldDescriptor.constrainMaxWidth && styles.controlWidthConstrained}`}>
-                      {qnFragment}
-                    </div>
+                  <div className={questionInfoClass}>
+                    <div className={flexBasisOnClass}>{qnFragment}</div>
                     {fieldDescriptor.questionInfo && (
                       <div className={styles.questionInfoControl}>
                         <OHRITooltip field={fieldDescriptor} />
