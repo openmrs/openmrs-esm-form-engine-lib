@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { OHRIFormField, OHRIFormSchema, OHRIFormSection, ReferencedForm } from '../api/types';
+import { FormSchemaTransformer, OHRIFormSchema, OHRIFormSection, ReferencedForm } from '../api/types';
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
 import { fetchOpenMRSForm, fetchClobData } from '../api/api';
-import { transformSchema } from '../transformers/form-schema-transformer';
+import { getRegisteredFormSchemaTransformers } from '../registry/registry';
 
 export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: string, formSessionIntent: string) {
   const [formJson, setFormJson] = useState<OHRIFormSchema>(null);
@@ -42,9 +42,10 @@ export async function loadFormJson(
 ): Promise<OHRIFormSchema> {
   const openmrsFormResponse = await fetchOpenMRSForm(formIdentifier);
   const clobDataResponse = await fetchClobData(openmrsFormResponse);
+  const transformers = await getRegisteredFormSchemaTransformers();
   const formJson: OHRIFormSchema = clobDataResponse
     ? { ...clobDataResponse, uuid: openmrsFormResponse.uuid }
-    : rawFormJson;
+    : parseFormJson(rawFormJson);
 
   // Sub forms
   const subformRefs = extractSubformRefs(formJson);
@@ -56,11 +57,7 @@ export async function loadFormJson(
   const resolvedFormComponents = await loadFormComponents(formComponentsRefs);
   const formComponents = mapFormComponents(resolvedFormComponents);
   updateFormJsonWithComponents(formJson, formComponents);
-
-  //Make schema transformations if any
-  const transformedSchema = await transformSchema(formJson);
-
-  return refineFormJson(transformedSchema, formSessionIntent);
+  return refineFormJson(formJson, transformers, formSessionIntent);
 }
 
 function extractSubformRefs(formJson: OHRIFormSchema): string[] {
@@ -91,16 +88,21 @@ function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
   }
 }
 /**
- * Refines the input form JSON object by parsing it, removing inline subforms, setting the encounter type, and applying form intents if provided.
+ * Refines the input form JSON object by parsing it, removing inline subforms, applying form schema transformers, setting the encounter type, and applying form intents if provided.
  * @param {any} formJson - The input form JSON object or string.
  * @param {string} [formSessionIntent] - The optional form session intent.
  * @returns {OHRIFormSchema} - The refined form JSON object of type OHRIFormSchema.
  */
-function refineFormJson(formJson: any, formSessionIntent?: string): OHRIFormSchema {
-  const parsedFormJson: OHRIFormSchema = parseFormJson(formJson);
-  removeInlineSubforms(parsedFormJson, formSessionIntent);
-  setEncounterType(parsedFormJson);
-  return formSessionIntent ? applyFormIntent(formSessionIntent, parsedFormJson) : parsedFormJson;
+function refineFormJson(
+  formJson: any,
+  schemaTransformers: FormSchemaTransformer[] = [],
+  formSessionIntent?: string,
+): OHRIFormSchema {
+  removeInlineSubforms(formJson, formSessionIntent);
+  // apply form schema transformers
+  schemaTransformers.reduce((draftForm, transformer) => transformer.transform(draftForm), formJson);
+  setEncounterType(formJson);
+  return applyFormIntent(formSessionIntent, formJson);
 }
 
 /**
@@ -126,7 +128,7 @@ function removeInlineSubforms(formJson: OHRIFormSchema, formSessionIntent: strin
       page.subform?.form?.encounterType === formJson.encounterType
     ) {
       const nonSubformPages = page.subform.form.pages.filter((page) => !isTrue(page.isSubform));
-      formJson.pages.splice(i, 1, ...refineFormJson(page.subform.form, formSessionIntent).pages);
+      formJson.pages.splice(i, 1, ...refineFormJson(page.subform.form, [], formSessionIntent).pages);
     }
   }
 }
