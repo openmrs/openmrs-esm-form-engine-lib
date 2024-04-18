@@ -43,7 +43,7 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
           .filter((entry) => entry?.fieldComponent)
           .map((entry, index) => {
             const { fieldComponent: FieldComponent, fieldDescriptor, handler } = entry;
-
+            const rendering = fieldDescriptor.questionOptions.rendering;
             const previousFieldValue = encounterContext.previousEncounter
               ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)
               : null;
@@ -60,28 +60,26 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                 />
               );
 
-              const flexBasisOnClass = classNames({
-                [styles.flexBasisOn]:
-                  fieldDescriptor.questionOptions.rendering == 'select' ||
-                  fieldDescriptor.questionOptions.rendering == 'textarea' ||
-                  fieldDescriptor.questionOptions.rendering == 'text' ||
-                  fieldDescriptor.questionOptions.rendering == 'checkbox' ||
-                  fieldDescriptor.questionOptions.rendering == 'ui-select-extended' ||
-                  fieldDescriptor.questionOptions.rendering == 'content-switcher',
-                [styles.controlWidthConstrained]: fieldDescriptor.constrainMaxWidth,
-              });
-
-              const questionInfoClass = classNames({
-                [styles.questionInfoDefault]:
-                  fieldDescriptor.questionInfo && fieldDescriptor.questionOptions.rendering == 'radio',
-                [styles.questionInfoCentralized]:
-                  fieldDescriptor.questionInfo && fieldDescriptor.questionOptions.rendering !== 'radio',
-              });
-
               return (
                 <div key={index} className={styles.parentResizer}>
-                  <div className={questionInfoClass}>
-                    <div className={flexBasisOnClass}>{qnFragment}</div>
+                  <div
+                    className={classNames({
+                      [styles.questionInfoDefault]: fieldDescriptor.questionInfo && rendering === 'radio',
+                      [styles.questionInfoCentralized]: fieldDescriptor.questionInfo && rendering !== 'radio',
+                    })}>
+                    <div
+                      className={classNames({
+                        [styles.flexBasisOn]: [
+                          'ui-select-extended',
+                          'content-switcher',
+                          'select',
+                          'textarea',
+                          'text',
+                          'checkbox',
+                        ].includes(rendering),
+                      })}>
+                      {qnFragment}
+                    </div>
                     {fieldDescriptor.questionInfo && (
                       <div className={styles.questionInfoControl}>
                         <OHRITooltip field={fieldDescriptor} />
@@ -90,10 +88,9 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                   </div>
 
                   <div className={styles.unspecifiedContainer}>
-                    {isUnspecifiedSupported(fieldDescriptor) &&
-                      fieldDescriptor.questionOptions.rendering != 'group' && (
-                        <OHRIUnspecified question={fieldDescriptor} onChange={onFieldChange} handler={handler} />
-                      )}
+                    {isUnspecifiedSupported(fieldDescriptor) && rendering != 'group' && (
+                      <OHRIUnspecified question={fieldDescriptor} onChange={onFieldChange} handler={handler} />
+                    )}
                   </div>
                   {encounterContext?.previousEncounter &&
                     previousFieldValue &&
