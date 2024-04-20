@@ -319,7 +319,11 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow={true} />}
                     {refinedFormJson.markdown && (
                       <div className={styles.markdownContainer}>
-                        <ReactMarkdown children={refinedFormJson.markdown.join('\n')} />
+                        <ReactMarkdown
+                          children={Array.isArray(refinedFormJson.markdown) ? refinedFormJson.markdown.join('\n') : refinedFormJson.markdown}
+                          unwrapDisallowed={true}
+                          allowedElements={['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'strong', 'em']}
+                        />
                       </div>
                     )}
                     <div
