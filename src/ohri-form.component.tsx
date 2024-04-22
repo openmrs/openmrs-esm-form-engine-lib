@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
 import { Form, Formik } from 'formik';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +28,7 @@ import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
 import WarningModal from './components/warning-modal.component';
 import styles from './ohri-form.component.scss';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
+import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
 
 interface OHRIFormProps {
   patientUUID: string;
@@ -319,7 +319,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow={true} />}
                     {refinedFormJson.markdown && (
                       <div className={styles.markdownContainer}>
-                        <ReactMarkdown children={refinedFormJson.markdown.join('\n')} />
+                        <MarkdownWrapper markdown={refinedFormJson.markdown} />
                       </div>
                     )}
                     <div

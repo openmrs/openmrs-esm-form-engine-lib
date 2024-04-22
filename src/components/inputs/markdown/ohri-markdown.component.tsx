@@ -1,8 +1,8 @@
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
 import { OHRIFormFieldProps } from '../../../api/types';
+import  MarkdownWrapper  from './markdown-wrapper.component';
 
-const OHRIMarkdown: React.FC<OHRIFormFieldProps> = ({ question }) =>
-  !question.isHidden && <ReactMarkdown children={question.value.join('\n')} />;
-
+const OHRIMarkdown: React.FC<OHRIFormFieldProps> = ({ question }) =>{
+  return !question.isHidden && <MarkdownWrapper markdown={question.value} />;
+};
 export default OHRIMarkdown;
