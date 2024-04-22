@@ -38,7 +38,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   const onDateChange = ([date]) => {
-    const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
+    const refinedDate = date instanceof Date ? new Date(date.setHours(0, 0, 0, 0)) : date;
     setFieldValue(question.id, refinedDate);
     onChange(question.id, refinedDate, setErrors, setWarnings);
     onTimeChange(false, true);
@@ -48,7 +48,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   useEffect(() => {
     if (!isEmpty(previousValue)) {
       const date = previousValue.value;
-      const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
+      const refinedDate = date instanceof Date ? new Date(date.setHours(0, 0, 0, 0)) : date;
       setFieldValue(question.id, refinedDate);
       onChange(question.id, refinedDate, setErrors, setWarnings);
       onTimeChange(false, true);
