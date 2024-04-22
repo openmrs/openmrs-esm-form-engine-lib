@@ -205,7 +205,6 @@ describe('OHRI Forms:', () => {
       const generalPopulationField = await findRadioGroupMember(screen, 'General population');
 
       // Simulate user interaction
-      // console.log('Checking', .toDate());
       fireEvent.blur(enrolmentDateField, { target: { value: dayjs('2023-09-09') } });
       fireEvent.blur(uniqueIdField, { target: { value: 'U0-001109' } });
       fireEvent.click(motherEnrolledField);
