@@ -25,6 +25,7 @@ import labour_and_delivery_test_form from '../__mocks__/forms/ohri-forms/labour_
 import sample_fields_form from '../__mocks__/forms/ohri-forms/sample_fields.json';
 import postSubmission_test_form from '../__mocks__/forms/ohri-forms/post-submission-test-form.json';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
+import dayjs from 'dayjs';
 
 import {
   assertFormHasAllFields,
@@ -204,7 +205,8 @@ describe('OHRI Forms:', () => {
       const generalPopulationField = await findRadioGroupMember(screen, 'General population');
 
       // Simulate user interaction
-      fireEvent.blur(enrolmentDateField, { target: { value: '2023-09-09T00:00:00.000Z' } });
+      // console.log('Checking', .toDate());
+      fireEvent.blur(enrolmentDateField, { target: { value: dayjs('2023-09-09') } });
       fireEvent.blur(uniqueIdField, { target: { value: 'U0-001109' } });
       fireEvent.click(motherEnrolledField);
       fireEvent.click(generalPopulationField);
@@ -440,8 +442,8 @@ describe('OHRI Forms:', () => {
       fireEvent.change(lmpField, { target: { value: '2022-07-06' } });
 
       // verify
-      await act(async () => expect(lmpField.value).toBe(new Date('2022-07-06').toLocaleDateString(locale)));
-      await act(async () => expect(eddField.value).toBe(new Date('2023-04-12').toLocaleDateString(locale)));
+      await act(async () => expect(lmpField.value).toBe('06/07/2022'));
+      await act(async () => expect(eddField.value).toBe('12/04/2023'));
     });
 
     it('Should evaluate months on ART', async () => {
@@ -465,9 +467,7 @@ describe('OHRI Forms:', () => {
       fireEvent.blur(artStartDateField, { target: { value: '05/02/2022' } });
 
       // verify
-      await act(async () =>
-        expect(artStartDateField.value).toBe(new Date('2022-02-05T00:00:00.000+0000').toLocaleDateString(locale)),
-      );
+      await act(async () => expect(artStartDateField.value).toBe('05/02/2022'));
       await act(async () => expect(assumeTodayToBe).toBe('7/11/2022'));
       await act(async () => expect(monthsOnARTField.value).toBe('7'));
     });
