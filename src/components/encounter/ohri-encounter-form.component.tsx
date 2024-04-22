@@ -266,6 +266,9 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           field.meta = {
             concept: matchingConcept,
           };
+          if (!field.questionOptions.answers?.length && field.meta?.concept?.conceptClass?.display === 'Question' && field.meta?.concept?.answers?.length) {
+            field.questionOptions.answers = field.meta?.concept?.answers;  
+          }
           if (field.questionOptions.answers) {
             field.questionOptions.answers = field.questionOptions.answers.map((answer) => {
               const matchingAnswerConcept = findConceptByReference(answer.concept, concepts);
