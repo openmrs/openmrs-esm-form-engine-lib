@@ -61,7 +61,11 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
   ) : (
     !question.isHidden && (
       <FormGroup legendText={question.label} className={errors.length ? styles.errorLegend : styles.boldedLegend}>
-        <ContentSwitcher onChange={handleChange} selectedIndex={selectedIndex} className={styles.selectedOption}>
+        <ContentSwitcher
+          onChange={handleChange}
+          selectedIndex={selectedIndex}
+          className={styles.selectedOption}
+          size="md">
           {question.questionOptions.answers.map((option, index) => (
             <Switch
               name={option.concept || option.value}

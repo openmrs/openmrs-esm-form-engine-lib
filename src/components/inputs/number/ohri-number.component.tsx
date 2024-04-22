@@ -85,7 +85,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
         className={`${styles.controlWidthConstrained} ${isFieldRequiredError ? styles.errorLabel : styles.boldedLabel}`}
         warn={warnings.length > 0}
         warnText={warnings[0]?.message}
-        step="0.01"
+        step={0.01}
       />
     </div>
   );

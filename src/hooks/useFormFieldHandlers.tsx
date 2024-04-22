@@ -7,11 +7,11 @@ export function useFormFieldHandlers(fields: OHRIFormField[]) {
 
   useEffect(() => {
     const supportedTypes = new Set<string>();
-    fields.forEach(field => {
+    fields.forEach((field) => {
       supportedTypes.add(field.type);
     });
     const supportedTypesArray = Array.from(supportedTypes);
-    Promise.all(supportedTypesArray.map(type => getRegisteredFieldSubmissionHandler(type))).then(handlers => {
+    Promise.all(supportedTypesArray.map((type) => getRegisteredFieldSubmissionHandler(type))).then((handlers) => {
       const typeToHandlersArray = supportedTypesArray.map((type, index) => ({
         [type]: handlers[index],
       }));

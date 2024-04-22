@@ -13,7 +13,7 @@ export function useWorkspaceLayout(rootRef): 'minimized' | 'maximized' {
       containerWidth && setLayout(containerWidth > TABLET_MAX ? 'maximized' : 'minimized');
     };
     handleResize();
-    const resizeObserver = new ResizeObserver(entries => {
+    const resizeObserver = new ResizeObserver((entries) => {
       handleResize();
     });
 

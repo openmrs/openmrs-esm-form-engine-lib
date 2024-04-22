@@ -76,10 +76,10 @@ function OHRIFormSidebar({
                 joinWord(page.label) === selectedPage && pagesWithErrors.includes(page.label)
                   ? styles.sidebarSectionErrorActive
                   : joinWord(page.label) === selectedPage
-                  ? styles.sidebarSectionActive
-                  : pagesWithErrors.includes(page.label)
-                  ? styles.sidebarSectionError
-                  : styles.sidebarSection
+                    ? styles.sidebarSectionActive
+                    : pagesWithErrors.includes(page.label)
+                      ? styles.sidebarSectionError
+                      : styles.sidebarSection
               }
               key={index}
               onClick={() => handleClick(page.label)}>
