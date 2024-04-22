@@ -4,7 +4,7 @@ import { OHRIFormFieldProps } from '../../api/types';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
 import { useField } from 'formik';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
-import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
+import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip.component';
 import styles from '../section/ohri-form-section.scss';
 
 export interface ObsGroupProps extends OHRIFormFieldProps {

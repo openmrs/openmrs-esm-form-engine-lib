@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
 import { DatePicker, DatePickerInput, TimePicker } from '@carbon/react';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
@@ -15,6 +16,7 @@ const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.langua
 const dateFormatter = new Intl.DateTimeFormat(locale);
 
 const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
+  const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
   const [errors, setErrors] = useState([]);
@@ -180,7 +182,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
               <TimePicker
                 className={styles.boldedLabel}
                 id={question.id}
-                labelText="Time:"
+                labelText={t('time', 'Time')}
                 placeholder="HH:MM"
                 pattern="(1[012]|[1-9]):[0-5][0-9])$"
                 type="time"

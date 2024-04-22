@@ -1,6 +1,6 @@
 import { OHRIFormFieldProps } from '../../api/types';
 import OHRIExtensionParcel from '../../components/extension/ohri-extension-parcel.component';
-import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended';
+import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
 import { OHRIObsGroup } from '../../components/group/ohri-obs-group.component';
 import { OHRIContentSwitcher } from '../../components/inputs/content-switcher/ohri-content-switcher.component';
 import OHRIDate from '../../components/inputs/date/ohri-date.component';

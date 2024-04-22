@@ -61,12 +61,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
         className={isFieldRequiredError ? styles.errorLegend : styles.boldedLegend}
         disabled={question.disabled}
         invalid={!isFieldRequiredError && errors.length > 0}>
-        <RadioButtonGroup
-          defaultSelected="default-selected"
-          name={question.id}
-          valueSelected={field.value}
-          onChange={handleChange}
-          orientation="vertical">
+        <RadioButtonGroup name={question.id} valueSelected={field.value} onChange={handleChange} orientation="vertical">
           {question.questionOptions.answers
             .filter((answer) => !answer.isHidden)
             .map((answer, index) => {
@@ -83,7 +78,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
         {(!isFieldRequiredError && errors?.length > 0) ||
           (warnings.length > 0 && (
             <div className={errors.length ? styles.errorLabel : warnings.length ? styles.warningLabel : ''}>
-              <div className={`cds--form-requirement`}>
+              <div className="cds--form-requirement">
                 {errors.length ? errors[0].message : warnings.length ? warnings[0].message : null}
               </div>
             </div>

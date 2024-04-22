@@ -10,7 +10,7 @@ import {
   ValidationResult,
   RepeatObsGroupCounter,
 } from '../../api/types';
-import OHRIFormPage from '../page/ohri-form-page';
+import OHRIFormPage from '../page/ohri-form-page.component';
 import { OHRIFormContext } from '../../ohri-form-context';
 import {
   cascadeVisibityToChildFields,

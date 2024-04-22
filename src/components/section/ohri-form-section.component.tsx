@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ToastNotification } from '@carbon/react';
@@ -7,7 +8,7 @@ import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.componen
 import { OHRIFormField, OHRIFormFieldProps, previousValue, SubmissionHandler } from '../../api/types';
 import styles from './ohri-form-section.scss';
 import { formatPreviousValueDisplayText, getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
-import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
+import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip.component';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
 import { isTrue } from '../../utils/boolean-utils';
@@ -114,20 +115,18 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
 };
 
 function ErrorFallback({ error }) {
-  // TODOS:
-  // 1. Handle internationalization
-  // 2. Show a more descriptive error message about the field
+  const { t } = useTranslation();
   return (
     <ToastNotification
-      ariaLabel="closes notification"
+      ariaLabel={t('closesNotification', 'Closes notification')}
       caption=""
       hideCloseButton
       lowContrast
       onClose={function noRefCheck() {}}
       onCloseButtonClick={function noRefCheck() {}}
-      statusIconDescription="notification"
-      subtitle={`Message: ${error.message}`}
-      title="Error rendering field"
+      statusIconDescription={t('notification', 'Notification')}
+      subtitle={error.message}
+      title={t('errorRenderingField', 'Error rendering field')}
     />
   );
 }

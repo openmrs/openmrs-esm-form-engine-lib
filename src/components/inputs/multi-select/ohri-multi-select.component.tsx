@@ -94,7 +94,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
       <>
         <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : `${styles.boldedLabel}`}>
           <FilterableMultiSelect
-            placeholder={t('filterItemsInMultiselect', 'Search...')}
+            placeholder={t('search', 'Search') + '...'}
             onChange={handleSelectItemsChange}
             id={question.label}
             items={questionItems}
