@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { OHRIFormFieldProps } from '../../api/types';
 import { OHRIFormContext } from '../../ohri-form-context';
-import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
-import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
+import { getFieldControlWithFallback } from '../section/helpers';
 import { useField } from 'formik';
 import styles from './ohri-orders.scss';
 
