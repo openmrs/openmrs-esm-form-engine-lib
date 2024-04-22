@@ -34,8 +34,8 @@ export const OHRIJSExpressionValidator: FieldValidator = {
                 message: config.message
                   ? config.message
                   : isErrorValidator
-                    ? INVALID_VALUE_ERR_MESSAGE
-                    : FIELD_HAS_WARNINGS_MESSAGE,
+                  ? INVALID_VALUE_ERR_MESSAGE
+                  : FIELD_HAS_WARNINGS_MESSAGE,
               },
             ]
           : [];

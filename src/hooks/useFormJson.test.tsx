@@ -45,42 +45,28 @@ mockOpenmrsFetch.mockImplementation(jest.fn());
 when(mockOpenmrsFetch)
   .calledWith(buildPath(PARENT_FORM_NAME))
   .mockResolvedValue({ data: { results: [nestedForm1Skeleton] } });
-when(mockOpenmrsFetch)
-  .calledWith(buildPath(PARENT_FORM_UUID))
-  .mockResolvedValue({ data: nestedForm1Skeleton });
-when(mockOpenmrsFetch)
-  .calledWith(buildPath(PARENT_FORM_SCHEMA_VALUE_REF))
-  .mockResolvedValue({ data: nestedForm1Body });
+when(mockOpenmrsFetch).calledWith(buildPath(PARENT_FORM_UUID)).mockResolvedValue({ data: nestedForm1Skeleton });
+when(mockOpenmrsFetch).calledWith(buildPath(PARENT_FORM_SCHEMA_VALUE_REF)).mockResolvedValue({ data: nestedForm1Body });
 
 // sub form
 when(mockOpenmrsFetch)
   .calledWith(buildPath(SUB_FORM_NAME))
   .mockResolvedValue({ data: { results: [nestedForm2Skeleton] } });
-when(mockOpenmrsFetch)
-  .calledWith(buildPath(SUB_FORM_UUID))
-  .mockResolvedValue({ data: nestedForm2Skeleton });
-when(mockOpenmrsFetch)
-  .calledWith(buildPath(SUB_FORM_SCHEMA_VALUE_REF))
-  .mockResolvedValue({ data: nestedForm2Body });
+when(mockOpenmrsFetch).calledWith(buildPath(SUB_FORM_UUID)).mockResolvedValue({ data: nestedForm2Skeleton });
+when(mockOpenmrsFetch).calledWith(buildPath(SUB_FORM_SCHEMA_VALUE_REF)).mockResolvedValue({ data: nestedForm2Body });
 
 // mini form
 when(mockOpenmrsFetch)
   .calledWith(buildPath(MINI_FORM_NAME))
   .mockResolvedValue({ data: { results: [miniFormSkeleton] } });
-when(mockOpenmrsFetch)
-  .calledWith(buildPath(MINI_FORM_UUID))
-  .mockResolvedValue({ data: miniFormSkeleton });
-when(mockOpenmrsFetch)
-  .calledWith(buildPath(MINI_FORM_SCHEMA_VALUE_REF))
-  .mockResolvedValue({ data: miniFormBody });
+when(mockOpenmrsFetch).calledWith(buildPath(MINI_FORM_UUID)).mockResolvedValue({ data: miniFormSkeleton });
+when(mockOpenmrsFetch).calledWith(buildPath(MINI_FORM_SCHEMA_VALUE_REF)).mockResolvedValue({ data: miniFormBody });
 
 // form components
 when(mockOpenmrsFetch)
   .calledWith(buildPath(COMPONENT_FORM_NAME))
   .mockResolvedValue({ data: { results: [formComponentSkeleton] } });
-when(mockOpenmrsFetch)
-  .calledWith(buildPath(COMPONENT_FORM_UUID))
-  .mockResolvedValue({ data: formComponentSkeleton });
+when(mockOpenmrsFetch).calledWith(buildPath(COMPONENT_FORM_UUID)).mockResolvedValue({ data: formComponentSkeleton });
 when(mockOpenmrsFetch)
   .calledWith(buildPath(COMPONENT_FORM_SCHEMA_VALUE_REF))
   .mockResolvedValue({ data: formComponentBody });
@@ -88,9 +74,7 @@ when(mockOpenmrsFetch)
 when(mockOpenmrsFetch)
   .calledWith(buildPath(COMPONENT_ART))
   .mockResolvedValue({ data: { results: [artComponentSkeleton] } });
-when(mockOpenmrsFetch)
-  .calledWith(buildPath(COMPONENT_ART_UUID))
-  .mockResolvedValue({ data: artComponentSkeleton });
+when(mockOpenmrsFetch).calledWith(buildPath(COMPONENT_ART_UUID)).mockResolvedValue({ data: artComponentSkeleton });
 when(mockOpenmrsFetch)
   .calledWith(buildPath(COMPONENT_ART_SCHEMA_VALUE_REF))
   .mockResolvedValue({ data: artComponentBody });

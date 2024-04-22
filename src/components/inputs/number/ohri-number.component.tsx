@@ -47,7 +47,6 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
     }
   }, [previousValue]);
 
-
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
       return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);

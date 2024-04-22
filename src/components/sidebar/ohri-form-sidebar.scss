@@ -24,7 +24,7 @@
   }
 
   .sidebarList {
-    max-Height: 200px;
+    max-height: 200px;
     overflow-y: scroll;
   }
 }
@@ -47,7 +47,7 @@
   height: 2rem;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; 
+  text-overflow: ellipsis;
   padding: 0.25rem 0.5rem;
   background-color: colors.$white-0;
   cursor: pointer;

@@ -6,7 +6,7 @@ import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { fieldRequiredErrCode } from '../../../validators/ohri-form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
-import {  isInlineView } from '../../../utils/ohri-form-helper';
+import { isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import styles from './ohri-text.scss';
 
@@ -57,7 +57,12 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
-    <OHRIFieldValueView label={question.label} value={field.value} conceptName={question.meta?.concept?.display} isInline={isInline} />
+    <OHRIFieldValueView
+      label={question.label}
+      value={field.value}
+      conceptName={question.meta?.concept?.display}
+      isInline={isInline}
+    />
   ) : (
     !question.isHidden && (
       <>

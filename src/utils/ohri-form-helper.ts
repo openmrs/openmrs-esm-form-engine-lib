@@ -44,7 +44,6 @@ export function inferInitialValueFromDefaultFieldValue(
   }
 }
 
-
 export function isInlineView(
   renderingType: 'single-line' | 'multiline' | 'automatic',
   layoutType: LayoutType,
