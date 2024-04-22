@@ -1,19 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
-import { OHRIFormFieldProps } from '../../../api/types';
-import { OHRIFormContext } from '../../../ohri-form-context';
-import { fieldRequiredErrCode } from '../../../validators/ohri-form-validator';
+import { type FormFieldProps } from '../../../types';
+import { FormContext } from '../../../form-context';
+import { fieldRequiredErrCode } from '../../../validators/form-validator';
 import { DatePicker } from '@carbon/react';
 import { DatePickerInput } from '@carbon/react';
-import styles from './inline-date.scss';
 import { useField } from 'formik';
+
+import styles from './inline-date.scss';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
 
-const InlineDate: React.FC<OHRIFormFieldProps> = ({ question, handler, previousValue }) => {
+const InlineDate: React.FC<FormFieldProps> = ({ question, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
+  const { setFieldValue } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
@@ -28,6 +29,7 @@ const InlineDate: React.FC<OHRIFormFieldProps> = ({ question, handler, previousV
   const onDateChange = ([date]) => {
     const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
     setFieldValue(question.id, refinedDate);
+    question.value = '';
   };
 
   const { placeholder, carbonDateformat } = useMemo(() => {
@@ -74,7 +76,7 @@ const InlineDate: React.FC<OHRIFormFieldProps> = ({ question, handler, previousV
           <DatePickerInput
             id={question.id}
             placeholder={placeholder}
-            labelText={question.label}
+            labelText={` Date of ${question.label}`}
             value={field.value instanceof Date ? field.value.toLocaleDateString(locale) : field.value}
             onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
             disabled={question.disabled}

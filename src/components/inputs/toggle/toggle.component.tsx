@@ -8,8 +8,10 @@ import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { isEmpty } from '../../../validators/form-validator';
 import { booleanConceptToBoolean } from '../../../utils/common-expression-helpers';
-import styles from './toggle.scss';
 import { useTranslation } from 'react-i18next';
+import InlineDate from '../inline-date/inline-date.component';
+
+import styles from './toggle.scss';
 
 const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -67,6 +69,11 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
           disabled={question.disabled}
           readOnly={question.readonly}
         />
+        {question.questionOptions.showDate && (
+          <div style={{ marginTop: '5px' }}>
+            <InlineDate question={question} onChange={() => {}} handler={undefined} />
+          </div>
+        )}
       </div>
     )
   );

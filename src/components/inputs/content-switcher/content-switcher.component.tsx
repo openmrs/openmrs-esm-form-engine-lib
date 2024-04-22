@@ -9,6 +9,8 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
+import InlineDate from '../inline-date/inline-date.component';
+
 import styles from './content-switcher.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
@@ -78,6 +80,11 @@ const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler
             />
           ))}
         </CdsContentSwitcher>
+        {question.questionOptions.showDate && (
+          <div style={{ marginTop: '5px' }}>
+            <InlineDate question={question} onChange={() => {}} handler={undefined} />
+          </div>
+        )}
       </FormGroup>
     )
   );

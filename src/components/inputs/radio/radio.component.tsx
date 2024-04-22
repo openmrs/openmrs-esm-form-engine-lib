@@ -9,6 +9,8 @@ import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
+import InlineDate from '../inline-date/inline-date.component';
+
 import styles from './radio.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
@@ -79,6 +81,11 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
             </div>
           </div>
         )}
+        {question.questionOptions.showDate === 'true' ? (
+          <div style={{ marginTop: '5px' }}>
+            <InlineDate question={question} onChange={() => {}} handler={undefined} />
+          </div>
+        ) : null}
       </FormGroup>
     )
   );

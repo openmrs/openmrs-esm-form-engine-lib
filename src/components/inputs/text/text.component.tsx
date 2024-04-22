@@ -9,6 +9,8 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
+import InlineDate from '../inline-date/inline-date.component';
+
 import styles from './text.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
@@ -78,6 +80,11 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
             />
           </Layer>
         </div>
+        {question.questionOptions.showDate && (
+          <div style={{ marginTop: '5px' }}>
+            <InlineDate question={question} onChange={() => {}} handler={undefined} />
+          </div>
+        )}
       </>
     )
   );

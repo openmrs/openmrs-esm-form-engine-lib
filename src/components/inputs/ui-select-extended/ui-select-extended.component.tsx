@@ -12,6 +12,8 @@ import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
+import InlineDate from '../inline-date/inline-date.component';
+
 import styles from './ui-select-extended.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
@@ -164,6 +166,11 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
               }
             }}
           />
+          {question.questionOptions.showDate && (
+            <div style={{ marginTop: '5px' }}>
+              <InlineDate question={question} onChange={() => {}} handler={undefined} />
+            </div>
+          )}
         </Layer>
       </div>
     )
