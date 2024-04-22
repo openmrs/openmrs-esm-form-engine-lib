@@ -58,6 +58,9 @@ export interface ValidationResult {
 export interface HideProps {
   hideWhenExpression: string;
 }
+export interface DisableProps {
+  disableWhenExpression: string;
+}
 
 export interface FormSchema {
   name: string;
@@ -156,6 +159,12 @@ export interface FormSection {
   reference?: FormReference;
 }
 
+export interface OHRIFormQuestionAnswerOption {
+  hide?: HideProps;
+  disable?: DisableProps;
+  [key: string]: any
+}
+
 export interface FormQuestionOptions {
   extensionId?: string;
   extensionSlotName?: string;
@@ -173,7 +182,7 @@ export interface FormQuestionOptions {
   maxLength?: string;
   minLength?: string;
   showDate?: string;
-  answers?: Array<Record<any, any>>;
+  answers?: Array<OHRIFormQuestionAnswerOption>;
   weeksList?: string;
   locationTag?: string;
   rows?: number;

@@ -41,6 +41,21 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
     }
   }, [question['submission']]);
 
+  const isAnswerDisabled = (answer: OHRIFormQuestionAnswerOption) => {
+    if(!isEmpty(answer.disable?.disableWhenExpression)) {
+      return evaluateExpression(
+        answer.disable.disableWhenExpression,
+        { value: question, type: 'field' },
+        allFormFields,
+        values,
+        {
+          mode: encounterContext.sessionMode,
+          patient: encounterContext.patient,
+        },
+      );
+    }
+    return null;
+  }
   const questionItems = question.questionOptions.answers
     .filter((answer) => !answer.isHidden)
     .map((answer, index) => ({
@@ -48,6 +63,7 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
       concept: answer.concept,
       label: answer.label,
       key: index,
+      disabled: isTrue(isAnswerDisabled(answer))
     }));
 
   const initiallySelectedQuestionItems = [];
