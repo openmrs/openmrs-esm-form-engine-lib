@@ -116,9 +116,6 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
 
 function ErrorFallback({ error }) {
   const { t } = useTranslation();
-  // TODOS:
-  // 1. Handle internationalization
-  // 2. Show a more descriptive error message about the field
   return (
     <ToastNotification
       ariaLabel={t('closesNotification', 'Closes notification')}
