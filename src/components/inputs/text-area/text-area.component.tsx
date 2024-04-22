@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Layer, TextArea as TextAreaInput } from '@carbon/react';
 import { useField } from 'formik';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
@@ -55,11 +54,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     />
   ) : (
     !question.isHidden && (
-      <div
-        className={classNames({
-          [styles.errorLabel]: isFieldRequiredError,
-          [styles.boldedLabel]: !isFieldRequiredError,
-        })}>
+      <div className={styles.boldedLabel}>
         <Layer>
           <TextAreaInput
             {...field}
@@ -74,9 +69,9 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             disabled={question.disabled}
             readOnly={question.readonly}
             invalid={errors.length > 0}
-            invalidText={errors.length && errors[0].message}
+            invalidText={errors[0]?.message}
             warn={warnings.length > 0}
-            warnText={warnings.length && warnings[0].message}
+            warnText={warnings[0]?.message}
           />
         </Layer>
       </div>

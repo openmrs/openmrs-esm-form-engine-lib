@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Dropdown as DropdownInput, Layer } from '@carbon/react';
 import { useField } from 'formik';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
@@ -58,7 +58,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     />
   ) : (
     !question.isHidden && (
-      <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
+      <div className={styles.boldedLabel}>
         <Layer>
           <DropdownInput
             id={question.id}
@@ -75,9 +75,9 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             disabled={question.disabled}
             readOnly={question.readonly}
             invalid={errors.length > 0}
-            invalidText={errors.length && errors[0].message}
+            invalidText={errors[0]?.message}
             warn={warnings.length > 0}
-            warnText={warnings.length ? warnings[0].message : ''}
+            warnText={warnings[0]?.message}
           />
         </Layer>
       </div>

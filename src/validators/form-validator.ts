@@ -3,15 +3,18 @@ import { isTrue } from '../utils/boolean-utils';
 
 export const fieldRequiredErrCode = 'field.required';
 export const fieldOutOfBoundErrCode = 'field.outOfBound';
+export const fieldConditionalRequiredErrCode = 'field.conditionalRequired';
 
 export const FieldValidator: FormFieldValidator = {
-  validate: (field: FormField, value: any) => {
+  validate: (field: FormField, value: any, formValues: Record<string, any> ) => {
     if (field.meta?.submission?.unspecified) {
       return [];
     }
-    if (isTrue(field.required) || isTrue(field.unspecified)) {
-      if (isEmpty(value)) {
-        return addError(fieldRequiredErrCode, 'Field is mandatory');
+    if (isEmpty(value)) {
+      if (  (typeof field.required === 'string' || typeof field.required === 'boolean' && isTrue(field.required)) || isTrue(field.unspecified)) {
+          return addError(fieldRequiredErrCode, 'Field is mandatory');
+      } else if (typeof field.required === 'object' && field.required?.type === "conditionalRequired" && !isEmpty(formValues) &&  field.required?.referenceQuestionAnswers.includes(formValues[field.required?.referenceQuestionId])) {
+            return addError(fieldConditionalRequiredErrCode, field.required.message);
       }
     }
     if (field.questionOptions.rendering === 'text') {

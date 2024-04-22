@@ -1,12 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import classNames from 'classnames';
 import isEmpty from 'lodash-es/isEmpty';
-import { useTranslation } from 'react-i18next';
 import { Layer, TextInput } from '@carbon/react';
 import { useField } from 'formik';
 import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
-import { fieldRequiredErrCode } from '../../../validators/form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -63,7 +60,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   ) : (
     !question.isHidden && (
       <>
-        <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
+        <div className={styles.boldedLabel}>
           <Layer>
             <TextInput
               {...field}
@@ -76,7 +73,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
               disabled={question.disabled}
               readOnly={Boolean(question.readonly)}
               invalid={errors.length > 0}
-              invalidText={errors.length && errors[0].message}
+              invalidText={errors[0]?.message}
               warn={warnings.length > 0}
               warnText={warnings.length && warnings[0].message}
               maxLength={question.questionOptions.max || TextInput.maxLength}
