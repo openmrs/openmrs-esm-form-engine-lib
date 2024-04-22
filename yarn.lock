@@ -3376,7 +3376,7 @@ __metadata:
     semver: "npm:^7.3.5"
     swc-loader: "npm:^0.2.3"
     swr: "npm:^2.2.4"
-    turbo: "npm:^1.8.5"
+    turbo: "npm:^1.13.2"
     typescript: "npm:^4.0.3"
     webpack: "npm:^5.76.2"
     webpack-cli: "npm:^5.0.1"
@@ -16843,7 +16843,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"turbo@npm:^1.8.5":
+"turbo@npm:^1.13.2":
   version: 1.13.2
   resolution: "turbo@npm:1.13.2"
   dependencies:
