@@ -212,6 +212,7 @@ export type RenderType =
   | 'textarea'
   | 'toggle'
   | 'fixed-value'
+  | 'workspace-launcher'
   | 'file';
 
 export interface PostSubmissionAction {
