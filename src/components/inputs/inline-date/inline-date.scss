@@ -1,0 +1,17 @@
+@use '@carbon/colors';
+
+.boldedLabel label {
+  font-weight: 600;
+  color: colors.$black-100;
+}
+
+.errorLabel label {
+  color: colors.$red-60;
+  font-weight: 600;
+}
+
+.datetime {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
