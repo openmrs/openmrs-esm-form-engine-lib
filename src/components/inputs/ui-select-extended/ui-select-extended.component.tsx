@@ -30,11 +30,6 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   const [config, setConfig] = useState({});
   const [savedSearchableItem, setSavedSearchableItem] = useState({});
 
-  interface DisplayableItem {
-    uuid: string;
-    display: string;
-  }
-
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
       return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);

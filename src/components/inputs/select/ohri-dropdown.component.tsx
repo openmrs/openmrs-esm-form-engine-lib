@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dropdown } from '@carbon/react';
 import { useField } from 'formik';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
@@ -10,6 +11,7 @@ import { OHRIFormFieldProps } from '../../../api/types';
 import styles from './ohri-dropdown.scss';
 
 const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
+  const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
   const [items, setItems] = React.useState([]);
@@ -71,7 +73,7 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
         <Dropdown
           id={question.id}
           titleText={question.label}
-          label="Choose an option"
+          label={t('chooseAnOption', 'Choose an option')}
           items={question.questionOptions.answers
             .filter((answer) => !answer.isHidden)
             .map((item) => item.value || item.concept)}

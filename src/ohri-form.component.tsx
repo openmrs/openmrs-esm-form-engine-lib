@@ -280,8 +280,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       onSubmit={(values, { setSubmitting }) => {
         handleFormSubmit(values);
         setSubmitting(false);
-      }}
-    >
+      }}>
       {(props) => {
         setIsFormTouched(props.dirty);
 
@@ -316,7 +315,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     />
                   )}
                   <div className={styles.formContent}>
-                    {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow={true} />}
+                    {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow />}
                     {refinedFormJson.markdown && (
                       <div className={styles.markdownContainer}>
                         <MarkdownWrapper markdown={refinedFormJson.markdown} />
@@ -325,12 +324,11 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     <div
                       className={`${styles.formContentBody}
                     ${
-                      workspaceLayout === 'minimized' || sessionMode == 'view'
+                      workspaceLayout === 'minimized' || sessionMode === 'view'
                         ? `${styles.minifiedFormContentBody}`
                         : ''
                     }
-                  `}
-                    >
+                  `}>
                       <OHRIEncounterForm
                         formJson={refinedFormJson}
                         patient={patient}
@@ -367,8 +365,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
 
                             onCancel && onCancel();
                             handleClose && handleClose();
-                          }}
-                        >
+                          }}>
                           {mode === 'view' ? 'Close' : 'Cancel'}
                         </Button>
                         <Button type="submit" disabled={mode === 'view' || isSubmitting}>

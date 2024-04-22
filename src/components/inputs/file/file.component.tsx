@@ -8,7 +8,7 @@ import { isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import Camera from '../camera/camera.component';
 import { Close, DocumentPdf } from '@carbon/react/icons';
-import styles from './file.component.scss';
+import styles from './file.scss';
 import { createAttachment } from '../../../utils/common-utils';
 
 interface FileProps extends OHRIFormFieldProps {}
@@ -85,12 +85,12 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
       <div className={styles.uploadSelector}>
         <div className={styles.selectorButton}>
           <Button disabled={true} onClick={() => setUploadMode('uploader')}>
-            Upload image
+            {t('uploadImage', 'Upload image')}
           </Button>
         </div>
         <div className={styles.selectorButton}>
           <Button disabled={true} onClick={() => setUploadMode('camera')}>
-            Camera capture
+            {t('cameraCapture', 'Camera capture')}
           </Button>
         </div>
       </div>
@@ -101,7 +101,7 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
               <DocumentPdf size={24} />
             </div>
           ) : (
-            <img src={attachmentValue.src} alt="Preview" width="200px" />
+            <img src={attachmentValue.src} alt={t('preview', 'Preview')} width="200px" />
           )}
         </div>
       </div>
@@ -139,7 +139,7 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
             filenameStatus="edit"
             iconDescription="Clear file"
             labelDescription={labelDescription}
-            labelTitle={t('fileUploadTitle', 'Upload')}
+            labelTitle={t('upload', 'Upload')}
             multiple={question.questionOptions.allowMultiple}
             onChange={handleFileChange}
           />
@@ -151,7 +151,7 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
             <p className={styles.titleStyles}>Camera</p>
             <p className={styles.descriptionStyles}>Capture image via camera</p>
             <Button onClick={() => setCameraWidgetVisible((prevState) => !prevState)} size="md">
-              {cameraWidgetVisible ? 'Close camera' : 'Add camera image'}
+              {cameraWidgetVisible ? t('closeCamera', 'Close camera') : t('addCameraImage', 'Add camera image')}
             </Button>
           </div>
           {cameraWidgetVisible && (
@@ -162,9 +162,9 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
           {imagePreview && (
             <div className={styles.capturedImage}>
               <div className={styles.imageContent}>
-                <img src={imagePreview} alt="Preview" width="200px" />
+                <img src={imagePreview} alt={t('preview', 'Preview')} width="200px" />
                 <div className={styles.Caption}>
-                  <p>{'Camera uploaded photo'}</p>
+                  <p>{t('uploadedPhoto', 'Uploaded photo')}</p>
                   <div
                     tabIndex={0}
                     role="button"
