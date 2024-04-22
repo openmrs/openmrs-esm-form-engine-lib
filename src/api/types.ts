@@ -118,6 +118,10 @@ export interface OHRIFormField {
   behaviours?: Array<Record<string, any>>;
   questionInfo?: string;
   constrainMaxWidth?: boolean;
+  meta?: { 
+    concept? : OpenmrsResource,
+    [anythingElse: string]: any;
+  };
 }
 export interface previousValue {
   field: string;

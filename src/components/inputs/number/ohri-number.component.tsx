@@ -3,7 +3,7 @@ import { NumberInput } from '@carbon/react';
 import { useField } from 'formik';
 import { isTrue } from '../../../utils/boolean-utils';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
-import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
@@ -12,7 +12,6 @@ import styles from './ohri-number.scss';
 const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
-  const [conceptName, setConceptName] = useState('Loading...');
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [warnings, setWarnings] = useState([]);
@@ -48,11 +47,6 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
     }
   }, [previousValue]);
 
-  useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
-      setConceptName(conceptTooltip);
-    });
-  }, [conceptName]);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -66,7 +60,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
       <OHRIFieldValueView
         label={question.label}
         value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={conceptName}
+        conceptName={question.meta?.concept?.display}
         isInline={isInline}
       />
     </div>

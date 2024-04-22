@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { useField } from 'formik';
 import { DatePicker, DatePickerInput, TimePicker } from '@carbon/react';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
-import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isInlineView } from '../../../utils/ohri-form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
@@ -19,7 +19,6 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
-  const [conceptName, setConceptName] = useState('Loading...');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [time, setTime] = useState('');
@@ -129,12 +128,6 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   }, [encounterContext?.previousEncounter]);
 
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
-      setConceptName(conceptTooltip);
-    });
-  }, [conceptName]);
-
-  useEffect(() => {
     if (!time && field.value) {
       if (field.value instanceof Date) {
         const hours = field.value.getHours() < 10 ? `0${field.value.getHours()}` : `${field.value.getHours()}`;
@@ -148,7 +141,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
     <OHRIFieldValueView
       label={question.label}
       value={field.value instanceof Date ? getDisplay(field.value, question.questionOptions.rendering) : field.value}
-      conceptName={conceptName}
+      conceptName={question.meta?.concept?.display}
       isInline={isInline}
     />
   ) : (

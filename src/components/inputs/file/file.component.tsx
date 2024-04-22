@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
 import { isTrue } from '../../../utils/boolean-utils';
-import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import Camera from '../camera/camera.component';
 import { Close, DocumentPdf } from '@carbon/react/icons';
@@ -21,7 +21,6 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
   const [selectedFiles, setSelectedFiles] = useState(null); // Add state for selected files
   const [imagePreview, setImagePreview] = useState(null);
-  const [conceptName, setConceptName] = useState('Loading...');
   const [uploadMode, setUploadMode] = useState<AllowedModes>('');
 
   useEffect(() => {
@@ -79,12 +78,6 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
     setFieldValue(question.id, newImage);
     question.value = handler?.handleFieldSubmission(question, newImage, encounterContext);
   };
-
-  useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
-      setConceptName(conceptTooltip);
-    });
-  }, [conceptName]);
 
   return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
     <div>

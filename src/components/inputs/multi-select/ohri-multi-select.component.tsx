@@ -7,7 +7,7 @@ import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIValueEmpty } from '../../value/ohri-value.component';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
-import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isInlineView } from '../../../utils/ohri-form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import styles from './ohri-multi-select.scss';
 
@@ -19,7 +19,6 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
   const [warnings, setWarnings] = useState([]);
   const [counter, setCounter] = useState(0);
   const [touched, setTouched] = useState(false);
-  const [conceptName, setConceptName] = useState('Loading...');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   useEffect(() => {
@@ -74,12 +73,6 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
     }
   }, [previousValue]);
 
-  useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
-      setConceptName(conceptTooltip);
-    });
-  }, [conceptName]);
-
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
       return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
@@ -92,7 +85,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
       <OHRIFieldValueView
         label={question.label}
         value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={conceptName}
+        conceptName={question.meta?.concept?.display}
         isInline={isInline}
       />
     </div>

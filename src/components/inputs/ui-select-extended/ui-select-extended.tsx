@@ -4,7 +4,7 @@ import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
 import styles from './ui-select-extended.scss';
 import { OHRIFormContext } from '../../../ohri-form-context';
-import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { isTrue } from '../../../utils/boolean-utils';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
@@ -18,7 +18,6 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
-  const [conceptName, setConceptName] = useState('Loading...');
   const [items, setItems] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const [errors, setErrors] = useState([]);
@@ -125,12 +124,6 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
     }
   }, [field.value]);
 
-  useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
-      setConceptName(conceptTooltip);
-    });
-  }, [conceptName]);
-
   return encounterContext.sessionMode == 'view' ||
     encounterContext.sessionMode == 'embedded-view' ||
     isTrue(question.readonly) ? (
@@ -141,7 +134,7 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
           ? handler?.getDisplayValue(question, items.find((item) => item.uuid == field.value)?.display)
           : field.value
       }
-      conceptName={conceptName}
+      conceptName={question.meta?.concept?.display}
       isInline={isInline}
     />
   ) : (
