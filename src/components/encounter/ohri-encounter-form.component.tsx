@@ -131,13 +131,7 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           page.inlineRendering = isEmpty(page.inlineRendering) ? null : page.inlineRendering;
           form.inlineRendering = isEmpty(form.inlineRendering) ? null : form.inlineRendering;
           question.inlineRendering = section.inlineRendering ?? page.inlineRendering ?? form.inlineRendering;
-          // Added to resolve issue with readonly property not being evaluated correctly
-          let sectionReadonly =
-            typeof section.readonly === 'string' ? section.readonly.toLowerCase() === 'true' : section.readonly;
-          let pageReadonly = typeof page.readonly === 'string' ? page.readonly.toLowerCase() === 'true' : page.readonly;
-          let formReadonly = typeof form.readonly === 'string' ? form.readonly.toLowerCase() === 'true' : form.readonly;
-          evaluateFieldReadonlyProp(question, sectionReadonly, pageReadonly, formReadonly);
-
+          evaluateFieldReadonlyProp(question, section.readonly, page.readonly, form.readonly);
           if (question.questionOptions.rendering == 'fixed-value' && !question['fixedValue']) {
             question['fixedValue'] = question.value;
           }

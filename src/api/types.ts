@@ -112,7 +112,7 @@ export interface OHRIFormField {
   required?: boolean;
   unspecified?: boolean;
   disabled?: boolean;
-  readonly?: boolean;
+  readonly?: string | boolean;
   inlineRendering?: 'single-line' | 'multiline' | 'automatic';
   validators?: Array<Record<string, any>>;
   behaviours?: Array<Record<string, any>>;
