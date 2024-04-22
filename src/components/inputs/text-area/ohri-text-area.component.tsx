@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { TextArea } from '@carbon/react';
 import { useField } from 'formik';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
-import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isInlineView } from '../../../utils/ohri-form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { OHRIFormContext } from '../../../ohri-form-context';
@@ -19,7 +19,6 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
   const [previousValue, setPreviousValue] = useState();
   const [errors, setErrors] = useState([]);
-  const [conceptName, setConceptName] = useState('Loading...');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [warnings, setWarnings] = useState([]);
 
@@ -48,12 +47,6 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({
     }
   }, [previousValueProp]);
 
-  useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
-      setConceptName(conceptTooltip);
-    });
-  }, [conceptName]);
-
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
       return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
@@ -62,7 +55,7 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
-    <OHRIFieldValueView label={question.label} value={field.value} conceptName={conceptName} isInline={isInline} />
+    <OHRIFieldValueView label={question.label} value={field.value} conceptName={question.meta?.concept?.display} isInline={isInline} />
   ) : (
     !question.isHidden && (
       <div className={isFieldRequiredError ? styles.errorLabel : styles.boldedLabel}>

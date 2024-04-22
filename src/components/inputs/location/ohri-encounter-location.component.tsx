@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ComboBox } from '@carbon/react';
 import { useField } from 'formik';
 import { createErrorHandler } from '@openmrs/esm-framework';
-import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isInlineView } from '../../../utils/ohri-form-helper';
 import { getAllLocations, getLocationsByTag } from '../../../api/api';
 import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFormField } from '../../../api/types';
@@ -15,7 +15,6 @@ export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; on
   const { setEncounterLocation, setFieldValue, layoutType, workspaceLayout, encounterContext } =
     useContext(OHRIFormContext);
   const [locations, setLocations] = useState([]);
-  const [conceptName, setConceptName] = useState('Loading...');
   const isProcessingSelection = useRef(false);
   const [inputValue, setInputValue] = useState('');
 
@@ -42,18 +41,12 @@ export const OHRIEncounterLocationPicker: React.FC<{ question: OHRIFormField; on
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
-      setConceptName(conceptTooltip);
-    });
-  }, [conceptName]);
-
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <div className={styles.formField}>
       <OHRIFieldValueView
         label={question.label}
         value={field.value ? field.value.display : field.value}
-        conceptName={conceptName}
+        conceptName={question.meta?.concept?.display}
         isInline={isInline}
       />
     </div>
