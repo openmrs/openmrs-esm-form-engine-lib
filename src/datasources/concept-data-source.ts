@@ -3,7 +3,7 @@ import { BaseOpenMRSDataSource } from './data-source';
 
 export class ConceptDataSource extends BaseOpenMRSDataSource {
   constructor() {
-    super(`${restBaseUrl}concept?name=&searchType=fuzzy&v=custom:(uuid,display,conceptClass:(uuid,display))`);
+    super(`${restBaseUrl}/concept?name=&searchType=fuzzy&v=custom:(uuid,display,conceptClass:(uuid,display))`);
   }
 
   fetchData(searchTerm: string, config?: Record<string, any>, uuid?: string): Promise<any[]> {
