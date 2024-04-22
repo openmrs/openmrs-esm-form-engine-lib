@@ -441,8 +441,8 @@ describe('OHRI Forms:', () => {
       fireEvent.change(lmpField, { target: { value: '2022-07-06' } });
 
       // verify
-      await act(async () => expect(lmpField.value).toBe('06/07/2022'));
-      await act(async () => expect(eddField.value).toBe('12/04/2023'));
+      await act(async () => expect(lmpField.value).toBe(dayjs('2022-07-06').toDate().toLocaleDateString(locale)));
+      await act(async () => expect(eddField.value).toBe(dayjs('2023-04-12').toDate().toLocaleDateString(locale)));
     });
 
     it('Should evaluate months on ART', async () => {
