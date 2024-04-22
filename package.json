@@ -96,10 +96,8 @@
     "dayjs": "^1.10.4"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --cache --fix",
-      "prettier --cache --write --ignore-unknown --list-different"
-    ]
+    "*.{ts,tsx}": "eslint --cache --fix --max-warnings 0",
+    "*.{css,scss,ts,tsx}": "prettier --write --list-different"
   },
   "packageManager": "yarn@4.1.1"
 }
