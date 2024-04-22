@@ -116,7 +116,12 @@ export interface FormField {
   fieldDependants?: Set<string>;
   pageDependants?: Set<string>;
   sectionDependants?: Set<string>;
-  required?: boolean;
+  required?: boolean | {
+    type?: string;
+    message?: string;
+    referenceQuestionId?: string;
+    referenceQuestionAnswers?: Array<string>;
+  }
   unspecified?: boolean;
   disabled?: boolean;
   readonly?: string | boolean;
