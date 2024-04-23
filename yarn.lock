@@ -3233,7 +3233,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openmrs/esm-framework@npm:5.5.1-pre.1717, @openmrs/esm-framework@npm:^5.5.1-pre.1717":
+"@openmrs/esm-framework@npm:5.5.1-pre.1717, @openmrs/esm-framework@npm:next":
   version: 5.5.1-pre.1717
   resolution: "@openmrs/esm-framework@npm:5.5.1-pre.1717"
   dependencies:
@@ -3423,7 +3423,7 @@ __metadata:
   resolution: "@openmrs/openmrs-form-engine-lib@workspace:."
   dependencies:
     "@carbon/react": "npm:^1.37.0"
-    "@openmrs/esm-framework": "npm:^5.5.1-pre.1717"
+    "@openmrs/esm-framework": "npm:next"
     "@openmrs/esm-patient-common-lib": "npm:next"
     "@swc/cli": "npm:^0.1.62"
     "@swc/core": "npm:^1.3.38"
@@ -3460,7 +3460,7 @@ __metadata:
     jest-when: "npm:^3.5.2"
     lint-staged: "npm:^15.2.2"
     lodash-es: "npm:^4.17.15"
-    openmrs: "npm:^5.5.1-pre.1717"
+    openmrs: "npm:next"
     prettier: "npm:^2.6.0"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
@@ -13663,7 +13663,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openmrs@npm:^5.5.1-pre.1717":
+"openmrs@npm:next":
   version: 5.5.1-pre.1717
   resolution: "openmrs@npm:5.5.1-pre.1717"
   dependencies:
