@@ -59,6 +59,11 @@ export interface HideProps {
   hideWhenExpression: string;
 }
 
+export interface DisableProps {
+  disableWhenExpression?: string;
+  isDisabled?: boolean;
+}
+
 export interface FormSchema {
   name: string;
   pages: Array<FormPage>;
@@ -158,8 +163,7 @@ export interface FormSection {
 
 export interface QuestionAnswerOption {
   hide?: HideProps;
-  disableWhenExpression?: string;
-  isDisabled?: boolean;
+  disable?: DisableProps;
   label?: string;
   concept?: string;
   [key: string]: any
@@ -182,7 +186,7 @@ export interface FormQuestionOptions {
   maxLength?: string;
   minLength?: string;
   showDate?: string;
-  answers?: Array<OHRIFormQuestionAnswerOption>;
+  answers?: Array<QuestionAnswerOption>;
   weeksList?: string;
   locationTag?: string;
   rows?: number;

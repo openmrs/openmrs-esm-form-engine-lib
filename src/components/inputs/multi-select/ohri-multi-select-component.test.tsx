@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, screen,  } from '@testing-library/react';
+import {fireEvent, render, screen,} from '@testing-library/react';
 import {OHRIMultiSelect} from "./ohri-multi-select.component";
 import {EncounterContext, OHRIFormContext} from "../../../ohri-form-context";
 import {Form, Formik} from "formik";
@@ -32,14 +32,16 @@ const testProps: OHRIFormFieldProps = {
         {
           concept: "a89b6440-1350-11df-a1f1-0026b9348838",
           label: "Scheduled visit",
-          disable: {
-            disableWhenExpression: "gender !== 'female'"
+          "disable": {
+            "disableWhenExpression": "sex !== 'F'"
           }
         },
         {
           concept: "a89ff816-1350-11df-a1f1-0026b9348838",
           label: "Unscheduled visit early",
-          disableWhenExpression: "hospReason === ''"
+          "disable": {
+            "disableWhenExpression": "nhif !== '8b715fed-97f6-4e38-8f6a-c167a42f8923'"
+          }
         },
         {
           concept: "a89ff8de-1350-11df-a1f1-0026b9348838",
@@ -77,7 +79,8 @@ const encounterContext: EncounterContext = {
   },
   sessionMode: 'enter',
   encounterDate: new Date(2023, 8, 29),
-  setEncounterDate: (value) => {},
+  setEncounterDate: (value) => {
+  },
   encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
   setEncounterProvider: jest.fn,
   setEncounterLocation: jest.fn,
@@ -100,7 +103,7 @@ const renderForm = (initialValues: Record<any, any>) => {
               fields: [testProps.question, ...otherTestQuestions],
               isFieldInitializationComplete: true,
               isSubmitting: false,
-              formFieldHandlers: { obs: ObsSubmissionHandler },
+              formFieldHandlers: {obs: ObsSubmissionHandler},
             }}>
             <OHRIMultiSelect {...testProps} />
           </OHRIFormContext.Provider>

@@ -9,6 +9,7 @@ import {
   SessionMode,
   ValidationResult,
   RepeatObsGroupCounter,
+  QuestionAnswerOption
 } from '../../types';
 import FormPage from '../page/form-page.component';
 import { FormContext } from '../../form-context';
@@ -232,11 +233,11 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
 
           //  this checks for expressions to disable checkbox options
           field.questionOptions.answers
-            ?.filter((answer: QuestionAnswerOption) => !isEmpty(answer.disableWhenExpression))
+            ?.filter((answer: QuestionAnswerOption) => !isEmpty(answer.disable?.disableWhenExpression))
             .forEach((answer: QuestionAnswerOption) => {
-              answer.isDisabled = evaluateExpression(
-                answer.disableWhenExpression,
-                { value: field, type: 'field' },
+              answer.disable.isDisabled = evaluateExpression(
+                answer.disable?.disableWhenExpression,
+                {value: field, type: 'field'},
                 flattenedFields,
                 tempInitialValues,
                 {
@@ -642,12 +643,28 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
           evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
           voidObsValueOnFieldHidden(dependant, obsGroupsToVoid, setFieldValue);
         }
+
         dependant?.questionOptions.answers
           ?.filter((answer) => !isEmpty(answer.hide?.hideWhenExpression))
           .forEach((answer) => {
             answer.isHidden = evaluateExpression(
               answer.hide?.hideWhenExpression,
-              { value: dependant, type: 'field' },
+              {value: dependant, type: 'field'},
+              fields,
+              {...values, [fieldName]: value},
+              {
+                mode: sessionMode,
+                patient,
+              },
+            );
+          });
+
+        dependant?.questionOptions.answers
+          ?.filter((answer) => !isEmpty(answer.disable?.isDisabled))
+          .forEach((answer) => {
+            answer.disable.isDisabled = evaluateExpression(
+              answer.disable?.disableWhenExpression,
+              {value: dependant, type: 'field'},
               fields,
               { ...values, [fieldName]: value },
               {
@@ -656,6 +673,7 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
               },
             );
           });
+
         // evaluate readonly
         if (!dependant.isHidden && dependant['readonlyExpression']) {
           dependant.readonly = evaluateExpression(
