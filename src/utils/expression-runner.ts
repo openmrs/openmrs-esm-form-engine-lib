@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 import { getRegisteredExpressionHelpers } from '../registry/registry';
 import { FormField, FormPage, FormSection } from '../types';
 import { CommonExpressionHelpers } from './common-expression-helpers';
+=======
+import { OHRIFormField, OHRIFormPage, OHRIFormSection, OpenmrsEncounter } from '../api/types';
+import { getRegisteredExpressionHelpers } from '../registry/registry';
+import { CommonExpressionHelpers, HistoricalDataSourceService } from './common-expression-helpers';
+>>>>>>> e1fe9dd (Getting the HD object to evaluate)
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
+import { EncounterContext } from '../ohri-form-context';
 
 export interface FormNode {
   value: FormPage | FormSection | FormField;
@@ -12,7 +19,10 @@ export interface ExpressionContext {
   mode: 'enter' | 'edit' | 'view' | 'embedded-view';
   myValue?: any;
   patient: any;
+  previousEncounter?: OpenmrsEncounter;
 }
+
+export const HD = new HistoricalDataSourceService();
 
 export function evaluateExpression(
   expression: string,
@@ -24,6 +34,9 @@ export function evaluateExpression(
   if (!expression?.trim()) {
     return null;
   }
+
+  console.log(context.previousEncounter);
+
   const allFieldsKeys = fields.map((f) => f.id);
   const parts = parseExpression(expression.trim());
   // register dependencies
@@ -32,9 +45,18 @@ export function evaluateExpression(
   let { myValue, patient } = context;
   const { sex, age } = patient && 'sex' in patient && 'age' in patient ? patient : { sex: undefined, age: undefined };
 
-  if (node.type === 'field' && myValue === undefined) {
+  if (node.type === 'field' && myValue === undefined && node.value) {
     myValue = fieldValues[node.value['id']];
   }
+
+  const HD = new HistoricalDataSourceService();
+
+  HD.putObject('prevEnc', {
+    value: context.previousEncounter,
+    getValue(concept) {
+      return this.value.obs.find((obs) => obs.concept.uuid == concept)?.value;
+    },
+  });
 
   const expressionContext = {
     ...new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys),
@@ -45,6 +67,7 @@ export function evaluateExpression(
     myValue,
     sex,
     age,
+    HD,
   };
 
   expression = linkReferencedFieldValues(fields, fieldValues, parts);
@@ -67,10 +90,15 @@ export async function evaluateAsyncExpression(
   if (!expression?.trim()) {
     return null;
   }
-  const allFieldsKeys = fields.map((f) => f.id);
-  let parts = parseExpression(expression.trim());
+
+  const allFieldsKeys = fields.map((f) => f.id); //extract ids from the fields
+  let parts = parseExpression(expression.trim()); //takes the trimmed expression and returns "tokens", whatever that means
+  // tokens are kinda like broken down pieces of the expression...
+  // console.log(parts);
+
   // register dependencies
-  findAndRegisterReferencedFields(node, parts, fields);
+  findAndRegisterReferencedFields(node, parts, fields); //what does this do????
+  //adds values to the determinants
 
   // setup function scope
   let { myValue, patient } = context;
@@ -90,6 +118,8 @@ export async function evaluateAsyncExpression(
     age,
     temporaryObjectsMap: {},
   };
+
+  // console.log(new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys));
 
   expression = linkReferencedFieldValues(fields, fieldValues, parts);
 

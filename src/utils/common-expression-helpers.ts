@@ -445,7 +445,23 @@ export class CommonExpressionHelpers {
   };
 }
 
+<<<<<<< HEAD
 export function registerDependency(node: FormNode, determinant: FormField) {
+=======
+export class HistoricalDataSourceService {
+  dataSourceMap: Record<string, any> = {};
+
+  putObject(key: string, value: any) {
+    this.dataSourceMap[key] = value;
+  }
+
+  getObject(key: string) {
+    return this.dataSourceMap[key];
+  }
+}
+
+export function registerDependency(node: FormNode, determinant: OHRIFormField) {
+>>>>>>> e1fe9dd (Getting the HD object to evaluate)
   if (!node || !determinant) {
     return;
   }

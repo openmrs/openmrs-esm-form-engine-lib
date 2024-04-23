@@ -8,11 +8,15 @@ import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { formatPreviousValueDisplayText, getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
 import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
 import { isTrue } from '../../utils/boolean-utils';
+<<<<<<< HEAD:src/components/section/form-section.component.tsx
 import { UnspecifiedField } from '../inputs/unspecified/unspecified.component';
 import { FormField, FormFieldProps, previousValue, SubmissionHandler } from '../../types';
 import { FormContext } from '../../form-context';
 import { Tooltip } from '../inputs/tooltip/tooltip.component';
 import styles from './form-section.scss';
+=======
+import { evaluateExpression, HD } from '../../utils/expression-runner';
+>>>>>>> e1fe9dd (Getting the HD object to evaluate):src/components/section/ohri-form-section.component.tsx
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<FormFieldProps>;
@@ -44,7 +48,27 @@ const FormSection = ({ fields, onFieldChange }) => {
           .filter((entry) => entry?.fieldComponent)
           .map((entry, index) => {
             const { fieldComponent: FieldComponent, fieldDescriptor, handler } = entry;
+<<<<<<< HEAD:src/components/section/form-section.component.tsx
             const rendering = fieldDescriptor.questionOptions.rendering;
+=======
+
+            if (fieldDescriptor.historicalExpression) {
+              const historicalValue = evaluateExpression(
+                fieldDescriptor.historicalExpression,
+                { value: fieldDescriptor, type: 'field' },
+                fieldsFromEncounter,
+                encounterContext.initValues,
+                {
+                  mode: encounterContext.sessionMode,
+                  patient: encounterContext.patient,
+                  previousEncounter: encounterContext.previousEncounter,
+                },
+              );
+
+              console.log(historicalValue);
+            }
+
+>>>>>>> e1fe9dd (Getting the HD object to evaluate):src/components/section/ohri-form-section.component.tsx
             const previousFieldValue = encounterContext.previousEncounter
               ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)
               : null;
