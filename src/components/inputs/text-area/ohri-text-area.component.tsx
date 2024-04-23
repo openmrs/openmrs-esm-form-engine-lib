@@ -55,7 +55,12 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
-    <OHRIFieldValueView label={question.label} value={field.value} conceptName={question.meta?.concept?.display} isInline={isInline} />
+    <OHRIFieldValueView
+      label={question.label}
+      value={field.value}
+      conceptName={question.meta?.concept?.display}
+      isInline={isInline}
+    />
   ) : (
     !question.isHidden && (
       <div className={isFieldRequiredError ? styles.errorLabel : styles.boldedLabel}>
