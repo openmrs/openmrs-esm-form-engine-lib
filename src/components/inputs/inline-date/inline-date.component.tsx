@@ -12,7 +12,6 @@ import styles from './inline-date.scss';
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
 
-
 const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue } = React.useContext(FormContext);
@@ -29,6 +28,7 @@ const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => 
 
   const onDateChange = ([date]) => {
     const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
+    setFieldValue(`inline-${question.id}`, refinedDate);
     setObsDateTime(refinedDate);
   };
 
@@ -74,7 +74,7 @@ const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => 
           className={`${styles.boldedLabel} ${isFieldRequiredError ? styles.errorLabel : ''}`}
           dateFormat={carbonDateformat}>
           <DatePickerInput
-            id={question.id}
+            id={`inline-${question.id}`}
             placeholder={placeholder}
             labelText={` Date of ${question.label}`}
             value={field.value instanceof Date ? field.value.toLocaleDateString(locale) : field.value}
