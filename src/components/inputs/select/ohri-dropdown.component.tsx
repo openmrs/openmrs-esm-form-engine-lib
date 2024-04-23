@@ -86,7 +86,7 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
           invalid={!isFieldRequiredError && errors.length > 0}
           invalidText={errors.length && errors[0].message}
           warn={warnings.length > 0}
-          warnText={warnings.length && warnings[0].message}
+          warnText={warnings.length ? warnings[0].message : ''}
         />
       </div>
     )

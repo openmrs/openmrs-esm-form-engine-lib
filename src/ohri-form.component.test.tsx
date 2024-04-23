@@ -379,7 +379,7 @@ describe('OHRI Forms:', () => {
     });
   });
 
-  describe('Calcuated values', () => {
+  describe('Calculated values', () => {
     afterEach(() => {
       cleanup();
     });
@@ -641,7 +641,7 @@ describe('OHRI Forms:', () => {
       //Add repeat group
       await act(async () => fireEvent.click(addButton));
 
-      const deleteButton = await screen.findByRole('button', { name: 'danger' });
+      const deleteButton = await screen.findByRole('button', { name: /remove group/i });
       femaleRadios = await findAllRadioGroupMembers(screen, 'Female');
       maleRadios = await findAllRadioGroupMembers(screen, 'Male');
       birthDateFields = await findAllTextOrDateInputs(screen, 'Date of Birth');
