@@ -10,15 +10,16 @@ import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import InlineDate from '../inline-date/inline-date.component';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 import styles from './text.scss';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const [obsDate, setObsDate] = useState<Date>();
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
@@ -35,7 +36,13 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     }
     if (previousValue !== field.value) {
       onChange(question.id, field.value, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, field.value, encounterContext);
+      question.value =
+        obsDate === undefined
+          ? handler?.handleFieldSubmission(question, field?.value, encounterContext)
+          : handler?.handleFieldSubmission(question, field?.value, {
+              ...encounterContext,
+              encounterDate: obsDate !== undefined ? obsDate : undefined,
+            });
     }
   };
 
@@ -80,11 +87,15 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
             />
           </Layer>
         </div>
-        {question.questionOptions.showDate && (
+        {question.questionOptions.showDate === 'true' ? (
           <div style={{ marginTop: '5px' }}>
-            <InlineDate question={question} onChange={() => {}} handler={undefined} />
+            <InlineDate
+              question={question}
+              setObsDateTime={(value) => setObsDate(value)}
+              onChange={() => {}}
+            />
           </div>
-        )}
+        ) : null}
       </>
     )
   );

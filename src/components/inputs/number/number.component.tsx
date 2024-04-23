@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Layer, NumberInput } from '@carbon/react';
 import classNames from 'classnames';
 import { useField } from 'formik';
@@ -20,6 +20,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { t } = useTranslation();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const [obsDate, setObsDate] = useState<Date>();
 
   field.onBlur = (event) => {
     if (event && event.target.value != field.value) {
@@ -32,7 +33,13 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
     }
     if (previousValue !== field.value) {
       onChange(question.id, field.value, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, field.value, encounterContext);
+      question.value =
+        obsDate === undefined
+          ? handler?.handleFieldSubmission(question, field?.value, encounterContext)
+          : handler?.handleFieldSubmission(question, field?.value, {
+              ...encounterContext,
+              encounterDate: obsDate !== undefined ? obsDate : undefined,
+            });
     }
   };
 
@@ -86,11 +93,18 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         warnText={warnings[0]?.message}
         step={0.01}
       />
-      {question.questionOptions.showDate && (
-      <div style={{ marginTop: '5px' }}>
-      <InlineDate question={question} onChange={() => {}} handler={undefined} />
-    </div>
-  )}
+
+      {question.questionOptions.showDate === 'true' ? (
+        <div style={{ marginTop: '5px' }}>
+          <InlineDate
+            question={question}
+            setObsDateTime={(value) => setObsDate(value)}
+            onChange={() => {}}
+          />
+        </div>
+      ) : (
+        ''
+      )}
     </Layer>
   );
 };

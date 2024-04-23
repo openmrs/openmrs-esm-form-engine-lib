@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FormGroup, RadioButtonGroup, RadioButton } from '@carbon/react';
 import { type FormFieldProps } from '../../../types';
@@ -10,20 +10,27 @@ import { isEmpty } from '../../../validators/form-validator';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import InlineDate from '../inline-date/inline-date.component';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 import styles from './radio.scss';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { t } = useTranslation();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const [obsDate, setObsDate] = useState<Date>();
 
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    handler?.handleFieldSubmission(question, value, encounterContext);
+    question.value =
+      obsDate === undefined
+        ? handler?.handleFieldSubmission(question, value, encounterContext)
+        : handler?.handleFieldSubmission(question, value, {
+            ...encounterContext,
+            encounterDate: obsDate !== undefined ? obsDate : undefined,
+          });
   };
 
   useEffect(() => {
@@ -31,7 +38,13 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
       const { value } = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, value, encounterContext);
+      question.value =
+        obsDate === undefined
+          ? handler?.handleFieldSubmission(question, value, encounterContext)
+          : handler?.handleFieldSubmission(question, value, {
+              ...encounterContext,
+              encounterDate: obsDate !== undefined ? obsDate : undefined,
+            });
     }
   }, [previousValue]);
 
@@ -83,7 +96,11 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
         )}
         {question.questionOptions.showDate === 'true' ? (
           <div style={{ marginTop: '5px' }}>
-            <InlineDate question={question} onChange={() => {}} handler={undefined} />
+            <InlineDate
+              question={question}
+              setObsDateTime={(value) => setObsDate(value)}
+              onChange={() => {}}
+            />
           </div>
         ) : null}
       </FormGroup>

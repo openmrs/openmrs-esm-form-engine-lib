@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
-import { type FormFieldProps } from '../../../types';
+import { type InlineDateProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { fieldRequiredErrCode } from '../../../validators/form-validator';
 import { DatePicker } from '@carbon/react';
@@ -12,7 +12,8 @@ import styles from './inline-date.scss';
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
 
-const InlineDate: React.FC<FormFieldProps> = ({ question, handler, previousValue }) => {
+
+const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
@@ -28,8 +29,7 @@ const InlineDate: React.FC<FormFieldProps> = ({ question, handler, previousValue
 
   const onDateChange = ([date]) => {
     const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
-    setFieldValue(question.id, refinedDate);
-    question.value = '';
+    setObsDateTime(refinedDate);
   };
 
   const { placeholder, carbonDateformat } = useMemo(() => {

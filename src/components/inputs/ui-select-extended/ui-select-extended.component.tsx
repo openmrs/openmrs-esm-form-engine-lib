@@ -13,9 +13,9 @@ import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import InlineDate from '../inline-date/inline-date.component';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 import styles from './ui-select-extended.scss';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
   const { t } = useTranslation();
@@ -29,6 +29,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   const [config, setConfig] = useState({});
   const [savedSearchableItem, setSavedSearchableItem] = useState({});
   const { errors, setErrors, setWarnings } = useFieldValidationResults(question);
+  const [obsDate, setObsDate] = useState<Date>();
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -52,7 +53,13 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    handler?.handleFieldSubmission(question, value, encounterContext);
+    question.value =
+      obsDate === undefined
+        ? handler?.handleFieldSubmission(question, value, encounterContext)
+        : handler?.handleFieldSubmission(question, value, {
+            ...encounterContext,
+            encounterDate: obsDate !== undefined ? obsDate : undefined,
+          });
   };
 
   useEffect(() => {
@@ -61,7 +68,13 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
       isProcessingSelection.current = true;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, value, encounterContext);
+      question.value =
+        obsDate === undefined
+          ? handler?.handleFieldSubmission(question, value, encounterContext)
+          : handler?.handleFieldSubmission(question, value, {
+              ...encounterContext,
+              encounterDate: obsDate !== undefined ? obsDate : undefined,
+            });
     }
   }, [previousValue]);
 
@@ -166,11 +179,13 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
               }
             }}
           />
-          {question.questionOptions.showDate && (
-            <div style={{ marginTop: '5px' }}>
-              <InlineDate question={question} onChange={() => {}} handler={undefined} />
-            </div>
-          )}
+          {question.questionOptions.showDate === 'true' ? (
+            <InlineDate
+              question={question}
+              setObsDateTime={(value) => setObsDate(value)}
+              onChange={() => {}}
+            />
+          ) : null}
         </Layer>
       </div>
     )

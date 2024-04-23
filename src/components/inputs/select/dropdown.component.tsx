@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dropdown as DropdownInput, Layer } from '@carbon/react';
 import { useField } from 'formik';
@@ -19,11 +19,18 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const [obsDate, setObsDate] = useState<Date>();
 
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    handler?.handleFieldSubmission(question, value, encounterContext);
+    question.value =
+        obsDate === undefined
+          ? handler?.handleFieldSubmission(question, value, encounterContext)
+          : handler?.handleFieldSubmission(question, value, {
+              ...encounterContext,
+              encounterDate: obsDate !== undefined ? obsDate : undefined,
+            });
   };
 
   useEffect(() => {
@@ -31,7 +38,13 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
       const { value } = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, value, encounterContext);
+      question.value =
+        obsDate === undefined
+          ? handler?.handleFieldSubmission(question, value, encounterContext)
+          : handler?.handleFieldSubmission(question, value, {
+              ...encounterContext,
+              encounterDate: obsDate !== undefined ? obsDate : undefined,
+            });
     }
   }, [previousValue]);
 
@@ -79,11 +92,15 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             warn={warnings.length > 0}
             warnText={warnings[0]?.message}
           />
-          {question.questionOptions.showDate && (
+          {question.questionOptions.showDate ? (
           <div style={{ marginTop: '5px' }}>
-          <InlineDate question={question} onChange={() => {}} handler={undefined} />
-        </div>
-  )}
+            <InlineDate
+              question={question}
+              setObsDateTime={(value) => setObsDate(value)}
+              onChange={() => {}}
+            />
+          </div>
+          ) : null}
         </Layer>
       </div>
     )

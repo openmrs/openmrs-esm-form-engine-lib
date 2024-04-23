@@ -11,10 +11,10 @@ import { isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
-import InlineDate from '../inline-date/inline-date.component';
+import { getQuestionValue } from '../../../utils/common-utils';
+import { useFieldValidationResults } from 'src/hooks/useFieldValidationResults';
 
 import styles from './date.scss';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
@@ -25,6 +25,15 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [time, setTime] = useState('');
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const [previousValueForReview, setPreviousValueForReview] = useState(null);
+  const [obsDate, setObsDate] = useState<Date>();
+
+  useEffect(() => {
+    if (question['submission']) {
+      question['submission'].errors && setErrors(question['submission'].errors);
+      question['submission'].warnings && setWarnings(question['submission'].warnings);
+    }
+  }, [question['submission']]);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -38,7 +47,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     setFieldValue(question.id, refinedDate);
     onChange(question.id, refinedDate, setErrors, setWarnings);
     onTimeChange(false, true);
-    handler?.handleFieldSubmission(question, refinedDate, encounterContext);
+    question.value = getQuestionValue({ obsDate, question, value: refinedDate, handler, encounterContext });
   };
 
   useEffect(() => {
@@ -48,7 +57,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
       setFieldValue(question.id, refinedDate);
       onChange(question.id, refinedDate, setErrors, setWarnings);
       onTimeChange(false, true);
-      handler?.handleFieldSubmission(question, refinedDate, encounterContext);
+      question.value = getQuestionValue({ obsDate, question, value: refinedDate, handler, encounterContext });
     }
   }, [previousValue]);
 
@@ -65,7 +74,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
       currentDateTime.setHours(splitTime[0] ?? '00', splitTime[1] ?? '00');
       setFieldValue(question.id, currentDateTime);
       onChange(question.id, currentDateTime, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, currentDateTime, encounterContext);
+      question.value = handler?.handleFieldSubmission(question, currentDateTime, encounterContext);
       setTime(time);
     }
   };
@@ -101,6 +110,27 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
       .join('');
     return { placeholder: placeholder, carbonDateFormat: carbonDateFormat };
   }, []);
+
+  useEffect(() => {
+    if (encounterContext?.previousEncounter && isTrue(question.questionOptions.enablePreviousValue)) {
+      let prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
+
+      if (!isEmpty(prevValue?.value)) {
+        if (question?.questionOptions.rendering === 'datetime') {
+          const rawDate = new Date(prevValue.value);
+
+          prevValue = {
+            display: formatDate(prevValue.value, { mode: 'wide' }),
+            value: [rawDate],
+          };
+        } else {
+          prevValue.display = dateFormatter.format(prevValue.value);
+          prevValue.value = [prevValue.value];
+        }
+        setPreviousValueForReview(prevValue);
+      }
+    }
+  }, [encounterContext?.previousEncounter]);
 
   useEffect(() => {
     if (!time && field.value) {
@@ -183,11 +213,6 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
             ''
           )}
         </div>
-        {question.questionOptions.showDate && (
-          <div style={{ marginTop: '5px' }}>
-            <InlineDate question={question} onChange={() => {}} handler={undefined} />
-          </div>
-        )}
       </>
     )
   );
