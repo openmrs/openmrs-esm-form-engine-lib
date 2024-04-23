@@ -1,4 +1,4 @@
-import { OpenmrsResource } from '@openmrs/esm-framework';
+import {LayoutType, OpenmrsResource} from '@openmrs/esm-framework';
 import { FieldHelperProps, FieldInputProps, FieldMetaProps } from 'formik';
 import { EncounterContext } from './form-context';
 
@@ -57,9 +57,6 @@ export interface ValidationResult {
 
 export interface HideProps {
   hideWhenExpression: string;
-}
-export interface DisableProps {
-  disableWhenExpression: string;
 }
 
 export interface FormSchema {
@@ -159,9 +156,12 @@ export interface FormSection {
   reference?: FormReference;
 }
 
-export interface OHRIFormQuestionAnswerOption {
+export interface QuestionAnswerOption {
   hide?: HideProps;
-  disable?: DisableProps;
+  disableWhenExpression?: string;
+  isDisabled?: boolean;
+  label?: string;
+  concept?: string;
   [key: string]: any
 }
 

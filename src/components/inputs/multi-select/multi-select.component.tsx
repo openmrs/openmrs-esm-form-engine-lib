@@ -41,21 +41,6 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
     }
   }, [question['submission']]);
 
-  const isAnswerDisabled = (answer: OHRIFormQuestionAnswerOption) => {
-    if(!isEmpty(answer.disable?.disableWhenExpression)) {
-      return evaluateExpression(
-        answer.disable.disableWhenExpression,
-        { value: question, type: 'field' },
-        allFormFields,
-        values,
-        {
-          mode: encounterContext.sessionMode,
-          patient: encounterContext.patient,
-        },
-      );
-    }
-    return null;
-  }
   const questionItems = question.questionOptions.answers
     .filter((answer) => !answer.isHidden)
     .map((answer, index) => ({
@@ -63,11 +48,11 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
       concept: answer.concept,
       label: answer.label,
       key: index,
-      disabled: isTrue(isAnswerDisabled(answer))
+      disabled: answer.isDisabled,
     }));
 
   const initiallySelectedQuestionItems = [];
-  questionItems.forEach(item => {
+  questionItems.forEach((item) => {
     if (field.value?.includes(item.concept)) {
       initiallySelectedQuestionItems.push(item);
     }
@@ -133,7 +118,7 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
         <div className={styles.selectionDisplay}>
           {field.value?.length ? (
             <UnorderedList className={styles.list}>
-              {handler?.getDisplayValue(question, field.value)?.map(displayValue => displayValue + ', ')}
+              {handler?.getDisplayValue(question, field.value)?.map((displayValue) => displayValue + ', ')}
             </UnorderedList>
           ) : (
             <ValueEmpty />

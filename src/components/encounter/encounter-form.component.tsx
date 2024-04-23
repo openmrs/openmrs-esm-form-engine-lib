@@ -229,6 +229,23 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
                 },
               );
             });
+
+          //  this checks for expressions to disable checkbox options
+          field.questionOptions.answers
+            ?.filter((answer: QuestionAnswerOption) => !isEmpty(answer.disableWhenExpression))
+            .forEach((answer: QuestionAnswerOption) => {
+              answer.isDisabled = evaluateExpression(
+                answer.disableWhenExpression,
+                { value: field, type: 'field' },
+                flattenedFields,
+                tempInitialValues,
+                {
+                  mode: sessionMode,
+                  patient,
+                },
+              );
+            });
+
           if (typeof field.readonly == 'string' && field.readonly?.split(' ')?.length > 1) {
             // needed to store the expression for further evaluations
             field['readonlyExpression'] = field.readonly;
