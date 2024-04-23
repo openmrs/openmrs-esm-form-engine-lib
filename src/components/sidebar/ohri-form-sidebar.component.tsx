@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Button, Toggle } from '@carbon/react';
 import { isEmpty } from '../../validators/ohri-form-validator';
@@ -65,22 +66,23 @@ function OHRIFormSidebar({
     },
     [unspecifiedFields],
   );
+
   return (
     <div className={styles.sidebar}>
       {[...scrollablePages].map((page, index) => {
+        const isCurrentSelected = joinWord(page.label) === selectedPage;
+        const hasError = pagesWithErrors.includes(page.label);
+
         return (
           !page.isHidden && (
             <div
               aria-hidden="true"
-              className={
-                joinWord(page.label) === selectedPage && pagesWithErrors.includes(page.label)
-                  ? styles.sidebarSectionErrorActive
-                  : joinWord(page.label) === selectedPage
-                  ? styles.sidebarSectionActive
-                  : pagesWithErrors.includes(page.label)
-                  ? styles.sidebarSectionError
-                  : styles.sidebarSection
-              }
+              className={classNames({
+                [styles.sidebarSectionErrorActive]: isCurrentSelected && hasError,
+                [styles.sidebarSectionActive]: isCurrentSelected && !hasError,
+                [styles.sidebarSectionError]: !isCurrentSelected && hasError,
+                [styles.sidebarSection]: !isCurrentSelected && !hasError,
+              })}
               key={index}
               onClick={() => handleClick(page.label)}>
               <div className={styles.sidebarSectionLink}>{page.label}</div>

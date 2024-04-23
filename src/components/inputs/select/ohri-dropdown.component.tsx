@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Dropdown } from '@carbon/react';
 import { useField } from 'formik';
@@ -69,7 +70,7 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
     />
   ) : (
     !question.isHidden && (
-      <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : styles.boldedLabel}>
+      <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
         <Dropdown
           id={question.id}
           titleText={question.label}

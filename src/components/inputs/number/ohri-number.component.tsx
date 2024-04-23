@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { NumberInput } from '@carbon/react';
+import classNames from 'classnames';
 import { useField } from 'formik';
 import { isTrue } from '../../../utils/boolean-utils';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
@@ -81,7 +82,10 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
         onWheel={(e) => e.target.blur()}
         disabled={question.disabled}
         readOnly={question.readonly}
-        className={`${styles.controlWidthConstrained} ${isFieldRequiredError ? styles.errorLabel : styles.boldedLabel}`}
+        className={classNames(
+          styles.controlWidthConstrained,
+          isFieldRequiredError ? styles.errorLabel : styles.boldedLabel,
+        )}
         warn={warnings.length > 0}
         warnText={warnings[0]?.message}
         step={0.01}
