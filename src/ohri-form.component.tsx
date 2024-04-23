@@ -26,7 +26,6 @@ import { usePatientData } from './hooks/usePatientData';
 import LinearLoader from './components/loaders/linear-loader.component';
 import LoadingIcon from './components/loaders/loading.component';
 import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
-import WarningModal from './components/warning-modal.component';
 import styles from './ohri-form.component.scss';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
@@ -69,6 +68,7 @@ interface OHRIFormProps {
    * Renamed to `encounterUUID`. To be removed in future iterations.
    */
   encounterUuid?: string;
+  markFormAsDirty?: (isDirty: boolean) => void;
 }
 
 export interface FormSubmissionHandler {
@@ -89,6 +89,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   formSessionIntent,
   meta,
   encounterUuid,
+  markFormAsDirty,
 }) => {
   const session = useSession();
   const currentProvider = session?.currentProvider?.uuid ? session.currentProvider.uuid : null;
@@ -112,8 +113,6 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const [isLoadingFormDependencies, setIsLoadingFormDependencies] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
-  const [isFormTouched, setIsFormTouched] = useState(false);
-  const [showWarningModal, setShowWarningModal] = useState(false);
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
 
@@ -283,9 +282,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
         setSubmitting(false);
       }}>
       {(props) => {
-        useEffect(() => {
-          setIsFormTouched(props.dirty);
-        }, [props.dirty]);
+        markFormAsDirty(props.dirty);
 
         return (
           <Form className={classNames('cds--form', 'no-padding', styles.ohriForm)} ref={ref}>
@@ -293,9 +290,6 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
               <LoadingIcon />
             ) : (
               <div className={styles.ohriFormContainer}>
-                {showWarningModal ? (
-                  <WarningModal onCancel={onCancel} onShowWarningModal={setShowWarningModal} t={t} />
-                ) : null}
                 {isLoadingFormDependencies && (
                   <div className={styles.loader}>
                     <LinearLoader />
@@ -357,11 +351,6 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                         <Button
                           kind="secondary"
                           onClick={() => {
-                            if (mode !== 'view' && isFormTouched) {
-                              setShowWarningModal(true);
-                              return;
-                            }
-
                             onCancel && onCancel();
                             handleClose && handleClose();
                           }}>
