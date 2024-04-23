@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FilterableMultiSelect, UnorderedList } from '@carbon/react';
+import classNames from 'classnames';
 import { useField } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
@@ -92,7 +93,7 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
   ) : (
     !question.isHidden && (
       <>
-        <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : `${styles.boldedLabel}`}>
+        <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
           <FilterableMultiSelect
             placeholder={t('search', 'Search') + '...'}
             onChange={handleSelectItemsChange}

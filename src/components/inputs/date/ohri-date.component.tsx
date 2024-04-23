@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
+import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
 import { DatePicker, DatePickerInput, TimePicker } from '@carbon/react';
@@ -75,7 +76,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
       setTime(time);
     }
   };
-  const { placeholder, carbonDateformat } = useMemo(() => {
+  const { placeholder, carbonDateFormat } = useMemo(() => {
     const formatObj = dateFormatter.formatToParts(new Date());
     const placeholder = formatObj
       .map((obj) => {
@@ -91,7 +92,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
         }
       })
       .join('');
-    const carbonDateformat = formatObj
+    const carbonDateFormat = formatObj
       .map((obj) => {
         switch (obj.type) {
           case 'day':
@@ -105,7 +106,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
         }
       })
       .join('');
-    return { placeholder: placeholder, carbonDateformat: carbonDateformat };
+    return { placeholder: placeholder, carbonDateFormat: carbonDateFormat };
   }, []);
 
   useEffect(() => {
@@ -154,9 +155,8 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
             <DatePicker
               datePickerType="single"
               onChange={onDateChange}
-              // Investigate these styles
-              className={`${styles.boldedLabel} ${isFieldRequiredError ? styles.errorLabel : ''}`}
-              dateFormat={carbonDateformat}>
+              className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}
+              dateFormat={carbonDateFormat}>
               <DatePickerInput
                 id={question.id}
                 placeholder={placeholder}

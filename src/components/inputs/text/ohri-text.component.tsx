@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import isEmpty from 'lodash-es/isEmpty';
 import { TextInput } from '@carbon/react';
 import { useField } from 'formik';
@@ -66,7 +67,7 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   ) : (
     !question.isHidden && (
       <>
-        <div className={`${styles.boldedLabel} ${isFieldRequiredError ? styles.errorLabel : ''}`}>
+        <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
           <TextInput
             {...field}
             id={question.id}

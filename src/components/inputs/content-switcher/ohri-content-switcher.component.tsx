@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { FormGroup, ContentSwitcher, Switch } from '@carbon/react';
 import { useField } from 'formik';
 import { isInlineView } from '../../../utils/ohri-form-helper';
@@ -60,7 +61,12 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
     </div>
   ) : (
     !question.isHidden && (
-      <FormGroup legendText={question.label} className={errors.length ? styles.errorLegend : styles.boldedLegend}>
+      <FormGroup
+        legendText={question.label}
+        className={classNames({
+          [styles.errorLegend]: errors.length > 0,
+          [styles.boldedLegend]: errors.length === 0,
+        })}>
         <ContentSwitcher
           onChange={handleChange}
           selectedIndex={selectedIndex}

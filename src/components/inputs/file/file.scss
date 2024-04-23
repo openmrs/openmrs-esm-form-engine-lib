@@ -7,6 +7,7 @@
   letter-spacing: 0.16px;
   color: #000000;
 }
+
 .saveFile {
   margin: 0;
 }
@@ -15,7 +16,7 @@
   width: 100%;
 }
 
-.Caption {
+.caption {
   display: flex;
 }
 
@@ -28,11 +29,13 @@
   align-items: center;
   margin-bottom: 1rem;
 }
+
 .selectorButton {
   margin-right: 1rem;
 }
 
-.Caption {
+.caption {
+  display: flex;
   margin-top: 5px;
 }
 
@@ -50,6 +53,7 @@
   background-color: white;
   padding: 1rem;
 }
+
 .camButton {
   margin-bottom: 1rem;
 }
@@ -80,6 +84,7 @@
   line-height: 1.28572;
   margin-bottom: 1rem;
 }
+
 .editModeImage {
   background-color: white;
   padding: 1rem;

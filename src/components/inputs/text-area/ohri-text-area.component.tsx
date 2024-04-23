@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { TextArea } from '@carbon/react';
 import { useField } from 'formik';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
@@ -63,7 +64,11 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({
     />
   ) : (
     !question.isHidden && (
-      <div className={isFieldRequiredError ? styles.errorLabel : styles.boldedLabel}>
+      <div
+        className={classNames({
+          [styles.errorLabel]: isFieldRequiredError,
+          [styles.boldedLabel]: !isFieldRequiredError,
+        })}>
         <TextArea
           {...field}
           id={question.id}

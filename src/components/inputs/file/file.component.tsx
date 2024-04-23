@@ -163,7 +163,7 @@ const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
             <div className={styles.capturedImage}>
               <div className={styles.imageContent}>
                 <img src={imagePreview} alt={t('preview', 'Preview')} width="200px" />
-                <div className={styles.Caption}>
+                <div className={styles.caption}>
                   <p>{t('uploadedPhoto', 'Uploaded photo')}</p>
                   <div
                     tabIndex={0}

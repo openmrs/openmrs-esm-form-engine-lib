@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "ace-builds": "^1.4.12",
+    "classnames": "^2.5.1",
     "dayjs": "1.x",
     "formik": "^2.2.6",
     "lodash-es": "^4.17.15",

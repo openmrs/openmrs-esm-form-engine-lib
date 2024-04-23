@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import classNames from 'classnames';
+import debounce from 'lodash-es/debounce';
 import { ComboBox, InlineLoading } from '@carbon/react';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
@@ -8,8 +10,6 @@ import { isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { isTrue } from '../../../utils/boolean-utils';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
-import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-import debounce from 'lodash-es/debounce';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
@@ -135,7 +135,7 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   ) : (
     !question.isHidden && (
       <>
-        <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : `${styles.boldedLabel}`}>
+        <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
           <ComboBox
             id={question.id}
             titleText={question.label}

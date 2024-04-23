@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Form, Formik } from 'formik';
+import classNames from 'classnames';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
@@ -285,7 +286,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
         setIsFormTouched(props.dirty);
 
         return (
-          <Form className={`cds--form no-padding ${styles.ohriForm}`} ref={ref}>
+          <Form className={classNames('cds--form', 'no-padding', styles.ohriForm)} ref={ref}>
             {isLoadingPatient || isLoadingFormJson ? (
               <LoadingIcon />
             ) : (
@@ -322,13 +323,9 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                       </div>
                     )}
                     <div
-                      className={`${styles.formContentBody}
-                    ${
-                      workspaceLayout === 'minimized' || sessionMode === 'view'
-                        ? `${styles.minifiedFormContentBody}`
-                        : ''
-                    }
-                  `}>
+                      className={classNames(styles.formContentBody, {
+                        [styles.minifiedFormContentBody]: workspaceLayout === 'minimized' || sessionMode === 'view',
+                      })}>
                       <OHRIEncounterForm
                         formJson={refinedFormJson}
                         patient={patient}

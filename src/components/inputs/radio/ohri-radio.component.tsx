@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { FormGroup, RadioButtonGroup, RadioButton } from '@carbon/react';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
@@ -58,7 +59,10 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
     !question.isHidden && (
       <FormGroup
         legendText={question.label}
-        className={isFieldRequiredError ? styles.errorLegend : styles.boldedLegend}
+        className={classNames({
+          [styles.errorLegend]: isFieldRequiredError,
+          [styles.boldedLegend]: !isFieldRequiredError,
+        })}
         disabled={question.disabled}
         invalid={!isFieldRequiredError && errors.length > 0}>
         <RadioButtonGroup name={question.id} valueSelected={field.value} onChange={handleChange} orientation="vertical">
@@ -77,7 +81,11 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
         </RadioButtonGroup>
         {(!isFieldRequiredError && errors?.length > 0) ||
           (warnings.length > 0 && (
-            <div className={errors.length ? styles.errorLabel : warnings.length ? styles.warningLabel : ''}>
+            <div
+              className={classNames({
+                [styles.errorLabel]: errors.length > 0,
+                [styles.warningLabel]: !errors.length && warnings.length > 0,
+              })}>
               <div className="cds--form-requirement">
                 {errors.length ? errors[0].message : warnings.length ? warnings[0].message : null}
               </div>
