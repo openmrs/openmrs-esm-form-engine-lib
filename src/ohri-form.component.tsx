@@ -283,7 +283,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       }}>
       {(props) => {
         useEffect(() => {
-          markFormAsDirty(props.dirty);
+          markFormAsDirty?.(props.dirty);
         }, [props.dirty]);
 
         return (
