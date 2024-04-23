@@ -1,50 +1,50 @@
-import { render, fireEvent, screen, cleanup, act, within } from '@testing-library/react';
-import { when } from 'jest-when';
-import * as api from '../src/api/api';
 import React from 'react';
+import {
+  act,
+  cleanup,
+  render,
+  screen,
+  within,
+  fireEvent,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { showToast } from '@openmrs/esm-framework';
+import { when } from 'jest-when';
+import dayjs from 'dayjs';
+import * as api from '../src/api/api';
+import ageValidationForm from '../__mocks__/forms/ohri-forms/age-validation-form.json';
+import bmiForm from '../__mocks__/forms/ohri-forms/bmi-test-form.json';
+import bsaForm from '../__mocks__/forms/ohri-forms/bsa-test-form.json';
+import demoHtsOhriForm from '../__mocks__/forms/ohri-forms/demo_hts-form.json';
+import demoHtsOpenmrsForm from '../__mocks__/forms/omrs-forms/demo_hts-form.json';
+import eddForm from '../__mocks__/forms/ohri-forms/edd-test-form.json';
+import externalDataSourceForm from '../__mocks__/forms/ohri-forms/external_data_source_form.json';
+import filterAnswerOptionsTestForm from '../__mocks__/forms/ohri-forms/filter-answer-options-test-form.json';
+import htsPocForm from '../__mocks__/packages/hiv/forms/hts_poc/1.1.json';
+import labourAndDeliveryTestForm from '../__mocks__/forms/ohri-forms/labour_and_delivery_test_form.json';
+import mockConceptsForm from '../__mocks__/concepts.mock.json';
+import monthsOnArtForm from '../__mocks__/forms/ohri-forms/months-on-art-form.json';
+import nextVisitForm from '../__mocks__/forms/ohri-forms/next-visit-test-form.json';
+import obsGroupTestForm from '../__mocks__/forms/ohri-forms/obs-group-test_form.json';
+import postSubmissionTestForm from '../__mocks__/forms/ohri-forms/post-submission-test-form.json';
+import referenceByMappingForm from '../__mocks__/forms/ohri-forms/reference-by-mapping-form.json';
+import sampleFieldsForm from '../__mocks__/forms/ohri-forms/sample_fields.json';
+import testEnrolmentForm from '../__mocks__/forms/ohri-forms/test-enrolment-form.json';
+import viralLoadStatusForm from '../__mocks__/forms/ohri-forms/viral-load-status-form.json';
 import OHRIForm from './ohri-form.component';
-import hts_poc_1_1 from '../__mocks__/packages/hiv/forms/hts_poc/1.1.json';
-import bmi_form from '../__mocks__/forms/ohri-forms/bmi-test-form.json';
-import bsa_form from '../__mocks__/forms/ohri-forms/bsa-test-form.json';
-import edd_form from '../__mocks__/forms/ohri-forms/edd-test-form.json';
-import filter_answer_options_form from '../__mocks__/forms/ohri-forms/filter-answer-options-test-form.json';
-import test_enrolment_form from '../__mocks__/forms/ohri-forms/test-enrolment-form.json';
-import next_visit_form from '../__mocks__/forms/ohri-forms/next-visit-test-form.json';
-import months_on_art_form from '../__mocks__/forms/ohri-forms/months-on-art-form.json';
-import age_validation_form from '../__mocks__/forms/ohri-forms/age-validation-form.json';
-import viral_load_status_form from '../__mocks__/forms/ohri-forms/viral-load-status-form.json';
-import reference_by_mapping_form from '../__mocks__/forms/ohri-forms/reference-by-mapping-form.json';
-import external_data_source_form from '../__mocks__/forms/ohri-forms/external_data_source_form.json';
-import mock_concepts from '../__mocks__/concepts.mock.json';
+import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import { mockPatient } from '../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../__mocks__/session.mock';
-import demoHtsOpenmrsForm from '../__mocks__/forms/omrs-forms/demo_hts-form.json';
-import demoHtsOhriForm from '../__mocks__/forms/ohri-forms/demo_hts-form.json';
-import obsGroup_test_form from '../__mocks__/forms/ohri-forms/obs-group-test_form.json';
-import labour_and_delivery_test_form from '../__mocks__/forms/ohri-forms/labour_and_delivery_test_form.json';
-import sample_fields_form from '../__mocks__/forms/ohri-forms/sample_fields.json';
-import postSubmission_test_form from '../__mocks__/forms/ohri-forms/post-submission-test-form.json';
-import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
-import dayjs from 'dayjs';
-
 import {
   assertFormHasAllFields,
-  findAllRadioGroupMembers,
-  findAllTextOrDateInputs,
   findMultiSelectInput,
-  findNumberInput,
-  findRadioGroupInput,
-  findRadioGroupMember,
   findSelectInput,
-  findTextOrDateInput,
+  waitForLoadingToFinish,
 } from './utils/test-utils';
 import { mockVisit } from '../__mocks__/visit.mock';
-import { showToast } from '@openmrs/esm-framework';
 
-//////////////////////////////////////////
-////// Base setup
-//////////////////////////////////////////
-const mockUrl = `/ws/rest/v1/encounter?v=full`;
 const mockShowToast = showToast as jest.Mock;
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
@@ -52,14 +52,12 @@ const mockOpenmrsFetch = jest.fn();
 const formsResourcePath = when((url: string) => url.includes('/ws/rest/v1/form/'));
 const clobdataResourcePath = when((url: string) => url.includes('/ws/rest/v1/clobdata/'));
 global.ResizeObserver = require('resize-observer-polyfill');
+
 when(mockOpenmrsFetch).calledWith(formsResourcePath).mockReturnValue({ data: demoHtsOpenmrsForm });
 when(mockOpenmrsFetch).calledWith(clobdataResourcePath).mockReturnValue({ data: demoHtsOhriForm });
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 
-//////////////////////////////////////////
-////// Mocks
-//////////////////////////////////////////
 jest.mock('@openmrs/esm-framework', () => {
   const originalModule = jest.requireActual('@openmrs/esm-framework');
 
@@ -89,19 +87,22 @@ jest.mock('../src/api/api', () => {
   };
 });
 
-describe('OHRI Forms:', () => {
+describe('Form component', () => {
+  const user = userEvent.setup();
+
   afterEach(() => {
-    cleanup();
     jest.useRealTimers();
   });
 
-  it('Should render by the form json without dying', async () => {
-    await act(async () => renderForm(null, hts_poc_1_1));
+  it('should render the form schema without dying', async () => {
+    renderForm(null, htsPocForm);
+
     await assertFormHasAllFields(screen, [{ fieldName: 'When was the HIV test conducted?', fieldType: 'date' }]);
   });
 
-  it('Should render by the form UUID without dying', async () => {
-    await act(async () => renderForm('955ab92f-f93e-4dc0-9c68-b7b2346def55', null));
+  it('should render by the form UUID without dying', async () => {
+    renderForm('955ab92f-f93e-4dc0-9c68-b7b2346def55', null);
+
     await assertFormHasAllFields(screen, [
       { fieldName: 'When was the HIV test conducted?', fieldType: 'date' },
       { fieldName: 'Community service delivery point', fieldType: 'select' },
@@ -109,13 +110,16 @@ describe('OHRI Forms:', () => {
     ]);
   });
 
-  it('Should demonstrate behaviour driven by form intents', async () => {
-    // HTS_INTENT_A
-    await act(async () => renderForm('955ab92f-f93e-4dc0-9c68-b7b2346def55', null, 'HTS_INTENT_A'));
+  it('should demonstrate behaviour driven by form intents', async () => {
+    await act(async () => {
+      renderForm('955ab92f-f93e-4dc0-9c68-b7b2346def55', null, 'HTS_INTENT_A');
+    });
+
     await assertFormHasAllFields(screen, [
       { fieldName: 'When was the HIV test conducted?', fieldType: 'date' },
       { fieldName: 'TB screening', fieldType: 'combobox' },
     ]);
+
     try {
       await findSelectInput(screen, 'Community service delivery point');
       fail("Field with title 'Community service delivery point' should not be found");
@@ -129,11 +133,15 @@ describe('OHRI Forms:', () => {
     cleanup();
 
     // HTS_INTENT_B
-    await act(async () => renderForm('955ab92f-f93e-4dc0-9c68-b7b2346def55', null, 'HTS_INTENT_B'));
+    await act(async () => {
+      renderForm('955ab92f-f93e-4dc0-9c68-b7b2346def55', null, 'HTS_INTENT_B');
+    });
+
     await assertFormHasAllFields(screen, [
       { fieldName: 'When was the HIV test conducted?', fieldType: 'date' },
       { fieldName: 'Community service delivery point', fieldType: 'select' },
     ]);
+
     try {
       await findMultiSelectInput(screen, 'TB screening');
       fail("Field with title 'TB screening' should not be found");
@@ -141,87 +149,77 @@ describe('OHRI Forms:', () => {
       expect(err.message.includes('Unable to find role="combobox" and name `/TB screening/i`')).toBeTruthy();
     }
   });
-  // Form submission
 
-  describe('Question Info', () => {
-    it('Should ascertain that each field with questionInfo passed will display a tooltip', async () => {
-      //render the test form
-      await act(async () => renderForm(null, sample_fields_form));
+  describe('Question info', () => {
+    it('should ascertain that each field with questionInfo passed will display a tooltip', async () => {
+      await act(async () => {
+        renderForm(null, sampleFieldsForm);
+      });
 
-      //check for text field
-      const textField = await findTextOrDateInput(screen, 'Text question');
-      expect(textField).toBeInTheDocument();
+      screen.findByRole('textbox', { name: /text question/i });
 
-      // check for tooltip icon on text field
-      const textFIeldTooltip = await screen.findByTestId('id_text');
-      expect(textFIeldTooltip).toBeInTheDocument();
+      const textFieldTooltip = screen.getByTestId('id_text');
+      expect(textFieldTooltip).toBeInTheDocument();
 
-      //testing for the tooltip
-      fireEvent.mouseOver(textFIeldTooltip);
-      const textFieldTooltipMessage = await screen.findByText(/sample tooltip info for text/i);
-      expect(textFieldTooltipMessage).toBeInTheDocument();
+      await user.hover(textFieldTooltip);
+      await screen.findByText(/sample tooltip info for text/i);
     });
   });
 
   describe('Form submission', () => {
-    it('Should validate form submission', async () => {
-      // Mock the form submission function to simulate success
+    it('should validate form submission', async () => {
       const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
 
-      // Render the form
-      await act(async () => renderForm(null, test_enrolment_form));
-      const enrolmentDateField = await findTextOrDateInput(screen, 'Enrolment Date');
-      const uniqueIdField = await findTextOrDateInput(screen, 'Unique ID');
-      const motherEnrolledField = await findRadioGroupMember(screen, 'Mother enrolled in PMTCT program');
-      const generalPopulationField = await findRadioGroupMember(screen, 'General population');
-
-      // Simulate user interaction
-      fireEvent.blur(enrolmentDateField, { target: { value: '2023-09-09T00:00:00.000Z' } });
-      fireEvent.blur(uniqueIdField, { target: { value: 'U0-001109' } });
-      fireEvent.click(motherEnrolledField);
-      fireEvent.click(generalPopulationField);
-
-      // Simulate a successful form submission
       await act(async () => {
-        fireEvent.submit(screen.getByText(/save/i));
+        renderForm(null, testEnrolmentForm);
       });
 
-      // Add assertions for a successful submission
-      expect(saveEncounterMock).toBeCalledTimes(1);
+      screen.queryByRole('textbox', { name: /enrolment date/i });
+
+      const enrolmentDateField = screen.getByRole('textbox', { name: /enrolment date/i });
+      const uniqueIdField = screen.getByRole('textbox', { name: /unique id/i });
+      const motherEnrolledField = screen.getByRole('radio', { name: /mother enrolled in pmtct program/i });
+      const generalPopulationField = screen.getByRole('radio', { name: /general population/i });
+
+      await user.click(enrolmentDateField);
+      await user.paste('2023-09-09T00:00:00.000Z');
+      await user.type(uniqueIdField, 'U0-001109');
+      await user.click(motherEnrolledField);
+      await user.click(generalPopulationField);
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      expect(saveEncounterMock).toHaveBeenCalledTimes(1);
       expect(saveEncounterMock).toHaveBeenCalledWith(expect.any(AbortController), expect.any(Object), undefined);
       expect(saveEncounterMock).toHaveReturned();
     });
 
-    it('Should validate transient fields', async () => {
-      // Mock the form submission function to simulate success
+    it('should validate transient fields', async () => {
       const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
 
-      // Render the form
-      await act(async () => renderForm(null, test_enrolment_form));
-      const enrolmentDateField = await findTextOrDateInput(screen, 'Enrolment Date');
-      const uniqueIdField = await findTextOrDateInput(screen, 'Unique ID');
-      const motherEnrolledField = await findRadioGroupMember(screen, 'Mother enrolled in PMTCT program');
-      const generalPopulationField = await findRadioGroupMember(screen, 'General population');
-
-      // Simulate user interaction
-      fireEvent.blur(enrolmentDateField, { target: { value: dayjs('2023-09-09') } });
-      fireEvent.blur(uniqueIdField, { target: { value: 'U0-001109' } });
-      fireEvent.click(motherEnrolledField);
-      fireEvent.click(generalPopulationField);
-
-      // Assert that Transient Field has a value
-      expect(enrolmentDateField.value).toBe('09/09/2023');
-
-      // Simulate a successful form submission
       await act(async () => {
-        fireEvent.submit(screen.getByText(/save/i));
+        renderForm(null, testEnrolmentForm);
       });
 
-      // Add assertions for transient field behaviour
+      const enrolmentDateField = screen.getByRole('textbox', { name: /enrolment date/i });
+      const uniqueIdField = screen.getByRole('textbox', { name: /unique id/i });
+      const motherEnrolledField = screen.getByRole('radio', { name: /mother enrolled in pmtct program/i });
+      const generalPopulationField = screen.getByRole('radio', { name: /general population/i });
+
+      await user.click(enrolmentDateField);
+      await user.paste('2023-09-09');
+      await user.type(uniqueIdField, 'U0-001109');
+      await user.click(motherEnrolledField);
+      await user.click(generalPopulationField);
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      expect(enrolmentDateField).toHaveValue('09/09/2023');
+
       const [abortController, encounter, encounterUuid] = saveEncounterMock.mock.calls[0];
       expect(encounter.obs.length).toEqual(3);
       expect(encounter.obs.find((obs) => obs.formFieldPath === 'ohri-forms-hivEnrolmentDate')).toBeUndefined();
     });
+
     it('should evaluate post submission enabled flag expression', () => {
       const encounters = [
         {
@@ -246,10 +244,12 @@ describe('OHRI Forms:', () => {
       const expression2 = "tbProgramType === '160052AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'";
       let enabled = evaluatePostSubmissionExpression(expression1, encounters);
       expect(enabled).toEqual(true);
+
       enabled = evaluatePostSubmissionExpression(expression2, encounters);
       expect(enabled).toEqual(false);
     });
-    it('Should test post submission actions', async () => {
+
+    it('should test post submission actions', async () => {
       const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
       saveEncounterMock.mockResolvedValue({
         headers: null,
@@ -287,60 +287,61 @@ describe('OHRI Forms:', () => {
         ],
       });
 
-      // Render the form
-      await act(async () => renderForm(null, postSubmission_test_form));
-      const drugSensitiveProgramField = await findRadioGroupMember(screen, 'Drug-susceptible (DS) TB Program');
-      const enrolmentDateField = await findTextOrDateInput(screen, 'Date enrolled in tuberculosis (TB) care');
-      const treatmentNumber = await findNumberInput(screen, 'DS TB Treatment Number');
+      renderForm(null, postSubmissionTestForm);
 
-      // Simulate user interaction
-      fireEvent.click(drugSensitiveProgramField);
-      fireEvent.blur(enrolmentDateField, { target: { value: '2023-12-12T00:00:00.000Z' } });
-      fireEvent.blur(treatmentNumber, { target: { value: '11200' } });
+      await waitForLoadingToFinish();
 
-      // Simulate a successful form submission
-      await act(async () => {
-        fireEvent.submit(screen.getByText(/save/i));
-      });
+      const drugSensitiveProgramField = screen.getByRole('radio', { name: 'Drug-susceptible (DS) TB Program' });
+      const treatmentNumber = screen.getByRole('spinbutton', { name: /DS TB Treatment Number/i });
+
+      await user.click(drugSensitiveProgramField);
+      await user.click(screen.getByRole('textbox', { name: 'Date enrolled in tuberculosis (TB) care' }));
+      await user.paste('2023-12-12');
+      await user.click(treatmentNumber);
+      await user.paste('11200');
+      await user.click(screen.getByRole('button', { name: /save/i }));
 
       expect(saveEncounterMock).toHaveBeenCalled();
-      await act(async () => expect(saveEncounterMock).toReturn());
     });
   });
 
-  describe('obs group count validation', () => {
+  describe('Obs group count validation', () => {
     it('should show error toast when the obs group count does not match the number count specified', async () => {
-      await act(async () => renderForm(null, labour_and_delivery_test_form));
+      renderForm(null, labourAndDeliveryTestForm);
 
-      //Number of babies born from this pregnancy
-      const birthCount = await findNumberInput(screen, 'Number of babies born from this pregnancy');
+      await waitForLoadingToFinish();
+
+      // Number of babies born from this pregnancy
+      const birthCount = screen.getByLabelText(/number of babies born from this pregnancy/i);
       expect(birthCount).toBeInTheDocument();
-      fireEvent.blur(birthCount, { target: { value: 3 } });
+
+      await user.type(birthCount, '3');
       expect(birthCount).toHaveValue(3);
 
-      //Male radio button in 'sex at birth' field
-      const maleSexLabel = await findRadioGroupMember(screen, 'Male');
+      // Male radio button in 'sex at birth' field
+      const maleSexLabel = screen.getByRole('radio', { name: /^male$/i });
       expect(maleSexLabel).toBeInTheDocument();
-      fireEvent.click(maleSexLabel);
+
+      await user.click(maleSexLabel);
       expect(maleSexLabel).toBeChecked();
 
-      //Missing radio button in "infant status" field
-      const infantStatus = await findRadioGroupInput(screen, 'Infant Status at birth');
-      const infantStatusMissingLabel = await within(infantStatus).findByRole('radio', { name: 'Missing' });
+      // Missing radio button in "infant status" field
+      const infantStatus = screen.getByRole('group', { name: /infant status at birth/i });
+      const infantStatusMissingLabel = within(infantStatus).getByRole('radio', { name: 'Missing' });
       expect(infantStatusMissingLabel).toBeInTheDocument();
-      fireEvent.click(infantStatusMissingLabel);
+
+      await user.click(infantStatusMissingLabel);
       expect(infantStatusMissingLabel).toBeChecked();
 
-      // date of birth field
-      const dateOfBirth = await findTextOrDateInput(screen, 'Date of Birth');
+      const dateOfBirth = screen.getByRole('textbox', { name: /date of birth/i });
       expect(dateOfBirth).toBeInTheDocument();
-      fireEvent.blur(dateOfBirth, { target: { value: '11/03/2022' } });
+
+      await user.click(dateOfBirth);
+      await user.paste('2022-03-11');
+
       expect(dateOfBirth).toHaveValue('11/03/2022');
 
-      //saving form
-      await act(async () => {
-        fireEvent.click(screen.getByText(/save/i));
-      });
+      await user.click(screen.getByRole('button', { name: /save/i }));
 
       expect(mockShowToast).toHaveBeenCalled();
       expect(mockShowToast).toHaveBeenCalledWith({
@@ -352,26 +353,27 @@ describe('OHRI Forms:', () => {
     });
   });
 
-  describe('Filter Answer Options', () => {
+  describe('Filter answer options', () => {
     it('should filter dropdown options based on value in count input field', async () => {
-      //setup
-      await act(async () => renderForm(null, filter_answer_options_form));
-      const recommendationDropdown = await findSelectInput(screen, 'Testing Recommendations');
-      const testCountField = await findNumberInput(screen, 'How many times have you tested in the past?');
-      // open dropdown
-      fireEvent.click(recommendationDropdown);
+      renderForm(null, filterAnswerOptionsTestForm);
+
+      await waitForLoadingToFinish();
+
+      const recommendationDropdown = screen.getByRole('combobox', { name: /Testing Recommendations/i });
+      const testCountField = screen.getByRole('spinbutton', { name: 'How many times have you tested in the past?' });
+
+      await user.click(recommendationDropdown);
+
       expect(screen.queryByRole('option', { name: /Perfect testing/i })).toBeInTheDocument();
       expect(screen.queryByRole('option', { name: /Minimal testing/i })).toBeInTheDocument();
       expect(screen.queryByRole('option', { name: /Un-decisive/i })).toBeInTheDocument();
       expect(screen.queryByRole('option', { name: /Not ideal/i })).toBeInTheDocument();
-      // close dropdown
-      fireEvent.click(recommendationDropdown);
-      // provide a value greater than 5
-      fireEvent.blur(testCountField, { target: { value: '6' } });
-      // re-open dropdown
-      fireEvent.click(recommendationDropdown);
-      // verify
-      expect(testCountField.value).toBe('6');
+
+      await user.click(recommendationDropdown);
+      await user.type(testCountField, '6');
+      await user.click(recommendationDropdown);
+
+      expect(testCountField).toHaveValue(6);
       expect(screen.queryByRole('option', { name: /Perfect testing/i })).toBeNull();
       expect(screen.queryByRole('option', { name: /Minimal testing/i })).toBeNull();
       expect(screen.queryByRole('option', { name: /Un-decisive/i })).toBeInTheDocument();
@@ -380,186 +382,163 @@ describe('OHRI Forms:', () => {
   });
 
   describe('Calculated values', () => {
-    afterEach(() => {
-      cleanup();
+    it('should evaluate BMI', async () => {
+      renderForm(null, bmiForm);
+
+      await waitForLoadingToFinish();
+
+      const bmiField = await screen.getByRole('textbox', { name: /bmi/i });
+      const heightField = await screen.getByLabelText(/height/i);
+      const weightField = await screen.getByLabelText(/weight/i);
+
+      await user.type(weightField, '50');
+      await user.type(heightField, '150');
+      await user.tab();
+
+      expect(heightField).toHaveValue(150);
+      expect(weightField).toHaveValue(50);
+      expect(bmiField).toHaveValue('22.2');
     });
 
-    it('Should evaluate BMI', async () => {
-      // setup
-      await act(async () => renderForm(null, bmi_form));
+    it('should evaluate BSA', async () => {
+      renderForm(null, bsaForm);
 
-      // const bmiField = (await screen.findByRole('textbox', { name: 'BMI' })) as HTMLInputElement;
-      const bmiField = await findTextOrDateInput(screen, 'BMI');
-      const heightField = await findNumberInput(screen, 'Height');
-      const weightField = await findNumberInput(screen, 'Weight');
-      await act(async () => expect(heightField.value).toBe(''));
-      await act(async () => expect(weightField.value).toBe(''));
-      await act(async () => expect(bmiField.value).toBe(''));
+      await waitForLoadingToFinish();
 
-      // replay
-      fireEvent.blur(heightField, { target: { value: 150 } });
-      fireEvent.blur(weightField, { target: { value: 50 } });
+      const bsaField = await screen.getByRole('textbox', { name: /bsa/i });
+      const heightField = await screen.getByRole('spinbutton', { name: /height/i });
+      const weightField = await screen.getByRole('spinbutton', { name: /weight/i });
 
-      // verify
-      await act(async () => expect(heightField.value).toBe('150'));
-      await act(async () => expect(weightField.value).toBe('50'));
-      await act(async () => expect(bmiField.value).toBe('22.2'));
+      await user.type(heightField, '190.5');
+      await user.type(weightField, '95');
+      await user.tab();
+
+      expect(heightField).toHaveValue(190.5);
+      expect(weightField).toHaveValue(95);
+      expect(bsaField).toHaveValue('2.24');
     });
 
-    it('Should evaluate BSA', async () => {
-      // setup
-      await act(async () => renderForm(null, bsa_form));
+    it('should evaluate EDD', async () => {
+      renderForm(null, eddForm);
 
-      const bsaField = await findTextOrDateInput(screen, 'BSA');
-      const heightField = await findNumberInput(screen, 'Height');
-      const weightField = await findNumberInput(screen, 'Weight');
-      await act(async () => expect(heightField.value).toBe(''));
-      await act(async () => expect(weightField.value).toBe(''));
-      await act(async () => expect(bsaField.value).toBe(''));
+      await waitForLoadingToFinish();
 
-      // replay
-      fireEvent.blur(heightField, { target: { value: 190.5 } });
-      fireEvent.blur(weightField, { target: { value: 95 } });
+      const eddField = screen.getByRole('textbox', { name: /edd/i });
+      const lmpField = screen.getByRole('textbox', { name: /lmp/i });
 
-      // verify
-      await act(async () => expect(heightField.value).toBe('190.5'));
-      await act(async () => expect(weightField.value).toBe('95'));
-      await act(async () => expect(bsaField.value).toBe('2.24'));
+      await user.click(lmpField);
+      await user.paste('2022-07-06');
+
+      expect(lmpField).toHaveValue(dayjs('2022-07-06').toDate().toLocaleDateString(locale));
+      expect(eddField).toHaveValue(dayjs('2023-04-12').toDate().toLocaleDateString(locale));
     });
 
-    it('Should evaluate EDD', async () => {
-      // setup
-      await act(async () => renderForm(null, edd_form));
-      const eddField = await findTextOrDateInput(screen, 'EDD');
-      const lmpField = await findTextOrDateInput(screen, 'LMP');
+    it('should evaluate months on ART', async () => {
+      renderForm(null, monthsOnArtForm);
 
-      await act(async () => expect(eddField.value).toBe(''));
-      await act(async () => expect(lmpField.value).toBe(''));
-
-      // replay
-      fireEvent.change(lmpField, { target: { value: '2022-07-06' } });
-
-      // verify
-      await act(async () => expect(lmpField.value).toBe(dayjs('2022-07-06').toDate().toLocaleDateString(locale)));
-      await act(async () => expect(eddField.value).toBe(dayjs('2023-04-12').toDate().toLocaleDateString(locale)));
-    });
-
-    it('Should evaluate months on ART', async () => {
-      // setup
-      await act(async () => renderForm(null, months_on_art_form));
       jest.useFakeTimers();
       jest.setSystemTime(new Date(2022, 9, 1));
-      let artStartDateField = (await screen.findByRole('textbox', {
-        name: /Antiretroviral treatment start date/,
-      })) as HTMLInputElement;
-      let monthsOnARTField = (await screen.findByRole('spinbutton', {
-        name: /Months on ART/,
-      })) as HTMLInputElement;
-      let assumeTodayToBe = '7/11/2022';
 
-      await act(async () => expect(artStartDateField.value).toBe(''));
-      await act(async () => expect(assumeTodayToBe).toBe('7/11/2022'));
-      await act(async () => expect(monthsOnARTField.value).toBe(''));
+      await waitForLoadingToFinish();
 
-      // replay
+      let artStartDateField = screen.getByRole('textbox', {
+        name: /antiretroviral treatment start date/i,
+      });
+      let monthsOnArtField = screen.getByRole('spinbutton', {
+        name: /months on art/i,
+      });
+
+      expect(artStartDateField).not.toHaveValue();
+      expect(monthsOnArtField).not.toHaveValue();
+
       fireEvent.blur(artStartDateField, { target: { value: '05/02/2022' } });
 
-      // verify
-      await act(async () => expect(artStartDateField.value).toBe('05/02/2022'));
-      await act(async () => expect(assumeTodayToBe).toBe('7/11/2022'));
-      await act(async () => expect(monthsOnARTField.value).toBe('7'));
+      await waitFor(() => {
+        expect(artStartDateField).toHaveValue('05/02/2022');
+        expect(monthsOnArtField).toHaveValue(7);
+      });
     });
 
-    it('Should evaluate viral load status', async () => {
-      // setup
-      await act(async () => renderForm(null, viral_load_status_form));
-      let viralLoadCountField = (await screen.findByRole('spinbutton', {
-        name: /Viral Load Count/,
-      })) as HTMLInputElement;
-      let viralLoadStatusField = (await screen.findByRole('group', {
-        name: /Viral Load Status/,
-      })) as HTMLInputElement;
-      let suppressedField = (await screen.findByRole('radio', {
-        name: /Suppressed/,
-      })) as HTMLInputElement;
-      let unsuppressedField = (await screen.findByRole('radio', {
-        name: /Unsuppressed/,
-      })) as HTMLInputElement;
+    it('should evaluate viral load status', async () => {
+      renderForm(null, viralLoadStatusForm);
 
-      await act(async () => expect(viralLoadCountField.value).toBe(''));
-      await act(async () => expect(viralLoadStatusField.value).toBe(undefined));
+      let viralLoadCountField = await screen.findByRole('spinbutton', {
+        name: /viral load count/i,
+      });
+      let suppressedField = await screen.findByRole('radio', {
+        name: /^suppressed$/i,
+      });
+      let unsuppressedField = await screen.findByRole('radio', {
+        name: /unsuppressed/i,
+      });
 
-      // replay
       fireEvent.blur(viralLoadCountField, { target: { value: 30 } });
 
-      // verify
-      await act(async () => expect(viralLoadCountField.value).toBe('30'));
-      await act(async () => expect(suppressedField).toBeChecked());
-      await act(async () => expect(unsuppressedField).not.toBeChecked());
+      await waitFor(() => {
+        expect(viralLoadCountField).toHaveValue(30);
+        expect(suppressedField).toBeChecked();
+        expect(unsuppressedField).not.toBeChecked();
+      });
     });
 
-    it('Should only show question when age is under 5', async () => {
-      // setup
-      await act(async () => renderForm(null, age_validation_form));
-      let enrollmentDate = (await screen.findByRole('textbox', {
+    it('should only show question when age is under 5', async () => {
+      renderForm(null, ageValidationForm);
+
+      await waitForLoadingToFinish();
+
+      let enrollmentDate = screen.getByRole('textbox', {
         name: /enrollmentDate/,
-      })) as HTMLInputElement;
-
-      await act(async () => expect(enrollmentDate.value).toBe(''));
-      fireEvent.blur(enrollmentDate, {
-        target: { value: '1975-07-06T00:00:00.000Z' },
       });
 
-      let mrn = (await screen.findByRole('textbox', {
-        name: /MRN/,
-      })) as HTMLInputElement;
-      await act(async () => expect(mrn.value).toBe(''));
+      expect(enrollmentDate).not.toHaveValue();
+      await user.click(enrollmentDate);
+      await user.paste('1975-07-06T00:00:00.000Z');
 
-      // verify
-      await act(async () =>
-        expect(enrollmentDate.value).toBe(new Date('1975-07-06T00:00:00.000Z').toLocaleDateString(locale)),
-      );
-      await act(async () => expect(mrn.value).toBe(''));
-      await act(async () => expect(mrn).toBeVisible());
-    });
-
-    it('Should load initial value from external arbitrary data source', async () => {
-      // setup
-      await act(async () => renderForm(null, external_data_source_form));
-      const bodyWeightField = await findNumberInput(screen, 'Body Weight');
-
-      // verify
-      await act(async () => expect(bodyWeightField.value).toBe('60'));
-    });
-
-    // FIXME: This test passes locally but fails in the CI environment
-    xit('Should evaluate next visit date', async () => {
-      // setup
-      await act(async () => renderForm(null, next_visit_form));
-      let followupDateField = (await screen.findByRole('textbox', {
-        name: /Followup Date/,
-      })) as HTMLInputElement;
-      let arvDispensedInDaysField = (await screen.findByRole('spinbutton', {
-        name: /ARV dispensed in days/,
-      })) as HTMLInputElement;
-      let nextVisitDateField = (await screen.findByRole('textbox', {
-        name: /Next visit date/,
-      })) as HTMLInputElement;
-
-      await act(async () => expect(followupDateField.value).toBe(''));
-      await act(async () => expect(arvDispensedInDaysField.value).toBe(''));
-      await act(async () => expect(nextVisitDateField.value).toBe(''));
-
-      // replay
-      fireEvent.blur(followupDateField, {
-        target: { value: '2022-07-06T00:00:00.000Z' },
+      let mrn = screen.getByRole('textbox', {
+        name: /mrn/i,
       });
-      fireEvent.blur(arvDispensedInDaysField, { target: { value: 120 } });
 
-      // verify
-      await act(async () => expect(followupDateField.value).toBe(''));
-      await act(async () => expect(arvDispensedInDaysField.value).toBe('120'));
-      await act(async () => expect(nextVisitDateField.value).toBe('11/3/2022'));
+      expect(enrollmentDate).toHaveValue(new Date('1975-07-06T00:00:00.000Z').toLocaleDateString(locale));
+
+      expect(mrn).toBeVisible();
+    });
+
+    it('should load initial value from external arbitrary data source', async () => {
+      renderForm(null, externalDataSourceForm);
+
+      await waitForLoadingToFinish();
+
+      const bodyWeightField = screen.getByRole('spinbutton', {
+        name: /body weight/i,
+      });
+
+      await waitFor(() => expect(bodyWeightField).toHaveValue(60));
+    });
+
+    it('should evaluate next visit date', async () => {
+      renderForm(null, nextVisitForm);
+
+      await waitForLoadingToFinish();
+
+      const followupDateField = screen.getByRole('textbox', {
+        name: /followup date/i,
+      });
+      const nextVisitDateField = screen.getByRole('textbox', {
+        name: /next visit date/i,
+      });
+      const arvDispensedInDaysField = screen.getByRole('spinbutton', {
+        name: /arv dispensed in days/i,
+      });
+
+      await user.click(followupDateField);
+      await user.paste('2022-07-06');
+      await user.tab();
+      await user.click(arvDispensedInDaysField);
+      await user.type(arvDispensedInDaysField, '120');
+      await user.tab();
+
+      expect(arvDispensedInDaysField).toHaveValue(120);
+      expect(nextVisitDateField).toHaveValue('03/11/2022');
     });
   });
 
@@ -568,10 +547,10 @@ describe('OHRI Forms:', () => {
       url.includes('/ws/rest/v1/concept?references=PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH'),
     );
 
-    when(mockOpenmrsFetch).calledWith(conceptResourcePath).mockReturnValue({ data: mock_concepts });
+    when(mockOpenmrsFetch).calledWith(conceptResourcePath).mockReturnValue({ data: mockConceptsForm });
 
     it('should add default labels based on concept display and substitute mapping references with uuids', async () => {
-      await act(async () => renderForm(null, reference_by_mapping_form));
+      renderForm(null, referenceByMappingForm);
 
       const yes = (await screen.findAllByRole('radio', {
         name: 'Yes',
@@ -579,104 +558,73 @@ describe('OHRI Forms:', () => {
       const no = (await screen.findAllByRole('radio', {
         name: 'No',
       })) as Array<HTMLInputElement>;
+
       await assertFormHasAllFields(screen, [
         { fieldName: 'Cough', fieldType: 'radio' },
         { fieldName: 'Occurrence of trauma', fieldType: 'radio' },
       ]);
-      await act(async () => expect(no[0].value).toBe('3cd6f86c-26fe-102b-80cb-0017a47871b2'));
-      await act(async () => expect(no[1].value).toBe('3cd6f86c-26fe-102b-80cb-0017a47871b2'));
-      await act(async () => expect(yes[0].value).toBe('3cd6f600-26fe-102b-80cb-0017a47871b2'));
-      await act(async () => expect(yes[1].value).toBe('3cd6f600-26fe-102b-80cb-0017a47871b2'));
+
+      expect(no[0].value).toBe('3cd6f86c-26fe-102b-80cb-0017a47871b2');
+      expect(no[1].value).toBe('3cd6f86c-26fe-102b-80cb-0017a47871b2');
+      expect(yes[0].value).toBe('3cd6f600-26fe-102b-80cb-0017a47871b2');
+      expect(yes[1].value).toBe('3cd6f600-26fe-102b-80cb-0017a47871b2');
     });
   });
 
-  describe('Obs Group', () => {
-    it('Should test addition of a repeating group', async () => {
-      //Setup
-      await act(async () => renderForm(null, obsGroup_test_form));
-      const femaleRadio = await findRadioGroupMember(screen, 'Female');
-      const maleRadio = await findRadioGroupMember(screen, 'Male');
-      const birthDateField = await findTextOrDateInput(screen, 'Date of Birth');
+  describe('Obs group', () => {
+    it('should test addition of a repeating group', async () => {
+      await act(async () => {
+        renderForm(null, obsGroupTestForm);
+      });
 
-      let femaleRadios = await findAllRadioGroupMembers(screen, 'Female');
-      let maleRadios = await findAllRadioGroupMembers(screen, 'Male');
-      let birthDateFields = await findAllTextOrDateInputs(screen, 'Date of Birth');
-      const addButton = await screen.findByRole('button', { name: 'Add' });
+      const addButton = screen.getByRole('button', { name: 'Add' });
+      expect(addButton).toBeInTheDocument();
+      expect(screen.getByRole('textbox', { name: /date of birth/i })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /^male$/i })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /female/i })).toBeInTheDocument();
 
-      //Verify
-      await act(async () => expect(femaleRadio).toBeInTheDocument());
-      await act(async () => expect(maleRadio).toBeInTheDocument());
-      await act(async () => expect(birthDateField).toBeInTheDocument());
-      await act(async () => expect(femaleRadios.length).toBe(1));
-      await act(async () => expect(maleRadios.length).toBe(1));
-      await act(async () => expect(birthDateFields.length).toBe(1));
-      await act(async () => expect(addButton).toBeInTheDocument());
+      await user.click(addButton);
 
-      //Add repeat group
-      await act(async () => fireEvent.click(addButton));
-      femaleRadios = await findAllRadioGroupMembers(screen, 'Female');
-      maleRadios = await findAllRadioGroupMembers(screen, 'Male');
-      birthDateFields = await findAllTextOrDateInputs(screen, 'Date of Birth');
-
-      //verify repeat
-      await act(async () => expect(femaleRadios.length).toBe(2));
-      await act(async () => expect(maleRadios.length).toBe(2));
-      await act(async () => expect(birthDateFields.length).toBe(2));
+      expect(screen.getByRole('button', { name: /remove group/i })).toBeInTheDocument();
+      expect(screen.getAllByRole('radio', { name: /^male$/i }).length).toEqual(2);
+      expect(screen.getAllByRole('radio', { name: /^female$/i }).length).toEqual(2);
+      expect(screen.getAllByRole('textbox', { name: /date of birth/i }).length).toEqual(2);
     });
 
-    it('Should test deletion of a group', async () => {
-      //Setup
-      await act(async () => renderForm(null, obsGroup_test_form));
-      let femaleRadios = await findAllRadioGroupMembers(screen, 'Female');
-      let maleRadios = await findAllRadioGroupMembers(screen, 'Male');
-      let birthDateFields = await findAllTextOrDateInputs(screen, 'Date of Birth');
+    it('should test deletion of a group', async () => {
+      await act(async () => {
+        renderForm(null, obsGroupTestForm);
+      });
 
-      const addButton = await screen.findByRole('button', { name: 'Add' });
+      const addButton = screen.getByRole('button', { name: 'Add' });
+      expect(addButton).toBeInTheDocument();
+      expect(screen.getByRole('textbox', { name: /date of birth/i })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /^male$/i })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /female/i })).toBeInTheDocument();
 
-      //Verify Initial state
-      await act(async () => expect(femaleRadios.length).toBe(1));
-      await act(async () => expect(maleRadios.length).toBe(1));
-      await act(async () => expect(birthDateFields.length).toBe(1));
+      const groups = screen.getAllByRole('group', { name: /my group/i });
+      expect(groups.length).toBe(1);
 
-      //Add repeat group
-      await act(async () => fireEvent.click(addButton));
+      await user.click(addButton);
 
-      const deleteButton = await screen.findByRole('button', { name: /remove group/i });
-      femaleRadios = await findAllRadioGroupMembers(screen, 'Female');
-      maleRadios = await findAllRadioGroupMembers(screen, 'Male');
-      birthDateFields = await findAllTextOrDateInputs(screen, 'Date of Birth');
+      const removeGroupButton = screen.getByRole('button', { name: /remove group/i });
+      expect(removeGroupButton).toBeInTheDocument();
 
-      //verify repeat
-      await act(async () => expect(femaleRadios.length).toBe(2));
-      await act(async () => expect(maleRadios.length).toBe(2));
-      await act(async () => expect(birthDateFields.length).toBe(2));
-      await act(async () => expect(deleteButton).toBeInTheDocument);
+      await user.click(removeGroupButton);
 
-      //delete group
-      await act(async () => fireEvent.click(deleteButton));
-      femaleRadios = await findAllRadioGroupMembers(screen, 'Female');
-      maleRadios = await findAllRadioGroupMembers(screen, 'Male');
-      birthDateFields = await findAllTextOrDateInputs(screen, 'Date of Birth');
-
-      //verify deletion
-      await act(async () => expect(deleteButton).not.toBeInTheDocument);
-      await act(async () => expect(femaleRadios.length).toBe(1));
-      await act(async () => expect(maleRadios.length).toBe(1));
-      await act(async () => expect(birthDateFields.length).toBe(1));
+      expect(removeGroupButton).not.toBeInTheDocument();
     });
   });
 
   function renderForm(formUUID, formJson, intent?: string) {
-    return act(() => {
-      render(
-        <OHRIForm
-          formJson={formJson as any}
-          formUUID={formUUID}
-          patientUUID={patientUUID}
-          formSessionIntent={intent}
-          visit={visit}
-        />,
-      );
-    });
+    render(
+      <OHRIForm
+        formJson={formJson}
+        formUUID={formUUID}
+        patientUUID={patientUUID}
+        formSessionIntent={intent}
+        visit={visit}
+      />,
+    );
   }
 });
