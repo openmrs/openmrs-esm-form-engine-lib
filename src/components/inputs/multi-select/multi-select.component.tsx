@@ -48,7 +48,7 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
       concept: answer.concept,
       label: answer.label,
       key: index,
-      disabled: answer.isDisabled,
+      disabled: answer.disable?.isDisabled,
     }));
 
   const initiallySelectedQuestionItems = [];

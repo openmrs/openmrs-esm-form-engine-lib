@@ -237,7 +237,7 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
             .forEach((answer: QuestionAnswerOption) => {
               answer.disable.isDisabled = evaluateExpression(
                 answer.disable?.disableWhenExpression,
-                {value: field, type: 'field'},
+                { value: field, type: 'field' },
                 flattenedFields,
                 tempInitialValues,
                 {
@@ -649,9 +649,9 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
           .forEach((answer) => {
             answer.isHidden = evaluateExpression(
               answer.hide?.hideWhenExpression,
-              {value: dependant, type: 'field'},
+              { value: dependant, type: 'field' },
               fields,
-              {...values, [fieldName]: value},
+              { ...values, [fieldName]: value },
               {
                 mode: sessionMode,
                 patient,
@@ -664,7 +664,7 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
           .forEach((answer) => {
             answer.disable.isDisabled = evaluateExpression(
               answer.disable?.disableWhenExpression,
-              {value: dependant, type: 'field'},
+              { value: dependant, type: 'field' },
               fields,
               { ...values, [fieldName]: value },
               {
