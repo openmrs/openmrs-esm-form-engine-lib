@@ -263,32 +263,24 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           const matchingConcept = findConceptByReference(field.questionOptions.concept, concepts);
           field.questionOptions.concept = matchingConcept ? matchingConcept.uuid : field.questionOptions.concept;
           field.label = field.label ? field.label : matchingConcept?.display;
-          // field.meta = {
-          //   concept: matchingConcept,
-          // };
           if (
             codedTypes.includes(field.questionOptions.rendering) &&
             !field.questionOptions.answers?.length &&
-            matchingConcept.conceptClass?.display === 'Question'
+            matchingConcept?.conceptClass?.display === 'Question' &&
+            matchingConcept?.answers?.length
           ) {
-            field.questionOptions.answers = matchingConcept?.answers.map((answer) => {
+            const collection = matchingConcept.answers.map((answer) => {
               return {
+                ...answer,
                 concept: answer.concept,
                 label: answer.label,
               };
             });
+            field.questionOptions.answers = collection;
           }
           field.meta = {
             concept: matchingConcept,
           };
-
-          if (
-            !field.questionOptions.answers?.length &&
-            field.meta?.concept?.conceptClass?.display === 'Question' &&
-            field.meta?.concept?.answers?.length
-          ) {
-            field.questionOptions.answers = field.meta?.concept?.answers;
-          }
           if (field.questionOptions.answers) {
             field.questionOptions.answers = field.questionOptions.answers.map((answer) => {
               const matchingAnswerConcept = findConceptByReference(answer.concept, concepts);
