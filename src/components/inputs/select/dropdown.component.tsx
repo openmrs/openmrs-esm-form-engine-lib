@@ -25,12 +25,12 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
     question.value =
-        obsDate === undefined
-          ? handler?.handleFieldSubmission(question, value, encounterContext)
-          : handler?.handleFieldSubmission(question, value, {
-              ...encounterContext,
-              encounterDate: obsDate !== undefined ? obsDate : undefined,
-            });
+      obsDate === undefined
+        ? handler?.handleFieldSubmission(question, value?.name, encounterContext)
+        : handler?.handleFieldSubmission(question, value?.name, {
+            ...encounterContext,
+            encounterDate: obsDate !== undefined ? obsDate : undefined,
+          });
   };
 
   useEffect(() => {
