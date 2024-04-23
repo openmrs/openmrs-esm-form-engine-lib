@@ -8,7 +8,12 @@ const LoadingIcon: React.FC = () => {
 
   return (
     <div className={styles['centerLoadingSVG']}>
-      <Loading description={t('activeLoadingIndicator', 'Active loading indicator')} withOverlay={false} small />
+      <Loading
+        description={t('activeLoadingIndicator', 'Active loading indicator')}
+        withOverlay={false}
+        role="progressbar"
+        small
+      />
     </div>
   );
 };
