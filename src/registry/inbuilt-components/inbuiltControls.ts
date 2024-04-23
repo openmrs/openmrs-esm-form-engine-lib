@@ -14,7 +14,7 @@ import OHRIDropdown from '../../components/inputs/select/ohri-dropdown.component
 import OHRITextArea from '../../components/inputs/text-area/ohri-text-area.component';
 import OHRIText from '../../components/inputs/text/ohri-text.component';
 import OHRIToggle from '../../components/inputs/toggle/ohri-toggle.component';
-import { OHRIRepeat } from '../../components/repeat/ohri-repeat.component';
+import OHRIRepeat from '../../components/repeat/ohri-repeat.component';
 import File from '../../components/inputs/file/file.component';
 import { RegistryItem } from '../registry';
 import { controlTemplates } from './control-templates';

@@ -72,7 +72,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
               return (
                 <RadioButton
                   id={`${question.id}-${answer.label}`}
-                  labelText={answer.label}
+                  labelText={answer.label ?? ''}
                   value={answer.concept}
                   key={index}
                 />

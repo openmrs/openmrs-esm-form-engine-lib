@@ -46,3 +46,8 @@
 .controlWidthConstrained {
   max-width: 18rem;
 }
+
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+}

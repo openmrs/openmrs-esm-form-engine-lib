@@ -27,9 +27,11 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
       });
     }
   }, [question.questions]);
+
   const groupContent = groupMembersControlMap
     .filter((groupMemberMapItem) => !!groupMemberMapItem && !groupMemberMapItem.field.isHidden)
     .map((groupMemberMapItem, index) => {
+      const keyId = groupMemberMapItem.field.id + '-' + index;
       const { control, field } = groupMemberMapItem;
       if (control) {
         const questionFragment = React.createElement(control, {
@@ -41,7 +43,7 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
         });
 
         return (
-          <div className={classNames(styles.flexColumn, styles.obsGroupColumn)}>
+          <div className={classNames(styles.flexColumn, styles.obsGroupColumn)} key={keyId}>
             <div className={styles.parentResizer}>
               {questionFragment}
               <div
@@ -59,8 +61,10 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
         );
       }
     });
+
   if (groupContent && deleteControl) {
     groupContent.push(deleteControl);
   }
+
   return <div className={styles.flexRow}>{groupContent}</div>;
 };
