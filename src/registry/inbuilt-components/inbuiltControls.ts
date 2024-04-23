@@ -5,7 +5,6 @@ import { OHRIObsGroup } from '../../components/group/ohri-obs-group.component';
 import { OHRIContentSwitcher } from '../../components/inputs/content-switcher/ohri-content-switcher.component';
 import OHRIDate from '../../components/inputs/date/ohri-date.component';
 import OHRIFixedValue from '../../components/inputs/fixed-value/ohri-fixed-value.component';
-import { OHRIEncounterLocationPicker } from '../../components/inputs/location/ohri-encounter-location.component';
 import OHRIMarkdown from '../../components/inputs/markdown/ohri-markdown.component';
 import { OHRIMultiSelect } from '../../components/inputs/multi-select/ohri-multi-select.component';
 import OHRINumber from '../../components/inputs/number/ohri-number.component';
@@ -19,7 +18,7 @@ import File from '../../components/inputs/file/file.component';
 import { RegistryItem } from '../registry';
 import { controlTemplates } from './control-templates';
 import { templateToComponentMap } from './template-component-map';
-import WorkspaceLauncher from '../../components/inputs/workspace-launcher/workspace-launcher';
+import WorkspaceLauncher from '../../components/inputs/workspace-launcher/workspace-launcher.component';
 
 /**
  * @internal
