@@ -40,7 +40,7 @@ export interface FieldSubmissionHandlerRegistration extends ComponentRegistratio
   type: string;
 }
 
-export interface FormSchemaTransformerRegistration extends ComponentRegistration<FormSchemaTransformer> {}
+export type FormSchemaTransformerRegistration = ComponentRegistration<FormSchemaTransformer>
 
 export interface FormsRegistryStoreState {
   controls: CustomControlRegistration[];

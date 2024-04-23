@@ -1,6 +1,6 @@
 import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
-import { OpenmrsForm, ProgramEnrollmentPayload } from '../types';
+import { OpenmrsForm, PatientIdentifier, ProgramEnrollmentPayload } from '../types';
 import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
@@ -189,3 +189,25 @@ export function updateProgramEnrollment(
     signal: abortController.signal,
   });
 }
+
+export function savePatientIdentifier(identifier: PatientIdentifier, patientUuid: string) {
+  return openmrsFetch(`${restBaseUrl}/patient/${patientUuid}/identifier`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+    body: identifier,
+  });
+}
+
+export function editPatientIdentifier(identifier: string, identifierUuid:string, patientUuid: string) {
+  return openmrsFetch(`${restBaseUrl}/patient/${patientUuid}/identifier/${identifierUuid}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+    body: {identifier: identifier},
+  });
+}
+
+

@@ -1,11 +1,12 @@
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { SessionLocation, showToast, useLayoutType, Visit } from '@openmrs/esm-framework';
+import { SessionLocation, showToast, showSnackbar, useLayoutType, Visit } from '@openmrs/esm-framework';
 import { codedTypes, ConceptFalse, ConceptTrue } from '../../constants';
 import {
   FormField,
   FormPage as FormPageProps,
   FormSchema,
   OpenmrsEncounter,
+  PatientIdentifier,
   QuestionAnswerOption,
   RepeatObsGroupCounter,
   SessionMode,
@@ -33,6 +34,8 @@ import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { useConcepts } from '../../hooks/useConcepts';
 import { useFormFieldHandlers } from '../../hooks/useFormFieldHandlers';
 import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
+import { saveIdentifier } from '../../utils/patientIdentifierProcessor';
+import { useTranslation } from 'react-i18next';
 
 interface EncounterFormProps {
   formJson: FormSchema;
@@ -81,6 +84,7 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
   isSubmitting,
   setIsSubmitting,
 }) => {
+  const { t } = useTranslation();
   const [fields, setFields] = useState<Array<FormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
   const [encounterDate, setEncounterDate] = useState(formSessionDate);
@@ -111,6 +115,7 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
       setEncounterDate,
       setEncounterProvider,
       setEncounterLocation,
+      patientIdentifier: {},
       initValues: initValues,
       obsGroupCounter: obsGroupCounter,
       setObsGroupCounter: setObsGroupCounter,
@@ -558,6 +563,10 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
     }
 
     if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {
+      //Save Identifiers if any
+      if (Object.keys(encounterContext?.patientIdentifier).length) {
+        saveIdentifier(patient, encounterContext.patientIdentifier);
+      }
       const ac = new AbortController();
       return saveEncounter(ac, encounterForSubmission, encounter?.uuid).then((response) => {
         const encounter = response.data;
@@ -575,6 +584,42 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
         return Promise.all(saveAttachmentPromises).then(() => response);
       });
     }
+
+    if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {
+      if (Object.keys(encounterContext?.patientIdentifier).length) {
+        return saveIdentifier(patient, encounterContext.patientIdentifier)
+          .then(() => saveEncounterWithAttachments(encounterForSubmission))
+          .catch((error) => {
+            showSnackbar({
+              title: t('errorDescriptionTitle', 'Error on saving form'),
+              subtitle: t('errorDescription', error),
+              kind: 'error',
+              isLowContrast: false,
+            });
+          });
+      } else {
+        return saveEncounterWithAttachments(encounterForSubmission);
+      }
+    }
+  };
+
+  const saveEncounterWithAttachments = (encounterForSubmission: OpenmrsEncounter) => {
+    const ac = new AbortController();
+    return saveEncounter(ac, encounterForSubmission, encounter?.uuid).then((response) => {
+      const encounter = response.data;
+      const fileFields = fields?.filter((field) => field?.questionOptions.rendering === 'file');
+      const saveAttachmentPromises = fileFields.map((field) => {
+        return saveAttachment(
+          encounter?.patient.uuid,
+          field,
+          field?.questionOptions.concept,
+          new Date().toISOString(),
+          encounter?.uuid,
+          ac,
+        );
+      });
+      return Promise.all(saveAttachmentPromises).then(() => response);
+    });
   };
 
   const onFieldChange = (
