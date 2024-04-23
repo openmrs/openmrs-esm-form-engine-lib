@@ -282,7 +282,9 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
         setSubmitting(false);
       }}>
       {(props) => {
-        markFormAsDirty(props.dirty);
+        useEffect(() => {
+          markFormAsDirty(props.dirty);
+        }, [props.dirty]);
 
         return (
           <Form className={classNames('cds--form', 'no-padding', styles.ohriForm)} ref={ref}>
