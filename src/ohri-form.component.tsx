@@ -69,6 +69,7 @@ interface OHRIFormProps {
    * Renamed to `encounterUUID`. To be removed in future iterations.
    */
   encounterUuid?: string;
+  markFormAsDirty?: (isDirty: boolean) => void;
 }
 
 export interface FormSubmissionHandler {
