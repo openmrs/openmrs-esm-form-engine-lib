@@ -1,0 +1,15 @@
+@use '@carbon/colors';
+
+.label {
+  font-weight: 600;
+  color: colors.$black-100;
+}
+
+.errorLabel label {
+  color: colors.$red-60;
+  font-weight: 600;
+}
+
+.workspaceButton {
+  margin: 1rem 0;
+}
