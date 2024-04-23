@@ -11,6 +11,7 @@ import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
 import { isTrue } from '../../utils/boolean-utils';
+import { evaluateExpression, HD } from '../../utils/expression-runner';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<OHRIFormFieldProps>;
@@ -42,6 +43,22 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
           .filter((entry) => entry?.fieldComponent)
           .map((entry, index) => {
             const { fieldComponent: FieldComponent, fieldDescriptor, handler } = entry;
+
+            if (fieldDescriptor.historicalExpression) {
+              const historicalValue = evaluateExpression(
+                fieldDescriptor.historicalExpression,
+                { value: fieldDescriptor, type: 'field' },
+                fieldsFromEncounter,
+                encounterContext.initValues,
+                {
+                  mode: encounterContext.sessionMode,
+                  patient: encounterContext.patient,
+                  previousEncounter: encounterContext.previousEncounter,
+                },
+              );
+
+              console.log(historicalValue);
+            }
 
             const previousFieldValue = encounterContext.previousEncounter
               ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)

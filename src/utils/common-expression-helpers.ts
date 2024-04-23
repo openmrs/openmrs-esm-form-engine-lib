@@ -445,6 +445,18 @@ export class CommonExpressionHelpers {
   };
 }
 
+export class HistoricalDataSourceService {
+  dataSourceMap: Record<string, any> = {};
+
+  putObject(key: string, value: any) {
+    this.dataSourceMap[key] = value;
+  }
+
+  getObject(key: string) {
+    return this.dataSourceMap[key];
+  }
+}
+
 export function registerDependency(node: FormNode, determinant: OHRIFormField) {
   if (!node || !determinant) {
     return;
