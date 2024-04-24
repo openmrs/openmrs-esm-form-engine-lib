@@ -1,41 +1,27 @@
 @use '@carbon/colors';
 
-.formField {
-  margin-top: 10px;
+.errorLegend legend {
+  color: colors.$red-60 !important;
+  font-weight: 600;
 }
 
-.formField > div > div > label {
+.boldedLegend legend {
+  color: colors.$black-100 !important;
+  font-weight: 600;
+}
+
+.warningLabel {
+  display: block;
+  max-height: 12.5rem;
+  overflow: visible;
+  font-weight: 400;
   color: colors.$gray-70;
 }
 
-.row {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-}
-
-.errorLabel :global(.cds--form-requirement) {
+.errorLabel {
   display: block;
   max-height: 12.5rem;
   overflow: visible;
   font-weight: 400;
   color: colors.$red-60;
-}
-
-.errorLegend legend {
-  color: colors.$red-60 !important;
-}
-
-.warningLabel :global(.cds--form-requirement) {
-  display: block;
-  max-height: 12.5rem;
-  overflow: visible;
-  font-weight: 400;
-  color: colors.$gray-70;
-}
-
-.reviewPreviousValueRadioOverrides div {
-  width: auto !important;
-  position: absolute;
-  margin-top: -3.86rem;
 }

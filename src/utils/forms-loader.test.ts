@@ -5,7 +5,7 @@ import {
   htsRetrospectiveResultingSchemaV2,
   htsWildcardResultingSchemaV2,
   testSchemaV2,
-} from '../../__mocks__/forms/json-forms/forms-loader.test.schema';
+} from '../../__mocks__/forms/rfe-forms/forms-loader.test.schema';
 
 const htsTestForms: FormJsonFile[] = [
   {

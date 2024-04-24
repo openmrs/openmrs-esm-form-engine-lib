@@ -2,11 +2,11 @@ import { render, fireEvent, screen, cleanup, act, waitFor } from '@testing-libra
 import { when } from 'jest-when';
 import React from 'react';
 import FormEngine from '../form-engine.component';
-import wh_zscore from '../../__mocks__/forms/json-forms/zscore-weight-height-form.json';
+import wh_zscore from '../../__mocks__/forms/rfe-forms/zscore-weight-height-form.json';
 import { mockPatientAge4 } from '../../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../../__mocks__/session.mock';
 import demoHtsOpenmrsForm from '../../__mocks__/forms/omrs-forms/demo_hts-form.json';
-import demoHtsForm from '../../__mocks__/forms/json-forms/demo_hts-form.json';
+import demoHtsForm from '../../__mocks__/forms/rfe-forms/demo_hts-form.json';
 
 import { findNumberInput, findTextOrDateInput } from '../utils/test-utils';
 import { mockVisit } from '../../__mocks__/visit.mock';

@@ -1,17 +1,11 @@
 @use '@carbon/colors';
 
-.textInputOverrides > div > div {
-  width: 22.313rem;
+.boldedLabel label {
+  font-weight: 600;
+  color: colors.$black-100;
 }
 
 .errorLabel label {
-  color: colors.$red-60 !important;
-}
-
-.formField {
-  margin-top: 10px;
-}
-
-.formField > div > div > label {
-  color: colors.$gray-70;
+  color: colors.$red-60;
+  font-weight: 600;
 }

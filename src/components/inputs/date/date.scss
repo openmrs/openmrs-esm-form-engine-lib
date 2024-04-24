@@ -1,40 +1,21 @@
 @use '@carbon/colors';
 
-.datetime > div {
-  margin-right: 02rem !important;
-  flex: none !important;
-  box-sizing: content-box !important;
-}
-
-// check this on UI before merge
-.datePickerOverrides label {
+.boldedLabel label {
   font-weight: 600;
   color: colors.$black-100;
 }
 
-.datePickerOverrides input {
-  width: 22.313rem !important;
-}
-
-.disabled label {
-  color: colors.$gray-70 !important;
-}
-
 .errorLabel label {
-  color: colors.$red-60 !important;
+  color: colors.$red-60;
+  font-weight: 600;
 }
 
-.formField :global(.bx--time-picker__input-field) {
-  width: auto;
-  margin-left: 5rem;
-}
-
-.formField :global(.bx--label--disabled) {
-  margin-left: 5rem;
-}
-
-.row {
+.datetime {
   display: flex;
   flex-direction: row;
-  align-items: baseline;
+  flex-wrap: wrap;
+
+  > .timePickerSpacing {
+    margin-left: 1rem;
+  }
 }

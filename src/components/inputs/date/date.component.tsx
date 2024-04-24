@@ -5,19 +5,19 @@ import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
 import { DatePicker, DatePickerInput, Layer, TimePicker } from '@carbon/react';
 import { formatDate } from '@openmrs/esm-framework';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
-import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { FormFieldProps } from '../../../types';
-import { FormContext } from '../../../form-context';
+import { isInlineView } from '../../../utils/form-helper';
 import { FieldValueView } from '../../value/view/field-value-view.component';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { FormContext } from '../../../form-context';
 import styles from './date.scss';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
+const dateFormatter = new Intl.DateTimeFormat(locale);
 
 const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
-  const dateFormatter = new Intl.DateTimeFormat(window.navigator.language);
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
@@ -217,5 +217,4 @@ function getDisplay(date: Date, rendering: string) {
   }
   return dateString;
 }
-
 export default DateField;
