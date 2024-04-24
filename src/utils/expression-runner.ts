@@ -1,14 +1,7 @@
-<<<<<<< HEAD
 import { getRegisteredExpressionHelpers } from '../registry/registry';
-import { FormField, FormPage, FormSection } from '../types';
-import { CommonExpressionHelpers } from './common-expression-helpers';
-=======
-import { OHRIFormField, OHRIFormPage, OHRIFormSection, OpenmrsEncounter } from '../api/types';
-import { getRegisteredExpressionHelpers } from '../registry/registry';
+import { FormField, FormPage, FormSection, OpenmrsEncounter } from '../types';
 import { CommonExpressionHelpers, HistoricalDataSourceService } from './common-expression-helpers';
->>>>>>> e1fe9dd (Getting the HD object to evaluate)
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
-import { EncounterContext } from '../ohri-form-context';
 
 export interface FormNode {
   value: FormPage | FormSection | FormField;
@@ -35,8 +28,6 @@ export function evaluateExpression(
     return null;
   }
 
-  console.log(context.previousEncounter);
-
   const allFieldsKeys = fields.map((f) => f.id);
   const parts = parseExpression(expression.trim());
   // register dependencies
@@ -54,7 +45,7 @@ export function evaluateExpression(
   HD.putObject('prevEnc', {
     value: context.previousEncounter,
     getValue(concept) {
-      return this.value.obs.find((obs) => obs.concept.uuid == concept)?.value;
+      return this.value.obs.find((obs) => obs.concept.uuid == concept);
     },
   });
 
@@ -91,10 +82,8 @@ export async function evaluateAsyncExpression(
     return null;
   }
 
-  const allFieldsKeys = fields.map((f) => f.id); //extract ids from the fields
-  let parts = parseExpression(expression.trim()); //takes the trimmed expression and returns "tokens", whatever that means
-  // tokens are kinda like broken down pieces of the expression...
-  // console.log(parts);
+  const allFieldsKeys = fields.map((f) => f.id);
+  let parts = parseExpression(expression.trim());
 
   // register dependencies
   findAndRegisterReferencedFields(node, parts, fields); //what does this do????
@@ -118,8 +107,6 @@ export async function evaluateAsyncExpression(
     age,
     temporaryObjectsMap: {},
   };
-
-  // console.log(new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys));
 
   expression = linkReferencedFieldValues(fields, fieldValues, parts);
 

@@ -444,10 +444,6 @@ export class CommonExpressionHelpers {
     return Promise.resolve(lazy);
   };
 }
-
-<<<<<<< HEAD
-export function registerDependency(node: FormNode, determinant: FormField) {
-=======
 export class HistoricalDataSourceService {
   dataSourceMap: Record<string, any> = {};
 
@@ -460,8 +456,7 @@ export class HistoricalDataSourceService {
   }
 }
 
-export function registerDependency(node: FormNode, determinant: OHRIFormField) {
->>>>>>> e1fe9dd (Getting the HD object to evaluate)
+export function registerDependency(node: FormNode, determinant: FormField) {
   if (!node || !determinant) {
     return;
   }

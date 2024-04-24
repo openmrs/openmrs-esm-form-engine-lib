@@ -8,21 +8,49 @@ import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { formatPreviousValueDisplayText, getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
 import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
 import { isTrue } from '../../utils/boolean-utils';
-<<<<<<< HEAD:src/components/section/form-section.component.tsx
 import { UnspecifiedField } from '../inputs/unspecified/unspecified.component';
 import { FormField, FormFieldProps, previousValue, SubmissionHandler } from '../../types';
 import { FormContext } from '../../form-context';
 import { Tooltip } from '../inputs/tooltip/tooltip.component';
 import styles from './form-section.scss';
-=======
-import { evaluateExpression, HD } from '../../utils/expression-runner';
->>>>>>> e1fe9dd (Getting the HD object to evaluate):src/components/section/ohri-form-section.component.tsx
+import { evaluateExpression } from '../../utils/expression-runner';
+import dayjs from 'dayjs';
+import { parseToLocalDateTime } from '../../utils/form-helper';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<FormFieldProps>;
   fieldDescriptor: FormField;
   handler: SubmissionHandler;
 }
+
+const historicalValueTransformer = (field, obs) => {
+  const rendering = field.questionOptions.rendering;
+  if (typeof obs.value == 'string' || typeof obs.value == 'number') {
+    if (rendering == 'date' || rendering == 'datetime') {
+      const dateObj = parseToLocalDateTime(`${obs.value}`);
+      return { value: dateObj, display: dayjs(dateObj).format('YYYY-MM-DD HH:mm') };
+    }
+    return { value: obs.value, display: obs.value };
+  }
+  if (rendering == 'checkbox') {
+    return obs.map((each) => {
+      return {
+        value: each.value?.uuid,
+        display: each.value?.name?.name,
+      };
+    });
+  }
+  if (rendering == 'toggle') {
+    return {
+      value: obs.value?.uuid,
+      display: obs.value?.name?.name,
+    };
+  }
+  return {
+    value: obs.value?.uuid,
+    display: field.questionOptions.answers?.find((option) => option.concept == obs.value?.uuid)?.label,
+  };
+};
 
 const FormSection = ({ fields, onFieldChange }) => {
   const [previousValues, setPreviousValues] = useState<Record<string, previousValue>>({});
@@ -48,29 +76,28 @@ const FormSection = ({ fields, onFieldChange }) => {
           .filter((entry) => entry?.fieldComponent)
           .map((entry, index) => {
             const { fieldComponent: FieldComponent, fieldDescriptor, handler } = entry;
-<<<<<<< HEAD:src/components/section/form-section.component.tsx
             const rendering = fieldDescriptor.questionOptions.rendering;
-=======
 
-            if (fieldDescriptor.historicalExpression) {
-              const historicalValue = evaluateExpression(
-                fieldDescriptor.historicalExpression,
-                { value: fieldDescriptor, type: 'field' },
-                fieldsFromEncounter,
-                encounterContext.initValues,
-                {
-                  mode: encounterContext.sessionMode,
-                  patient: encounterContext.patient,
-                  previousEncounter: encounterContext.previousEncounter,
-                },
-              );
+            const historicalValue = fieldDescriptor.historicalExpression
+              ? evaluateExpression(
+                  fieldDescriptor.historicalExpression,
+                  { value: fieldDescriptor, type: 'field' },
+                  fieldsFromEncounter,
+                  encounterContext.initValues,
+                  {
+                    mode: encounterContext.sessionMode,
+                    patient: encounterContext.patient,
+                    previousEncounter: encounterContext.previousEncounter,
+                  },
+                )
+              : null;
 
-              console.log(historicalValue);
-            }
-
->>>>>>> e1fe9dd (Getting the HD object to evaluate):src/components/section/ohri-form-section.component.tsx
             const previousFieldValue = encounterContext.previousEncounter
               ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)
+              : null;
+
+            const transformedHistoricalValue = historicalValue
+              ? historicalValueTransformer(fieldDescriptor, historicalValue)
               : null;
 
             if (FieldComponent) {
@@ -118,13 +145,16 @@ const FormSection = ({ fields, onFieldChange }) => {
                     )}
                   </div>
                   {encounterContext?.previousEncounter &&
-                    previousFieldValue &&
+                    (previousFieldValue || historicalValue) &&
                     (isTrue(fieldDescriptor.questionOptions.enablePreviousValue) ||
                       fieldDescriptor.historicalExpression) && (
                       <div className={styles.previousValue}>
                         <PreviousValueReview
-                          previousValue={previousFieldValue}
-                          displayText={formatPreviousValueDisplayText(fieldDescriptor, previousFieldValue)}
+                          previousValue={previousFieldValue || transformedHistoricalValue}
+                          displayText={formatPreviousValueDisplayText(
+                            fieldDescriptor,
+                            previousFieldValue || transformedHistoricalValue,
+                          )}
                           setValue={setPreviousValues}
                           field={fieldDescriptor.id}
                         />
