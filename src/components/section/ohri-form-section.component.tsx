@@ -12,12 +12,43 @@ import { OHRIFormContext } from '../../ohri-form-context';
 import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
 import { isTrue } from '../../utils/boolean-utils';
 import { evaluateExpression, HD } from '../../utils/expression-runner';
+import { parseToLocalDateTime } from '../../utils/ohri-form-helper';
+import dayjs from 'dayjs';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<OHRIFormFieldProps>;
   fieldDescriptor: OHRIFormField;
   handler: SubmissionHandler;
 }
+
+const historicalValueTransformer = (field, obs) => {
+  const rendering = field.questionOptions.rendering;
+  if (typeof obs.value == 'string' || typeof obs.value == 'number') {
+    if (rendering == 'date' || rendering == 'datetime') {
+      const dateObj = parseToLocalDateTime(`${obs.value}`);
+      return { value: dateObj, display: dayjs(dateObj).format('YYYY-MM-DD HH:mm') };
+    }
+    return { value: obs.value, display: obs.value };
+  }
+  if (rendering == 'checkbox') {
+    return obs.map((each) => {
+      return {
+        value: each.value?.uuid,
+        display: each.value?.name?.name,
+      };
+    });
+  }
+  if (rendering == 'toggle') {
+    return {
+      value: obs.value?.uuid,
+      display: obs.value?.name?.name,
+    };
+  }
+  return {
+    value: obs.value?.uuid,
+    display: field.questionOptions.answers?.find((option) => option.concept == obs.value?.uuid)?.label,
+  };
+};
 
 const OHRIFormSection = ({ fields, onFieldChange }) => {
   const [previousValues, setPreviousValues] = useState<Record<string, previousValue>>({});
@@ -44,26 +75,30 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
           .map((entry, index) => {
             const { fieldComponent: FieldComponent, fieldDescriptor, handler } = entry;
 
-            if (fieldDescriptor.historicalExpression) {
-              const historicalValue = evaluateExpression(
-                fieldDescriptor.historicalExpression,
-                { value: fieldDescriptor, type: 'field' },
-                fieldsFromEncounter,
-                encounterContext.initValues,
-                {
-                  mode: encounterContext.sessionMode,
-                  patient: encounterContext.patient,
-                  previousEncounter: encounterContext.previousEncounter,
-                },
-              );
-
-              console.log(historicalValue);
-            }
+            const historicalValue = fieldDescriptor.historicalExpression
+              ? evaluateExpression(
+                  fieldDescriptor.historicalExpression,
+                  { value: fieldDescriptor, type: 'field' },
+                  fieldsFromEncounter,
+                  encounterContext.initValues,
+                  {
+                    mode: encounterContext.sessionMode,
+                    patient: encounterContext.patient,
+                    previousEncounter: encounterContext.previousEncounter,
+                  },
+                )
+              : null;
 
             const previousFieldValue = encounterContext.previousEncounter
               ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)
               : null;
 
+            const transformedHistoricalValue = historicalValue
+              ? historicalValueTransformer(fieldDescriptor, historicalValue)
+              : null;
+
+            console.log(transformedHistoricalValue);
+            // console.log('similarity: ', previousFieldValue);
             if (FieldComponent) {
               const qnFragment = (
                 <FieldComponent
@@ -113,13 +148,16 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                       )}
                   </div>
                   {encounterContext?.previousEncounter &&
-                    previousFieldValue &&
+                    (previousFieldValue || historicalValue) &&
                     (isTrue(fieldDescriptor.questionOptions.enablePreviousValue) ||
                       fieldDescriptor.historicalExpression) && (
                       <div className={styles.previousValue}>
                         <PreviousValueReview
-                          previousValue={previousFieldValue}
-                          displayText={formatPreviousValueDisplayText(fieldDescriptor, previousFieldValue)}
+                          previousValue={previousFieldValue || transformedHistoricalValue}
+                          displayText={formatPreviousValueDisplayText(
+                            fieldDescriptor,
+                            previousFieldValue || transformedHistoricalValue,
+                          )}
                           setValue={setPreviousValues}
                           field={fieldDescriptor.id}
                         />
