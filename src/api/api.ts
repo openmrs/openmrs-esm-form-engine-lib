@@ -1,6 +1,4 @@
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { openmrsFetch, openmrsObservableFetch } from '@openmrs/esm-framework';
+import { openmrsFetch } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
 import { OpenmrsForm, ProgramEnrollmentPayload } from '../types';
 import { isUuid } from '../utils/boolean-utils';
@@ -55,20 +53,16 @@ export function getAttachmentByUuid(patientUuid: string, encounterUuid: string, 
   }).then((response) => response.data);
 }
 
-export function getConcept(conceptUuid: string, v: string): Observable<any> {
-  return openmrsObservableFetch(`/ws/rest/v1/concept/${conceptUuid}?v=${v}`).pipe(map((response) => response['data']));
+export function getConcept(conceptUuid: string, v: string) {
+  return openmrsFetch(`/ws/rest/v1/concept/${conceptUuid}?v=${v}`).then(({ data }) => data.results);
 }
 
-export function getLocationsByTag(tag: string): Observable<{ uuid: string; display: string }[]> {
-  return openmrsObservableFetch(`/ws/rest/v1/location?tag=${tag}&v=custom:(uuid,display)`).pipe(
-    map(({ data }) => data['results']),
-  );
+export function getLocationsByTag(tag: string) {
+  return openmrsFetch(`/ws/rest/v1/location?tag=${tag}&v=custom:(uuid,display)`).then(({ data }) => data.results);
 }
 
-export function getAllLocations(): Observable<{ uuid: string; display: string }[]> {
-  return openmrsObservableFetch(`/ws/rest/v1/location?v=custom:(uuid,display)`).pipe(
-    map(({ data }) => data['results']),
-  );
+export function getAllLocations() {
+  return openmrsFetch<{ results }>(`/ws/rest/v1/location?v=custom:(uuid,display)`).then(({ data }) => data.results);
 }
 
 export async function getPreviousEncounter(patientUuid: string, encounterType: string) {
@@ -169,7 +163,7 @@ export function createProgramEnrollment(payload: ProgramEnrollmentPayload, abort
     throw new Error('Program enrollment cannot be created because no payload is supplied');
   }
   const { program, patient, dateEnrolled, dateCompleted, location } = payload;
-  return openmrsObservableFetch(`${BASE_WS_API_URL}programenrollment`, {
+  return openmrsFetch(`${BASE_WS_API_URL}programenrollment`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -188,7 +182,7 @@ export function updateProgramEnrollment(
     throw new Error('Program enrollment cannot be edited without a payload or a program Uuid');
   }
   const { dateEnrolled, dateCompleted, location } = payload;
-  return openmrsObservableFetch(`${BASE_WS_API_URL}programenrollment/${programEnrollmentUuid}`, {
+  return openmrsFetch(`${BASE_WS_API_URL}programenrollment/${programEnrollmentUuid}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

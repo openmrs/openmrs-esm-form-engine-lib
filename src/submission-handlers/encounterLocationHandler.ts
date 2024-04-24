@@ -3,7 +3,7 @@ import { getAllLocations } from '../api/api';
 
 export const EncounterLocationSubmissionHandler: SubmissionHandler = {
   handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
-    getAllLocations().subscribe((data) => {
+    getAllLocations().then((data) => {
       context.setEncounterLocation(data.find((location) => location.uuid === value));
     });
     return value;

@@ -63,7 +63,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
       field.value = JSON.parse(JSON.stringify(obs));
       assignedObsIds.push(obs.uuid);
       if (rendering == 'radio' || rendering == 'content-switcher') {
-        getConcept(field.questionOptions.concept, 'custom:(uuid,display,datatype:(uuid,display,name))').subscribe(
+        getConcept(field.questionOptions.concept, 'custom:(uuid,display,datatype:(uuid,display,name))').then(
           (result) => {
             if (result.datatype.name == 'Boolean') {
               field.value.value = obs.value.uuid;

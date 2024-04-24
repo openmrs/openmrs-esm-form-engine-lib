@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, screen, cleanup, act } from '@testing-library/react';
-import { Form, Formik } from 'formik';
+import { Formik } from 'formik';
 import { EncounterContext, FormContext } from '../../../form-context';
 import Dropdown from './dropdown.component';
 import { FormField } from '../../../types';
@@ -54,23 +54,21 @@ const renderForm = (intialValues) => {
   render(
     <Formik initialValues={intialValues} onSubmit={null}>
       {(props) => (
-        <Form>
-          <FormContext.Provider
-            value={{
-              values: props.values,
-              setFieldValue: props.setFieldValue,
-              setEncounterLocation: jest.fn(),
-              obsGroupsToVoid: [],
-              setObsGroupsToVoid: jest.fn(),
-              encounterContext: encounterContext,
-              fields: [question],
-              isFieldInitializationComplete: true,
-              isSubmitting: false,
-              formFieldHandlers: { obs: ObsSubmissionHandler },
-            }}>
-            <Dropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-          </FormContext.Provider>
-        </Form>
+        <FormContext.Provider
+          value={{
+            values: props.values,
+            setFieldValue: props.setFieldValue,
+            setEncounterLocation: jest.fn(),
+            obsGroupsToVoid: [],
+            setObsGroupsToVoid: jest.fn(),
+            encounterContext: encounterContext,
+            fields: [question],
+            isFieldInitializationComplete: true,
+            isSubmitting: false,
+            formFieldHandlers: { obs: ObsSubmissionHandler },
+          }}>
+          <Dropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+        </FormContext.Provider>
       )}
     </Formik>,
   );
