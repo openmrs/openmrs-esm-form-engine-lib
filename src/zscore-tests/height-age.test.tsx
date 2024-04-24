@@ -1,20 +1,18 @@
-import { render, fireEvent, screen, cleanup, act, waitFor } from '@testing-library/react';
-import { when } from 'jest-when';
 import React from 'react';
+import { render, screen, act } from '@testing-library/react';
+import { when } from 'jest-when';
 import FormEngine from '../form-engine.component';
-import WA_Zscore from '../../__mocks__/forms/rfe-forms/zscore-height-for-age-form.json';
+import heightForAgeZscoreTestSchema from '../../__mocks__/forms/rfe-forms/zscore-height-for-age-form.json';
 import { mockPatientAge16 } from '../../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../../__mocks__/session.mock';
 import demoHtsOpenmrsForm from '../../__mocks__/forms/omrs-forms/demo_hts-form.json';
 import demoHtsForm from '../../__mocks__/forms/rfe-forms/demo_hts-form.json';
 
-import { findNumberInput } from '../utils/test-utils';
+import { findNumberInput, waitForLoadingToFinish } from '../utils/test-utils';
 import { mockVisit } from '../../__mocks__/visit.mock';
 import { restBaseUrl } from '@openmrs/esm-framework';
+import userEvent from '@testing-library/user-event';
 
-//////////////////////////////////////////
-////// Base setup
-//////////////////////////////////////////
 const patientUUID = 'e13a8696-dc58-4b8c-ae40-2a1e7dd843e7';
 const visit = mockVisit;
 const mockOpenmrsFetch = jest.fn();
@@ -26,20 +24,12 @@ when(mockOpenmrsFetch).calledWith(clobdataResourcePath).mockReturnValue({ data: 
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 
-//////////////////////////////////////////
-////// Mocks
-//////////////////////////////////////////
 jest.mock('@openmrs/esm-framework', () => {
   const originalModule = jest.requireActual('@openmrs/esm-framework');
 
   return {
     ...originalModule,
-    createErrorHandler: jest.fn(),
-    showNotification: jest.fn(),
-    showToast: jest.fn(),
-    getAsyncLifecycle: jest.fn(),
     usePatient: jest.fn().mockImplementation(() => ({ patient: mockPatientAge16 })),
-    registerExtension: jest.fn(),
     useSession: jest.fn().mockImplementation(() => mockSessionDataResponse.data),
     openmrsFetch: jest.fn().mockImplementation((args) => mockOpenmrsFetch(args)),
   };
@@ -57,42 +47,37 @@ jest.mock('../../src/api/api', () => {
   };
 });
 
-describe('Form Engine:', () => {
-  afterEach(() => {
-    cleanup();
-    jest.useRealTimers();
+describe('heightForAge z-score', () => {
+  it('should compute heightForAge z-score from the provided height and weight values', async () => {
+    const user = userEvent.setup();
+
+    renderForm(null, heightForAgeZscoreTestSchema);
+
+    await waitForLoadingToFinish();
+
+    const heightForAgeZscore = screen.getByRole('spinbutton', { name: /height for age zscore result/i });
+    const height = screen.getByRole('spinbutton', { name: /^height \*$/i });
+    const weight = screen.getByRole('spinbutton', { name: /weight/i });
+
+    await user.type(height, '150');
+    await user.tab();
+    await user.type(weight, '45');
+    await user.tab();
+
+    expect(height).toHaveValue(150);
+    expect(weight).toHaveValue(45);
+    expect(heightForAgeZscore).toHaveValue(4);
   });
-  it('Should evaluate Height for Age Zscore result', async () => {
-    // setup
-    await act(async () => renderForm(null, WA_Zscore));
 
-    const HeightAgeField = await findNumberInput(screen, 'Height for Age Zscore result');
-    const heightField = await findNumberInput(screen, 'Height');
-    const weightField = await findNumberInput(screen, 'Weight');
-
-    await act(async () => expect(heightField.value).toBe(''));
-    // let assumeAgeToBe = "1/01/2006"
-
-    // replay
-    fireEvent.blur(heightField, { target: { value: 150 } });
-    fireEvent.blur(weightField, { target: { value: 45 } });
-
-    // verify
-    await act(async () => expect(heightField.value).toBe('150'));
-    await act(async () => expect(weightField.value).toBe('45'));
-    await act(async () => expect(HeightAgeField.value).toBe('4'));
-  });
   function renderForm(formUUID, formJson, intent?: string) {
-    return act(() => {
-      render(
-        <FormEngine
-          formJson={formJson as any}
-          formUUID={formUUID}
-          patientUUID={patientUUID}
-          formSessionIntent={intent}
-          visit={visit}
-        />,
-      );
-    });
+    render(
+      <FormEngine
+        formJson={formJson as any}
+        formUUID={formUUID}
+        patientUUID={patientUUID}
+        formSessionIntent={intent}
+        visit={visit}
+      />,
+    );
   }
 });

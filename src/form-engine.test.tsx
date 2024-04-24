@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  act,
-  cleanup,
-  render,
-  screen,
-  within,
-  fireEvent,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { act, cleanup, render, screen, within, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { restBaseUrl, showToast } from '@openmrs/esm-framework';
 import { when } from 'jest-when';
@@ -87,7 +78,7 @@ jest.mock('../src/api/api', () => {
   };
 });
 
-describe('Form component', () => {
+describe('Form engine component', () => {
   const user = userEvent.setup();
 
   afterEach(() => {
@@ -97,14 +88,16 @@ describe('Form component', () => {
   it('should render the form schema without dying', async () => {
     renderForm(null, htsPocForm);
 
-    await assertFormHasAllFields(screen, [{ fieldName: 'When was the HIV test conducted?', fieldType: 'date' }]);
+    await waitForLoadingToFinish();
+
+    await assertFormHasAllFields(screen, [{ fieldName: 'When was the HIV test conducted? *', fieldType: 'date' }]);
   });
 
   it('should render by the form UUID without dying', async () => {
     renderForm('955ab92f-f93e-4dc0-9c68-b7b2346def55', null);
 
     await assertFormHasAllFields(screen, [
-      { fieldName: 'When was the HIV test conducted?', fieldType: 'date' },
+      { fieldName: 'When was the HIV test conducted? *', fieldType: 'date' },
       { fieldName: 'Community service delivery point', fieldType: 'select' },
       { fieldName: 'TB screening', fieldType: 'combobox' },
     ]);
@@ -116,7 +109,7 @@ describe('Form component', () => {
     });
 
     await assertFormHasAllFields(screen, [
-      { fieldName: 'When was the HIV test conducted?', fieldType: 'date' },
+      { fieldName: 'When was the HIV test conducted? *', fieldType: 'date' },
       { fieldName: 'TB screening', fieldType: 'combobox' },
     ]);
 
@@ -138,8 +131,8 @@ describe('Form component', () => {
     });
 
     await assertFormHasAllFields(screen, [
-      { fieldName: 'When was the HIV test conducted?', fieldType: 'date' },
-      { fieldName: 'Community service delivery point', fieldType: 'select' },
+      { fieldName: 'When was the HIV test conducted? *', fieldType: 'date' },
+      { fieldName: 'Community service delivery point', fieldType: 'combobox' },
     ]);
 
     try {
@@ -291,11 +284,11 @@ describe('Form component', () => {
 
       await waitForLoadingToFinish();
 
-      const drugSensitiveProgramField = screen.getByRole('radio', { name: 'Drug-susceptible (DS) TB Program' });
-      const treatmentNumber = screen.getByRole('spinbutton', { name: /DS TB Treatment Number/i });
+      const drugSensitiveProgramField = screen.getByRole('radio', { name: /drug-susceptible \(DS\) tb program/i });
+      const treatmentNumber = screen.getByRole('spinbutton', { name: /ds tb treatment number/i });
 
       await user.click(drugSensitiveProgramField);
-      await user.click(screen.getByRole('textbox', { name: 'Date enrolled in tuberculosis (TB) care' }));
+      await user.click(screen.getByRole('textbox', { name: /date enrolled in tuberculosis \(TB\) care/i }));
       await user.paste('2023-12-12');
       await user.click(treatmentNumber);
       await user.paste('11200');
@@ -311,8 +304,7 @@ describe('Form component', () => {
 
       await waitForLoadingToFinish();
 
-      // Number of babies born from this pregnancy
-      const birthCount = screen.getByLabelText(/number of babies born from this pregnancy/i);
+      const birthCount = screen.getByRole('spinbutton', { name: /number of babies born from this pregnancy/i });
       expect(birthCount).toBeInTheDocument();
 
       await user.type(birthCount, '3');
