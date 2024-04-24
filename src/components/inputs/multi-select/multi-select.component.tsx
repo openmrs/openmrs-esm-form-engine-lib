@@ -52,7 +52,7 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
     }));
 
   const initiallySelectedQuestionItems = [];
-  questionItems.forEach((item) => {
+  question.questionOptions.answers.forEach((item) => {
     if (field.value?.includes(item.concept)) {
       initiallySelectedQuestionItems.push(item);
     }
@@ -74,6 +74,18 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
       question.value = handler?.handleFieldSubmission(question, valuesToSet, encounterContext);
     }
   }, [previousValue]);
+
+  console.log(
+    question.questionOptions.answers
+      .filter((answer) => !answer.isHidden)
+      .map((answer, index) => ({
+        id: `${question.id}-${answer.concept}`,
+        concept: answer.concept,
+        label: answer.label,
+        key: index,
+        ...(answer?.disable?.isDisabled ? { disabled: true } : {}),
+      })),
+  );
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -100,7 +112,15 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
               placeholder={t('search', 'Search') + '...'}
               onChange={handleSelectItemsChange}
               id={question.label}
-              items={questionItems}
+              items={question.questionOptions.answers
+                .filter((answer) => !answer.isHidden)
+                .map((answer, index) => ({
+                  id: `${question.id}-${answer.concept}`,
+                  concept: answer.concept,
+                  label: answer.label,
+                  key: index,
+                  ...(answer?.disable?.isDisabled ? { disabled: true } : {}),
+                }))}
               initialSelectedItems={initiallySelectedQuestionItems}
               label={''}
               titleText={question.label}

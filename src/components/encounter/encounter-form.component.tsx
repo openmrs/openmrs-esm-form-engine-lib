@@ -674,8 +674,6 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
             );
           });
 
-        console.log(dependant?.questionOptions.answers);
-
         // evaluate readonly
         if (!dependant.isHidden && dependant['readonlyExpression']) {
           dependant.readonly = evaluateExpression(

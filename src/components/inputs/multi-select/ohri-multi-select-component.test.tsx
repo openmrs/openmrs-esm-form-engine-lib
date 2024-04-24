@@ -1,12 +1,23 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { OHRIMultiSelect } from './ohri-multi-select.component';
 import { EncounterContext, OHRIFormContext } from '../../../ohri-form-context';
 import { Form, Formik } from 'formik';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
-import { OHRIFormField, OHRIFormFieldProps } from '../../../api/types';
+import { OHRIFormField, OHRIFormFieldProps, OHRIFormSchema } from '../../../api/types';
 import OHRIDropdown from '../select/ohri-dropdown.component';
+import OHRIForm from '../../../ohri-form.component';
+import { mockVisit } from '../../../../__mocks__/visit.mock';
+import multiSelectFormSchema from '../../../../__mocks__/forms/ohri-forms/multi-select-form.json';
+import { mockPatient } from '../../../../__mocks__/patient.mock';
+import { mockSessionDataResponse } from '../../../../__mocks__/session.mock';
+
+const mockOpenmrsFetch = jest.fn();
+global.ResizeObserver = require('resize-observer-polyfill');
+const visit = mockVisit;
+const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
+const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 
 const otherTestQuestions: OHRIFormField[] = [
   {
@@ -97,6 +108,35 @@ const encounterContext: EncounterContext = {
   setEncounterLocation: jest.fn,
 };
 
+jest.mock('@openmrs/esm-framework', () => {
+  const originalModule = jest.requireActual('@openmrs/esm-framework');
+
+  return {
+    ...originalModule,
+    createErrorHandler: jest.fn(),
+    showNotification: jest.fn(),
+    showToast: jest.fn(),
+    getAsyncLifecycle: jest.fn(),
+    usePatient: jest.fn().mockImplementation(() => ({ patient: mockPatient })),
+    registerExtension: jest.fn(),
+    useSession: jest.fn().mockImplementation(() => mockSessionDataResponse.data),
+    openmrsFetch: jest.fn().mockImplementation((args) => mockOpenmrsFetch(args)),
+  };
+});
+
+jest.mock('../../../api/api', () => {
+  const originalModule = jest.requireActual('../../../api/api');
+
+  return {
+    ...originalModule,
+    getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(null)),
+    getConcept: jest.fn().mockImplementation(() => Promise.resolve(null)),
+    getLatestObs: jest.fn().mockImplementation(() => Promise.resolve({ valueNumeric: 60 })),
+    saveEncounter: jest.fn(),
+    createProgramEnrollment: jest.fn(),
+  };
+});
+
 const renderForm = (initialValues: Record<any, any>) => {
   render(
     <Formik initialValues={initialValues} onSubmit={null}>
@@ -123,6 +163,7 @@ const renderForm = (initialValues: Record<any, any>) => {
     </Formik>,
   );
 };
+
 describe('OHRIMultiSelect Component', () => {
   it('renders correctly', () => {
     renderForm({});
@@ -137,29 +178,27 @@ describe('OHRIMultiSelect Component', () => {
     expect(testProps.onChange).toHaveBeenCalledTimes(1);
   });
 
-  it('checkbox option is disabled when disabledWhenExpression resolves to true and does not call onChange', async () => {
+  it('should ascertain that each field with questionInfo passed will displaycheckbox option is disabled when disabledWhenExpression resolves to true and does not call onChange', async () => {
     const user = userEvent.setup();
-    renderForm({ scheduledVisit: '', nhif: '8b715fed-97f6-4e38-8f6a-c167a42f8923' });
+
+    await act(() =>
+      render(
+        <OHRIForm
+          formJson={multiSelectFormSchema as unknown as OHRIFormSchema}
+          formUUID={null}
+          patientUUID={patientUUID}
+          formSessionIntent={undefined}
+          visit={visit}
+        />,
+      ),
+    );
+
+    screen.debug(null, 10000000);
+
     await user.click(screen.getByRole('combobox', { name: /Patient covered by NHIF/i }));
     await user.click(screen.getByRole('option', { name: /no/i }));
-    await user.tab();
 
-    // await user.selectOptions(screen.getByRole('combobox', { name: /Patient covered by NHIF/i }), 'Yes');
-    // screen.getByRole('x');
     await user.click(screen.getByText('Was this visit scheduled?'));
-
-    await waitFor(() => {
-      screen.debug(null, 100000000);
-      expect(screen.getByRole('option', { name: /Unscheduled visit early/i })).toBeDisabled();
-    });
-
-    // const selectOption = screen.getByLabelText('Unscheduled visit early');
-    // fireEvent.click(screen.getByText('Patient covered by NHIF:'));
-    // fireEvent.click(screen.getByText('Yes'));
-
-    // console.log(selectOption);
-    // expect(selectOption).toBeDisabled();
-    // fireEvent.click(selectOption);
-    // expect(testProps.onChange).toHaveBeenCalledTimes(0);
+    expect(screen.getByRole('option', { name: /Unscheduled visit early/i })).toBeDisabled();
   });
 });
