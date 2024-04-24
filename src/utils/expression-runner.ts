@@ -86,7 +86,7 @@ export async function evaluateAsyncExpression(
   let parts = parseExpression(expression.trim());
 
   // register dependencies
-  findAndRegisterReferencedFields(node, parts, fields); //what does this do????
+  findAndRegisterReferencedFields(node, parts, fields);
   //adds values to the determinants
 
   // setup function scope
