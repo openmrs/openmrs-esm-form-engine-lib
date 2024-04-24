@@ -79,7 +79,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
 
   return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
     <div>
-      <div className={styles.label}>{question.label}</div>
+      <div className={styles.label}>{t(question.label)}</div>
       <div className={styles.uploadSelector}>
         <div className={styles.selectorButton}>
           <Button disabled={true} onClick={() => setUploadMode('uploader')}>
@@ -106,7 +106,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
     </div>
   ) : (
     <div>
-      <div className={styles.label}>{question.label}</div>
+      <div className={styles.label}>{t(question.label)}</div>
       <div className={styles.uploadSelector}>
         <div className={styles.selectorButton}>
           <Button onClick={() => setUploadMode('uploader')}>Upload file</Button>

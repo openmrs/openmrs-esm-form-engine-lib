@@ -9,8 +9,10 @@ import { FieldValueView } from '../../value/view/field-value-view.component';
 import { FormContext } from '../../../form-context';
 import { FormFieldProps } from '../../../types';
 import styles from './content-switcher.scss';
+import { useTranslation } from 'react-i18next';
 
 export const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
+  const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
@@ -53,7 +55,7 @@ export const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, 
     isTrue(question.readonly) ? (
     <div className={styles.formField}>
       <FieldValueView
-        label={question.label}
+        label={t(question.label)}
         value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
         conceptName={question.meta?.concept?.display}
         isInline={isInline}
@@ -62,16 +64,12 @@ export const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, 
   ) : (
     !question.isHidden && (
       <FormGroup
-        legendText={question.label}
+        legendText={t(question.label)}
         className={classNames({
           [styles.errorLegend]: errors.length > 0,
           [styles.boldedLegend]: errors.length === 0,
         })}>
-        <Switcher
-          onChange={handleChange}
-          selectedIndex={selectedIndex}
-          className={styles.selectedOption}
-          size="md">
+        <Switcher onChange={handleChange} selectedIndex={selectedIndex} className={styles.selectedOption} size="md">
           {question.questionOptions.answers.map((option, index) => (
             <Switch
               name={option.concept || option.value}

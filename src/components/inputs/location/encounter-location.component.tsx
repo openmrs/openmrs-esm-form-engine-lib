@@ -10,10 +10,13 @@ import { FormField } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { FieldValueView } from '../../value/view/field-value-view.component';
 import styles from './encounter-location.scss';
+import { useTranslation } from 'react-i18next';
 
 export const EncounterLocationPicker: React.FC<{ question: FormField; onChange: any }> = ({ question }) => {
+  const { t } = useTranslation();
   const [field, meta] = useField(question.id);
-  const { setEncounterLocation, setFieldValue, layoutType, workspaceLayout, encounterContext } = useContext(FormContext);
+  const { setEncounterLocation, setFieldValue, layoutType, workspaceLayout, encounterContext } =
+    useContext(FormContext);
   const [locations, setLocations] = useState([]);
   const isProcessingSelection = useRef(false);
 
@@ -43,7 +46,7 @@ export const EncounterLocationPicker: React.FC<{ question: FormField; onChange: 
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <div className={styles.formField}>
       <FieldValueView
-        label={question.label}
+        label={t(question.label)}
         value={field.value ? field.value.display : field.value}
         conceptName={question.meta?.concept?.display}
         isInline={isInline}
@@ -55,7 +58,7 @@ export const EncounterLocationPicker: React.FC<{ question: FormField; onChange: 
         className={classNames(styles.boldedLabel, styles.formInputField, styles.multiSelectOverride, styles.flexRow)}>
         <ComboBox
           id={question.id}
-          titleText={question.label}
+          titleText={t(question.label)}
           items={locations}
           itemToString={(item) => item?.display}
           selectedItem={locations.find((item) => item.uuid == field.value)}

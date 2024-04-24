@@ -1,9 +1,11 @@
+import { moduleName } from './globals';
+
 function loadResourcesFromFile() {
   const lang = window.i18next.language;
   import(`../translations/${lang}.json`)
     .then((json) => {
       const data = json ?? {};
-      window.i18next.addResourceBundle(lang, '@openmrs/openmrs-form-engine-lib', data);
+      window.i18next.addResourceBundle(lang, moduleName, data);
     })
     .catch((err) => console.error(err));
 }

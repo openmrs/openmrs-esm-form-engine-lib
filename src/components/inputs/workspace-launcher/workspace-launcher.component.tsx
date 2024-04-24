@@ -24,7 +24,7 @@ const WorkspaceLauncher: React.FC<FormFieldProps> = ({ question }) => {
 
   return (
     <div>
-      <div className={styles.label}>{question.label}</div>
+      <div className={styles.label}>{t(question.label)}</div>
       <div className={styles.workspaceButton}>
         <Button onClick={handleLaunchWorkspace}>{question.questionOptions?.buttonLabel ?? t('launchWorkspace')}</Button>
       </div>

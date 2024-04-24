@@ -142,7 +142,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
 
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <FieldValueView
-      label={question.label}
+      label={t(question.label)}
       value={field.value instanceof Date ? getDisplay(field.value, question.questionOptions.rendering) : field.value}
       conceptName={question.meta?.concept?.display}
       isInline={isInline}
@@ -161,7 +161,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                 <DatePickerInput
                   id={question.id}
                   placeholder={placeholder}
-                  labelText={question.label}
+                  labelText={t(question.label)}
                   value={field.value instanceof Date ? field.value.toLocaleDateString(locale) : field.value}
                   // Added for testing purposes.
                   // Notes:

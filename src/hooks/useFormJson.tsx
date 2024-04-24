@@ -4,14 +4,23 @@ import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
 import { fetchOpenMRSForm, fetchClobdata } from '../api/api';
 import { getRegisteredFormSchemaTransformers } from '../registry/registry';
+import { moduleName } from '../globals';
 
 export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: string, formSessionIntent: string) {
   const [formJson, setFormJson] = useState<FormSchema>(null);
   const [error, setError] = useState(validateFormsArgs(formUuid, rawFormJson));
   useEffect(() => {
+    const setFormJsonWithTranslations = (formJson: OHRIFormSchema) => {
+      if (formJson?.translations) {
+        const language = window.i18next.language;
+        window.i18next.addResourceBundle(language, moduleName, formJson.translations, true, true);
+        console.log('added form translations', formJson.translations);
+      }
+      setFormJson(formJson);
+    };
     loadFormJson(formUuid, rawFormJson, formSessionIntent)
       .then((formJson) => {
-        setFormJson({ ...formJson, encounter: encounterUuid });
+        setFormJsonWithTranslations({ ...formJson, encounter: encounterUuid });
       })
       .catch((error) => {
         console.error(error);
