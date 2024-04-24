@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FilterableMultiSelect, Layer, UnorderedList } from '@carbon/react';
+import { FilterableMultiSelect, Layer, Tag } from '@carbon/react';
 import classNames from 'classnames';
 import { useField } from 'formik';
 import { useTranslation } from 'react-i18next';
@@ -59,7 +59,9 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
 
   const handleSelectItemsChange = ({ selectedItems }) => {
     setTouched(true);
-    const value = selectedItems.map((selectedItem) => selectedItem.concept);
+    const value = selectedItems.map((selectedItem) => {
+      return selectedItem.concept;
+    });
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
     question.value = handler?.handleFieldSubmission(question, value, encounterContext);
@@ -116,9 +118,13 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
         </div>
         <div className={styles.selectionDisplay}>
           {field.value?.length ? (
-            <UnorderedList className={styles.list}>
-              {handler?.getDisplayValue(question, field.value)?.map((displayValue) => displayValue + ', ')}
-            </UnorderedList>
+            <div className={styles.tagContainer}>
+              {handler?.getDisplayValue(question, field.value)?.map((displayValue, index) => (
+                <Tag key={index} type="cool-gray">
+                  {displayValue}
+                </Tag>
+              ))}
+            </div>
           ) : (
             <ValueEmpty />
           )}
