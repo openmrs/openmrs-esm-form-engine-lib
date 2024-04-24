@@ -491,7 +491,7 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
               }
             }
           })
-          const filteredObsForSubmission = obsForSubmission.filter(member => { member.value !== null || member.value !== undefined });
+          const filteredObsForSubmission = obsForSubmission.filter(member => { member.groupMembers !== null || member.groupMembera !== undefined });
           hasValue && addObs(filteredObsForSubmission, obsGroup);
         } else {
           addObs(obsForSubmission, field.value);
