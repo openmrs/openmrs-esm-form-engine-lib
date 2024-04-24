@@ -11,5 +11,5 @@
     "noEmit": true,
     "target": "esnext"
   },
-  "include": ["src/**/*", "./setupTests.ts", "tools/i18next-parser.config.js", "prettier.config.js"]
+  "include": ["src/**/*", "./setupTests.ts"]
 }
