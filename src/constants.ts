@@ -9,3 +9,4 @@ export const encounterRepresentation =
   'names:(uuid,conceptNameType,name))))';
 export const OHRIFormsStore = 'ohri-forms-engine-store';
 export const PatientChartWorkspaceHeaderSlot = 'patient-chart-workspace-header-slot';
+export const codedTypes = ['radio', 'checkbox', 'select', 'content-switcher'];
