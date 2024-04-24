@@ -1,9 +1,9 @@
 import dayjs from 'dayjs';
 import { getConcept, getAttachmentByUuid } from '../api/api';
 import { ConceptTrue } from '../constants';
-import { EncounterContext } from '../form-context';
-import { FormField, OpenmrsEncounter, OpenmrsObs, SubmissionHandler } from '../types';
-import { parseToLocalDateTime } from '../utils/form-helper';
+import { EncounterContext } from '../ohri-form-context';
+import { OHRIFormField, OpenmrsEncounter, OpenmrsObs, SubmissionHandler } from '../api/types';
+import { parseToLocalDateTime } from '../utils/ohri-form-helper';
 import { flattenObsList, hasRendering } from '../utils/common-utils';
 
 // Temporarily holds observations that have already been binded with matching fields
@@ -13,37 +13,12 @@ export let assignedObsIds: string[] = [];
  * Obs handler
  */
 
-export const ObsSubmissionHandler: SubmissionHandler = {
-  handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
-    if (field.questionOptions.rendering == 'checkbox') {
-      return multiSelectObsHandler(field, value, context);
-    }
-    if (field.questionOptions.rendering == 'toggle') {
-      return constructObs(value, context, field);
-    }
-    if (field.value) {
-      if (context.sessionMode == 'edit' && !value) {
-        field.value.voided = true;
-      } else if (!value) {
-        field.value = undefined;
-      } else {
-        if (field.questionOptions.rendering.startsWith('date')) {
-          field.value.value = dayjs(value).format('YYYY-MM-DD HH:mm');
-        } else {
-          field.value.value = value;
-        }
-        field.value.voided = false;
-      }
-    } else {
-      if (field.questionOptions.rendering.startsWith('date')) {
-        field.value = constructObs(dayjs(value).format('YYYY-MM-DD HH:mm'), context, field);
-        return field.value;
-      }
-      field.value = constructObs(value, context, field);
-    }
-    return field.value;
+export const TestOrderSubmissionHandler: SubmissionHandler = {
+  handleFieldSubmission: (field: OHRIFormField, value: any, context: EncounterContext) => {
+      return constructOrder(value, context, field)
   },
-  getInitialValue: (encounter: OpenmrsEncounter, field: FormField, allFormFields: Array<FormField>) => {
+
+  getInitialValue: (encounter: OpenmrsEncounter, field: OHRIFormField, allFormFields: Array<OHRIFormField>) => {
     if (hasRendering(field, 'file')) {
       const ac = new AbortController();
       return getAttachmentByUuid(encounter.patient['uuid'], encounter.uuid, ac);
@@ -90,7 +65,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     }
     return '';
   },
-  getDisplayValue: (field: FormField, value: any) => {
+  getDisplayValue: (field: OHRIFormField, value: any) => {
     const rendering = field.questionOptions.rendering;
     if (!field.value) {
       return null;
@@ -109,7 +84,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     }
     return value;
   },
-  getPreviousValue: (field: FormField, encounter: OpenmrsEncounter, allFormFields: Array<FormField>) => {
+  getPreviousValue: (field: OHRIFormField, encounter: OpenmrsEncounter, allFormFields: Array<OHRIFormField>) => {
     let matchedObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field);
     const rendering = field.questionOptions.rendering;
     if (matchedObs.length) {
@@ -148,44 +123,9 @@ export const ObsSubmissionHandler: SubmissionHandler = {
   },
 };
 
-/**
- * Encounter location handler
- */
-export const EncounterLocationSubmissionHandler: SubmissionHandler = {
-  handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
-    return null;
-  },
-  getInitialValue: (encounter: any, field: FormField) => {
-    return {
-      display: encounter.location.name,
-      uuid: encounter.location.uuid,
-    };
-  },
-  getDisplayValue: (field: FormField, value) => {
-    return value.display;
-  },
-};
-
 ///////////////////////////////
 // Helpers
 //////////////////////////////
-
-const constructObs = (value: any, context: EncounterContext, field: FormField) => {
-  return {
-    person: context.patient?.id,
-    obsDatetime: context.encounterDate,
-    concept: field.questionOptions.concept,
-    location: context.location,
-    order: null,
-    groupMembers: [],
-    voided: false,
-    // TODO: Update form path to:
-    // 1. Follow standard patterns ie. NAMESPACE + "^" + FORMFIELD_PATH
-    formFieldNamespace: 'rfe-forms',
-    formFieldPath: `rfe-forms-${field.id}`,
-    value: value,
-  };
-};
 
 /**
  * Retrieves a list of observations from a given `obsList` that correspond to the specified field.
@@ -197,9 +137,9 @@ const constructObs = (value: any, context: EncounterContext, field: FormField) =
 export const findObsByFormField = (
   obsList: Array<OpenmrsObs>,
   claimedObsIds: string[],
-  field: FormField,
+  field: OHRIFormField,
 ): OpenmrsObs[] => {
-  const obs = obsList.filter((o) => o.formFieldPath == `rfe-forms-${field.id}`);
+  const obs = obsList.filter((o) => o.formFieldPath == `ohri-forms-${field.id}`);
   // We shall fall back to mapping by the associated concept
   // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
   if (!obs?.length) {
@@ -209,51 +149,19 @@ export const findObsByFormField = (
   return obs;
 };
 
-const multiSelectObsHandler = (field: FormField, values: Array<string>, context: EncounterContext) => {
-  if (!field.value) {
-    field.value = [];
-  }
-  if (Array.isArray(values)) {
-    values.forEach((value) => {
-      const obs = field.value.find((o) => {
-        if (typeof o.value == 'string') {
-          return o.value == value;
-        }
-        return o.value.uuid == value;
-      });
-      if (obs && obs.voided) {
-        obs.voided = false;
-      } else {
-        obs || field.value.push(constructObs(value, context, field));
-      }
-    });
-  }
-
-  // void or remove unchecked options
-  field.questionOptions.answers
-    .filter((opt) => Array.isArray(values) && !values?.some((v) => v == opt.concept))
-    .forEach((opt) => {
-      const observations = field.value.filter((o) => {
-        if (typeof o.value == 'string') {
-          return o.value == opt.concept;
-        }
-        return o.value.uuid == opt.concept;
-      });
-      if (!observations.length) {
-        return;
-      }
-      observations.forEach((obs) => {
-        if (context.sessionMode == 'edit' && obs.uuid) {
-          obs.voided = true;
-        } else {
-          field.value = field.value.filter((o) => o.value !== opt.concept);
-        }
-      });
-    });
-  return field.value;
-};
-
 export function teardownBaseHandlerUtils() {
   assignedObsIds = [];
 }
+
+const constructOrder = (value: any, context: EncounterContext, field: OHRIFormField) => {
+  return {
+    action: 'NEW',
+    urgency: 'ROUTINE',
+    patient: context.patient?.id,
+    concept: value,
+    type: field?.questionOptions?.orderType,
+    careSetting: field?.questionOptions?.orderSettingUuid,
+    orderer: context?.encounterProvider,
+  };
+};
 

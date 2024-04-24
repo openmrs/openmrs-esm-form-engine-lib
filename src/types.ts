@@ -191,6 +191,9 @@ export interface FormQuestionOptions {
   isSearchable?: boolean;
   workspaceName?: string;
   buttonLabel?: string;
+  orderSettingUuid?: string,
+  orderType?: string,
+  selectableOrders?: Array<Record<any, any>>;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
@@ -213,7 +216,10 @@ export type RenderType =
   | 'textarea'
   | 'toggle'
   | 'ui-select-extended'
-  | 'workspace-launcher';
+  | 'workspace-launcher'
+  | 'fixed-value'
+  | 'file'
+  | 'testOrder';
 
 export interface PostSubmissionAction {
   applyAction(
@@ -354,4 +360,21 @@ export interface FormSchemaTransformer {
    * Transforms the raw schema to be compatible with the React Form Engine.
    */
   transform: (form: FormSchema) => FormSchema;
+}
+
+export interface Order {
+  uuid(uuid: any): unknown;
+  formFieldPath?: string;
+  type?: string;
+  action?: string;
+  urgency?: string;
+  dateActivated?: string;
+  careSetting?: string;
+  groupMembers?: Order[];
+  encounter?: string;
+  patient?: string;
+  concept?: string;
+  orderer?: string;
+  orderNumber?: string;
+  voided?: boolean;
 }

@@ -33,4 +33,21 @@ export function transformQuestion(question: FormField) {
     default:
       break;
   }
+
+  if(question.questions?.length > 0) {
+    question.questions.forEach((q: FormField) => {
+        switch (q.questionOptions.rendering) {
+          case 'repeating':
+            q.questionOptions.rendering = 'select';
+            break;
+          default:
+            break; 
+        }
+
+        if(q.questionOptions.selectableOrders?.length > 0) {
+          q.questionOptions.answers = q.questionOptions.selectableOrders;
+          delete q.questionOptions.selectableOrders;
+        }
+    });
+  }
 }

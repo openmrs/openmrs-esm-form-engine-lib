@@ -3,6 +3,7 @@ import { EncounterDatetimeHandler } from '../../submission-handlers/encounterDat
 import { EncounterLocationSubmissionHandler } from '../../submission-handlers/encounterLocationHandler';
 import { EncounterProviderHandler } from '../../submission-handlers/encounterProviderHandler';
 import { SubmissionHandler } from '../../types';
+import { TestOrderSubmissionHandler } from '../../submission-handlers/testOrderHandler';
 import { RegistryItem } from '../registry';
 
 /**
@@ -33,5 +34,10 @@ export const inbuiltFieldSubmissionHandlers: Array<RegistryItem<SubmissionHandle
     name: 'EncounterProviderHandler',
     component: EncounterProviderHandler,
     type: 'encounterProvider',
+  },
+  {
+    name: 'ObsSubmissionHandler',
+    component: TestOrderSubmissionHandler,
+    type: 'testOrder',
   },
 ];

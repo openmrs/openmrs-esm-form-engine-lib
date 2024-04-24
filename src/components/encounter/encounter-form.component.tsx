@@ -93,6 +93,7 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
   const [obsGroupCounter, setObsGroupCounter] = useState<Array<RepeatObsGroupCounter>>([]);
+  const [orders, setOrders] = useState([]);
 
   const layoutType = useLayoutType();
 
@@ -132,7 +133,7 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
           form.inlineRendering = isEmpty(form.inlineRendering) ? null : form.inlineRendering;
           question.inlineRendering = section.inlineRendering ?? page.inlineRendering ?? form.inlineRendering;
           evaluateFieldReadonlyProp(question, section.readonly, page.readonly, form.readonly);
-          if (question.questionOptions.rendering == 'fixed-value' && !question['fixedValue']) {
+          if (question.questionOptions?.rendering == 'fixed-value' && !question['fixedValue']) {
             question['fixedValue'] = question.value;
           }
           flattenedFieldsTemp.push(question);
@@ -449,16 +450,16 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
       .filter((field) => !field.questionOptions.isTransient && field.questionOptions.rendering !== 'file')
       .forEach((field) => {
         if (field.type == 'obsGroup') {
-          const obsGroup = {
-            person: patient?.id,
-            obsDatetime: encounterDate,
-            concept: field.questionOptions.concept,
-            location: encounterLocation,
-            order: null,
-            groupMembers: [],
-            uuid: field.uuid,
-            voided: false,
-          };
+            const obsGroup = {
+              person: patient?.id,
+              obsDatetime: encounterDate,
+              concept: field.questionOptions.concept,
+              location: encounterLocation,
+              order: null,
+              groupMembers: [],
+              uuid: field.uuid,
+              voided: false,
+            };
 
           //validate obs group count against limit
           const limit = field.questionOptions.repeatOptions?.limit;
@@ -482,11 +483,16 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
               if (Array.isArray(groupedField.value)) {
                 obsGroup.groupMembers.push(...groupedField.value);
               } else {
-                obsGroup.groupMembers.push(groupedField.value);
+                if(groupedField.type === "testOrder") {
+                  orders.push(groupedField.value)
+                } else {
+                  obsGroup.groupMembers.push(groupedField.value);
+                }
               }
             }
-          });
-          hasValue && addObs(obsForSubmission, obsGroup);
+          })
+          const filteredObsForSubmission = obsForSubmission.filter(member => { member.value !== null || member.value !== undefined });
+          hasValue && addObs(filteredObsForSubmission, obsGroup);
         } else {
           addObs(obsForSubmission, field.value);
         }
@@ -518,6 +524,8 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
             uuid: visit?.uuid,
           });
       }
+
+      encounterForSubmission['orders'] = orders;
       encounterForSubmission['obs'] = obsForSubmission;
     } else {
       encounterForSubmission = {
@@ -536,6 +544,7 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
           uuid: encounterContext?.form?.uuid,
         },
         visit: visit?.uuid,
+        orders: orders
       };
     }
 
