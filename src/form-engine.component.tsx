@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Form, Formik } from 'formik';
 import classNames from 'classnames';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
-import { useTranslation } from 'react-i18next';
+import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import { showSnackbar, useSession, Visit } from '@openmrs/esm-framework';
 import LinearLoader from './components/loaders/linear-loader.component';
@@ -342,4 +342,12 @@ const FormEngine: React.FC<FormProps> = ({
   );
 };
 
-export default withFormEngineTranslations(FormEngine);
+function I18FormEngine(props: FormProps) {
+  return (
+    <I18nextProvider i18n={window.i18next} defaultNS={moduleName}>
+      <FormEngine {...props} />
+    </I18nextProvider>
+  );
+}
+
+export default I18FormEngine;

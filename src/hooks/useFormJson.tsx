@@ -10,11 +10,10 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
   const [formJson, setFormJson] = useState<FormSchema>(null);
   const [error, setError] = useState(validateFormsArgs(formUuid, rawFormJson));
   useEffect(() => {
-    const setFormJsonWithTranslations = (formJson: OHRIFormSchema) => {
+    const setFormJsonWithTranslations = (formJson: FormSchema) => {
       if (formJson?.translations) {
         const language = window.i18next.language;
         window.i18next.addResourceBundle(language, moduleName, formJson.translations, true, true);
-        console.log('added form translations', formJson.translations);
       }
       setFormJson(formJson);
     };
