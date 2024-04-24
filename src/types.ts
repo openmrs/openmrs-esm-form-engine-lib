@@ -59,7 +59,7 @@ export interface HideProps {
   hideWhenExpression: string;
 }
 
-export interface OHRIFormSchema {
+export interface FormSchema {
   name: string;
   pages: Array<FormPage>;
   processor: string;
@@ -91,7 +91,7 @@ export interface FormPage {
     name?: string;
     package?: string;
     behaviours?: Array<any>;
-    form: Omit<OHRIFormSchema, 'postSubmissionActions'>;
+    form: Omit<FormSchema, 'postSubmissionActions'>;
   };
 }
 export interface FormField {
@@ -201,29 +201,19 @@ export type RenderType =
   | 'date'
   | 'datetime'
   | 'encounter-location'
+  | 'encounter-provider'
   | 'fixed-value'
+  | 'file'
   | 'group'
   | 'number'
   | 'radio'
   | 'repeating'
   | 'select'
   | 'text'
-  | 'date'
-  | 'number'
-  | 'checkbox'
-  | 'datetime'
-  | 'radio'
-  | 'ui-select-extended'
-  | 'repeating'
-  | 'group'
-  | 'content-switcher'
-  | 'encounter-location'
-  | 'encounter-provider'
   | 'textarea'
   | 'toggle'
-  | 'fixed-value'
-  | 'workspace-launcher'
-  | 'file';
+  | 'ui-select-extended'
+  | 'workspace-launcher';
 
 export interface PostSubmissionAction {
   applyAction(
@@ -363,5 +353,5 @@ export interface FormSchemaTransformer {
   /**
    * Transforms the raw schema to be compatible with the React Form Engine.
    */
-  transform: (form: OHRIFormSchema) => OHRIFormSchema;
+  transform: (form: FormSchema) => FormSchema;
 }

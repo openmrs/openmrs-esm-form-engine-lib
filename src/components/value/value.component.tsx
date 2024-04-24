@@ -13,17 +13,13 @@ export const ValueDisplay = ({ value }) => {
   if (Array.isArray(value)) {
     return <ListDisplay valueArray={value} />;
   }
-  return (
-    <div>
-      <span className={styles.value}>{value}</span>
-    </div>
-  );
+  return <div className={styles.value}>{value}</div>;
 };
 
 const ListDisplay = ({ valueArray }) => {
   return (
     <ul>
-      {valueArray.map(item => (
+      {valueArray.map((item) => (
         <li className={styles.item}>{item}</li>
       ))}
     </ul>

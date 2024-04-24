@@ -13,27 +13,27 @@ import userEvent from '@testing-library/user-event';
 import { showToast } from '@openmrs/esm-framework';
 import { when } from 'jest-when';
 import dayjs from 'dayjs';
-import * as api from '../src/api/api';
-import ageValidationForm from '../__mocks__/forms/ohri-forms/age-validation-form.json';
-import bmiForm from '../__mocks__/forms/ohri-forms/bmi-test-form.json';
-import bsaForm from '../__mocks__/forms/ohri-forms/bsa-test-form.json';
-import demoHtsOhriForm from '../__mocks__/forms/ohri-forms/demo_hts-form.json';
+import * as api from './api/api';
+import ageValidationForm from '../__mocks__/forms/json-forms/age-validation-form.json';
+import bmiForm from '../__mocks__/forms/json-forms/bmi-test-form.json';
+import bsaForm from '../__mocks__/forms/json-forms/bsa-test-form.json';
+import demoHtsForm from '../__mocks__/forms/json-forms/demo_hts-form.json';
 import demoHtsOpenmrsForm from '../__mocks__/forms/omrs-forms/demo_hts-form.json';
-import eddForm from '../__mocks__/forms/ohri-forms/edd-test-form.json';
-import externalDataSourceForm from '../__mocks__/forms/ohri-forms/external_data_source_form.json';
-import filterAnswerOptionsTestForm from '../__mocks__/forms/ohri-forms/filter-answer-options-test-form.json';
+import eddForm from '../__mocks__/forms/json-forms/edd-test-form.json';
+import externalDataSourceForm from '../__mocks__/forms/json-forms/external_data_source_form.json';
+import filterAnswerOptionsTestForm from '../__mocks__/forms/json-forms/filter-answer-options-test-form.json';
 import htsPocForm from '../__mocks__/packages/hiv/forms/hts_poc/1.1.json';
-import labourAndDeliveryTestForm from '../__mocks__/forms/ohri-forms/labour_and_delivery_test_form.json';
+import labourAndDeliveryTestForm from '../__mocks__/forms/json-forms/labour_and_delivery_test_form.json';
 import mockConceptsForm from '../__mocks__/concepts.mock.json';
-import monthsOnArtForm from '../__mocks__/forms/ohri-forms/months-on-art-form.json';
-import nextVisitForm from '../__mocks__/forms/ohri-forms/next-visit-test-form.json';
-import obsGroupTestForm from '../__mocks__/forms/ohri-forms/obs-group-test_form.json';
-import postSubmissionTestForm from '../__mocks__/forms/ohri-forms/post-submission-test-form.json';
-import referenceByMappingForm from '../__mocks__/forms/ohri-forms/reference-by-mapping-form.json';
-import sampleFieldsForm from '../__mocks__/forms/ohri-forms/sample_fields.json';
-import testEnrolmentForm from '../__mocks__/forms/ohri-forms/test-enrolment-form.json';
-import viralLoadStatusForm from '../__mocks__/forms/ohri-forms/viral-load-status-form.json';
-import OHRIForm from './ohri-form.component';
+import monthsOnArtForm from '../__mocks__/forms/json-forms/months-on-art-form.json';
+import nextVisitForm from '../__mocks__/forms/json-forms/next-visit-test-form.json';
+import obsGroupTestForm from '../__mocks__/forms/json-forms/obs-group-test_form.json';
+import postSubmissionTestForm from '../__mocks__/forms/json-forms/post-submission-test-form.json';
+import referenceByMappingForm from '../__mocks__/forms/json-forms/reference-by-mapping-form.json';
+import sampleFieldsForm from '../__mocks__/forms/json-forms/sample_fields.json';
+import testEnrolmentForm from '../__mocks__/forms/json-forms/test-enrolment-form.json';
+import viralLoadStatusForm from '../__mocks__/forms/json-forms/viral-load-status-form.json';
+import FormEngine from './form-engine.component';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import { mockPatient } from '../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../__mocks__/session.mock';
@@ -54,7 +54,7 @@ const clobdataResourcePath = when((url: string) => url.includes('/ws/rest/v1/clo
 global.ResizeObserver = require('resize-observer-polyfill');
 
 when(mockOpenmrsFetch).calledWith(formsResourcePath).mockReturnValue({ data: demoHtsOpenmrsForm });
-when(mockOpenmrsFetch).calledWith(clobdataResourcePath).mockReturnValue({ data: demoHtsOhriForm });
+when(mockOpenmrsFetch).calledWith(clobdataResourcePath).mockReturnValue({ data: demoHtsForm });
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 
@@ -217,7 +217,7 @@ describe('Form component', () => {
 
       const [abortController, encounter, encounterUuid] = saveEncounterMock.mock.calls[0];
       expect(encounter.obs.length).toEqual(3);
-      expect(encounter.obs.find((obs) => obs.formFieldPath === 'ohri-forms-hivEnrolmentDate')).toBeUndefined();
+      expect(encounter.obs.find((obs) => obs.formFieldPath === 'rfe-forms-hivEnrolmentDate')).toBeUndefined();
     });
 
     it('should evaluate post submission enabled flag expression', () => {
@@ -226,14 +226,14 @@ describe('Form component', () => {
           uuid: '47cfe95b-357a-48f8-aa70-63eb5ae51916',
           obs: [
             {
-              formFieldPath: 'ohri-forms-tbProgramType',
+              formFieldPath: 'rfe-forms-tbProgramType',
               value: {
                 display: 'Tuberculosis treatment program',
                 uuid: '160541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
               },
             },
             {
-              formFieldPath: 'ohri-forms-tbRegDate',
+              formFieldPath: 'rfe-forms-tbRegDate',
               value: '2023-12-05T00:00:00.000+0000',
             },
           ],
@@ -272,14 +272,14 @@ describe('Form component', () => {
             uuid: '47cfe95b-357a-48f8-aa70-63eb5ae51916',
             obs: [
               {
-                formFieldPath: 'ohri-forms-tbProgramType',
+                formFieldPath: 'rfe-forms-tbProgramType',
                 value: {
                   display: 'Tuberculosis treatment program',
                   uuid: '160541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
                 },
               },
               {
-                formFieldPath: 'ohri-forms-tbRegDate',
+                formFieldPath: 'rfe-forms-tbRegDate',
                 value: '2023-12-05T00:00:00.000+0000',
               },
             ],
@@ -618,7 +618,7 @@ describe('Form component', () => {
 
   function renderForm(formUUID, formJson, intent?: string) {
     render(
-      <OHRIForm
+      <FormEngine
         formJson={formJson}
         formUUID={formUUID}
         patientUUID={patientUUID}

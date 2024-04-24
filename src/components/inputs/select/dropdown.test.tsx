@@ -67,8 +67,7 @@ const renderForm = (intialValues) => {
               isFieldInitializationComplete: true,
               isSubmitting: false,
               formFieldHandlers: { obs: ObsSubmissionHandler },
-            }}
-          >
+            }}>
             <Dropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
           </FormContext.Provider>
         </Form>
@@ -108,8 +107,8 @@ describe('dropdown input field', () => {
         order: null,
         groupMembers: [],
         voided: false,
-        formFieldNamespace: 'ohri-forms',
-        formFieldPath: 'ohri-forms-patient-past-program',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-patient-past-program',
         value: '14cd2628-8a33-4b93-9c10-43989950bba0',
       });
     });

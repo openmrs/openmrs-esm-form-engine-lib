@@ -9,4 +9,4 @@ export * from './form-context';
 export * from './components/value/view/field-value-view.component';
 export * from './components/previous-value-review/previous-value-review.component';
 export * from './hooks/useFormJson';
-export { default as OHRIForm } from './ohri-form.component';
+export { default as FormEngine } from './form-engine.component';

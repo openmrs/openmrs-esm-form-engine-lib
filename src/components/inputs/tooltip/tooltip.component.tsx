@@ -1,8 +1,8 @@
 import React from 'react';
 import { Tooltip as CarbonTooltip } from '@carbon/react';
 import { Information } from '@carbon/react/icons';
-import styles from './ohri-tooltip.scss';
 import { FormField } from '../../../types';
+import styles from './tooltip.scss';
 
 interface TooltipProps {
   field: FormField;

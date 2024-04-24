@@ -1,35 +1,19 @@
 @use '@carbon/colors';
 
-.formField {
-  margin-top: 10px;
+.boldedLabel label {
+  font-weight: 600;
+  color: colors.$black-100;
 }
 
-.formField > div > div > label {
-  color: colors.$gray-70;
-}
-
-.multiselectOverride {
-  width: auto;
-  padding-bottom: 15px;
-}
-
-.multiselectOverride > div > div {
-  width: 22.313rem !important;
-}
-
-.multiselectOverride > div div div input {
-  border: 0 !important;
-  border-bottom: 1px solid #8d8d8d !important;
-}
-
-.errorLabel :global(.cds--form-requirement) {
-  display: block;
-  max-height: 12.5rem;
-  overflow: visible;
-  font-weight: 400;
+.errorLabel label {
   color: colors.$red-60;
+  font-weight: 600;
 }
 
-.list {
-  margin-left: '1rem';
+:global(.cds--list--unordered:not(.cds--list--nested)) {
+  margin-left: 0rem;
+}
+
+.selectionDisplay {
+  margin-top: 0.125rem;
 }

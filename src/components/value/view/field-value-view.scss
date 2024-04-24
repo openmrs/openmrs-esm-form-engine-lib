@@ -20,3 +20,12 @@
 .value {
   color: colors.$gray-70;
 }
+
+.inlineFlexRow {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.inlineFlexColumn {
+  width: 300px;
+}

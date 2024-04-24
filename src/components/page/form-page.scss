@@ -5,7 +5,7 @@
   margin: 25px 0;
 }
 
-.pageContent:last-child > hr {
+.pageContent:last-child>hr {
   display: none;
 }
 
@@ -36,32 +36,24 @@
   flex: 1 1 65%;
 }
 
-.formSection > div > fieldset {
+.formSection>div>fieldset {
   margin-bottom: 0 !important;
 }
 
-.embeddedFormSection{
+.embeddedFormSection {
   background-color: colors.$gray-10;
   margin-left: 0.75rem;
   padding: 0.5rem 0 0.5rem 0.75rem;
-  
 }
 
 .collapseToggle {
-  margin-Left: -180px;
+  margin-left: -180px;
   margin-bottom: 20px;
   margin-top: -10px;
 }
 
-.sectionContent > div {
+.sectionContent>div {
   background-color: colors.$gray-10;
-}
-
-.formSection > div div div input,
-.formSection > div div div textarea,
-.formSection > div div div dropdown,
-.formSection :global(.cds--dropdown) button {
-  background-color: white !important;
 }
 
 @media (min-width: 640px) {
@@ -70,6 +62,6 @@
   }
 }
 
-.sectionHeader{
+.sectionHeader {
   font-weight: 700;
 }

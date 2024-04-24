@@ -1,6 +1,6 @@
 import { openmrsFetch } from '@openmrs/esm-framework';
 import { useMemo } from 'react';
-import { OHRIFormSchema, OpenmrsForm } from '../types';
+import { FormSchema, OpenmrsForm } from '../types';
 import useSWRImmutable from 'swr/immutable';
 
 export function useClobdata(form: OpenmrsForm) {
@@ -8,7 +8,7 @@ export function useClobdata(form: OpenmrsForm) {
     () => form?.resources?.find(({ name }) => name === 'JSON schema').valueReference,
     [form],
   );
-  const { data, error } = useSWRImmutable<{ data: OHRIFormSchema }, Error>(
+  const { data, error } = useSWRImmutable<{ data: FormSchema }, Error>(
     valueReferenceUuid ? `/ws/rest/v1/clobdata/${valueReferenceUuid}` : null,
     openmrsFetch,
   );

@@ -1,7 +1,7 @@
-import { FormField, FormSchemaTransformer, OHRIFormSchema } from '../types';
+import { FormField, FormSchemaTransformer, FormSchema } from '../types';
 
 export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
-  transform: (form: OHRIFormSchema) => {
+  transform: (form: FormSchema) => {
     form.pages.forEach((page) => {
       if (page.sections) {
         let sections = page.sections;

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { FormSchemaTransformer, OHRIFormSchema, FormSection, ReferencedForm } from '../types';
+import { FormSchemaTransformer, FormSchema, FormSection, ReferencedForm } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
 import { fetchOpenMRSForm, fetchClobdata } from '../api/api';
 import { getRegisteredFormSchemaTransformers } from '../registry/registry';
 
 export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: string, formSessionIntent: string) {
-  const [formJson, setFormJson] = useState<OHRIFormSchema>(null);
+  const [formJson, setFormJson] = useState<FormSchema>(null);
   const [error, setError] = useState(validateFormsArgs(formUuid, rawFormJson));
   useEffect(() => {
     loadFormJson(formUuid, rawFormJson, formSessionIntent)
@@ -37,13 +37,13 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
  */
 export async function loadFormJson(
   formIdentifier: string,
-  rawFormJson?: OHRIFormSchema,
+  rawFormJson?: FormSchema,
   formSessionIntent?: string,
-): Promise<OHRIFormSchema> {
+): Promise<FormSchema> {
   const openmrsFormResponse = await fetchOpenMRSForm(formIdentifier);
   const clobDataResponse = await fetchClobdata(openmrsFormResponse);
   const transformers = await getRegisteredFormSchemaTransformers();
-  const formJson: OHRIFormSchema = clobDataResponse
+  const formJson: FormSchema = clobDataResponse
     ? { ...clobDataResponse, uuid: openmrsFormResponse.uuid }
     : parseFormJson(rawFormJson);
 
@@ -60,17 +60,17 @@ export async function loadFormJson(
   return refineFormJson(formJson, transformers, formSessionIntent);
 }
 
-function extractSubformRefs(formJson: OHRIFormSchema): string[] {
+function extractSubformRefs(formJson: FormSchema): string[] {
   return formJson.pages
     .filter((page) => page.isSubform && !page.subform.form && page.subform?.name)
     .map((page) => page.subform?.name);
 }
 
-async function loadSubforms(subformRefs: string[], formSessionIntent?: string): Promise<OHRIFormSchema[]> {
+async function loadSubforms(subformRefs: string[], formSessionIntent?: string): Promise<FormSchema[]> {
   return Promise.all(subformRefs.map((subform) => loadFormJson(subform, null, formSessionIntent)));
 }
 
-function updateFormJsonWithSubforms(formJson: OHRIFormSchema, subforms: OHRIFormSchema[]): void {
+function updateFormJsonWithSubforms(formJson: FormSchema, subforms: FormSchema[]): void {
   subforms.forEach((subform) => {
     const matchingPage = formJson.pages.find((page) => page.subform?.name === subform.name);
     if (matchingPage) {
@@ -91,13 +91,13 @@ function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
  * Refines the input form JSON object by parsing it, removing inline subforms, applying form schema transformers, setting the encounter type, and applying form intents if provided.
  * @param {any} formJson - The input form JSON object or string.
  * @param {string} [formSessionIntent] - The optional form session intent.
- * @returns {OHRIFormSchema} - The refined form JSON object of type FormSchema.
+ * @returns {FormSchema} - The refined form JSON object of type FormSchema.
  */
 function refineFormJson(
   formJson: any,
   schemaTransformers: FormSchemaTransformer[] = [],
   formSessionIntent?: string,
-): OHRIFormSchema {
+): FormSchema {
   removeInlineSubforms(formJson, formSessionIntent);
   // apply form schema transformers
   schemaTransformers.reduce((draftForm, transformer) => transformer.transform(draftForm), formJson);
@@ -108,18 +108,18 @@ function refineFormJson(
 /**
  * Parses the input form JSON and returns a deep copy of the object.
  * @param {any} formJson - The input form JSON object or string.
- * @returns {OHRIFormSchema} - The parsed form JSON object of type FormSchema.
+ * @returns {FormSchema} - The parsed form JSON object of type FormSchema.
  */
-function parseFormJson(formJson: any): OHRIFormSchema {
+function parseFormJson(formJson: any): FormSchema {
   return typeof formJson === 'string' ? JSON.parse(formJson) : JSON.parse(JSON.stringify(formJson));
 }
 
 /**
  * Removes inline subforms from the form JSON and replaces them with their pages if the encounter type matches.
- * @param {OHRIFormSchema} formJson - The input form JSON object of type FormSchema.
+ * @param {FormSchema} formJson - The input form JSON object of type FormSchema.
  * @param {string} formSessionIntent - The form session intent.
  */
-function removeInlineSubforms(formJson: OHRIFormSchema, formSessionIntent: string): void {
+function removeInlineSubforms(formJson: FormSchema, formSessionIntent: string): void {
   for (let i = formJson.pages.length - 1; i >= 0; i--) {
     const page = formJson.pages[i];
     if (
@@ -135,9 +135,9 @@ function removeInlineSubforms(formJson: OHRIFormSchema, formSessionIntent: strin
 
 /**
  * Sets the encounter type for the form JSON if it's provided through the `encounter` attribute.
- * @param {OHRIFormSchema} formJson - The input form JSON object of type FormSchema.
+ * @param {FormSchema} formJson - The input form JSON object of type FormSchema.
  */
-function setEncounterType(formJson: OHRIFormSchema): void {
+function setEncounterType(formJson: FormSchema): void {
   if (formJson.encounter && typeof formJson.encounter === 'string' && !formJson.encounterType) {
     formJson.encounterType = formJson.encounter;
     delete formJson.encounter;
@@ -147,7 +147,7 @@ function setEncounterType(formJson: OHRIFormSchema): void {
 /**
  * Functions to support reusable Form Components
  */
-function getReferencedForms(formJson: OHRIFormSchema): Array<ReferencedForm> {
+function getReferencedForms(formJson: FormSchema): Array<ReferencedForm> {
   const referencedForms: Array<any> = formJson?.referencedForms;
   if (!referencedForms) {
     return [];
@@ -155,12 +155,12 @@ function getReferencedForms(formJson: OHRIFormSchema): Array<ReferencedForm> {
   return referencedForms;
 }
 
-async function loadFormComponents(formComponentRefs: Array<ReferencedForm>): Promise<OHRIFormSchema[]> {
+async function loadFormComponents(formComponentRefs: Array<ReferencedForm>): Promise<FormSchema[]> {
   return Promise.all(formComponentRefs.map((formComponent) => loadFormJson(formComponent.formName, null, null)));
 }
 
-function mapFormComponents(formComponents: Array<OHRIFormSchema>): Map<string, OHRIFormSchema> {
-  const formComponentsMap: Map<string, OHRIFormSchema> = new Map();
+function mapFormComponents(formComponents: Array<FormSchema>): Map<string, FormSchema> {
+  const formComponentsMap: Map<string, FormSchema> = new Map();
 
   formComponents.forEach((formComponent) => {
     formComponentsMap.set(formComponent.name, formComponent);
@@ -169,7 +169,7 @@ function mapFormComponents(formComponents: Array<OHRIFormSchema>): Map<string, O
   return formComponentsMap;
 }
 
-function updateFormJsonWithComponents(formJson: OHRIFormSchema, formComponents: Map<string, OHRIFormSchema>): void {
+function updateFormJsonWithComponents(formJson: FormSchema, formComponents: Map<string, FormSchema>): void {
   formComponents.forEach((component, alias) => {
     //loop through pages and search sections for reference key
     formJson.pages.forEach((page) => {
@@ -187,7 +187,7 @@ function updateFormJsonWithComponents(formJson: OHRIFormSchema, formComponents: 
   });
 }
 
-function getReferencedFormSection(formSection: FormSection, formComponent: OHRIFormSchema): FormSection {
+function getReferencedFormSection(formSection: FormSection, formComponent: FormSchema): FormSection {
   let referencedFormSection: FormSection;
 
   // search for component page and section reference from component

@@ -1,11 +1,11 @@
+import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Formik, Form } from 'formik';
-import React from 'react';
-import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
-import { findTextOrDateInput } from '../../../utils/test-utils';
 import { FormField, EncounterContext, FormContext } from '../../..';
 import { UnspecifiedField } from './unspecified.component';
+import { findTextOrDateInput } from '../../../utils/test-utils';
 import DateField from '../date/date.component';
+import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 
 const question: FormField = {
   label: 'Visit Date',

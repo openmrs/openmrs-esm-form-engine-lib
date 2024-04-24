@@ -106,8 +106,8 @@ describe('content-switcher input field', () => {
         order: null,
         groupMembers: [],
         voided: false,
-        formFieldNamespace: 'ohri-forms',
-        formFieldPath: 'ohri-forms-patient-past-program',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-patient-past-program',
         value: '12f7be3d-fb5d-47dc-b5e3-56c501be80a6',
       });
     });

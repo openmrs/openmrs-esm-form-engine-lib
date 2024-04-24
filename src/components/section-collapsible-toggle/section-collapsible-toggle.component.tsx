@@ -7,7 +7,7 @@ import styles from './section-collapsible-toggle.scss';
 const SectionCollapsibleToggle = () => {
   const { t } = useTranslation();
   const metas = useExtensionSlotMeta('patient-chart-workspace-header-slot');
-  const callBack = metas['ohri-form-header-toggle-ext']?.handleCollapse;
+  const callBack = metas['rfe-form-header-toggle-ext']?.handleCollapse;
 
   const toggleCollapsedStatus = (e) => {
     callBack && callBack(e);

@@ -1,14 +1,17 @@
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { SessionLocation, showToast, useLayoutType, Visit } from '@openmrs/esm-framework';
+import { ConceptFalse, ConceptTrue } from '../../constants';
 import {
   FormField,
   FormPage as FormPageProps,
-  OHRIFormSchema,
+  FormSchema,
   OpenmrsEncounter,
-  RepeatObsGroupCounter,
   SessionMode,
   ValidationResult,
+  RepeatObsGroupCounter,
 } from '../../types';
+import FormPage from '../page/form-page.component';
+import { FormContext } from '../../form-context';
 import {
   cascadeVisibityToChildFields,
   evaluateFieldReadonlyProp,
@@ -16,12 +19,12 @@ import {
   findPagesWithErrors,
   voidObsValueOnFieldHidden,
 } from '../../utils/form-helper';
-import { isEmpty, isEmpty as isValueEmpty, FieldValidator } from '../../validators/form-validator';
 import { InstantEffect } from '../../utils/instant-effect';
-import { FormSubmissionHandler } from '../../ohri-form.component';
+import { FormSubmissionHandler } from '../../form-engine.component';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { getPreviousEncounter, saveAttachment, saveEncounter } from '../../api/api';
 import { isTrue } from '../../utils/boolean-utils';
+import { isEmpty, isEmpty as isValueEmpty, FieldValidator } from '../../validators/form-validator';
 import { scrollIntoView } from '../../utils/scroll-into-view';
 import { useEncounter } from '../../hooks/useEncounter';
 import { useInitialValues } from '../../hooks/useInitialValues';
@@ -29,12 +32,9 @@ import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { useConcepts } from '../../hooks/useConcepts';
 import { useFormFieldHandlers } from '../../hooks/useFormFieldHandlers';
 import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
-import { ConceptFalse, ConceptTrue } from '../../constants';
-import { FormContext } from '../../form-context';
-import FormPage from '../page/form-page.component';
 
 interface EncounterFormProps {
-  formJson: OHRIFormSchema;
+  formJson: FormSchema;
   patient: any;
   formSessionDate: Date;
   provider: string;
@@ -87,7 +87,7 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(formJson);
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
-  const [form, setForm] = useState<OHRIFormSchema>(formJson);
+  const [form, setForm] = useState<FormSchema>(formJson);
   const [obsGroupsToVoid, setObsGroupsToVoid] = useState([]);
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
@@ -263,6 +263,9 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
           const matchingConcept = findConceptByReference(field.questionOptions.concept, concepts);
           field.questionOptions.concept = matchingConcept ? matchingConcept.uuid : field.questionOptions.concept;
           field.label = field.label ? field.label : matchingConcept?.display;
+          field.meta = {
+            concept: matchingConcept,
+          };
           if (field.questionOptions.answers) {
             field.questionOptions.answers = field.questionOptions.answers.map((answer) => {
               const matchingAnswerConcept = findConceptByReference(answer.concept, concepts);

@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import debounce from 'lodash-es/debounce';
 import { ComboBox, InlineLoading, Layer } from '@carbon/react';
 import { useField } from 'formik';
-import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
+import { FieldValueView } from '../../value/view/field-value-view.component';
 import { isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
@@ -122,7 +122,7 @@ const UISelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   return encounterContext.sessionMode == 'view' ||
     encounterContext.sessionMode == 'embedded-view' ||
     isTrue(question.readonly) ? (
-    <OHRIFieldValueView
+    <FieldValueView
       label={question.label}
       value={
         field.value

@@ -182,8 +182,8 @@ const constructObs = (value: any, context: EncounterContext, field: FormField) =
     // TODO: Update form path to:
     // 1. Follow standard patterns ie. NAMESPACE + "^" + FORMFIELD_PATH
     // 2. Remove "ohri" from the namespace
-    formFieldNamespace: 'ohri-forms',
-    formFieldPath: `ohri-forms-${field.id}`,
+    formFieldNamespace: 'rfe-forms',
+    formFieldPath: `rfe-forms-${field.id}`,
     value: value,
   };
 };
@@ -195,8 +195,12 @@ const constructObs = (value: any, context: EncounterContext, field: FormField) =
  * If the query by field-path returns an empty list, the function falls back to querying
  * by concept and uses `claimedObsIds` to exclude already assigned observations.
  */
-export const findObsByFormField = (obsList: Array<OpenmrsObs>, claimedObsIds: string[], field: FormField): OpenmrsObs[] => {
-  const obs = obsList.filter((o) => o.formFieldPath == `ohri-forms-${field.id}`);
+export const findObsByFormField = (
+  obsList: Array<OpenmrsObs>,
+  claimedObsIds: string[],
+  field: FormField,
+): OpenmrsObs[] => {
+  const obs = obsList.filter((o) => o.formFieldPath == `rfe-forms-${field.id}`);
   // We shall fall back to mapping by the associated concept
   // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
   if (!obs?.length) {

@@ -1,4 +1,4 @@
-.boldLegend > legend { 
+.boldLegend > legend {
   font-weight: bolder;
 }
 
@@ -11,22 +11,26 @@
 
 .removeButton {
   @extend .flexColumn;
-  padding-top: 1.2rem;
   margin-left: 0.5rem;
 }
 
-.obsGroupContainer {
-  margin: 1rem 0rem;
+.button {
+  svg {
+    margin-left: 1rem;
+  }
 }
 
-.separator {
-  border-top: 1px solid #bbb;
-  margin-bottom: 2rem; 
-  width: 85%;
-  float: left;
+.obsGroupContainer {
+  margin: 1rem 0rem 2rem;
 }
 
 .container {
-  margin-top: 0.65rem; 
+  margin-top: 0.65rem;
   margin-bottom: 2rem;
+}
+
+.divider {
+  border: 1.5px solid #e0e0e0;
+  border-bottom: none;
+  margin: 2rem 0;
 }

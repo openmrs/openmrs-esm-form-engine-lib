@@ -1,6 +1,6 @@
 import { findConceptByReference } from './form-helper';
 
-describe('OHRI Form Helper', () => {
+describe('Form Engine Helper', () => {
   describe('findConceptByReference', () => {
     const concepts = [
       {

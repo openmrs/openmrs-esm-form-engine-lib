@@ -46,8 +46,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       order: null,
       groupMembers: [],
       voided: false,
-      formFieldNamespace: 'ohri-forms',
-      formFieldPath: 'ohri-forms-visit-note',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-visit-note',
       value: 'Can be discharged in next visit',
     });
   });
@@ -74,8 +74,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       order: null,
       groupMembers: [],
       voided: false,
-      formFieldNamespace: 'ohri-forms',
-      formFieldPath: 'ohri-forms-temperature',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-temperature',
       value: 36,
     });
   });
@@ -114,8 +114,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
-        formFieldNamespace: 'ohri-forms',
-        formFieldPath: 'ohri-forms-past-patient-programs',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-past-patient-programs',
         value: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
       },
     ]);
@@ -138,8 +138,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
-        formFieldNamespace: 'ohri-forms',
-        formFieldPath: 'ohri-forms-past-patient-programs',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-past-patient-programs',
         value: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
       },
       {
@@ -150,8 +150,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
-        formFieldNamespace: 'ohri-forms',
-        formFieldPath: 'ohri-forms-past-patient-programs',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-past-patient-programs',
         value: '305e7ad6-c1fd-11eb-8529-0242ac130003',
       },
     ]);
@@ -180,8 +180,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       order: null,
       groupMembers: [],
       voided: false,
-      formFieldNamespace: 'ohri-forms',
-      formFieldPath: 'ohri-forms-hts-date',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-hts-date',
       value: '2020-01-20 00:00',
     });
   });
@@ -212,8 +212,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       order: null,
       groupMembers: [],
       voided: false,
-      formFieldNamespace: 'ohri-forms',
-      formFieldPath: 'ohri-forms-hts-result',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-hts-result',
       value: 'n8hynk0j-c1fd-117g-8529-0242ac1hgc9j',
     });
   });
@@ -327,8 +327,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
           order: null,
           groupMembers: [],
           voided: false,
-          formFieldNamespace: 'ohri-forms',
-          formFieldPath: 'ohri-forms-past-patient-programs',
+          formFieldNamespace: 'rfe-forms',
+          formFieldPath: 'rfe-forms-past-patient-programs',
           value: {
             uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
           },
@@ -355,8 +355,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
-        formFieldNamespace: 'ohri-forms',
-        formFieldPath: 'ohri-forms-past-patient-programs',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-past-patient-programs',
         value: {
           uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
         },
@@ -369,8 +369,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
-        formFieldNamespace: 'ohri-forms',
-        formFieldPath: 'ohri-forms-past-patient-programs',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-past-patient-programs',
         value: '305e77c0-c1fd-11eb-8529-0242ac130003',
       },
     ]);
@@ -731,7 +731,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
 
   it('should get intial values for obs-group members', () => {
     // setup
-    const basePath = 'ohri-forms-';
+    const basePath = 'rfe-forms-';
     const groupingQuestion: FormField = {
       label: 'Obs Group',
       type: 'obsGroup',
@@ -885,7 +885,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
 });
 
 describe('findObsByFormField', () => {
-  const namespace = 'ohri-forms';
+  const namespace = 'rfe-forms';
   const fields: Array<FormField> = [
     {
       label: 'Field One',
@@ -932,7 +932,7 @@ describe('findObsByFormField', () => {
         uuidd: '8c3db896-c1f0-11eb-8529-0242acv30003',
       },
       formFieldNamespace: namespace,
-      formFieldPath: 'ohri-forms-fieldOne',
+      formFieldPath: 'rfe-forms-fieldOne',
     },
     {
       uuid: '1449d61a-78b1-4aaf-a956-e6b1bd73138f',
@@ -940,7 +940,7 @@ describe('findObsByFormField', () => {
         uuid: 'mc3db896-c4f0-11eb-8529-0242acv3000c',
       },
       formFieldNamespace: namespace,
-      formFieldPath: 'ohri-forms-fieldThree',
+      formFieldPath: 'rfe-forms-fieldThree',
     },
     {
       uuid: '8449d61a-5841-4aaf-a956-e6b1bd73138b',
@@ -948,7 +948,7 @@ describe('findObsByFormField', () => {
         uuid: '8c3db896-c1f0-11eb-8529-0242acv30003',
       },
       formFieldNamespace: namespace,
-      formFieldPath: 'ohri-forms-fieldTwo',
+      formFieldPath: 'rfe-forms-fieldTwo',
     },
     {
       uuid: '5449d61a-4841-4aaf-a956-26b1bd73138b',

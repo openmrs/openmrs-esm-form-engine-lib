@@ -6,7 +6,7 @@ import { FormFieldProps } from '../../types';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
 import { UnspecifiedField } from '../inputs/unspecified/unspecified.component';
 import styles from './obs-group.scss';
-import { Tooltip } from '../inputs/tooltip/ohri-tooltip.component';
+import { Tooltip } from '../inputs/tooltip/tooltip.component';
 
 export interface ObsGroupProps extends FormFieldProps {
   deleteControl?: any;

@@ -1,8 +1,7 @@
 <div id="top"></div>
 
-:wave:	*New to O3? Be sure to review the [OpenMRS 3 Frontend Developer Documentation](https://openmrs.github.io/openmrs-esm-core/#/). You may find the [Map of the Project](https://openmrs.github.io/openmrs-esm-core/#/main/map) especially helpful.* :teacher:	
+:wave:	*New to O3? Be sure to review the [OpenMRS 3 Frontend Developer Documentation](https://openmrs.github.io/openmrs-esm-core/#/). You may find the [Map of the Project](https://openmrs.github.io/openmrs-esm-core/#/main/map) especially helpful.* :teacher:
 
-[![Form-engine-CI](https://github.com/UCSF-IGHS/openmrs-ohri-form-engine-lib/actions/workflows/node.js.yml/badge.svg)](https://github.com/UCSF-IGHS/openmrs-ohri-form-engine-lib/actions/workflows/node.js.yml)
 
 # OpenMRS Form Engine
 
@@ -48,10 +47,10 @@ yarn add @openmrs/openmrs-form-engine-lib@latest
 
 ### Local Development
 
-#### Install Dependencies 
+#### Install Dependencies
 
 ```bash
-yarn 
+yarn
 ```
 
 #### Build the library

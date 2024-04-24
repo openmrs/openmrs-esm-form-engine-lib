@@ -1,8 +1,8 @@
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
+import MarkdownWrapper from './markdown-wrapper.component';
 import { FormFieldProps } from '../../../types';
 
-const Markdown: React.FC<FormFieldProps> = ({ question }) =>
-  !question.isHidden && <ReactMarkdown children={question.value.join('\n')} />;
-
+const Markdown: React.FC<FormFieldProps> = ({ question }) => {
+  return !question.isHidden && <MarkdownWrapper markdown={question.value} />;
+};
 export default Markdown;

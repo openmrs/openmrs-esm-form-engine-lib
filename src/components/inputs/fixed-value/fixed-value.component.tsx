@@ -29,5 +29,4 @@ const FixedValue: React.FC<FormFieldProps> = ({ question, handler }) => {
 function obsValueEqualTo(value: string, obs: any) {
   return isObject(obs.value) ? obs.value?.uuid == value : obs.value == value;
 }
-
 export default FixedValue;

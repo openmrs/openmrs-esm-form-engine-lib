@@ -16,7 +16,7 @@
             "links": [
                 {
                     "rel": "self",
-                    "uri": "http://ohri-demo.globalhealthapp.net/openmrs/ws/rest/v1/user/82f18b44-6814-11e8-923f-e9a88dcb533f",
+                    "uri": "https://dev3.openmrs.org/openmrs/ws/rest/v1/user/82f18b44-6814-11e8-923f-e9a88dcb533f",
                     "resourceAlias": "user"
                 }
             ]

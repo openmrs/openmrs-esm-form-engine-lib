@@ -11,7 +11,7 @@ import { isTrue } from '../../utils/boolean-utils';
 import { UnspecifiedField } from '../inputs/unspecified/unspecified.component';
 import { FormField, FormFieldProps, previousValue, SubmissionHandler } from '../../types';
 import { FormContext } from '../../form-context';
-import { Tooltip } from '../inputs/tooltip/ohri-tooltip.component';
+import { Tooltip } from '../inputs/tooltip/tooltip.component';
 import styles from './form-section.scss';
 
 interface FieldComponentMap {

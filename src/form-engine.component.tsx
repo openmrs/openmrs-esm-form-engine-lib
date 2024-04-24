@@ -4,22 +4,13 @@ import classNames from 'classnames';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
-import {
-  attach,
-  detach,
-  getAsyncLifecycle,
-  registerExtension,
-  showSnackbar,
-  useSession,
-  Visit,
-} from '@openmrs/esm-framework';
+import { showSnackbar, useSession, Visit } from '@openmrs/esm-framework';
 import LinearLoader from './components/loaders/linear-loader.component';
 import LoadingIcon from './components/loaders/loading.component';
 import Sidebar from './components/sidebar/sidebar.component';
 import { init, teardown } from './lifecycle';
-import { OHRIFormSchema, SessionMode, FormPage as FormPageProps } from './types';
+import { FormSchema, SessionMode, FormPage as FormPageProps } from './types';
 import { PatientBanner } from './components/patient-banner/patient-banner.component';
-import { PatientChartWorkspaceHeaderSlot } from './constants';
 import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
 import { useFormJson } from './hooks/useFormJson';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
@@ -27,13 +18,13 @@ import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
 import { usePatientData } from './hooks/usePatientData';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
-import { EncounterForm } from './components/encounter/ohri-encounter-form.component';
-import styles from './ohri-form.scss';
+import styles from './form-engine.scss';
+import { EncounterForm } from './components/encounter/encounter-form.component';
 
 interface FormProps {
   patientUUID: string;
   formUUID?: string;
-  formJson?: OHRIFormSchema;
+  formJson?: FormSchema;
   encounterUUID?: string;
   visit?: Visit;
   formSessionIntent?: string;
@@ -47,18 +38,18 @@ interface FormProps {
      */
     moduleName: string;
     /**
-     * Tells the engine where to pickup OHRI forms specific config from the ESM's configuration
+     * Tells the engine where to pickup forms specific config from the ESM's configuration
      *
      * *Assuming an esm defines a config of similar structure:*
      * ```json
      *  {
      *   forms: {
-     *     OHRIFormConfig: {},
+     *     FormEngineConfig: {},
      *   },
      *   otherConfigs: {}
      *  }
      * ```
-     * The path to the `OHRIFormConfig` would be: `"forms.OHRIFormConfig"`
+     * The path to the `FormEngineConfig` would be: `"forms.FormEngineConfig"`
      */
     configPath?: string;
   };
@@ -76,7 +67,7 @@ export interface FormSubmissionHandler {
   validate: (values) => boolean;
 }
 
-const OHRIForm: React.FC<FormProps> = ({
+const FormEngine: React.FC<FormProps> = ({
   formJson,
   formUUID,
   patientUUID,
@@ -129,35 +120,6 @@ const OHRIForm: React.FC<FormProps> = ({
       workspaceLayout === 'minimized' || ('maximized' && sessionMode != 'embedded-view' && scrollablePages.size <= 1)
     );
   }, [sessionMode, workspaceLayout, scrollablePages]);
-
-  useEffect(() => {
-    const extDetails = {
-      name: 'ohri-form-header-toggle-ext',
-      moduleName: meta?.moduleName || '@openmrs/esm-ohri-app',
-      slot: PatientChartWorkspaceHeaderSlot,
-      load: getAsyncLifecycle(
-        () => import('./components/section-collapsible-toggle/section-collapsible-toggle.component'),
-        {
-          featureName: 'ohri-form-header-toggle',
-          moduleName: meta?.moduleName || '@openmrs/esm-ohri-app',
-        },
-      ),
-      meta: {
-        handleCollapse: (value: boolean) => {
-          setIsFormExpanded(value);
-        },
-      },
-    };
-
-    if (sessionMode != 'embedded-view') {
-      registerExtension(extDetails);
-      attach(PatientChartWorkspaceHeaderSlot, extDetails.name);
-    }
-
-    return () => {
-      detach(PatientChartWorkspaceHeaderSlot, extDetails.name);
-    };
-  }, [meta?.moduleName]);
 
   useEffect(() => {
     ////////////
@@ -287,17 +249,17 @@ const OHRIForm: React.FC<FormProps> = ({
         }, [props.dirty]);
 
         return (
-          <Form className={classNames('cds--form', 'no-padding', styles.ohriForm)} ref={ref}>
+          <Form className={classNames('cds--form', 'no-padding', styles.formEngine)} ref={ref}>
             {isLoadingPatient || isLoadingFormJson ? (
               <LoadingIcon />
             ) : (
-              <div className={styles.ohriFormContainer}>
+              <div className={styles.formEngineContainer}>
                 {isLoadingFormDependencies && (
                   <div className={styles.loader}>
                     <LinearLoader />
                   </div>
                 )}
-                <div className={styles.ohriFormBody}>
+                <div className={styles.formEngineBody}>
                   {showSidebar && (
                     <Sidebar
                       isFormSubmitting={isSubmitting}
@@ -378,4 +340,4 @@ const OHRIForm: React.FC<FormProps> = ({
   );
 };
 
-export default OHRIForm;
+export default FormEngine;
