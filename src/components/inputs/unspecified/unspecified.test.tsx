@@ -3,7 +3,7 @@ import { Formik, Form } from 'formik';
 import React from 'react';
 import { FormField, EncounterContext, FormContext } from '../../..';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
-import { OHRIUnspecified } from './unspecified.component';
+import { UnspecifiedField } from './unspecified.component';
 import { findTextOrDateInput } from '../../../utils/test-utils';
 import DateField from '../date/date.component';
 
@@ -55,7 +55,7 @@ const renderForm = (intialValues) => {
               formFieldHandlers: { obs: ObsSubmissionHandler },
             }}>
             <DateField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-            <OHRIUnspecified question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+            <UnspecifiedField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
           </FormContext.Provider>
         </Form>
       )}
