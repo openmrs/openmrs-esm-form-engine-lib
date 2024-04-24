@@ -22,7 +22,7 @@ export const inbuiltDataSources: Array<RegistryItem<DataSource<any>>> = [
   },
   {
     name: 'select_concept_answers_datasource',
-    component: new ConceptDataSource(),
+    component: new ConceptSetMembersDataSource(),
   },
   {
     name: 'provider_datasource',

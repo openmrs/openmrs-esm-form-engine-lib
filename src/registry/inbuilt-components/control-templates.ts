@@ -14,9 +14,6 @@ export const controlTemplates: Array<ControlTemplate> = [
     name: 'select-concept-answers',
     datasource: {
       name: 'select_concept_answers_datasource',
-      config: {
-        useSetMembersByConcept: true,
-      },
     },
   },
   {
