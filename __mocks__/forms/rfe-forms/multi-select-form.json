@@ -41,14 +41,16 @@
                     "concept": "a89b6440-1350-11df-a1f1-0026b9348838",
                     "label": "Scheduled visit",
                     "disable": {
-                      "disableWhenExpression": "sex !== 'F'"
+                      "disableWhenExpression": "sex !== 'F'",
+                      "isDisabled": "true"
                     }
                   },
                   {
                     "concept": "a89ff816-1350-11df-a1f1-0026b9348838",
                     "label": "Unscheduled visit early",
                     "disable": {
-                      "disableWhenExpression": "nhif !== '8b715fed-97f6-4e38-8f6a-c167a42f8923'"
+                      "disableWhenExpression": "nhif !== '8b715fed-97f6-4e38-8f6a-c167a42f8923'",
+                      "isDisabled": "true"
                     }
                   },
                   {

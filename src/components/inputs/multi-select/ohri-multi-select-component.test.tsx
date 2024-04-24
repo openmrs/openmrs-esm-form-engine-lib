@@ -1,17 +1,17 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { OHRIMultiSelect } from './ohri-multi-select.component';
-import { EncounterContext, OHRIFormContext } from '../../../ohri-form-context';
 import { Form, Formik } from 'formik';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
-import { OHRIFormField, OHRIFormFieldProps, OHRIFormSchema } from '../../../api/types';
-import OHRIDropdown from '../select/ohri-dropdown.component';
-import OHRIForm from '../../../ohri-form.component';
 import { mockVisit } from '../../../../__mocks__/visit.mock';
-import multiSelectFormSchema from '../../../../__mocks__/forms/ohri-forms/multi-select-form.json';
+import multiSelectFormSchema from '../../../../__mocks__/forms/rfe-forms/multi-select-form.json';
 import { mockPatient } from '../../../../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../../../../__mocks__/session.mock';
+import { FormField, FormFieldProps, FormSchema } from '../../../types';
+import { EncounterContext, FormContext } from '../../../form-context';
+import { MultiSelect } from './multi-select.component';
+import Dropdown from '../select/dropdown.component';
+import FormEngine from '../../../form-engine.component';
 
 const mockOpenmrsFetch = jest.fn();
 global.ResizeObserver = require('resize-observer-polyfill');
@@ -19,7 +19,7 @@ const visit = mockVisit;
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 
-const otherTestQuestions: OHRIFormField[] = [
+const otherTestQuestions: FormField[] = [
   {
     label: 'Patient covered by NHIF:',
     id: 'nhif',
@@ -42,7 +42,7 @@ const otherTestQuestions: OHRIFormField[] = [
   },
 ];
 
-const testProps: OHRIFormFieldProps = {
+const testProps: FormFieldProps = {
   question: {
     label: 'Was this visit scheduled?',
     type: 'obs',
@@ -142,7 +142,7 @@ const renderForm = (initialValues: Record<any, any>) => {
     <Formik initialValues={initialValues} onSubmit={null}>
       {(props) => (
         <Form>
-          <OHRIFormContext.Provider
+          <FormContext.Provider
             value={{
               values: props.values,
               setFieldValue: props.setFieldValue,
@@ -155,9 +155,9 @@ const renderForm = (initialValues: Record<any, any>) => {
               isSubmitting: false,
               formFieldHandlers: { obs: ObsSubmissionHandler },
             }}>
-            <OHRIDropdown {...{ ...testProps, question: otherTestQuestions[0] }} />
-            <OHRIMultiSelect {...testProps} />
-          </OHRIFormContext.Provider>
+            <Dropdown {...{ ...testProps, question: otherTestQuestions[0] }} />
+            <MultiSelect {...testProps} />
+          </FormContext.Provider>
         </Form>
       )}
     </Formik>,
@@ -183,8 +183,8 @@ describe('OHRIMultiSelect Component', () => {
 
     await act(() =>
       render(
-        <OHRIForm
-          formJson={multiSelectFormSchema as unknown as OHRIFormSchema}
+        <FormEngine
+          formJson={multiSelectFormSchema as unknown as FormSchema}
           formUUID={null}
           patientUUID={patientUUID}
           formSessionIntent={undefined}
@@ -192,8 +192,6 @@ describe('OHRIMultiSelect Component', () => {
         />,
       ),
     );
-
-    screen.debug(null, 10000000);
 
     await user.click(screen.getByRole('combobox', { name: /Patient covered by NHIF/i }));
     await user.click(screen.getByRole('option', { name: /no/i }));

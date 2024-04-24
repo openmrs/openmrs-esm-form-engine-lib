@@ -75,18 +75,6 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
     }
   }, [previousValue]);
 
-  console.log(
-    question.questionOptions.answers
-      .filter((answer) => !answer.isHidden)
-      .map((answer, index) => ({
-        id: `${question.id}-${answer.concept}`,
-        concept: answer.concept,
-        label: answer.label,
-        key: index,
-        ...(answer?.disable?.isDisabled ? { disabled: true } : {}),
-      })),
-  );
-
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
       return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
