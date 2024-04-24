@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { FormGroup, ContentSwitcher, Switch } from '@carbon/react';
 import { useField } from 'formik';
-import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isInlineView } from '../../../utils/ohri-form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { OHRIFormContext } from '../../../ohri-form-context';
@@ -13,7 +14,6 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
   const [errors, setErrors] = useState([]);
-  const [conceptName, setConceptName] = useState('Loading...');
 
   useEffect(() => {
     if (question['submission']?.errors) {
@@ -41,12 +41,6 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
     [field.value, question.questionOptions.answers],
   );
 
-  useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
-      setConceptName(conceptTooltip);
-    });
-  }, [conceptName, question.questionOptions.concept]);
-
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
       return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
@@ -61,14 +55,23 @@ export const OHRIContentSwitcher: React.FC<OHRIFormFieldProps> = ({ question, on
       <OHRIFieldValueView
         label={question.label}
         value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={conceptName}
+        conceptName={question.meta?.concept?.display}
         isInline={isInline}
       />
     </div>
   ) : (
     !question.isHidden && (
-      <FormGroup legendText={question.label} className={errors.length ? styles.errorLegend : styles.boldedLegend}>
-        <ContentSwitcher onChange={handleChange} selectedIndex={selectedIndex} className={styles.selectedOption}>
+      <FormGroup
+        legendText={question.label}
+        className={classNames({
+          [styles.errorLegend]: errors.length > 0,
+          [styles.boldedLegend]: errors.length === 0,
+        })}>
+        <ContentSwitcher
+          onChange={handleChange}
+          selectedIndex={selectedIndex}
+          className={styles.selectedOption}
+          size="md">
           {question.questionOptions.answers.map((option, index) => (
             <Switch
               name={option.concept || option.value}

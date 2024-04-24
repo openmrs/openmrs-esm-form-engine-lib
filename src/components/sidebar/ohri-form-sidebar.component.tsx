@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
+import { useTranslation } from 'react-i18next';
 import { Button, Toggle } from '@carbon/react';
 import { isEmpty } from '../../validators/ohri-form-validator';
 import { scrollIntoView } from '../../utils/ohri-sidebar';
@@ -17,6 +19,7 @@ function OHRIFormSidebar({
   allowUnspecifiedAll,
   defaultPage,
 }) {
+  const { t } = useTranslation();
   const [activeLink, setActiveLink] = useState(selectedPage);
 
   useEffect(() => {
@@ -25,37 +28,37 @@ function OHRIFormSidebar({
     }
   }, [defaultPage, scrollablePages]);
 
-  const joinWord = value => {
+  const joinWord = (value) => {
     return value.replace(/\s/g, '');
   };
 
   const unspecifiedFields = useMemo(() => {
     return (
       Object.keys(values)
-        .filter(key => key.endsWith('-unspecified'))
+        .filter((key) => key.endsWith('-unspecified'))
         // find parent control
-        .map(key => key.split('-unspecified')[0])
+        .map((key) => key.split('-unspecified')[0])
         // factor-out those with values
-        .filter(key => isEmpty(values[key]))
+        .filter((key) => isEmpty(values[key]))
         // return the unspecified control keys
-        .map(key => `${key}-unspecified`)
+        .map((key) => `${key}-unspecified`)
     );
   }, [values]);
 
-  const handleClick = selected => {
+  const handleClick = (selected) => {
     const activeID = selected.replace(/\s/g, '');
     setActiveLink(selected);
     scrollIntoView(activeID);
   };
 
   const markAllAsUnspecified = useCallback(
-    toggled => {
+    (toggled) => {
       if (toggled) {
-        unspecifiedFields.forEach(field => {
+        unspecifiedFields.forEach((field) => {
           values[field] = true;
         });
       } else {
-        unspecifiedFields.forEach(field => {
+        unspecifiedFields.forEach((field) => {
           values[field] = false;
         });
       }
@@ -63,22 +66,23 @@ function OHRIFormSidebar({
     },
     [unspecifiedFields],
   );
+
   return (
     <div className={styles.sidebar}>
       {[...scrollablePages].map((page, index) => {
+        const isCurrentSelected = joinWord(page.label) === selectedPage;
+        const hasError = pagesWithErrors.includes(page.label);
+
         return (
           !page.isHidden && (
             <div
               aria-hidden="true"
-              className={
-                joinWord(page.label) === selectedPage && pagesWithErrors.includes(page.label)
-                  ? styles.sidebarSectionErrorActive
-                  : joinWord(page.label) === selectedPage
-                  ? styles.sidebarSectionActive
-                  : pagesWithErrors.includes(page.label)
-                  ? styles.sidebarSectionError
-                  : styles.sidebarSection
-              }
+              className={classNames({
+                [styles.sidebarSectionErrorActive]: isCurrentSelected && hasError,
+                [styles.sidebarSectionActive]: isCurrentSelected && !hasError,
+                [styles.sidebarSectionError]: !isCurrentSelected && hasError,
+                [styles.sidebarSection]: !isCurrentSelected && !hasError,
+              })}
               key={index}
               onClick={() => handleClick(page.label)}>
               <div className={styles.sidebarSectionLink}>{page.label}</div>
@@ -93,8 +97,8 @@ function OHRIFormSidebar({
             <Toggle
               labelText=""
               id="auto-unspecifier"
-              labelA="Unspecify All"
-              labelB="Revert"
+              labelA={t('unspecifyAll', 'Unspecify All')}
+              labelB={t('revert', 'Revert')}
               onToggle={markAllAsUnspecified}
             />
           </div>
@@ -111,7 +115,7 @@ function OHRIFormSidebar({
             onCancel && onCancel();
             handleClose && handleClose();
           }}>
-          {mode == 'view' ? 'Close' : 'Cancel'}
+          {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
         </Button>
       </div>
     </div>

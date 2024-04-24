@@ -111,7 +111,9 @@ export function lookupForms(packageName, formNamespace, formsRegistry) {
  * @returns {object} The form json
  */
 export function applyFormIntent(intent, originalJson, parentOverrides?: Array<BehaviourProperty>) {
-  // Deep-copy original JSON
+  if (!intent) {
+    return originalJson;
+  }
   const jsonBuffer = JSON.parse(JSON.stringify(originalJson));
   // Set the default page based on the current intent
   jsonBuffer.defaultPage = jsonBuffer.availableIntents?.find(

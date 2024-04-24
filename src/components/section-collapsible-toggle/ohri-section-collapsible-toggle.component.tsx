@@ -9,7 +9,7 @@ const OHRISectionCollapsibleToggle = () => {
   const metas = useExtensionSlotMeta('patient-chart-workspace-header-slot');
   const callBack = metas['ohri-form-header-toggle-ext']?.handleCollapse;
 
-  const toggleCollapsedStatus = e => {
+  const toggleCollapsedStatus = (e) => {
     callBack && callBack(e);
   };
 
@@ -17,7 +17,7 @@ const OHRISectionCollapsibleToggle = () => {
     <div className={styles.toggleContainer}>
       <Toggle
         size="sm"
-        aria-label="toggle button"
+        aria-label={t('toggleCollapseOrExpand', 'Toggle collapse or expand')}
         defaultToggled
         id="collapsable-toggle"
         labelA={t('expandAll', 'Expand all')}

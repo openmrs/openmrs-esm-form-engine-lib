@@ -1,11 +1,10 @@
 import { OHRIFormFieldProps } from '../../api/types';
 import OHRIExtensionParcel from '../../components/extension/ohri-extension-parcel.component';
-import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended';
+import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
 import { OHRIObsGroup } from '../../components/group/ohri-obs-group.component';
 import { OHRIContentSwitcher } from '../../components/inputs/content-switcher/ohri-content-switcher.component';
 import OHRIDate from '../../components/inputs/date/ohri-date.component';
 import OHRIFixedValue from '../../components/inputs/fixed-value/ohri-fixed-value.component';
-import { OHRIEncounterLocationPicker } from '../../components/inputs/location/ohri-encounter-location.component';
 import OHRIMarkdown from '../../components/inputs/markdown/ohri-markdown.component';
 import { OHRIMultiSelect } from '../../components/inputs/multi-select/ohri-multi-select.component';
 import OHRINumber from '../../components/inputs/number/ohri-number.component';
@@ -14,11 +13,12 @@ import OHRIDropdown from '../../components/inputs/select/ohri-dropdown.component
 import OHRITextArea from '../../components/inputs/text-area/ohri-text-area.component';
 import OHRIText from '../../components/inputs/text/ohri-text.component';
 import OHRIToggle from '../../components/inputs/toggle/ohri-toggle.component';
-import { OHRIRepeat } from '../../components/repeat/ohri-repeat.component';
+import OHRIRepeat from '../../components/repeat/ohri-repeat.component';
 import File from '../../components/inputs/file/file.component';
 import { RegistryItem } from '../registry';
 import { controlTemplates } from './control-templates';
 import { templateToComponentMap } from './template-component-map';
+import WorkspaceLauncher from '../../components/inputs/workspace-launcher/workspace-launcher.component';
 
 /**
  * @internal
@@ -111,6 +111,11 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFie
     name: 'File',
     component: File,
     type: 'file',
+  },
+  {
+    name: 'WorkspaceLauncher',
+    component: WorkspaceLauncher,
+    type: 'workspace-launcher',
   },
   ...controlTemplates.map((template) => ({
     name: `${template.name}Control`,

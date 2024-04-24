@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import { LayoutType } from '@openmrs/esm-framework';
-import { fetchConceptNameByUuid } from '../api/api';
 import { ConceptTrue } from '../constants';
 import { EncounterContext } from '../ohri-form-context';
 import { OHRIFormField, OHRIFormPage, OHRIFormSection, SessionMode, SubmissionHandler } from '../api/types';
@@ -43,12 +42,6 @@ export function inferInitialValueFromDefaultFieldValue(
     handler.handleFieldSubmission(field, field.questionOptions.defaultValue, context);
     return field.questionOptions.defaultValue;
   }
-}
-
-export function getConceptNameAndUUID(conceptUuid: string) {
-  return fetchConceptNameByUuid(conceptUuid).then((conceptName) => {
-    return `Concept Name: ${conceptName} \n UUID: ${conceptUuid}`;
-  });
 }
 
 export function isInlineView(

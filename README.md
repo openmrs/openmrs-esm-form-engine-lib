@@ -26,7 +26,7 @@ This project was initially developed by the [UCSF-IGHS team](https://github.com/
 
 ### Documentation
 
-[Read the documentation](https://ohri-docs.globalhealthapp.net/).
+[Read the documentation](https://openmrs.atlassian.net/wiki/spaces/projects/pages/68747273/O3+Form+Docs).
 
 ## Getting Started
 

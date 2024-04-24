@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ToastNotification } from '@carbon/react';
@@ -7,13 +8,15 @@ import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.componen
 import { OHRIFormField, OHRIFormFieldProps, previousValue, SubmissionHandler } from '../../api/types';
 import styles from './ohri-form-section.scss';
 import { formatPreviousValueDisplayText, getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
-import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
+import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip.component';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
 import { isTrue } from '../../utils/boolean-utils';
 import { evaluateExpression, HD } from '../../utils/expression-runner';
 import { parseToLocalDateTime } from '../../utils/ohri-form-helper';
 import dayjs from 'dayjs';
+import classNames from 'classnames';
+
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<OHRIFormFieldProps>;
@@ -75,6 +78,7 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
           .map((entry, index) => {
             const { fieldComponent: FieldComponent, fieldDescriptor, handler } = entry;
 
+
             const historicalValue = fieldDescriptor.historicalExpression
               ? evaluateExpression(
                   fieldDescriptor.historicalExpression,
@@ -88,6 +92,8 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
                   },
                 )
               : null;
+
+            const rendering = fieldDescriptor.questionOptions.rendering;
 
             const previousFieldValue = encounterContext.previousEncounter
               ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)
@@ -112,38 +118,34 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
               return (
                 <div key={index} className={styles.parentResizer}>
                   <div
-                    className={
-                      fieldDescriptor.questionInfo &&
-                      `${
-                        fieldDescriptor.questionOptions.rendering !== 'radio'
-                          ? styles.questionInfoCentralized
-                          : styles.questionInfoDefault
-                      }
-                      `
-                    }>
+                    className={classNames({
+                      [styles.questionInfoDefault]: fieldDescriptor.questionInfo && rendering === 'radio',
+                      [styles.questionInfoCentralized]: fieldDescriptor.questionInfo && rendering !== 'radio',
+                    })}>
                     <div
-                      className={`${
-                        fieldDescriptor.questionOptions.rendering == 'radio' ||
-                        fieldDescriptor.questionOptions.rendering == 'date' ||
-                        fieldDescriptor.questionOptions.rendering == 'datetime'
-                          ? ''
-                          : styles.flexBasisOn
-                      } ${fieldDescriptor.constrainMaxWidth && styles.controlWidthConstrained}`}>
+                      className={classNames({
+                        [styles.flexBasisOn]: [
+                          'ui-select-extended',
+                          'content-switcher',
+                          'select',
+                          'textarea',
+                          'text',
+                          'checkbox',
+                        ].includes(rendering),
+                      })}>
                       {qnFragment}
                     </div>
                     {fieldDescriptor.questionInfo && (
                       <div className={styles.questionInfoControl}>
-                        {' '}
-                        <OHRITooltip field={fieldDescriptor} />{' '}
+                        <OHRITooltip field={fieldDescriptor} />
                       </div>
                     )}
                   </div>
 
                   <div className={styles.unspecifiedContainer}>
-                    {isUnspecifiedSupported(fieldDescriptor) &&
-                      fieldDescriptor.questionOptions.rendering != 'group' && (
-                        <OHRIUnspecified question={fieldDescriptor} onChange={onFieldChange} handler={handler} />
-                      )}
+                    {isUnspecifiedSupported(fieldDescriptor) && rendering != 'group' && (
+                      <OHRIUnspecified question={fieldDescriptor} onChange={onFieldChange} handler={handler} />
+                    )}
                   </div>
                   {encounterContext?.previousEncounter &&
                     (previousFieldValue || historicalValue) &&
@@ -171,20 +173,18 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
 };
 
 function ErrorFallback({ error }) {
-  // TODOS:
-  // 1. Handle internationalization
-  // 2. Show a more descriptive error message about the field
+  const { t } = useTranslation();
   return (
     <ToastNotification
-      ariaLabel="closes notification"
+      ariaLabel={t('closesNotification', 'Closes notification')}
       caption=""
       hideCloseButton
       lowContrast
       onClose={function noRefCheck() {}}
       onCloseButtonClick={function noRefCheck() {}}
-      statusIconDescription="notification"
-      subtitle={`Message: ${error.message}`}
-      title="Error rendering field"
+      statusIconDescription={t('notification', 'Notification')}
+      subtitle={error.message}
+      title={t('errorRenderingField', 'Error rendering field')}
     />
   );
 }

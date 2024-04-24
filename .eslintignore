@@ -1,5 +1,1 @@
-src/**/*.test.tsx
-**/*.d.tsx
-
-src/**/*.spec.tsx
 **/node_modules/**/*

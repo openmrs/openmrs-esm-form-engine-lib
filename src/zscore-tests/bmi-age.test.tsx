@@ -51,7 +51,6 @@ jest.mock('../../src/api/api', () => {
   return {
     ...originalModule,
     getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(null)),
-    fetchConceptNameByUuid: jest.fn().mockImplementation(() => Promise.resolve(null)),
     getConcept: jest.fn().mockImplementation(() => Promise.resolve(null)),
     getLatestObs: jest.fn().mockImplementation(() => Promise.resolve({ valueNumeric: 60 })),
     saveEncounter: jest.fn(),

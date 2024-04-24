@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { SessionLocation, showToast, useLayoutType, Visit } from '@openmrs/esm-framework';
-import { ConceptFalse, ConceptTrue } from '../../constants';
+import { ConceptFalse, ConceptTrue, codedTypes } from '../../constants';
 import {
   OHRIFormField,
   OHRIFormPage as OHRIFormPageProps,
@@ -10,7 +10,7 @@ import {
   ValidationResult,
   RepeatObsGroupCounter,
 } from '../../api/types';
-import OHRIFormPage from '../page/ohri-form-page';
+import OHRIFormPage from '../page/ohri-form-page.component';
 import { OHRIFormContext } from '../../ohri-form-context';
 import {
   cascadeVisibityToChildFields,
@@ -263,6 +263,22 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
           const matchingConcept = findConceptByReference(field.questionOptions.concept, concepts);
           field.questionOptions.concept = matchingConcept ? matchingConcept.uuid : field.questionOptions.concept;
           field.label = field.label ? field.label : matchingConcept?.display;
+          if (
+            codedTypes.includes(field.questionOptions.rendering) &&
+            !field.questionOptions.answers?.length &&
+            matchingConcept?.conceptClass?.display === 'Question' &&
+            matchingConcept?.answers?.length
+          ) {
+            field.questionOptions.answers = matchingConcept.answers.map((answer) => {
+              return {
+                concept: answer?.uuid,
+                label: answer?.display,
+              };
+            });
+          }
+          field.meta = {
+            concept: matchingConcept,
+          };
           if (field.questionOptions.answers) {
             field.questionOptions.answers = field.questionOptions.answers.map((answer) => {
               const matchingAnswerConcept = findConceptByReference(answer.concept, concepts);

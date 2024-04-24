@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, waitFor, act, screen } from '@testing-library/react';
-import UISelectExtended from './ui-select-extended';
+import UISelectExtended from './ui-select-extended.component';
 import { OHRIFormField } from '../../../api/types';
 import { EncounterContext, OHRIFormContext } from '../../../ohri-form-context';
 import { Form, Formik } from 'formik';

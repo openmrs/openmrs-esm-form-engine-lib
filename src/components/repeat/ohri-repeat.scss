@@ -1,4 +1,4 @@
-.boldLegend>legend {
+.boldLegend > legend {
   font-weight: bolder;
 }
 
@@ -14,15 +14,23 @@
   margin-left: 0.5rem;
 }
 
-.obsGroupContainer {
-  margin: 1rem 0rem;
+.button {
+  svg {
+    margin-left: 1rem;
+  }
 }
 
-.separator {
-  margin-bottom: 1rem;
+.obsGroupContainer {
+  margin: 1rem 0rem 2rem;
 }
 
 .container {
   margin-top: 0.65rem;
   margin-bottom: 2rem;
+}
+
+.divider {
+  border: 1.5px solid #e0e0e0;
+  border-bottom: none;
+  margin: 2rem 0;
 }

@@ -2,7 +2,7 @@ import useSWRImmutable from 'swr/immutable';
 import { openmrsFetch, OpenmrsResource } from '@openmrs/esm-framework';
 
 const conceptRepresentation =
-  'custom:(uuid,display,conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
+  'custom:(uuid,display,conceptClass:(uuid,display),answers:(uuid,display),conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
 
 export function useConcepts(references: Set<string>) {
   // TODO: handle paging (ie when number of concepts greater than default limit per page)
