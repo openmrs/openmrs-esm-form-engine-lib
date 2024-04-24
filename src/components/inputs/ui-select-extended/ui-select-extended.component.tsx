@@ -123,7 +123,7 @@ const UISelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
     encounterContext.sessionMode == 'embedded-view' ||
     isTrue(question.readonly) ? (
     <FieldValueView
-      label={question.label}
+      label={t(question.label)}
       value={
         field.value
           ? handler?.getDisplayValue(question, items.find((item) => item.uuid == field.value)?.display)
@@ -139,7 +139,7 @@ const UISelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
           <Layer>
             <ComboBox
               id={question.id}
-              titleText={question.label}
+              titleText={t(question.label)}
               items={items}
               itemToString={(item) => item?.display}
               selectedItem={items.find((item) => item.uuid == field.value)}

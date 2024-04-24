@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Form, Formik } from 'formik';
 import classNames from 'classnames';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
-import { useTranslation } from 'react-i18next';
+import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import { showSnackbar, useSession, Visit } from '@openmrs/esm-framework';
 import LinearLoader from './components/loaders/linear-loader.component';
@@ -20,6 +20,7 @@ import { evaluatePostSubmissionExpression } from './utils/post-submission-action
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
 import styles from './form-engine.scss';
 import { EncounterForm } from './components/encounter/encounter-form.component';
+import { moduleName } from './globals';
 
 interface FormProps {
   patientUUID: string;
@@ -92,7 +93,7 @@ const FormEngine: React.FC<FormProps> = ({
     formError,
   } = useFormJson(formUUID, formJson, encounterUUID || encounterUuid, formSessionIntent);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const formSessionDate = useMemo(() => new Date(), []);
   const handlers = new Map<string, FormSubmissionHandler>();
   const ref = useRef(null);
@@ -318,7 +319,7 @@ const FormEngine: React.FC<FormProps> = ({
                             onCancel && onCancel();
                             handleClose && handleClose();
                           }}>
-                          {mode === 'view' ? 'Close' : 'Cancel'}
+                          {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
                         </Button>
                         <Button type="submit" disabled={mode === 'view' || isSubmitting}>
                           {isSubmitting ? (
@@ -340,4 +341,12 @@ const FormEngine: React.FC<FormProps> = ({
   );
 };
 
-export default FormEngine;
+function I18FormEngine(props: FormProps) {
+  return (
+    <I18nextProvider i18n={window.i18next} defaultNS={moduleName}>
+      <FormEngine {...props} />
+    </I18nextProvider>
+  );
+}
+
+export default I18FormEngine;

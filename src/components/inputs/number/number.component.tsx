@@ -9,6 +9,7 @@ import { FieldValueView } from '../../value/view/field-value-view.component';
 import { FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import styles from './number.scss';
+import { useTranslation } from 'react-i18next';
 
 const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -16,6 +17,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [warnings, setWarnings] = useState([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (question['submission']) {
@@ -58,7 +60,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <div className={styles.formField}>
       <FieldValueView
-        label={question.label}
+        label={t(question.label)}
         value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
         conceptName={question.meta?.concept?.display}
         isInline={isInline}
@@ -71,7 +73,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         id={question.id}
         invalid={isFieldRequiredError && errors.length > 0}
         invalidText={errors[0]?.message}
-        label={question.label}
+        label={t(question.label)}
         max={Number(question.questionOptions.max) || undefined}
         min={Number(question.questionOptions.min) || undefined}
         name={question.id}

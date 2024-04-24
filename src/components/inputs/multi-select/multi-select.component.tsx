@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FilterableMultiSelect, Layer, UnorderedList } from '@carbon/react';
+import { FilterableMultiSelect, Layer, Tag } from '@carbon/react';
 import classNames from 'classnames';
 import { useField } from 'formik';
 import { useTranslation } from 'react-i18next';
@@ -41,16 +41,6 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
     }
   }, [question['submission']]);
 
-  const questionItems = question.questionOptions.answers
-    .filter((answer) => !answer.isHidden)
-    .map((answer, index) => ({
-      id: `${question.id}-${answer.concept}`,
-      concept: answer.concept,
-      label: answer.label,
-      key: index,
-      disabled: answer.disable?.isDisabled,
-    }));
-
   const initiallySelectedQuestionItems = [];
   question.questionOptions.answers.forEach((item) => {
     if (field.value?.includes(item.concept)) {
@@ -60,7 +50,9 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
 
   const handleSelectItemsChange = ({ selectedItems }) => {
     setTouched(true);
-    const value = selectedItems.map((selectedItem) => selectedItem.concept);
+    const value = selectedItems.map((selectedItem) => {
+      return selectedItem.concept;
+    });
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
     question.value = handler?.handleFieldSubmission(question, value, encounterContext);
@@ -85,7 +77,7 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <div className={styles.formField}>
       <FieldValueView
-        label={question.label}
+        label={t(question.label)}
         value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
         conceptName={question.meta?.concept?.display}
         isInline={isInline}
@@ -99,7 +91,7 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
             <FilterableMultiSelect
               placeholder={t('search', 'Search') + '...'}
               onChange={handleSelectItemsChange}
-              id={question.label}
+              id={t(question.label)}
               items={question.questionOptions.answers
                 .filter((answer) => !answer.isHidden)
                 .map((answer, index) => ({
@@ -111,7 +103,7 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
                 }))}
               initialSelectedItems={initiallySelectedQuestionItems}
               label={''}
-              titleText={question.label}
+              titleText={t(question.label)}
               key={counter}
               itemToString={(item) => (item ? item.label : ' ')}
               disabled={question.disabled}
@@ -125,9 +117,13 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
         </div>
         <div className={styles.selectionDisplay}>
           {field.value?.length ? (
-            <UnorderedList className={styles.list}>
-              {handler?.getDisplayValue(question, field.value)?.map((displayValue) => displayValue + ', ')}
-            </UnorderedList>
+            <div className={styles.tagContainer}>
+              {handler?.getDisplayValue(question, field.value)?.map((displayValue, index) => (
+                <Tag key={index} type="cool-gray">
+                  {displayValue}
+                </Tag>
+              ))}
+            </div>
           ) : (
             <ValueEmpty />
           )}
