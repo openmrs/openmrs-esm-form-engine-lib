@@ -21,7 +21,6 @@ import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.compo
 import styles from './form-engine.scss';
 import { EncounterForm } from './components/encounter/encounter-form.component';
 import { moduleName } from './globals';
-import withFormEngineTranslations from './withFormEngineTranslations';
 
 interface FormProps {
   patientUUID: string;
