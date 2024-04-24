@@ -1,25 +1,27 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
+import classNames from 'classnames';
+import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
-import { DatePicker, DatePickerInput, TimePicker } from '@carbon/react';
+import { DatePicker, DatePickerInput, Layer, TimePicker } from '@carbon/react';
+import { formatDate } from '@openmrs/esm-framework';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
-import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isInlineView } from '../../../utils/ohri-form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import styles from './ohri-date.scss';
-import { formatDate } from '@openmrs/esm-framework';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
 
 const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, previousValue }) => {
+  const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
-  const [conceptName, setConceptName] = useState('Loading...');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [time, setTime] = useState('');
@@ -39,7 +41,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   const onDateChange = ([date]) => {
-    const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
+    const refinedDate = date instanceof Date ? new Date(date.setHours(0, 0, 0, 0)) : date;
     setFieldValue(question.id, refinedDate);
     onChange(question.id, refinedDate, setErrors, setWarnings);
     onTimeChange(false, true);
@@ -49,7 +51,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   useEffect(() => {
     if (!isEmpty(previousValue)) {
       const date = previousValue.value;
-      const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
+      const refinedDate = date instanceof Date ? new Date(date.setHours(0, 0, 0, 0)) : date;
       setFieldValue(question.id, refinedDate);
       onChange(question.id, refinedDate, setErrors, setWarnings);
       onTimeChange(false, true);
@@ -74,7 +76,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
       setTime(time);
     }
   };
-  const { placeholder, carbonDateformat } = useMemo(() => {
+  const { placeholder, carbonDateFormat } = useMemo(() => {
     const formatObj = dateFormatter.formatToParts(new Date());
     const placeholder = formatObj
       .map((obj) => {
@@ -90,7 +92,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
         }
       })
       .join('');
-    const carbonDateformat = formatObj
+    const carbonDateFormat = formatObj
       .map((obj) => {
         switch (obj.type) {
           case 'day':
@@ -104,7 +106,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
         }
       })
       .join('');
-    return { placeholder: placeholder, carbonDateformat: carbonDateformat };
+    return { placeholder: placeholder, carbonDateFormat: carbonDateFormat };
   }, []);
 
   useEffect(() => {
@@ -129,12 +131,6 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
   }, [encounterContext?.previousEncounter]);
 
   useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
-      setConceptName(conceptTooltip);
-    });
-  }, [conceptName]);
-
-  useEffect(() => {
     if (!time && field.value) {
       if (field.value instanceof Date) {
         const hours = field.value.getHours() < 10 ? `0${field.value.getHours()}` : `${field.value.getHours()}`;
@@ -148,7 +144,7 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
     <OHRIFieldValueView
       label={question.label}
       value={field.value instanceof Date ? getDisplay(field.value, question.questionOptions.rendering) : field.value}
-      conceptName={conceptName}
+      conceptName={question.meta?.concept?.display}
       isInline={isInline}
     />
   ) : (
@@ -156,51 +152,54 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
       <>
         <div className={styles.datetime}>
           <div>
-            <DatePicker
-              datePickerType="single"
-              onChange={onDateChange}
-              // Investigate these styles
-              className={`${styles.boldedLabel} ${isFieldRequiredError ? styles.errorLabel : ''}`}
-              dateFormat={carbonDateformat}>
-              <DatePickerInput
-                id={question.id}
-                placeholder={placeholder}
-                labelText={question.label}
-                value={field.value instanceof Date ? field.value.toLocaleDateString(locale) : field.value}
-                // Added for testing purposes.
-                // Notes:
-                // Something strange is happening with the way events are propagated and handled by Carbon.
-                // When we manually trigger an onchange event using the 'fireEvent' lib, the handler below will
-                // be triggered as opposed to the former handler that only gets triggered at runtime.
-                onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
-                disabled={question.disabled}
-                invalid={!isFieldRequiredError && errors.length > 0}
-                invalidText={errors[0]?.message}
-                warn={warnings.length > 0}
-                warnText={warnings[0]?.message}
-                readOnly={question.readonly}
-              />
-            </DatePicker>
+            <Layer>
+              <DatePicker
+                datePickerType="single"
+                onChange={onDateChange}
+                className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}
+                dateFormat={carbonDateFormat}>
+                <DatePickerInput
+                  id={question.id}
+                  placeholder={placeholder}
+                  labelText={question.label}
+                  value={field.value instanceof Date ? field.value.toLocaleDateString(locale) : field.value}
+                  // Added for testing purposes.
+                  // Notes:
+                  // Something strange is happening with the way events are propagated and handled by Carbon.
+                  // When we manually trigger an onchange event using the 'fireEvent' lib, the handler below will
+                  // be triggered as opposed to the former handler that only gets triggered at runtime.
+                  onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
+                  disabled={question.disabled}
+                  invalid={isFieldRequiredError && errors.length > 0}
+                  invalidText={errors[0]?.message}
+                  warn={warnings.length > 0}
+                  warnText={warnings[0]?.message}
+                  readOnly={question.readonly}
+                />
+              </DatePicker>
+            </Layer>
           </div>
           {question?.questionOptions.rendering === 'datetime' ? (
             <div className={styles.timePickerSpacing}>
-              <TimePicker
-                className={styles.boldedLabel}
-                id={question.id}
-                labelText="Time:"
-                placeholder="HH:MM"
-                pattern="(1[012]|[1-9]):[0-5][0-9])$"
-                type="time"
-                disabled={!field.value ? true : false}
-                value={
-                  time
-                    ? time
-                    : field.value instanceof Date
-                    ? field.value.toLocaleDateString(window.navigator.language)
-                    : field.value
-                }
-                onChange={onTimeChange}
-              />{' '}
+              <Layer>
+                <TimePicker
+                  className={styles.boldedLabel}
+                  id={question.id}
+                  labelText={t('time', 'Time')}
+                  placeholder="HH:MM"
+                  pattern="(1[012]|[1-9]):[0-5][0-9])$"
+                  type="time"
+                  disabled={!field.value ? true : false}
+                  value={
+                    time
+                      ? time
+                      : field.value instanceof Date
+                      ? field.value.toLocaleDateString(window.navigator.language)
+                      : field.value
+                  }
+                  onChange={onTimeChange}
+                />
+              </Layer>
             </div>
           ) : (
             ''

@@ -9,7 +9,7 @@ export const PatientBanner: React.FC<{ patient: any; hideActionsOverflow?: any }
   return (
     <div className={styles.patientBannerContainer}>
       <ExtensionSlot
-        extensionSlotName="patient-header-slot"
+        name="patient-header-slot"
         state={{
           patient,
           patientUuid: patient.id,

@@ -19,7 +19,7 @@ describe('OHRIJSExpressionValidator - validate', () => {
 
   it('should evaluate js expressions', () => {
     // setup
-    const field = allFields.find(f => f.id == 'htsProviderRemarks');
+    const field = allFields.find((f) => f.id == 'htsProviderRemarks');
     const failsWhenExpression = '!isEmpty(myValue) && isEmpty(`referredToPreventionServices`)';
 
     // replay

@@ -1,8 +1,6 @@
 import React from 'react';
-import { Column, Row } from '@carbon/react';
 import { OHRILabel } from '../../label/ohri-label.component';
 import { OHRIValueDisplay, OHRIValueEmpty } from '../ohri-value.component';
-import { isEmpty } from '../../../validators/ohri-form-validator';
 import styles from './ohri-field-value-view.scss';
 
 interface OHRIFieldValueViewProps {
@@ -14,13 +12,11 @@ interface OHRIFieldValueViewProps {
 export const OHRIFieldValueView: React.FC<OHRIFieldValueViewProps> = ({ label, conceptName, value, isInline }) => (
   <>
     {isInline && (
-      <div className={styles.inlineFlexrow}>
+      <div className={styles.inlineFlexRow}>
         <div className={styles.inlineFlexColumn}>
           <OHRILabel value={label} tooltipText={conceptName} />
         </div>
-        <div className={`${styles.inlineFlexColumn}`}>
-          {value ? <OHRIValueDisplay value={value} /> : <OHRIValueEmpty />}
-        </div>
+        <div className={styles.inlineFlexColumn}>{value ? <OHRIValueDisplay value={value} /> : <OHRIValueEmpty />}</div>
       </div>
     )}
     {!isInline && (

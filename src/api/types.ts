@@ -119,11 +119,17 @@ export interface OHRIFormField {
   questionInfo?: string;
   historicalExpression?: string;
   constrainMaxWidth?: boolean;
+  meta?: {
+    concept?: OpenmrsResource;
+    [anythingElse: string]: any;
+  };
 }
+
 export interface previousValue {
   field: string;
   value: string | number | Date | boolean | previousValue[];
 }
+
 export interface OHRIFormFieldProps {
   question: OHRIFormField;
   onChange: (
@@ -138,6 +144,7 @@ export interface OHRIFormFieldProps {
   useField?: (fieldId: string) => [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
   previousValue?: previousValue;
 }
+
 export interface OHRIFormSection {
   hide?: HideProps;
   label: string;
@@ -183,6 +190,8 @@ export interface OHRIFormQuestionOptions {
   allowMultiple?: boolean;
   datasource?: { name: string; config?: Record<string, any> };
   isSearchable?: boolean;
+  workspaceName?: string;
+  buttonLabel?: string;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
@@ -204,6 +213,7 @@ export type RenderType =
   | 'textarea'
   | 'toggle'
   | 'fixed-value'
+  | 'workspace-launcher'
   | 'file';
 
 export interface PostSubmissionAction {

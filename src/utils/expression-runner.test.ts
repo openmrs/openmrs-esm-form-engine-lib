@@ -99,7 +99,7 @@ describe('Common expression runner - evaluateExpression', () => {
       referredToPreventionServices: [],
       bodyTemperature: 0,
     };
-    allFields.forEach(field => {
+    allFields.forEach((field) => {
       field.fieldDependants = undefined;
     });
   });
@@ -277,7 +277,7 @@ describe('Common expression runner - checkReferenceToResolvedFragment', () => {
 
 describe('Common expression runner - validate helper functions', () => {
   const allFields = JSON.parse(JSON.stringify(testFields));
-  const allFieldsKeys = allFields.map(f => f.id);
+  const allFieldsKeys = allFields.map((f) => f.id);
   let valuesMap = {
     linkedToCare: '',
     patientIdentificationNumber: '',
@@ -301,7 +301,7 @@ describe('Common expression runner - validate helper functions', () => {
       referredToPreventionServices: [],
       bodyTemperature: 0,
     };
-    allFields.forEach(field => {
+    allFields.forEach((field) => {
       field.fieldDependants = undefined;
     });
   });

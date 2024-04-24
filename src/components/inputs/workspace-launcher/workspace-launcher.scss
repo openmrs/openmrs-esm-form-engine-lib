@@ -1,6 +1,6 @@
 @use '@carbon/colors';
 
-.boldedLabel label {
+.label {
   font-weight: 600;
   color: colors.$black-100;
 }
@@ -10,6 +10,6 @@
   font-weight: 600;
 }
 
-.loader {
-  padding: 0.25rem 0.5rem;
+.workspaceButton {
+  margin: 1rem 0;
 }

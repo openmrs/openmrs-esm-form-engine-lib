@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FilterableMultiSelect, UnorderedList } from '@carbon/react';
+import { FilterableMultiSelect, Layer, UnorderedList } from '@carbon/react';
+import classNames from 'classnames';
 import { useField } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
@@ -7,7 +8,7 @@ import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIValueEmpty } from '../../value/ohri-value.component';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
-import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isInlineView } from '../../../utils/ohri-form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import styles from './ohri-multi-select.scss';
 
@@ -19,7 +20,6 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
   const [warnings, setWarnings] = useState([]);
   const [counter, setCounter] = useState(0);
   const [touched, setTouched] = useState(false);
-  const [conceptName, setConceptName] = useState('Loading...');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   useEffect(() => {
@@ -74,12 +74,6 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
     }
   }, [previousValue]);
 
-  useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
-      setConceptName(conceptTooltip);
-    });
-  }, [conceptName]);
-
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
       return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
@@ -92,31 +86,33 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
       <OHRIFieldValueView
         label={question.label}
         value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={conceptName}
+        conceptName={question.meta?.concept?.display}
         isInline={isInline}
       />
     </div>
   ) : (
     !question.isHidden && (
       <>
-        <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : `${styles.boldedLabel}`}>
-          <FilterableMultiSelect
-            placeholder={t('filterItemsInMultiselect', 'Search...')}
-            onChange={handleSelectItemsChange}
-            id={question.label}
-            items={questionItems}
-            initialSelectedItems={initiallySelectedQuestionItems}
-            label={''}
-            titleText={question.label}
-            key={counter}
-            itemToString={(item) => (item ? item.label : ' ')}
-            disabled={question.disabled}
-            invalid={!isFieldRequiredError && errors.length > 0}
-            invalidText={errors[0]?.message}
-            warn={warnings.length > 0}
-            warnText={warnings[0]?.message}
-            readOnly={question.readonly}
-          />
+        <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
+          <Layer>
+            <FilterableMultiSelect
+              placeholder={t('search', 'Search') + '...'}
+              onChange={handleSelectItemsChange}
+              id={question.label}
+              items={questionItems}
+              initialSelectedItems={initiallySelectedQuestionItems}
+              label={''}
+              titleText={question.label}
+              key={counter}
+              itemToString={(item) => (item ? item.label : ' ')}
+              disabled={question.disabled}
+              invalid={isFieldRequiredError && errors.length > 0}
+              invalidText={errors[0]?.message}
+              warn={warnings.length > 0}
+              warnText={warnings[0]?.message}
+              readOnly={question.readonly}
+            />
+          </Layer>
         </div>
         <div className={styles.selectionDisplay}>
           {field.value?.length ? (

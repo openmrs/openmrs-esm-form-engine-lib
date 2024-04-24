@@ -304,7 +304,7 @@ export class CommonExpressionHelpers {
         return o === lastReferenceValue;
       });
       const SDValue = refObjectKeys[lastValueIndex];
-      formattedSDValue = SDValue.replace('SD', '');
+      formattedSDValue = SDValue?.replace('SD', '');
       if (formattedSDValue.includes('neg')) {
         formattedSDValue = formattedSDValue.substring(1, 0);
         formattedSDValue = '-' + formattedSDValue;
@@ -353,7 +353,7 @@ export class CommonExpressionHelpers {
         return o === lastReferenceValue;
       });
       const SDValue = refObjectKeys[lastValueIndex];
-      formattedSDValue = SDValue.replace('SD', '');
+      formattedSDValue = SDValue?.replace('SD', '');
       if (formattedSDValue.includes('neg')) {
         formattedSDValue = formattedSDValue.substring(1, 0);
         formattedSDValue = '-' + formattedSDValue;
@@ -398,7 +398,7 @@ export class CommonExpressionHelpers {
         return o === lastReferenceValue;
       });
       const SDValue = refObjectKeys[lastValueIndex];
-      formattedSDValue = SDValue.replace('SD', '');
+      formattedSDValue = SDValue?.replace('SD', '');
       if (formattedSDValue.includes('neg')) {
         formattedSDValue = formattedSDValue.substring(1, 0);
         formattedSDValue = '-' + formattedSDValue;

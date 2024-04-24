@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
 import { Form, Formik } from 'formik';
+import classNames from 'classnames';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
@@ -26,9 +26,9 @@ import { usePatientData } from './hooks/usePatientData';
 import LinearLoader from './components/loaders/linear-loader.component';
 import LoadingIcon from './components/loaders/loading.component';
 import OHRIFormSidebar from './components/sidebar/ohri-form-sidebar.component';
-import WarningModal from './components/warning-modal.component';
 import styles from './ohri-form.component.scss';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
+import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
 
 interface OHRIFormProps {
   patientUUID: string;
@@ -68,6 +68,7 @@ interface OHRIFormProps {
    * Renamed to `encounterUUID`. To be removed in future iterations.
    */
   encounterUuid?: string;
+  markFormAsDirty?: (isDirty: boolean) => void;
 }
 
 export interface FormSubmissionHandler {
@@ -88,6 +89,7 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   formSessionIntent,
   meta,
   encounterUuid,
+  markFormAsDirty,
 }) => {
   const session = useSession();
   const currentProvider = session?.currentProvider?.uuid ? session.currentProvider.uuid : null;
@@ -111,8 +113,6 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
   const [isLoadingFormDependencies, setIsLoadingFormDependencies] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
-  const [isFormTouched, setIsFormTouched] = useState(false);
-  const [showWarningModal, setShowWarningModal] = useState(false);
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
 
@@ -280,20 +280,18 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
       onSubmit={(values, { setSubmitting }) => {
         handleFormSubmit(values);
         setSubmitting(false);
-      }}
-    >
+      }}>
       {(props) => {
-        setIsFormTouched(props.dirty);
+        useEffect(() => {
+          markFormAsDirty?.(props.dirty);
+        }, [props.dirty]);
 
         return (
-          <Form className={`cds--form no-padding ${styles.ohriForm}`} ref={ref}>
+          <Form className={classNames('cds--form', 'no-padding', styles.ohriForm)} ref={ref}>
             {isLoadingPatient || isLoadingFormJson ? (
               <LoadingIcon />
             ) : (
               <div className={styles.ohriFormContainer}>
-                {showWarningModal ? (
-                  <WarningModal onCancel={onCancel} onShowWarningModal={setShowWarningModal} t={t} />
-                ) : null}
                 {isLoadingFormDependencies && (
                   <div className={styles.loader}>
                     <LinearLoader />
@@ -316,21 +314,16 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                     />
                   )}
                   <div className={styles.formContent}>
-                    {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow={true} />}
+                    {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow />}
                     {refinedFormJson.markdown && (
                       <div className={styles.markdownContainer}>
-                        <ReactMarkdown children={refinedFormJson.markdown.join('\n')} />
+                        <MarkdownWrapper markdown={refinedFormJson.markdown} />
                       </div>
                     )}
                     <div
-                      className={`${styles.formContentBody}
-                    ${
-                      workspaceLayout === 'minimized' || sessionMode == 'view'
-                        ? `${styles.minifiedFormContentBody}`
-                        : ''
-                    }
-                  `}
-                    >
+                      className={classNames(styles.formContentBody, {
+                        [styles.minifiedFormContentBody]: workspaceLayout === 'minimized' || sessionMode === 'view',
+                      })}>
                       <OHRIEncounterForm
                         formJson={refinedFormJson}
                         patient={patient}
@@ -360,15 +353,9 @@ const OHRIForm: React.FC<OHRIFormProps> = ({
                         <Button
                           kind="secondary"
                           onClick={() => {
-                            if (mode !== 'view' && isFormTouched) {
-                              setShowWarningModal(true);
-                              return;
-                            }
-
                             onCancel && onCancel();
                             handleClose && handleClose();
-                          }}
-                        >
+                          }}>
                           {mode === 'view' ? 'Close' : 'Cancel'}
                         </Button>
                         <Button type="submit" disabled={mode === 'view' || isSubmitting}>

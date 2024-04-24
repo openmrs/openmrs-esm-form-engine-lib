@@ -21,7 +21,7 @@ const patientGenderMap = {
   unknown: 'U',
 };
 
-export const usePatientData = patientUuid => {
+export const usePatientData = (patientUuid) => {
   const { patient, isLoading: isLoadingPatient, error: patientError } = usePatient(patientUuid);
   if (patient && !isLoadingPatient) {
     // This is to support backward compatibility with the AMPATH JSON format

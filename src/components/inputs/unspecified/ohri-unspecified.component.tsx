@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Checkbox } from '@carbon/react';
 import { useField } from 'formik';
+import { useTranslation } from 'react-i18next';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFieldValidator } from '../../../validators/ohri-form-validator';
 import { OHRIFormFieldProps, SessionMode } from '../../../api/types';
@@ -8,6 +9,7 @@ import { isTrue } from '../../../utils/boolean-utils';
 import styles from './ohri-unspecified.scss';
 
 export const OHRIUnspecified: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler }) => {
+  const { t } = useTranslation();
   const [field, meta] = useField(`${question.id}-unspecified`);
   const { setFieldValue, encounterContext, fields } = React.useContext(OHRIFormContext);
   const [previouslyUnspecified, setPreviouslyUnspecified] = useState(false);
@@ -70,8 +72,8 @@ export const OHRIUnspecified: React.FC<OHRIFormFieldProps> = ({ question, onChan
       <div className={styles.unspecified}>
         <Checkbox
           id={`${question.id}-unspecified`}
-          labelText="Unspecified"
-          value="Unspecified"
+          labelText={t('unspecified', 'Unspecified')}
+          value={t('unspecified', 'Unspecified')}
           onChange={handleOnChange}
           checked={field.value}
           disabled={question.disabled}

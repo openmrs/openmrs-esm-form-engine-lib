@@ -40,15 +40,14 @@
   margin-bottom: 0 !important;
 }
 
-.embeddedFormSection{
+.embeddedFormSection {
   background-color: colors.$gray-10;
   margin-left: 0.75rem;
   padding: 0.5rem 0 0.5rem 0.75rem;
-  
 }
 
 .collapseToggle {
-  margin-Left: -180px;
+  margin-left: -180px;
   margin-bottom: 20px;
   margin-top: -10px;
 }
@@ -57,19 +56,12 @@
   background-color: colors.$gray-10;
 }
 
-.formSection > div div div input,
-.formSection > div div div textarea,
-.formSection > div div div dropdown,
-.formSection :global(.cds--dropdown) button {
-  background-color: white !important;
-}
-
 @media (min-width: 640px) {
   :global(.cds--accordion__content) {
     padding-right: 2rem !important;
   }
 }
 
-.sectionHeader{
+.sectionHeader {
   font-weight: 700;
 }

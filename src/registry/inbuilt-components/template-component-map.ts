@@ -1,4 +1,4 @@
-import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended';
+import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
 
 export const templateToComponentMap = [
   {

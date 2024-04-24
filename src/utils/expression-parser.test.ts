@@ -201,7 +201,7 @@ describe('findAndRegisterReferencedFields', () => {
   it('should register field dependants', () => {
     // setup
     const expression = "linkedToCare == 'cf82933b-3f3f-45e7-a5ab-5d31aaee3da3' && !isEmpty(htsProviderRemarks)";
-    const patientIdentificationNumberField = testFields.find(f => f.id === 'patientIdentificationNumber');
+    const patientIdentificationNumberField = testFields.find((f) => f.id === 'patientIdentificationNumber');
 
     // replay
     findAndRegisterReferencedFields(
@@ -211,8 +211,8 @@ describe('findAndRegisterReferencedFields', () => {
     );
 
     // verify
-    const linkedToCare = testFields.find(f => f.id === 'linkedToCare');
-    const htsProviderRemarks = testFields.find(f => f.id === 'htsProviderRemarks');
+    const linkedToCare = testFields.find((f) => f.id === 'linkedToCare');
+    const htsProviderRemarks = testFields.find((f) => f.id === 'htsProviderRemarks');
     expect(linkedToCare.fieldDependants).toStrictEqual(new Set(['patientIdentificationNumber']));
     expect(htsProviderRemarks.fieldDependants).toStrictEqual(new Set(['patientIdentificationNumber']));
   });

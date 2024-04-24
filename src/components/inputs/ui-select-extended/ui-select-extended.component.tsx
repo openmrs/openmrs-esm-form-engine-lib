@@ -1,24 +1,23 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ComboBox, InlineLoading } from '@carbon/react';
+import classNames from 'classnames';
+import debounce from 'lodash-es/debounce';
+import { ComboBox, InlineLoading, Layer } from '@carbon/react';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { useField } from 'formik';
-import styles from './ui-select-extended.scss';
 import { OHRIFormContext } from '../../../ohri-form-context';
-import { getConceptNameAndUUID, isInlineView } from '../../../utils/ohri-form-helper';
+import { isInlineView } from '../../../utils/ohri-form-helper';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import { isTrue } from '../../../utils/boolean-utils';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
-import { PreviousValueReview } from '../../previous-value-review/previous-value-review.component';
-import debounce from 'lodash-es/debounce';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
+import styles from './ui-select-extended.scss';
 
 const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onChange, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(OHRIFormContext);
-  const [conceptName, setConceptName] = useState('Loading...');
   const [items, setItems] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const [errors, setErrors] = useState([]);
@@ -30,11 +29,6 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
   const [dataSource, setDataSource] = useState(null);
   const [config, setConfig] = useState({});
   const [savedSearchableItem, setSavedSearchableItem] = useState({});
-
-  interface DisplayableItem {
-    uuid: string;
-    display: string;
-  }
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -125,12 +119,6 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
     }
   }, [field.value]);
 
-  useEffect(() => {
-    getConceptNameAndUUID(question.questionOptions.concept).then((conceptTooltip) => {
-      setConceptName(conceptTooltip);
-    });
-  }, [conceptName]);
-
   return encounterContext.sessionMode == 'view' ||
     encounterContext.sessionMode == 'embedded-view' ||
     isTrue(question.readonly) ? (
@@ -141,46 +129,48 @@ const UISelectExtended: React.FC<OHRIFormFieldProps> = ({ question, handler, onC
           ? handler?.getDisplayValue(question, items.find((item) => item.uuid == field.value)?.display)
           : field.value
       }
-      conceptName={conceptName}
+      conceptName={question.meta?.concept?.display}
       isInline={isInline}
     />
   ) : (
     !question.isHidden && (
       <>
-        <div className={isFieldRequiredError ? `${styles.errorLabel} ${styles.boldedLabel}` : `${styles.boldedLabel}`}>
-          <ComboBox
-            id={question.id}
-            titleText={question.label}
-            items={items}
-            itemToString={(item) => item?.display}
-            selectedItem={items.find((item) => item.uuid == field.value)}
-            shouldFilterItem={({ item, inputValue }) => {
-              if (!inputValue) {
-                // Carbon's initial call at component mount
-                return true;
-              }
-              return item.display?.toLowerCase().includes(inputValue.toLowerCase());
-            }}
-            onChange={({ selectedItem }) => {
-              isProcessingSelection.current = true;
-              handleChange(selectedItem?.uuid);
-            }}
-            disabled={question.disabled}
-            readOnly={question.readonly}
-            onInputChange={(value) => {
-              if (isProcessingSelection.current) {
-                // Notes:
-                // When the user selects a value, both the onChange and onInputChange functions are invoked sequentially.
-                // Issue: onInputChange modifies the search term, unnecessarily triggering a search.
-                isProcessingSelection.current = false;
-                return;
-              }
-              setInputValue(value);
-              if (question.questionOptions['isSearchable']) {
-                setSearchTerm(value);
-              }
-            }}
-          />
+        <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
+          <Layer>
+            <ComboBox
+              id={question.id}
+              titleText={question.label}
+              items={items}
+              itemToString={(item) => item?.display}
+              selectedItem={items.find((item) => item.uuid == field.value)}
+              shouldFilterItem={({ item, inputValue }) => {
+                if (!inputValue) {
+                  // Carbon's initial call at component mount
+                  return true;
+                }
+                return item.display?.toLowerCase().includes(inputValue.toLowerCase());
+              }}
+              onChange={({ selectedItem }) => {
+                isProcessingSelection.current = true;
+                handleChange(selectedItem?.uuid);
+              }}
+              disabled={question.disabled}
+              readOnly={question.readonly}
+              onInputChange={(value) => {
+                if (isProcessingSelection.current) {
+                  // Notes:
+                  // When the user selects a value, both the onChange and onInputChange functions are invoked sequentially.
+                  // Issue: onInputChange modifies the search term, unnecessarily triggering a search.
+                  isProcessingSelection.current = false;
+                  return;
+                }
+                setInputValue(value);
+                if (question.questionOptions['isSearchable']) {
+                  setSearchTerm(value);
+                }
+              }}
+            />
+          </Layer>
         </div>
         {isLoading && <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />}
       </>

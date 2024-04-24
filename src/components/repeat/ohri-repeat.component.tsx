@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useId, useState } from 'react';
 import { FormGroup, Button } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useFormikContext } from 'formik';
@@ -16,8 +16,10 @@ export const showAddButton = (limit: string | number, counter: number) => {
   return !Number.isNaN(repeatLimit) && repeatLimit > 0 ? counter < repeatLimit : true;
 };
 
-export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange }) => {
+const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange }) => {
   const { t } = useTranslation();
+  const id = useId();
+
   const {
     fields: allFormFields,
     encounterContext,
@@ -105,25 +107,25 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
   };
 
   const nodes = obsGroups.map((question, index) => {
+    const keyId = question.id + '-' + index;
     const deleteControl =
       obsGroups.length > 1 && encounterContext.sessionMode !== 'view' ? (
-        <div>
-          <div className={styles.removeButton}>
-            <Button
-              renderIcon={() => <TrashCan size={16} />}
-              kind="danger--tertiary"
-              onClick={() => removeNthRow(question)}
-              hasIconOnly
-            />
-          </div>
+        <div key={keyId} className={styles.removeButton}>
+          <Button
+            className={styles.button}
+            renderIcon={() => <TrashCan size={16} />}
+            kind="danger--tertiary"
+            onClick={() => removeNthRow(question)}>
+            <span>{t('removeGroup', 'Remove group')}</span>
+          </Button>
         </div>
       ) : null;
 
     return (
-      <>
+      <div key={keyId}>
         {index !== 0 && (
           <div>
-            <hr className={styles.separator} />
+            <hr className={styles.divider} />
           </div>
         )}
         <div className={styles.obsGroupContainer}>
@@ -134,17 +136,18 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
             deleteControl={index !== 0 ? deleteControl : null}
           />
         </div>
-      </>
+      </div>
     );
   });
 
   encounterContext.sessionMode != 'view' &&
     nodes.push(
-      <div>
+      <div key={id}>
         {showAddButton(question.questionOptions.repeatOptions?.limit, counter) && (
           <Button
+            className={styles.button}
+            iconDescription={t('add', 'Add')}
             renderIcon={() => <Add size={16} />}
-            className={styles.repeatButton}
             kind="tertiary"
             onClick={() => {
               const nextCount = counter + 1;
@@ -167,3 +170,5 @@ export const OHRIRepeat: React.FC<OHRIFormFieldProps> = ({ question, onChange })
     )
   );
 };
+
+export default OHRIRepeat;

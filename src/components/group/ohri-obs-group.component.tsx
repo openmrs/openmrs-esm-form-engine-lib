@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
+import classNames from 'classnames';
 import { OHRIFormContext } from '../../ohri-form-context';
 import { OHRIFormFieldProps } from '../../api/types';
 import { OHRIUnspecified } from '../inputs/unspecified/ohri-unspecified.component';
 import { useField } from 'formik';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
-import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip';
+import { OHRITooltip } from '../inputs/tooltip/ohri-tooltip.component';
 import styles from '../section/ohri-form-section.scss';
 
 export interface ObsGroupProps extends OHRIFormFieldProps {
@@ -26,9 +27,11 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
       });
     }
   }, [question.questions]);
+
   const groupContent = groupMembersControlMap
     .filter((groupMemberMapItem) => !!groupMemberMapItem && !groupMemberMapItem.field.isHidden)
     .map((groupMemberMapItem, index) => {
+      const keyId = groupMemberMapItem.field.id + '-' + index;
       const { control, field } = groupMemberMapItem;
       if (control) {
         const questionFragment = React.createElement(control, {
@@ -40,10 +43,14 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
         });
 
         return (
-          <div className={`${styles.flexColumn} ${styles.obsGroupColumn} `}>
+          <div className={classNames(styles.flexColumn, styles.obsGroupColumn)} key={keyId}>
             <div className={styles.parentResizer}>
               {questionFragment}
-              <div className={isUnspecifiedSupported(field) ? styles.tooltipWithUnspecified : styles.tooltip}>
+              <div
+                className={classNames({
+                  [styles.tooltipWithUnspecified]: isUnspecifiedSupported(field),
+                  [styles.tooltip]: !isUnspecifiedSupported(field),
+                })}>
                 {isUnspecifiedSupported(field) && (
                   <OHRIUnspecified question={field} onChange={onChange} handler={formFieldHandlers[field.type]} />
                 )}
@@ -54,8 +61,10 @@ export const OHRIObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, dele
         );
       }
     });
+
   if (groupContent && deleteControl) {
     groupContent.push(deleteControl);
   }
+
   return <div className={styles.flexRow}>{groupContent}</div>;
 };

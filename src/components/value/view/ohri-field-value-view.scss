@@ -21,10 +21,11 @@
   color: colors.$gray-70;
 }
 
-.inlineFlexrow{
+.inlineFlexRow {
   display: flex;
   flex-wrap: wrap;
 }
-.inlineFlexColumn{
-  width: 300px
+
+.inlineFlexColumn {
+  width: 300px;
 }
