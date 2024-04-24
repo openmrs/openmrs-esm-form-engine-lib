@@ -269,13 +269,12 @@ export const OHRIEncounterForm: React.FC<OHRIEncounterFormProps> = ({
             matchingConcept?.conceptClass?.display === 'Question' &&
             matchingConcept?.answers?.length
           ) {
-            const collection = matchingConcept.answers.map((answer) => {
+            field.questionOptions.answers = matchingConcept.answers.map((answer) => {
               return {
-                concept: answer.uuid,
-                label: answer.display,
+                concept: answer?.uuid,
+                label: answer?.display,
               };
             });
-            field.questionOptions.answers = collection;
           }
           field.meta = {
             concept: matchingConcept,
