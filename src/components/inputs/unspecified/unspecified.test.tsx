@@ -1,11 +1,11 @@
-import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Formik, Form } from 'formik';
+import React from 'react';
 import { FormField, EncounterContext, FormContext } from '../../..';
-import { UnspecifiedField } from './unspecified.component';
+import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
+import { OHRIUnspecified } from './unspecified.component';
 import { findTextOrDateInput } from '../../../utils/test-utils';
 import DateField from '../date/date.component';
-import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 
 const question: FormField = {
   label: 'Visit Date',
@@ -55,7 +55,7 @@ const renderForm = (intialValues) => {
               formFieldHandlers: { obs: ObsSubmissionHandler },
             }}>
             <DateField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-            <UnspecifiedField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+            <OHRIUnspecified question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
           </FormContext.Provider>
         </Form>
       )}
@@ -63,11 +63,11 @@ const renderForm = (intialValues) => {
   );
 };
 
-describe('UnspecifiedField', () => {
-  it('Should toggle the "UnspecifiedField" checkbox on click', async () => {
+describe('Unspecified', () => {
+  it('Should toggle the "Unspecified" checkbox on click', async () => {
     // setup
     await renderForm({});
-    const unspecifiedCheckbox = screen.getByRole('checkbox', { name: /UnspecifiedField/ });
+    const unspecifiedCheckbox = screen.getByRole('checkbox', { name: /Unspecified/ });
 
     // assert initial state
     expect(unspecifiedCheckbox).not.toBeChecked();

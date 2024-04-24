@@ -11,7 +11,7 @@ import styles from './unspecified.scss';
 export const UnspecifiedField: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(`${question.id}-unspecified`);
-  const { setFieldValue, encounterContext, fields } = useContext(FormContext);
+  const { setFieldValue, encounterContext, fields } = React.useContext(FormContext);
   const [previouslyUnspecified, setPreviouslyUnspecified] = useState(false);
   const hideCheckBox = encounterContext.sessionMode == 'view';
   const [errors, setErrors] = useState([]);

@@ -24,7 +24,7 @@
   }
 
   .sidebarList {
-    max-Height: 200px;
+    max-height: 200px;
     overflow-y: scroll;
   }
 }
@@ -71,7 +71,7 @@
   cursor: pointer;
 }
 
-.sidebarSectionError{
+.sidebarSectionError {
   border-left: 0.5rem solid colors.$red-60;
   height: auto;
   color: colors.$red-70 !important;
@@ -80,7 +80,8 @@
   background-color: colors.$red-20;
   cursor: pointer;
 }
-.sidebarSectionErrorActive{
+
+.sidebarSectionErrorActive {
   border-left: 0.5rem solid colors.$red-60;
   height: auto;
   font-weight: 600;

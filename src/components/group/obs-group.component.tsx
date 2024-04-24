@@ -5,8 +5,8 @@ import { FormContext } from '../../form-context';
 import { FormFieldProps } from '../../types';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
 import { UnspecifiedField } from '../inputs/unspecified/unspecified.component';
-import styles from './obs-group.scss';
 import { Tooltip } from '../inputs/tooltip/tooltip.component';
+import styles from '../section/form-section.scss';
 
 export interface ObsGroupProps extends FormFieldProps {
   deleteControl?: any;
