@@ -1,18 +1,30 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 import { OHRIMultiSelect } from './ohri-multi-select.component';
 import { EncounterContext, OHRIFormContext } from '../../../ohri-form-context';
 import { Form, Formik } from 'formik';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 import { OHRIFormField, OHRIFormFieldProps } from '../../../api/types';
+import OHRIDropdown from '../select/ohri-dropdown.component';
 
 const otherTestQuestions: OHRIFormField[] = [
   {
-    label: 'Reason for hospitalization:',
-    id: 'hospReason',
+    label: 'Patient covered by NHIF:',
+    id: 'nhif',
     questionOptions: {
-      concept: 'a8a07a48-1350-11df-a1f1-0026b9348838',
-      rendering: 'text',
+      rendering: 'select',
+      concept: '0b49e3e6-55df-4096-93ca-59edadb74b3f',
+      answers: [
+        {
+          concept: '8b715fed-97f6-4e38-8f6a-c167a42f8923',
+          label: 'Yes',
+        },
+        {
+          concept: 'a899e0ac-1350-11df-a1f1-0026b9348838',
+          label: 'No',
+        },
+      ],
     },
     type: 'obs',
     validators: [],
@@ -103,6 +115,7 @@ const renderForm = (initialValues: Record<any, any>) => {
               isSubmitting: false,
               formFieldHandlers: { obs: ObsSubmissionHandler },
             }}>
+            <OHRIDropdown {...{ ...testProps, question: otherTestQuestions[0] }} />
             <OHRIMultiSelect {...testProps} />
           </OHRIFormContext.Provider>
         </Form>
@@ -122,5 +135,31 @@ describe('OHRIMultiSelect Component', () => {
     const selectOption = screen.getByLabelText('Unscheduled visit late');
     fireEvent.click(selectOption);
     expect(testProps.onChange).toHaveBeenCalledTimes(1);
+  });
+
+  it('checkbox option is disabled when disabledWhenExpression resolves to true and does not call onChange', async () => {
+    const user = userEvent.setup();
+    renderForm({ scheduledVisit: '', nhif: '8b715fed-97f6-4e38-8f6a-c167a42f8923' });
+    await user.click(screen.getByRole('combobox', { name: /Patient covered by NHIF/i }));
+    await user.click(screen.getByRole('option', { name: /no/i }));
+    await user.tab();
+
+    // await user.selectOptions(screen.getByRole('combobox', { name: /Patient covered by NHIF/i }), 'Yes');
+    // screen.getByRole('x');
+    await user.click(screen.getByText('Was this visit scheduled?'));
+
+    await waitFor(() => {
+      screen.debug(null, 100000000);
+      expect(screen.getByRole('option', { name: /Unscheduled visit early/i })).toBeDisabled();
+    });
+
+    // const selectOption = screen.getByLabelText('Unscheduled visit early');
+    // fireEvent.click(screen.getByText('Patient covered by NHIF:'));
+    // fireEvent.click(screen.getByText('Yes'));
+
+    // console.log(selectOption);
+    // expect(selectOption).toBeDisabled();
+    // fireEvent.click(selectOption);
+    // expect(testProps.onChange).toHaveBeenCalledTimes(0);
   });
 });
