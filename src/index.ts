@@ -1,3 +1,4 @@
+import './i18n';
 export * from './types';
 export * from './utils/forms-loader';
 export * from './registry/registry';

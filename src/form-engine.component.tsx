@@ -20,6 +20,7 @@ import { evaluatePostSubmissionExpression } from './utils/post-submission-action
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
 import styles from './form-engine.scss';
 import { EncounterForm } from './components/encounter/encounter-form.component';
+import withTranslation from './withTranslation';
 
 interface FormProps {
   patientUUID: string;
@@ -340,4 +341,4 @@ const FormEngine: React.FC<FormProps> = ({
   );
 };
 
-export default FormEngine;
+export default withTranslation(FormEngine);
