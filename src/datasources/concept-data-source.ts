@@ -20,6 +20,16 @@ export class ConceptDataSource extends BaseOpenMRSDataSource {
         });
       }
     }
+
+    if (config?.useSetMembersByConcept) {
+      let urlParts = apiUrl.split('?name=&searchType=fuzzy&v=');
+      apiUrl = `${urlParts[0]}/${config.concept}?v=custom:(uuid,setMembers:(uuid,display))`;
+      return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
+        // return the setMembers from the retrieved concept object
+        return data['setMembers'];
+      });
+    }
+
     return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
       return data.results;
     });

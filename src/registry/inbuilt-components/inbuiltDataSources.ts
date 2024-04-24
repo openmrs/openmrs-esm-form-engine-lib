@@ -21,6 +21,10 @@ export const inbuiltDataSources: Array<RegistryItem<DataSource<any>>> = [
     component: new ConceptDataSource(),
   },
   {
+    name: 'select_concept_answers_datasource',
+    component: new ConceptDataSource(),
+  },
+  {
     name: 'provider_datasource',
     component: new ProviderDataSource(),
   },
