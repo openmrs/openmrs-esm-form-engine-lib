@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { NumberInput } from '@carbon/react';
+import { Layer, NumberInput } from '@carbon/react';
 import classNames from 'classnames';
 import { useField } from 'formik';
 import { isTrue } from '../../../utils/boolean-utils';
@@ -65,11 +65,11 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
       />
     </div>
   ) : (
-    <div>
+    <Layer>
       <NumberInput
         {...field}
         id={question.id}
-        invalid={!isFieldRequiredError && errors.length > 0}
+        invalid={isFieldRequiredError && errors.length > 0}
         invalidText={errors[0]?.message}
         label={question.label}
         max={Number(question.questionOptions.max) || undefined}
@@ -90,7 +90,7 @@ const OHRINumber: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler,
         warnText={warnings[0]?.message}
         step={0.01}
       />
-    </div>
+    </Layer>
   );
 };
 

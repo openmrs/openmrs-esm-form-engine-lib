@@ -64,7 +64,7 @@ const OHRIRadio: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, 
           [styles.boldedLegend]: !isFieldRequiredError,
         })}
         disabled={question.disabled}
-        invalid={!isFieldRequiredError && errors.length > 0}>
+        invalid={isFieldRequiredError && errors.length > 0}>
         <RadioButtonGroup name={question.id} valueSelected={field.value} onChange={handleChange} orientation="vertical">
           {question.questionOptions.answers
             .filter((answer) => !answer.isHidden)

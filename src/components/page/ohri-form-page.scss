@@ -56,13 +56,6 @@
   background-color: colors.$gray-10;
 }
 
-.formSection > div div div input,
-.formSection > div div div textarea,
-.formSection > div div div dropdown,
-.formSection :global(.cds--dropdown) button {
-  background-color: white !important;
-}
-
 @media (min-width: 640px) {
   :global(.cds--accordion__content) {
     padding-right: 2rem !important;

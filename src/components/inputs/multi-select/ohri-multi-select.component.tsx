@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FilterableMultiSelect, UnorderedList } from '@carbon/react';
+import { FilterableMultiSelect, Layer, UnorderedList } from '@carbon/react';
 import classNames from 'classnames';
 import { useField } from 'formik';
 import { useTranslation } from 'react-i18next';
@@ -94,23 +94,25 @@ export const OHRIMultiSelect: React.FC<OHRIFormFieldProps> = ({ question, onChan
     !question.isHidden && (
       <>
         <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
-          <FilterableMultiSelect
-            placeholder={t('search', 'Search') + '...'}
-            onChange={handleSelectItemsChange}
-            id={question.label}
-            items={questionItems}
-            initialSelectedItems={initiallySelectedQuestionItems}
-            label={''}
-            titleText={question.label}
-            key={counter}
-            itemToString={(item) => (item ? item.label : ' ')}
-            disabled={question.disabled}
-            invalid={!isFieldRequiredError && errors.length > 0}
-            invalidText={errors[0]?.message}
-            warn={warnings.length > 0}
-            warnText={warnings[0]?.message}
-            readOnly={question.readonly}
-          />
+          <Layer>
+            <FilterableMultiSelect
+              placeholder={t('search', 'Search') + '...'}
+              onChange={handleSelectItemsChange}
+              id={question.label}
+              items={questionItems}
+              initialSelectedItems={initiallySelectedQuestionItems}
+              label={''}
+              titleText={question.label}
+              key={counter}
+              itemToString={(item) => (item ? item.label : ' ')}
+              disabled={question.disabled}
+              invalid={isFieldRequiredError && errors.length > 0}
+              invalidText={errors[0]?.message}
+              warn={warnings.length > 0}
+              warnText={warnings[0]?.message}
+              readOnly={question.readonly}
+            />
+          </Layer>
         </div>
         <div className={styles.selectionDisplay}>
           {field.value?.length ? (
