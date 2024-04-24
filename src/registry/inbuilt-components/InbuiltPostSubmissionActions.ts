@@ -1,4 +1,4 @@
-import { PostSubmissionAction } from '../../api/types';
+import { PostSubmissionAction } from '../../types';
 import { ComponentRegistration } from '../registry';
 
 export const inbuiltPostSubmissionActions: Array<ComponentRegistration<PostSubmissionAction>> = [

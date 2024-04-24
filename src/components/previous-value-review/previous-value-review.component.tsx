@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { OHRIValueDisplay } from '../value/ohri-value.component';
+import { ValueDisplay } from '../value/value.component';
 import styles from './previous-value-review.scss';
 
 type Props = {
@@ -19,7 +19,7 @@ export const PreviousValueReview: React.FC<Props> = ({ previousValue, displayTex
       <div className={styles.row}>
         {!hideHeader && <div>{t('previousValue', 'Previous value:')}</div>}
         <div className={styles.value}>
-          <OHRIValueDisplay value={displayText} />
+          <ValueDisplay value={displayText} />
         </div>
       </div>
       <div

@@ -7,7 +7,7 @@ const LoadingIcon: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <div className={styles['centerLoadingSVG']}>
+    <div className={styles['centered']}>
       <Loading
         description={t('activeLoadingIndicator', 'Active loading indicator')}
         withOverlay={false}

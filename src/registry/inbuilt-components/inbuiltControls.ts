@@ -1,105 +1,105 @@
-import { OHRIFormFieldProps } from '../../api/types';
-import OHRIExtensionParcel from '../../components/extension/ohri-extension-parcel.component';
-import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
-import { OHRIObsGroup } from '../../components/group/ohri-obs-group.component';
-import { OHRIContentSwitcher } from '../../components/inputs/content-switcher/ohri-content-switcher.component';
-import OHRIDate from '../../components/inputs/date/ohri-date.component';
-import OHRIFixedValue from '../../components/inputs/fixed-value/ohri-fixed-value.component';
-import OHRIMarkdown from '../../components/inputs/markdown/ohri-markdown.component';
-import { OHRIMultiSelect } from '../../components/inputs/multi-select/ohri-multi-select.component';
-import OHRINumber from '../../components/inputs/number/ohri-number.component';
-import OHRIRadio from '../../components/inputs/radio/ohri-radio.component';
-import OHRIDropdown from '../../components/inputs/select/ohri-dropdown.component';
-import OHRITextArea from '../../components/inputs/text-area/ohri-text-area.component';
-import OHRIText from '../../components/inputs/text/ohri-text.component';
-import OHRIToggle from '../../components/inputs/toggle/ohri-toggle.component';
-import OHRIRepeat from '../../components/repeat/ohri-repeat.component';
 import File from '../../components/inputs/file/file.component';
 import { RegistryItem } from '../registry';
 import { controlTemplates } from './control-templates';
 import { templateToComponentMap } from './template-component-map';
+import { FormFieldProps } from '../../types';
+import DateField from '../../components/inputs/date/date.component';
+import Radio from '../../components/inputs/radio/radio.component';
+import NumberField from '../../components/inputs/number/number.component';
+import TextField from '../../components/inputs/text/text.component';
+import { MultiSelect } from '../../components/inputs/multi-select/multi-select.component';
+import { ContentSwitcher } from '../../components/inputs/content-switcher/content-switcher.component';
+import TextArea from '../../components/inputs/text-area/text-area.component';
+import Dropdown from '../../components/inputs/select/dropdown.component';
+import Toggle from '../../components/inputs/toggle/toggle.component';
+import { ObsGroup } from '../../components/group/obs-group.component';
+import Repeat from '../../components/repeat/repeat.component';
+import Markdown from '../../components/inputs/markdown/markdown.component';
+import FixedValue from '../../components/inputs/fixed-value/fixed-value.component';
+import ExtensionParcel from '../../components/extension/extension-parcel.component';
 import WorkspaceLauncher from '../../components/inputs/workspace-launcher/workspace-launcher.component';
+import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
 
 /**
  * @internal
  */
 
-export const inbuiltControls: Array<RegistryItem<React.ComponentType<OHRIFormFieldProps>>> = [
+export const inbuiltControls: Array<RegistryItem<React.ComponentType<FormFieldProps>>> = [
   {
-    name: 'OHRIText',
-    component: OHRIText,
+    name: 'TextField',
+    component: TextField,
     type: 'text',
   },
   {
-    name: 'OHRIRadio',
-    component: OHRIRadio,
+    name: 'Radio',
+    component: Radio,
     type: 'radio',
   },
   {
-    name: 'OHRIDate',
-    component: OHRIDate,
+    name: 'DateField',
+    component: DateField,
     type: 'date',
   },
   {
-    name: 'OHRINumber',
-    component: OHRINumber,
+    name: 'NumberField',
+    component: NumberField,
     type: 'number',
     alias: 'numeric',
   },
   {
-    name: 'OHRIMultiSelect',
-    component: OHRIMultiSelect,
+    name: 'MultiSelect',
+    component: MultiSelect,
     type: 'checkbox',
     alias: 'multiCheckbox',
   },
   {
-    name: 'OHRIContentSwitcher',
-    component: OHRIContentSwitcher,
+    name: 'ContentSwitcher',
+    component: ContentSwitcher,
     type: 'content-switcher',
   },
   {
-    name: 'OHRIDropdown',
-    component: OHRIDropdown,
+    name: 'Dropdown',
+    component: Dropdown,
     type: 'select',
   },
   {
-    name: 'OHRITextArea',
-    component: OHRITextArea,
+    name: 'TextArea',
+    component: TextArea,
     type: 'textarea',
   },
   {
-    name: 'OHRIToggle',
-    component: OHRIToggle,
+    name: 'Toggle',
+    component: Toggle,
     type: 'toggle',
   },
   {
-    name: 'OHRIObsGroup',
-    component: OHRIObsGroup,
+    name: 'ObsGroup',
+    component: ObsGroup,
     type: 'group',
   },
   {
-    name: 'OHRIRepeat',
-    component: OHRIRepeat,
+    name: 'Repeat',
+    component: Repeat,
     type: 'repeating',
   },
   {
-    name: 'OHRIFixedValue',
-    component: OHRIFixedValue,
+    name: 'FixedValue',
+    component: FixedValue,
     type: 'fixed-value',
   },
   {
-    name: 'OHRIMarkdown',
-    component: OHRIMarkdown,
+    name: 'Markdown',
+    component: Markdown,
     type: 'markdown',
   },
   {
-    name: 'OHRIExtensionParcel',
-    component: OHRIExtensionParcel,
+    name: 'ExtensionParcel',
+    component: ExtensionParcel,
     type: 'extension-widget',
   },
   {
-    name: 'OHRIDateTime',
-    component: OHRIDate,
+    name: 'DateField',
+    component: DateField,
     type: 'datetime',
   },
   {

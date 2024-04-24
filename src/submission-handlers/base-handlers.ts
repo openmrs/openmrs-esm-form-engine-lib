@@ -1,9 +1,9 @@
 import dayjs from 'dayjs';
 import { getConcept, getAttachmentByUuid } from '../api/api';
 import { ConceptTrue } from '../constants';
-import { EncounterContext } from '../ohri-form-context';
-import { OHRIFormField, OpenmrsEncounter, OpenmrsObs, SubmissionHandler } from '../api/types';
-import { parseToLocalDateTime } from '../utils/ohri-form-helper';
+import { EncounterContext } from '../form-context';
+import { FormField, OpenmrsEncounter, OpenmrsObs, SubmissionHandler } from '../types';
+import { parseToLocalDateTime } from '../utils/form-helper';
 import { flattenObsList, hasRendering } from '../utils/common-utils';
 
 // Temporarily holds observations that have already been binded with matching fields
@@ -14,7 +14,7 @@ export let assignedObsIds: string[] = [];
  */
 
 export const ObsSubmissionHandler: SubmissionHandler = {
-  handleFieldSubmission: (field: OHRIFormField, value: any, context: EncounterContext) => {
+  handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
     if (field.questionOptions.rendering == 'checkbox') {
       return multiSelectObsHandler(field, value, context);
     }
@@ -43,7 +43,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     }
     return field.value;
   },
-  getInitialValue: (encounter: OpenmrsEncounter, field: OHRIFormField, allFormFields: Array<OHRIFormField>) => {
+  getInitialValue: (encounter: OpenmrsEncounter, field: FormField, allFormFields: Array<FormField>) => {
     if (hasRendering(field, 'file')) {
       const ac = new AbortController();
       return getAttachmentByUuid(encounter.patient['uuid'], encounter.uuid, ac);
@@ -90,7 +90,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     }
     return '';
   },
-  getDisplayValue: (field: OHRIFormField, value: any) => {
+  getDisplayValue: (field: FormField, value: any) => {
     const rendering = field.questionOptions.rendering;
     if (!field.value) {
       return null;
@@ -109,7 +109,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
     }
     return value;
   },
-  getPreviousValue: (field: OHRIFormField, encounter: OpenmrsEncounter, allFormFields: Array<OHRIFormField>) => {
+  getPreviousValue: (field: FormField, encounter: OpenmrsEncounter, allFormFields: Array<FormField>) => {
     let matchedObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field);
     const rendering = field.questionOptions.rendering;
     if (matchedObs.length) {
@@ -148,11 +148,29 @@ export const ObsSubmissionHandler: SubmissionHandler = {
   },
 };
 
+/**
+ * Encounter location handler
+ */
+export const EncounterLocationSubmissionHandler: SubmissionHandler = {
+  handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
+    return null;
+  },
+  getInitialValue: (encounter: any, field: FormField) => {
+    return {
+      display: encounter.location.name,
+      uuid: encounter.location.uuid,
+    };
+  },
+  getDisplayValue: (field: FormField, value) => {
+    return value.display;
+  },
+};
+
 ///////////////////////////////
 // Helpers
 //////////////////////////////
 
-const constructObs = (value: any, context: EncounterContext, field: OHRIFormField) => {
+const constructObs = (value: any, context: EncounterContext, field: FormField) => {
   return {
     person: context.patient?.id,
     obsDatetime: context.encounterDate,
@@ -163,9 +181,8 @@ const constructObs = (value: any, context: EncounterContext, field: OHRIFormFiel
     voided: false,
     // TODO: Update form path to:
     // 1. Follow standard patterns ie. NAMESPACE + "^" + FORMFIELD_PATH
-    // 2. Remove "ohri" from the namespace
-    formFieldNamespace: 'ohri-forms',
-    formFieldPath: `ohri-forms-${field.id}`,
+    formFieldNamespace: 'rfe-forms',
+    formFieldPath: `rfe-forms-${field.id}`,
     value: value,
   };
 };
@@ -180,9 +197,9 @@ const constructObs = (value: any, context: EncounterContext, field: OHRIFormFiel
 export const findObsByFormField = (
   obsList: Array<OpenmrsObs>,
   claimedObsIds: string[],
-  field: OHRIFormField,
+  field: FormField,
 ): OpenmrsObs[] => {
-  const obs = obsList.filter((o) => o.formFieldPath == `ohri-forms-${field.id}`);
+  const obs = obsList.filter((o) => o.formFieldPath == `rfe-forms-${field.id}`);
   // We shall fall back to mapping by the associated concept
   // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
   if (!obs?.length) {
@@ -192,7 +209,7 @@ export const findObsByFormField = (
   return obs;
 };
 
-const multiSelectObsHandler = (field: OHRIFormField, values: Array<string>, context: EncounterContext) => {
+const multiSelectObsHandler = (field: FormField, values: Array<string>, context: EncounterContext) => {
   if (!field.value) {
     field.value = [];
   }

@@ -1,16 +1,14 @@
-import { SubmissionHandler } from '..';
-import { OpenmrsEncounter, OHRIFormField } from '../api/types';
-import { EncounterContext } from '../ohri-form-context';
+import { EncounterContext, FormField, OpenmrsEncounter, SubmissionHandler } from '..';
 
 export const EncounterProviderHandler: SubmissionHandler = {
-  handleFieldSubmission: (field: OHRIFormField, value: any, context: EncounterContext) => {
+  handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
     context.setEncounterProvider(value);
     return value;
   },
   getInitialValue: (
     encounter: OpenmrsEncounter,
-    field: OHRIFormField,
-    allFormFields: Array<OHRIFormField>,
+    field: FormField,
+    allFormFields: Array<FormField>,
     context: EncounterContext,
   ) => {
     if (encounter) {
@@ -20,10 +18,10 @@ export const EncounterProviderHandler: SubmissionHandler = {
     }
   },
 
-  getDisplayValue: (field: OHRIFormField, value: any) => {
+  getDisplayValue: (field: FormField, value: any) => {
     return value;
   },
-  getPreviousValue: (field: OHRIFormField, encounter: OpenmrsEncounter, allFormFields: Array<OHRIFormField>) => {
+  getPreviousValue: (field: FormField, encounter: OpenmrsEncounter, allFormFields: Array<FormField>) => {
     const encounterProvider = encounter.encounterProviders[0]?.provider;
     return encounterProvider ? { value: encounterProvider.uuid, display: encounterProvider.name } : null;
   },

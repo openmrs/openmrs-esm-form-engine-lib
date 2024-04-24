@@ -2,10 +2,10 @@ import { act, renderHook } from '@testing-library/react';
 import { useInitialValues } from './useInitialValues';
 import testEncounter from '../../__mocks__/use-initial-values/encounter.mock.json';
 import testPatient from '../../__mocks__/use-initial-values/patient.mock.json';
-import { OHRIFormField, OpenmrsEncounter } from '../api/types';
 import { ObsSubmissionHandler } from '../submission-handlers/base-handlers';
+import { FormField, OpenmrsEncounter } from '../types';
 
-const obsGroupMembers: Array<OHRIFormField> = [
+const obsGroupMembers: Array<FormField> = [
   {
     label: 'Date of birth',
     type: 'obs',
@@ -36,7 +36,7 @@ const obsGroupMembers: Array<OHRIFormField> = [
     validators: [],
   },
 ];
-let allFormFields: Array<OHRIFormField> = [
+let allFormFields: Array<FormField> = [
   {
     label: 'Number of babies',
     type: 'obs',
@@ -212,7 +212,7 @@ describe('useInitialValues', () => {
 
   it('should verify that the "isBindingComplete" flag is set to true only when the resolution of calculated values are completed', async () => {
     let hook = null;
-    const fieldWithCalculateExpression: OHRIFormField = {
+    const fieldWithCalculateExpression: FormField = {
       label: 'Latest mother HIV status',
       type: 'obs',
       questionOptions: {

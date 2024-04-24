@@ -1,0 +1,49 @@
+@use '@carbon/colors';
+
+.formField {
+  margin-top: 0.625rem;
+}
+
+.formField > div > div > label {
+  color: colors.$gray-70;
+}
+
+.textContainer {
+  label {
+    font-size: 0.875rem !important;
+  }
+}
+
+.errorLegend legend, .errorLabel label {
+  color: colors.$red-60 !important;
+}
+
+.selectedOption {
+  border-radius: 4px;
+  width: 15rem;
+  
+  button {
+   background-color: colors.$gray-10;
+   
+   &:before {
+     display: none !important;
+   }
+  }
+}
+
+.switchOverrides {
+  background-color: colors.$blue-10 !important;
+  border: 1px solid colors.$blue-60 !important;
+  color: colors.$blue-60 !important;
+  padding: 0 0 0 1rem;
+ 
+  button:focus {
+    border: none !important;
+  }
+}
+
+.sansSwitchOverrides {
+  border: solid 1px colors.$blue-30 !important;
+  background-color: colors.$gray-10 !important;
+  padding: 0 0 0 1rem;
+}

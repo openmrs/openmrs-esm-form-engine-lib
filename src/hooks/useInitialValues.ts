@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { EncounterContext, inferInitialValueFromDefaultFieldValue, isEmpty } from '..';
-import { OHRIFormField, OpenmrsEncounter, SubmissionHandler } from '../api/types';
+import { FormField, OpenmrsEncounter, SubmissionHandler } from '../types';
 import { evaluateAsyncExpression } from '../utils/expression-runner';
 import { cloneObsGroup } from '../components/repeat/helpers';
 import { assignedObsIds } from '../submission-handlers/base-handlers';
 import { hasRendering } from '../utils/common-utils';
 
 export function useInitialValues(
-  formFields: OHRIFormField[],
+  formFields: FormField[],
   encounter: OpenmrsEncounter,
   encounterContext: EncounterContext,
   formFieldHandlers: Record<string, SubmissionHandler>,

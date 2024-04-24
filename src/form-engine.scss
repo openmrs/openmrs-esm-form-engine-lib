@@ -1,0 +1,69 @@
+.formEngine {
+  height: 100%;
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+.formEngineContainer {
+  display: -webkit-flex;
+  height: 100%;
+  overflow-y: hidden;
+  flex-direction: column;
+}
+
+.formEngineBody {
+  display: -webkit-flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.loader {
+  @extend .formEngineBody;
+  height: 1rem;
+}
+
+.formEngineContainer :global(.cds--label) {
+  font-size: 0.875rem;
+}
+
+.formContent {
+  height: calc(100vh - 6rem);
+  margin: 0;
+  flex-basis: 65%;
+  flex-grow: 1;
+  flex-shrink: 1;
+  position: relative;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.formContentBody {
+  overflow-y: auto;
+  width: inherit;
+  position: sticky;
+}
+
+.minifiedFormContentBody {
+  margin-bottom: 4rem !important;
+}
+
+.minifiedButtons {
+  width: 100%;
+  height: 63.5px;
+  position: absolute;
+  bottom: 0;
+}
+
+.minifiedButtons :global(.cds--btn) {
+  max-width: 50%;
+  height: 3.9rem;
+}
+
+.minifiedButtons > button {
+  width: 50%;
+}
+
+.markdownContainer {
+  padding: 1rem;
+}

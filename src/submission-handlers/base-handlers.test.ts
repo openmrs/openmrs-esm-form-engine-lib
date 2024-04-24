@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
-import { EncounterContext } from '../ohri-form-context';
-import { OHRIFormField } from '../api/types';
+import { EncounterContext } from '../form-context';
+import { FormField } from '../types';
 import { findObsByFormField, ObsSubmissionHandler } from './base-handlers';
 
 const encounterContext: EncounterContext = {
@@ -26,7 +26,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
   // new submission (enter mode)
   it('should handle submission for text input', () => {
     // setup
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'Visit note',
       type: 'obs',
       questionOptions: {
@@ -46,15 +46,15 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       order: null,
       groupMembers: [],
       voided: false,
-      formFieldNamespace: 'ohri-forms',
-      formFieldPath: 'ohri-forms-visit-note',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-visit-note',
       value: 'Can be discharged in next visit',
     });
   });
 
   it('should handle submission for number input', () => {
     // setup
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'Temperature',
       type: 'obs',
       questionOptions: {
@@ -74,15 +74,15 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       order: null,
       groupMembers: [],
       voided: false,
-      formFieldNamespace: 'ohri-forms',
-      formFieldPath: 'ohri-forms-temperature',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-temperature',
       value: 36,
     });
   });
 
   it('should handle submission for multiselect input', () => {
     // setup
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'Past enrolled patient programs',
       type: 'obs',
       questionOptions: {
@@ -114,8 +114,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
-        formFieldNamespace: 'ohri-forms',
-        formFieldPath: 'ohri-forms-past-patient-programs',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-past-patient-programs',
         value: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
       },
     ]);
@@ -138,8 +138,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
-        formFieldNamespace: 'ohri-forms',
-        formFieldPath: 'ohri-forms-past-patient-programs',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-past-patient-programs',
         value: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
       },
       {
@@ -150,8 +150,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
-        formFieldNamespace: 'ohri-forms',
-        formFieldPath: 'ohri-forms-past-patient-programs',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-past-patient-programs',
         value: '305e7ad6-c1fd-11eb-8529-0242ac130003',
       },
     ]);
@@ -159,7 +159,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
 
   it('should handle submission for date input', () => {
     // setup
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'HTS Date',
       type: 'obs',
       questionOptions: {
@@ -180,15 +180,15 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       order: null,
       groupMembers: [],
       voided: false,
-      formFieldNamespace: 'ohri-forms',
-      formFieldPath: 'ohri-forms-hts-date',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-hts-date',
       value: '2020-01-20 00:00',
     });
   });
 
   it('should handle submission for single-select inputs', () => {
     // setup
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'HTS Result',
       type: 'obs',
       questionOptions: {
@@ -212,8 +212,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
       order: null,
       groupMembers: [],
       voided: false,
-      formFieldNamespace: 'ohri-forms',
-      formFieldPath: 'ohri-forms-hts-result',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-hts-result',
       value: 'n8hynk0j-c1fd-117g-8529-0242ac1hgc9j',
     });
   });
@@ -222,7 +222,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
   it('should edit obs text/number value in edit mode', () => {
     // setup
     encounterContext.sessionMode = 'edit';
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'Visit note',
       type: 'obs',
       questionOptions: {
@@ -263,7 +263,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
   it('should edit obs coded value in edit mode', () => {
     // setup
     encounterContext.sessionMode = 'edit';
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'HTS Result',
       type: 'obs',
       questionOptions: {
@@ -306,7 +306,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
   it('should edit obs value(s) from multiselect input component', () => {
     // setup
     encounterContext.sessionMode = 'edit';
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'Past enrolled patient programs',
       type: 'obs',
       questionOptions: {
@@ -327,8 +327,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
           order: null,
           groupMembers: [],
           voided: false,
-          formFieldNamespace: 'ohri-forms',
-          formFieldPath: 'ohri-forms-past-patient-programs',
+          formFieldNamespace: 'rfe-forms',
+          formFieldPath: 'rfe-forms-past-patient-programs',
           value: {
             uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
           },
@@ -355,8 +355,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
-        formFieldNamespace: 'ohri-forms',
-        formFieldPath: 'ohri-forms-past-patient-programs',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-past-patient-programs',
         value: {
           uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
         },
@@ -369,8 +369,8 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
         order: null,
         groupMembers: [],
         voided: false,
-        formFieldNamespace: 'ohri-forms',
-        formFieldPath: 'ohri-forms-past-patient-programs',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-past-patient-programs',
         value: '305e77c0-c1fd-11eb-8529-0242ac130003',
       },
     ]);
@@ -379,7 +379,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
   it('should edit obs date value in edit mode', () => {
     // setup
     encounterContext.sessionMode = 'edit';
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'HTS date',
       type: 'obs',
       questionOptions: {
@@ -420,7 +420,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
   it('should void deleted obs text/number value in edit mode', () => {
     // setup
     encounterContext.sessionMode = 'edit';
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'Visit note',
       type: 'obs',
       questionOptions: {
@@ -461,7 +461,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
   it('should void deleted obs coded value in edit mode', () => {
     // setup
     encounterContext.sessionMode = 'edit';
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'HTS Result',
       type: 'obs',
       questionOptions: {
@@ -500,7 +500,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
   it('should void deleted obs coded value(s) from a multiselect input component', () => {
     // setup
     encounterContext.sessionMode = 'edit';
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'Past enrolled patient programs',
       type: 'obs',
       questionOptions: {
@@ -551,7 +551,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     // setup
     encounterContext.sessionMode = 'edit';
     const htsDate = new Date(2020, 11, 16);
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'HTS date',
       type: 'obs',
       questionOptions: {
@@ -591,7 +591,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
 describe('ObsSubmissionHandler - getInitialValue', () => {
   it('should get initial value for text rendering', () => {
     // setup
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'Visit note',
       type: 'obs',
       questionOptions: {
@@ -616,7 +616,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
 
   it('should get initial value for number rendering', () => {
     // setup
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'Temperature',
       type: 'obs',
       questionOptions: {
@@ -641,7 +641,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
 
   it('should get initial value for multicheckbox rendering', () => {
     // setup
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'Past enrolled patient programs',
       type: 'obs',
       questionOptions: {
@@ -679,7 +679,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
 
   it('should get initial value for date rendering', () => {
     // setup
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'HTS Date',
       type: 'obs',
       questionOptions: {
@@ -704,7 +704,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
 
   it('should get initial value for coded input types', () => {
     // setup
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'HTS Result',
       type: 'obs',
       questionOptions: {
@@ -731,8 +731,8 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
 
   it('should get intial values for obs-group members', () => {
     // setup
-    const basePath = 'ohri-forms-';
-    const groupingQuestion: OHRIFormField = {
+    const basePath = 'rfe-forms-';
+    const groupingQuestion: FormField = {
       label: 'Obs Group',
       type: 'obsGroup',
       questionOptions: {
@@ -842,7 +842,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
       };
     });
 
-    const field: OHRIFormField = {
+    const field: FormField = {
       label: 'Ever tested positive for HIV before?',
       type: 'obs',
       questionOptions: {
@@ -885,8 +885,8 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
 });
 
 describe('findObsByFormField', () => {
-  const namespace = 'ohri-forms';
-  const fields: Array<OHRIFormField> = [
+  const namespace = 'rfe-forms';
+  const fields: Array<FormField> = [
     {
       label: 'Field One',
       type: 'obs',
@@ -932,7 +932,7 @@ describe('findObsByFormField', () => {
         uuidd: '8c3db896-c1f0-11eb-8529-0242acv30003',
       },
       formFieldNamespace: namespace,
-      formFieldPath: 'ohri-forms-fieldOne',
+      formFieldPath: 'rfe-forms-fieldOne',
     },
     {
       uuid: '1449d61a-78b1-4aaf-a956-e6b1bd73138f',
@@ -940,7 +940,7 @@ describe('findObsByFormField', () => {
         uuid: 'mc3db896-c4f0-11eb-8529-0242acv3000c',
       },
       formFieldNamespace: namespace,
-      formFieldPath: 'ohri-forms-fieldThree',
+      formFieldPath: 'rfe-forms-fieldThree',
     },
     {
       uuid: '8449d61a-5841-4aaf-a956-e6b1bd73138b',
@@ -948,7 +948,7 @@ describe('findObsByFormField', () => {
         uuid: '8c3db896-c1f0-11eb-8529-0242acv30003',
       },
       formFieldNamespace: namespace,
-      formFieldPath: 'ohri-forms-fieldTwo',
+      formFieldPath: 'rfe-forms-fieldTwo',
     },
     {
       uuid: '5449d61a-4841-4aaf-a956-26b1bd73138b',

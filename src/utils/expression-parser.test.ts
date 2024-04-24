@@ -1,4 +1,4 @@
-import { OHRIFormField } from '../api/types';
+import { FormField } from '../types';
 import { ConceptFalse } from '../constants';
 import {
   findAndRegisterReferencedFields,
@@ -63,7 +63,7 @@ describe('Expression parsing', () => {
 });
 
 describe('replaceFieldRefWithValuePath', () => {
-  const field1: OHRIFormField = {
+  const field1: FormField = {
     label: 'Visit Count',
     type: 'obs',
     questionOptions: {
@@ -74,7 +74,7 @@ describe('replaceFieldRefWithValuePath', () => {
     id: 'htsVisitCount',
   };
 
-  const field2: OHRIFormField = {
+  const field2: FormField = {
     label: 'Notes',
     type: 'obs',
     questionOptions: {
@@ -85,7 +85,7 @@ describe('replaceFieldRefWithValuePath', () => {
     id: 'notes',
   };
 
-  const field3: OHRIFormField = {
+  const field3: FormField = {
     label: 'Was HIV tested?',
     type: 'obs',
     questionOptions: {
@@ -122,7 +122,7 @@ describe('replaceFieldRefWithValuePath', () => {
 });
 
 describe('linkReferencedFieldValues', () => {
-  const field1: OHRIFormField = {
+  const field1: FormField = {
     label: 'Visit Count',
     type: 'obs',
     questionOptions: {
@@ -133,7 +133,7 @@ describe('linkReferencedFieldValues', () => {
     id: 'htsVisitCount',
   };
 
-  const field2: OHRIFormField = {
+  const field2: FormField = {
     label: 'Notes',
     type: 'obs',
     questionOptions: {
@@ -144,7 +144,7 @@ describe('linkReferencedFieldValues', () => {
     id: 'notes',
   };
 
-  const field3: OHRIFormField = {
+  const field3: FormField = {
     label: 'Was HIV tested?',
     type: 'obs',
     questionOptions: {

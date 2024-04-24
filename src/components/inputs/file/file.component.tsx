@@ -1,24 +1,22 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { FileUploader, Button } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { OHRIFormFieldProps } from '../../../api/types';
-import { useField } from 'formik';
 import { isTrue } from '../../../utils/boolean-utils';
-import { isInlineView } from '../../../utils/ohri-form-helper';
-import { OHRIFormContext } from '../../../ohri-form-context';
 import Camera from '../camera/camera.component';
 import { Close, DocumentPdf } from '@carbon/react/icons';
 import styles from './file.scss';
 import { createAttachment } from '../../../utils/common-utils';
+import { FormFieldProps } from '../../../types';
+import { FormContext } from '../../../form-context';
+import { isInlineView } from '../../../utils/form-helper';
 
-interface FileProps extends OHRIFormFieldProps {}
+interface FileProps extends FormFieldProps {}
 type AllowedModes = 'uploader' | 'camera' | 'edit' | '';
 
-const File: React.FC<FileProps> = ({ question, onChange, handler }) => {
+const File: React.FC<FileProps> = ({ question, handler }) => {
   const { t } = useTranslation();
   const [cameraWidgetVisible, setCameraWidgetVisible] = useState(false);
-  const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(OHRIFormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [selectedFiles, setSelectedFiles] = useState(null); // Add state for selected files
   const [imagePreview, setImagePreview] = useState(null);
   const [uploadMode, setUploadMode] = useState<AllowedModes>('');

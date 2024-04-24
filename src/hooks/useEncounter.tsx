@@ -1,9 +1,9 @@
 import { openmrsFetch } from '@openmrs/esm-framework';
 import useSWR from 'swr';
-import { OHRIFormSchema, OpenmrsEncounter } from '../api/types';
+import { FormSchema, OpenmrsEncounter } from '../types';
 import { encounterRepresentation } from '../constants';
 
-export function useEncounter(formJson: OHRIFormSchema) {
+export function useEncounter(formJson: FormSchema) {
   const { encounter: encObjectOrUuid } = formJson;
   const encounterObjectCache = getEncounterObjIfPresent(formJson.encounter);
   const url =

@@ -1,23 +1,15 @@
-import { map } from 'rxjs/operators';
-import { SubmissionHandler } from '..';
+import { EncounterContext, FormField, SubmissionHandler } from '..';
 import { getAllLocations } from '../api/api';
-import { OpenmrsEncounter, OHRIFormField } from '../api/types';
-import { EncounterContext } from '../ohri-form-context';
 
 export const EncounterLocationSubmissionHandler: SubmissionHandler = {
-  handleFieldSubmission: (field: OHRIFormField, value: any, context: EncounterContext) => {
+  handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
     getAllLocations().subscribe((data) => {
       context.setEncounterLocation(data.find((location) => location.uuid === value));
     });
     return value;
   },
 
-  getInitialValue: (
-    encounter: any,
-    field: OHRIFormField,
-    allFormFields: Array<OHRIFormField>,
-    context: EncounterContext,
-  ) => {
+  getInitialValue: (encounter: any, field: FormField, allFormFields: Array<FormField>, context: EncounterContext) => {
     if (encounter) {
       return encounter.location.uuid;
     } else {
@@ -25,11 +17,11 @@ export const EncounterLocationSubmissionHandler: SubmissionHandler = {
     }
   },
 
-  getDisplayValue: (field: OHRIFormField, value) => {
+  getDisplayValue: (field: FormField, value) => {
     return value.display;
   },
 
-  getPreviousValue: (field: OHRIFormField, encounter: any, allFormFields: Array<OHRIFormField>) => {
+  getPreviousValue: (field: FormField, encounter: any, allFormFields: Array<FormField>) => {
     return {
       display: encounter.location.name,
       value: encounter.location.uuid,

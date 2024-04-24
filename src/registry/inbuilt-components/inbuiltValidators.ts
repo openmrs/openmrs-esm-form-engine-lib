@@ -1,23 +1,23 @@
-import { FieldValidator } from '../..';
-import { OHRIDateValidator } from '../../validators/ohri-date-validator';
-import { OHRIFieldValidator } from '../../validators/ohri-form-validator';
-import { OHRIJSExpressionValidator } from '../../validators/ohri-js-expression-validator';
+import { FormFieldValidator } from '../../types';
+import { DateValidator } from '../../validators/date-validator';
+import { DefaultFieldValueValidator } from '../../validators/default-value-validator';
+import { ExpressionValidator } from '../../validators/js-expression-validator';
 import { RegistryItem } from '../registry';
 
 /**
  * @internal
  */
-export const inbuiltValidators: Array<RegistryItem<FieldValidator>> = [
+export const inbuiltValidators: Array<RegistryItem<FormFieldValidator>> = [
   {
     name: 'default',
-    component: OHRIFieldValidator,
+    component: DefaultFieldValueValidator,
   },
   {
     name: 'date',
-    component: OHRIDateValidator,
+    component: DateValidator,
   },
   {
     name: 'js_expression',
-    component: OHRIJSExpressionValidator,
+    component: ExpressionValidator,
   },
 ];
