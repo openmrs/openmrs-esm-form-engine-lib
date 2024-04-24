@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import isEmpty from 'lodash-es/isEmpty';
-import { TextInput } from '@carbon/react';
+import { Layer, TextInput } from '@carbon/react';
 import { useField } from 'formik';
 import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
@@ -68,21 +68,23 @@ const OHRIText: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
     !question.isHidden && (
       <>
         <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
-          <TextInput
-            {...field}
-            id={question.id}
-            labelText={question.label}
-            name={question.id}
-            value={field.value || ''}
-            disabled={question.disabled}
-            readOnly={Boolean(question.readonly)}
-            invalid={!isFieldRequiredError && errors.length > 0}
-            invalidText={errors.length && errors[0].message}
-            warn={warnings.length > 0}
-            warnText={warnings.length && warnings[0].message}
-            onInvalid={(e) => e.preventDefault()}
-            maxLength={question.questionOptions.max || TextInput.maxLength}
-          />
+          <Layer>
+            <TextInput
+              {...field}
+              id={question.id}
+              labelText={question.label}
+              name={question.id}
+              value={field.value || ''}
+              disabled={question.disabled}
+              readOnly={Boolean(question.readonly)}
+              invalid={isFieldRequiredError && errors.length > 0}
+              invalidText={errors.length && errors[0].message}
+              warn={warnings.length > 0}
+              warnText={warnings.length && warnings[0].message}
+              onInvalid={(e) => e.preventDefault()}
+              maxLength={question.questionOptions.max || TextInput.maxLength}
+            />
+          </Layer>
         </div>
       </>
     )

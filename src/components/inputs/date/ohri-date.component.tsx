@@ -3,7 +3,8 @@ import dayjs from 'dayjs';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
-import { DatePicker, DatePickerInput, TimePicker } from '@carbon/react';
+import { DatePicker, DatePickerInput, Layer, TimePicker } from '@carbon/react';
+import { formatDate } from '@openmrs/esm-framework';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { isInlineView } from '../../../utils/ohri-form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
@@ -11,7 +12,6 @@ import { OHRIFormFieldProps } from '../../../api/types';
 import { OHRIFormContext } from '../../../ohri-form-context';
 import { OHRIFieldValueView } from '../../value/view/ohri-field-value-view.component';
 import styles from './ohri-date.scss';
-import { formatDate } from '@openmrs/esm-framework';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
@@ -152,50 +152,54 @@ const OHRIDate: React.FC<OHRIFormFieldProps> = ({ question, onChange, handler, p
       <>
         <div className={styles.datetime}>
           <div>
-            <DatePicker
-              datePickerType="single"
-              onChange={onDateChange}
-              className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}
-              dateFormat={carbonDateFormat}>
-              <DatePickerInput
-                id={question.id}
-                placeholder={placeholder}
-                labelText={question.label}
-                value={field.value instanceof Date ? field.value.toLocaleDateString(locale) : field.value}
-                // Added for testing purposes.
-                // Notes:
-                // Something strange is happening with the way events are propagated and handled by Carbon.
-                // When we manually trigger an onchange event using the 'fireEvent' lib, the handler below will
-                // be triggered as opposed to the former handler that only gets triggered at runtime.
-                onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
-                disabled={question.disabled}
-                invalid={!isFieldRequiredError && errors.length > 0}
-                invalidText={errors[0]?.message}
-                warn={warnings.length > 0}
-                warnText={warnings[0]?.message}
-                readOnly={question.readonly}
-              />
-            </DatePicker>
+            <Layer>
+              <DatePicker
+                datePickerType="single"
+                onChange={onDateChange}
+                className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}
+                dateFormat={carbonDateFormat}>
+                <DatePickerInput
+                  id={question.id}
+                  placeholder={placeholder}
+                  labelText={question.label}
+                  value={field.value instanceof Date ? field.value.toLocaleDateString(locale) : field.value}
+                  // Added for testing purposes.
+                  // Notes:
+                  // Something strange is happening with the way events are propagated and handled by Carbon.
+                  // When we manually trigger an onchange event using the 'fireEvent' lib, the handler below will
+                  // be triggered as opposed to the former handler that only gets triggered at runtime.
+                  onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
+                  disabled={question.disabled}
+                  invalid={isFieldRequiredError && errors.length > 0}
+                  invalidText={errors[0]?.message}
+                  warn={warnings.length > 0}
+                  warnText={warnings[0]?.message}
+                  readOnly={question.readonly}
+                />
+              </DatePicker>
+            </Layer>
           </div>
           {question?.questionOptions.rendering === 'datetime' ? (
             <div className={styles.timePickerSpacing}>
-              <TimePicker
-                className={styles.boldedLabel}
-                id={question.id}
-                labelText={t('time', 'Time')}
-                placeholder="HH:MM"
-                pattern="(1[012]|[1-9]):[0-5][0-9])$"
-                type="time"
-                disabled={!field.value ? true : false}
-                value={
-                  time
-                    ? time
-                    : field.value instanceof Date
-                    ? field.value.toLocaleDateString(window.navigator.language)
-                    : field.value
-                }
-                onChange={onTimeChange}
-              />{' '}
+              <Layer>
+                <TimePicker
+                  className={styles.boldedLabel}
+                  id={question.id}
+                  labelText={t('time', 'Time')}
+                  placeholder="HH:MM"
+                  pattern="(1[012]|[1-9]):[0-5][0-9])$"
+                  type="time"
+                  disabled={!field.value ? true : false}
+                  value={
+                    time
+                      ? time
+                      : field.value instanceof Date
+                      ? field.value.toLocaleDateString(window.navigator.language)
+                      : field.value
+                  }
+                  onChange={onTimeChange}
+                />
+              </Layer>
             </div>
           ) : (
             ''

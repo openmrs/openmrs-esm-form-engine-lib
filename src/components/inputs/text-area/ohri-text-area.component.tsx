@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { TextArea } from '@carbon/react';
+import { Layer, TextArea } from '@carbon/react';
 import { useField } from 'formik';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { isInlineView } from '../../../utils/ohri-form-helper';
@@ -69,21 +69,23 @@ const OHRITextArea: React.FC<OHRIFormFieldProps> = ({
           [styles.errorLabel]: isFieldRequiredError,
           [styles.boldedLabel]: !isFieldRequiredError,
         })}>
-        <TextArea
-          {...field}
-          id={question.id}
-          labelText={question.label}
-          name={question.id}
-          value={field.value || ''}
-          onFocus={() => setPreviousValue(field.value)}
-          rows={question.questionOptions.rows || 4}
-          disabled={question.disabled}
-          readOnly={question.readonly}
-          invalid={!isFieldRequiredError && errors.length > 0}
-          invalidText={errors.length && errors[0].message}
-          warn={warnings.length > 0}
-          warnText={warnings.length && warnings[0].message}
-        />
+        <Layer>
+          <TextArea
+            {...field}
+            id={question.id}
+            labelText={question.label}
+            name={question.id}
+            value={field.value || ''}
+            onFocus={() => setPreviousValue(field.value)}
+            rows={question.questionOptions.rows || 4}
+            disabled={question.disabled}
+            readOnly={question.readonly}
+            invalid={isFieldRequiredError && errors.length > 0}
+            invalidText={errors.length && errors[0].message}
+            warn={warnings.length > 0}
+            warnText={warnings.length && warnings[0].message}
+          />
+        </Layer>
       </div>
     )
   );

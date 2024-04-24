@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
-import { Dropdown } from '@carbon/react';
+import { Dropdown, Layer } from '@carbon/react';
 import { useField } from 'formik';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/ohri-form-validator';
 import { isInlineView } from '../../../utils/ohri-form-helper';
@@ -71,23 +71,25 @@ const OHRIDropdown: React.FC<OHRIFormFieldProps> = ({ question, onChange, handle
   ) : (
     !question.isHidden && (
       <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
-        <Dropdown
-          id={question.id}
-          titleText={question.label}
-          label={t('chooseAnOption', 'Choose an option')}
-          items={question.questionOptions.answers
-            .filter((answer) => !answer.isHidden)
-            .map((item) => item.value || item.concept)}
-          itemToString={itemToString}
-          selectedItem={field.value}
-          onChange={({ selectedItem }) => handleChange(selectedItem)}
-          disabled={question.disabled}
-          readOnly={question.readonly}
-          invalid={!isFieldRequiredError && errors.length > 0}
-          invalidText={errors.length && errors[0].message}
-          warn={warnings.length > 0}
-          warnText={warnings.length ? warnings[0].message : ''}
-        />
+        <Layer>
+          <Dropdown
+            id={question.id}
+            titleText={question.label}
+            label={t('chooseAnOption', 'Choose an option')}
+            items={question.questionOptions.answers
+              .filter((answer) => !answer.isHidden)
+              .map((item) => item.value || item.concept)}
+            itemToString={itemToString}
+            selectedItem={field.value}
+            onChange={({ selectedItem }) => handleChange(selectedItem)}
+            disabled={question.disabled}
+            readOnly={question.readonly}
+            invalid={isFieldRequiredError && errors.length > 0}
+            invalidText={errors.length && errors[0].message}
+            warn={warnings.length > 0}
+            warnText={warnings.length ? warnings[0].message : ''}
+          />
+        </Layer>
       </div>
     )
   );
