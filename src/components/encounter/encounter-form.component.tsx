@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { SessionLocation, showToast, useLayoutType, Visit } from '@openmrs/esm-framework';
-import { ConceptFalse, ConceptTrue } from '../../constants';
+import { codedTypes, ConceptFalse, ConceptTrue } from '../../constants';
 import {
   FormField,
   FormPage as FormPageProps,
@@ -263,6 +263,19 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
           const matchingConcept = findConceptByReference(field.questionOptions.concept, concepts);
           field.questionOptions.concept = matchingConcept ? matchingConcept.uuid : field.questionOptions.concept;
           field.label = field.label ? field.label : matchingConcept?.display;
+          if (
+            codedTypes.includes(field.questionOptions.rendering) &&
+            !field.questionOptions.answers?.length &&
+            matchingConcept?.conceptClass?.display === 'Question' &&
+            matchingConcept?.answers?.length
+          ) {
+            field.questionOptions.answers = matchingConcept.answers.map((answer) => {
+              return {
+                concept: answer?.uuid,
+                label: answer?.display,
+              };
+            });
+          }
           field.meta = {
             concept: matchingConcept,
           };
