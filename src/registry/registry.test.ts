@@ -2,14 +2,13 @@ import { MultiSelect } from '../components/inputs/multi-select/multi-select.comp
 import Number from '../components/inputs/number/number.component';
 import { getRegisteredControl } from './registry';
 
-
 describe('registry', () => {
-  it('should load the OHRINumber component with alias "numeric"', async () => {
+  it('should load the NumberField component with alias "numeric"', async () => {
     const result = await getRegisteredControl('numeric');
     expect(result).toEqual(Number);
   });
 
-  it('should load the OHRIMultiSelect component with alias "multiCheckbox"', async () => {
+  it('should load the MultiSelect component with alias "multiCheckbox"', async () => {
     const result = await getRegisteredControl('multiCheckbox');
     expect(result).toEqual(MultiSelect);
   });

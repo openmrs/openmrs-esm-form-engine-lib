@@ -181,7 +181,6 @@ const constructObs = (value: any, context: EncounterContext, field: FormField) =
     voided: false,
     // TODO: Update form path to:
     // 1. Follow standard patterns ie. NAMESPACE + "^" + FORMFIELD_PATH
-    // 2. Remove "ohri" from the namespace
     formFieldNamespace: 'rfe-forms',
     formFieldPath: `rfe-forms-${field.id}`,
     value: value,
