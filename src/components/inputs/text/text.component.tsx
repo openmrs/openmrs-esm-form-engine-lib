@@ -10,8 +10,10 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import { FieldValueView } from '../../value/view/field-value-view.component';
 import styles from './text.scss';
+import { useTranslation } from 'react-i18next';
 
 const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
+  const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
@@ -58,7 +60,12 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
-    <FieldValueView label={question.label} value={field.value} conceptName={question.meta?.concept?.display} isInline={isInline} />
+    <FieldValueView
+      label={t(question.label)}
+      value={field.value}
+      conceptName={question.meta?.concept?.display}
+      isInline={isInline}
+    />
   ) : (
     !question.isHidden && (
       <>
@@ -67,7 +74,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
             <TextInput
               {...field}
               id={question.id}
-              labelText={question.label}
+              labelText={t(question.label)}
               name={question.id}
               value={field.value || ''}
               disabled={question.disabled}

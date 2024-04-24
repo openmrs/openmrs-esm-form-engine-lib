@@ -11,7 +11,6 @@ import { FormContext } from '../../../form-context';
 import { FormFieldProps } from '../../../types';
 import styles from './dropdown.scss';
 
-
 const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
@@ -64,7 +63,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
 
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <FieldValueView
-      label={question.label}
+      label={t(question.label)}
       value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
       conceptName={question.meta?.concept?.display}
       isInline={isInline}
@@ -75,7 +74,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
         <Layer>
           <DropdownInput
             id={question.id}
-            titleText={question.label}
+            titleText={t(question.label)}
             label={t('chooseAnOption', 'Choose an option')}
             items={question.questionOptions.answers
               .filter((answer) => !answer.isHidden)

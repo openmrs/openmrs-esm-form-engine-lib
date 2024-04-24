@@ -77,6 +77,7 @@ export interface FormSchema {
     usePreviousValueDisabled: boolean;
   };
   version?: string;
+  translations?: Record<string, string>;
 }
 
 export interface FormPage {

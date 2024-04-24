@@ -51,7 +51,7 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
     }));
 
   const initiallySelectedQuestionItems = [];
-  questionItems.forEach(item => {
+  questionItems.forEach((item) => {
     if (field.value?.includes(item.concept)) {
       initiallySelectedQuestionItems.push(item);
     }
@@ -84,7 +84,7 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <div className={styles.formField}>
       <FieldValueView
-        label={question.label}
+        label={t(question.label)}
         value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
         conceptName={question.meta?.concept?.display}
         isInline={isInline}
@@ -98,11 +98,11 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
             <FilterableMultiSelect
               placeholder={t('search', 'Search') + '...'}
               onChange={handleSelectItemsChange}
-              id={question.label}
+              id={t(question.label)}
               items={questionItems}
               initialSelectedItems={initiallySelectedQuestionItems}
               label={''}
-              titleText={question.label}
+              titleText={t(question.label)}
               key={counter}
               itemToString={(item) => (item ? item.label : ' ')}
               disabled={question.disabled}
@@ -117,7 +117,7 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
         <div className={styles.selectionDisplay}>
           {field.value?.length ? (
             <UnorderedList className={styles.list}>
-              {handler?.getDisplayValue(question, field.value)?.map(displayValue => displayValue + ', ')}
+              {handler?.getDisplayValue(question, field.value)?.map((displayValue) => displayValue + ', ')}
             </UnorderedList>
           ) : (
             <ValueEmpty />

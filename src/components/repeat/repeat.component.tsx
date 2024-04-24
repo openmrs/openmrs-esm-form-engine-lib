@@ -163,7 +163,7 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange }) => {
   return (
     !question.isHidden && (
       <div className={styles.container}>
-        <FormGroup legendText={question.label} className={styles.boldLegend}>
+        <FormGroup legendText={t(question.label)} className={styles.boldLegend}>
           {nodes}
         </FormGroup>
       </div>

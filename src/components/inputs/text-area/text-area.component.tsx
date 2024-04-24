@@ -9,8 +9,10 @@ import { FieldValueView } from '../../value/view/field-value-view.component';
 import { FormContext } from '../../../form-context';
 import { FormFieldProps } from '../../../types';
 import styles from './text-area.scss';
+import { useTranslation } from 'react-i18next';
 
-const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue: previousValueProp, }) => {
+const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue: previousValueProp }) => {
+  const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [previousValue, setPreviousValue] = useState();
@@ -52,7 +54,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
 
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <FieldValueView
-      label={question.label}
+      label={t(question.label)}
       value={field.value}
       conceptName={question.meta?.concept?.display}
       isInline={isInline}
@@ -68,7 +70,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
           <TextAreaInput
             {...field}
             id={question.id}
-            labelText={question.label}
+            labelText={t(question.label)}
             name={question.id}
             value={field.value || ''}
             onFocus={() => setPreviousValue(field.value)}

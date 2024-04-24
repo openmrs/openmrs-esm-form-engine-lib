@@ -9,6 +9,7 @@ import { isInlineView } from '../../../utils/form-helper';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { FieldValueView } from '../../value/view/field-value-view.component';
 import styles from './radio.scss';
+import { useTranslation } from 'react-i18next';
 
 const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -16,6 +17,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [warnings, setWarnings] = useState([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (question['submission']) {
@@ -50,7 +52,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
     encounterContext.sessionMode == 'embedded-view' ||
     isTrue(question.readonly) ? (
     <FieldValueView
-      label={question.label}
+      label={t(question.label)}
       value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
       conceptName={question.meta?.concept?.display}
       isInline={isInline}
@@ -58,7 +60,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
   ) : (
     !question.isHidden && (
       <FormGroup
-        legendText={question.label}
+        legendText={t(question.label)}
         className={classNames({
           [styles.errorLegend]: isFieldRequiredError,
           [styles.boldedLegend]: !isFieldRequiredError,
