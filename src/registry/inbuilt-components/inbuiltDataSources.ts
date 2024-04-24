@@ -3,6 +3,7 @@ import { type RegistryItem } from '../registry';
 import { ConceptDataSource } from '../../datasources/concept-data-source';
 import { LocationDataSource } from '../../datasources/location-data-source';
 import { ProviderDataSource } from '../../datasources/provider-datasource';
+import {ConceptSetMembersDataSource} from '../../datasources/concept-set-members-data-source';
 
 /**
  * @internal

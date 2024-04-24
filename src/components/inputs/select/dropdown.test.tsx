@@ -1,15 +1,12 @@
 import React from 'react';
-import { render, fireEvent, screen, cleanup, act } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Form, Formik } from 'formik';
 import { EncounterContext, FormContext } from '../../../form-context';
 import Dropdown from './dropdown.component';
-import { FormField } from '../../../types';
+import { FormField, RenderType } from '../../../types';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
-import { openmrsFetch } from '@openmrs/esm-framework';
 
-const mockedOpenmrsFetch = openmrsFetch as jest.Mock;
-
-const questions: FormField[] =  [
+const questions: FormField[] = [
   {
     label: 'Patient past program.',
     type: 'obs',

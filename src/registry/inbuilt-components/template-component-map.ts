@@ -1,5 +1,4 @@
-import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
-import OHRIDropdown from '../../components/inputs/select/ohri-dropdown.component';
+import Dropdown from '../../components/inputs/select/dropdown.component';
 import UiSelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
 
 export const templateToComponentMap = [
@@ -21,6 +20,6 @@ export const templateToComponentMap = [
   },
   {
     name: 'select-concept-answers',
-    baseControlComponent: OHRIDropdown,
+    baseControlComponent: Dropdown,
   },
 ];
