@@ -97,8 +97,6 @@ const OHRIFormSection = ({ fields, onFieldChange }) => {
               ? historicalValueTransformer(fieldDescriptor, historicalValue)
               : null;
 
-            console.log(transformedHistoricalValue);
-            // console.log('similarity: ', previousFieldValue);
             if (FieldComponent) {
               const qnFragment = (
                 <FieldComponent
