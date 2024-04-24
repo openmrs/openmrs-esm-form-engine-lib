@@ -190,23 +190,21 @@ export function updateProgramEnrollment(
   });
 }
 
-export function savePatientIdentifier(identifier: PatientIdentifier, patientUuid: string) {
-  return openmrsFetch(`${restBaseUrl}/patient/${patientUuid}/identifier`, {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    body: identifier,
-  });
-}
+export function savePatientIdentifier(patientIdentifier:PatientIdentifier, patientUuid: string){
+  let url: string;
 
-export function editPatientIdentifier(identifier: string, identifierUuid:string, patientUuid: string) {
-  return openmrsFetch(`${restBaseUrl}/patient/${patientUuid}/identifier/${identifierUuid}`, {
+  if (patientIdentifier.uuid) {
+    url = `${restBaseUrl}/patient/${patientUuid}/identifier/${patientIdentifier.uuid}`;
+  } else {
+    url = `${restBaseUrl}/patient/${patientUuid}/identifier`;
+  }
+
+  return openmrsFetch(url, {
     headers: {
       'Content-Type': 'application/json',
     },
     method: 'POST',
-    body: {identifier: identifier},
+    body: JSON.stringify(patientIdentifier),
   });
 }
 

@@ -362,7 +362,7 @@ export interface ProgramEnrollmentPayload {
 
 export interface PatientIdentifier {
   uuid?: string;
-  identifier?: string;
+  identifier: string;
   identifierType?: string;
   location?: string;
   preferred?: boolean;

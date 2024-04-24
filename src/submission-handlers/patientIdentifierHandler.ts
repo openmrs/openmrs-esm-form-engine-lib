@@ -1,16 +1,10 @@
 import { SubmissionHandler } from '..';
 import { OpenmrsEncounter, OHRIFormField } from '../api/types';
 import { EncounterContext } from '../ohri-form-context';
-import { getPatientLatestIdentifier } from '../utils/patientIdentifierProcessor';
+import { getPatientLatestIdentifier } from '../utils/patient-identifier-helper';
 
 export const PatientIdentifierHandler: SubmissionHandler = {
   handleFieldSubmission: (field: OHRIFormField, value: any, context: EncounterContext) => {
-    const patientIdentifier = {
-        identifier: value,
-        identifierType: field.questionOptions.identifierType,
-        location:context.location
-    };
-    context.patientIdentifier = patientIdentifier
     return value;
   },
    getInitialValue: (

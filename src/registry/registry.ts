@@ -40,7 +40,6 @@ export interface FieldSubmissionHandlerRegistration extends ComponentRegistratio
   type: string;
 }
 
-export type FormSchemaTransformerRegistration = ComponentRegistration<FormSchemaTransformer>
 
 export interface FormsRegistryStoreState {
   controls: CustomControlRegistration[];
@@ -49,7 +48,7 @@ export interface FormsRegistryStoreState {
   postSubmissionActions: ComponentRegistration<PostSubmissionAction>[];
   dataSources: ComponentRegistration<DataSource<any>>[];
   expressionHelpers: Record<string, Function>;
-  formSchemaTransformers: FormSchemaTransformerRegistration[];
+  formSchemaTransformers: ComponentRegistration<FormSchemaTransformer>[];
 }
 
 interface FormRegistryCache {
@@ -96,7 +95,7 @@ export function registerExpressionHelper(name: string, fn: Function) {
   getFormsStore().expressionHelpers[name] = fn;
 }
 
-export function registereformSchemaTransformers(registration: FormSchemaTransformerRegistration) {
+export function registereformSchemaTransformers(registration: ComponentRegistration<FormSchemaTransformer>) {
   const store = getFormsStore();
   const existingIndex = store.formSchemaTransformers.findIndex((reg) => reg.name === registration.name);
 
