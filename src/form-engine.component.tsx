@@ -319,7 +319,7 @@ const FormEngine: React.FC<FormProps> = ({
                             onCancel && onCancel();
                             handleClose && handleClose();
                           }}>
-                          {mode === 'view' ? 'Close' : 'Cancel'}
+                          {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
                         </Button>
                         <Button type="submit" disabled={mode === 'view' || isSubmitting}>
                           {isSubmitting ? (
