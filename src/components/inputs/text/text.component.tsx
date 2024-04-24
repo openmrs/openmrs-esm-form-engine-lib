@@ -6,7 +6,7 @@ import { Layer, TextInput } from '@carbon/react';
 import { useField } from 'formik';
 import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
-import { fieldRequiredErrCode } from '../../../validators/form-validator';
+import { fieldRequiredErrCode, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -20,6 +20,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
 
   useEffect(() => {
     if (question['submission']) {
@@ -70,7 +71,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   ) : (
     !question.isHidden && (
       <>
-        <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
+        <div className={classNames(styles.boldedLabel)}>
           <Layer>
             <TextInput
               {...field}
@@ -82,8 +83,8 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
               value={field.value || ''}
               disabled={question.disabled}
               readOnly={Boolean(question.readonly)}
-              invalid={errors.length > 0}
-              invalidText={errors.length && errors[0].message}
+              invalid={isFieldConditionalRequiredErrCode || isFieldRequiredError || errors.length > 0}
+              invalidText={errors[0]?.message}
               warn={warnings.length > 0}
               warnText={warnings.length && warnings[0].message}
               maxLength={question.questionOptions.max || TextInput.maxLength}

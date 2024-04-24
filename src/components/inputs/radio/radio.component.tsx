@@ -7,8 +7,8 @@ import { useField } from 'formik';
 import { FormContext } from '../../../form-context';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
-import FieldValueView from '../../value/view/field-value-view.component';
+import { fieldRequiredErrCode, isEmpty, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
+import { FieldValueView } from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './radio.scss';
 
@@ -17,6 +17,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
   const [warnings, setWarnings] = useState([]);
   const { t } = useTranslation();
 
@@ -69,7 +70,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
           [styles.boldedLegend]: !isFieldRequiredError,
         })}
         disabled={question.disabled}
-        invalid={errors.length > 0}>
+        invalid={isFieldConditionalRequiredErrCode || isFieldRequiredError || errors.length > 0}>
         <RadioButtonGroup name={question.id} valueSelected={field.value} onChange={handleChange} orientation="vertical">
           {question.questionOptions.answers
             .filter((answer) => !answer.isHidden)

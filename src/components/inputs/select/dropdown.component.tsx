@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Dropdown as DropdownInput, Layer } from '@carbon/react';
 import { useField } from 'formik';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { fieldRequiredErrCode, isEmpty, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
@@ -19,6 +19,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const [items, setItems] = React.useState([]);
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
   const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
@@ -71,7 +72,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     />
   ) : (
     !question.isHidden && (
-      <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
+      <div className={classNames(styles.boldedLabel)}>
         <Layer>
           <DropdownInput
             id={question.id}
@@ -87,10 +88,10 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             onChange={({ selectedItem }) => handleChange(selectedItem)}
             disabled={question.disabled}
             readOnly={question.readonly}
-            invalid={errors.length > 0}
-            invalidText={errors.length && errors[0].message}
+            invalid={isFieldConditionalRequiredErrCode || isFieldRequiredError || errors.length > 0}
+            invalidText={errors[0]?.message}
             warn={warnings.length > 0}
-            warnText={warnings.length ? warnings[0].message : ''}
+            warnText={warnings[0]?.message}
           />
         </Layer>
       </div>

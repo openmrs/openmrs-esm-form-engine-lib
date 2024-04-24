@@ -52,6 +52,7 @@ interface EncounterFormProps {
   setAllInitialValues: (values: Record<string, any>) => void;
   setScrollablePages: (pages: Set<FormPageProps>) => void;
   setPagesWithErrors: (pages: string[]) => void;
+  setFieldErrors: React.Dispatch<React.SetStateAction<string[]>>;
   setIsLoadingFormDependencies?: (value: boolean) => void;
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
   setSelectedPage: (page: string) => void;
@@ -73,6 +74,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   workspaceLayout,
   setScrollablePages,
   setPagesWithErrors,
+  setFieldErrors,
   setIsLoadingFormDependencies,
   setFieldValue,
   setSelectedPage,
@@ -409,7 +411,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         .filter((field) => field['submission']?.unspecified != true)
         .forEach((field) => {
           const errors =
-            FieldValidator.validate(field, values[field.id]).filter((error) => error.resultType == 'error') ?? [];
+            FieldValidator.validate(field, values[field.id], values).filter((error) => error.resultType == 'error') ?? [];
           if (errors.length) {
             errorFields.push(field);
             field['submission'] = {
@@ -417,6 +419,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               errors: errors,
             };
             formHasErrors = true;
+            setFieldErrors((prevErrors: any) => [...prevErrors, ...errors]);
+
             return;
           }
         });
@@ -736,6 +740,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               allInitialValues={allInitialValues}
               setScrollablePages={setScrollablePages}
               setPagesWithErrors={setPagesWithErrors}
+              setFieldErrors={setFieldErrors}
               setFieldValue={setFieldValue}
               setSelectedPage={setSelectedPage}
               handlers={handlers}

@@ -3,7 +3,7 @@ import { Layer, NumberInput } from '@carbon/react';
 import classNames from 'classnames';
 import { useField } from 'formik';
 import { isTrue } from '../../../utils/boolean-utils';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { fieldRequiredErrCode, isEmpty, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { type FormFieldProps } from '../../../types';
@@ -17,6 +17,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
   const [warnings, setWarnings] = useState([]);
   const { t } = useTranslation();
 
@@ -72,7 +73,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
       <NumberInput
         {...field}
         id={question.id}
-        invalid={errors.length > 0}
+        invalid={isFieldConditionalRequiredErrCode || isFieldRequiredError || errors.length > 0}
         invalidText={errors[0]?.message}
         label={question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>}
         max={Number(question.questionOptions.max) || undefined}
@@ -87,7 +88,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         readOnly={question.readonly}
         className={classNames(
           styles.controlWidthConstrained,
-          isFieldRequiredError ? styles.errorLabel : styles.boldedLabel,
+          styles.boldedLabel,
         )}
         warn={warnings.length > 0}
         warnText={warnings[0]?.message}

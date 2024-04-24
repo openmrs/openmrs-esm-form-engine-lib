@@ -22,6 +22,10 @@ import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.compo
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import Sidebar from './components/sidebar/sidebar.component';
 import styles from './form-engine.scss';
+import { EncounterForm } from './components/encounter/encounter-form.component';
+import { moduleName } from './globals';
+import ErrorModal from './components/error-modal.component';
+
 
 interface FormProps {
   patientUUID: string;
@@ -105,6 +109,7 @@ const FormEngine: React.FC<FormProps> = ({
   const [isLoadingFormDependencies, setIsLoadingFormDependencies] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
+  const [fieldErrors, setFieldErrors] = useState([]);
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
   const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(sessionMode);
@@ -308,6 +313,7 @@ const FormEngine: React.FC<FormProps> = ({
                         allInitialValues={initialValues}
                         setScrollablePages={setScrollablePages}
                         setPagesWithErrors={setPagesWithErrors}
+                        setFieldErrors={setFieldErrors}
                         setIsLoadingFormDependencies={setIsLoadingFormDependencies}
                         setFieldValue={props.setFieldValue}
                         setSelectedPage={setSelectedPage}
@@ -317,6 +323,13 @@ const FormEngine: React.FC<FormProps> = ({
                         setIsSubmitting={setIsSubmitting}
                       />
                     </div>
+                    <>
+                    {fieldErrors.length > 0 ? (
+                        fieldErrors.map((error, index) => (
+                          <ErrorModal key={index} error={error} />
+                        ))
+                      ) : null}
+                      </>
                     {showButtonSet && (
                       <ButtonSet className={styles.minifiedButtons}>
                         <Button

@@ -46,7 +46,7 @@ export interface FormFieldValidator {
   /**
    * Validates a field and returns validation errors
    */
-  validate(field: FormField, value: any, config?: any): Array<ValidationResult>;
+  validate(field: FormField, value: any, formValues: Record<string, any>, config?: any): Array<ValidationResult>;
 }
 
 export interface ValidationResult {
@@ -116,12 +116,7 @@ export interface FormField {
   fieldDependants?: Set<string>;
   pageDependants?: Set<string>;
   sectionDependants?: Set<string>;
-  required?: boolean | {
-    type?: string;
-    message?: string;
-    referenceQuestionId?: string;
-    referenceQuestionAnswers?: Array<string>;
-  }
+  required?: boolean | RequiredFieldProps;
   unspecified?: boolean;
   disabled?: boolean;
   readonly?: string | boolean;
@@ -131,6 +126,13 @@ export interface FormField {
   questionInfo?: string;
   constrainMaxWidth?: boolean;
   meta?: QuestionMetaProps;
+}
+
+export interface RequiredFieldProps {
+  type?: string;
+  message?: string;
+  referenceQuestionId?: string;
+  referenceQuestionAnswers?: Array<string>;
 }
 
 export interface previousValue {
