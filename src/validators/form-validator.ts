@@ -54,6 +54,20 @@ export function numberInputRangeValidator(min: number, max: number, inputValue: 
   return [];
 }
 
+export function disallowDecimalsValidator(inputValue: string) {
+  if (!isEmpty(inputValue) && inputValue.toString().includes('.')) {
+    return [
+      {
+        resultType: 'error',
+        errCode: fieldOutOfBoundErrCode,
+        message: `Decimal values are not allowed`,
+      },
+    ];
+  } else {
+    return [];
+  }
+}
+
 export function isEmpty(value: any): boolean {
   if (value === undefined || value === null || value === '') {
     return true;

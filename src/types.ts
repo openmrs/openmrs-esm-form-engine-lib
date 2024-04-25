@@ -211,6 +211,7 @@ export interface FormQuestionOptions {
   answers?: Array<QuestionAnswerOption>;
   weeksList?: string;
   locationTag?: string;
+  disallowDecimals?: boolean;
   rows?: number;
   toggleOptions?: { labelTrue: string; labelFalse: string };
   repeatOptions?: RepeatOptions;
