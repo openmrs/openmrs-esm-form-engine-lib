@@ -561,6 +561,7 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
       };
     }
 
+    let formPatientIdentifiers = '';
     const patientIdentifierFields = fields.filter((field) => field.type === 'patientIdentifier');
     const patientIdentifierPromises = patientIdentifierFields.map((field) => {
       const identfier: PatientIdentifier = {
@@ -572,8 +573,28 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
     });
 
     return Promise.all(patientIdentifierPromises)
-      .then(() => saveEncounterWithAttachments(encounterForSubmission))
+      .then(() => {
+        for (let i = 0; i < patientIdentifierFields.length; i++) {
+          formPatientIdentifiers += patientIdentifierFields[i].value;
+          if (i < patientIdentifierFields.length - 1) {
+            formPatientIdentifiers += ', ';
+          }
+        }
+        if (patientIdentifierFields.length) {
+          showSnackbar({
+            title: t('identifierCreated', 'Identifier Created'),
+            subtitle: t(
+              'identifierCreatedDescription',
+              `Patient Identifier(s) ${formPatientIdentifiers} successfully created!`,
+            ),
+            kind: 'success',
+            isLowContrast: true,
+          });
+        }
+        saveEncounterWithAttachments(encounterForSubmission);
+      })
       .catch((error) => {
+        setIsSubmitting(false);
         showSnackbar({
           title: t('errorDescriptionTitle', 'Error on saving form'),
           subtitle: t('errorDescription', error.message),

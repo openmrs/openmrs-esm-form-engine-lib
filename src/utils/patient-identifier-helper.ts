@@ -1,5 +1,5 @@
-import { PatientIdentifier } from "../api/types";
 import { savePatientIdentifier} from "../api/api";
+import { PatientIdentifier } from "../types";
 
 export const saveIdentifier = (patient: fhir.Patient, patientIdentifier:PatientIdentifier) =>{
     const identifier = getPatientLatestIdentifier(patient, patientIdentifier.identifierType);
