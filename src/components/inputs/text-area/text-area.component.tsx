@@ -19,7 +19,10 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const [previousValue, setPreviousValue] = useState();
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(
+    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
+    [errors],
+  );
   const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
@@ -63,8 +66,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     />
   ) : (
     !question.isHidden && (
-      <div
-      className={classNames(styles.boldedLabel)}>
+      <div className={classNames(styles.boldedLabel)}>
         <Layer>
           <TextAreaInput
             {...field}

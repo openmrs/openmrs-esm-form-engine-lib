@@ -19,7 +19,10 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const [items, setItems] = React.useState([]);
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(
+    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
+    [errors],
+  );
   const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {

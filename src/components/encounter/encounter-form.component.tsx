@@ -411,7 +411,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         .filter((field) => field['submission']?.unspecified != true)
         .forEach((field) => {
           const errors =
-            FieldValidator.validate(field, values[field.id], values).filter((error) => error.resultType == 'error') ?? [];
+            FieldValidator.validate(field, values[field.id], values).filter((error) => error.resultType == 'error') ??
+            [];
           if (errors.length) {
             errorFields.push(field);
             field['submission'] = {

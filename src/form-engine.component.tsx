@@ -26,7 +26,6 @@ import { EncounterForm } from './components/encounter/encounter-form.component';
 import { moduleName } from './globals';
 import ErrorModal from './components/error-modal.component';
 
-
 interface FormProps {
   patientUUID: string;
   formUUID?: string;
@@ -324,12 +323,10 @@ const FormEngine: React.FC<FormProps> = ({
                       />
                     </div>
                     <>
-                    {fieldErrors.length > 0 ? (
-                        fieldErrors.map((error, index) => (
-                          <ErrorModal key={index} error={error} />
-                        ))
-                      ) : null}
-                      </>
+                      {fieldErrors.length > 0
+                        ? fieldErrors.map((error, index) => <ErrorModal key={index} error={error} />)
+                        : null}
+                    </>
                     {showButtonSet && (
                       <ButtonSet className={styles.minifiedButtons}>
                         <Button

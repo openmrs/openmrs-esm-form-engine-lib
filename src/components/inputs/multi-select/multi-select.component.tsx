@@ -22,7 +22,10 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   const [warnings, setWarnings] = useState([]);
   const [counter, setCounter] = useState(0);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(
+    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
+    [errors],
+  );
 
   useEffect(() => {
     if (question['submission']) {

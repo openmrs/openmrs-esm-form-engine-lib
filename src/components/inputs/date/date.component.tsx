@@ -25,7 +25,10 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(
+    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
+    [errors],
+  );
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [time, setTime] = useState('');
 
@@ -203,8 +206,8 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                     time
                       ? time
                       : field.value instanceof Date
-                      ? field.value.toLocaleDateString(window.navigator.language)
-                      : field.value
+                        ? field.value.toLocaleDateString(window.navigator.language)
+                        : field.value
                   }
                   onChange={onTimeChange}
                 />

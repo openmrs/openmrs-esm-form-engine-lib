@@ -17,7 +17,10 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(
+    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
+    [errors],
+  );
   const [warnings, setWarnings] = useState([]);
   const { t } = useTranslation();
 
@@ -86,10 +89,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         onWheel={(e) => e.target.blur()}
         disabled={question.disabled}
         readOnly={question.readonly}
-        className={classNames(
-          styles.controlWidthConstrained,
-          styles.boldedLabel,
-        )}
+        className={classNames(styles.controlWidthConstrained, styles.boldedLabel)}
         warn={warnings.length > 0}
         warnText={warnings[0]?.message}
         step={0.01}
