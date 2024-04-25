@@ -1,12 +1,10 @@
-import { openmrsFetch } from '@openmrs/esm-framework';
+import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
 import { OpenmrsForm, ProgramEnrollmentPayload } from '../types';
 import { isUuid } from '../utils/boolean-utils';
 
-const BASE_WS_API_URL = '/ws/rest/v1/';
-
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
-  const url = encounterUuid ? `/ws/rest/v1/encounter/${encounterUuid}?v=full` : `/ws/rest/v1/encounter?v=full`;
+  const url = encounterUuid ? `${restBaseUrl}/encounter/${encounterUuid}?v=full` : `${restBaseUrl}/encounter?v=full`;
 
   return openmrsFetch(url, {
     headers: {
@@ -19,7 +17,7 @@ export function saveEncounter(abortController: AbortController, payload, encount
 }
 
 export function saveAttachment(patientUuid, field, conceptUuid, date, encounterUUID, abortController) {
-  const url = '/ws/rest/v1/attachment';
+  const url = `${restBaseUrl}/attachment`;
 
   const content = field?.value.value;
   const cameraUploadType = typeof content === 'string' && content?.split(';')[0].split(':')[1].split('/')[1];
@@ -47,30 +45,30 @@ export function saveAttachment(patientUuid, field, conceptUuid, date, encounterU
 }
 
 export function getAttachmentByUuid(patientUuid: string, encounterUuid: string, abortController: AbortController) {
-  const attachmentUrl = '/ws/rest/v1/attachment';
+  const attachmentUrl = `${restBaseUrl}/attachment`;
   return openmrsFetch(`${attachmentUrl}?patient=${patientUuid}&encounter=${encounterUuid}`, {
     signal: abortController.signal,
   }).then((response) => response.data);
 }
 
 export function getConcept(conceptUuid: string, v: string) {
-  return openmrsFetch(`/ws/rest/v1/concept/${conceptUuid}?v=${v}`).then(({ data }) => data.results);
+  return openmrsFetch(`${restBaseUrl}/concept/${conceptUuid}?v=${v}`).then(({ data }) => data.results);
 }
 
 export function getLocationsByTag(tag: string) {
-  return openmrsFetch(`/ws/rest/v1/location?tag=${tag}&v=custom:(uuid,display)`).then(({ data }) => data.results);
+  return openmrsFetch(`${restBaseUrl}/location?tag=${tag}&v=custom:(uuid,display)`).then(({ data }) => data.results);
 }
 
 export function getAllLocations() {
-  return openmrsFetch<{ results }>(`/ws/rest/v1/location?v=custom:(uuid,display)`).then(({ data }) => data.results);
+  return openmrsFetch<{ results }>(`${restBaseUrl}/location?v=custom:(uuid,display)`).then(({ data }) => data.results);
 }
 
 export async function getPreviousEncounter(patientUuid: string, encounterType: string) {
-  const query = `patient=${patientUuid}&_sort=-_lastUpdated&_count=1&type=${encounterType}`;
-  let response = await openmrsFetch(`/ws/fhir2/R4/Encounter?${query}`);
+  const query = `patient=${patientUuid}&_sort=-date&_count=1&type=${encounterType}`;
+  let response = await openmrsFetch(`${fhirBaseUrl}/Encounter?${query}`);
   if (response?.data?.entry?.length) {
     const latestEncounter = response.data.entry[0].resource.id;
-    response = await openmrsFetch(`/ws/rest/v1/encounter/${latestEncounter}?v=${encounterRepresentation}`);
+    response = await openmrsFetch(`${restBaseUrl}/encounter/${latestEncounter}?v=${encounterRepresentation}`);
     return response.data;
   }
   return null;
@@ -81,8 +79,8 @@ export function getLatestObs(patientUuid: string, conceptUuid: string, encounter
     encounterTypeUuid ? `&encounter.type=${encounterTypeUuid}` : ''
   }`;
   // the latest obs
-  params += '&_sort=-_lastUpdated&_count=1';
-  return openmrsFetch(`/ws/fhir2/R4/Observation?${params}`).then(({ data }) => {
+  params += '&_sort=-date&_count=1';
+  return openmrsFetch(`${fhirBaseUrl}/Observation?${params}`).then(({ data }) => {
     return data.entry?.length ? data.entry[0].resource : null;
   });
 }
@@ -98,8 +96,8 @@ export async function fetchOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm 
   }
 
   const { url, isUUID } = isUuid(nameOrUUID)
-    ? { url: `/ws/rest/v1/form/${nameOrUUID}?v=full`, isUUID: true }
-    : { url: `/ws/rest/v1/form?q=${nameOrUUID}&v=full`, isUUID: false };
+    ? { url: `${restBaseUrl}/form/${nameOrUUID}?v=full`, isUUID: true }
+    : { url: `${restBaseUrl}/form?q=${nameOrUUID}&v=full`, isUUID: false };
 
   const { data: openmrsFormResponse } = await openmrsFetch(url);
   if (isUUID) {
@@ -125,7 +123,7 @@ export async function fetchClobdata(form: OpenmrsForm): Promise<any | null> {
     return null;
   }
 
-  const clobDataUrl = `/ws/rest/v1/clobdata/${jsonSchemaResource.valueReference}`;
+  const clobDataUrl = `${restBaseUrl}/clobdata/${jsonSchemaResource.valueReference}`;
   const { data: clobDataResponse } = await openmrsFetch(clobDataUrl);
 
   return clobDataResponse;
@@ -149,7 +147,7 @@ function dataURItoFile(dataURI: string) {
 //Program Enrollment
 export function getPatientEnrolledPrograms(patientUuid: string) {
   return openmrsFetch(
-    `${BASE_WS_API_URL}programenrollment?patient=${patientUuid}&v=custom:(uuid,display,program,dateEnrolled,dateCompleted,location:(uuid,display))`,
+    `${restBaseUrl}/programenrollment?patient=${patientUuid}&v=custom:(uuid,display,program,dateEnrolled,dateCompleted,location:(uuid,display))`,
   ).then(({ data }) => {
     if (data) {
       return data;
@@ -163,7 +161,7 @@ export function createProgramEnrollment(payload: ProgramEnrollmentPayload, abort
     throw new Error('Program enrollment cannot be created because no payload is supplied');
   }
   const { program, patient, dateEnrolled, dateCompleted, location } = payload;
-  return openmrsFetch(`${BASE_WS_API_URL}programenrollment`, {
+  return openmrsFetch(`${restBaseUrl}/programenrollment`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -182,7 +180,7 @@ export function updateProgramEnrollment(
     throw new Error('Program enrollment cannot be edited without a payload or a program Uuid');
   }
   const { dateEnrolled, dateCompleted, location } = payload;
-  return openmrsFetch(`${BASE_WS_API_URL}programenrollment/${programEnrollmentUuid}`, {
+  return openmrsFetch(`${restBaseUrl}/programenrollment/${programEnrollmentUuid}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
