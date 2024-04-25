@@ -1,0 +1,74 @@
+{
+  "name": "Multi select form",
+  "pages": [
+    {
+      "label": "One",
+      "sections": [
+        {
+          "label": "Section One",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Patient covered by NHIF:",
+              "id": "nhif",
+              "questionOptions": {
+                "rendering": "select",
+                "concept": "0b49e3e6-55df-4096-93ca-59edadb74b3f",
+                "answers": [
+                  {
+                    "concept": "8b715fed-97f6-4e38-8f6a-c167a42f8923",
+                    "label": "Yes"
+                  },
+                  {
+                    "concept": "a899e0ac-1350-11df-a1f1-0026b9348838",
+                    "label": "No"
+                  }
+                ]
+              },
+              "type": "obs",
+              "validators": []
+            },
+            {
+              "label": "Was this visit scheduled?",
+              "type": "obs",
+              "required": false,
+              "id": "scheduledVisit",
+              "questionOptions": {
+                "rendering": "checkbox",
+                "concept": "a89ff9a6-1350-11df-a1f1-0026b9348838",
+                "answers": [
+                  {
+                    "concept": "a89b6440-1350-11df-a1f1-0026b9348838",
+                    "label": "Scheduled visit",
+                    "disable": {
+                      "disableWhenExpression": "sex !== 'F'"
+                    }
+                  },
+                  {
+                    "concept": "a89ff816-1350-11df-a1f1-0026b9348838",
+                    "label": "Unscheduled visit early",
+                    "disable": {
+                      "disableWhenExpression": "nhif !== '8b715fed-97f6-4e38-8f6a-c167a42f8923'"
+                    }
+                  },
+                  {
+                    "concept": "a89ff8de-1350-11df-a1f1-0026b9348838",
+                    "label": "Unscheduled visit late"
+                  }
+                ]
+              },
+              "inlineRendering": null,
+              "isHidden": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "encounterType": "e22e39fd-7db2-45e7-80f1-60fa0d5a4378",
+  "referencedForms": [],
+  "uuid": "0859d9ad-2ed4-48db-96eb-7b0ce0c9903e",
+  "description": "A form containing most fields, to be used for testing purposes",
+  "version": "1.0"
+}

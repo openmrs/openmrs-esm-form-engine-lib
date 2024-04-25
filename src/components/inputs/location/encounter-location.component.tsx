@@ -25,9 +25,9 @@ export const EncounterLocationPicker: React.FC<{ question: FormField; onChange: 
       const locationTag = question.questionOptions.locationTag;
       const locationTagQueryParam = locationTag ? locationTag.trim().split(' ').join('%20') : '';
 
-      const locationObservable = locationTag ? getLocationsByTag(locationTagQueryParam) : getAllLocations();
+      const locationPromise = locationTag ? getLocationsByTag(locationTagQueryParam) : getAllLocations();
 
-      locationObservable.subscribe(
+      locationPromise.then(
         (results) => setLocations(results),
         (error) => createErrorHandler(),
       );

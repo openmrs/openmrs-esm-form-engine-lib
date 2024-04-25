@@ -41,17 +41,8 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
     }
   }, [question['submission']]);
 
-  const questionItems = question.questionOptions.answers
-    .filter((answer) => !answer.isHidden)
-    .map((answer, index) => ({
-      id: `${question.id}-${answer.concept}`,
-      concept: answer.concept,
-      label: answer.label,
-      key: index,
-    }));
-
   const initiallySelectedQuestionItems = [];
-  questionItems.forEach((item) => {
+  question.questionOptions.answers.forEach((item) => {
     if (field.value?.includes(item.concept)) {
       initiallySelectedQuestionItems.push(item);
     }
@@ -101,7 +92,15 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
               placeholder={t('search', 'Search') + '...'}
               onChange={handleSelectItemsChange}
               id={t(question.label)}
-              items={questionItems}
+              items={question.questionOptions.answers
+                .filter((answer) => !answer.isHidden)
+                .map((answer, index) => ({
+                  id: `${question.id}-${answer.concept}`,
+                  concept: answer.concept,
+                  label: answer.label,
+                  key: index,
+                  disabled: answer.disable?.isDisabled,
+                }))}
               initialSelectedItems={initiallySelectedQuestionItems}
               label={''}
               titleText={t(question.label)}

@@ -36,7 +36,7 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
             throw new Error('Cannot enroll patient to program. Patient already has an active enrollment');
           }
         }
-        createProgramEnrollment(payload, abortController).subscribe(
+        createProgramEnrollment(payload, abortController).then(
           (response) => {
             if (response.status === 201) {
               showToast({
@@ -69,7 +69,7 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
           if (!payload.dateEnrolled) {
             payload.dateEnrolled = patientProgramEnrollment.dateEnrolled;
           }
-          updateProgramEnrollment(patientProgramEnrollment.uuid, payload, abortController).subscribe(
+          updateProgramEnrollment(patientProgramEnrollment.uuid, payload, abortController).then(
             (response) => {
               if (response.status === 200) {
                 showToast({
