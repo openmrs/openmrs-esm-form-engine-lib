@@ -27,6 +27,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@carbon/react": "^1.37.0",
     "ace-builds": "^1.4.12",
     "classnames": "^2.5.1",
     "dayjs": "1.x",
@@ -39,7 +40,6 @@
     "yup": "^0.29.1"
   },
   "peerDependencies": {
-    "@carbon/react": "1.x",
     "@openmrs/esm-framework": "5.x",
     "@openmrs/esm-patient-common-lib": "7.x",
     "dayjs": "1.x",

@@ -15,10 +15,10 @@ import { isInlineView } from '../../../utils/form-helper';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './ui-select-extended.scss';
 
-const UISelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
+const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [items, setItems] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const [errors, setErrors] = useState([]);
@@ -181,4 +181,4 @@ const UISelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   );
 };
 
-export default UISelectExtended;
+export default UiSelectExtended;

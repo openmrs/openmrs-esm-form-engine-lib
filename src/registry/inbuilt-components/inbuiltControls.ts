@@ -18,7 +18,7 @@ import Markdown from '../../components/inputs/markdown/markdown.component';
 import FixedValue from '../../components/inputs/fixed-value/fixed-value.component';
 import ExtensionParcel from '../../components/extension/extension-parcel.component';
 import WorkspaceLauncher from '../../components/inputs/workspace-launcher/workspace-launcher.component';
-import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
+import UiSelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
 
 /**
  * @internal
@@ -103,8 +103,8 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<FormFieldPr
     type: 'datetime',
   },
   {
-    name: 'UISelectExtended',
-    component: UISelectExtended,
+    name: 'UiSelectExtended',
+    component: UiSelectExtended,
     type: 'ui-select-extended',
   },
   {

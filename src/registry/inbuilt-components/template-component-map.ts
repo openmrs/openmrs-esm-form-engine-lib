@@ -1,20 +1,20 @@
-import UISelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
+import UiSelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
 
 export const templateToComponentMap = [
   {
     name: 'drug',
-    baseControlComponent: UISelectExtended,
+    baseControlComponent: UiSelectExtended,
   },
   {
     name: 'problem',
-    baseControlComponent: UISelectExtended,
+    baseControlComponent: UiSelectExtended,
   },
   {
     name: 'encounter-provider',
-    baseControlComponent: UISelectExtended,
+    baseControlComponent: UiSelectExtended,
   },
   {
     name: 'encounter-location',
-    baseControlComponent: UISelectExtended,
+    baseControlComponent: UiSelectExtended,
   },
 ];

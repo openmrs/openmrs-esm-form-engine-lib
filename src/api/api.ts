@@ -113,7 +113,7 @@ export async function fetchOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm 
  * @param {OpenmrsForm} form - The OpenMRS form object.
  * @returns {Promise<any | null>} - A Promise that resolves to the fetched ClobData or null if not found.
  */
-export async function fetchClobdata(form: OpenmrsForm): Promise<any | null> {
+export async function fetchClobData(form: OpenmrsForm): Promise<any | null> {
   if (!form) {
     return null;
   }

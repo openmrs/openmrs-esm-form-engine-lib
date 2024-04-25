@@ -155,13 +155,13 @@ export const EncounterLocationSubmissionHandler: SubmissionHandler = {
   handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
     return null;
   },
-  getInitialValue: (encounter: any, field: FormField) => {
+  getInitialValue: (encounter: { location: { name: string; uuid: string } }, field: FormField) => {
     return {
       display: encounter.location.name,
       uuid: encounter.location.uuid,
     };
   },
-  getDisplayValue: (field: FormField, value) => {
+  getDisplayValue: (field: FormField, value: { display: string }) => {
     return value.display;
   },
 };

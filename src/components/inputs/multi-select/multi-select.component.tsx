@@ -42,12 +42,15 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
     }
   }, [question['submission']]);
 
-  const initiallySelectedQuestionItems = [];
-  question.questionOptions.answers.forEach((item) => {
-    if (field.value?.includes(item.concept)) {
-      initiallySelectedQuestionItems.push(item);
-    }
-  });
+  const initiallySelectedQuestionItems = useMemo(() => {
+    const selectedItems = [];
+    question.questionOptions.answers.forEach((item) => {
+      if (field.value?.includes(item.concept)) {
+        selectedItems.push(item);
+      }
+    });
+    return selectedItems;
+  }, [question, field.value]);
 
   const handleSelectItemsChange = ({ selectedItems }) => {
     setTouched(true);
