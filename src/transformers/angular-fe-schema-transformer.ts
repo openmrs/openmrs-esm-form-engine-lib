@@ -5,7 +5,7 @@ export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
     form.pages.forEach((page) => {
       if (page.sections) {
         page.sections.forEach((section) => {
-          section?.questions.forEach((question) => handleQuestion(question));
+          section?.questions?.forEach((question) => handleQuestion(question));
         });
       }
     });
@@ -14,10 +14,14 @@ export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
 };
 
 function handleQuestion(question: FormField) {
-  transformByType(question);
-  transformByRendering(question);
-  if (question?.questions?.length) {
-    question.questions.forEach((question) => handleQuestion(question));
+  try {
+    transformByType(question);
+    transformByRendering(question);
+    if (question?.questions?.length) {
+      question.questions.forEach((question) => handleQuestion(question));
+    }
+  } catch (error) {
+    console.error(error);
   }
 }
 
