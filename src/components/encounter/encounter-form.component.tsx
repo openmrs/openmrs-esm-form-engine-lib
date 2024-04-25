@@ -6,6 +6,7 @@ import {
   FormPage as FormPageProps,
   FormSchema,
   OpenmrsEncounter,
+  QuestionAnswerOption,
   RepeatObsGroupCounter,
   SessionMode,
   ValidationResult,
@@ -230,21 +231,21 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
               );
             });
 
-          //  this checks for expressions to disable checkbox options
-          // field.questionOptions.answers
-          //   ?.filter((answer: QuestionAnswerOption) => !isEmpty(answer.disable?.disableWhenExpression))
-          //   .forEach((answer: QuestionAnswerOption) => {
-          //     answer.disable.isDisabled = evaluateExpression(
-          //       answer.disable?.disableWhenExpression,
-          //       { value: field, type: 'field' },
-          //       flattenedFields,
-          //       tempInitialValues,
-          //       {
-          //         mode: sessionMode,
-          //         patient,
-          //       },
-          //     );
-          //   });
+          // this checks for expressions to disable checkbox options
+          field.questionOptions.answers
+            ?.filter((answer: QuestionAnswerOption) => !isEmpty(answer.disable?.disableWhenExpression))
+            .forEach((answer: QuestionAnswerOption) => {
+              answer.disable.isDisabled = evaluateExpression(
+                answer.disable?.disableWhenExpression,
+                { value: field, type: 'field' },
+                flattenedFields,
+                tempInitialValues,
+                {
+                  mode: sessionMode,
+                  patient,
+                },
+              );
+            });
 
           if (typeof field.readonly == 'string' && field.readonly?.split(' ')?.length > 1) {
             // needed to store the expression for further evaluations
@@ -658,20 +659,20 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
             );
           });
 
-        // dependant?.questionOptions.answers
-        //   ?.filter((answer) => !isEmpty(answer.disable?.isDisabled))
-        //   .forEach((answer) => {
-        //     answer.disable.isDisabled = evaluateExpression(
-        //       answer.disable?.disableWhenExpression,
-        //       { value: dependant, type: 'field' },
-        //       fields,
-        //       { ...values, [fieldName]: value },
-        //       {
-        //         mode: sessionMode,
-        //         patient,
-        //       },
-        //     );
-        //   });
+        dependant?.questionOptions.answers
+          ?.filter((answer) => !isEmpty(answer.disable?.isDisabled))
+          .forEach((answer) => {
+            answer.disable.isDisabled = evaluateExpression(
+              answer.disable?.disableWhenExpression,
+              { value: dependant, type: 'field' },
+              fields,
+              { ...values, [fieldName]: value },
+              {
+                mode: sessionMode,
+                patient,
+              },
+            );
+          });
 
         // evaluate readonly
         if (!dependant.isHidden && dependant['readonlyExpression']) {
