@@ -10,6 +10,7 @@ import { ValueEmpty } from '../../value/value.component';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
+import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './multi-select.scss';
 
 export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
@@ -103,7 +104,9 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
                 }))}
               initialSelectedItems={initiallySelectedQuestionItems}
               label={''}
-              titleText={t(question.label)}
+              titleText={
+                question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+              }
               key={counter}
               itemToString={(item) => (item ? item.label : ' ')}
               disabled={question.disabled}

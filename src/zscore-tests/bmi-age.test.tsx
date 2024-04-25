@@ -1,20 +1,18 @@
 import { render, fireEvent, screen, cleanup, act, waitFor } from '@testing-library/react';
 import { when } from 'jest-when';
 import React from 'react';
+import userEvent from '@testing-library/user-event';
 import FormEngine from '../form-engine.component';
-import BMI_Zscore from '../../__mocks__/forms/rfe-forms/zscore-bmi-for-age-form.json';
+import bmiForAgeScoreTestSchema from '../../__mocks__/forms/rfe-forms/zscore-bmi-for-age-form.json';
 import { mockPatientAge16 } from '../../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../../__mocks__/session.mock';
 import demoHtsOpenmrsForm from '../../__mocks__/forms/omrs-forms/demo_hts-form.json';
 import demoHtsForm from '../../__mocks__/forms/rfe-forms/demo_hts-form.json';
 
-import { findNumberInput } from '../utils/test-utils';
+import { findNumberInput, waitForLoadingToFinish } from '../utils/test-utils';
 import { mockVisit } from '../../__mocks__/visit.mock';
 import { restBaseUrl } from '@openmrs/esm-framework';
 
-//////////////////////////////////////////
-////// Base setup
-//////////////////////////////////////////
 const patientUUID = 'e13a8696-dc58-4b8c-ae40-2a1e7dd843e7';
 const visit = mockVisit;
 const mockOpenmrsFetch = jest.fn();
@@ -26,9 +24,6 @@ when(mockOpenmrsFetch).calledWith(clobdataResourcePath).mockReturnValue({ data: 
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 
-//////////////////////////////////////////
-////// Mocks
-//////////////////////////////////////////
 jest.mock('@openmrs/esm-framework', () => {
   const originalModule = jest.requireActual('@openmrs/esm-framework');
 
@@ -57,36 +52,32 @@ jest.mock('../../src/api/api', () => {
   };
 });
 
-describe('Form Engine:', () => {
-  afterEach(() => {
-    cleanup();
-    jest.useRealTimers();
-  });
-  it('Should evaluate BMI for Age Zscore result', async () => {
-    // setup
-    await act(async () => renderForm(null, BMI_Zscore));
+describe('bmiForAge z-score', () => {
+  it('should compute bmiForAge z-score from the provided height and weight values', async () => {
+    const user = userEvent.setup();
 
-    const bmiAgeField = await findNumberInput(screen, 'BMI for Age Zscore result');
-    const heightField = await findNumberInput(screen, 'Height');
-    const weightField = await findNumberInput(screen, 'Weight');
-    await act(async () => expect(heightField.value).toBe(''));
-    await act(async () => expect(weightField.value).toBe(''));
-    await act(async () => expect(bmiAgeField.value).toBe(''));
+    renderForm(null, bmiForAgeScoreTestSchema);
 
-    // replay
-    fireEvent.blur(heightField, { target: { value: 100 } });
-    fireEvent.blur(weightField, { target: { value: 45 } });
+    await waitForLoadingToFinish();
 
-    // verify
-    await act(async () => expect(heightField.value).toBe('100'));
-    await act(async () => expect(weightField.value).toBe('45'));
-    await act(async () => expect(bmiAgeField.value).toBe('4'));
+    const bmiForAge = screen.getByRole('spinbutton', { name: /bmi for age zscore result/i });
+    const height = screen.getByRole('spinbutton', { name: /height/i });
+    const weight = screen.getByRole('spinbutton', { name: /weight/i });
+
+    await user.type(height, '100');
+    await user.tab();
+    await user.type(weight, '45');
+    await user.tab();
+
+    expect(height).toHaveValue(100);
+    expect(weight).toHaveValue(45);
+    expect(bmiForAge).toHaveValue(4);
   });
   function renderForm(formUUID, formJson, intent?: string) {
     return act(() => {
       render(
         <FormEngine
-          formJson={formJson as any}
+          formJson={formJson}
           formUUID={formUUID}
           patientUUID={patientUUID}
           formSessionIntent={intent}

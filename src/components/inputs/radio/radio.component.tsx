@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
+import { useTranslation } from 'react-i18next';
 import { FormGroup, RadioButtonGroup, RadioButton } from '@carbon/react';
 import { FormFieldProps } from '../../../types';
 import { useField } from 'formik';
@@ -8,8 +9,8 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { FieldValueView } from '../../value/view/field-value-view.component';
+import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './radio.scss';
-import { useTranslation } from 'react-i18next';
 
 const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -60,7 +61,9 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
   ) : (
     !question.isHidden && (
       <FormGroup
-        legendText={t(question.label)}
+        legendText={
+          question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+        }
         className={classNames({
           [styles.errorLegend]: isFieldRequiredError,
           [styles.boldedLegend]: !isFieldRequiredError,
