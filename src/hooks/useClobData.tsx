@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { FormSchema, OpenmrsForm } from '../types';
 import useSWRImmutable from 'swr/immutable';
 
-export function useClobdata(form: OpenmrsForm) {
+export function useClobData(form: OpenmrsForm) {
   const valueReferenceUuid = useMemo(
     () => form?.resources?.find(({ name }) => name === 'JSON schema').valueReference,
     [form],
@@ -16,6 +16,6 @@ export function useClobdata(form: OpenmrsForm) {
   return {
     clobdata: data?.data,
     clobdataError: error || null,
-    isLoadingClobdata: (!data && !error) || false,
+    isLoadingClobData: (!data && !error) || false,
   };
 }

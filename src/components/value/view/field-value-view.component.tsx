@@ -11,15 +11,14 @@ interface FieldValueViewProps {
 }
 export const FieldValueView: React.FC<FieldValueViewProps> = ({ label, conceptName, value, isInline }) => (
   <>
-    {isInline && (
+    {isInline ? (
       <div className={styles.inlineFlexRow}>
         <div className={styles.inlineFlexColumn}>
           <LabelField value={label} tooltipText={conceptName} />
         </div>
         <div className={styles.inlineFlexColumn}>{value ? <ValueDisplay value={value} /> : <ValueEmpty />}</div>
       </div>
-    )}
-    {!isInline && (
+    ) : (
       <div className={styles.readonly}>
         <div className={styles.formField}>
           <LabelField value={label} tooltipText={conceptName} />
