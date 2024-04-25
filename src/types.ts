@@ -1,4 +1,4 @@
-import {LayoutType, OpenmrsResource} from '@openmrs/esm-framework';
+import { OpenmrsResource } from '@openmrs/esm-framework';
 import { FieldHelperProps, FieldInputProps, FieldMetaProps } from 'formik';
 import { EncounterContext } from './form-context';
 
@@ -100,6 +100,7 @@ export interface FormPage {
     form: Omit<FormSchema, 'postSubmissionActions'>;
   };
 }
+
 export interface FormField {
   label: string;
   type: string;
@@ -167,7 +168,7 @@ export interface QuestionAnswerOption {
   disable?: DisableProps;
   label?: string;
   concept?: string;
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface FormQuestionOptions {
