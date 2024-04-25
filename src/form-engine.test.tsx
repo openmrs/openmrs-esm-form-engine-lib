@@ -27,12 +27,7 @@ import viralLoadStatusForm from '../__mocks__/forms/rfe-forms/viral-load-status-
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import { mockPatient } from '../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../__mocks__/session.mock';
-import {
-  assertFormHasAllFields,
-  findMultiSelectInput,
-  findSelectInput,
-  waitForLoadingToFinish,
-} from './utils/test-utils';
+import { assertFormHasAllFields, findMultiSelectInput, findSelectInput } from './utils/test-utils';
 import { mockVisit } from '../__mocks__/visit.mock';
 import FormEngine from './form-engine.component';
 
@@ -86,9 +81,7 @@ describe('Form engine component', () => {
   });
 
   it('should render the form schema without dying', async () => {
-    renderForm(null, htsPocForm);
-
-    await waitForLoadingToFinish();
+    await act(async () => renderForm(null, htsPocForm));
 
     await assertFormHasAllFields(screen, [{ fieldName: 'When was the HIV test conducted? *', fieldType: 'date' }]);
   });
@@ -280,9 +273,7 @@ describe('Form engine component', () => {
         ],
       });
 
-      renderForm(null, postSubmissionTestForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, postSubmissionTestForm));
 
       const drugSensitiveProgramField = screen.getByRole('radio', { name: /drug-susceptible \(DS\) tb program/i });
       const treatmentNumber = screen.getByRole('spinbutton', { name: /ds tb treatment number/i });
@@ -300,9 +291,7 @@ describe('Form engine component', () => {
 
   describe('Obs group count validation', () => {
     it('should show error toast when the obs group count does not match the number count specified', async () => {
-      renderForm(null, labourAndDeliveryTestForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, labourAndDeliveryTestForm));
 
       const birthCount = screen.getByRole('spinbutton', { name: /number of babies born from this pregnancy/i });
       expect(birthCount).toBeInTheDocument();
@@ -347,9 +336,7 @@ describe('Form engine component', () => {
 
   describe('Filter answer options', () => {
     it('should filter dropdown options based on value in count input field', async () => {
-      renderForm(null, filterAnswerOptionsTestForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, filterAnswerOptionsTestForm));
 
       const recommendationDropdown = screen.getByRole('combobox', { name: /Testing Recommendations/i });
       const testCountField = screen.getByRole('spinbutton', { name: 'How many times have you tested in the past?' });
@@ -375,9 +362,7 @@ describe('Form engine component', () => {
 
   describe('Calculated values', () => {
     it('should evaluate BMI', async () => {
-      renderForm(null, bmiForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, bmiForm));
 
       const bmiField = await screen.getByRole('textbox', { name: /bmi/i });
       const heightField = await screen.getByLabelText(/height/i);
@@ -393,9 +378,7 @@ describe('Form engine component', () => {
     });
 
     it('should evaluate BSA', async () => {
-      renderForm(null, bsaForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, bsaForm));
 
       const bsaField = await screen.getByRole('textbox', { name: /bsa/i });
       const heightField = await screen.getByRole('spinbutton', { name: /height/i });
@@ -411,9 +394,7 @@ describe('Form engine component', () => {
     });
 
     it('should evaluate EDD', async () => {
-      renderForm(null, eddForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, eddForm));
 
       const eddField = screen.getByRole('textbox', { name: /edd/i });
       const lmpField = screen.getByRole('textbox', { name: /lmp/i });
@@ -426,12 +407,10 @@ describe('Form engine component', () => {
     });
 
     it('should evaluate months on ART', async () => {
-      renderForm(null, monthsOnArtForm);
+      await act(async () => renderForm(null, monthsOnArtForm));
 
       jest.useFakeTimers();
       jest.setSystemTime(new Date(2022, 9, 1));
-
-      await waitForLoadingToFinish();
 
       let artStartDateField = screen.getByRole('textbox', {
         name: /antiretroviral treatment start date/i,
@@ -474,9 +453,7 @@ describe('Form engine component', () => {
     });
 
     it('should only show question when age is under 5', async () => {
-      renderForm(null, ageValidationForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, ageValidationForm));
 
       let enrollmentDate = screen.getByRole('textbox', {
         name: /enrollmentDate/,
@@ -496,9 +473,7 @@ describe('Form engine component', () => {
     });
 
     it('should load initial value from external arbitrary data source', async () => {
-      renderForm(null, externalDataSourceForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, externalDataSourceForm));
 
       const bodyWeightField = screen.getByRole('spinbutton', {
         name: /body weight/i,
@@ -508,9 +483,7 @@ describe('Form engine component', () => {
     });
 
     it('should evaluate next visit date', async () => {
-      renderForm(null, nextVisitForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, nextVisitForm));
 
       const followupDateField = screen.getByRole('textbox', {
         name: /followup date/i,
@@ -542,7 +515,7 @@ describe('Form engine component', () => {
     when(mockOpenmrsFetch).calledWith(conceptResourcePath).mockReturnValue({ data: mockConceptsForm });
 
     it('should add default labels based on concept display and substitute mapping references with uuids', async () => {
-      renderForm(null, referenceByMappingForm);
+      await act(async () => renderForm(null, referenceByMappingForm));
 
       const yes = (await screen.findAllByRole('radio', {
         name: 'Yes',
