@@ -1,10 +1,11 @@
 import React from 'react';
-import { render, fireEvent, waitFor, act, screen } from '@testing-library/react';
-import UiSelectExtended from './ui-select-extended.component';
-import { EncounterContext, FormContext } from '../../../form-context';
+import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
-import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
+import { render, screen } from '@testing-library/react';
+import { EncounterContext, FormContext } from '../../../form-context';
 import { FormField } from '../../../types';
+import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
+import UiSelectExtended from './ui-select-extended.component';
 
 const question: FormField = {
   label: 'Transfer Location',
@@ -42,30 +43,6 @@ const encounterContext: EncounterContext = {
   setEncounterLocation: jest.fn,
 };
 
-const renderForm = (intialValues) => {
-  render(
-    <Formik initialValues={intialValues} onSubmit={null}>
-      {(props) => (
-        <FormContext.Provider
-          value={{
-            values: props.values,
-            setFieldValue: props.setFieldValue,
-            setEncounterLocation: jest.fn(),
-            obsGroupsToVoid: [],
-            setObsGroupsToVoid: jest.fn(),
-            encounterContext: encounterContext,
-            fields: [question],
-            isFieldInitializationComplete: true,
-            isSubmitting: false,
-            formFieldHandlers: { obs: ObsSubmissionHandler },
-          }}>
-          <UiSelectExtended question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-        </FormContext.Provider>
-      )}
-    </Formik>,
-  );
-};
-
 // Mock the data source fetch behavior
 jest.mock('../../../registry/registry', () => ({
   getRegisteredDataSource: jest.fn().mockResolvedValue({
@@ -87,92 +64,65 @@ jest.mock('../../../registry/registry', () => ({
   }),
 }));
 
-describe('UiSelectExtended Component', () => {
+describe('UiSelectExtended', () => {
+  const user = userEvent.setup();
+
   it('renders with items from the datasource', async () => {
-    await act(async () => {
-      await renderForm({});
-    });
+    renderForm({});
 
-    // setup
-    const uiSelectExtendedWidget = screen.getByLabelText('Transfer Location');
+    const uiSelectExtendedWidget = screen.getByLabelText(/transfer location/i);
 
-    // assert initial values
-    await act(async () => {
-      expect(question.value).toBe(null);
-    });
+    expect(question.value).toBe(null);
 
-    //Click on the UiSelectExtendedWidget to open the dropdown
-    fireEvent.click(uiSelectExtendedWidget);
+    await user.click(uiSelectExtendedWidget);
 
-    // Assert that all three items are displayed
-    expect(screen.getByText('Kololo')).toBeInTheDocument();
-    expect(screen.getByText('Naguru')).toBeInTheDocument();
-    expect(screen.getByText('Muyenga')).toBeInTheDocument();
+    expect(screen.getByText(/kololo/i)).toBeInTheDocument();
+    expect(screen.getByText(/naguru/i)).toBeInTheDocument();
+    expect(screen.getByText(/muyenga/i)).toBeInTheDocument();
   });
 
   it('Selects a value from the list', async () => {
-    await act(async () => {
-      await renderForm({});
-    });
+    renderForm({});
 
-    // setup
-    const uiSelectExtendedWidget = screen.getByLabelText('Transfer Location');
+    const uiSelectExtendedWidget = screen.getByLabelText(/transfer location/i);
+    await user.click(uiSelectExtendedWidget);
 
-    //Click on the UiSelectExtendedWidget to open the dropdown
-    fireEvent.click(uiSelectExtendedWidget);
-
-    // Find the list item for 'Naguru' and click it to select
     const naguruOption = screen.getByText('Naguru');
-    fireEvent.click(naguruOption);
+    await user.click(naguruOption);
 
-    // verify
-    await act(async () => {
-      expect(question.value).toEqual({
-        person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: new Date(2023, 8, 29),
-        concept: '160540AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-        location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-        formFieldNamespace: 'rfe-forms',
-        formFieldPath: 'rfe-forms-patient_transfer_location',
-        order: null,
-        groupMembers: [],
-        voided: false,
-        value: 'aaa-2',
-      });
+    expect(question.value).toEqual({
+      person: '833db896-c1f0-11eb-8529-0242ac130003',
+      obsDatetime: new Date(2023, 8, 29),
+      concept: '160540AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-patient_transfer_location',
+      order: null,
+      groupMembers: [],
+      voided: false,
+      value: 'aaa-2',
     });
   });
 
-  it('Filters items based on user input', async () => {
-    await act(async () => {
-      await renderForm({});
-    });
+  it('filters items based on user input', async () => {
+    renderForm({});
 
-    // setup
-    const uiSelectExtendedWidget = screen.getByLabelText('Transfer Location');
+    const uiSelectExtendedWidget = screen.getByLabelText(/transfer location/i);
 
-    //Click on the UiSelectExtendedWidget to open the dropdown
-    fireEvent.click(uiSelectExtendedWidget);
+    await user.click(uiSelectExtendedWidget);
+    await user.type(uiSelectExtendedWidget, 'Nag');
 
-    // Type 'Nag' in the input field to filter items
-    fireEvent.change(uiSelectExtendedWidget, { target: { value: 'Nag' } });
-
-    // Wait for the filtered items to appear in the dropdown
-    await waitFor(() => {
-      // Verify that 'Naguru' is in the filtered items
-      expect(screen.getByText('Naguru')).toBeInTheDocument();
-
-      // Verify that 'Kololo' and 'Muyenga' are not in the filtered items
-      expect(screen.queryByText('Kololo')).not.toBeInTheDocument();
-      expect(screen.queryByText('Muyenga')).not.toBeInTheDocument();
-    });
+    expect(screen.getByText('Naguru')).toBeInTheDocument();
+    expect(screen.queryByText('Kololo')).not.toBeInTheDocument();
+    expect(screen.queryByText('Muyenga')).not.toBeInTheDocument();
   });
-  it('Should set the correct value for the config parameter', async () => {
+
+  it('should set the correct value for the config parameter', async () => {
     // Mock the data source fetch behavior
     const expectedConfigValue = {
       tag: 'test-tag',
     };
 
-    // Mock the getRegisteredDataSource function
     jest.mock('../../../registry/registry', () => ({
       getRegisteredDataSource: jest.fn().mockResolvedValue({
         fetchData: jest.fn().mockResolvedValue([]),
@@ -181,12 +131,33 @@ describe('UiSelectExtended Component', () => {
       }),
     }));
 
-    await act(async () => {
-      await renderForm({});
-    });
-    const config = question.questionOptions.datasource.config;
+    renderForm({});
 
-    // Assert that the config is set with the expected configuration value
+    const config = question.questionOptions.datasource.config;
     expect(config).toEqual(expectedConfigValue);
   });
 });
+
+function renderForm(initialValues) {
+  render(
+    <Formik initialValues={initialValues} onSubmit={null}>
+      {(props) => (
+        <FormContext.Provider
+          value={{
+            values: props.values,
+            setFieldValue: props.setFieldValue,
+            setEncounterLocation: jest.fn(),
+            obsGroupsToVoid: [],
+            setObsGroupsToVoid: jest.fn(),
+            encounterContext: encounterContext,
+            fields: [question],
+            isFieldInitializationComplete: true,
+            isSubmitting: false,
+            formFieldHandlers: { obs: ObsSubmissionHandler },
+          }}>
+          <UiSelectExtended question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+        </FormContext.Provider>
+      )}
+    </Formik>,
+  );
+}

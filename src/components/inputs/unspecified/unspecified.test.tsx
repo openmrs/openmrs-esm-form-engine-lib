@@ -1,10 +1,10 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 import { Formik } from 'formik';
 import { FormField, EncounterContext, FormContext } from '../../..';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 import { UnspecifiedField } from './unspecified.component';
-import { findTextOrDateInput } from '../../../utils/test-utils';
 import DateField from '../date/date.component';
 
 const question: FormField = {
@@ -36,9 +36,46 @@ const encounterContext: EncounterContext = {
   setEncounterLocation: jest.fn,
 };
 
-const renderForm = (intialValues) => {
+describe('Unspecified', () => {
+  const user = userEvent.setup();
+
+  it('should toggle the "Unspecified" checkbox on click', async () => {
+    renderForm({});
+
+    const unspecifiedCheckbox = screen.getByRole('checkbox', { name: /unspecified/i });
+    expect(unspecifiedCheckbox).not.toBeChecked();
+
+    await user.click(unspecifiedCheckbox);
+    expect(unspecifiedCheckbox).toBeChecked();
+
+    await user.click(unspecifiedCheckbox);
+    expect(unspecifiedCheckbox).not.toBeChecked();
+  });
+
+  it('should clear the field value when the "Unspecified" checkbox is clicked', async () => {
+    renderForm({});
+
+    const unspecifiedCheckbox = screen.getByRole('checkbox', { name: /unspecified/i });
+    const visitDateField = screen.getByRole('textbox', { name: /visit date/i });
+
+    expect(unspecifiedCheckbox).not.toBeChecked();
+    expect(visitDateField).not.toHaveValue();
+
+    await user.click(visitDateField);
+    await user.paste('2023-09-09T00:00:00.000Z');
+    await user.tab();
+
+    expect(visitDateField).toHaveValue('09/09/2023');
+
+    await user.click(unspecifiedCheckbox);
+    expect(unspecifiedCheckbox).toBeChecked();
+    expect(visitDateField).not.toHaveValue();
+  });
+});
+
+function renderForm(initialValues) {
   render(
-    <Formik initialValues={intialValues} onSubmit={null}>
+    <Formik initialValues={initialValues} onSubmit={null}>
       {(props) => (
         <FormContext.Provider
           value={{
@@ -59,43 +96,4 @@ const renderForm = (intialValues) => {
       )}
     </Formik>,
   );
-};
-
-describe('Unspecified', () => {
-  it('Should toggle the "Unspecified" checkbox on click', async () => {
-    // setup
-    await renderForm({});
-    const unspecifiedCheckbox = screen.getByRole('checkbox', { name: /Unspecified/ });
-
-    // assert initial state
-    expect(unspecifiedCheckbox).not.toBeChecked();
-
-    // assert checked
-    fireEvent.click(unspecifiedCheckbox);
-    expect(unspecifiedCheckbox).toBeChecked();
-
-    // assert unchecked
-    fireEvent.click(unspecifiedCheckbox);
-    expect(unspecifiedCheckbox).not.toBeChecked();
-  });
-
-  it('Should clear field value when the "Unspecified" checkbox is clicked', async () => {
-    //setup
-    await renderForm({});
-    const unspecifiedCheckbox = screen.getByRole('checkbox', { name: /Unspecified/ });
-    const visitDateField = await findTextOrDateInput(screen, 'Visit Date');
-
-    // assert initial state
-    expect(unspecifiedCheckbox).not.toBeChecked();
-    expect((await visitDateField).value).toBe('');
-
-    //Assert date change
-    fireEvent.blur(visitDateField, { target: { value: '2023-09-09T00:00:00.000Z' } });
-    expect(visitDateField.value).toBe('09/09/2023');
-
-    // assert checked
-    fireEvent.click(unspecifiedCheckbox);
-    expect(unspecifiedCheckbox).toBeChecked();
-    expect(visitDateField.value).toBe('');
-  });
-});
+}

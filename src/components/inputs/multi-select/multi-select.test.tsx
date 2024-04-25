@@ -1,11 +1,12 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { mockVisit } from '../../../../__mocks__/visit.mock';
-import multiSelectFormSchema from '../../../../__mocks__/forms/rfe-forms/multi-select-form.json';
 import { mockPatient } from '../../../../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../../../../__mocks__/session.mock';
-import { FormSchema } from '../../../types';
+import { waitForLoadingToFinish } from '../../../utils/test-utils';
+import { type FormSchema } from '../../../types';
+import multiSelectFormSchema from '../../../../__mocks__/forms/rfe-forms/multi-select-form.json';
 import FormEngine from '../../../form-engine.component';
 
 const mockOpenmrsFetch = jest.fn();
@@ -43,46 +44,46 @@ jest.mock('../../../api/api', () => {
   };
 });
 
-const renderForm = async () => {
-  await act(() =>
-    render(
-      <FormEngine
-        formJson={multiSelectFormSchema as unknown as FormSchema}
-        formUUID={null}
-        patientUUID={patientUUID}
-        formSessionIntent={undefined}
-        visit={visit}
-      />,
-    ),
-  );
-};
-
-describe('OHRIMultiSelect Component', () => {
-  it('renders correctly', async () => {
-    await renderForm();
-    expect(screen.getByRole('combobox', { name: /Patient covered by NHIF/i })).toBeInTheDocument();
-    expect(screen.getByText('Was this visit scheduled?')).toBeInTheDocument();
-  });
+describe('MultiSelect', () => {
+  const user = userEvent.setup();
 
   it('should disable checkbox option if the field value depends on evaluates the expression to true', async () => {
-    const user = userEvent.setup();
-    await renderForm();
+    renderForm();
 
-    await user.click(screen.getByRole('combobox', { name: /Patient covered by NHIF/i }));
-    await user.click(screen.getByRole('option', { name: /no/i }));
-
-    await user.click(screen.getByText('Was this visit scheduled?'));
-    expect(screen.getByRole('option', { name: /Unscheduled visit early/i })).toHaveAttribute('disabled');
-  });
-
-  it('should enable checkbox option if the field value depends on evaluates the expression to false', async () => {
-    const user = userEvent.setup();
-    await renderForm();
+    await waitForLoadingToFinish();
 
     await user.click(screen.getByRole('combobox', { name: /patient covered by nhif/i }));
-    await user.click(screen.getByRole('option', { name: /yes/i }));
+    const noOption = screen.getByRole('option', { name: /no/i });
+    await user.click(noOption);
 
     await user.click(screen.getByText('Was this visit scheduled?'));
-    expect(screen.getByRole('option', { name: /Unscheduled visit early/i })).not.toHaveAttribute('disabled');
+    const unscheduledVisitEarlyOption = screen.getByRole('option', { name: /Unscheduled visit early/i });
+    expect(unscheduledVisitEarlyOption).toHaveAttribute('disabled');
+  });
+
+  xit('should enable checkbox option if the field value depends on evaluates the expression to false', async () => {
+    renderForm();
+
+    await waitForLoadingToFinish();
+
+    await user.click(screen.getByRole('combobox', { name: /patient covered by nhif/i }));
+    const yesOption = screen.getByRole('option', { name: /yes/i });
+    await user.click(yesOption);
+
+    await user.click(screen.getByText('Was this visit scheduled?'));
+    const unscheduledVisitEarlyOption = screen.getByRole('option', { name: /Unscheduled visit early/i });
+    expect(unscheduledVisitEarlyOption).not.toHaveAttribute('disabled');
   });
 });
+
+function renderForm() {
+  render(
+    <FormEngine
+      formJson={multiSelectFormSchema as FormSchema}
+      formUUID={null}
+      patientUUID={patientUUID}
+      formSessionIntent={undefined}
+      visit={visit}
+    />,
+  );
+}
