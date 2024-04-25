@@ -1,0 +1,55 @@
+{
+  "name": "AFE form with aliased questions",
+  "pages": [
+    {
+      "label": "Page 1",
+      "sections": [
+        {
+          "label": "Section 1",
+          "questions": [
+            {
+              "label": "Multi Checkbox",
+              "type": "obs",
+              "id": "dem_multi_checkbox",
+              "questionOptions": {
+                "rendering": "multiCheckbox"
+              }
+            },
+            {
+              "label": "Numeric",
+              "id": "dem_numeric",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "numeric"
+              }
+            },
+            {
+              "label": "Encounter Provider",
+              "id": "dem_encounter_provider",
+              "type": "encounterProvider",
+              "questionOptions": {
+                "rendering": "ui-select-extended"
+              }
+            },
+            {
+              "id": "dem_encounter_location",
+              "type": "obsGroup",
+              "questionOptions": {
+                "rendering": "group"
+              },
+              "questions": [
+                {
+                  "label": "Encounter Location",
+                  "type": "encounterLocation",
+                  "questionOptions": {
+                    "rendering": "ui-select-extended"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
