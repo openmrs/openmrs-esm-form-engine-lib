@@ -4,14 +4,8 @@ export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
   transform: (form: FormSchema) => {
     form.pages.forEach((page) => {
       if (page.sections) {
-        let sections = page.sections;
-        sections.forEach((section) => {
-          if (section.questions) {
-            let questions = section.questions;
-            questions.map((question) => {
-              transformQuestion(question);
-            });
-          }
+        page.sections.forEach((section) => {
+          section?.questions.forEach((question) => handleQuestion(question));
         });
       }
     });
@@ -19,10 +13,15 @@ export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
   },
 };
 
-/**
- * Make question transformations especially for originally AFE schemas to match the RFE schema
- */
-export function transformQuestion(question: FormField) {
+function handleQuestion(question: FormField) {
+  transformByType(question);
+  transformByRendering(question);
+  if (question?.questions?.length) {
+    question.questions.forEach((question) => handleQuestion(question));
+  }
+}
+
+function transformByType(question: FormField) {
   switch (question.type) {
     case 'encounterProvider':
       question.questionOptions.rendering = 'encounter-provider';
@@ -30,7 +29,16 @@ export function transformQuestion(question: FormField) {
     case 'encounterLocation':
       question.questionOptions.rendering = 'encounter-location';
       break;
-    default:
+  }
+}
+
+function transformByRendering(question: FormField) {
+  switch (question.questionOptions.rendering as any) {
+    case 'multiCheckbox':
+      question.questionOptions.rendering = 'checkbox';
+      break;
+    case 'numeric':
+      question.questionOptions.rendering = 'number';
       break;
   }
 }
