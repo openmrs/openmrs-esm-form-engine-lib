@@ -59,6 +59,11 @@ export interface HideProps {
   hideWhenExpression: string;
 }
 
+export interface DisableProps {
+  disableWhenExpression?: string;
+  isDisabled?: boolean;
+}
+
 export interface FormSchema {
   name: string;
   pages: Array<FormPage>;
@@ -95,6 +100,7 @@ export interface FormPage {
     form: Omit<FormSchema, 'postSubmissionActions'>;
   };
 }
+
 export interface FormField {
   label: string;
   type: string;
@@ -157,6 +163,14 @@ export interface FormSection {
   reference?: FormReference;
 }
 
+export interface QuestionAnswerOption {
+  hide?: HideProps;
+  disable?: DisableProps;
+  label?: string;
+  concept?: string;
+  [key: string]: any;
+}
+
 export interface FormQuestionOptions {
   extensionId?: string;
   extensionSlotName?: string;
@@ -174,7 +188,7 @@ export interface FormQuestionOptions {
   maxLength?: string;
   minLength?: string;
   showDate?: string;
-  answers?: Array<Record<any, any>>;
+  answers?: Array<QuestionAnswerOption>;
   weeksList?: string;
   locationTag?: string;
   rows?: number;
