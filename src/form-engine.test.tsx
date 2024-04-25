@@ -544,7 +544,7 @@ describe('Form component', () => {
 
   describe('Concept references', () => {
     const conceptResourcePath = when((url: string) =>
-      url.includes(`${restBaseUrl}/concept?references=PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUG`),
+      url.includes(`${restBaseUrl}/concept?references=PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH`),
     );
 
     when(mockOpenmrsFetch).calledWith(conceptResourcePath).mockReturnValue({ data: mockConceptsForm });
