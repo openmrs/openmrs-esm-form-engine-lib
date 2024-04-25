@@ -24,7 +24,7 @@ import Sidebar from './components/sidebar/sidebar.component';
 import styles from './form-engine.scss';
 import { EncounterForm } from './components/encounter/encounter-form.component';
 import { moduleName } from './globals';
-import ErrorModal from './components/error-modal.component';
+import ErrorModal from './components/errors/error-modal.component';
 
 interface FormProps {
   patientUUID: string;
@@ -322,11 +322,11 @@ const FormEngine: React.FC<FormProps> = ({
                         setIsSubmitting={setIsSubmitting}
                       />
                     </div>
-                    <>
+                    <div>
                       {fieldErrors.length > 0
                         ? fieldErrors.map((error, index) => <ErrorModal key={index} error={error} />)
                         : null}
-                    </>
+                    </div>
                     {showButtonSet && (
                       <ButtonSet className={styles.minifiedButtons}>
                         <Button

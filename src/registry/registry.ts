@@ -21,7 +21,7 @@ import { inbuiltFormTransformers } from './inbuilt-components/inbuiltTransformer
  */
 export interface RegistryItem<T> {
   name: string;
-  component: T;
+  component: T | React.ComponentType<any>;
   type?: string;
   alias?: string;
 }

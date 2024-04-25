@@ -5,6 +5,7 @@ import { type EncounterContext, FormContext } from '../../../form-context';
 import Dropdown from './dropdown.component';
 import { type FormField } from '../../../types';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
+import { fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
 
 const question: FormField = {
   label: 'Patient past program.',

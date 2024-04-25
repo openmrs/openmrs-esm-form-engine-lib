@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import classNames from 'classnames';
-import { useTranslation } from 'react-i18next';
 import { Layer, TextArea as TextAreaInput } from '@carbon/react';
 import { useField } from 'formik';
-import { fieldRequiredErrCode, isEmpty, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
@@ -11,18 +9,23 @@ import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './text-area.scss';
+import { useTranslation } from 'react-i18next';
+import withErrorHandling from '../../errors/error-wrapper.component';
 
-const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue: previousValueProp }) => {
+const TextArea: React.FC<FormFieldProps> = ({
+  question,
+  onChange,
+  handler,
+  previousValue: previousValueProp,
+  isFieldConditionalRequiredErrCode,
+}) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [previousValue, setPreviousValue] = useState();
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(
-    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
-    [errors],
-  );
+
   const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
@@ -66,7 +69,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     />
   ) : (
     !question.isHidden && (
-      <div className={classNames(styles.boldedLabel)}>
+      <div className={styles.boldedLabel}>
         <Layer>
           <TextAreaInput
             {...field}
@@ -84,6 +87,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             invalidText={errors[0]?.message}
             warn={warnings.length > 0}
             warnText={warnings[0]?.message}
+            errors={errors}
           />
         </Layer>
       </div>
@@ -91,4 +95,4 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   );
 };
 
-export default TextArea;
+export default withErrorHandling(TextArea);

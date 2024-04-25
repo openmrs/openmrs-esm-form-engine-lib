@@ -153,6 +153,7 @@ export interface FormFieldProps {
   // This is of util to components defined out of the engine
   useField?: (fieldId: string) => [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
   previousValue?: previousValue;
+  isFieldConditionalRequiredErrCode?: boolean;
 }
 
 export interface FormSection {

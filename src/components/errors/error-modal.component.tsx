@@ -13,7 +13,7 @@ const ErrorModal: React.FC<{ error: Error }> = ({ error }) => {
         lowContrast={true}
         hideCloseButton={false}
         title={t('fieldErrorDescriptionTitle', 'Validation Error')}
-        subtitle={t('fieldErrorDescription', error.message)}
+        subtitle={error.message}
       />
     </>
   );
