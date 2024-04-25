@@ -18,7 +18,7 @@ export const EncounterLocationSubmissionHandler: SubmissionHandler = {
   },
 
   getDisplayValue: (field: FormField, value) => {
-    return value.display;
+    return value?.display;
   },
 
   getPreviousValue: (field: FormField, encounter: any, allFormFields: Array<FormField>) => {
