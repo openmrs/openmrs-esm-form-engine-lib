@@ -60,7 +60,6 @@ describe('heightForAge z-score', () => {
     const weight = screen.getByRole('spinbutton', { name: /weight/i });
 
     await user.type(height, '150');
-    await user.tab();
     await user.type(weight, '45');
     await user.tab();
 
