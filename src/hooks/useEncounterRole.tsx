@@ -1,9 +1,9 @@
-import { OpenmrsResource, openmrsFetch } from '@openmrs/esm-framework';
+import { OpenmrsResource, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import useSWRImmutable from 'swr/immutable';
 
 export function useEncounterRole() {
   const { data, error, isLoading } = useSWRImmutable<{ data: { results: Array<OpenmrsResource> } }, Error>(
-    '/ws/rest/v1/encounterrole?v=custom:(uuid,display,name)',
+    `${restBaseUrl}/encounterrole?v=custom:(uuid,display,name)`,
     openmrsFetch,
   );
   const clinicalEncounterRole = data?.data.results.find((encounterRole) => encounterRole.name === 'Clinician');

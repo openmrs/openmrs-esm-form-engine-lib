@@ -10,7 +10,7 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { showToast } from '@openmrs/esm-framework';
+import { restBaseUrl, showToast } from '@openmrs/esm-framework';
 import { when } from 'jest-when';
 import dayjs from 'dayjs';
 import * as api from '../src/api/api';
@@ -49,8 +49,8 @@ const mockShowToast = showToast as jest.Mock;
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const mockOpenmrsFetch = jest.fn();
-const formsResourcePath = when((url: string) => url.includes('/ws/rest/v1/form/'));
-const clobdataResourcePath = when((url: string) => url.includes('/ws/rest/v1/clobdata/'));
+const formsResourcePath = when((url: string) => url.includes(`${restBaseUrl}/form/`));
+const clobdataResourcePath = when((url: string) => url.includes(`${restBaseUrl}/clobdata/`));
 global.ResizeObserver = require('resize-observer-polyfill');
 
 when(mockOpenmrsFetch).calledWith(formsResourcePath).mockReturnValue({ data: demoHtsOpenmrsForm });
@@ -544,7 +544,7 @@ describe('Form component', () => {
 
   describe('Concept references', () => {
     const conceptResourcePath = when((url: string) =>
-      url.includes('/ws/rest/v1/concept?references=PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH'),
+      url.includes(`${restBaseUrl}/concept?references=PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH`),
     );
 
     when(mockOpenmrsFetch).calledWith(conceptResourcePath).mockReturnValue({ data: mockConceptsForm });

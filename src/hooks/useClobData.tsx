@@ -1,4 +1,4 @@
-import { openmrsFetch } from '@openmrs/esm-framework';
+import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { useMemo } from 'react';
 import { FormSchema, OpenmrsForm } from '../types';
 import useSWRImmutable from 'swr/immutable';
@@ -9,7 +9,7 @@ export function useClobdata(form: OpenmrsForm) {
     [form],
   );
   const { data, error } = useSWRImmutable<{ data: FormSchema }, Error>(
-    valueReferenceUuid ? `/ws/rest/v1/clobdata/${valueReferenceUuid}` : null,
+    valueReferenceUuid ? `${restBaseUrl}/clobdata/${valueReferenceUuid}` : null,
     openmrsFetch,
   );
 

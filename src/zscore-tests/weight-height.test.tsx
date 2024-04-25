@@ -10,16 +10,16 @@ import demoHtsForm from '../../__mocks__/forms/rfe-forms/demo_hts-form.json';
 
 import { findNumberInput, findTextOrDateInput } from '../utils/test-utils';
 import { mockVisit } from '../../__mocks__/visit.mock';
+import { restBaseUrl } from '@openmrs/esm-framework';
 
 //////////////////////////////////////////
 ////// Base setup
 //////////////////////////////////////////
-const mockUrl = `/ws/rest/v1/encounter?v=full`;
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const mockOpenmrsFetch = jest.fn();
-const formsResourcePath = when((url: string) => url.includes('/ws/rest/v1/form/'));
-const clobdataResourcePath = when((url: string) => url.includes('/ws/rest/v1/clobdata/'));
+const formsResourcePath = when((url: string) => url.includes(`${restBaseUrl}/form/`));
+const clobdataResourcePath = when((url: string) => url.includes(`${restBaseUrl}/clobdata/`));
 global.ResizeObserver = require('resize-observer-polyfill');
 when(mockOpenmrsFetch).calledWith(formsResourcePath).mockReturnValue({ data: demoHtsOpenmrsForm });
 when(mockOpenmrsFetch).calledWith(clobdataResourcePath).mockReturnValue({ data: demoHtsForm });
