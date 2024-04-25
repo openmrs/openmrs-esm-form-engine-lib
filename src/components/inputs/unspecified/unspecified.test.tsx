@@ -1,6 +1,6 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { Formik, Form } from 'formik';
 import React from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { Formik } from 'formik';
 import { FormField, EncounterContext, FormContext } from '../../..';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 import { UnspecifiedField } from './unspecified.component';
@@ -40,24 +40,22 @@ const renderForm = (intialValues) => {
   render(
     <Formik initialValues={intialValues} onSubmit={null}>
       {(props) => (
-        <Form>
-          <FormContext.Provider
-            value={{
-              values: props.values,
-              setFieldValue: props.setFieldValue,
-              setEncounterLocation: jest.fn(),
-              obsGroupsToVoid: [],
-              setObsGroupsToVoid: jest.fn(),
-              encounterContext: encounterContext,
-              fields: [question],
-              isFieldInitializationComplete: true,
-              isSubmitting: false,
-              formFieldHandlers: { obs: ObsSubmissionHandler },
-            }}>
-            <DateField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-            <UnspecifiedField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-          </FormContext.Provider>
-        </Form>
+        <FormContext.Provider
+          value={{
+            values: props.values,
+            setFieldValue: props.setFieldValue,
+            setEncounterLocation: jest.fn(),
+            obsGroupsToVoid: [],
+            setObsGroupsToVoid: jest.fn(),
+            encounterContext: encounterContext,
+            fields: [question],
+            isFieldInitializationComplete: true,
+            isSubmitting: false,
+            formFieldHandlers: { obs: ObsSubmissionHandler },
+          }}>
+          <DateField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+          <UnspecifiedField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+        </FormContext.Provider>
       )}
     </Formik>,
   );

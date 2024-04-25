@@ -2,7 +2,7 @@ import React from 'react';
 import { render, fireEvent, waitFor, act, screen } from '@testing-library/react';
 import UISelectExtended from './ui-select-extended.component';
 import { EncounterContext, FormContext } from '../../../form-context';
-import { Form, Formik } from 'formik';
+import { Formik } from 'formik';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 import { FormField } from '../../../types';
 
@@ -46,23 +46,21 @@ const renderForm = (intialValues) => {
   render(
     <Formik initialValues={intialValues} onSubmit={null}>
       {(props) => (
-        <Form>
-          <FormContext.Provider
-            value={{
-              values: props.values,
-              setFieldValue: props.setFieldValue,
-              setEncounterLocation: jest.fn(),
-              obsGroupsToVoid: [],
-              setObsGroupsToVoid: jest.fn(),
-              encounterContext: encounterContext,
-              fields: [question],
-              isFieldInitializationComplete: true,
-              isSubmitting: false,
-              formFieldHandlers: { obs: ObsSubmissionHandler },
-            }}>
-            <UISelectExtended question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-          </FormContext.Provider>
-        </Form>
+        <FormContext.Provider
+          value={{
+            values: props.values,
+            setFieldValue: props.setFieldValue,
+            setEncounterLocation: jest.fn(),
+            obsGroupsToVoid: [],
+            setObsGroupsToVoid: jest.fn(),
+            encounterContext: encounterContext,
+            fields: [question],
+            isFieldInitializationComplete: true,
+            isSubmitting: false,
+            formFieldHandlers: { obs: ObsSubmissionHandler },
+          }}>
+          <UISelectExtended question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+        </FormContext.Provider>
       )}
     </Formik>,
   );
