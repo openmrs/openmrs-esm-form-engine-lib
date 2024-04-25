@@ -40,4 +40,9 @@ export const inbuiltFieldSubmissionHandlers: Array<RegistryItem<SubmissionHandle
     component: PatientIdentifierHandler,
     type: 'patientIdentifier',
   },
+  {
+    name: 'controlHandler',
+    component: EncounterProviderHandler,
+    type: 'control',
+  },
 ];
