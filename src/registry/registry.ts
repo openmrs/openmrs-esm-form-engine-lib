@@ -51,11 +51,11 @@ export interface FormsRegistryStoreState {
 }
 
 interface FormRegistryCache {
-  validators: Record<string, FormFieldValidator>;
+  validators: Record<string, FormFieldValidator | React.ComponentType<FormFieldProps>>;
   controls: Record<string, React.ComponentType<FormFieldProps>>;
-  fieldSubmissionHandlers: Record<string, SubmissionHandler>;
+  fieldSubmissionHandlers: Record<string, SubmissionHandler | React.ComponentType<SubmissionHandler>>;
   postSubmissionActions: Record<string, PostSubmissionAction>;
-  dataSources: Record<string, DataSource<any>>;
+  dataSources: Record<string, DataSource<any> | React.ComponentType<DataSource<any>>>;
   formSchemaTransformers: Record<string, FormSchemaTransformer>;
 }
 
@@ -132,7 +132,7 @@ export async function getRegisteredControl(renderType: string) {
 /**
  * A convinience function that returns the appropriate submission handler for a given type.
  */
-export async function getRegisteredFieldSubmissionHandler(type: string): Promise<SubmissionHandler> {
+export async function getRegisteredFieldSubmissionHandler(type: string): Promise<SubmissionHandler | React.ComponentType<SubmissionHandler>> {
   if (registryCache.fieldSubmissionHandlers[type]) {
     return registryCache.fieldSubmissionHandlers[type];
   }
@@ -206,7 +206,7 @@ export async function getRegisteredPostSubmissionAction(actionId: string) {
   return null;
 }
 
-export async function getRegisteredValidator(name: string): Promise<FormFieldValidator> {
+export async function getRegisteredValidator(name: string): Promise<FormFieldValidator | React.ComponentType<FormFieldProps>> {
   if (registryCache.validators[name]) {
     return registryCache.validators[name];
   }
@@ -221,7 +221,7 @@ export async function getRegisteredValidator(name: string): Promise<FormFieldVal
   return validator;
 }
 
-export async function getRegisteredDataSource(name: string): Promise<DataSource<any>> {
+export async function getRegisteredDataSource(name: string): Promise<DataSource<any> | React.ComponentType<DataSource<any>>> {
   if (registryCache.dataSources[name]) {
     return registryCache.dataSources[name];
   }
