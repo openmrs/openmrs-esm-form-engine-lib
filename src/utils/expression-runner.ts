@@ -2,7 +2,6 @@ import { getRegisteredExpressionHelpers } from '../registry/registry';
 import { FormField, FormPage, FormSection, OpenmrsEncounter } from '../types';
 import { CommonExpressionHelpers, HistoricalDataSourceService } from './common-expression-helpers';
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
-
 export interface FormNode {
   value: FormPage | FormSection | FormField;
   type: 'field' | 'page' | 'section';

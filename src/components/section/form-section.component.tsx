@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -13,9 +12,10 @@ import { FormField, FormFieldProps, previousValue, SubmissionHandler } from '../
 import { FormContext } from '../../form-context';
 import { Tooltip } from '../inputs/tooltip/tooltip.component';
 import styles from './form-section.scss';
-import { evaluateExpression } from '../../utils/expression-runner';
 import dayjs from 'dayjs';
 import { parseToLocalDateTime } from '../../utils/form-helper';
+import { evaluateExpression, HD } from '../../utils/expression-runner';
+import classNames from 'classnames';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<FormFieldProps>;
@@ -76,6 +76,7 @@ const FormSection = ({ fields, onFieldChange }) => {
           .filter((entry) => entry?.fieldComponent)
           .map((entry, index) => {
             const { fieldComponent: FieldComponent, fieldDescriptor, handler } = entry;
+
             const rendering = fieldDescriptor.questionOptions.rendering;
 
             const historicalValue = fieldDescriptor.historicalExpression
