@@ -82,6 +82,7 @@
 }
 
 .sidebarSectionErrorActive {
+  @extend .sidebarSectionError;
   border-left: 0.5rem solid colors.$red-60;
   height: auto;
   font-weight: 600;
