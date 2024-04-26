@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Formik, Form } from 'formik';
+import { Form, Formik } from 'formik';
 import classNames from 'classnames';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
@@ -9,7 +9,7 @@ import LinearLoader from './components/loaders/linear-loader.component';
 import LoadingIcon from './components/loaders/loading.component';
 import Sidebar from './components/sidebar/sidebar.component';
 import { init, teardown } from './lifecycle';
-import { FormSchema, SessionMode, FormPage as FormPageProps } from './types';
+import { FormPage as FormPageProps, FormSchema, SessionMode } from './types';
 import { PatientBanner } from './components/patient-banner/patient-banner.component';
 import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
 import { useFormJson } from './hooks/useFormJson';
@@ -21,6 +21,7 @@ import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.compo
 import styles from './form-engine.scss';
 import { EncounterForm } from './components/encounter/encounter-form.component';
 import { moduleName } from './globals';
+import { useFormCollapse } from './hooks/useFormCollapse';
 
 interface FormProps {
   patientUUID: string;
@@ -101,12 +102,12 @@ const FormEngine: React.FC<FormProps> = ({
   const [initialValues, setInitialValues] = useState({});
   const [scrollablePages, setScrollablePages] = useState(new Set<FormPageProps>());
   const [selectedPage, setSelectedPage] = useState('');
-  const [isFormExpanded, setIsFormExpanded] = useState<boolean | undefined>(undefined);
   const [isLoadingFormDependencies, setIsLoadingFormDependencies] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
+  const { isFormExpanded } = useFormCollapse(sessionMode);
 
   const showSidebar = useMemo(() => {
     return workspaceLayout !== 'minimized' && scrollablePages.size > 1 && sessionMode !== 'embedded-view';
