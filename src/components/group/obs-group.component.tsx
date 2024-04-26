@@ -72,12 +72,7 @@ export const ObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteCo
                   </div>
                 )}
               </div>
-              <div
-              // className={classNames({
-              //   [styles.tooltipWithUnspecified]: isUnspecifiedSupported(field),
-              //   [styles.tooltip]: !isUnspecifiedSupported(field),
-              // })}
-              >
+              <div>
                 {isUnspecifiedSupported(field) && (
                   <UnspecifiedField question={field} onChange={onChange} handler={formFieldHandlers[field.type]} />
                 )}
