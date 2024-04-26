@@ -24,6 +24,11 @@ export function useFormCollapse(sessionMode: SessionMode) {
     };
   }, []);
 
+  const hideFormCollapseToggle = () => {
+    const HideFormCollapseToggle = new CustomEvent('openmrs:form-view-embedded', { detail: { value: false } });
+    window.dispatchEvent(HideFormCollapseToggle);
+  };
+
   useEffect(() => {
     const FormCollapseToggleVisibleEvent = new CustomEvent('openmrs:form-view-embedded', {
       detail: { value: sessionMode != 'embedded-view' },
@@ -33,5 +38,6 @@ export function useFormCollapse(sessionMode: SessionMode) {
 
   return {
     isFormExpanded,
+    hideFormCollapseToggle,
   };
 }

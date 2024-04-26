@@ -107,7 +107,7 @@ const FormEngine: React.FC<FormProps> = ({
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
-  const { isFormExpanded } = useFormCollapse(sessionMode);
+  const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(sessionMode);
 
   const showSidebar = useMemo(() => {
     return workspaceLayout !== 'minimized' && scrollablePages.size > 1 && sessionMode !== 'embedded-view';
@@ -275,6 +275,7 @@ const FormEngine: React.FC<FormProps> = ({
                       setValues={props.setValues}
                       allowUnspecifiedAll={formJson.allowUnspecifiedAll}
                       defaultPage={formJson.defaultPage}
+                      hideFormCollapseToggle={hideFormCollapseToggle}
                     />
                   )}
                   <div className={styles.formContent}>
@@ -319,6 +320,7 @@ const FormEngine: React.FC<FormProps> = ({
                           onClick={() => {
                             onCancel && onCancel();
                             handleClose && handleClose();
+                            hideFormCollapseToggle();
                           }}>
                           {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
                         </Button>
