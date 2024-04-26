@@ -322,10 +322,8 @@ const FormEngine: React.FC<FormProps> = ({
                         setIsSubmitting={setIsSubmitting}
                       />
                     </div>
-                    <div>
-                      {fieldErrors.length > 0
-                        ? fieldErrors.map((error, index) => <ErrorModal key={index} error={error} />)
-                        : null}
+                    <div className={styles.errorContainer}>
+                      <div>{fieldErrors.length > 0 ? <ErrorModal errors={fieldErrors} /> : null}</div>{' '}
                     </div>
                     {showButtonSet && (
                       <ButtonSet className={styles.minifiedButtons}>
