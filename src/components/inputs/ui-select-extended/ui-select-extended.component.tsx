@@ -159,6 +159,8 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
               }}
               disabled={question.disabled}
               readOnly={question.readonly}
+              invalid={isFieldRequiredError || errors.length > 0}
+              invalidText={errors.length && errors[0].message}
               onInputChange={(value) => {
                 if (isProcessingSelection.current) {
                   // Notes:

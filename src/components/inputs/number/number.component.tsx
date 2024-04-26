@@ -72,7 +72,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
       <NumberInput
         {...field}
         id={question.id}
-        invalid={isFieldRequiredError && errors.length > 0}
+        invalid={isFieldRequiredError || errors.length > 0}
         invalidText={errors[0]?.message}
         label={question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>}
         max={Number(question.questionOptions.max) || undefined}

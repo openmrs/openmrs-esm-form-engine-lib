@@ -177,7 +177,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   // be triggered as opposed to the former handler that only gets triggered at runtime.
                   onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
                   disabled={question.disabled}
-                  invalid={isFieldRequiredError && errors.length > 0}
+                  invalid={isFieldRequiredError || errors.length > 0}
                   invalidText={errors[0]?.message}
                   warn={warnings.length > 0}
                   warnText={warnings[0]?.message}
