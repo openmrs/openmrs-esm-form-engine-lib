@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { FormSchema, FormSchemaTransformer, FormSection, ReferencedForm } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
-import { fetchClobdata, fetchOpenMRSForm } from '../api/api';
+import { fetchOpenMRSForm, fetchClobData } from '../api/api';
 import { getRegisteredFormSchemaTransformers } from '../registry/registry';
 import { moduleName } from '../globals';
 
@@ -50,7 +50,7 @@ export async function loadFormJson(
   formSessionIntent?: string,
 ): Promise<FormSchema> {
   const openmrsFormResponse = await fetchOpenMRSForm(formIdentifier);
-  const clobDataResponse = await fetchClobdata(openmrsFormResponse);
+  const clobDataResponse = await fetchClobData(openmrsFormResponse);
   const transformers = await getRegisteredFormSchemaTransformers();
   const formJson: FormSchema = clobDataResponse
     ? { ...clobDataResponse, uuid: openmrsFormResponse.uuid }

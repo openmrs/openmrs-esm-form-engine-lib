@@ -118,9 +118,7 @@ const FormEngine: React.FC<FormProps> = ({
   }, [patient?.id, sessionMode, workspaceLayout]);
 
   const showButtonSet = useMemo(() => {
-    return (
-      workspaceLayout === 'minimized' || ('maximized' && sessionMode != 'embedded-view' && scrollablePages.size <= 1)
-    );
+    return sessionMode !== 'embedded-view' && workspaceLayout === 'minimized' && scrollablePages.size <= 1;
   }, [sessionMode, workspaceLayout, scrollablePages]);
 
   useEffect(() => {

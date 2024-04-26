@@ -11,6 +11,7 @@ import { isInlineView } from '../../../utils/form-helper';
 import { FieldValueView } from '../../value/view/field-value-view.component';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
+import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './date.scss';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
@@ -161,7 +162,13 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                 <DatePickerInput
                   id={question.id}
                   placeholder={placeholder}
-                  labelText={t(question.label)}
+                  labelText={
+                    question.required ? (
+                      <RequiredFieldLabel label={t(question.label)} />
+                    ) : (
+                      <span>{t(question.label)}</span>
+                    )
+                  }
                   value={field.value instanceof Date ? field.value.toLocaleDateString(locale) : field.value}
                   // Added for testing purposes.
                   // Notes:
@@ -185,7 +192,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                 <TimePicker
                   className={styles.boldedLabel}
                   id={question.id}
-                  labelText={t('time', 'Time')}
+                  labelText={<RequiredFieldLabel label={t('time', 'Time')} />}
                   placeholder="HH:MM"
                   pattern="(1[012]|[1-9]):[0-5][0-9])$"
                   type="time"

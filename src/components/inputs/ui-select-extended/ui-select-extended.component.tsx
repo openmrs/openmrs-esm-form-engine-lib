@@ -12,12 +12,13 @@ import { FormContext } from '../../../form-context';
 import { FormFieldProps } from '../../../types';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
+import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './ui-select-extended.scss';
 
-const UISelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
+const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [items, setItems] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const [errors, setErrors] = useState([]);
@@ -139,7 +140,9 @@ const UISelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
           <Layer>
             <ComboBox
               id={question.id}
-              titleText={t(question.label)}
+              titleText={
+                question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+              }
               items={items}
               itemToString={(item) => item?.display}
               selectedItem={items.find((item) => item.uuid == field.value)}
@@ -178,4 +181,4 @@ const UISelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   );
 };
 
-export default UISelectExtended;
+export default UiSelectExtended;

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { FormGroup, ContentSwitcher as Switcher, Switch } from '@carbon/react';
+import { FormGroup, ContentSwitcher as CdsContentSwitcher, Switch } from '@carbon/react';
 import { useField } from 'formik';
 import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
@@ -69,7 +69,11 @@ export const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, 
           [styles.errorLegend]: errors.length > 0,
           [styles.boldedLegend]: errors.length === 0,
         })}>
-        <Switcher onChange={handleChange} selectedIndex={selectedIndex} className={styles.selectedOption} size="md">
+        <CdsContentSwitcher
+          onChange={handleChange}
+          selectedIndex={selectedIndex}
+          className={styles.selectedOption}
+          size="md">
           {question.questionOptions.answers.map((option, index) => (
             <Switch
               name={option.concept || option.value}
@@ -78,7 +82,7 @@ export const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, 
               disabled={question.disabled}
             />
           ))}
-        </Switcher>
+        </CdsContentSwitcher>
       </FormGroup>
     )
   );

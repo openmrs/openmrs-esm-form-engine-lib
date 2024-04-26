@@ -79,7 +79,7 @@ describe('OHRIMultiSelect Component', () => {
     const user = userEvent.setup();
     await renderForm();
 
-    await user.click(screen.getByRole('combobox', { name: /Patient covered by NHIF/i }));
+    await user.click(screen.getByRole('combobox', { name: /patient covered by nhif/i }));
     await user.click(screen.getByRole('option', { name: /yes/i }));
 
     await user.click(screen.getByText('Was this visit scheduled?'));

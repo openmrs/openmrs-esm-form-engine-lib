@@ -1,4 +1,4 @@
-import { formatDate } from '@openmrs/esm-framework';
+import { formatDate, restBaseUrl } from '@openmrs/esm-framework';
 import { Attachment, AttachmentResponse, FormField, OpenmrsObs, RenderType } from '../types';
 
 export function flattenObsList(obsList: OpenmrsObs[]): OpenmrsObs[] {
@@ -25,7 +25,7 @@ export function hasRendering(field: FormField, rendering: RenderType) {
 }
 
 export function createAttachment(data: AttachmentResponse): Attachment {
-  const attachmentUrl = '/ws/rest/v1/attachment';
+  const attachmentUrl = `${restBaseUrl}/attachment`;
   return {
     id: data.uuid,
     src: `${window.openmrsBase}${attachmentUrl}/${data.uuid}/bytes`,
