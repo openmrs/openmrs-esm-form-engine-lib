@@ -1,5 +1,3 @@
-import { screen, waitForElementToBeRemoved } from '@testing-library/react';
-
 export async function findNumberInput(screen, name: string): Promise<HTMLInputElement> {
   return await screen.findByRole('spinbutton', { name });
 }
@@ -53,10 +51,4 @@ export async function assertFormHasAllFields(screen, fields: Array<{ fieldName: 
     fields.map(({ fieldName, fieldType }) => fieldTypeToGetterMap[fieldType](screen, fieldName)),
   );
   await Promise.all(fieldsInDom.map((field) => expect(field).toBeInTheDocument()));
-}
-
-export function waitForLoadingToFinish() {
-  return waitForElementToBeRemoved(() => [...screen.queryAllByRole('progressbar')], {
-    timeout: 4000,
-  });
 }

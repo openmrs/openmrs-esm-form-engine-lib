@@ -207,6 +207,7 @@ export interface FormQuestionOptions {
   isSearchable?: boolean;
   workspaceName?: string;
   buttonLabel?: string;
+  identifierType?: string;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
@@ -358,6 +359,14 @@ export interface ProgramEnrollmentPayload {
   dateEnrolled: string;
   dateCompleted?: string;
   location: string;
+}
+
+export interface PatientIdentifier {
+  uuid?: string;
+  identifier: string;
+  identifierType?: string;
+  location?: string;
+  preferred?: boolean;
 }
 
 /**

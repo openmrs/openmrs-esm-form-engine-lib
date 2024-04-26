@@ -9,6 +9,7 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { FieldValueView } from '../../value/view/field-value-view.component';
 import { FormContext } from '../../../form-context';
 import { FormFieldProps } from '../../../types';
+import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './dropdown.scss';
 
 const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
@@ -74,7 +75,9 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
         <Layer>
           <DropdownInput
             id={question.id}
-            titleText={t(question.label)}
+            titleText={
+              question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+            }
             label={t('chooseAnOption', 'Choose an option')}
             items={question.questionOptions.answers
               .filter((answer) => !answer.isHidden)

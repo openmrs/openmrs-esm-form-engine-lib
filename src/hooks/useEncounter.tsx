@@ -1,4 +1,4 @@
-import { openmrsFetch } from '@openmrs/esm-framework';
+import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import useSWR from 'swr';
 import { FormSchema, OpenmrsEncounter } from '../types';
 import { encounterRepresentation } from '../constants';
@@ -8,7 +8,7 @@ export function useEncounter(formJson: FormSchema) {
   const encounterObjectCache = getEncounterObjIfPresent(formJson.encounter);
   const url =
     encObjectOrUuid && !encounterObjectCache
-      ? `/ws/rest/v1/encounter/${encObjectOrUuid}?v=${encounterRepresentation}`
+      ? `${restBaseUrl}/encounter/${encObjectOrUuid}?v=${encounterRepresentation}`
       : null;
 
   const { data, error } = useSWR<{ data: OpenmrsEncounter }, Error>(url, openmrsFetch);

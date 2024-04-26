@@ -1,21 +1,21 @@
-import { openmrsFetch } from '@openmrs/esm-framework';
+import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { useMemo } from 'react';
 import { FormSchema, OpenmrsForm } from '../types';
 import useSWRImmutable from 'swr/immutable';
 
-export function useClobdata(form: OpenmrsForm) {
+export function useClobData(form: OpenmrsForm) {
   const valueReferenceUuid = useMemo(
     () => form?.resources?.find(({ name }) => name === 'JSON schema').valueReference,
     [form],
   );
   const { data, error } = useSWRImmutable<{ data: FormSchema }, Error>(
-    valueReferenceUuid ? `/ws/rest/v1/clobdata/${valueReferenceUuid}` : null,
+    valueReferenceUuid ? `${restBaseUrl}/clobdata/${valueReferenceUuid}` : null,
     openmrsFetch,
   );
 
   return {
     clobdata: data?.data,
     clobdataError: error || null,
-    isLoadingClobdata: (!data && !error) || false,
+    isLoadingClobData: (!data && !error) || false,
   };
 }

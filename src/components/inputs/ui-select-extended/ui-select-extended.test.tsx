@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, waitFor, act, screen } from '@testing-library/react';
-import UISelectExtended from './ui-select-extended.component';
+import UiSelectExtended from './ui-select-extended.component';
 import { EncounterContext, FormContext } from '../../../form-context';
 import { Formik } from 'formik';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
@@ -59,7 +59,7 @@ const renderForm = (intialValues) => {
             isSubmitting: false,
             formFieldHandlers: { obs: ObsSubmissionHandler },
           }}>
-          <UISelectExtended question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+          <UiSelectExtended question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
         </FormContext.Provider>
       )}
     </Formik>,
@@ -87,7 +87,7 @@ jest.mock('../../../registry/registry', () => ({
   }),
 }));
 
-describe('UISelectExtended Component', () => {
+describe('UiSelectExtended Component', () => {
   it('renders with items from the datasource', async () => {
     await act(async () => {
       await renderForm({});
@@ -101,7 +101,7 @@ describe('UISelectExtended Component', () => {
       expect(question.value).toBe(null);
     });
 
-    //Click on the UISelectExtendedWidget to open the dropdown
+    //Click on the UiSelectExtendedWidget to open the dropdown
     fireEvent.click(uiSelectExtendedWidget);
 
     // Assert that all three items are displayed
@@ -118,7 +118,7 @@ describe('UISelectExtended Component', () => {
     // setup
     const uiSelectExtendedWidget = screen.getByLabelText('Transfer Location');
 
-    //Click on the UISelectExtendedWidget to open the dropdown
+    //Click on the UiSelectExtendedWidget to open the dropdown
     fireEvent.click(uiSelectExtendedWidget);
 
     // Find the list item for 'Naguru' and click it to select
@@ -150,7 +150,7 @@ describe('UISelectExtended Component', () => {
     // setup
     const uiSelectExtendedWidget = screen.getByLabelText('Transfer Location');
 
-    //Click on the UISelectExtendedWidget to open the dropdown
+    //Click on the UiSelectExtendedWidget to open the dropdown
     fireEvent.click(uiSelectExtendedWidget);
 
     // Type 'Nag' in the input field to filter items

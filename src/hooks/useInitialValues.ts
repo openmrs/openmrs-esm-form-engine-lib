@@ -18,7 +18,7 @@ export function useInitialValues(
   const [isEncounterBindingComplete, setIsEncounterBindingComplete] = useState(
     encounterContext.sessionMode === 'enter',
   );
-  const encounterContextInitializableTypes = ['encounterProvider', 'encounterDatetime', 'encounterLocation'];
+  const encounterContextInitializableTypes = ['encounterProvider', 'encounterDatetime', 'encounterLocation', 'patientIdentifier'];
 
   useEffect(() => {
     const asyncItemsKeys = Object.keys(asyncInitValues ?? {});
@@ -63,7 +63,7 @@ export function useInitialValues(
             !field.questionOptions.repeatOptions?.isCloned && repeatableFields.push(field);
             return;
           }
-          let existingVal = formFieldHandlers[field.type]?.getInitialValue(encounter, field, formFields);
+          let existingVal = formFieldHandlers[field.type]?.getInitialValue(encounter, field, formFields, encounterContext);
 
           if (isEmpty(existingVal) && !isEmpty(field.questionOptions.defaultValue)) {
             existingVal = inferInitialValueFromDefaultFieldValue(

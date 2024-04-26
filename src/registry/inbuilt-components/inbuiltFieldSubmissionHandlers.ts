@@ -3,6 +3,7 @@ import { EncounterDatetimeHandler } from '../../submission-handlers/encounterDat
 import { EncounterLocationSubmissionHandler } from '../../submission-handlers/encounterLocationHandler';
 import { EncounterProviderHandler } from '../../submission-handlers/encounterProviderHandler';
 import { SubmissionHandler } from '../../types';
+import { PatientIdentifierHandler } from '../../submission-handlers/patientIdentifierHandler';
 import { RegistryItem } from '../registry';
 
 /**
@@ -33,5 +34,10 @@ export const inbuiltFieldSubmissionHandlers: Array<RegistryItem<SubmissionHandle
     name: 'EncounterProviderHandler',
     component: EncounterProviderHandler,
     type: 'encounterProvider',
+  },
+  {
+    name: 'PatientIdentifierHandler',
+    component: PatientIdentifierHandler,
+    type: 'patientIdentifier',
   },
 ];

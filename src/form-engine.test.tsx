@@ -1,16 +1,7 @@
 import React from 'react';
-import {
-  act,
-  cleanup,
-  render,
-  screen,
-  within,
-  fireEvent,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { act, cleanup, render, screen, within, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { showToast } from '@openmrs/esm-framework';
+import { restBaseUrl, showToast } from '@openmrs/esm-framework';
 import { when } from 'jest-when';
 import dayjs from 'dayjs';
 import * as api from '../src/api/api';
@@ -36,12 +27,7 @@ import viralLoadStatusForm from '../__mocks__/forms/rfe-forms/viral-load-status-
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import { mockPatient } from '../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../__mocks__/session.mock';
-import {
-  assertFormHasAllFields,
-  findMultiSelectInput,
-  findSelectInput,
-  waitForLoadingToFinish,
-} from './utils/test-utils';
+import { assertFormHasAllFields, findMultiSelectInput, findSelectInput } from './utils/test-utils';
 import { mockVisit } from '../__mocks__/visit.mock';
 import FormEngine from './form-engine.component';
 
@@ -49,8 +35,8 @@ const mockShowToast = showToast as jest.Mock;
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const mockOpenmrsFetch = jest.fn();
-const formsResourcePath = when((url: string) => url.includes('/ws/rest/v1/form/'));
-const clobdataResourcePath = when((url: string) => url.includes('/ws/rest/v1/clobdata/'));
+const formsResourcePath = when((url: string) => url.includes(`${restBaseUrl}/form/`));
+const clobdataResourcePath = when((url: string) => url.includes(`${restBaseUrl}/clobdata/`));
 global.ResizeObserver = require('resize-observer-polyfill');
 
 when(mockOpenmrsFetch).calledWith(formsResourcePath).mockReturnValue({ data: demoHtsOpenmrsForm });
@@ -87,7 +73,7 @@ jest.mock('../src/api/api', () => {
   };
 });
 
-describe('Form component', () => {
+describe('Form engine component', () => {
   const user = userEvent.setup();
 
   afterEach(() => {
@@ -95,16 +81,16 @@ describe('Form component', () => {
   });
 
   it('should render the form schema without dying', async () => {
-    renderForm(null, htsPocForm);
+    await act(async () => renderForm(null, htsPocForm));
 
-    await assertFormHasAllFields(screen, [{ fieldName: 'When was the HIV test conducted?', fieldType: 'date' }]);
+    await assertFormHasAllFields(screen, [{ fieldName: 'When was the HIV test conducted? *', fieldType: 'date' }]);
   });
 
   it('should render by the form UUID without dying', async () => {
     renderForm('955ab92f-f93e-4dc0-9c68-b7b2346def55', null);
 
     await assertFormHasAllFields(screen, [
-      { fieldName: 'When was the HIV test conducted?', fieldType: 'date' },
+      { fieldName: 'When was the HIV test conducted? *', fieldType: 'date' },
       { fieldName: 'Community service delivery point', fieldType: 'select' },
       { fieldName: 'TB screening', fieldType: 'combobox' },
     ]);
@@ -116,7 +102,7 @@ describe('Form component', () => {
     });
 
     await assertFormHasAllFields(screen, [
-      { fieldName: 'When was the HIV test conducted?', fieldType: 'date' },
+      { fieldName: 'When was the HIV test conducted? *', fieldType: 'date' },
       { fieldName: 'TB screening', fieldType: 'combobox' },
     ]);
 
@@ -138,8 +124,8 @@ describe('Form component', () => {
     });
 
     await assertFormHasAllFields(screen, [
-      { fieldName: 'When was the HIV test conducted?', fieldType: 'date' },
-      { fieldName: 'Community service delivery point', fieldType: 'select' },
+      { fieldName: 'When was the HIV test conducted? *', fieldType: 'date' },
+      { fieldName: 'Community service delivery point', fieldType: 'combobox' },
     ]);
 
     try {
@@ -287,15 +273,13 @@ describe('Form component', () => {
         ],
       });
 
-      renderForm(null, postSubmissionTestForm);
+      await act(async () => renderForm(null, postSubmissionTestForm));
 
-      await waitForLoadingToFinish();
-
-      const drugSensitiveProgramField = screen.getByRole('radio', { name: 'Drug-susceptible (DS) TB Program' });
-      const treatmentNumber = screen.getByRole('spinbutton', { name: /DS TB Treatment Number/i });
+      const drugSensitiveProgramField = screen.getByRole('radio', { name: /drug-susceptible \(DS\) tb program/i });
+      const treatmentNumber = screen.getByRole('spinbutton', { name: /ds tb treatment number/i });
 
       await user.click(drugSensitiveProgramField);
-      await user.click(screen.getByRole('textbox', { name: 'Date enrolled in tuberculosis (TB) care' }));
+      await user.click(screen.getByRole('textbox', { name: /date enrolled in tuberculosis \(TB\) care/i }));
       await user.paste('2023-12-12');
       await user.click(treatmentNumber);
       await user.paste('11200');
@@ -307,12 +291,9 @@ describe('Form component', () => {
 
   describe('Obs group count validation', () => {
     it('should show error toast when the obs group count does not match the number count specified', async () => {
-      renderForm(null, labourAndDeliveryTestForm);
+      await act(async () => renderForm(null, labourAndDeliveryTestForm));
 
-      await waitForLoadingToFinish();
-
-      // Number of babies born from this pregnancy
-      const birthCount = screen.getByLabelText(/number of babies born from this pregnancy/i);
+      const birthCount = screen.getByRole('spinbutton', { name: /number of babies born from this pregnancy/i });
       expect(birthCount).toBeInTheDocument();
 
       await user.type(birthCount, '3');
@@ -355,9 +336,7 @@ describe('Form component', () => {
 
   describe('Filter answer options', () => {
     it('should filter dropdown options based on value in count input field', async () => {
-      renderForm(null, filterAnswerOptionsTestForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, filterAnswerOptionsTestForm));
 
       const recommendationDropdown = screen.getByRole('combobox', { name: /Testing Recommendations/i });
       const testCountField = screen.getByRole('spinbutton', { name: 'How many times have you tested in the past?' });
@@ -383,9 +362,7 @@ describe('Form component', () => {
 
   describe('Calculated values', () => {
     it('should evaluate BMI', async () => {
-      renderForm(null, bmiForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, bmiForm));
 
       const bmiField = await screen.getByRole('textbox', { name: /bmi/i });
       const heightField = await screen.getByLabelText(/height/i);
@@ -401,9 +378,7 @@ describe('Form component', () => {
     });
 
     it('should evaluate BSA', async () => {
-      renderForm(null, bsaForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, bsaForm));
 
       const bsaField = await screen.getByRole('textbox', { name: /bsa/i });
       const heightField = await screen.getByRole('spinbutton', { name: /height/i });
@@ -419,9 +394,7 @@ describe('Form component', () => {
     });
 
     it('should evaluate EDD', async () => {
-      renderForm(null, eddForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, eddForm));
 
       const eddField = screen.getByRole('textbox', { name: /edd/i });
       const lmpField = screen.getByRole('textbox', { name: /lmp/i });
@@ -434,12 +407,10 @@ describe('Form component', () => {
     });
 
     it('should evaluate months on ART', async () => {
-      renderForm(null, monthsOnArtForm);
+      await act(async () => renderForm(null, monthsOnArtForm));
 
       jest.useFakeTimers();
       jest.setSystemTime(new Date(2022, 9, 1));
-
-      await waitForLoadingToFinish();
 
       let artStartDateField = screen.getByRole('textbox', {
         name: /antiretroviral treatment start date/i,
@@ -482,9 +453,7 @@ describe('Form component', () => {
     });
 
     it('should only show question when age is under 5', async () => {
-      renderForm(null, ageValidationForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, ageValidationForm));
 
       let enrollmentDate = screen.getByRole('textbox', {
         name: /enrollmentDate/,
@@ -504,9 +473,7 @@ describe('Form component', () => {
     });
 
     it('should load initial value from external arbitrary data source', async () => {
-      renderForm(null, externalDataSourceForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, externalDataSourceForm));
 
       const bodyWeightField = screen.getByRole('spinbutton', {
         name: /body weight/i,
@@ -516,9 +483,7 @@ describe('Form component', () => {
     });
 
     it('should evaluate next visit date', async () => {
-      renderForm(null, nextVisitForm);
-
-      await waitForLoadingToFinish();
+      await act(async () => renderForm(null, nextVisitForm));
 
       const followupDateField = screen.getByRole('textbox', {
         name: /followup date/i,
@@ -544,13 +509,13 @@ describe('Form component', () => {
 
   describe('Concept references', () => {
     const conceptResourcePath = when((url: string) =>
-      url.includes('/ws/rest/v1/concept?references=PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH'),
+      url.includes(`${restBaseUrl}/concept?references=PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH`),
     );
 
     when(mockOpenmrsFetch).calledWith(conceptResourcePath).mockReturnValue({ data: mockConceptsForm });
 
     it('should add default labels based on concept display and substitute mapping references with uuids', async () => {
-      renderForm(null, referenceByMappingForm);
+      await act(async () => renderForm(null, referenceByMappingForm));
 
       const yes = (await screen.findAllByRole('radio', {
         name: 'Yes',
