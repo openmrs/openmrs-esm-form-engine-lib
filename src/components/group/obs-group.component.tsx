@@ -14,7 +14,7 @@ export interface ObsGroupProps extends FormFieldProps {
 
 export const ObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteControl }) => {
   const [groupMembersControlMap, setGroupMembersControlMap] = useState([]);
-  const { encounterContext, formFieldHandlers } = useContext(FormContext);
+  const { formFieldHandlers } = useContext(FormContext);
 
   useEffect(() => {
     if (question.questions) {
@@ -33,6 +33,9 @@ export const ObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteCo
     .map((groupMemberMapItem, index) => {
       const keyId = groupMemberMapItem.field.id + '-' + index;
       const { control, field } = groupMemberMapItem;
+
+      const rendering = field.questionOptions.rendering;
+
       if (control) {
         const questionFragment = React.createElement(control, {
           question: field,
@@ -45,16 +48,39 @@ export const ObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteCo
         return (
           <div className={classNames(styles.flexColumn, styles.obsGroupColumn)} key={keyId}>
             <div className={styles.parentResizer}>
-              {questionFragment}
               <div
                 className={classNames({
-                  [styles.tooltipWithUnspecified]: isUnspecifiedSupported(field),
-                  [styles.tooltip]: !isUnspecifiedSupported(field),
+                  [styles.questionInfoDefault]: field.questionInfo && rendering === 'radio',
+                  [styles.questionInfoCentralized]: field.questionInfo && rendering !== 'radio',
                 })}>
+                <div
+                  className={classNames({
+                    [styles.flexBasisOn]: [
+                      'ui-select-extended',
+                      'content-switcher',
+                      'select',
+                      'textarea',
+                      'text',
+                      'checkbox',
+                    ].includes(rendering),
+                  })}>
+                  {questionFragment}
+                </div>
+                {field.questionInfo && (
+                  <div className={styles.questionInfoControl}>
+                    <Tooltip field={field} />
+                  </div>
+                )}
+              </div>
+              <div
+              // className={classNames({
+              //   [styles.tooltipWithUnspecified]: isUnspecifiedSupported(field),
+              //   [styles.tooltip]: !isUnspecifiedSupported(field),
+              // })}
+              >
                 {isUnspecifiedSupported(field) && (
                   <UnspecifiedField question={field} onChange={onChange} handler={formFieldHandlers[field.type]} />
                 )}
-                {field.questionInfo && <Tooltip field={field} />}
               </div>
             </div>
           </div>
