@@ -220,6 +220,7 @@ const FormEngine: React.FC<FormProps> = ({
             );
           }
           onSubmit?.();
+          hideFormCollapseToggle();
         })
         .catch((error) => {
           const errorMessages = extractErrorMessagesFromResponse(error);
