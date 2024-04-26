@@ -5,6 +5,7 @@ import { EncounterProviderHandler } from '../../submission-handlers/encounterPro
 import { SubmissionHandler } from '../../types';
 import { PatientIdentifierHandler } from '../../submission-handlers/patientIdentifierHandler';
 import { RegistryItem } from '../registry';
+import { ControlHandler } from '../../submission-handlers/controlHandler';
 
 /**
  * @internal
@@ -42,7 +43,7 @@ export const inbuiltFieldSubmissionHandlers: Array<RegistryItem<SubmissionHandle
   },
   {
     name: 'controlHandler',
-    component: EncounterProviderHandler,
+    component: ControlHandler,
     type: 'control',
   },
 ];
