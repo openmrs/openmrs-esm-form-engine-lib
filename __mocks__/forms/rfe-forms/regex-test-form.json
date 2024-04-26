@@ -1,0 +1,39 @@
+{
+    "name": "Test Form",
+    "pages": [
+      {
+        "label": "Regex Test",
+        "sections": [
+          {
+            "label": "Regex Section",
+            "isExpanded": "true",
+            "questions": [
+                {
+                    "label": "PTracker ID",
+                    "type": "obs",
+                    "id": "PtrackerIdANC",
+                    "questionOptions": {
+                      "concept": "6c45421e-2566-47cb-bbb3-07586fffbfe2",
+                      "rendering": "text",
+                      "usePreviousValueDisabled": "true"
+                    },
+                      "validators":[
+                          {
+                            "type": "js_expression",
+                            "failsWhenExpression": "myValue && doesNotMatchExpression('/^[0-9]{5}[A-S]{1}[0-9]{6,8}$$/', myValue)",
+                            "message": "Invalid Ptracker number format"
+                          }
+      
+                        ]
+                  }
+            ]
+          }
+        ]
+      }
+    ],
+    "availableIntents": [],
+    "processor": "EncounterFormProcessor",
+    "uuid": "da24c540-cc83-43bc-978f-c1ef180a497f",
+    "referencedForms": [],
+    "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe"
+  }

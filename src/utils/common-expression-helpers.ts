@@ -94,6 +94,21 @@ export class CommonExpressionHelpers {
     return null;
   };
 
+  doesNotMatchExpression = (
+    regexString: string,
+    val: string | null | undefined
+  ): boolean => {
+    if (!val || ['undefined', 'null', ''].includes(val.toString())) {
+      return true;
+    }
+    const pattern = new RegExp(regexString);
+    if (!pattern.test(val)) {
+      console.log('fail');
+      return true;
+    }
+    return false;
+  };
+
   calcBMI = (height: number, weight: number) => {
     let r: string;
     if (height && weight) {
