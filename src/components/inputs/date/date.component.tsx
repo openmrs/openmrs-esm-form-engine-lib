@@ -169,8 +169,8 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                     time
                       ? time
                       : field.value instanceof Date
-                      ? field.value.toLocaleDateString(window.navigator.language)
-                      : field.value
+                        ? field.value.toLocaleDateString(window.navigator.language)
+                        : field.value
                   }
                   onChange={onTimeChange}
                 />

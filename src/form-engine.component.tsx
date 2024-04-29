@@ -23,6 +23,7 @@ import PatientBanner from './components/patient-banner/patient-banner.component'
 import Sidebar from './components/sidebar/sidebar.component';
 import { ExternalFunctionContext } from './external-function-context';
 import styles from './form-engine.scss';
+import ErrorModal from './components/errors/error-modal.component';
 
 interface FormProps {
   patientUUID: string;
@@ -111,6 +112,7 @@ const FormEngine: React.FC<FormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
+  const [fieldErrors, setFieldErrors] = useState([]);
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
   const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(sessionMode);
 

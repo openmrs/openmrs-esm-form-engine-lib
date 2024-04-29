@@ -55,6 +55,7 @@ interface EncounterFormProps {
   setAllInitialValues: (values: Record<string, any>) => void;
   setScrollablePages: (pages: Set<FormPageProps>) => void;
   setPagesWithErrors: (pages: string[]) => void;
+  setFieldErrors: React.Dispatch<React.SetStateAction<string[]>>;
   setIsLoadingFormDependencies?: (value: boolean) => void;
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
   setSelectedPage: (page: string) => void;
@@ -84,6 +85,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   allInitialValues,
   setAllInitialValues,
   isSubmitting,
+  setIsSubmitting,
+  setFieldErrors,
 }) => {
   const { t } = useTranslation();
   const [fields, setFields] = useState<Array<FormField>>([]);
@@ -451,6 +454,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             errorFields.push(field);
             field.meta.submission = { ...(field.meta.submission || {}), errors };
             formHasErrors = true;
+            setFieldErrors((prevErrors: any) => [...prevErrors, ...errors]);
             return;
           }
         });
@@ -826,6 +830,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               setFieldValue={setFieldValue}
               setSelectedPage={setSelectedPage}
               handlers={handlers}
+              setFieldErrors={setFieldErrors}
               workspaceLayout={workspaceLayout}
               setIsLoadingFormDependencies={setIsLoadingFormDependencies}
               isSubmitting
