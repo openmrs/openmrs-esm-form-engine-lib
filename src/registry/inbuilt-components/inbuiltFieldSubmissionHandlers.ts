@@ -4,6 +4,7 @@ import { EncounterLocationSubmissionHandler } from '../../submission-handlers/en
 import { EncounterProviderHandler } from '../../submission-handlers/encounterProviderHandler';
 import { type SubmissionHandler } from '../../types';
 import { PatientIdentifierHandler } from '../../submission-handlers/patientIdentifierHandler';
+import { ControlHandler } from '../../submission-handlers/controlHandler';
 import { type RegistryItem } from '../registry';
 
 /**
@@ -39,5 +40,10 @@ export const inbuiltFieldSubmissionHandlers: Array<RegistryItem<SubmissionHandle
     name: 'PatientIdentifierHandler',
     component: PatientIdentifierHandler,
     type: 'patientIdentifier',
+  },
+  {
+    name: 'controlHandler',
+    component: ControlHandler,
+    type: 'control',
   },
 ];
