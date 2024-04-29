@@ -1,5 +1,5 @@
 import { formatDate, restBaseUrl } from '@openmrs/esm-framework';
-import { Attachment, AttachmentResponse, FormField, OpenmrsObs, RenderType } from '../types';
+import { type Attachment, type AttachmentResponse, type FormField, type OpenmrsObs, type RenderType } from '../types';
 
 export function flattenObsList(obsList: OpenmrsObs[]): OpenmrsObs[] {
   const flattenedList: OpenmrsObs[] = [];

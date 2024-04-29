@@ -1,6 +1,6 @@
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { useMemo } from 'react';
-import { FormSchema, OpenmrsForm } from '../types';
+import { type FormSchema, type OpenmrsForm } from '../types';
 import useSWRImmutable from 'swr/immutable';
 
 export function useClobData(form: OpenmrsForm) {

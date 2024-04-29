@@ -1,4 +1,4 @@
-import { FormField } from '../types';
+import { type FormField } from '../types';
 import { FieldValidator } from './form-validator';
 
 describe('FieldValidator - validate', () => {

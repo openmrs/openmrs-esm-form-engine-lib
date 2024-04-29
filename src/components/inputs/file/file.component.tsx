@@ -6,7 +6,7 @@ import Camera from '../camera/camera.component';
 import { Close, DocumentPdf } from '@carbon/react/icons';
 import styles from './file.scss';
 import { createAttachment } from '../../../utils/common-utils';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { isInlineView } from '../../../utils/form-helper';
 

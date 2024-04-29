@@ -1,6 +1,6 @@
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import useSWR from 'swr';
-import { FormSchema, OpenmrsEncounter } from '../types';
+import { type FormSchema, type OpenmrsEncounter } from '../types';
 import { encounterRepresentation } from '../constants';
 
 export function useEncounter(formJson: FormSchema) {

@@ -6,8 +6,8 @@ import filter from 'lodash/filter';
 import first from 'lodash/first';
 import forEach from 'lodash/forEach';
 import last from 'lodash/last';
-import { FormField } from '../types';
-import { FormNode } from './expression-runner';
+import { type FormField } from '../types';
+import { type FormNode } from './expression-runner';
 import { isEmpty as isValueEmpty } from '../validators/form-validator';
 import * as apiFunctions from '../api/api';
 import { getZRefByGenderAndAge } from './zscore-service';
@@ -92,6 +92,18 @@ export class CommonExpressionHelpers {
       return this.allFieldValues[questionId];
     }
     return null;
+  };
+
+  doesNotMatchExpression = (
+    regexString: string,
+    val: string | null | undefined
+  ): boolean => {
+    if (!val || ['undefined', 'null', ''].includes(val.toString())) {
+      return true;
+    }
+    const pattern = new RegExp(regexString);
+    
+    return !pattern.test(val)
   };
 
   calcBMI = (height: number, weight: number) => {

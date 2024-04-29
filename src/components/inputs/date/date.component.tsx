@@ -6,11 +6,11 @@ import { useField } from 'formik';
 import { DatePicker, DatePickerInput, Layer, TimePicker } from '@carbon/react';
 import { formatDate } from '@openmrs/esm-framework';
 import { isTrue } from '../../../utils/boolean-utils';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 import { isInlineView } from '../../../utils/form-helper';
-import { FieldValueView } from '../../value/view/field-value-view.component';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
+import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './date.scss';
 
@@ -177,7 +177,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   // be triggered as opposed to the former handler that only gets triggered at runtime.
                   onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
                   disabled={question.disabled}
-                  invalid={isFieldRequiredError && errors.length > 0}
+                  invalid={errors.length > 0}
                   invalidText={errors[0]?.message}
                   warn={warnings.length > 0}
                   warnText={warnings[0]?.message}

@@ -1,5 +1,5 @@
 import { getRegisteredExpressionHelpers } from '../registry/registry';
-import { FormField, FormPage, FormSection, OpenmrsEncounter } from '../types';
+import { type OpenmrsEncounter, type FormField, type FormPage, type FormSection } from '../types';
 import { CommonExpressionHelpers, HistoricalDataSourceService } from './common-expression-helpers';
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
 
