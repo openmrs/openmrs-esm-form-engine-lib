@@ -82,11 +82,10 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
               value={field.value || ''}
               disabled={question.disabled}
               readOnly={Boolean(question.readonly)}
-              invalid={isFieldRequiredError && errors.length > 0}
+              invalid={errors.length > 0}
               invalidText={errors.length && errors[0].message}
               warn={warnings.length > 0}
               warnText={warnings.length && warnings[0].message}
-              onInvalid={(e) => e.preventDefault()}
               maxLength={question.questionOptions.max || TextInput.maxLength}
             />
           </Layer>

@@ -87,7 +87,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             onChange={({ selectedItem }) => handleChange(selectedItem)}
             disabled={question.disabled}
             readOnly={question.readonly}
-            invalid={isFieldRequiredError && errors.length > 0}
+            invalid={errors.length > 0}
             invalidText={errors.length && errors[0].message}
             warn={warnings.length > 0}
             warnText={warnings.length ? warnings[0].message : ''}
