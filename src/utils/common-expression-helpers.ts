@@ -102,11 +102,8 @@ export class CommonExpressionHelpers {
       return true;
     }
     const pattern = new RegExp(regexString);
-    if (!pattern.test(val)) {
-      console.log('fail');
-      return true;
-    }
-    return false;
+    
+    return !pattern.test(val)
   };
 
   calcBMI = (height: number, weight: number) => {

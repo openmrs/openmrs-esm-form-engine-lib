@@ -354,6 +354,16 @@ describe('Common expression runner - validate helper functions', () => {
     expect(result).toBe(false);
   });
 
+  it('should evaluate values against regular expressions(Regex)', () => {
+    const regex = '[A-Za-z0-9]+-123456';
+
+    let result = helper.doesNotMatchExpression(regex, 'RandomID');
+    expect(result).toBe(true);
+
+    result = helper.doesNotMatchExpression(regex, 'REC12345-123456');
+    expect(result).toBe(false);
+  })
+
   it('returns an array of values for a given key', () => {
     const ages = helper.extractRepeatingGroupValues('age', users);
     expect(ages).toEqual([25, 30, 35]);

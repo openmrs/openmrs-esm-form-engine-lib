@@ -24,7 +24,6 @@ import referenceByMappingForm from '../__mocks__/forms/rfe-forms/reference-by-ma
 import sampleFieldsForm from '../__mocks__/forms/rfe-forms/sample_fields.json';
 import testEnrolmentForm from '../__mocks__/forms/rfe-forms/test-enrolment-form.json';
 import viralLoadStatusForm from '../__mocks__/forms/rfe-forms/viral-load-status-form.json';
-import regexTestForm from '../__mocks__/forms/rfe-forms/regex-test-form.json';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import { mockPatient } from '../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../__mocks__/session.mock';
@@ -150,17 +149,6 @@ describe('Form engine component', () => {
 
       await user.hover(textFieldTooltip);
       await screen.findByText(/sample tooltip info for text/i);
-    });
-  });
-
-  describe('Regex Validation', () => {
-    it('should evaluate a value against a regex expression', async () => {
-      await act(async () => {
-        renderForm(null, regexTestForm);
-      });
-
-      const pTrackerField = screen.getByRole('textbox', { name: /PTracker ID/i });
-      await user.type(pTrackerField, 'UIxx001');
     });
   });
 
