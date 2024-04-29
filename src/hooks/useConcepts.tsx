@@ -1,14 +1,50 @@
-import useSWRImmutable from 'swr/immutable';
-import { openmrsFetch, OpenmrsResource, restBaseUrl } from '@openmrs/esm-framework';
+import { useMemo } from 'react';
+import { type FetchResponse, type OpenmrsResource, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import useSWRInfinite from 'swr/infinite';
 
 const conceptRepresentation =
   'custom:(uuid,display,conceptClass:(uuid,display),answers:(uuid,display),conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
 
-export function useConcepts(references: Set<string>) {
-  // TODO: handle paging (ie when number of concepts greater than default limit per page)
-  const { data, error, isLoading } = useSWRImmutable<{ data: { results: Array<OpenmrsResource> } }, Error>(
-    `${restBaseUrl}/concept?references=${Array.from(references).join(',')}&v=${conceptRepresentation}`,
+const chunkSize = 100;
+
+export function useConcepts(references: Set<string>): {
+  concepts: Array<OpenmrsResource> | undefined;
+  isLoading: boolean;
+  error: Error | undefined;
+} {
+  const totalCount = references.size;
+  const totalPages = Math.ceil(totalCount / chunkSize);
+
+  const getUrl = (index) => {
+    if (index >= totalPages) {
+      return null;
+    }
+
+    const start = index * chunkSize;
+    const end = start + chunkSize;
+    const chunk = Array.from(references).slice(start, end);
+    return `${restBaseUrl}/concept?references=${chunk.join(',')}&v=${conceptRepresentation}&limit=${chunkSize}`;
+  };
+
+  const { data, error, isLoading } = useSWRInfinite<FetchResponse<{ results: Array<OpenmrsResource> }>, Error>(
+    getUrl,
     openmrsFetch,
+    {
+      initialSize: totalPages,
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    },
   );
-  return { concepts: data?.data.results, error, isLoading };
+
+  const results = useMemo(
+    () => ({
+      concepts: data ? [].concat(data?.map((res) => res?.data?.results).flat()) : undefined,
+      error,
+      isLoading,
+    }),
+    [data, error, isLoading],
+  );
+
+  return results;
 }

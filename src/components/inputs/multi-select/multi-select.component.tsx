@@ -5,7 +5,7 @@ import { useField } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { FieldValueView } from '../../value/view/field-value-view.component';
 import { FormContext } from '../../../form-context';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 import { ValueEmpty } from '../../value/value.component';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';

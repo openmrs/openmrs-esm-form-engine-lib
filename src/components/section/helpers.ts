@@ -1,7 +1,7 @@
 import { formatDate } from '@openmrs/esm-framework';
 import { getRegisteredControl } from '../../registry/registry';
 import { isTrue } from '../../utils/boolean-utils';
-import { FormField } from '../../types';
+import { type FormField } from '../../types';
 
 /**
  * Retrieves the appropriate field control for a question, considering missing concepts.

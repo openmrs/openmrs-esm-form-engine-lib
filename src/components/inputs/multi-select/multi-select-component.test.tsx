@@ -5,7 +5,7 @@ import { mockVisit } from '../../../../__mocks__/visit.mock';
 import multiSelectFormSchema from '../../../../__mocks__/forms/rfe-forms/multi-select-form.json';
 import { mockPatient } from '../../../../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../../../../__mocks__/session.mock';
-import { FormSchema } from '../../../types';
+import { type FormSchema } from '../../../types';
 import FormEngine from '../../../form-engine.component';
 
 const mockOpenmrsFetch = jest.fn();

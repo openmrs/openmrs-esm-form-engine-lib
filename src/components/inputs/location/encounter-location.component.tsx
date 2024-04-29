@@ -6,7 +6,7 @@ import { createErrorHandler } from '@openmrs/esm-framework';
 import { getAllLocations, getLocationsByTag } from '../../../api/api';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
-import { FormField } from '../../../types';
+import { type FormField } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { FieldValueView } from '../../value/view/field-value-view.component';
 import styles from './encounter-location.scss';

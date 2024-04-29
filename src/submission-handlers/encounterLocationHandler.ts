@@ -1,4 +1,4 @@
-import { EncounterContext, FormField, SubmissionHandler } from '..';
+import { type EncounterContext, type FormField, type SubmissionHandler } from '..';
 import { getAllLocations } from '../api/api';
 
 export const EncounterLocationSubmissionHandler: SubmissionHandler = {

@@ -1,6 +1,12 @@
 import React from 'react';
-import { LayoutType } from '@openmrs/esm-framework';
-import { FormField, OpenmrsEncounter, PatientIdentifier, SessionMode, SubmissionHandler } from './types';
+import { type LayoutType } from '@openmrs/esm-framework';
+import {
+  type FormField,
+  type OpenmrsEncounter,
+  type PatientIdentifier,
+  type SessionMode,
+  type SubmissionHandler,
+} from './types';
 
 type FormContextProps = {
   values: Record<string, any>;

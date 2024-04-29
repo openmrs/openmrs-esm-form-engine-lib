@@ -1,6 +1,6 @@
-import { OpenmrsResource } from '@openmrs/esm-framework';
-import { FieldHelperProps, FieldInputProps, FieldMetaProps } from 'formik';
-import { EncounterContext } from './form-context';
+import { type OpenmrsResource } from '@openmrs/esm-framework';
+import { type FieldHelperProps, type FieldInputProps, type FieldMetaProps } from 'formik';
+import { type EncounterContext } from './form-context';
 
 /**
  * Defines logic that processes field submission and value binding while in edit mode

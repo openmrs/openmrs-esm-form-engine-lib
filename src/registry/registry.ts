@@ -1,10 +1,10 @@
 import {
-  DataSource,
-  FormFieldValidator,
-  FormSchemaTransformer,
-  FormFieldProps,
-  PostSubmissionAction,
-  SubmissionHandler,
+  type DataSource,
+  type FormFieldValidator,
+  type FormSchemaTransformer,
+  type FormFieldProps,
+  type PostSubmissionAction,
+  type SubmissionHandler,
 } from '../types';
 import { getGlobalStore } from '@openmrs/esm-framework';
 import { FormsStore } from '../constants';

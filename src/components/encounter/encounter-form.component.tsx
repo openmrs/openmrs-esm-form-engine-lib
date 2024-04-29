@@ -1,7 +1,7 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { SessionLocation, showToast, showSnackbar, useLayoutType, Visit } from '@openmrs/esm-framework';
+import React, { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { type SessionLocation, showToast, showSnackbar, useLayoutType, type Visit } from '@openmrs/esm-framework';
 import { codedTypes, ConceptFalse, ConceptTrue } from '../../constants';
-import {
+import type {
   FormField,
   FormPage as FormPageProps,
   FormSchema,
@@ -22,7 +22,7 @@ import {
   voidObsValueOnFieldHidden,
 } from '../../utils/form-helper';
 import { InstantEffect } from '../../utils/instant-effect';
-import { FormSubmissionHandler } from '../../form-engine.component';
+import { type FormSubmissionHandler } from '../../form-engine.component';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { getPreviousEncounter, saveAttachment, saveEncounter } from '../../api/api';
 import { isTrue } from '../../utils/boolean-utils';

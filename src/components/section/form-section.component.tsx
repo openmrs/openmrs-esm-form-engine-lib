@@ -2,15 +2,15 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
+import type { FormField, FormFieldProps, previousValue, SubmissionHandler } from '../../types';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ToastNotification } from '@carbon/react';
-import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { formatPreviousValueDisplayText, getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
-import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
+import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { isTrue } from '../../utils/boolean-utils';
 import { UnspecifiedField } from '../inputs/unspecified/unspecified.component';
-import { FormField, FormFieldProps, previousValue, SubmissionHandler } from '../../types';
 import { FormContext } from '../../form-context';
+import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
 import { Tooltip } from '../inputs/tooltip/tooltip.component';
 import styles from './form-section.scss';
 

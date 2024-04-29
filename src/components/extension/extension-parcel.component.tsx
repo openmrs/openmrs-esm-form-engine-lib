@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo } from 'react';
 import { BehaviorSubject } from 'rxjs';
 import { attach, ExtensionSlot } from '@openmrs/esm-framework';
 import { FormContext } from '../../form-context';
-import { FormFieldProps } from '../../types';
+import { type FormFieldProps } from '../../types';
 
 const ExtensionParcel: React.FC<FormFieldProps> = ({ question }) => {
   const { encounterContext, isSubmitting } = useContext(FormContext);

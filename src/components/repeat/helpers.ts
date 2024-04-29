@@ -1,5 +1,5 @@
 import { cloneDeep } from 'lodash-es';
-import { FormField } from '../../types';
+import { type FormField } from '../../types';
 
 export function cloneObsGroup(srcField: FormField, obsGroup: any, idSuffix: number) {
   const originalGroupMembersIds: string[] = [];
