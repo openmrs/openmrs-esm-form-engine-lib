@@ -1,4 +1,4 @@
-import { FormFieldValidator, FormField } from '../types';
+import { type FormFieldValidator, type FormField } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 
 export const fieldRequiredErrCode = 'field.required';

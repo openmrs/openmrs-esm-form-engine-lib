@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import { FormField } from '../types';
-import { ExpressionContext } from '../utils/expression-runner';
+import { type FormField } from '../types';
+import { type ExpressionContext } from '../utils/expression-runner';
 import { testFields } from '../utils/expression-runner.test';
 import { ExpressionValidator } from './js-expression-validator';
 

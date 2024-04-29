@@ -2,13 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { FormGroup, RadioButtonGroup, RadioButton } from '@carbon/react';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 import { useField } from 'formik';
 import { FormContext } from '../../../form-context';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
-import { FieldValueView } from '../../value/view/field-value-view.component';
+import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './radio.scss';
 
@@ -69,7 +69,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
           [styles.boldedLegend]: !isFieldRequiredError,
         })}
         disabled={question.disabled}
-        invalid={isFieldRequiredError && errors.length > 0}>
+        invalid={errors.length > 0}>
         <RadioButtonGroup name={question.id} valueSelected={field.value} onChange={handleChange} orientation="vertical">
           {question.questionOptions.answers
             .filter((answer) => !answer.isHidden)

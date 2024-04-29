@@ -3,7 +3,7 @@ import { useInitialValues } from './useInitialValues';
 import testEncounter from '../../__mocks__/use-initial-values/encounter.mock.json';
 import testPatient from '../../__mocks__/use-initial-values/patient.mock.json';
 import { ObsSubmissionHandler } from '../submission-handlers/base-handlers';
-import { FormField, OpenmrsEncounter } from '../types';
+import { type FormField, type OpenmrsEncounter } from '../types';
 
 const obsGroupMembers: Array<FormField> = [
   {

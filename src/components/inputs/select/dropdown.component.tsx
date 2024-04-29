@@ -6,9 +6,9 @@ import { useField } from 'formik';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
-import { FieldValueView } from '../../value/view/field-value-view.component';
 import { FormContext } from '../../../form-context';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
+import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './dropdown.scss';
 
@@ -87,7 +87,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             onChange={({ selectedItem }) => handleChange(selectedItem)}
             disabled={question.disabled}
             readOnly={question.readonly}
-            invalid={isFieldRequiredError && errors.length > 0}
+            invalid={errors.length > 0}
             invalidText={errors.length && errors[0].message}
             warn={warnings.length > 0}
             warnText={warnings.length ? warnings[0].message : ''}

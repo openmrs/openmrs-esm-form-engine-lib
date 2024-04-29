@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FormSchema, FormSchemaTransformer, FormSection, ReferencedForm } from '../types';
+import { type FormSchemaTransformer, type FormSchema, type FormSection, type ReferencedForm } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
 import { fetchOpenMRSForm, fetchClobData } from '../api/api';

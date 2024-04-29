@@ -1,5 +1,5 @@
-import { openmrsFetch, OpenmrsResource } from '@openmrs/esm-framework';
-import { DataSource } from '../types';
+import { openmrsFetch, type OpenmrsResource } from '@openmrs/esm-framework';
+import { type DataSource } from '../types';
 
 export class BaseOpenMRSDataSource implements DataSource<OpenmrsResource> {
   url: string;

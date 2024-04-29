@@ -1,6 +1,6 @@
 import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
-import { OpenmrsForm, PatientIdentifier, ProgramEnrollmentPayload } from '../types';
+import { type OpenmrsForm, type PatientIdentifier, type ProgramEnrollmentPayload } from '../types';
 import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
@@ -190,7 +190,7 @@ export function updateProgramEnrollment(
   });
 }
 
-export function savePatientIdentifier(patientIdentifier:PatientIdentifier, patientUuid: string){
+export function savePatientIdentifier(patientIdentifier: PatientIdentifier, patientUuid: string) {
   let url: string;
 
   if (patientIdentifier.uuid) {
@@ -207,5 +207,3 @@ export function savePatientIdentifier(patientIdentifier:PatientIdentifier, patie
     body: JSON.stringify(patientIdentifier),
   });
 }
-
-

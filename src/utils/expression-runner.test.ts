@@ -1,7 +1,7 @@
 import { registerExpressionHelper } from '..';
-import { FormField } from '../types';
+import { type FormField } from '../types';
 import { CommonExpressionHelpers } from './common-expression-helpers';
-import { checkReferenceToResolvedFragment, evaluateExpression, ExpressionContext } from './expression-runner';
+import { checkReferenceToResolvedFragment, evaluateExpression, type ExpressionContext } from './expression-runner';
 
 export const testFields: Array<FormField> = [
   {
@@ -353,6 +353,16 @@ describe('Common expression runner - validate helper functions', () => {
     result = helper.arrayContainsAny(arr, members);
     expect(result).toBe(false);
   });
+
+  it('should evaluate values against regular expressions(Regex)', () => {
+    const regex = '[A-Za-z0-9]+-123456';
+
+    let result = helper.doesNotMatchExpression(regex, 'RandomID');
+    expect(result).toBe(true);
+
+    result = helper.doesNotMatchExpression(regex, 'REC12345-123456');
+    expect(result).toBe(false);
+  })
 
   it('returns an array of values for a given key', () => {
     const ages = helper.extractRepeatingGroupValues('age', users);

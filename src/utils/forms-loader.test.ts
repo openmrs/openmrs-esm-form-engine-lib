@@ -1,4 +1,4 @@
-import { FormJsonFile, getForm, getFormByVersion, getLatestFormVersion, applyFormIntent } from './forms-loader';
+import { type FormJsonFile, getForm, getFormByVersion, getLatestFormVersion, applyFormIntent } from './forms-loader';
 import formsRegistry from '../../__mocks__/packages/test-forms-registry';
 import {
   htsHivtestResultingSchemaV2,

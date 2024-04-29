@@ -1,4 +1,4 @@
-import { OpenmrsResource, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { type OpenmrsResource, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import useSWRImmutable from 'swr/immutable';
 
 export function useEncounterRole() {

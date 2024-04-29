@@ -1,5 +1,5 @@
-import { DataSource } from '../../types';
-import { RegistryItem } from '../registry';
+import { type DataSource } from '../../types';
+import { type RegistryItem } from '../registry';
 import { ConceptDataSource } from '../../datasources/concept-data-source';
 import { LocationDataSource } from '../../datasources/location-data-source';
 import { ProviderDataSource } from '../../datasources/provider-datasource';
