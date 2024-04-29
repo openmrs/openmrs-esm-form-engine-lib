@@ -1,13 +1,13 @@
-import { EncounterContext, FormField, OpenmrsEncounter, SubmissionHandler } from '..';
+import { type EncounterContext, type FormField, type OpenmrsEncounter, type SubmissionHandler } from '..';
 import { getPatientLatestIdentifier } from '../utils/patient-identifier-helper';
 
 export const PatientIdentifierHandler: SubmissionHandler = {
   handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
     return value;
   },
-   getInitialValue: (
+  getInitialValue: (
     encounter: OpenmrsEncounter,
-    field: FormField,    
+    field: FormField,
     allFormFields: Array<FormField>,
     context: EncounterContext,
   ) => {
@@ -21,5 +21,4 @@ export const PatientIdentifierHandler: SubmissionHandler = {
   getPreviousValue: (field: FormField, encounter: OpenmrsEncounter, allFormFields: Array<FormField>) => {
     return null;
   },
-
 };

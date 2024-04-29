@@ -1,5 +1,5 @@
-import { FormFieldValidator, FormField } from '../types';
-import { evaluateExpression, ExpressionContext } from '../utils/expression-runner';
+import { type FormFieldValidator, type FormField } from '../types';
+import { evaluateExpression, type ExpressionContext } from '../utils/expression-runner';
 
 interface ExpressionValidatorConfig {
   failsWhenExpression?: string;
@@ -11,7 +11,7 @@ interface ExpressionValidatorConfig {
 }
 
 export const ExpressionValidator: FormFieldValidator = {
-  validate: function(field: FormField, value: any, config: ExpressionValidatorConfig) {
+  validate: function (field: FormField, value: any, config: ExpressionValidatorConfig) {
     const INVALID_VALUE_ERR_CODE = 'value.invalid';
     const INVALID_VALUE_ERR_MESSAGE = 'Invalid value';
     const FIELD_HAS_WARNINGS_MESSAGE = 'Field has warnings';

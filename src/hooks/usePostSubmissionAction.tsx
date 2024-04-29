@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getRegisteredPostSubmissionAction } from '../registry/registry';
-import { PostSubmissionAction } from '../types';
+import { type PostSubmissionAction } from '../types';
 
 export function usePostSubmissionAction(
   actionRefs: Array<{ actionId: string; enabled?: string; config?: Record<string, any> }>,

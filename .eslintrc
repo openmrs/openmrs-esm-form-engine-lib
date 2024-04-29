@@ -8,9 +8,7 @@
     "project": true,
     "tsconfigRootDir": "__dirname"
   },
-  "plugins": [
-    "@typescript-eslint"
-  ],
+  "plugins": ["@typescript-eslint"],
   "root": true,
   "rules": {
     "@typescript-eslint/ban-types": "off",
@@ -24,7 +22,7 @@
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/unbound-method": "off",
     "@typescript-eslint/consistent-type-imports": [
-      "off",
+      "error",
       {
         "fixStyle": "inline-type-imports"
       }

@@ -7,7 +7,7 @@ import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { FieldValueView } from '../../value/view/field-value-view.component';
 import { FormContext } from '../../../form-context';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './text-area.scss';
 import { useTranslation } from 'react-i18next';

@@ -1,8 +1,8 @@
 import File from '../../components/inputs/file/file.component';
-import { RegistryItem } from '../registry';
+import { type RegistryItem } from '../registry';
 import { controlTemplates } from './control-templates';
 import { templateToComponentMap } from './template-component-map';
-import { FormFieldProps } from '../../types';
+import { type FormFieldProps } from '../../types';
 import DateField from '../../components/inputs/date/date.component';
 import Radio from '../../components/inputs/radio/radio.component';
 import NumberField from '../../components/inputs/number/number.component';

@@ -1,6 +1,6 @@
 import { AngularFormEngineSchemaTransformer } from '../../transformers/angular-fe-schema-transformer';
-import { FormSchemaTransformer } from '../../types';
-import { RegistryItem } from '../registry';
+import { type FormSchemaTransformer } from '../../types';
+import { type RegistryItem } from '../registry';
 
 export const inbuiltFormTransformers: Array<RegistryItem<FormSchemaTransformer>> = [
   {

@@ -1,8 +1,8 @@
-import { FormFieldValidator } from '../../types';
+import { type FormFieldValidator } from '../../types';
 import { DateValidator } from '../../validators/date-validator';
 import { DefaultFieldValueValidator } from '../../validators/default-value-validator';
 import { ExpressionValidator } from '../../validators/js-expression-validator';
-import { RegistryItem } from '../registry';
+import { type RegistryItem } from '../registry';
 
 /**
  * @internal

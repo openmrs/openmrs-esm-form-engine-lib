@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Toggle as ToggleInput } from '@carbon/react';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 import { useField } from 'formik';
 import { FormContext } from '../../../form-context';
 import { isTrue } from '../../../utils/boolean-utils';

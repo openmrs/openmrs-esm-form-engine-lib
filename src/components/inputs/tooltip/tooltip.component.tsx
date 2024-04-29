@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tooltip as CarbonTooltip } from '@carbon/react';
 import { Information } from '@carbon/react/icons';
-import { FormField } from '../../../types';
+import { type FormField } from '../../../types';
 import styles from './tooltip.scss';
 import { useTranslation } from 'react-i18next';
 

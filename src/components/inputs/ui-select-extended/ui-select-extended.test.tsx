@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, fireEvent, waitFor, act, screen } from '@testing-library/react';
 import UiSelectExtended from './ui-select-extended.component';
-import { EncounterContext, FormContext } from '../../../form-context';
+import { type EncounterContext, FormContext } from '../../../form-context';
 import { Formik } from 'formik';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
-import { FormField } from '../../../types';
+import { type FormField } from '../../../types';
 
 const question: FormField = {
   label: 'Transfer Location',

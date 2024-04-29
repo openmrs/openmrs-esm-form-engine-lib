@@ -1,5 +1,5 @@
 import * as semver from 'semver';
-import { FormField } from '../types';
+import { type FormField } from '../types';
 
 let baseRegistry = {};
 export interface FormJsonFile {

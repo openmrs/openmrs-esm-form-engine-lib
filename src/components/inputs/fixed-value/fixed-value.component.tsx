@@ -3,7 +3,7 @@ import isObject from 'lodash-es/isObject';
 import { isEmpty } from '../../../validators/form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 
 const FixedValue: React.FC<FormFieldProps> = ({ question, handler }) => {
   const { encounterContext, isFieldInitializationComplete } = React.useContext(FormContext);
