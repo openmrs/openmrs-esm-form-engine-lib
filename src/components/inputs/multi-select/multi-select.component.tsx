@@ -113,7 +113,7 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
               key={counter}
               itemToString={(item) => (item ? item.label : ' ')}
               disabled={question.disabled}
-              invalid={isFieldRequiredError || errors.length > 0}
+              invalid={errors.length > 0}
               invalidText={errors[0]?.message}
               warn={warnings.length > 0}
               warnText={warnings[0]?.message}
