@@ -10,7 +10,7 @@ import { type FormFieldProps } from '../../../types';
 import { isInlineView } from '../../../utils/form-helper';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
-import { FieldValueView } from '../../value/view/field-value-view.component';
+import  FieldValueView  from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './date.scss';
 import withErrorHandling from '../../errors/error-wrapper.component';

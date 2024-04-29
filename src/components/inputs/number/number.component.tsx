@@ -5,7 +5,7 @@ import { useField } from 'formik';
 import { isTrue } from '../../../utils/boolean-utils';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
-import { FieldValueView } from '../../value/view/field-value-view.component';
+import  FieldValueView  from '../../value/view/field-value-view.component';
 import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';

@@ -3,7 +3,7 @@ import { type RegistryItem } from '../registry';
 import { controlTemplates } from './control-templates';
 import { templateToComponentMap } from './template-component-map';
 import { type FormFieldProps } from '../../types';
-import {ContentSwitcher} from '../../components/inputs/content-switcher/content-switcher.component';
+import ContentSwitcher from '../../components/inputs/content-switcher/content-switcher.component';
 import DateField from '../../components/inputs/date/date.component';
 import Dropdown from '../../components/inputs/select/dropdown.component';
 import ExtensionParcel from '../../components/extension/extension-parcel.component';
@@ -11,7 +11,7 @@ import FixedValue from '../../components/inputs/fixed-value/fixed-value.componen
 import Markdown from '../../components/inputs/markdown/markdown.component';
 import MultiSelect from '../../components/inputs/multi-select/multi-select.component';
 import NumberField from '../../components/inputs/number/number.component';
-import {ObsGroup} from '../../components/group/obs-group.component';
+import ObsGroup from '../../components/group/obs-group.component';
 import Radio from '../../components/inputs/radio/radio.component';
 import Repeat from '../../components/repeat/repeat.component';
 import TextArea from '../../components/inputs/text-area/text-area.component';

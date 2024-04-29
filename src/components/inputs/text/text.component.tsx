@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import isEmpty from 'lodash-es/isEmpty';
-import { useTranslation } from 'react-i18next';
 import { Layer, TextInput } from '@carbon/react';
 import { useField } from 'formik';
 import { type FormFieldProps } from '../../../types';
