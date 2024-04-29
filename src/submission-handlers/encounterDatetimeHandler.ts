@@ -1,6 +1,6 @@
-import { SubmissionHandler } from '..';
-import { OpenmrsEncounter, FormField } from '../types';
-import { EncounterContext } from '../form-context';
+import { type SubmissionHandler } from '..';
+import { type OpenmrsEncounter, type FormField } from '../types';
+import { type EncounterContext } from '../form-context';
 
 export const EncounterDatetimeHandler: SubmissionHandler = {
   handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {

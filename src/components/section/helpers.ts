@@ -1,7 +1,7 @@
 import { formatDate } from '@openmrs/esm-framework';
 import { getRegisteredControl } from '../../registry/registry';
 import { isTrue } from '../../utils/boolean-utils';
-import { FormField } from '../../types';
+import { type FormField } from '../../types';
 
 /**
  * Retrieves the appropriate field control for a question, considering missing concepts.
@@ -46,7 +46,7 @@ function previousValueDisplayForCheckbox(previosValueItems: Object[]): String {
 export const formatPreviousValueDisplayText = (question: FormField, value: any) => {
   switch (question.questionOptions.rendering) {
     case 'date':
-      return formatDate(new Date(value?.display));
+      return formatDate(value) || formatDate(new Date(value?.display));
     case 'checkbox':
       return Array.isArray(value) ? previousValueDisplayForCheckbox(value) : null;
     default:

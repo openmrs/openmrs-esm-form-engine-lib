@@ -1,24 +1,24 @@
 import File from '../../components/inputs/file/file.component';
-import { RegistryItem } from '../registry';
+import { type RegistryItem } from '../registry';
 import { controlTemplates } from './control-templates';
 import { templateToComponentMap } from './template-component-map';
-import { FormFieldProps } from '../../types';
+import { type FormFieldProps } from '../../types';
+import ContentSwitcher from '../../components/inputs/content-switcher/content-switcher.component';
 import DateField from '../../components/inputs/date/date.component';
-import Radio from '../../components/inputs/radio/radio.component';
-import NumberField from '../../components/inputs/number/number.component';
-import TextField from '../../components/inputs/text/text.component';
-import { MultiSelect } from '../../components/inputs/multi-select/multi-select.component';
-import { ContentSwitcher } from '../../components/inputs/content-switcher/content-switcher.component';
-import TextArea from '../../components/inputs/text-area/text-area.component';
 import Dropdown from '../../components/inputs/select/dropdown.component';
-import Toggle from '../../components/inputs/toggle/toggle.component';
-import { ObsGroup } from '../../components/group/obs-group.component';
-import Repeat from '../../components/repeat/repeat.component';
-import Markdown from '../../components/inputs/markdown/markdown.component';
-import FixedValue from '../../components/inputs/fixed-value/fixed-value.component';
 import ExtensionParcel from '../../components/extension/extension-parcel.component';
-import WorkspaceLauncher from '../../components/inputs/workspace-launcher/workspace-launcher.component';
+import FixedValue from '../../components/inputs/fixed-value/fixed-value.component';
+import Markdown from '../../components/inputs/markdown/markdown.component';
+import MultiSelect from '../../components/inputs/multi-select/multi-select.component';
+import NumberField from '../../components/inputs/number/number.component';
+import ObsGroup from '../../components/group/obs-group.component';
+import Radio from '../../components/inputs/radio/radio.component';
+import Repeat from '../../components/repeat/repeat.component';
+import TextArea from '../../components/inputs/text-area/text-area.component';
+import TextField from '../../components/inputs/text/text.component';
+import Toggle from '../../components/inputs/toggle/toggle.component';
 import UiSelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
+import WorkspaceLauncher from '../../components/inputs/workspace-launcher/workspace-launcher.component';
 
 /**
  * @internal
@@ -26,96 +26,78 @@ import UiSelectExtended from '../../components/inputs/ui-select-extended/ui-sele
 
 export const inbuiltControls: Array<RegistryItem<React.ComponentType<FormFieldProps>>> = [
   {
-    name: 'TextField',
+    name: 'text',
     component: TextField,
-    type: 'text',
   },
   {
-    name: 'Radio',
+    name: 'radio',
     component: Radio,
-    type: 'radio',
   },
   {
-    name: 'DateField',
+    name: 'date',
     component: DateField,
-    type: 'date',
   },
   {
-    name: 'NumberField',
+    name: 'number',
     component: NumberField,
-    type: 'number',
     alias: 'numeric',
   },
   {
-    name: 'MultiSelect',
+    name: 'checkbox',
     component: MultiSelect,
-    type: 'checkbox',
     alias: 'multiCheckbox',
   },
   {
-    name: 'ContentSwitcher',
+    name: 'content-switcher',
     component: ContentSwitcher,
-    type: 'content-switcher',
   },
   {
-    name: 'Dropdown',
+    name: 'select',
     component: Dropdown,
-    type: 'select',
   },
   {
-    name: 'TextArea',
+    name: 'textarea',
     component: TextArea,
-    type: 'textarea',
   },
   {
-    name: 'Toggle',
+    name: 'toggle',
     component: Toggle,
-    type: 'toggle',
   },
   {
-    name: 'ObsGroup',
+    name: 'group',
     component: ObsGroup,
-    type: 'group',
   },
   {
-    name: 'Repeat',
+    name: 'repeating',
     component: Repeat,
-    type: 'repeating',
   },
   {
-    name: 'FixedValue',
+    name: 'fixed-value',
     component: FixedValue,
-    type: 'fixed-value',
   },
   {
-    name: 'Markdown',
+    name: 'markdown',
     component: Markdown,
-    type: 'markdown',
   },
   {
-    name: 'ExtensionParcel',
+    name: 'extension-widget',
     component: ExtensionParcel,
-    type: 'extension-widget',
   },
   {
-    name: 'DateField',
+    name: 'datetime',
     component: DateField,
-    type: 'datetime',
   },
   {
-    name: 'UiSelectExtended',
+    name: 'ui-select-extended',
     component: UiSelectExtended,
-    type: 'ui-select-extended',
   },
   {
-    name: 'File',
+    name: 'file',
     component: File,
-    type: 'file',
   },
   {
-    name: 'WorkspaceLauncher',
+    name: 'workspace-launcher',
     component: WorkspaceLauncher,
-    type: 'workspace-launcher',
   },
   ...controlTemplates.map((template) => ({
     name: `${template.name}Control`,

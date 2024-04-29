@@ -1,10 +1,10 @@
 import {
-  DataSource,
-  FormFieldValidator,
-  FormSchemaTransformer,
-  FormFieldProps,
-  PostSubmissionAction,
-  SubmissionHandler,
+  type DataSource,
+  type FormFieldValidator,
+  type FormSchemaTransformer,
+  type FormFieldProps,
+  type PostSubmissionAction,
+  type SubmissionHandler,
 } from '../types';
 import { getGlobalStore } from '@openmrs/esm-framework';
 import { FormsStore } from '../constants';
@@ -40,8 +40,6 @@ export interface FieldSubmissionHandlerRegistration extends ComponentRegistratio
   type: string;
 }
 
-export interface FormSchemaTransformerRegistration extends ComponentRegistration<FormSchemaTransformer> {}
-
 export interface FormsRegistryStoreState {
   controls: CustomControlRegistration[];
   fieldValidators: ComponentRegistration<FormFieldValidator>[];
@@ -49,7 +47,7 @@ export interface FormsRegistryStoreState {
   postSubmissionActions: ComponentRegistration<PostSubmissionAction>[];
   dataSources: ComponentRegistration<DataSource<any>>[];
   expressionHelpers: Record<string, Function>;
-  formSchemaTransformers: FormSchemaTransformerRegistration[];
+  formSchemaTransformers: ComponentRegistration<FormSchemaTransformer>[];
 }
 
 interface FormRegistryCache {
@@ -96,7 +94,7 @@ export function registerExpressionHelper(name: string, fn: Function) {
   getFormsStore().expressionHelpers[name] = fn;
 }
 
-export function registereformSchemaTransformers(registration: FormSchemaTransformerRegistration) {
+export function registereformSchemaTransformers(registration: ComponentRegistration<FormSchemaTransformer>) {
   const store = getFormsStore();
   const existingIndex = store.formSchemaTransformers.findIndex((reg) => reg.name === registration.name);
 
@@ -117,11 +115,13 @@ export async function getRegisteredControl(renderType: string) {
   if (registryCache.controls[renderType]) {
     return registryCache.controls[renderType];
   }
-  let component = inbuiltControls.find((item) => item.type === renderType || item?.alias === renderType)?.component;
+  let component = inbuiltControls.find(
+    (control) => control.name === renderType || control?.alias === renderType,
+  )?.component;
   // if undefined, try serching through the registered custom controls
   if (!component) {
     const importedControl = await getFormsStore()
-      .controls.find((item) => item.type === renderType || item?.alias === renderType)
+      .controls.find((control) => control.name === renderType || control?.alias === renderType)
       ?.load?.();
     component = importedControl?.default;
   }

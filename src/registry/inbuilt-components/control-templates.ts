@@ -1,4 +1,4 @@
-import { ControlTemplate } from '../../types';
+import { type ControlTemplate } from '../../types';
 
 export const controlTemplates: Array<ControlTemplate> = [
   {

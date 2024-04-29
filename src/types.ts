@@ -1,6 +1,6 @@
-import { OpenmrsResource } from '@openmrs/esm-framework';
-import { FieldHelperProps, FieldInputProps, FieldMetaProps } from 'formik';
-import { EncounterContext } from './form-context';
+import { type OpenmrsResource } from '@openmrs/esm-framework';
+import { type FieldHelperProps, type FieldInputProps, type FieldMetaProps } from 'formik';
+import { type EncounterContext } from './form-context';
 
 /**
  * Defines logic that processes field submission and value binding while in edit mode
@@ -206,6 +206,7 @@ export interface FormQuestionOptions {
   isSearchable?: boolean;
   workspaceName?: string;
   buttonLabel?: string;
+  identifierType?: string;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
@@ -357,6 +358,14 @@ export interface ProgramEnrollmentPayload {
   dateEnrolled: string;
   dateCompleted?: string;
   location: string;
+}
+
+export interface PatientIdentifier {
+  uuid?: string;
+  identifier: string;
+  identifierType?: string;
+  location?: string;
+  preferred?: boolean;
 }
 
 /**

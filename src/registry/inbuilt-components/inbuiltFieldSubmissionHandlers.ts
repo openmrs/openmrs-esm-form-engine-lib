@@ -2,8 +2,10 @@ import { ObsSubmissionHandler } from '../../submission-handlers/base-handlers';
 import { EncounterDatetimeHandler } from '../../submission-handlers/encounterDatetimeHandler';
 import { EncounterLocationSubmissionHandler } from '../../submission-handlers/encounterLocationHandler';
 import { EncounterProviderHandler } from '../../submission-handlers/encounterProviderHandler';
-import { SubmissionHandler } from '../../types';
-import { RegistryItem } from '../registry';
+import { type SubmissionHandler } from '../../types';
+import { PatientIdentifierHandler } from '../../submission-handlers/patientIdentifierHandler';
+import { ControlHandler } from '../../submission-handlers/controlHandler';
+import { type RegistryItem } from '../registry';
 
 /**
  * @internal
@@ -33,5 +35,15 @@ export const inbuiltFieldSubmissionHandlers: Array<RegistryItem<SubmissionHandle
     name: 'EncounterProviderHandler',
     component: EncounterProviderHandler,
     type: 'encounterProvider',
+  },
+  {
+    name: 'PatientIdentifierHandler',
+    component: PatientIdentifierHandler,
+    type: 'patientIdentifier',
+  },
+  {
+    name: 'controlHandler',
+    component: ControlHandler,
+    type: 'control',
   },
 ];

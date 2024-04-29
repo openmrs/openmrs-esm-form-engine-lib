@@ -1,6 +1,12 @@
 import React from 'react';
-import { LayoutType } from '@openmrs/esm-framework';
-import { FormField, OpenmrsEncounter, SessionMode, SubmissionHandler } from './types';
+import { type LayoutType } from '@openmrs/esm-framework';
+import {
+  type FormField,
+  type OpenmrsEncounter,
+  type PatientIdentifier,
+  type SessionMode,
+  type SubmissionHandler,
+} from './types';
 
 type FormContextProps = {
   values: Record<string, any>;
@@ -30,6 +36,7 @@ export interface EncounterContext {
   setEncounterLocation(value: any): void;
   initValues?: Record<string, any>;
   setObsGroupCounter?: any;
+  patientIdentifier?: PatientIdentifier;
 }
 
 export const FormContext = React.createContext<FormContextProps | undefined>(undefined);

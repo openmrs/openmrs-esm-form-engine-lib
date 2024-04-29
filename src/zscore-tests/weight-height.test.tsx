@@ -7,8 +7,6 @@ import { mockPatientAge4 } from '../../__mocks__/patient.mock';
 import { mockSessionDataResponse } from '../../__mocks__/session.mock';
 import demoHtsOpenmrsForm from '../../__mocks__/forms/omrs-forms/demo_hts-form.json';
 import demoHtsForm from '../../__mocks__/forms/rfe-forms/demo_hts-form.json';
-
-import { waitForLoadingToFinish } from '../utils/test-utils';
 import { mockVisit } from '../../__mocks__/visit.mock';
 import { restBaseUrl } from '@openmrs/esm-framework';
 import userEvent from '@testing-library/user-event';
@@ -51,16 +49,13 @@ describe('weightForHeight z-score', () => {
   it('should compute weightForHeight z-score from the provided height and weight values', async () => {
     const user = userEvent.setup();
 
-    renderForm(null, weightForHeightZscoreTestSchema);
-
-    await waitForLoadingToFinish();
+    await act(async () => renderForm(null, weightForHeightZscoreTestSchema));
 
     const weightForHeightZscore = screen.getByRole('textbox', { name: /weight for height zscore result/i });
     const height = screen.getByRole('spinbutton', { name: /height/i });
     const weight = screen.getByRole('spinbutton', { name: /weight/i });
 
     await user.type(height, '110');
-    await user.tab();
     await user.type(weight, '45');
     await user.tab();
 

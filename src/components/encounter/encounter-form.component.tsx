@@ -1,11 +1,12 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { SessionLocation, showToast, useLayoutType, Visit } from '@openmrs/esm-framework';
+import React, { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { type SessionLocation, showToast, showSnackbar, useLayoutType, type Visit } from '@openmrs/esm-framework';
 import { codedTypes, ConceptFalse, ConceptTrue } from '../../constants';
-import {
+import type {
   FormField,
   FormPage as FormPageProps,
   FormSchema,
   OpenmrsEncounter,
+  PatientIdentifier,
   QuestionAnswerOption,
   RepeatObsGroupCounter,
   SessionMode,
@@ -21,7 +22,7 @@ import {
   voidObsValueOnFieldHidden,
 } from '../../utils/form-helper';
 import { InstantEffect } from '../../utils/instant-effect';
-import { FormSubmissionHandler } from '../../form-engine.component';
+import { type FormSubmissionHandler } from '../../form-engine.component';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { getPreviousEncounter, saveAttachment, saveEncounter } from '../../api/api';
 import { isTrue } from '../../utils/boolean-utils';
@@ -33,6 +34,8 @@ import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { useConcepts } from '../../hooks/useConcepts';
 import { useFormFieldHandlers } from '../../hooks/useFormFieldHandlers';
 import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
+import { saveIdentifier } from '../../utils/patient-identifier-helper';
+import { useTranslation } from 'react-i18next';
 
 interface EncounterFormProps {
   formJson: FormSchema;
@@ -58,7 +61,7 @@ interface EncounterFormProps {
   setIsSubmitting?: Dispatch<SetStateAction<boolean>>;
 }
 
-export const EncounterForm: React.FC<EncounterFormProps> = ({
+const EncounterForm: React.FC<EncounterFormProps> = ({
   formJson,
   patient,
   formSessionDate,
@@ -81,6 +84,7 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
   isSubmitting,
   setIsSubmitting,
 }) => {
+  const { t } = useTranslation();
   const [fields, setFields] = useState<Array<FormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
   const [encounterDate, setEncounterDate] = useState(formSessionDate);
@@ -557,24 +561,67 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
       };
     }
 
-    if (encounterForSubmission.obs?.length || encounterForSubmission.orders?.length) {
-      const ac = new AbortController();
-      return saveEncounter(ac, encounterForSubmission, encounter?.uuid).then((response) => {
-        const encounter = response.data;
-        const fileFields = fields?.filter((field) => field?.questionOptions.rendering === 'file');
-        const saveAttachmentPromises = fileFields.map((field) => {
-          return saveAttachment(
-            encounter?.patient.uuid,
-            field,
-            field?.questionOptions.concept,
-            new Date().toISOString(),
-            encounter?.uuid,
-            ac,
-          );
+    let formPatientIdentifiers = '';
+    const patientIdentifierFields = fields.filter((field) => field.type === 'patientIdentifier');
+    const patientIdentifierPromises = patientIdentifierFields.map((field) => {
+      const identfier: PatientIdentifier = {
+        identifier: field.value,
+        identifierType: field.questionOptions.identifierType,
+        location: encounterLocation,
+      };
+      return saveIdentifier(encounterContext.patient, identfier);
+    });
+
+    return Promise.all(patientIdentifierPromises)
+      .then(() => {
+        for (let i = 0; i < patientIdentifierFields.length; i++) {
+          formPatientIdentifiers += patientIdentifierFields[i].value;
+          if (i < patientIdentifierFields.length - 1) {
+            formPatientIdentifiers += ', ';
+          }
+        }
+        if (patientIdentifierFields.length) {
+          showSnackbar({
+            title: t('identifierCreated', 'Identifier Created'),
+            subtitle: t(
+              'identifierCreatedDescription',
+              `Patient Identifier(s) ${formPatientIdentifiers} successfully created!`,
+            ),
+            kind: 'success',
+            isLowContrast: true,
+          });
+        }
+        saveEncounterWithAttachments(encounterForSubmission);
+      })
+      .catch((error) => {
+        setIsSubmitting(false);
+        showSnackbar({
+          title: t('errorDescriptionTitle', 'Error on saving form'),
+          subtitle: t('errorDescription', error.message),
+          kind: 'error',
+          isLowContrast: false,
         });
-        return Promise.all(saveAttachmentPromises).then(() => response);
+        return Promise.reject(error);
       });
-    }
+  };
+
+  const saveEncounterWithAttachments = (encounterForSubmission: OpenmrsEncounter) => {
+    const ac = new AbortController();
+    return saveEncounter(ac, encounterForSubmission, encounter?.uuid).then((response) => {
+      const encounter = response.data;
+      const fileFields = fields?.filter((field) => field?.questionOptions.rendering === 'file');
+      const saveAttachmentPromises = fileFields.map((field) => {
+        return saveAttachment(
+          encounter?.patient.uuid,
+          field,
+          field?.questionOptions.concept,
+          new Date().toISOString(),
+          encounter?.uuid,
+          ac,
+        );
+      });
+      return Promise.all(saveAttachmentPromises).then(() => response);
+    });
   };
 
   const onFieldChange = (
@@ -831,3 +878,5 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
     </FormContext.Provider>
   );
 };
+
+export default EncounterForm;

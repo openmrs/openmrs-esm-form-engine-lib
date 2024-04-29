@@ -4,23 +4,23 @@ import classNames from 'classnames';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
-import { showSnackbar, useSession, Visit } from '@openmrs/esm-framework';
+import { showSnackbar, useSession, type Visit } from '@openmrs/esm-framework';
 import LinearLoader from './components/loaders/linear-loader.component';
 import LoadingIcon from './components/loaders/loading.component';
 import Sidebar from './components/sidebar/sidebar.component';
 import { init, teardown } from './lifecycle';
-import { FormSchema, SessionMode, FormPage as FormPageProps } from './types';
-import { PatientBanner } from './components/patient-banner/patient-banner.component';
+import type { FormSchema, SessionMode, FormPage as FormPageProps } from './types';
 import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
 import { useFormJson } from './hooks/useFormJson';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
 import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
 import { usePatientData } from './hooks/usePatientData';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
+import { moduleName } from './globals';
+import EncounterForm from './components/encounter/encounter-form.component';
+import PatientBanner from './components/patient-banner/patient-banner.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
 import styles from './form-engine.scss';
-import { EncounterForm } from './components/encounter/encounter-form.component';
-import { moduleName } from './globals';
 
 interface FormProps {
   patientUUID: string;
