@@ -4,10 +4,8 @@ import { EncounterLocationSubmissionHandler } from '../../submission-handlers/en
 import { EncounterProviderHandler } from '../../submission-handlers/encounterProviderHandler';
 import { type SubmissionHandler } from '../../types';
 import { PatientIdentifierHandler } from '../../submission-handlers/patientIdentifierHandler';
-import { RegistryItem } from '../registry';
 import { ControlHandler } from '../../submission-handlers/controlHandler';
 import { type RegistryItem } from '../registry';
-
 
 /**
  * @internal
