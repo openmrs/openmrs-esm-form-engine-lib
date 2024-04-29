@@ -2,9 +2,9 @@ import { ObsSubmissionHandler } from '../../submission-handlers/base-handlers';
 import { EncounterDatetimeHandler } from '../../submission-handlers/encounterDatetimeHandler';
 import { EncounterLocationSubmissionHandler } from '../../submission-handlers/encounterLocationHandler';
 import { EncounterProviderHandler } from '../../submission-handlers/encounterProviderHandler';
-import { SubmissionHandler } from '../../types';
+import { type SubmissionHandler } from '../../types';
 import { PatientIdentifierHandler } from '../../submission-handlers/patientIdentifierHandler';
-import { RegistryItem } from '../registry';
+import { type RegistryItem } from '../registry';
 
 /**
  * @internal

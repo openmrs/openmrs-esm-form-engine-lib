@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useField } from 'formik';
 import { FormContext } from '../../form-context';
-import { FormFieldProps } from '../../types';
+import { type FormFieldProps } from '../../types';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
 import { UnspecifiedField } from '../inputs/unspecified/unspecified.component';
 import { Tooltip } from '../inputs/tooltip/tooltip.component';

@@ -3,7 +3,7 @@ import { FormGroup, Button } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { FormField, FormFieldProps } from '../../types';
+import { type FormField, type FormFieldProps } from '../../types';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { ObsGroup } from '../group/obs-group.component';
 import { isEmpty } from '../../validators/form-validator';
@@ -20,12 +20,7 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange }) => {
   const { t } = useTranslation();
   const id = useId();
 
-  const {
-    fields: allFormFields,
-    encounterContext,
-    obsGroupsToVoid,
-    formFieldHandlers,
-  } = React.useContext(FormContext);
+  const { fields: allFormFields, encounterContext, obsGroupsToVoid, formFieldHandlers } = React.useContext(FormContext);
   const { values, setValues } = useFormikContext();
   const [counter, setCounter] = useState(1);
   const [obsGroups, setObsGroups] = useState([]);

@@ -1,4 +1,4 @@
-import { FormField, FormSchemaTransformer, FormSchema } from '../types';
+import { type FormField, type FormSchemaTransformer, type FormSchema } from '../types';
 
 export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
   transform: (form: FormSchema) => {

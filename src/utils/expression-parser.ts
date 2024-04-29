@@ -1,7 +1,7 @@
-import { FormField } from '../types';
+import { type FormField } from '../types';
 import { ConceptFalse, ConceptTrue } from '../constants';
 import { registerDependency } from './common-expression-helpers';
-import { FormNode } from './expression-runner';
+import { type FormNode } from './expression-runner';
 
 /**
  * Parses a complex expression string into an array of tokens, ignoring operators found within quotes and within parentheses.
@@ -138,7 +138,7 @@ export function replaceFieldRefWithValuePath(field: FormField, value: any, token
  * @param fields All fields
  */
 export function findAndRegisterReferencedFields(fieldNode: FormNode, tokens: string[], fields: Array<FormField>): void {
-  tokens.forEach(token => {
+  tokens.forEach((token) => {
     if (hasParentheses(token)) {
       extractArgs(token).forEach((arg) => {
         registerDependency(fieldNode, findReferencedFieldIfExists(arg, fields));

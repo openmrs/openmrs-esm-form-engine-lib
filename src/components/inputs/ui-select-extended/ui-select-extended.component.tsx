@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
 import { FormContext } from '../../../form-context';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';

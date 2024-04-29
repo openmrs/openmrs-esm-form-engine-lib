@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { FormGroup, RadioButtonGroup, RadioButton } from '@carbon/react';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 import { useField } from 'formik';
 import { FormContext } from '../../../form-context';
 import { isTrue } from '../../../utils/boolean-utils';

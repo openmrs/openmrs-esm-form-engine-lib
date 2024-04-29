@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import isEmpty from 'lodash-es/isEmpty';
 import { Layer, TextInput } from '@carbon/react';
 import { useField } from 'formik';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { fieldRequiredErrCode } from '../../../validators/form-validator';
 import { isTrue } from '../../../utils/boolean-utils';

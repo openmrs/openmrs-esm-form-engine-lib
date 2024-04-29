@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getRegisteredValidator } from '../registry/registry';
-import { FormField, FormFieldValidator } from '../types';
+import { type FormField, type FormFieldValidator } from '../types';
 
 export function useFormFieldValidators(fields: FormField[]) {
   const [validators, setValidators] = useState<Record<string, FormFieldValidator>>();

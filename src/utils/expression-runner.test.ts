@@ -1,7 +1,7 @@
 import { registerExpressionHelper } from '..';
-import { FormField } from '../types';
+import { type FormField } from '../types';
 import { CommonExpressionHelpers } from './common-expression-helpers';
-import { checkReferenceToResolvedFragment, evaluateExpression, ExpressionContext } from './expression-runner';
+import { checkReferenceToResolvedFragment, evaluateExpression, type ExpressionContext } from './expression-runner';
 
 export const testFields: Array<FormField> = [
   {

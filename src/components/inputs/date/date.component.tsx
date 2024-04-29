@@ -6,7 +6,7 @@ import { useField } from 'formik';
 import { DatePicker, DatePickerInput, Layer, TimePicker } from '@carbon/react';
 import { formatDate } from '@openmrs/esm-framework';
 import { isTrue } from '../../../utils/boolean-utils';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 import { isInlineView } from '../../../utils/form-helper';
 import { FieldValueView } from '../../value/view/field-value-view.component';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';

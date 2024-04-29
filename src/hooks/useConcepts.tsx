@@ -1,6 +1,6 @@
-import useSWRInfinite from 'swr/infinite';
-import { FetchResponse, openmrsFetch, OpenmrsResource, restBaseUrl } from '@openmrs/esm-framework';
 import { useMemo } from 'react';
+import { type FetchResponse, type OpenmrsResource, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import useSWRInfinite from 'swr/infinite';
 
 const conceptRepresentation =
   'custom:(uuid,display,conceptClass:(uuid,display),answers:(uuid,display),conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';

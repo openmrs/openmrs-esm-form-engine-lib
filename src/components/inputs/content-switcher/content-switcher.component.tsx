@@ -7,7 +7,7 @@ import { isEmpty } from '../../../validators/form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 import { FieldValueView } from '../../value/view/field-value-view.component';
 import { FormContext } from '../../../form-context';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 import styles from './content-switcher.scss';
 import { useTranslation } from 'react-i18next';
 
