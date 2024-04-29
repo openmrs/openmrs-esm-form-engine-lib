@@ -8,10 +8,9 @@ import { formatDate } from '@openmrs/esm-framework';
 import { isTrue } from '../../../utils/boolean-utils';
 import { type FormFieldProps } from '../../../types';
 import { isInlineView } from '../../../utils/form-helper';
-import { FieldValueView } from '../../value/view/field-value-view.component';
-import { fieldRequiredErrCode, isEmpty, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
-import FieldValueView from '../../value/view/field-value-view.component';
+import { FieldValueView } from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './date.scss';
 import withErrorHandling from '../../errors/error-wrapper.component';
@@ -32,7 +31,6 @@ const DateField: React.FC<FormFieldProps> = ({
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [time, setTime] = useState('');
 
