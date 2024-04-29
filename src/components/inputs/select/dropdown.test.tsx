@@ -1,9 +1,9 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Form, Formik } from 'formik';
-import { EncounterContext, FormContext } from '../../../form-context';
+import { type EncounterContext, FormContext } from '../../../form-context';
 import Dropdown from './dropdown.component';
-import { FormField, RenderType } from '../../../types';
+import type { FormField, RenderType } from '../../../types';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 
 const questions: FormField[] = [
