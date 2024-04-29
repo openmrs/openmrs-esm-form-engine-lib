@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
-import { LayoutType } from '@openmrs/esm-framework';
+import { type LayoutType } from '@openmrs/esm-framework';
 import { ConceptTrue } from '../constants';
-import { EncounterContext } from '../form-context';
-import { FormField, FormPage, FormSection, SessionMode, SubmissionHandler } from '../types';
+import { type EncounterContext } from '../form-context';
+import { type FormField, type FormPage, type FormSection, type SessionMode, type SubmissionHandler } from '../types';
 import { DefaultFieldValueValidator } from '../validators/default-value-validator';
 import { isEmpty } from '../validators/form-validator';
 import { isTrue } from './boolean-utils';
@@ -140,7 +140,7 @@ export function findConceptByReference(reference: string, concepts) {
   } else {
     // handle uuid
     return concepts?.find((concept) => {
-      return concept.uuid === reference;
+      return concept?.uuid === reference;
     });
   }
 }

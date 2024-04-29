@@ -6,7 +6,7 @@ import { isEmpty } from '../../validators/form-validator';
 import { scrollIntoView } from '../../utils/scroll-into-view';
 import styles from './sidebar.scss';
 
-function Sidebar({
+const Sidebar = ({
   isFormSubmitting,
   pagesWithErrors,
   scrollablePages,
@@ -19,7 +19,7 @@ function Sidebar({
   allowUnspecifiedAll,
   defaultPage,
   hideFormCollapseToggle,
-}) {
+}) => {
   const { t } = useTranslation();
   const [activeLink, setActiveLink] = useState(selectedPage);
 
@@ -122,6 +122,6 @@ function Sidebar({
       </div>
     </div>
   );
-}
+};
 
 export default Sidebar;

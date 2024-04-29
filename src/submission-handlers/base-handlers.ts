@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
 import { getConcept, getAttachmentByUuid } from '../api/api';
 import { ConceptTrue } from '../constants';
-import { EncounterContext } from '../form-context';
-import { FormField, OpenmrsEncounter, OpenmrsObs, SubmissionHandler } from '../types';
+import { type EncounterContext } from '../form-context';
+import { type FormField, type OpenmrsEncounter, type OpenmrsObs, type SubmissionHandler } from '../types';
 import { parseToLocalDateTime } from '../utils/form-helper';
 import { flattenObsList, hasRendering } from '../utils/common-utils';
 

@@ -3254,6 +3254,7 @@ __metadata:
     webpack-dev-server: "npm:^4.13.1"
     yup: "npm:^0.29.1"
   peerDependencies:
+    "@carbon/react": 1.x
     "@openmrs/esm-framework": 5.x
     "@openmrs/esm-patient-common-lib": 7.x
     dayjs: 1.x

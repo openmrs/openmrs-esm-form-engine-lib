@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
-import { EncounterContext } from '../form-context';
-import { FormField } from '../types';
+import { type EncounterContext } from '../form-context';
+import { type FormField } from '../types';
 import { findObsByFormField, ObsSubmissionHandler } from './base-handlers';
 
 const encounterContext: EncounterContext = {

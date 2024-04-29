@@ -7,7 +7,7 @@ type LabelProps = {
   tooltipText?: string;
 };
 
-export const LabelField: React.FC<LabelProps> = ({ value, tooltipText }) => {
+const LabelField: React.FC<LabelProps> = ({ value, tooltipText }) => {
   return (
     <div className={styles.label}>
       <DefinitionTooltip direction="bottom" tabIndex={0} tooltipText={tooltipText}>
@@ -16,3 +16,5 @@ export const LabelField: React.FC<LabelProps> = ({ value, tooltipText }) => {
     </div>
   );
 };
+
+export default LabelField;

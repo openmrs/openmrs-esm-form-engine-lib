@@ -1,17 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import isEmpty from 'lodash-es/isEmpty';
+import { useTranslation } from 'react-i18next';
 import { Layer, TextInput } from '@carbon/react';
 import { useField } from 'formik';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { fieldRequiredErrCode } from '../../../validators/form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
-import { FieldValueView } from '../../value/view/field-value-view.component';
+import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './text.scss';
-import { useTranslation } from 'react-i18next';
 
 const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -82,11 +82,10 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
               value={field.value || ''}
               disabled={question.disabled}
               readOnly={Boolean(question.readonly)}
-              invalid={isFieldRequiredError && errors.length > 0}
+              invalid={errors.length > 0}
               invalidText={errors.length && errors[0].message}
               warn={warnings.length > 0}
               warnText={warnings.length && warnings[0].message}
-              onInvalid={(e) => e.preventDefault()}
               maxLength={question.questionOptions.max || TextInput.maxLength}
             />
           </Layer>

@@ -3,14 +3,14 @@ import classNames from 'classnames';
 import debounce from 'lodash-es/debounce';
 import { ComboBox, InlineLoading, Layer } from '@carbon/react';
 import { useField } from 'formik';
-import { FieldValueView } from '../../value/view/field-value-view.component';
 import { isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
 import { FormContext } from '../../../form-context';
-import { FormFieldProps } from '../../../types';
+import { type FormFieldProps } from '../../../types';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import FieldValueView from '../../value/view/field-value-view.component';
 import { isInlineView } from '../../../utils/form-helper';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './ui-select-extended.scss';
@@ -159,6 +159,8 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
               }}
               disabled={question.disabled}
               readOnly={question.readonly}
+              invalid={errors.length > 0}
+              invalidText={errors.length && errors[0].message}
               onInputChange={(value) => {
                 if (isProcessingSelection.current) {
                   // Notes:

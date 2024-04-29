@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FormField, getRegisteredFieldSubmissionHandler, SubmissionHandler } from '..';
+import { type FormField, getRegisteredFieldSubmissionHandler, type SubmissionHandler } from '..';
 
 export function useFormFieldHandlers(fields: FormField[]) {
   const [formFieldHandlers, setFormFieldHandlers] = useState<Record<string, SubmissionHandler>>({});

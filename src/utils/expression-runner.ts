@@ -1,5 +1,5 @@
 import { getRegisteredExpressionHelpers } from '../registry/registry';
-import { FormField, FormPage, FormSection } from '../types';
+import { type FormField, type FormPage, type FormSection } from '../types';
 import { CommonExpressionHelpers } from './common-expression-helpers';
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
 

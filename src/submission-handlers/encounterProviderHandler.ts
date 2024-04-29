@@ -1,4 +1,4 @@
-import { EncounterContext, FormField, OpenmrsEncounter, SubmissionHandler } from '..';
+import { type EncounterContext, type FormField, type OpenmrsEncounter, type SubmissionHandler } from '..';
 
 export const EncounterProviderHandler: SubmissionHandler = {
   handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {

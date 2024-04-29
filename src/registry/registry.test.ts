@@ -1,4 +1,4 @@
-import { MultiSelect } from '../components/inputs/multi-select/multi-select.component';
+import MultiSelect from '../components/inputs/multi-select/multi-select.component';
 import Number from '../components/inputs/number/number.component';
 import { getRegisteredControl } from './registry';
 
