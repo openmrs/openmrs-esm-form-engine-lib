@@ -3,22 +3,22 @@ import { type RegistryItem } from '../registry';
 import { controlTemplates } from './control-templates';
 import { templateToComponentMap } from './template-component-map';
 import { type FormFieldProps } from '../../types';
+import ContentSwitcher from '../../components/inputs/content-switcher/content-switcher.component';
 import DateField from '../../components/inputs/date/date.component';
-import Radio from '../../components/inputs/radio/radio.component';
-import NumberField from '../../components/inputs/number/number.component';
-import TextField from '../../components/inputs/text/text.component';
-import { MultiSelect } from '../../components/inputs/multi-select/multi-select.component';
-import { ContentSwitcher } from '../../components/inputs/content-switcher/content-switcher.component';
-import TextArea from '../../components/inputs/text-area/text-area.component';
 import Dropdown from '../../components/inputs/select/dropdown.component';
-import Toggle from '../../components/inputs/toggle/toggle.component';
-import { ObsGroup } from '../../components/group/obs-group.component';
-import Repeat from '../../components/repeat/repeat.component';
-import Markdown from '../../components/inputs/markdown/markdown.component';
-import FixedValue from '../../components/inputs/fixed-value/fixed-value.component';
 import ExtensionParcel from '../../components/extension/extension-parcel.component';
-import WorkspaceLauncher from '../../components/inputs/workspace-launcher/workspace-launcher.component';
+import FixedValue from '../../components/inputs/fixed-value/fixed-value.component';
+import Markdown from '../../components/inputs/markdown/markdown.component';
+import MultiSelect from '../../components/inputs/multi-select/multi-select.component';
+import NumberField from '../../components/inputs/number/number.component';
+import ObsGroup from '../../components/group/obs-group.component';
+import Radio from '../../components/inputs/radio/radio.component';
+import Repeat from '../../components/repeat/repeat.component';
+import TextArea from '../../components/inputs/text-area/text-area.component';
+import TextField from '../../components/inputs/text/text.component';
+import Toggle from '../../components/inputs/toggle/toggle.component';
 import UiSelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
+import WorkspaceLauncher from '../../components/inputs/workspace-launcher/workspace-launcher.component';
 
 /**
  * @internal

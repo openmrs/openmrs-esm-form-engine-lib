@@ -11,7 +11,7 @@ type Props = {
   hideHeader?: boolean;
 };
 
-export const PreviousValueReview: React.FC<Props> = ({ previousValue, displayText, setValue, field, hideHeader }) => {
+const PreviousValueReview: React.FC<Props> = ({ previousValue, displayText, setValue, field, hideHeader }) => {
   const { t } = useTranslation();
 
   return (
@@ -40,3 +40,5 @@ export const PreviousValueReview: React.FC<Props> = ({ previousValue, displayTex
     </div>
   );
 };
+
+export default PreviousValueReview;

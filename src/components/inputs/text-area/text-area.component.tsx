@@ -1,16 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
+import { useTranslation } from 'react-i18next';
 import { Layer, TextArea as TextAreaInput } from '@carbon/react';
 import { useField } from 'formik';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
-import { FieldValueView } from '../../value/view/field-value-view.component';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
+import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './text-area.scss';
-import { useTranslation } from 'react-i18next';
 
 const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue: previousValueProp }) => {
   const { t } = useTranslation();

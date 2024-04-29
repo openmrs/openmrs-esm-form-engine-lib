@@ -8,7 +8,7 @@ import { type FormFieldProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
 import styles from './unspecified.scss';
 
-export const UnspecifiedField: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
+const UnspecifiedField: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(`${question.id}-unspecified`);
   const { setFieldValue, encounterContext, fields } = React.useContext(FormContext);
@@ -82,3 +82,5 @@ export const UnspecifiedField: React.FC<FormFieldProps> = ({ question, onChange,
     )
   );
 };
+
+export default UnspecifiedField;

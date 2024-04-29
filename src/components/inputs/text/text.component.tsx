@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import isEmpty from 'lodash-es/isEmpty';
+import { useTranslation } from 'react-i18next';
 import { Layer, TextInput } from '@carbon/react';
 import { useField } from 'formik';
 import { type FormFieldProps } from '../../../types';
@@ -8,10 +9,9 @@ import { FormContext } from '../../../form-context';
 import { fieldRequiredErrCode } from '../../../validators/form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
-import { FieldValueView } from '../../value/view/field-value-view.component';
+import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './text.scss';
-import { useTranslation } from 'react-i18next';
 
 const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();

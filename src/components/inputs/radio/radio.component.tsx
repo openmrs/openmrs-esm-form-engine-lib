@@ -8,7 +8,7 @@ import { FormContext } from '../../../form-context';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
-import { FieldValueView } from '../../value/view/field-value-view.component';
+import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './radio.scss';
 

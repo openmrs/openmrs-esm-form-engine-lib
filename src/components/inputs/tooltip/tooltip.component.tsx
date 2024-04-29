@@ -9,7 +9,7 @@ interface TooltipProps {
   field: FormField;
 }
 
-export const Tooltip: React.FC<TooltipProps> = ({ field }) => {
+const Tooltip: React.FC<TooltipProps> = ({ field }) => {
   const { t } = useTranslation();
   return (
     <CarbonTooltip align="top" label={t(field.questionInfo)} description={t(field.questionInfo)}>
@@ -19,3 +19,5 @@ export const Tooltip: React.FC<TooltipProps> = ({ field }) => {
     </CarbonTooltip>
   );
 };
+
+export default Tooltip;
