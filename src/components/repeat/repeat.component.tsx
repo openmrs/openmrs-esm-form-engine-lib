@@ -5,7 +5,7 @@ import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { type FormField, type FormFieldProps } from '../../types';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
-import { ObsGroup } from '../group/obs-group.component';
+import ObsGroup from '../group/obs-group.component';
 import { isEmpty } from '../../validators/form-validator';
 import styles from './repeat.scss';
 import { cloneObsGroup } from './helpers';

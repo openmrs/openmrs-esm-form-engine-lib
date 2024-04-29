@@ -4,15 +4,15 @@ import { useField } from 'formik';
 import { FormContext } from '../../form-context';
 import { type FormFieldProps } from '../../types';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
-import { UnspecifiedField } from '../inputs/unspecified/unspecified.component';
-import { Tooltip } from '../inputs/tooltip/tooltip.component';
+import Tooltip from '../inputs/tooltip/tooltip.component';
+import UnspecifiedField from '../inputs/unspecified/unspecified.component';
 import styles from '../section/form-section.scss';
 
 export interface ObsGroupProps extends FormFieldProps {
   deleteControl?: any;
 }
 
-export const ObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteControl }) => {
+const ObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteControl }) => {
   const [groupMembersControlMap, setGroupMembersControlMap] = useState([]);
   const { formFieldHandlers } = useContext(FormContext);
 
@@ -89,3 +89,5 @@ export const ObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteCo
 
   return <div className={styles.flexRow}>{groupContent}</div>;
 };
+
+export default ObsGroup;

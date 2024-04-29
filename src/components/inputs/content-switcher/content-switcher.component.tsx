@@ -1,17 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import { FormGroup, ContentSwitcher as CdsContentSwitcher, Switch } from '@carbon/react';
 import { useField } from 'formik';
 import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
-import { FieldValueView } from '../../value/view/field-value-view.component';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
+import FieldValueView from '../../value/view/field-value-view.component';
 import styles from './content-switcher.scss';
-import { useTranslation } from 'react-i18next';
 
-export const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
+const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
@@ -87,3 +87,5 @@ export const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, 
     )
   );
 };
+
+export default ContentSwitcher;

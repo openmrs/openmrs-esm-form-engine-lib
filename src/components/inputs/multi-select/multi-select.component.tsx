@@ -3,17 +3,17 @@ import { FilterableMultiSelect, Layer, Tag } from '@carbon/react';
 import classNames from 'classnames';
 import { useField } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { FieldValueView } from '../../value/view/field-value-view.component';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import { ValueEmpty } from '../../value/value.component';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
+import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './multi-select.scss';
 
-export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
+const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
@@ -138,3 +138,5 @@ export const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, hand
     )
   );
 };
+
+export default MultiSelect;

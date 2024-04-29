@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent, screen, cleanup, act, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
-import { ContentSwitcher } from './content-switcher.component';
+import ContentSwitcher from './content-switcher.component';
 import { type EncounterContext, FormContext } from '../../../form-context';
 import { type FormField } from '../../../types';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';

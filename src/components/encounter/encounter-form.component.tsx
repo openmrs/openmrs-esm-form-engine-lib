@@ -61,7 +61,7 @@ interface EncounterFormProps {
   setIsSubmitting?: Dispatch<SetStateAction<boolean>>;
 }
 
-export const EncounterForm: React.FC<EncounterFormProps> = ({
+const EncounterForm: React.FC<EncounterFormProps> = ({
   formJson,
   patient,
   formSessionDate,
@@ -878,3 +878,5 @@ export const EncounterForm: React.FC<EncounterFormProps> = ({
     </FormContext.Provider>
   );
 };
+
+export default EncounterForm;

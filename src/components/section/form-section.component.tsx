@@ -8,10 +8,10 @@ import { ToastNotification } from '@carbon/react';
 import { formatPreviousValueDisplayText, getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
 import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { isTrue } from '../../utils/boolean-utils';
-import { UnspecifiedField } from '../inputs/unspecified/unspecified.component';
 import { FormContext } from '../../form-context';
-import { PreviousValueReview } from '../previous-value-review/previous-value-review.component';
-import { Tooltip } from '../inputs/tooltip/tooltip.component';
+import PreviousValueReview from '../previous-value-review/previous-value-review.component';
+import Tooltip from '../inputs/tooltip/tooltip.component';
+import UnspecifiedField from '../inputs/unspecified/unspecified.component';
 import styles from './form-section.scss';
 
 interface FieldComponentMap {

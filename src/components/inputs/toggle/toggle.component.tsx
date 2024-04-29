@@ -5,7 +5,7 @@ import { useField } from 'formik';
 import { FormContext } from '../../../form-context';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
-import { FieldValueView } from '../../value/view/field-value-view.component';
+import FieldValueView from '../../value/view/field-value-view.component';
 import { isEmpty } from '../../../validators/form-validator';
 import { booleanConceptToBoolean } from '../../../utils/common-expression-helpers';
 import styles from './toggle.scss';
