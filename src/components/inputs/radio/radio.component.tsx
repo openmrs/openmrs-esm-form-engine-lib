@@ -24,7 +24,6 @@ const Radio: React.FC<FormFieldProps> = ({
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-
   const [warnings, setWarnings] = useState([]);
   const { t } = useTranslation();
 

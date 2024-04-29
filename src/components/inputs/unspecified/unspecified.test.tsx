@@ -5,6 +5,7 @@ import { type FormField, type EncounterContext, FormContext } from '../../..';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 import { findTextOrDateInput } from '../../../utils/test-utils';
 import DateField from '../date/date.component';
+import { UnspecifiedField } from './unspecified.component';
 import { fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
 
 const question: FormField = {
