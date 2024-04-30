@@ -94,6 +94,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
+  const [patientProgram, setPatientProgram] = useState({});
 
   const layoutType = useLayoutType();
   const encounterContext = useMemo(
@@ -111,6 +112,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setEncounterProvider,
       setEncounterLocation,
       initValues: initValues,
+      patientProgram: patientProgram,
     }),
     [encounter, form?.encounter, encounterLocation, patient, previousEncounter, sessionMode, initValues],
   );
@@ -448,6 +450,39 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       return Promise.reject({
         title: t('errorSavingPatientIdentifiers', 'Error saving patient identifiers'),
         subtitle: errorMessages.join(', '),
+        kind: 'error',
+        isLowContrast: false,
+      });
+    }
+
+    try {
+      const program = EncounterFormManager.prepareProgramEnrollment(fields, encounterDate, encounterLocation, patient);
+
+      const { data: savedPatientProgram } = await EncounterFormManager.saveProgramEnrollments(
+        program,
+        sessionMode,
+        patient,
+      );
+      if (savedPatientProgram) {
+        showSnackbar({
+          title: t('enrollmentSaved', 'Enrollment saved'),
+          kind: 'success',
+          isLowContrast: true,
+        });
+      } else {
+        setIsSubmitting(false);
+        showSnackbar({
+          title: t('errorEnrolling', 'Error saving enrollment'),
+          subtitle: t('errorEnrolling', 'Error saving enrollment'),
+          kind: 'error',
+          isLowContrast: false,
+        });
+      }
+    } catch (error) {
+      setIsSubmitting(false);
+      showSnackbar({
+        title: t('errorEnrolling', 'Error saving enrollment'),
+        subtitle: error.message,
         kind: 'error',
         isLowContrast: false,
       });

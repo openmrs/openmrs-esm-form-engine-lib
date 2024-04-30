@@ -1,9 +1,10 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormField, type OpenmrsEncounter, type OpenmrsObs, type PatientIdentifier } from '../../types';
 import { type EncounterContext } from '../../form-context';
-import { saveAttachment, saveEncounter, savePatientIdentifier } from '../../api/api';
 import { hasRendering, hasSubmission } from '../../utils/common-utils';
 import { voidObs, constructObs } from '../../submission-handlers/obsHandler';
+import { saveAttachment, saveEncounter, savePatientIdentifier, saveProgramEnrollment } from '../../api/api';
+import dayjs from 'dayjs';
 
 export class EncounterFormManager {
   static preparePatientIdentifiers(fields: FormField[], encounterLocation: string): PatientIdentifier[] {
@@ -74,6 +75,26 @@ export class EncounterFormManager {
     return encounterForSubmission;
   }
 
+  static prepareProgramEnrollment(fields: FormField[], encounterDate: Date, encounterLocation: string, patient: fhir.Patient) {
+    const patientProgramWorkflow = fields.find((field) => field.type == 'programWorkflow');
+    const patientProgramState = fields.find((field) => field.type == 'programState')?.value;
+    const completionDate = fields.find((field) => field.questionOptions.isProgramCompletion === true)?.value;
+    const programUuid = patientProgramWorkflow?.questionOptions?.datasource?.config;
+  
+    return {
+      patient: patient.id,
+      program: programUuid,
+      states: [
+        {
+          state: patientProgramState,
+          startDate: dayjs(encounterDate).format(),
+        },
+      ],
+      dateEnrolled: dayjs(completionDate).format(),
+      location: encounterLocation,
+    };
+  }
+
   static saveEncounter(encounter: OpenmrsEncounter, abortController: AbortController) {
     return saveEncounter(abortController, encounter, encounter?.uuid);
   }
@@ -98,6 +119,38 @@ export class EncounterFormManager {
       return savePatientIdentifier(patientIdentifier, patient.id);
     });
   }
+
+  static saveProgramEnrollments = (programPayload: any, sessionMode: string, patient: any) => {
+    const ac = new AbortController();
+    if (programPayload.program != 'undefined') {
+      let patientProgramEnrollment = patient.patientPrograms.find(
+        (enrollment) => enrollment.program.uuid === programPayload.program && enrollment.dateCompleted === null,
+      );
+
+      // return already enrolled if not edit mode
+      if (sessionMode == 'edit' && patientProgramEnrollment.uuid !== '') {
+        let previousPatientProgramEnrollment;
+        let currentPatientEnrollment; 
+
+        // invalidate previous and update new
+        if (!programPayload.dateEnrolled) {
+          programPayload.dateEnrolled = patientProgramEnrollment.dateEnrolled;
+        }
+        previousPatientProgramEnrollment = programPayload;
+        previousPatientProgramEnrollment.uuid = patientProgramEnrollment.uuid;
+        previousPatientProgramEnrollment.states[0].endDate = new Date().toISOString();
+        return saveProgramEnrollment(previousPatientProgramEnrollment, ac).then(() => {
+          return saveProgramEnrollment(currentPatientEnrollment, ac)
+        }).catch((error) => {
+          return error
+        })
+      } else if (sessionMode === 'enter' && patientProgramEnrollment?.length > 0) {
+        throw new Error('Patient enrolled into program');
+      } else {
+        return saveProgramEnrollment(programPayload, ac)
+      }
+    }
+  };
 }
 
 // Helpers
@@ -175,4 +228,9 @@ function hasSubmitableObs(field: FormField) {
     return true;
   }
   return !field.isHidden && !field.isParentHidden && (type === 'obsGroup' || hasSubmission(field));
+}
+
+export const getPatientPrograms = (patient: any, programUuid: Record<string, any>) => {
+  const patientPrograms = patient.patientPrograms;
+  return patientPrograms.find((program) => program.program.uuid == programUuid);
 }

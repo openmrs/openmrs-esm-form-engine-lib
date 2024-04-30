@@ -18,8 +18,8 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 
 const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
   const { t } = useTranslation();
-  const [field] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
+  const [field ] = useField(question.id);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout,  } = React.useContext(FormContext);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');

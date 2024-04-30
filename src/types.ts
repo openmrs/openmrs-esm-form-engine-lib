@@ -230,6 +230,7 @@ export interface FormQuestionOptions {
   orderSettingUuid?: string;
   orderType?: string;
   selectableOrders?: Array<Record<any, any>>;
+  isProgramCompletion?: boolean;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
@@ -255,7 +256,9 @@ export type RenderType =
   | 'workspace-launcher'
   | 'fixed-value'
   | 'file'
-  | 'select-concept-answers';
+  | 'select-concept-answers'
+  | 'program-workflow'
+  | 'program-workflow-state';
 
 export interface PostSubmissionAction {
   applyAction(
@@ -380,6 +383,8 @@ export interface ProgramEnrollmentPayload {
   dateEnrolled: string;
   dateCompleted?: string;
   location: string;
+  states?: Array<ProgramState>,
+  uuid: string;
 }
 
 export interface PatientIdentifier {
@@ -390,6 +395,12 @@ export interface PatientIdentifier {
   preferred?: boolean;
 }
 
+export interface ProgramState {
+ state: string;
+ startDate?: string;
+ endDate?: string;
+ retired?: boolean;
+}
 /**
  * A form schema transformer is used to bridge the gap caused by different variations of form schemas
  * in the OpenMRS JSON schema-based form-entry world. It fine-tunes custom schemas to be compliant

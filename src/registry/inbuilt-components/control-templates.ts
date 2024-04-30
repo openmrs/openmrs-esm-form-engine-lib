@@ -44,6 +44,18 @@ export const controlTemplates: Array<ControlTemplate> = [
       },
     },
   },
+  {
+    name: 'program-workflow',
+    datasource: {
+      name: 'program_workflow_datasource',
+    },
+  },
+  {
+    name: 'program-workflow-state',
+    datasource: {
+      name: 'program_workflow_state_datasource',
+    },
+  },
 ];
 
 export const getControlTemplate = (name: string) => {

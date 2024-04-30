@@ -145,12 +145,16 @@ function dataURItoFile(dataURI: string) {
 }
 
 //Program Enrollment
-export function getPatientEnrolledPrograms(patientUuid: string) {
+export function getPatientEnrolledPrograms(patientUuid: string, programUuid?: string) {
   return openmrsFetch(
-    `${restBaseUrl}/programenrollment?patient=${patientUuid}&v=custom:(uuid,display,program,dateEnrolled,dateCompleted,location:(uuid,display))`,
+    `${restBaseUrl}/programenrollment?patient=${patientUuid}&v=custom:(uuid,display,program:(uuid,name,allWorkflows),states,dateEnrolled,dateCompleted,location:(uuid,display))`,
   ).then(({ data }) => {
     if (data) {
-      return data;
+      if(programUuid) {
+        return data.filter((program) => program.uuid === programUuid)
+      } else {
+        return data;
+      }
     }
     return null;
   });
@@ -167,6 +171,30 @@ export function createProgramEnrollment(payload: ProgramEnrollmentPayload, abort
       'Content-Type': 'application/json',
     },
     body: { program, patient, dateEnrolled, dateCompleted, location },
+    signal: abortController.signal,
+  });
+}
+
+export function saveProgramEnrollment(payload: ProgramEnrollmentPayload, abortController: AbortController) {
+  if (!payload) {
+    throw new Error('Program enrollment cannot be created because no payload is supplied');
+  }
+  const { program, patient, dateEnrolled, dateCompleted, location, states, uuid } = payload;
+  const body = { program, patient, dateEnrolled, dateCompleted, location, ...(states && { states }),...(uuid && { uuid })  };
+  let url: string;
+
+  if(payload.uuid != undefined) {
+    url = `${restBaseUrl}/programenrollment/${payload.uuid}`;
+  } else {
+    url = `${restBaseUrl}/programenrollment`;
+  }
+
+  return openmrsFetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
     signal: abortController.signal,
   });
 }
@@ -192,7 +220,6 @@ export function updateProgramEnrollment(
 
 export function savePatientIdentifier(patientIdentifier: PatientIdentifier, patientUuid: string) {
   let url: string;
-
   if (patientIdentifier.uuid) {
     url = `${restBaseUrl}/patient/${patientUuid}/identifier/${patientIdentifier.uuid}`;
   } else {
