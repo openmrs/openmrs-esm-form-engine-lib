@@ -100,8 +100,7 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<FormFieldPr
     component: WorkspaceLauncher,
   },
   ...controlTemplates.map((template) => ({
-    name: `${template.name}Control`,
+    name: template.name,
     component: templateToComponentMap.find((component) => component.name === template.name).baseControlComponent,
-    type: template.name,
   })),
 ];
