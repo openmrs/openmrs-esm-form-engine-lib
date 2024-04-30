@@ -4,6 +4,7 @@ import { ObsSubmissionHandler } from '../submission-handlers/base-handlers';
 import type { FormField, OpenmrsEncounter } from '../types';
 import testEncounter from '__mocks__/use-initial-values/encounter.mock.json';
 import testPatient from '__mocks__/use-initial-values/patient.mock.json';
+import { TestOrderSubmissionHandler } from 'src/submission-handlers/testOrderHandler';
 
 const obsGroupMembers: Array<FormField> = [
   {
@@ -36,6 +37,31 @@ const obsGroupMembers: Array<FormField> = [
     validators: [],
   },
 ];
+
+const testOrder: FormField = {
+  label: 'Test Order',
+  type: 'testOrder',
+  id: 'testOrder',
+  questionOptions: {
+    rendering: 'repeating',
+    answers: [
+      {
+        concept: '30e2da8f-34ca-4c93-94c8-d429f22d381c',
+        label: 'Test 1',
+      },
+      {
+        concept: '87b3f6a1-6d79-4923-9485-200dfd937782',
+        label: 'Test 2',
+      },
+      {
+        concept: '143264AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        label: 'Test 3',
+      },
+    ],
+  },
+  validators: [],
+};
+
 let allFormFields: Array<FormField> = [
   {
     label: 'Number of babies',
@@ -97,7 +123,11 @@ let allFormFields: Array<FormField> = [
   ...obsGroupMembers,
 ];
 
-const formFieldHandlers = { obs: ObsSubmissionHandler, obsGroup: ObsSubmissionHandler };
+const formFieldHandlers = {
+  obs: ObsSubmissionHandler,
+  obsGroup: ObsSubmissionHandler,
+  testOrder: TestOrderSubmissionHandler,
+};
 
 const location = {
   uuid: '1ce1b7d4-c865-4178-82b0-5932e51503d6',
@@ -262,5 +292,42 @@ describe('useInitialValues', () => {
       infant_name_1: '',
       latest_mother_hiv_status: '664AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
     });
+  });
+
+  it('should hydrate test orders', async () => {
+    let hook = null;
+
+    await act(async () => {
+      hook = renderHook(() =>
+        useInitialValues(
+          [testOrder],
+          encounter,
+          {
+            encounter: encounter,
+            patient: testPatient,
+            location,
+            sessionMode: 'enter',
+            encounterDate: encounterDate,
+            setEncounterDate: jest.fn,
+            encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
+            setEncounterProvider: jest.fn,
+            setEncounterLocation: jest.fn,
+          },
+          formFieldHandlers,
+        ),
+      );
+    });
+    const {
+      current: { initialValues, isBindingComplete },
+    } = hook.result;
+    expect(isBindingComplete).toBe(true);
+
+    expect(initialValues).toEqual({
+      testOrder: '30e2da8f-34ca-4c93-94c8-d429f22d381c',
+      testOrder_1: '87b3f6a1-6d79-4923-9485-200dfd937782',
+      testOrder_2: '143264AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    });
+    expect(allFormFields.find((field) => field.id === 'testOrder_1')).not.toBeNull();
+    expect(allFormFields.find((field) => field.id === 'testOrder_2')).not.toBeNull();
   });
 });

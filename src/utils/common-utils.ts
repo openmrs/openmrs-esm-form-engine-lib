@@ -48,8 +48,8 @@ export function clearSubmission(field: FormField) {
 }
 
 export function gracefullySetSubmission(field: FormField, newValue: any, voidedValue: any) {
-  if (!field.meta.submission) {
-    field.meta.submission = {};
+  if (!field.meta?.submission) {
+    field.meta = { ...(field.meta || {}), submission: {} };
   }
   if (!isEmpty(newValue)) {
     field.meta.submission.newValue = newValue;

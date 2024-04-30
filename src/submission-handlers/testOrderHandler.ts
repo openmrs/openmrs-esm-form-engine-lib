@@ -7,7 +7,9 @@ const defaultOrderType = 'testorder';
 
 export const TestOrderSubmissionHandler: SubmissionHandler = {
   handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
-    if (context.sessionMode == 'edit' && field.value?.uuid) {
+    // TODO: Only track previous value through field.meta.previousValue
+    // Update this as part of O3-2164
+    if (context.sessionMode == 'edit' && (field.value?.uuid || field.meta?.previousValue?.uuid)) {
       return editOrder(value, field, context.encounterProvider);
     }
     const newValue = constructNewOrder(value, field, context.encounterProvider);
@@ -22,7 +24,7 @@ export const TestOrderSubmissionHandler: SubmissionHandler = {
       .find((order) => availableOrderables.includes(order.concept.uuid));
     if (matchedOrder) {
       // TODO: Only track previous value through field.meta.previousValue
-      // Remove this when O3-2164 is resolved
+      // Update this as part of O3-2164
       field.value = matchedOrder;
       field.meta = { previousValue: matchedOrder, ...(field.meta || {}) };
       assignedOrderIds.push(matchedOrder.uuid);
@@ -61,11 +63,11 @@ function editOrder(newOrder: any, field: FormField, orderer: string) {
   }
   // delete order by voiding it
   const voided = {
-    uuid: field.value.uuid,
+    uuid: field.meta.previousValue.uuid,
     voided: true,
   };
   gracefullySetSubmission(field, constructNewOrder(newOrder, field, orderer), voided);
-  return field.meta.submission.newValue;
+  return field.meta.submission.newValue || null;
 }
 
 export function teardownTestOrderHandler() {
