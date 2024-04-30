@@ -85,8 +85,9 @@ export class EncounterFormManager {
   static saveAttachments(fields: FormField[], encounter: OpenmrsEncounter, abortController: AbortController) {
     const fileFields = fields?.filter((field) => field?.questionOptions.rendering === 'file');
     return fileFields.map((field) => {
+      const patientUuid = typeof encounter?.patient === 'string' ? encounter?.patient : encounter?.patient?.uuid;
       return saveAttachment(
-        encounter.patient.uuid,
+        patientUuid,
         field,
         field?.questionOptions.concept,
         new Date().toISOString(),
@@ -133,7 +134,7 @@ function prepareObs(
           groupMembers: [],
           uuid: field.uuid,
           voided: false,
-        };
+        } as any as OpenmrsObs;
 
         let hasValue = false;
         field.questions.forEach((groupedField) => {
