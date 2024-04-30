@@ -39,13 +39,13 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   useEffect(() => {
-    const datasourceName = question.questionOptions?.datasource?.name;
+    const dataSource = question.questionOptions?.datasource?.name;
     setConfig(
-      datasourceName
+      dataSource
         ? question.questionOptions.datasource?.config
         : getControlTemplate(question.questionOptions.rendering)?.datasource?.config,
     );
-    getRegisteredDataSource(datasourceName ? datasourceName : question.questionOptions.rendering).then((ds) =>
+    getRegisteredDataSource(dataSource ? dataSource : question.questionOptions.rendering).then((ds) =>
       setDataSource(ds),
     );
   }, [question.questionOptions?.datasource]);
@@ -135,7 +135,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
     />
   ) : (
     !question.isHidden && (
-      <>
+      <div className={styles.container}>
         <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
           <Layer>
             <ComboBox
@@ -175,8 +175,8 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
             />
           </Layer>
         </div>
-        {isLoading && <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />}
-      </>
+        {isLoading && <InlineLoading className={styles.loader} />}
+      </div>
     )
   );
 };

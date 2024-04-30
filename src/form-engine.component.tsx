@@ -5,7 +5,6 @@ import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import { showSnackbar, useSession, type Visit } from '@openmrs/esm-framework';
-import LinearLoader from './components/loaders/linear-loader.component';
 import LoadingIcon from './components/loaders/loading.component';
 import Sidebar from './components/sidebar/sidebar.component';
 import { init, teardown } from './lifecycle';
@@ -255,11 +254,6 @@ const FormEngine: React.FC<FormProps> = ({
               <LoadingIcon />
             ) : (
               <div className={styles.formEngineContainer}>
-                {isLoadingFormDependencies && (
-                  <div className={styles.loader}>
-                    <LinearLoader />
-                  </div>
-                )}
                 <div className={styles.formEngineBody}>
                   {showSidebar && (
                     <Sidebar

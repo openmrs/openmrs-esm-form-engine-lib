@@ -1,8 +1,16 @@
 @use '@carbon/colors';
 
-.boldedLabel label {
-  font-weight: 600;
-  color: colors.$black-100;
+.container {
+  display: flex;
+}
+
+.boldedLabel {
+  flex: 95%;
+
+  label {
+    font-weight: 600;
+    color: colors.$black-100;
+  }
 }
 
 .errorLabel label {
@@ -11,5 +19,7 @@
 }
 
 .loader {
-  padding: 0.25rem 0.5rem;
+  flex: 5%;
+  align-items: center;
+  margin: 1.5rem 0 0 0.5rem;
 }
