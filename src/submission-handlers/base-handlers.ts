@@ -49,6 +49,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
       return getAttachmentByUuid(encounter.patient['uuid'], encounter.uuid, ac);
     }
     const matchedObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field);
+
     const rendering = field.questionOptions.rendering;
     if (matchedObs?.length) {
       if (field['groupId'] && !assignedObsIds.includes(matchedObs[0].obsGroup?.uuid)) {
@@ -100,7 +101,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
         (chosenOption) => field.questionOptions.answers?.find((option) => option.concept == chosenOption)?.label,
       );
     }
-    if (rendering == 'content-switcher' || rendering == 'select' || rendering == 'toggle') {
+    if (rendering == 'content-switcher' || rendering == 'select' || rendering == 'toggle' || rendering == 'testOrder') {
       const concept = typeof field.value.value === 'object' ? field.value.value.uuid : field.value.value;
       return field.questionOptions.answers?.find((option) => option.concept == concept)?.label;
     }

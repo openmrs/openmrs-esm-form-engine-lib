@@ -1,14 +1,12 @@
 import React, { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { type SessionLocation, showToast, showSnackbar, useLayoutType, type Visit } from '@openmrs/esm-framework';
+import { type SessionLocation, showSnackbar, useLayoutType, type Visit } from '@openmrs/esm-framework';
 import { codedTypes, ConceptFalse, ConceptTrue } from '../../constants';
 import type {
   FormField,
   FormPage as FormPageProps,
   FormSchema,
   OpenmrsEncounter,
-  PatientIdentifier,
   QuestionAnswerOption,
-  RepeatObsGroupCounter,
   SessionMode,
   ValidationResult,
 } from '../../types';
@@ -24,9 +22,9 @@ import {
 import { InstantEffect } from '../../utils/instant-effect';
 import { type FormSubmissionHandler } from '../../form-engine.component';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
-import { getPreviousEncounter, saveAttachment, saveEncounter } from '../../api/api';
+import { getPreviousEncounter } from '../../api/api';
 import { isTrue } from '../../utils/boolean-utils';
-import { FieldValidator, isEmpty as isValueEmpty, isEmpty } from '../../validators/form-validator';
+import { FieldValidator, isEmpty } from '../../validators/form-validator';
 import { scrollIntoView } from '../../utils/scroll-into-view';
 import { useEncounter } from '../../hooks/useEncounter';
 import { useInitialValues } from '../../hooks/useInitialValues';
@@ -34,8 +32,8 @@ import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { useConcepts } from '../../hooks/useConcepts';
 import { useFormFieldHandlers } from '../../hooks/useFormFieldHandlers';
 import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
-import { saveIdentifier } from '../../utils/patient-identifier-helper';
 import { useTranslation } from 'react-i18next';
+import { EncounterFormManager } from './encounter-form-manager';
 
 interface EncounterFormProps {
   formJson: FormSchema;
@@ -97,7 +95,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
-  const [obsGroupCounter, setObsGroupCounter] = useState<Array<RepeatObsGroupCounter>>([]);
 
   const layoutType = useLayoutType();
 
@@ -116,8 +113,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setEncounterProvider,
       setEncounterLocation,
       initValues: initValues,
-      obsGroupCounter: obsGroupCounter,
-      setObsGroupCounter: setObsGroupCounter,
     }),
     [encounter, form?.encounter, location, patient, previousEncounter, sessionMode, initValues],
   );
@@ -137,7 +132,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           form.inlineRendering = isEmpty(form.inlineRendering) ? null : form.inlineRendering;
           question.inlineRendering = section.inlineRendering ?? page.inlineRendering ?? form.inlineRendering;
           evaluateFieldReadonlyProp(question, section.readonly, page.readonly, form.readonly);
-          if (question.questionOptions.rendering == 'fixed-value' && !question['fixedValue']) {
+          if (question.questionOptions?.rendering == 'fixed-value' && !question['fixedValue']) {
             question['fixedValue'] = question.value;
           }
           flattenedFieldsTemp.push(question);
@@ -311,7 +306,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               };
             });
           }
-
           return field;
         }),
       );
@@ -379,34 +373,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     }
   };
 
-  const addObs = useCallback((obsList: Array<any>, obs: any) => {
-    if (Array.isArray(obs)) {
-      obs.forEach((o) => {
-        if (isValueEmpty(o.groupMembers)) {
-          delete o.groupMembers;
-        } else {
-          o.groupMembers.forEach((obsChild) => {
-            if (isValueEmpty(obsChild.groupMembers)) {
-              delete obsChild.groupMembers;
-            }
-          });
-        }
-        obsList.push(o);
-      });
-    } else {
-      if (isValueEmpty(obs.groupMembers)) {
-        delete obs.groupMembers;
-      } else {
-        obs.groupMembers.forEach((obsChild) => {
-          if (isValueEmpty(obsChild.groupMembers)) {
-            delete obsChild.groupMembers;
-          }
-        });
-      }
-      obsList.push(obs);
-    }
-  }, []);
-
   useEffect(() => {
     if (invalidFields?.length) {
       setPagesWithErrors(findPagesWithErrors(scrollablePages, invalidFields));
@@ -462,166 +428,42 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     [fields],
   );
 
-  const handleFormSubmit = (values: Record<string, any>) => {
-    const obsForSubmission = [];
-    fields
-      .filter((field) => field.value || field.type == 'obsGroup') // filter out fields with empty values except groups
-      .filter((field) => !field.isParentHidden && !field.isHidden && (field.type == 'obs' || field.type == 'obsGroup'))
-      .filter((field) => !field['groupId']) // filter out grouped obs
-      .filter((field) => !field.questionOptions.isTransient && field.questionOptions.rendering !== 'file')
-      .forEach((field) => {
-        if (field.type == 'obsGroup') {
-          const obsGroup = {
-            person: patient?.id,
-            obsDatetime: encounterDate,
-            concept: field.questionOptions.concept,
-            location: encounterLocation,
-            order: null,
-            groupMembers: [],
-            uuid: field.uuid,
-            voided: false,
-          };
+  const handleFormSubmit = async (values: Record<string, any>) => {
+    const abortController = new AbortController();
+    const patientIdentifiers = EncounterFormManager.preparePatientIdentifiers(fields, encounterLocation);
+    const encounter = EncounterFormManager.prepareEncounter(
+      fields,
+      { ...encounterContext, encounterProvider, location: encounterLocation },
+      obsGroupsToVoid,
+      encounterRole,
+      visit,
+      formJson.encounterType,
+      formJson.uuid,
+    );
 
-          //validate obs group count against limit
-          const limit = field.questionOptions.repeatOptions?.limit;
-          const counter = obsGroupCounter?.filter((eachItem) => eachItem.fieldId === field.id)[0]?.obsGroupCount;
-
-          if (limit && counter && counter !== Number(limit)) {
-            setIsSubmitting(false);
-            showToast({
-              description: 'obsGroup count does not match limit specified',
-              title: 'Invalid entry',
-              kind: 'error',
-              critical: true,
-            });
-            throw new Error('obsGroup count does not match limit specified');
-          }
-
-          let hasValue = false;
-          field.questions.forEach((groupedField) => {
-            if (groupedField.value) {
-              hasValue = true;
-              if (Array.isArray(groupedField.value)) {
-                obsGroup.groupMembers.push(...groupedField.value);
-              } else {
-                obsGroup.groupMembers.push(groupedField.value);
-              }
-            }
-          });
-          hasValue && addObs(obsForSubmission, obsGroup);
-        } else {
-          addObs(obsForSubmission, field.value);
-        }
-      });
-
-    // Add voided obs groups
-    obsGroupsToVoid.forEach((obs) => addObs(obsForSubmission, obs));
-    let encounterForSubmission: OpenmrsEncounter = {};
-    if (encounter) {
-      Object.assign(encounterForSubmission, encounter);
-      encounterForSubmission['location'] = encounterLocation.uuid;
-      // update encounter providers
-      const hasCurrentProvider =
-        encounterForSubmission['encounterProviders'].findIndex(
-          (encProvider) => encProvider.provider.uuid == encounterProvider,
-        ) !== -1;
-      if (!hasCurrentProvider) {
-        encounterForSubmission['encounterProviders'] = [
-          ...encounterForSubmission.encounterProviders,
-          {
-            provider: encounterProvider,
-            encounterRole: encounterRole?.uuid,
-          },
-        ];
-        (encounterForSubmission['form'] = {
-          uuid: encounterContext?.form?.uuid,
-        }),
-          (encounterForSubmission['visit'] = {
-            uuid: visit?.uuid,
-          });
+    try {
+      await Promise.all(EncounterFormManager.savePatientIdentifiers(patient, patientIdentifiers));
+      if (patientIdentifiers?.length) {
+        showSnackbar({
+          title: t('patientIdentifiersCreated', 'Patient identifier(s) created sucessfully'),
+          kind: 'success',
+          isLowContrast: true,
+        });
       }
-      encounterForSubmission['obs'] = obsForSubmission;
-    } else {
-      encounterForSubmission = {
-        patient: patient.id,
-        encounterDatetime: encounterDate,
-        location: encounterLocation.uuid,
-        encounterType: formJson.encounterType,
-        encounterProviders: [
-          {
-            provider: encounterProvider,
-            encounterRole: encounterRole?.uuid,
-          },
-        ],
-        obs: obsForSubmission,
-        form: {
-          uuid: encounterContext?.form?.uuid,
-        },
-        visit: visit?.uuid,
-      };
+    } catch (error) {
+      setIsSubmitting(false);
+      showSnackbar({
+        title: t('errorSavingPatientIndentifiers', 'Error saving patient identifiers'),
+        subtitle: error.message,
+        kind: 'error',
+        isLowContrast: false,
+      });
     }
 
-    let formPatientIdentifiers = '';
-    const patientIdentifierFields = fields.filter((field) => field.type === 'patientIdentifier');
-    const patientIdentifierPromises = patientIdentifierFields.map((field) => {
-      const identfier: PatientIdentifier = {
-        identifier: field.value,
-        identifierType: field.questionOptions.identifierType,
-        location: encounterLocation,
-      };
-      return saveIdentifier(encounterContext.patient, identfier);
-    });
-
-    return Promise.all(patientIdentifierPromises)
-      .then(() => {
-        for (let i = 0; i < patientIdentifierFields.length; i++) {
-          formPatientIdentifiers += patientIdentifierFields[i].value;
-          if (i < patientIdentifierFields.length - 1) {
-            formPatientIdentifiers += ', ';
-          }
-        }
-        if (patientIdentifierFields.length) {
-          showSnackbar({
-            title: t('identifierCreated', 'Identifier Created'),
-            subtitle: t(
-              'identifierCreatedDescription',
-              `Patient Identifier(s) ${formPatientIdentifiers} successfully created!`,
-            ),
-            kind: 'success',
-            isLowContrast: true,
-          });
-        }
-        saveEncounterWithAttachments(encounterForSubmission);
-      })
-      .catch((error) => {
-        setIsSubmitting(false);
-        showSnackbar({
-          title: t('errorDescriptionTitle', 'Error on saving form'),
-          subtitle: t('errorDescription', error.message),
-          kind: 'error',
-          isLowContrast: false,
-        });
-        return Promise.reject(error);
-      });
-  };
-
-  const saveEncounterWithAttachments = (encounterForSubmission: OpenmrsEncounter) => {
-    const ac = new AbortController();
-    return saveEncounter(ac, encounterForSubmission, encounter?.uuid).then((response) => {
-      const encounter = response.data;
-      const fileFields = fields?.filter((field) => field?.questionOptions.rendering === 'file');
-      const saveAttachmentPromises = fileFields.map((field) => {
-        return saveAttachment(
-          encounter?.patient.uuid,
-          field,
-          field?.questionOptions.concept,
-          new Date().toISOString(),
-          encounter?.uuid,
-          ac,
-        );
-      });
-      return Promise.all(saveAttachmentPromises).then(() => response);
-    });
+    const { data: savedEncounter } = await EncounterFormManager.saveEncounter(encounter, abortController);
+    // handle attachments
+    await Promise.all(EncounterFormManager.saveAttachments(fields, savedEncounter, abortController));
+    return savedEncounter;
   };
 
   const onFieldChange = (

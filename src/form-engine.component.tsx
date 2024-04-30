@@ -225,6 +225,7 @@ const FormEngine: React.FC<FormProps> = ({
           hideFormCollapseToggle();
         })
         .catch((error) => {
+          console.error(error);
           const errorMessages = extractErrorMessagesFromResponse(error);
           showSnackbar({
             title: t('errorDescriptionTitle', 'Error on saving form'),

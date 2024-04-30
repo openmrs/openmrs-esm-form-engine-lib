@@ -1,0 +1,72 @@
+{
+  "encounterType": "0e8230ce-bd1d-43f5-a863-cf44344fa4b0",
+  "name": "Demo Lab Orders",
+  "processor": "EncounterFormProcessor",
+  "referencedForms": [],
+  "uuid": "bm94350f-0040-4941-88b2-5cc294bcc3e6",
+  "version": "1.0",
+  "pages": [
+    {
+      "label": "Orders Page",
+      "sections": [
+        {
+          "label": "Orders Section",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Grouped Orders",
+              "type": "obsGroup",
+              "required": false,
+              "id": "ordersGroup",
+              "questions": [
+                {
+                  "id": "orderQuestionInGroup",
+                  "type": "testOrder",
+                  "label": "Grouped Order",
+                  "questionOptions": {
+                    "rendering": "repeating",
+                    "concept": "m17423v6-cnc3-4a1w-8c98-x6me3f487fcg",
+                    "selectableOrders": [
+                      {
+                        "concept": "x0e2da8f-34ca-4ce3-94c8-d4x9f22d381v",
+                        "label": "Option 1"
+                      },
+                      {
+                        "concept": "t0e2da8f-74ca-4ce3-94c8-u4x9f22d381m",
+                        "label": "Option 2"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "questionOptions": {
+                "rendering": "group",
+                "concept": "t1742346-df43-4a17-8c98-720e3f487fc9"
+              }
+            },
+            {
+              "id": "ungroupedOrders",
+              "type": "testOrder",
+              "label": "Ungrouped Orders",
+              "questionOptions": {
+                "rendering": "repeating",
+                "concept": "b1742346-cf43-4a19-8c98-72me3f487fcm",
+                "selectableOrders": [
+                  {
+                    "concept": "v0e2da8f-34ca-4c93-94c8-d429f22d381b",
+                    "label": "Option 1"
+                  },
+                  {
+                    "concept": "143264AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Option 1"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "description": "Demo"
+}

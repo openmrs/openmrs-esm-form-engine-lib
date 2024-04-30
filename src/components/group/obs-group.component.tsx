@@ -8,11 +8,7 @@ import Tooltip from '../inputs/tooltip/tooltip.component';
 import UnspecifiedField from '../inputs/unspecified/unspecified.component';
 import styles from '../section/form-section.scss';
 
-export interface ObsGroupProps extends FormFieldProps {
-  deleteControl?: any;
-}
-
-const ObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteControl }) => {
+export const ObsGroup: React.FC<FormFieldProps> = ({ question, onChange }) => {
   const [groupMembersControlMap, setGroupMembersControlMap] = useState([]);
   const { formFieldHandlers } = useContext(FormContext);
 
@@ -31,20 +27,10 @@ const ObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteControl }
   const groupContent = groupMembersControlMap
     .filter((groupMemberMapItem) => !!groupMemberMapItem && !groupMemberMapItem.field.isHidden)
     .map((groupMemberMapItem, index) => {
-      const keyId = groupMemberMapItem.field.id + '-' + index;
-      const { control, field } = groupMemberMapItem;
-
+      const keyId = groupMemberMapItem.field.id + '_' + index;
+      const { control: FieldComponent, field } = groupMemberMapItem;
       const rendering = field.questionOptions.rendering;
-
-      if (control) {
-        const questionFragment = React.createElement(control, {
-          question: field,
-          onChange: onChange,
-          key: index,
-          handler: formFieldHandlers[field.type],
-          useField,
-        });
-
+      if (FieldComponent) {
         return (
           <div className={classNames(styles.flexColumn, styles.obsGroupColumn)} key={keyId}>
             <div className={styles.parentResizer}>
@@ -64,7 +50,13 @@ const ObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteControl }
                       'checkbox',
                     ].includes(rendering),
                   })}>
-                  {questionFragment}
+                  <FieldComponent
+                    question={field}
+                    onChange={onChange}
+                    key={index}
+                    handler={formFieldHandlers[field.type]}
+                    useField={useField}
+                  />
                 </div>
                 {field.questionInfo && (
                   <div className={styles.questionInfoControl}>
@@ -82,10 +74,6 @@ const ObsGroup: React.FC<ObsGroupProps> = ({ question, onChange, deleteControl }
         );
       }
     });
-
-  if (groupContent && deleteControl) {
-    groupContent.push(deleteControl);
-  }
 
   return <div className={styles.flexRow}>{groupContent}</div>;
 };

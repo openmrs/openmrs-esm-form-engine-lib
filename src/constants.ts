@@ -4,7 +4,7 @@ export const UnspecifiedValue = 'VALUE_UNSPECIFIED';
 export const encounterRepresentation =
   'custom:(uuid,encounterDatetime,encounterType,location:(uuid,name),' +
   'patient:(uuid,display),encounterProviders:(uuid,provider:(uuid,name)),' +
-  'orders:full,' +
+  'orders:(uuid,display,concept:(uuid,display),voided),' +
   'obs:(uuid,obsDatetime,voided,groupMembers,formFieldNamespace,formFieldPath,concept:(uuid,name:(uuid,name)),value:(uuid,name:(uuid,name),' +
   'names:(uuid,conceptNameType,name))))';
 export const FormsStore = 'forms-engine-store';

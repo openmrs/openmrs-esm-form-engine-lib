@@ -6,7 +6,7 @@ import { when } from 'jest-when';
 import { mockVisit } from '__mocks__/visit.mock';
 import { mockPatientAge4 } from '__mocks__/patient.mock';
 import { mockSessionDataResponse } from '__mocks__/session.mock';
-import demoHtsOpenmrsForm from '__mocks__/forms/omrs-forms/demo_hts-form.json';
+import demoHtsOpenmrsForm from '__mocks__/forms/afe-forms/demo_hts-form.json';
 import demoHtsForm from '__mocks__/forms/rfe-forms/demo_hts-form.json';
 import weightForHeightZscoreTestSchema from '__mocks__/forms/rfe-forms/zscore-weight-height-form.json';
 import FormEngine from '../form-engine.component';
