@@ -283,7 +283,7 @@ export interface OpenmrsEncounter {
 }
 
 export interface OpenmrsObs extends OpenmrsResource {
-  concept: OpenmrsResource | string;
+  concept: OpenmrsResource;
   obsDatetime: string | Date;
   obsGroup: OpenmrsObs;
   groupMembers: Array<OpenmrsObs>;
