@@ -175,7 +175,6 @@ export function useInitialValues(
       }
     }
   }, [encounter]);
-
   return {
     initialValues,
     isBindingComplete: isEncounterBindingComplete && hasResolvedCalculatedValues,

@@ -1,5 +1,5 @@
-import { EncounterContext } from '../form-context';
-import { SubmissionHandler, FormField, OpenmrsEncounter } from '../types';
+import { type EncounterContext } from '../form-context';
+import { type SubmissionHandler, type FormField, type OpenmrsEncounter } from '../types';
 import { clearSubmission, gracefullySetSubmission } from '../utils/common-utils';
 
 export let assignedOrderIds: string[] = [];
@@ -61,9 +61,9 @@ function editOrder(newOrder: any, field: FormField, orderer: string) {
     clearSubmission(field);
     return null;
   }
-  // delete order by voiding it
   const voided = {
-    uuid: field.meta.previousValue.uuid,
+    // TODO: Only track previous value through field.meta.previousValue
+    uuid: field.meta.previousValue?.uuid || field.value?.uuid,
     voided: true,
   };
   gracefullySetSubmission(field, constructNewOrder(newOrder, field, orderer), voided);

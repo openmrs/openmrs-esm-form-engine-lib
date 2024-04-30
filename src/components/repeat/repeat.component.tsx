@@ -10,7 +10,7 @@ import { cloneRepeatField } from './helpers';
 import { FormContext } from '../../form-context';
 import { getFieldControlWithFallback } from '../section/helpers';
 import { clearSubmission } from '../../utils/common-utils';
-import RepeatControls from './repeat-controls';
+import RepeatControls from './repeat-controls.component';
 
 const renderingByTypeMap: Record<string, RenderType> = {
   obsGroup: 'group',

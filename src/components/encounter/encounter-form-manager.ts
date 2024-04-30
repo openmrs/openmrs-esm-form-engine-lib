@@ -1,7 +1,7 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
-import { FormField, OpenmrsEncounter, OpenmrsObs, PatientIdentifier } from '../../types';
+import { type FormField, type OpenmrsEncounter, type OpenmrsObs, type PatientIdentifier } from '../../types';
 import { isEmpty } from '../../validators/form-validator';
-import { EncounterContext } from '../../form-context';
+import { type EncounterContext } from '../../form-context';
 import { saveAttachment, saveEncounter, savePatientIdentifier } from '../../api/api';
 import { hasSubmission } from '../../utils/common-utils';
 
@@ -46,12 +46,12 @@ export class EncounterFormManager {
             encounterRole: encounterRole?.uuid,
           },
         ];
-        (encounterForSubmission['form'] = {
+        encounterForSubmission.form = {
           uuid: formUuid,
-        }),
-          (encounterForSubmission['visit'] = {
-            uuid: visit?.uuid,
-          });
+        };
+        encounterForSubmission['visit'] = {
+          uuid: visit?.uuid,
+        };
       }
       encounterForSubmission.obs = obsForSubmission;
       encounterForSubmission.orders = ordersForSubmission;
@@ -106,6 +106,8 @@ export class EncounterFormManager {
     });
   }
 }
+
+// Helpers
 
 function prepareObs(
   obsForSubmission: OpenmrsObs[],

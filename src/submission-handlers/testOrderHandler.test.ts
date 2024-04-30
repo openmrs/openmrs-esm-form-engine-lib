@@ -1,5 +1,5 @@
-import { FormField } from '../types';
-import { EncounterContext } from '../form-context';
+import { type FormField } from '../types';
+import { type EncounterContext } from '../form-context';
 import { TestOrderSubmissionHandler } from './testOrderHandler';
 
 const encounterContext: EncounterContext = {

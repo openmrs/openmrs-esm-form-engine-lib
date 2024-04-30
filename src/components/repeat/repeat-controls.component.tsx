@@ -1,7 +1,7 @@
 import { Button } from '@carbon/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { FormField } from '../../types';
+import { type FormField } from '../../types';
 import { disableRepeatAddButton } from './helpers';
 import styles from './repeat-controls.scss';
 interface RepeatingControlsProps {

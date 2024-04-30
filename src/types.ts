@@ -182,7 +182,7 @@ export interface QuestionMetaProps {
     newValue?: any;
   };
   repeat?: {
-    isCloned?: boolean;
+    isClone?: boolean;
     wasDeleted?: boolean;
   };
   [anythingElse: string]: any;
@@ -310,8 +310,8 @@ export interface OpenmrsForm {
 }
 
 export interface OpenmrsFormResource extends OpenmrsResource {
-  dataType: string;
-  valueReference: string;
+  dataType?: string;
+  valueReference?: string;
 }
 
 export interface DataSource<T> {

@@ -97,7 +97,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [initValues, setInitValues] = useState({});
 
   const layoutType = useLayoutType();
-
   const encounterContext = useMemo(
     () => ({
       patient: patient,
@@ -445,7 +444,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       await Promise.all(EncounterFormManager.savePatientIdentifiers(patient, patientIdentifiers));
       if (patientIdentifiers?.length) {
         showSnackbar({
-          title: t('patientIdentifiersCreated', 'Patient identifier(s) created sucessfully'),
+          title: t('patientIdentifiersSaved', 'Patient identifier(s) saved sucessfully'),
           kind: 'success',
           isLowContrast: true,
         });
@@ -460,10 +459,49 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       });
     }
 
-    const { data: savedEncounter } = await EncounterFormManager.saveEncounter(encounter, abortController);
-    // handle attachments
-    await Promise.all(EncounterFormManager.saveAttachments(fields, savedEncounter, abortController));
-    return savedEncounter;
+    try {
+      const { data: savedEncounter } = await EncounterFormManager.saveEncounter(encounter, abortController);
+      const saveOrders = savedEncounter.orders.map((order) => order.orderNumber);
+      if (saveOrders.length) {
+        showSnackbar({
+          title: t('ordersSaved', 'Order(s) saved sucessfully'),
+          subtitle: saveOrders.join(', '),
+          kind: 'success',
+          isLowContrast: true,
+        });
+      }
+      // handle attachments
+      try {
+        const attachmentsResponse = await Promise.all(
+          EncounterFormManager.saveAttachments(fields, savedEncounter, abortController),
+        );
+        if (attachmentsResponse?.length) {
+          showSnackbar({
+            title: t('attachmentsSaved', 'Attachment(s) saved successfully'),
+            kind: 'success',
+            isLowContrast: true,
+          });
+        }
+      } catch (error) {
+        setIsSubmitting(false);
+        showSnackbar({
+          title: t('errorSavingAttachments', 'Error saving attachment(s)'),
+          subtitle: error.message,
+          kind: 'error',
+          isLowContrast: false,
+        });
+      }
+      return savedEncounter;
+    } catch (error) {
+      setIsSubmitting(false);
+      showSnackbar({
+        title: t('errorSavingEncounter', 'Error saving encounter'),
+        subtitle: error.message,
+        kind: 'error',
+        isLowContrast: false,
+      });
+    }
+    return null;
   };
 
   const onFieldChange = (

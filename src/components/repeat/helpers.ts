@@ -93,7 +93,6 @@ export function hydateRepeatField(
       .map((order) => {
         const clone = cloneRepeatField(field, order, counter++);
         initialValues[clone.id] = formFieldHandlers[field.type].getInitialValue({ orders: [order] }, clone, formFields);
-        assignedOrderIds.push(order.uuid);
         return clone;
       });
   }
