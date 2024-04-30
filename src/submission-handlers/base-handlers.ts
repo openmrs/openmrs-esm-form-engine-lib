@@ -101,7 +101,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
         (chosenOption) => field.questionOptions.answers?.find((option) => option.concept == chosenOption)?.label,
       );
     }
-    if (rendering == 'content-switcher' || rendering == 'select' || rendering == 'toggle') {
+    if (rendering == 'content-switcher' || rendering == 'select' || rendering == 'toggle' || rendering == 'testOrder') {
       const concept = typeof field.value.value === 'object' ? field.value.value.uuid : field.value.value;
       return field.questionOptions.answers?.find((option) => option.concept == concept)?.label;
     }
