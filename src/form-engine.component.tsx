@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Formik, Form } from 'formik';
+import { Form, Formik } from 'formik';
 import classNames from 'classnames';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
@@ -17,6 +17,7 @@ import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
 import { usePatientData } from './hooks/usePatientData';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import { moduleName } from './globals';
+import { useFormCollapse } from './hooks/useFormCollapse';
 import EncounterForm from './components/encounter/encounter-form.component';
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
@@ -101,12 +102,12 @@ const FormEngine: React.FC<FormProps> = ({
   const [initialValues, setInitialValues] = useState({});
   const [scrollablePages, setScrollablePages] = useState(new Set<FormPageProps>());
   const [selectedPage, setSelectedPage] = useState('');
-  const [isFormExpanded, setIsFormExpanded] = useState<boolean | undefined>(undefined);
   const [isLoadingFormDependencies, setIsLoadingFormDependencies] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
+  const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(sessionMode);
 
   const showSidebar = useMemo(() => {
     return workspaceLayout !== 'minimized' && scrollablePages.size > 1 && sessionMode !== 'embedded-view';
@@ -217,6 +218,7 @@ const FormEngine: React.FC<FormProps> = ({
             );
           }
           onSubmit?.();
+          hideFormCollapseToggle();
         })
         .catch((error) => {
           const errorMessages = extractErrorMessagesFromResponse(error);
@@ -272,6 +274,7 @@ const FormEngine: React.FC<FormProps> = ({
                       setValues={props.setValues}
                       allowUnspecifiedAll={formJson.allowUnspecifiedAll}
                       defaultPage={formJson.defaultPage}
+                      hideFormCollapseToggle={hideFormCollapseToggle}
                     />
                   )}
                   <div className={styles.formContent}>
@@ -316,6 +319,7 @@ const FormEngine: React.FC<FormProps> = ({
                           onClick={() => {
                             onCancel && onCancel();
                             handleClose && handleClose();
+                            hideFormCollapseToggle();
                           }}>
                           {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
                         </Button>
