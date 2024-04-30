@@ -1,7 +1,9 @@
 import { formatDate } from '@openmrs/esm-framework';
 import { getRegisteredControl } from '../../registry/registry';
 import { isTrue } from '../../utils/boolean-utils';
-import { type FormField } from '../../types';
+import { type OpenmrsObs, type FormField } from '../../types';
+import { parseToLocalDateTime } from '../../utils/form-helper';
+import dayjs from 'dayjs';
 
 /**
  * Retrieves the appropriate field control for a question, considering missing concepts.
@@ -51,5 +53,42 @@ export const formatPreviousValueDisplayText = (question: FormField, value: any) 
       return Array.isArray(value) ? previousValueDisplayForCheckbox(value) : null;
     default:
       return value?.display;
+  }
+};
+
+export const historicalValueTransformer = (field: FormField, obs: OpenmrsObs | OpenmrsObs[]) => {
+  const rendering = field.questionOptions.rendering;
+
+  const transformObservation = (obs: OpenmrsObs, rendering: string) => {
+    if (typeof obs.value === 'string' || typeof obs.value === 'number') {
+      if (rendering === 'date' || rendering === 'datetime') {
+        const dateObj = parseToLocalDateTime(`${obs.value}`);
+        return { value: dateObj, display: dayjs(dateObj).format('YYYY-MM-DD HH:mm') };
+      }
+      return { value: obs.value, display: obs.value };
+    } else if (rendering === 'checkbox') {
+      return {
+        value: obs.value?.uuid,
+        display: obs.value?.name?.name,
+      };
+    } else if (rendering === 'toggle') {
+      return {
+        value: obs.value?.uuid,
+        display: obs.value?.name?.name,
+      };
+    } else {
+      return {
+        value: obs.value?.uuid,
+        display: field.questionOptions.answers?.find((option) => option.concept === obs.value?.uuid)?.label,
+      };
+    }
+  };
+
+  if (Array.isArray(obs)) {
+    return obs.map((eachObs) => {
+      return transformObservation(eachObs, rendering);
+    });
+  } else {
+    return transformObservation(obs, rendering);
   }
 };

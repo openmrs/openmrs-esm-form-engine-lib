@@ -5,7 +5,12 @@ import { useField } from 'formik';
 import type { FormField, FormFieldProps, previousValue, SubmissionHandler } from '../../types';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ToastNotification } from '@carbon/react';
-import { formatPreviousValueDisplayText, getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
+import {
+  formatPreviousValueDisplayText,
+  getFieldControlWithFallback,
+  isUnspecifiedSupported,
+  historicalValueTransformer,
+} from './helpers';
 import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { isTrue } from '../../utils/boolean-utils';
 import { FormContext } from '../../form-context';
@@ -14,43 +19,11 @@ import Tooltip from '../inputs/tooltip/tooltip.component';
 import UnspecifiedField from '../inputs/unspecified/unspecified.component';
 import styles from './form-section.scss';
 import { evaluateExpression } from '../../utils/expression-runner';
-import dayjs from 'dayjs';
-import { parseToLocalDateTime } from '../../utils/form-helper';
-
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<FormFieldProps>;
   fieldDescriptor: FormField;
   handler: SubmissionHandler;
 }
-
-const historicalValueTransformer = (field, obs) => {
-  const rendering = field.questionOptions.rendering;
-  if (typeof obs.value == 'string' || typeof obs.value == 'number') {
-    if (rendering == 'date' || rendering == 'datetime') {
-      const dateObj = parseToLocalDateTime(`${obs.value}`);
-      return { value: dateObj, display: dayjs(dateObj).format('YYYY-MM-DD HH:mm') };
-    }
-    return { value: obs.value, display: obs.value };
-  }
-  if (rendering == 'checkbox') {
-    return obs.map((each) => {
-      return {
-        value: each.value?.uuid,
-        display: each.value?.name?.name,
-      };
-    });
-  }
-  if (rendering == 'toggle') {
-    return {
-      value: obs.value?.uuid,
-      display: obs.value?.name?.name,
-    };
-  }
-  return {
-    value: obs.value?.uuid,
-    display: field.questionOptions.answers?.find((option) => option.concept == obs.value?.uuid)?.label,
-  };
-};
 
 const FormSection = ({ fields, onFieldChange }) => {
   const [previousValues, setPreviousValues] = useState<Record<string, previousValue>>({});

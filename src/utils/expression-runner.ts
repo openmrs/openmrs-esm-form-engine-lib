@@ -1,7 +1,8 @@
 import { getRegisteredExpressionHelpers } from '../registry/registry';
 import { type OpenmrsEncounter, type FormField, type FormPage, type FormSection } from '../types';
-import { CommonExpressionHelpers, HistoricalDataSourceService } from './common-expression-helpers';
+import { CommonExpressionHelpers } from './common-expression-helpers';
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
+import { HistoricalDataSourceService } from './historical-data-source';
 
 export interface FormNode {
   value: FormPage | FormSection | FormField;
@@ -87,7 +88,6 @@ export async function evaluateAsyncExpression(
 
   // register dependencies
   findAndRegisterReferencedFields(node, parts, fields);
-  //adds values to the determinants
 
   // setup function scope
   let { myValue, patient } = context;
