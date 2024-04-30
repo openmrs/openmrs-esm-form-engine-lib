@@ -2,7 +2,7 @@
 
 :wave: *New to O3? Be sure to review the [OpenMRS 3 Frontend Developer Documentation](https://o3-docs.openmrs.org/).* :teacher:
 
-# React Form Engine
+# openmrs-form-engine-lib
 
 <img src="readme/form-engine.jpeg" alt="https://raw.githubusercontent.com/openmrs/openmrs-form-engine-lib/main/readme/form-engine.jpeg" >
 
@@ -27,7 +27,7 @@ Key features include:
 - **Data sources** - The form engine supports the use of data sources to populate form fields. This allows for the creation of forms that can be populated with data from external sources.
 - **Expression helpers** - The form engine supports the use of expression helpers to evaluate expressions within the form schema. This allows for the creation of complex expressions that can be evaluated by the form engine.
 
-## Getting Started
+## Getting started
 
  *NB: The engine is a library and not an [O3 frontend module](https://o3-dev.docs.openmrs.org/#/getting_started/tour). That being said, it can be consumed by bundling it within an ESM or custom frontend app that incorporates it within a UI workflow.*
 
@@ -42,7 +42,7 @@ Key features include:
 yarn add @openmrs/openmrs-form-engine-lib@latest
 ```
 
-### Local Development
+### Local development
 
 ```bash
 git clone git@github.com:openmrs/openmrs-form-engine-lib.git
