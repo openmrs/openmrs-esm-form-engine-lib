@@ -181,6 +181,10 @@ export interface QuestionMetaProps {
     voidedValue?: any;
     newValue?: any;
   };
+  repeat?: {
+    isCloned?: boolean;
+    wasDeleted?: boolean;
+  };
   [anythingElse: string]: any;
 }
 
@@ -247,8 +251,7 @@ export type RenderType =
   | 'ui-select-extended'
   | 'workspace-launcher'
   | 'fixed-value'
-  | 'file'
-  | 'testOrder';
+  | 'file';
 
 export interface PostSubmissionAction {
   applyAction(
@@ -274,10 +277,7 @@ export interface OpenmrsEncounter {
   voided?: boolean;
   visit?: OpenmrsResource | string;
   encounterProviders?: Array<Record<string, any>>;
-  form?: {
-    uuid: string;
-    [anythingElse: string]: any;
-  };
+  form?: OpenmrsFormResource;
 }
 
 export interface OpenmrsObs extends OpenmrsResource {
@@ -400,7 +400,9 @@ export interface FormSchemaTransformer {
 }
 
 export interface Order {
-  uuid(uuid: any): unknown;
+  concept: string;
+  orderer: string;
+  uuid?: string;
   formFieldPath?: string;
   type?: string;
   action?: string;
@@ -410,8 +412,6 @@ export interface Order {
   groupMembers?: Order[];
   encounter?: string;
   patient?: string;
-  concept?: string;
-  orderer?: string;
   orderNumber?: string;
   voided?: boolean;
 }
