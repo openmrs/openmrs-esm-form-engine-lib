@@ -535,7 +535,6 @@ describe('Form engine component', () => {
       await act(async () => {
         renderForm(null, obsGroupTestForm);
       });
-      screen.debug();
       const addButton = screen.getByRole('button', { name: 'Add' });
       expect(addButton).toBeInTheDocument();
       expect(screen.getByRole('textbox', { name: /date of birth/i })).toBeInTheDocument();
