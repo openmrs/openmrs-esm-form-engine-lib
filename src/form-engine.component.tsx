@@ -5,9 +5,7 @@ import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import { showSnackbar, useSession, type Visit } from '@openmrs/esm-framework';
-import LinearLoader from './components/loaders/linear-loader.component';
-import LoadingIcon from './components/loaders/loading.component';
-import Sidebar from './components/sidebar/sidebar.component';
+
 import { init, teardown } from './lifecycle';
 import type { FormSchema, SessionMode, FormPage as FormPageProps } from './types';
 import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
@@ -19,8 +17,10 @@ import { evaluatePostSubmissionExpression } from './utils/post-submission-action
 import { moduleName } from './globals';
 import { useFormCollapse } from './hooks/useFormCollapse';
 import EncounterForm from './components/encounter/encounter-form.component';
-import PatientBanner from './components/patient-banner/patient-banner.component';
+import Loader from './components/loaders/loader.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
+import PatientBanner from './components/patient-banner/patient-banner.component';
+import Sidebar from './components/sidebar/sidebar.component';
 import styles from './form-engine.scss';
 
 interface FormProps {
@@ -94,7 +94,7 @@ const FormEngine: React.FC<FormProps> = ({
     formError,
   } = useFormJson(formUUID, formJson, encounterUUID || encounterUuid, formSessionIntent);
 
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const formSessionDate = useMemo(() => new Date(), []);
   const handlers = new Map<string, FormSubmissionHandler>();
   const ref = useRef(null);
@@ -252,12 +252,12 @@ const FormEngine: React.FC<FormProps> = ({
         return (
           <Form className={classNames('cds--form', 'no-padding', styles.formEngine)} ref={ref}>
             {isLoadingPatient || isLoadingFormJson ? (
-              <LoadingIcon />
+              <Loader />
             ) : (
               <div className={styles.formEngineContainer}>
                 {isLoadingFormDependencies && (
-                  <div className={styles.loader}>
-                    <LinearLoader />
+                  <div className={styles.linearActivity}>
+                    <div className={styles.indeterminate}></div>
                   </div>
                 )}
                 <div className={styles.formEngineBody}>

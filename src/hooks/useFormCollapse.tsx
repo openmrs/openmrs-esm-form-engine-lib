@@ -1,4 +1,4 @@
-import { SessionMode } from '../types';
+import { type SessionMode } from '../types';
 import { useCallback, useEffect, useState } from 'react';
 
 export function useFormCollapse(sessionMode: SessionMode) {
