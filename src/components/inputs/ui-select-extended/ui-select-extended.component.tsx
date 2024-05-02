@@ -140,9 +140,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
           <Layer>
             <ComboBox
               id={question.id}
-              titleText={
-                question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
-              }
+              titleText={question.required ? <RequiredFieldLabel label={t(question.label)} /> : t(question.label)}
               items={items}
               itemToString={(item) => item?.display}
               selectedItem={items.find((item) => item.uuid == field.value)}

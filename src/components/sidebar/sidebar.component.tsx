@@ -18,6 +18,7 @@ const Sidebar = ({
   setValues,
   allowUnspecifiedAll,
   defaultPage,
+  hideFormCollapseToggle,
 }) => {
   const { t } = useTranslation();
   const [activeLink, setActiveLink] = useState(selectedPage);
@@ -114,6 +115,7 @@ const Sidebar = ({
           onClick={() => {
             onCancel && onCancel();
             handleClose && handleClose();
+            hideFormCollapseToggle();
           }}>
           {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
         </Button>
