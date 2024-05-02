@@ -8,7 +8,7 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
   applyAction: async function ({ patient, encounters, sessionMode }, config) {
     const encounter = encounters[0];
     const encounterLocation = encounter.location['uuid'];
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
 
     // only do this in enter or edit mode.
     if (sessionMode === 'view') {
@@ -37,11 +37,10 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
           );
           if (hasActiveEnrollment) {
             showToast({
-              title: t('errorSavingEnrollment', 'Error saving enrollment'),
+              title: t('enrollmentFailed', 'Enrollment failed'),
               kind: 'error',
               critical: false,
-              description: t('cannotEnrollPatientToProgram', 'Cannot enroll patient to program. Patient already has an active enrollment'),
-            });
+              description: t('cannotEnrollPatientToProgram', 'This patient is already enrolled in the selected program'),            });
           }
           return;
         }
@@ -51,14 +50,14 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
               showToast({
                 critical: true,
                 kind: 'success',
-                description: t('nowVisibleInProgramsTable', 'Changes to the program are now visible in the Programs table'),
-                title: t('programEnrollmentSaved', 'Program enrollment saved'),
+                description: t('enrolledToProgram', 'Patient enrolled into ${programName}'),
+                title: t('enrollmentSaved', 'Enrollment saved'),
               });
             }
           },
           (err) => {
             showToast({
-              title: t('errorSavingProgramEnrollment', 'Error saving program enrollment'),
+              title: t('errorEnrolling', 'Error saving enrollment'),
               kind: 'error',
               critical: false,
               description: t(err?.message),
@@ -84,8 +83,8 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
                 showToast({
                   critical: true,
                   kind: 'success',
-                  description: t('nowVisibleInProgramsTable', 'Changes to the program are now visible in the Programs table'),
-                  title: t('programEnrollmentUpdated', 'Program enrollment updated'),
+                  description: t('enrollmentUpdateSuccess', 'Updates to the program enrollment were made successfully'),
+                  title: t('enrollmentUpdated', 'Enrollment updated'),
                 });
               }
             },
