@@ -118,8 +118,11 @@ const FormEngine: React.FC<FormProps> = ({
   }, [patient?.id, sessionMode, workspaceLayout]);
 
   const showButtonSet = useMemo(() => {
-    if (sessionMode == 'embedded-view') return false;
-    return workspaceLayout === 'minimized' || ('maximized' && scrollablePages.size <= 1);
+    if (sessionMode === 'embedded-view') {
+      return false;
+    }
+    
+    return workspaceLayout === 'minimized' || (workspaceLayout === 'maximized' && scrollablePages.size <= 1);
   }, [sessionMode, workspaceLayout, scrollablePages]);
 
   useEffect(() => {
