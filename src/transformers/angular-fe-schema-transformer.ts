@@ -45,8 +45,6 @@ function transformByRendering(question: FormField) {
       question.questionOptions.rendering = 'number';
       break;
     case 'repeating':
-      handleLabOrders(question);
-      break;
     case 'group':
       handleLabOrders(question);
       break;
@@ -59,11 +57,7 @@ function handleLabOrders(question: FormField) {
     updateQuestionAnswers(question);
   }
   if (question.questionOptions.rendering === 'group') {
-    question?.questions.forEach((orderQuestion, i) => {
-      if (orderQuestion.type === 'testOrder') {
-        updateQuestionAnswers(orderQuestion);
-      }
-    });
+    question?.questions?.filter((orderQuestion) => orderQuestion.type === 'testOrder').forEach(updateQuestionAnswers);
   }
   return question;
 }

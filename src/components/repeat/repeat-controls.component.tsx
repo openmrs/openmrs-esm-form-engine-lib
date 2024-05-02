@@ -28,7 +28,7 @@ function RepeatControls({ question, rows, handleDelete, handleAdd, questionIndex
           kind="primary"
           disabled={disableRepeatAddButton(question.questionOptions.repeatOptions?.limit, rows.length)}
           onClick={handleAdd}>
-          <span>{question.questionOptions.repeatOptions?.addText || `${t('add', 'Add')}`}</span>
+          <span>{question.questionOptions.repeatOptions?.addText || t('add', 'Add')}</span>
         </Button>
       )}
     </div>

@@ -115,12 +115,10 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   };
 
   const nodes = useMemo(() => {
-    return (
-      fieldComponent &&
-      rows.map((question, index) => {
-        const component = <fieldComponent.Component question={question} onChange={onChange} handler={handler} />;
-        return (
-          component && (
+    return fieldComponent
+      ? rows.map((question, index) => {
+          const component = <fieldComponent.Component question={question} onChange={onChange} handler={handler} />;
+          return (
             <div key={question.id + '_wrapper'}>
               {index !== 0 && (
                 <div>
@@ -142,10 +140,9 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
                 }}
               />
             </div>
-          )
-        );
-      })
-    );
+          );
+        })
+      : null;
   }, [rows, fieldComponent]);
 
   if (question.isHidden || !nodes) {
