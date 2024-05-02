@@ -1,9 +1,9 @@
 import { act, renderHook } from '@testing-library/react';
 import { useInitialValues } from './useInitialValues';
-import testEncounter from '../../__mocks__/use-initial-values/encounter.mock.json';
-import testPatient from '../../__mocks__/use-initial-values/patient.mock.json';
 import { ObsSubmissionHandler } from '../submission-handlers/base-handlers';
-import { type FormField, type OpenmrsEncounter } from '../types';
+import type { FormField, OpenmrsEncounter } from '../types';
+import testEncounter from '__mocks__/use-initial-values/encounter.mock.json';
+import testPatient from '__mocks__/use-initial-values/patient.mock.json';
 
 const obsGroupMembers: Array<FormField> = [
   {
