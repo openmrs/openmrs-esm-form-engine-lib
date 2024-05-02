@@ -1,0 +1,10 @@
+.loaderContainer {
+  height: calc(100vh - var(--omrs-navbar-height) - var(--workspace-header-height));
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50%;
+}

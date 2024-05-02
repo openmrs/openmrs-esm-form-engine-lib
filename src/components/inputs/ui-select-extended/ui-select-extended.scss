@@ -1,9 +1,5 @@
 @use '@carbon/colors';
 
-.container {
-  display: flex;
-}
-
 .boldedLabel {
   flex: 95%;
 
@@ -16,10 +12,4 @@
 .errorLabel label {
   color: colors.$red-60;
   font-weight: 600;
-}
-
-.loader {
-  flex: 5%;
-  align-items: center;
-  margin: 1.5rem 0 0 0.5rem;
 }

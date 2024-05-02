@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import debounce from 'lodash-es/debounce';
-import { ComboBox, InlineLoading, Layer } from '@carbon/react';
+import { ComboBox, DropdownSkeleton, Layer } from '@carbon/react';
 import { useField } from 'formik';
 import { isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';
@@ -10,8 +10,8 @@ import { getControlTemplate } from '../../../registry/inbuilt-components/control
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
-import FieldValueView from '../../value/view/field-value-view.component';
 import { isInlineView } from '../../../utils/form-helper';
+import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './ui-select-extended.scss';
 
@@ -120,6 +120,10 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
     }
   }, [field.value]);
 
+  if (isLoading) {
+    return <DropdownSkeleton />;
+  }
+
   return encounterContext.sessionMode == 'view' ||
     encounterContext.sessionMode == 'embedded-view' ||
     isTrue(question.readonly) ? (
@@ -135,47 +139,44 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
     />
   ) : (
     !question.isHidden && (
-      <div className={styles.container}>
-        <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
-          <Layer>
-            <ComboBox
-              id={question.id}
-              titleText={question.required ? <RequiredFieldLabel label={t(question.label)} /> : t(question.label)}
-              items={items}
-              itemToString={(item) => item?.display}
-              selectedItem={items.find((item) => item.uuid == field.value)}
-              shouldFilterItem={({ item, inputValue }) => {
-                if (!inputValue) {
-                  // Carbon's initial call at component mount
-                  return true;
-                }
-                return item.display?.toLowerCase().includes(inputValue.toLowerCase());
-              }}
-              onChange={({ selectedItem }) => {
-                isProcessingSelection.current = true;
-                handleChange(selectedItem?.uuid);
-              }}
-              disabled={question.disabled}
-              readOnly={question.readonly}
-              invalid={errors.length > 0}
-              invalidText={errors.length && errors[0].message}
-              onInputChange={(value) => {
-                if (isProcessingSelection.current) {
-                  // Notes:
-                  // When the user selects a value, both the onChange and onInputChange functions are invoked sequentially.
-                  // Issue: onInputChange modifies the search term, unnecessarily triggering a search.
-                  isProcessingSelection.current = false;
-                  return;
-                }
-                setInputValue(value);
-                if (question.questionOptions['isSearchable']) {
-                  setSearchTerm(value);
-                }
-              }}
-            />
-          </Layer>
-        </div>
-        {isLoading && <InlineLoading className={styles.loader} />}
+      <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
+        <Layer>
+          <ComboBox
+            id={question.id}
+            titleText={question.required ? <RequiredFieldLabel label={t(question.label)} /> : t(question.label)}
+            items={items}
+            itemToString={(item) => item?.display}
+            selectedItem={items.find((item) => item.uuid == field.value)}
+            shouldFilterItem={({ item, inputValue }) => {
+              if (!inputValue) {
+                // Carbon's initial call at component mount
+                return true;
+              }
+              return item.display?.toLowerCase().includes(inputValue.toLowerCase());
+            }}
+            onChange={({ selectedItem }) => {
+              isProcessingSelection.current = true;
+              handleChange(selectedItem?.uuid);
+            }}
+            disabled={question.disabled}
+            readOnly={question.readonly}
+            invalid={errors.length > 0}
+            invalidText={errors.length && errors[0].message}
+            onInputChange={(value) => {
+              if (isProcessingSelection.current) {
+                // Notes:
+                // When the user selects a value, both the onChange and onInputChange functions are invoked sequentially.
+                // Issue: onInputChange modifies the search term, unnecessarily triggering a search.
+                isProcessingSelection.current = false;
+                return;
+              }
+              setInputValue(value);
+              if (question.questionOptions['isSearchable']) {
+                setSearchTerm(value);
+              }
+            }}
+          />
+        </Layer>
       </div>
     )
   );
