@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { InlineLoading } from '@carbon/react';
 import styles from './loader.scss';
 
-const isLoadingPreviousEncounter: React.FC = () => {
+const Loader: React.FC = () => {
   const { t } = useTranslation();
 
   return (
@@ -13,4 +13,4 @@ const isLoadingPreviousEncounter: React.FC = () => {
   );
 };
 
-export default isLoadingPreviousEncounter;
+export default Loader;
