@@ -1,5 +1,5 @@
-import testForm from '../../__mocks__/forms/omrs-forms/afe-schema-trasformer-form.json';
 import { AngularFormEngineSchemaTransformer } from './angular-fe-schema-transformer';
+import testForm from '__mocks__/forms/omrs-forms/afe-schema-trasformer-form.json';
 
 const expectedTransformedSchema = {
   name: 'AFE form with aliased questions',
