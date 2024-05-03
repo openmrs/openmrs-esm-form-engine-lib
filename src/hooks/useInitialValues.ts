@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { type EncounterContext, inferInitialValueFromDefaultFieldValue, isEmpty } from '..';
 import { type FormField, type OpenmrsEncounter, type SubmissionHandler } from '../types';
 import { evaluateAsyncExpression } from '../utils/expression-runner';
-import { cloneObsGroup } from '../components/repeat/helpers';
-import { assignedObsIds } from '../submission-handlers/base-handlers';
+import { hydateRepeatField } from '../components/repeat/helpers';
 import { hasRendering } from '../utils/common-utils';
 
 export function useInitialValues(
@@ -64,9 +63,11 @@ export function useInitialValues(
         .filter((field) => isEmpty(field.value))
         .filter((field) => field.questionOptions.rendering !== 'file')
         .forEach((field) => {
-          if (hasRendering(field, 'repeating')) {
-            !field.questionOptions.repeatOptions?.isCloned && repeatableFields.push(field);
-            return;
+          if (hasRendering(field, 'repeating') && !field.meta?.repeat?.isClone) {
+            repeatableFields.push(field);
+            if (field.type === 'obsGroup') {
+              return;
+            }
           }
           let existingVal = formFieldHandlers[field.type]?.getInitialValue(
             encounter,
@@ -91,32 +92,14 @@ export function useInitialValues(
           }
         });
       repeatableFields.forEach((field) => {
-        let initializedRepeatField = formFields.find((initField) => initField.id === field.id);
-        if (initializedRepeatField) {
-          initializedRepeatField.uuid = initializedRepeatField.questions[0]?.value?.obsGroup?.uuid;
+        const initialRepeatField = formFields.find((initField) => initField.id === field.id);
+        if (initialRepeatField?.questions?.length) {
+          initialRepeatField.uuid = initialRepeatField.questions[0].value?.obsGroup?.uuid;
         }
       });
-      const flatenedFields = repeatableFields.flatMap((field) => {
-        let counter = 1;
-        const unMappedGroups = encounter.obs.filter(
-          (obs) =>
-            obs.concept.uuid === field.questionOptions.concept &&
-            obs.uuid != field.value?.uuid &&
-            !assignedObsIds.includes(obs.uuid),
-        );
-        return unMappedGroups.flatMap((group) => {
-          const clone = cloneObsGroup(field, group, counter++);
-          clone.questions.forEach((childField) => {
-            initialValues[childField.id] = formFieldHandlers[field.type].getInitialValue(
-              { obs: [group] },
-              childField,
-              formFields,
-            );
-          });
-          assignedObsIds.push(group.uuid);
-          return [clone, ...clone.questions];
-        });
-      });
+      const flatenedFields = repeatableFields.flatMap((field) =>
+        hydateRepeatField(field, formFields, encounter, initialValues, formFieldHandlers),
+      );
       formFields.push(...flatenedFields);
       setIsEncounterBindingComplete(true);
       // TODO: Address behaviour in edit mode; see: https://issues.openmrs.org/browse/O3-2252
@@ -124,9 +107,7 @@ export function useInitialValues(
     } else {
       const tempAsyncValues = {};
       formFields
-        .filter(
-          (field) => field.questionOptions.rendering !== 'repeating' && field.questionOptions.rendering !== 'group',
-        )
+        .filter((field) => field.questionOptions.rendering !== 'group' && field.type !== 'obsGroup')
         .forEach((field) => {
           let value = null;
           if (field.questionOptions.calculate && !asyncInitValues?.[field.id] && !tempAsyncValues[field.id]) {
@@ -194,7 +175,6 @@ export function useInitialValues(
       }
     }
   }, [encounter]);
-
   return {
     initialValues,
     isBindingComplete: isEncounterBindingComplete && hasResolvedCalculatedValues,

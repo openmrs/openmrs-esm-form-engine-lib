@@ -8,7 +8,7 @@ import { mockSessionDataResponse } from '__mocks__/session.mock';
 import { mockVisit } from '__mocks__/visit.mock';
 import bmiForAgeScoreTestSchema from '__mocks__/forms/rfe-forms/zscore-bmi-for-age-form.json';
 import demoHtsForm from '__mocks__/forms/rfe-forms/demo_hts-form.json';
-import demoHtsOpenmrsForm from '__mocks__/forms/omrs-forms/demo_hts-form.json';
+import demoHtsOpenmrsForm from '__mocks__/forms/afe-forms/demo_hts-form.json';
 import FormEngine from '../form-engine.component';
 
 const patientUUID = 'e13a8696-dc58-4b8c-ae40-2a1e7dd843e7';

@@ -1,5 +1,6 @@
 import { formatDate, restBaseUrl } from '@openmrs/esm-framework';
 import { type Attachment, type AttachmentResponse, type FormField, type OpenmrsObs, type RenderType } from '../types';
+import { isEmpty } from '../validators/form-validator';
 
 export function flattenObsList(obsList: OpenmrsObs[]): OpenmrsObs[] {
   const flattenedList: OpenmrsObs[] = [];
@@ -37,4 +38,27 @@ export function createAttachment(data: AttachmentResponse): Attachment {
     bytesMimeType: data.bytesMimeType,
     bytesContentFamily: data.bytesContentFamily,
   };
+}
+
+export function clearSubmission(field: FormField) {
+  field.meta.submission = {
+    voidedValue: null,
+    newValue: null,
+  };
+}
+
+export function gracefullySetSubmission(field: FormField, newValue: any, voidedValue: any) {
+  if (!field.meta?.submission) {
+    field.meta = { ...(field.meta || {}), submission: {} };
+  }
+  if (!isEmpty(newValue)) {
+    field.meta.submission.newValue = newValue;
+  }
+  if (!isEmpty(voidedValue)) {
+    field.meta.submission.voidedValue = voidedValue;
+  }
+}
+
+export function hasSubmission(field: FormField) {
+  return !!field.meta.submission?.newValue || !!field.meta.submission?.voidedValue;
 }
