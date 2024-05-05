@@ -1,54 +1,52 @@
-import React, { useCallback, useEffect, useId, useState } from 'react';
-import { FormGroup, Button } from '@carbon/react';
-import { Add, TrashCan } from '@carbon/react/icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FormGroup } from '@carbon/react';
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { type FormField, type FormFieldProps } from '../../types';
+import { type FormField, type FormFieldProps, type RenderType } from '../../types';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
-import ObsGroup from '../group/obs-group.component';
 import { isEmpty } from '../../validators/form-validator';
 import styles from './repeat.scss';
-import { cloneObsGroup } from './helpers';
+import { cloneRepeatField } from './helpers';
 import { FormContext } from '../../form-context';
+import { getFieldControlWithFallback } from '../section/helpers';
+import { clearSubmission } from '../../utils/common-utils';
+import RepeatControls from './repeat-controls.component';
 
-export const showAddButton = (limit: string | number, counter: number) => {
-  const repeatLimit = Number(limit);
-  return !Number.isNaN(repeatLimit) && repeatLimit > 0 ? counter < repeatLimit : true;
+const renderingByTypeMap: Record<string, RenderType> = {
+  obsGroup: 'group',
+  testOrder: 'select',
 };
 
-const Repeat: React.FC<FormFieldProps> = ({ question, onChange }) => {
+const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   const { t } = useTranslation();
-  const id = useId();
-
-  const { fields: allFormFields, encounterContext, obsGroupsToVoid, formFieldHandlers } = React.useContext(FormContext);
-  const { values, setValues } = useFormikContext();
-  const [counter, setCounter] = useState(1);
-  const [obsGroups, setObsGroups] = useState([]);
+  const isGrouped = useMemo(() => question.questions?.length > 1, [question]);
+  const { fields: allFormFields, encounterContext } = React.useContext(FormContext);
+  const { values, setFieldValue } = useFormikContext();
+  const [counter, setCounter] = useState(0);
+  const [rows, setRows] = useState([]);
+  const [fieldComponent, setFieldComponent] = useState(null);
 
   useEffect(() => {
-    const groups = allFormFields.filter(
-      (field) => field.questionOptions.concept === question.questionOptions.concept && field.id.startsWith(question.id),
+    const repeatedFields = allFormFields.filter(
+      (field) =>
+        field.questionOptions.concept === question.questionOptions.concept &&
+        field.id.startsWith(question.id) &&
+        !field.meta?.repeat?.wasDeleted,
     );
-    setCounter(groups.length);
-    setObsGroups(groups);
+    setCounter(repeatedFields.length - 1);
+    setRows(repeatedFields);
+    getFieldControlWithFallback(getQuestionWithSupportedRendering(question))?.then((component) =>
+      setFieldComponent({ Component: component }),
+    );
   }, [allFormFields, question]);
-
-  useEffect(() => {
-    encounterContext.setObsGroupCounter((prevValue) => [
-      { fieldId: question.id, obsGroupCount: counter },
-      ...prevValue,
-    ]);
-  }, [counter]);
 
   const handleAdd = useCallback(
     (counter: number) => {
-      const clonedGroupingField = cloneObsGroup(question, null, counter);
-      // run necessary expressions
-      clonedGroupingField.questions.forEach((childField) => {
-        if (childField.hide?.hideWhenExpression) {
-          childField.isHidden = evaluateExpression(
-            childField.hide.hideWhenExpression,
-            { value: childField, type: 'field' },
+      function evaluateExpressions(field: FormField) {
+        if (field.hide?.hideWhenExpression) {
+          field.isHidden = evaluateExpression(
+            field.hide.hideWhenExpression,
+            { value: field, type: 'field' },
             allFormFields,
             values,
             {
@@ -57,10 +55,10 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange }) => {
             },
           );
         }
-        if (childField.questionOptions.calculate?.calculateExpression) {
+        if (field.questionOptions.calculate?.calculateExpression) {
           evaluateAsyncExpression(
-            childField.questionOptions.calculate?.calculateExpression,
-            { value: childField, type: 'field' },
+            field.questionOptions.calculate?.calculateExpression,
+            { value: field, type: 'field' },
             allFormFields,
             values,
             {
@@ -69,101 +67,106 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange }) => {
             },
           ).then((result) => {
             if (!isEmpty(result)) {
-              values[childField.id] = result;
-              formFieldHandlers[childField.type].handleFieldSubmission(childField, result, encounterContext);
+              setFieldValue(field.id, result);
+              handler.handleFieldSubmission(field, result, encounterContext);
             }
           });
         }
-        allFormFields.push(childField);
-      });
-      setValues(values);
-      allFormFields.push(clonedGroupingField);
-      setObsGroups([...obsGroups, clonedGroupingField]);
+      }
+      const clonedField = cloneRepeatField(question, null, counter);
+      // run necessary expressions
+      if (clonedField.type === 'obsGroup') {
+        clonedField.questions?.forEach((childField) => {
+          evaluateExpressions(childField);
+          allFormFields.push(childField);
+        });
+      } else {
+        evaluateExpressions(clonedField);
+      }
+      allFormFields.push(clonedField);
+      setRows([...rows, clonedField]);
     },
-    [allFormFields, encounterContext, question, obsGroups, setValues, values],
+    [allFormFields, encounterContext, question, rows, setFieldValue, values],
   );
 
   const removeNthRow = (question: FormField) => {
     if (question.value && question.value.uuid) {
-      // obs group should be voided
-      question.value['voided'] = true;
-      delete question.value.value;
-      obsGroupsToVoid.push(question.value);
+      if (question.type === 'testOrder') {
+        // delete order using handler
+        handler.handleFieldSubmission(question, null, encounterContext);
+      }
+      question.value.voided = true;
+      question.meta.repeat = { wasDeleted: true, ...(question.meta.repeat || {}) };
+      if (question.type === 'obsGroup') {
+        question.questions.forEach((child) => {
+          child.meta.repeat = { wasDeleted: true, ...(question.meta.repeat || {}) };
+          if (child.value && child.value.uuid) {
+            child.value.voided = true;
+          } else {
+            delete child.value;
+          }
+        });
+      }
+    } else {
+      delete question.value;
+      clearSubmission(question);
     }
-    setObsGroups(obsGroups.filter((q) => q.id !== question.id));
-
-    // cleanup
-    const dueFields = [question.id, ...question.questions.map((q) => q.id)];
-    dueFields.forEach((field) => {
-      const index = allFormFields.findIndex((f) => f.id === field);
-      allFormFields.splice(index, 1);
-      delete values[field];
-    });
+    setRows(rows.filter((q) => q.id !== question.id));
   };
 
-  const nodes = obsGroups.map((question, index) => {
-    const keyId = question.id + '-' + index;
-    const deleteControl =
-      obsGroups.length > 1 && encounterContext.sessionMode !== 'view' ? (
-        <div key={keyId} className={styles.removeButton}>
-          <Button
-            className={styles.button}
-            renderIcon={() => <TrashCan size={16} />}
-            kind="danger--tertiary"
-            onClick={() => removeNthRow(question)}>
-            <span>{t('removeGroup', 'Remove group')}</span>
-          </Button>
-        </div>
-      ) : null;
+  const nodes = useMemo(() => {
+    return fieldComponent
+      ? rows.map((question, index) => {
+          const component = <fieldComponent.Component question={question} onChange={onChange} handler={handler} />;
+          return (
+            <div key={question.id + '_wrapper'}>
+              {index !== 0 && (
+                <div>
+                  <hr className={styles.divider} />
+                </div>
+              )}
+              {isGrouped ? <div className={styles.obsGroupContainer}>{component}</div> : component}
+              <RepeatControls
+                question={question}
+                rows={rows}
+                questionIndex={index}
+                handleDelete={() => {
+                  removeNthRow(question);
+                }}
+                handleAdd={() => {
+                  const nextCount = counter + 1;
+                  handleAdd(nextCount);
+                  setCounter(nextCount);
+                }}
+              />
+            </div>
+          );
+        })
+      : null;
+  }, [rows, fieldComponent]);
 
-    return (
-      <div key={keyId}>
-        {index !== 0 && (
-          <div>
-            <hr className={styles.divider} />
-          </div>
-        )}
-        <div className={styles.obsGroupContainer}>
-          <ObsGroup
-            question={question}
-            onChange={onChange}
-            handler={formFieldHandlers[question.type]}
-            deleteControl={index !== 0 ? deleteControl : null}
-          />
-        </div>
-      </div>
-    );
-  });
-
-  encounterContext.sessionMode != 'view' &&
-    nodes.push(
-      <div key={id}>
-        {showAddButton(question.questionOptions.repeatOptions?.limit, counter) && (
-          <Button
-            className={styles.button}
-            iconDescription={t('add', 'Add')}
-            renderIcon={() => <Add size={16} />}
-            kind="tertiary"
-            onClick={() => {
-              const nextCount = counter + 1;
-              handleAdd(counter);
-              setCounter(nextCount);
-            }}>
-            <span>{question.questionOptions.repeatOptions?.addText || `${t('add', 'Add')}`}</span>
-          </Button>
-        )}
-      </div>,
-    );
-
-  return (
-    !question.isHidden && (
-      <div className={styles.container}>
-        <FormGroup legendText={t(question.label)} className={styles.boldLegend}>
-          {nodes}
-        </FormGroup>
-      </div>
-    )
+  if (question.isHidden || !nodes) {
+    return null;
+  }
+  return isGrouped ? (
+    <div className={styles.container}>
+      <FormGroup legendText={t(question.label)} className={styles.boldLegend}>
+        {nodes}
+      </FormGroup>
+    </div>
+  ) : (
+    <div>{nodes}</div>
   );
 };
+
+function getQuestionWithSupportedRendering(question: FormField) {
+  return {
+    ...question,
+    questionOptions: {
+      ...question.questionOptions,
+      rendering: renderingByTypeMap[question.type] || question.questionOptions.rendering,
+    },
+  };
+}
 
 export default Repeat;

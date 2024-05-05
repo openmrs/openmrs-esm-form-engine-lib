@@ -125,10 +125,7 @@ export interface FormField {
   behaviours?: Array<Record<string, any>>;
   questionInfo?: string;
   constrainMaxWidth?: boolean;
-  meta?: {
-    concept?: OpenmrsResource;
-    [anythingElse: string]: any;
-  };
+  meta?: QuestionMetaProps;
 }
 
 export interface previousValue {
@@ -171,6 +168,26 @@ export interface QuestionAnswerOption {
   [key: string]: any;
 }
 
+export interface RepeatOptions {
+  addText?: string;
+  limit?: string;
+  limitExpression?: string;
+}
+
+export interface QuestionMetaProps {
+  concept?: OpenmrsResource;
+  previousValue?: any;
+  submission?: {
+    voidedValue?: any;
+    newValue?: any;
+  };
+  repeat?: {
+    isClone?: boolean;
+    wasDeleted?: boolean;
+  };
+  [anythingElse: string]: any;
+}
+
 export interface FormQuestionOptions {
   extensionId?: string;
   extensionSlotName?: string;
@@ -193,7 +210,7 @@ export interface FormQuestionOptions {
   locationTag?: string;
   rows?: number;
   toggleOptions?: { labelTrue: string; labelFalse: string };
-  repeatOptions?: { addText?: string; limit?: string; limitExpression?: string; isCloned?: boolean };
+  repeatOptions?: RepeatOptions;
   defaultValue?: any;
   calculate?: {
     calculateExpression: string;
@@ -207,6 +224,9 @@ export interface FormQuestionOptions {
   workspaceName?: string;
   buttonLabel?: string;
   identifierType?: string;
+  orderSettingUuid?: string;
+  orderType?: string;
+  selectableOrders?: Array<Record<any, any>>;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
@@ -229,7 +249,9 @@ export type RenderType =
   | 'textarea'
   | 'toggle'
   | 'ui-select-extended'
-  | 'workspace-launcher';
+  | 'workspace-launcher'
+  | 'fixed-value'
+  | 'file';
 
 export interface PostSubmissionAction {
   applyAction(
@@ -255,10 +277,7 @@ export interface OpenmrsEncounter {
   voided?: boolean;
   visit?: OpenmrsResource | string;
   encounterProviders?: Array<Record<string, any>>;
-  form?: {
-    uuid: string;
-    [anythingElse: string]: any;
-  };
+  form?: OpenmrsFormResource;
 }
 
 export interface OpenmrsObs extends OpenmrsResource {
@@ -291,8 +310,8 @@ export interface OpenmrsForm {
 }
 
 export interface OpenmrsFormResource extends OpenmrsResource {
-  dataType: string;
-  valueReference: string;
+  dataType?: string;
+  valueReference?: string;
 }
 
 export interface DataSource<T> {
@@ -378,4 +397,21 @@ export interface FormSchemaTransformer {
    * Transforms the raw schema to be compatible with the React Form Engine.
    */
   transform: (form: FormSchema) => FormSchema;
+}
+
+export interface Order {
+  concept: string;
+  orderer: string;
+  uuid?: string;
+  formFieldPath?: string;
+  type?: string;
+  action?: string;
+  urgency?: string;
+  dateActivated?: string;
+  careSetting?: string;
+  groupMembers?: Order[];
+  encounter?: string;
+  patient?: string;
+  orderNumber?: string;
+  voided?: boolean;
 }

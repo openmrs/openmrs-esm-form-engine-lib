@@ -1,34 +1,34 @@
 import React from 'react';
-import { act, cleanup, render, screen, within, fireEvent, waitFor } from '@testing-library/react';
+import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
+import { act, cleanup, render, screen, within, fireEvent, waitFor } from '@testing-library/react';
 import { restBaseUrl, showToast } from '@openmrs/esm-framework';
 import { when } from 'jest-when';
-import dayjs from 'dayjs';
 import * as api from '../src/api/api';
-import ageValidationForm from '../__mocks__/forms/rfe-forms/age-validation-form.json';
-import bmiForm from '../__mocks__/forms/rfe-forms/bmi-test-form.json';
-import bsaForm from '../__mocks__/forms/rfe-forms/bsa-test-form.json';
-import demoHtsForm from '../__mocks__/forms/rfe-forms/demo_hts-form.json';
-import demoHtsOpenmrsForm from '../__mocks__/forms/omrs-forms/demo_hts-form.json';
-import eddForm from '../__mocks__/forms/rfe-forms/edd-test-form.json';
-import externalDataSourceForm from '../__mocks__/forms/rfe-forms/external_data_source_form.json';
-import filterAnswerOptionsTestForm from '../__mocks__/forms/rfe-forms/filter-answer-options-test-form.json';
-import htsPocForm from '../__mocks__/packages/hiv/forms/hts_poc/1.1.json';
-import labourAndDeliveryTestForm from '../__mocks__/forms/rfe-forms/labour_and_delivery_test_form.json';
-import mockConceptsForm from '../__mocks__/concepts.mock.json';
-import monthsOnArtForm from '../__mocks__/forms/rfe-forms/months-on-art-form.json';
-import nextVisitForm from '../__mocks__/forms/rfe-forms/next-visit-test-form.json';
-import obsGroupTestForm from '../__mocks__/forms/rfe-forms/obs-group-test_form.json';
-import postSubmissionTestForm from '../__mocks__/forms/rfe-forms/post-submission-test-form.json';
-import referenceByMappingForm from '../__mocks__/forms/rfe-forms/reference-by-mapping-form.json';
-import sampleFieldsForm from '../__mocks__/forms/rfe-forms/sample_fields.json';
-import testEnrolmentForm from '../__mocks__/forms/rfe-forms/test-enrolment-form.json';
-import viralLoadStatusForm from '../__mocks__/forms/rfe-forms/viral-load-status-form.json';
-import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
-import { mockPatient } from '../__mocks__/patient.mock';
-import { mockSessionDataResponse } from '../__mocks__/session.mock';
 import { assertFormHasAllFields, findMultiSelectInput, findSelectInput } from './utils/test-utils';
-import { mockVisit } from '../__mocks__/visit.mock';
+import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
+import { mockPatient } from '__mocks__/patient.mock';
+import { mockSessionDataResponse } from '__mocks__/session.mock';
+import { mockVisit } from '__mocks__/visit.mock';
+import ageValidationForm from '__mocks__/forms/rfe-forms/age-validation-form.json';
+import bmiForm from '__mocks__/forms/rfe-forms/bmi-test-form.json';
+import bsaForm from '__mocks__/forms/rfe-forms/bsa-test-form.json';
+import demoHtsForm from '__mocks__/forms/rfe-forms/demo_hts-form.json';
+import demoHtsOpenmrsForm from '__mocks__/forms/afe-forms/demo_hts-form.json';
+import eddForm from '__mocks__/forms/rfe-forms/edd-test-form.json';
+import externalDataSourceForm from '__mocks__/forms/rfe-forms/external_data_source_form.json';
+import filterAnswerOptionsTestForm from '__mocks__/forms/rfe-forms/filter-answer-options-test-form.json';
+import htsPocForm from '__mocks__/packages/hiv/forms/hts_poc/1.1.json';
+import labourAndDeliveryTestForm from '__mocks__/forms/rfe-forms/labour_and_delivery_test_form.json';
+import mockConceptsForm from '__mocks__/concepts.mock.json';
+import monthsOnArtForm from '__mocks__/forms/rfe-forms/months-on-art-form.json';
+import nextVisitForm from '__mocks__/forms/rfe-forms/next-visit-test-form.json';
+import obsGroupTestForm from '__mocks__/forms/rfe-forms/obs-group-test_form.json';
+import postSubmissionTestForm from '__mocks__/forms/rfe-forms/post-submission-test-form.json';
+import referenceByMappingForm from '__mocks__/forms/rfe-forms/reference-by-mapping-form.json';
+import sampleFieldsForm from '__mocks__/forms/rfe-forms/sample_fields.json';
+import testEnrolmentForm from '__mocks__/forms/rfe-forms/test-enrolment-form.json';
+import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-form.json';
 import FormEngine from './form-engine.component';
 
 const mockShowToast = showToast as jest.Mock;
@@ -290,14 +290,14 @@ describe('Form engine component', () => {
   });
 
   describe('Obs group count validation', () => {
-    it('should show error toast when the obs group count does not match the number count specified', async () => {
+    it('should limit number of repeatable obs groups based on configured repeat limit', async () => {
       await act(async () => renderForm(null, labourAndDeliveryTestForm));
 
       const birthCount = screen.getByRole('spinbutton', { name: /number of babies born from this pregnancy/i });
       expect(birthCount).toBeInTheDocument();
 
-      await user.type(birthCount, '3');
-      expect(birthCount).toHaveValue(3);
+      await user.type(birthCount, '2');
+      expect(birthCount).toHaveValue(2);
 
       // Male radio button in 'sex at birth' field
       const maleSexLabel = screen.getByRole('radio', { name: /^male$/i });
@@ -322,15 +322,9 @@ describe('Form engine component', () => {
 
       expect(dateOfBirth).toHaveValue('11/03/2022');
 
-      await user.click(screen.getByRole('button', { name: /save/i }));
+      await user.click(screen.getByRole('button', { name: 'Add' }));
 
-      expect(mockShowToast).toHaveBeenCalled();
-      expect(mockShowToast).toHaveBeenCalledWith({
-        description: 'obsGroup count does not match limit specified',
-        title: 'Invalid entry',
-        kind: 'error',
-        critical: true,
-      });
+      expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
     });
   });
 
@@ -541,7 +535,6 @@ describe('Form engine component', () => {
       await act(async () => {
         renderForm(null, obsGroupTestForm);
       });
-
       const addButton = screen.getByRole('button', { name: 'Add' });
       expect(addButton).toBeInTheDocument();
       expect(screen.getByRole('textbox', { name: /date of birth/i })).toBeInTheDocument();
@@ -550,7 +543,7 @@ describe('Form engine component', () => {
 
       await user.click(addButton);
 
-      expect(screen.getByRole('button', { name: /remove group/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Remove/i })).toBeInTheDocument();
       expect(screen.getAllByRole('radio', { name: /^male$/i }).length).toEqual(2);
       expect(screen.getAllByRole('radio', { name: /^female$/i }).length).toEqual(2);
       expect(screen.getAllByRole('textbox', { name: /date of birth/i }).length).toEqual(2);
@@ -572,7 +565,7 @@ describe('Form engine component', () => {
 
       await user.click(addButton);
 
-      const removeGroupButton = screen.getByRole('button', { name: /remove group/i });
+      const removeGroupButton = screen.getByRole('button', { name: /Remove/i });
       expect(removeGroupButton).toBeInTheDocument();
 
       await user.click(removeGroupButton);

@@ -1,11 +1,11 @@
 import setupFormEngineLibI18n from './setupI18n';
 import { teardownBaseHandlerUtils } from './submission-handlers/base-handlers';
+import { teardownTestOrderHandler } from './submission-handlers/testOrderHandler';
 
 /**
  * Invoked on mounting the "FormEngine" component
  */
 export function init() {
-  // TODO: A perfect candidate for this would be setting up the registry
   // Setting up the i18n for the form engine library
   setupFormEngineLibI18n();
 }
@@ -15,4 +15,5 @@ export function init() {
  */
 export function teardown() {
   teardownBaseHandlerUtils();
+  teardownTestOrderHandler();
 }

@@ -46,6 +46,30 @@
                   }
                 }
               ]
+            },
+            {
+              "id": "labOrder",
+              "type": "testOrder",
+              "label": "Add Lab Order",
+              "questionOptions": {
+                "rendering": "repeating",
+                "concept": "f1742346-cf43-4a17-8c98-720e3f487fc0",
+                "orderType": "testorder",
+                "orderSettingUuid": "INPATIENT",
+                "repeatOptions": {
+                  "limit": 2
+                },
+                "selectableOrders": [
+                  {
+                    "concept": "30e2da8f-34ca-4c93-94c8-d429f22d381c",
+                    "label": "Option 1"
+                  },
+                  {
+                    "concept": "143264AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Option 2"
+                  }
+                ]
+              }
             }
           ]
         }

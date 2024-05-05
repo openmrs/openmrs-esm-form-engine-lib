@@ -1,15 +1,15 @@
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
-import { when } from 'jest-when';
-import FormEngine from '../form-engine.component';
-import heightForAgeZscoreTestSchema from '../../__mocks__/forms/rfe-forms/zscore-height-for-age-form.json';
-import { mockPatientAge16 } from '../../__mocks__/patient.mock';
-import { mockSessionDataResponse } from '../../__mocks__/session.mock';
-import demoHtsOpenmrsForm from '../../__mocks__/forms/omrs-forms/demo_hts-form.json';
-import demoHtsForm from '../../__mocks__/forms/rfe-forms/demo_hts-form.json';
-import { mockVisit } from '../../__mocks__/visit.mock';
-import { restBaseUrl } from '@openmrs/esm-framework';
 import userEvent from '@testing-library/user-event';
+import { render, screen, act } from '@testing-library/react';
+import { restBaseUrl } from '@openmrs/esm-framework';
+import { when } from 'jest-when';
+import { mockPatientAge16 } from '__mocks__/patient.mock';
+import { mockSessionDataResponse } from '__mocks__/session.mock';
+import { mockVisit } from '__mocks__/visit.mock';
+import demoHtsOpenmrsForm from '__mocks__/forms/afe-forms/demo_hts-form.json';
+import demoHtsForm from '__mocks__/forms/rfe-forms/demo_hts-form.json';
+import heightForAgeZscoreTestSchema from '__mocks__/forms/rfe-forms/zscore-height-for-age-form.json';
+import FormEngine from '../form-engine.component';
 
 const patientUUID = 'e13a8696-dc58-4b8c-ae40-2a1e7dd843e7';
 const visit = mockVisit;

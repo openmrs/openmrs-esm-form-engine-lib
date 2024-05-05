@@ -12,7 +12,6 @@ export function useEncounter(formJson: FormSchema) {
       : null;
 
   const { data, error } = useSWR<{ data: OpenmrsEncounter }, Error>(url, openmrsFetch);
-
   return { encounter: encounterObjectCache || data?.data, error, isLoading: url ? !data : false };
 }
 
