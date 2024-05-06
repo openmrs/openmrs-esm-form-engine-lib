@@ -6,7 +6,15 @@ export const DefaultFieldValueValidator: FormFieldValidator = {
   validate: (field: FormField, value: any) => {
     if (codedTypes.includes(field.questionOptions.rendering)) {
       // check whether value exists in answers
-      if (!field.questionOptions.answers?.find((answer) => answer.concept == value)) {
+      // if (!field.questionOptions.answers?.find((answer) => answer.concept == value)) {
+      //   // eslint-disable-next-line no-console
+      //   console.log(value);
+
+      //   return [
+      //     { resultType: 'error', errCode: 'invalid.defaultValue', message: 'Value not found in coded answers list' },
+      //   ];
+      // }
+      if (!value.some((val) => field.questionOptions.answers?.find((answer) => answer.concept === val))) {
         return [
           { resultType: 'error', errCode: 'invalid.defaultValue', message: 'Value not found in coded answers list' },
         ];
