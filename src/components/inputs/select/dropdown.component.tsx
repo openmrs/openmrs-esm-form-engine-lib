@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Dropdown as DropdownInput, Layer } from '@carbon/react';
 import { useField } from 'formik';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { fieldRequiredErrCode, isEmpty, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
@@ -11,21 +11,20 @@ import { type FormFieldProps } from '../../../types';
 import  FieldValueView  from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './dropdown.scss';
-import withErrorHandling from '../../errors/error-wrapper.component';
 
 const Dropdown: React.FC<FormFieldProps> = ({
   question,
   onChange,
   handler,
   previousValue,
-  isFieldConditionalRequiredErrCode,
-}) => {
+  }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [items, setItems] = React.useState([]);
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
   const [warnings, setWarnings] = useState([]);
   useEffect(() => {
     if (question['submission']) {
@@ -97,7 +96,7 @@ const Dropdown: React.FC<FormFieldProps> = ({
             invalidText={errors[0]?.message}
             warn={warnings.length > 0}
             warnText={warnings[0]?.message}
-            errors={errors}
+            
           />
         </Layer>
       </div>
@@ -105,4 +104,4 @@ const Dropdown: React.FC<FormFieldProps> = ({
   );
 };
 
-export default withErrorHandling(Dropdown);
+export default Dropdown;

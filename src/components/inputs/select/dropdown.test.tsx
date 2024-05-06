@@ -72,7 +72,6 @@ const renderForm = (initialValues) => {
             question={question}
             onChange={jest.fn()}
             handler={ObsSubmissionHandler}
-            fieldConditionalRequiredErrCode={fieldConditionalRequiredErrCode}
           />
         </FormContext.Provider>
       )}
