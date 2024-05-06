@@ -114,7 +114,7 @@ export const mockPatientAge4 = {
   ],
 };
 
-export const mockPatientAge16 = {
+export const mockPatientAge8 = {
   resourceType: 'Patient',
   id: 'e13a8696-dc58-4b8c-ae40-2a1e7dd843e7',
   extension: [
