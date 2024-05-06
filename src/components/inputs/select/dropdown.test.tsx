@@ -68,11 +68,7 @@ const renderForm = (initialValues) => {
             isSubmitting: false,
             formFieldHandlers: { obs: ObsSubmissionHandler },
           }}>
-          <Dropdown
-            question={question}
-            onChange={jest.fn()}
-            handler={ObsSubmissionHandler}
-          />
+          <Dropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
         </FormContext.Provider>
       )}
     </Formik>,

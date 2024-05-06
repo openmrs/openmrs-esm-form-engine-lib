@@ -5,7 +5,7 @@ import { type FormField, type EncounterContext, FormContext } from '../../..';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 import { findTextOrDateInput } from '../../../utils/test-utils';
 import DateField from '../date/date.component';
-import  UnspecifiedField  from './unspecified.component';
+import UnspecifiedField from './unspecified.component';
 
 const question: FormField = {
   label: 'Visit Date',
@@ -53,11 +53,7 @@ const renderForm = (initialValues) => {
             isSubmitting: false,
             formFieldHandlers: { obs: ObsSubmissionHandler },
           }}>
-          <DateField
-            question={question}
-            onChange={jest.fn()}
-            handler={ObsSubmissionHandler}
-          />
+          <DateField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
           <UnspecifiedField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
         </FormContext.Provider>
       )}

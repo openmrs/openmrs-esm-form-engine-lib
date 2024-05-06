@@ -10,26 +10,24 @@ import { type FormFieldProps } from '../../../types';
 import { isInlineView } from '../../../utils/form-helper';
 import { fieldRequiredErrCode, isEmpty, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
-import  FieldValueView  from '../../value/view/field-value-view.component';
+import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './date.scss';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
 
-const DateField: React.FC<FormFieldProps> = ({
-  question,
-  onChange,
-  handler,
-  previousValue,
-  }) => {
+const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(
+    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
+    [errors],
+  );
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [time, setTime] = useState('');
 
@@ -188,7 +186,6 @@ const DateField: React.FC<FormFieldProps> = ({
                   warn={warnings.length > 0}
                   warnText={warnings[0]?.message}
                   readOnly={question.readonly}
-                  
                 />
               </DatePicker>
             </Layer>

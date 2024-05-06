@@ -5,24 +5,22 @@ import { useField } from 'formik';
 import { isTrue } from '../../../utils/boolean-utils';
 import { fieldRequiredErrCode, isEmpty, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
-import  FieldValueView  from '../../value/view/field-value-view.component';
+import FieldValueView from '../../value/view/field-value-view.component';
 import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './number.scss';
 import { useTranslation } from 'react-i18next';
 
-const NumberField: React.FC<FormFieldProps> = ({
-  question,
-  onChange,
-  handler,
-  previousValue,
-  }) => {
+const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(
+    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
+    [errors],
+  );
   const [warnings, setWarnings] = useState([]);
   const { t } = useTranslation();
 
@@ -95,7 +93,6 @@ const NumberField: React.FC<FormFieldProps> = ({
         warn={warnings.length > 0}
         warnText={warnings[0]?.message}
         step={0.01}
-        
       />
     </Layer>
   );

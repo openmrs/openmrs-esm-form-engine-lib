@@ -12,19 +12,17 @@ import RequiredFieldLabel from '../../required-field-label/required-field-label.
 import styles from './text.scss';
 import { useTranslation } from 'react-i18next';
 
-const TextField: React.FC<FormFieldProps> = ({
-  question,
-  onChange,
-  handler,
-  previousValue,
-  }) => {
+const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(
+    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
+    [errors],
+  );
 
   useEffect(() => {
     if (question['submission']) {
@@ -92,7 +90,6 @@ const TextField: React.FC<FormFieldProps> = ({
               warn={warnings.length > 0}
               warnText={warnings.length && warnings[0].message}
               maxLength={question.questionOptions.max || TextInput.maxLength}
-              
             />
           </Layer>
         </div>

@@ -8,21 +8,19 @@ import { FormContext } from '../../../form-context';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import { fieldRequiredErrCode, isEmpty, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
-import  FieldValueView  from '../../value/view/field-value-view.component';
+import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './radio.scss';
 
-const Radio: React.FC<FormFieldProps> = ({
-  question,
-  onChange,
-  handler,
-  previousValue,
-  }) => {
+const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(
+    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
+    [errors],
+  );
   const [warnings, setWarnings] = useState([]);
   const { t } = useTranslation();
 

@@ -8,23 +8,21 @@ import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
-import  FieldValueView  from '../../value/view/field-value-view.component';
+import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './dropdown.scss';
 
-const Dropdown: React.FC<FormFieldProps> = ({
-  question,
-  onChange,
-  handler,
-  previousValue,
-  }) => {
+const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [items, setItems] = React.useState([]);
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(
+    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
+    [errors],
+  );
   const [warnings, setWarnings] = useState([]);
   useEffect(() => {
     if (question['submission']) {
@@ -96,7 +94,6 @@ const Dropdown: React.FC<FormFieldProps> = ({
             invalidText={errors[0]?.message}
             warn={warnings.length > 0}
             warnText={warnings[0]?.message}
-            
           />
         </Layer>
       </div>

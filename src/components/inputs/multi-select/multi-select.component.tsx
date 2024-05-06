@@ -9,16 +9,11 @@ import { ValueEmpty } from '../../value/value.component';
 import { fieldRequiredErrCode, isEmpty, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
-import  FieldValueView  from '../../value/view/field-value-view.component';
+import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './multi-select.scss';
 
-const MultiSelect: React.FC<FormFieldProps> = ({
-  question,
-  onChange,
-  handler,
-  previousValue,
-  }) => {
+const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, isFieldInitializationComplete } =
@@ -27,7 +22,10 @@ const MultiSelect: React.FC<FormFieldProps> = ({
   const [warnings, setWarnings] = useState([]);
   const [counter, setCounter] = useState(0);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
+  const isFieldConditionalRequiredErrCode = useMemo(
+    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
+    [errors],
+  );
 
   useEffect(() => {
     if (question['submission']) {
@@ -111,7 +109,6 @@ const MultiSelect: React.FC<FormFieldProps> = ({
               warn={warnings.length > 0}
               warnText={warnings[0]?.message}
               readOnly={question.readonly}
-              
             />
           </Layer>
         </div>
