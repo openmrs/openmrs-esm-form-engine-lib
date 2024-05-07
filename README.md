@@ -1,32 +1,37 @@
 <div id="top"></div>
 
-:wave:	*New to O3? Be sure to review the [OpenMRS 3 Frontend Developer Documentation](https://o3-docs.openmrs.org/).* :teacher:
+:wave: *New to O3? Be sure to review the [OpenMRS 3 Frontend Developer Documentation](https://o3-docs.openmrs.org/).* :teacher:
 
-
-# OpenMRS Form Engine
+# openmrs-form-engine-lib
 
 <img src="readme/form-engine.jpeg" alt="https://raw.githubusercontent.com/openmrs/openmrs-form-engine-lib/main/readme/form-engine.jpeg" >
 
-The OpenMRS Form Engine is a React library that builds and renders OpenMRS JSON form schemas. Schemas are defined based on the [AMPATH Forms Schema](https://gist.github.com/denniskigen/80e4cd0765cbeda0efba79c6e6675e49) and get built using the OpenMRS [Form Builder](https://github.com/openmrs/openmrs-esm-form-builder) within the O3 reference application. The form engine is a library that can be consumed by any frontend app that needs to render forms. It enables the rendering of forms in the following modes:
+The React Form Engine is a library that allows users to build and render forms for use in O3. These form schemas are written in JSON and conform to the [O3 standard JSON schema spec](https://github.com/openmrs/openmrs-contrib-json-schemas/blob/main/form.schema.json). The [O3 reference application](https://o3.openmrs.org/openmrs/spa) ships an embedded [Form Builder](https://github.com/openmrs/openmrs-esm-form-builder) that users can leverage to build forms interactively, using the interactive schema builder, or by writing JSON code into the embedded schema editor.
+
+and get built using the OpenMRS [Form Builder](https://github.com/openmrs/openmrs-esm-form-builder) within the O3 reference application. The form engine is a library that can be consumed by any frontend module that needs to render forms. It enables the rendering of forms in the following modes:
 
 - **Enter Mode** - This is the default mode that allows the user to enter data into the form. The form is rendered in a read-write mode.
 - **Edit Mode** - This mode allows the user to edit data that has already been entered into the form. The form is rendered in a read-write mode.
 - **View Mode** - This mode allows the user to view data that has already been entered into the form. The form is rendered in a read-only mode.
-- **Embedded View** - This mode is an condensed version of the `view mode` without the section headers and form actions. It can be used to display entered form data within a widget.
+- **Embedded View** - This mode is a condensed version of the `view mode` without the section headers and form actions. It can be used to display entered form data within a widget.
 
 ## Documentation
 
 You can find the full documentation for the OpenMRS Form Engine in the [OpenMRS Wiki](https://openmrs.atlassian.net/wiki/spaces/projects/pages/68747273/O3+Form+Docs).
 
-Some key features include:
+Key features include:
 
-- **Validation** - The form engine enables the validation of form data based on the form schema. Arbitraily complex validation rules can be defined within the schema and evaluated by the form engine.
-- **Sub forms** - The form engine supports the rendering of sub forms within a form. This allows for the creation of complex forms that can be reused across multiple forms.
+- **Validation** - The form engine enables the validation of form data based on the form schema. Arbitrarily complex validation rules can be defined within the schema and evaluated by the form engine.
+- **Subforms** - The form engine supports the rendering of subforms within a form. This allows for the creation of complex forms that can be reused across multiple forms.
 - **Conditional rendering** - The form engine supports the conditional rendering of form fields based on the values of other form fields. This allows for the creation of dynamic forms that can adapt to the user's input.
 - **Data sources** - The form engine supports the use of data sources to populate form fields. This allows for the creation of forms that can be populated with data from external sources.
 - **Expression helpers** - The form engine supports the use of expression helpers to evaluate expressions within the form schema. This allows for the creation of complex expressions that can be evaluated by the form engine.
+- **Translations** - The form engine supports translations for various elements such as action items, notifications, validators, and questions within the forms. Translations for pages, sections, and question labels are retrieved from the backend.
+- **Drug orders** - The form engine facilitates drug orders by enabling the launch of the drug order basket. This feature allows users to add drugs along with medication details contained in the template for the specified drug.
+- **Lab orders** - The form engine supports lab orders created using observations (obs) by utilizing the testOrders type on a specific question.
+- **Markdown/ Read only fields** - The form engine includes support for read-only fields embedded within forms. These fields are utilized to provide additional information or guide users without allowing input.
 
-## Getting Started
+## Getting started
 
  *NB: The engine is a library and not an [O3 frontend module](https://o3-dev.docs.openmrs.org/#/getting_started/tour). That being said, it can be consumed by bundling it within an ESM or custom frontend app that incorporates it within a UI workflow.*
 
@@ -41,7 +46,7 @@ Some key features include:
 yarn add @openmrs/openmrs-form-engine-lib@latest
 ```
 
-### Local Development
+### Local development
 
 ```bash
 git clone git@github.com:openmrs/openmrs-form-engine-lib.git
@@ -62,14 +67,14 @@ yarn
 yarn build
 ```
 
-#### Link the library to the dependant frontend module
+#### Link the library to the dependent frontend module
 
-To test your changes locally, you need to link the library to the dependant frontend module. Presently, this library is used by the following modules:
+To test your changes locally, you need to link the library to the dependent frontend module. Presently, this library is used by the following modules:
 
 - [openmrs-esm-form-builder](https://github.com/openmrs/openmrs-esm-form-builder)
 - [openmrs-esm-patient-chart](https://github.com/openmrs/openmrs-esm-patient-chart)
 
-To link the library to the dependant frontend module, run the following command from the root of the frontend module:
+To link the library to the dependent frontend module, run the following command from the root of the frontend module:
 
 ```bash
 yarn link `path/to/openmrs-form-engine-lib`
@@ -122,7 +127,7 @@ https://github.com/openmrs/openmrs-form-engine-lib/issues
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what makes the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**. Read our [contributing guide](https://o3-docs.openmrs.org/docs/frontend-modules/contributing) for more information on how to contribute.
 
 ## License
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
@@ -55,7 +55,9 @@ const historicalValueTransformer = (field, obs) => {
 const FormSection = ({ fields, onFieldChange }) => {
   const [previousValues, setPreviousValues] = useState<Record<string, previousValue>>({});
   const [fieldComponentMapEntries, setFieldComponentMapEntries] = useState<FieldComponentMap[]>([]);
-  const { encounterContext, fields: fieldsFromEncounter } = React.useContext(FormContext);
+  const { encounterContext, fields: fieldsFromEncounter } = useContext(FormContext);
+
+  const noop = () => {};
 
   useEffect(() => {
     Promise.all(
@@ -70,7 +72,7 @@ const FormSection = ({ fields, onFieldChange }) => {
   }, [fields]);
 
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
+    <ErrorBoundary FallbackComponent={ErrorFallback} onReset={noop}>
       <div className={styles.sectionContainer}>
         {fieldComponentMapEntries
           .filter((entry) => entry?.fieldComponent)

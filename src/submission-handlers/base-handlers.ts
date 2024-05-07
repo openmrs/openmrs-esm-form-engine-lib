@@ -49,6 +49,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
       return getAttachmentByUuid(encounter.patient['uuid'], encounter.uuid, ac);
     }
     const matchedObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field);
+
     const rendering = field.questionOptions.rendering;
     if (matchedObs?.length) {
       if (field['groupId'] && !assignedObsIds.includes(matchedObs[0].obsGroup?.uuid)) {
@@ -65,7 +66,7 @@ export const ObsSubmissionHandler: SubmissionHandler = {
       if (rendering == 'radio' || rendering == 'content-switcher') {
         getConcept(field.questionOptions.concept, 'custom:(uuid,display,datatype:(uuid,display,name))').then(
           (result) => {
-            if (result.datatype.name == 'Boolean') {
+            if (result?.datatype?.name == 'Boolean') {
               field.value.value = obs.value.uuid;
             }
           },

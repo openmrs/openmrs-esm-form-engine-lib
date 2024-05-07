@@ -5,7 +5,7 @@ export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
     form.pages.forEach((page) => {
       if (page.sections) {
         page.sections.forEach((section) => {
-          section?.questions?.forEach((question) => handleQuestion(question));
+          section?.questions?.forEach((question, index) => handleQuestion(question, index));
         });
       }
     });
@@ -13,12 +13,12 @@ export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
   },
 };
 
-function handleQuestion(question: FormField) {
+function handleQuestion(question: FormField, index) {
   try {
     transformByType(question);
     transformByRendering(question);
     if (question?.questions?.length) {
-      question.questions.forEach((question) => handleQuestion(question));
+      question.questions.forEach((question) => handleQuestion(question, index));
     }
   } catch (error) {
     console.error(error);
@@ -44,5 +44,25 @@ function transformByRendering(question: FormField) {
     case 'numeric':
       question.questionOptions.rendering = 'number';
       break;
+    case 'repeating':
+    case 'group':
+      handleLabOrders(question);
+      break;
   }
+  return question;
+}
+
+function handleLabOrders(question: FormField) {
+  if (question.questionOptions.rendering === 'repeating' && question.type === 'testOrder') {
+    updateQuestionAnswers(question);
+  }
+  if (question.questionOptions.rendering === 'group') {
+    question?.questions?.filter((orderQuestion) => orderQuestion.type === 'testOrder').forEach(updateQuestionAnswers);
+  }
+  return question;
+}
+
+function updateQuestionAnswers(question: FormField) {
+  question.questionOptions.answers = question.questionOptions.selectableOrders || [];
+  delete question.questionOptions.selectableOrders;
 }

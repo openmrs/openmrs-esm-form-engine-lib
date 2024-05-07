@@ -1,4 +1,4 @@
-import { SubmissionHandler } from '../types';
+import { type SubmissionHandler } from '../types';
 
 export const ControlHandler: SubmissionHandler = {
   handleFieldSubmission: () => null,

@@ -1,3 +1,4 @@
+/** @type {import('jest').Config} */
 module.exports = {
   verbose: true,
   collectCoverage: true,
@@ -14,6 +15,7 @@ module.exports = {
     '^.+\\.(t|j)sx?$': '@swc/jest',
   },
   transformIgnorePatterns: ['/node_modules/(?!@openmrs)'],
+  moduleDirectories: ['node_modules', '__mocks__', __dirname],
   moduleNameMapper: {
     '^dexie$': require.resolve('dexie'),
     '\\.(s?css)$': 'identity-obj-proxy',

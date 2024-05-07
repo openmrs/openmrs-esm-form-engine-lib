@@ -35,7 +35,6 @@ export interface EncounterContext {
   setEncounterProvider(value: string): void;
   setEncounterLocation(value: any): void;
   initValues?: Record<string, any>;
-  setObsGroupCounter?: any;
   patientIdentifier?: PatientIdentifier;
 }
 

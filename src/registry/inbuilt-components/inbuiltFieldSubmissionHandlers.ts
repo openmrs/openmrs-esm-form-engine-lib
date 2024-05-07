@@ -6,6 +6,7 @@ import { type SubmissionHandler } from '../../types';
 import { PatientIdentifierHandler } from '../../submission-handlers/patientIdentifierHandler';
 import { ControlHandler } from '../../submission-handlers/controlHandler';
 import { type RegistryItem } from '../registry';
+import { TestOrderSubmissionHandler } from '../../submission-handlers/testOrderHandler';
 
 /**
  * @internal
@@ -45,5 +46,10 @@ export const inbuiltFieldSubmissionHandlers: Array<RegistryItem<SubmissionHandle
     name: 'controlHandler',
     component: ControlHandler,
     type: 'control',
+  },
+  {
+    name: 'TestOrderSubmissionHandler',
+    component: TestOrderSubmissionHandler,
+    type: 'testOrder',
   },
 ];
