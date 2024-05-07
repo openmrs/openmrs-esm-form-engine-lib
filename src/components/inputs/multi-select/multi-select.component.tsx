@@ -16,24 +16,12 @@ import styles from './multi-select.scss';
 const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout, isFieldInitializationComplete } =
+    React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const [counter, setCounter] = useState(0);
-  const [touched, setTouched] = useState(false);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-
-  useEffect(() => {
-    // Carbon's MultiSelect has issues related to not updating the component based on the `initialSelectedItems` prop
-    // this is an intermittent issue. As a temporary solution, were are forcing the component to re-render
-    if (field.value && field.value.length == 0) {
-      // chances are high the value was cleared
-      // force the Multiselect component to be re-mounted
-      setCounter(counter + 1);
-    } else if (!touched && question.value) {
-      setCounter(counter + 1);
-    }
-  }, [field.value]);
 
   useEffect(() => {
     if (question['submission']) {
@@ -42,18 +30,31 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
     }
   }, [question['submission']]);
 
+  const selectOptions = question.questionOptions.answers
+    .filter((answer) => !answer.isHidden)
+    .map((answer, index) => ({
+      id: `${question.id}-${answer.concept}`,
+      concept: answer.concept,
+      label: answer.label,
+      key: index,
+      disabled: answer.disable?.isDisabled,
+    }));
+
   const initiallySelectedQuestionItems = useMemo(() => {
-    const selectedItems = [];
-    question.questionOptions.answers.forEach((item) => {
-      if (field.value?.includes(item.concept)) {
-        selectedItems.push(item);
-      }
-    });
+    let selectedItems = [];
+    if (isFieldInitializationComplete && field.value?.length && counter < 1) {
+      selectOptions.forEach((item) => {
+        if (field.value?.includes(item.concept)) {
+          selectedItems.push(item);
+        }
+      });
+      // re-mounts Carbon's MultiSelect component to pickup the initially selected items
+      setCounter(counter + 1);
+    }
     return selectedItems;
-  }, [question, field.value]);
+  }, [isFieldInitializationComplete, field.value]);
 
   const handleSelectItemsChange = ({ selectedItems }) => {
-    setTouched(true);
     const value = selectedItems.map((selectedItem) => {
       return selectedItem.concept;
     });
@@ -96,15 +97,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
               placeholder={t('search', 'Search') + '...'}
               onChange={handleSelectItemsChange}
               id={t(question.label)}
-              items={question.questionOptions.answers
-                .filter((answer) => !answer.isHidden)
-                .map((answer, index) => ({
-                  id: `${question.id}-${answer.concept}`,
-                  concept: answer.concept,
-                  label: answer.label,
-                  key: index,
-                  disabled: answer.disable?.isDisabled,
-                }))}
+              items={selectOptions}
               initialSelectedItems={initiallySelectedQuestionItems}
               label={''}
               titleText={
