@@ -5,6 +5,10 @@
   margin-bottom: 1.5rem;
 }
 
+.obsGroupContainer {
+  width: 93%;
+}
+
 .unspecifiedContainer {
   display: flex;
   justify-content: space-between;
@@ -34,7 +38,7 @@
   display: flex;
   align-items: center !important;
 
-  >.questionInfoControl {
+  > .questionInfoControl {
     padding-top: 1.5rem;
   }
 }
