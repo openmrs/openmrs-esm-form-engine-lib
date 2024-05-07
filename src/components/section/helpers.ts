@@ -4,6 +4,8 @@ import { isTrue } from '../../utils/boolean-utils';
 import { type OpenmrsObs, type FormField } from '../../types';
 import { parseToLocalDateTime } from '../../utils/form-helper';
 import dayjs from 'dayjs';
+import { format } from 'path';
+import { render } from '@testing-library/react';
 
 /**
  * Retrieves the appropriate field control for a question, considering missing concepts.
@@ -48,47 +50,35 @@ function previousValueDisplayForCheckbox(previosValueItems: Object[]): String {
 export const formatPreviousValueDisplayText = (question: FormField, value: any) => {
   switch (question.questionOptions.rendering) {
     case 'date':
+      if (value instanceof Date) {
+        return formatDate(value);
+      }
       return formatDate(new Date(value?.display)) || formatDate(value?.value);
     case 'checkbox':
-      return Array.isArray(value) ? previousValueDisplayForCheckbox(value) : null;
+      return Array.isArray(value) ? previousValueDisplayForCheckbox(value) : value.display;
     default:
       return value?.display;
   }
 };
 
-export const historicalValueTransformer = (field: FormField, obs: OpenmrsObs | OpenmrsObs[]) => {
+export const historicalValueTransformer = (field: FormField, obs: OpenmrsObs) => {
   const rendering = field.questionOptions.rendering;
 
-  const transformObservation = (obs: OpenmrsObs, rendering: string) => {
-    if (typeof obs.value === 'string' || typeof obs.value === 'number') {
-      if (rendering === 'date' || rendering === 'datetime') {
-        const dateObj = parseToLocalDateTime(`${obs.value}`);
-        return { value: dateObj, display: dayjs(dateObj).format('YYYY-MM-DD HH:mm') };
-      }
-      return { value: obs.value, display: obs.value };
-    } else if (rendering === 'checkbox') {
-      return {
-        value: obs.value?.uuid,
-        display: obs.value?.name?.name,
-      };
-    } else if (rendering === 'toggle') {
-      return {
-        value: obs.value?.uuid,
-        display: obs.value?.name?.name,
-      };
-    } else {
-      return {
-        value: obs.value?.uuid,
-        display: field.questionOptions.answers?.find((option) => option.concept === obs.value?.uuid)?.label,
-      };
+  if (typeof obs.value === 'string' || typeof obs.value === 'number') {
+    if (rendering === 'date' || rendering === 'datetime') {
+      const dateObj = parseToLocalDateTime(`${obs.value}`);
+      return { value: dateObj, display: dayjs(dateObj).format('YYYY-MM-DD HH:mm') };
     }
-  };
-
-  if (Array.isArray(obs)) {
-    return obs.map((eachObs) => {
-      return transformObservation(eachObs, rendering);
-    });
+    return { value: obs.value, display: obs.value };
+  } else if (['toggle', 'checkbox'].includes(rendering)) {
+    return {
+      value: obs.value?.uuid,
+      display: obs.value?.name?.name,
+    };
   } else {
-    return transformObservation(obs, rendering);
+    return {
+      value: obs.value?.uuid,
+      display: field.questionOptions.answers?.find((option) => option.concept === obs.value?.uuid)?.label,
+    };
   }
 };

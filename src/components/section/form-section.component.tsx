@@ -67,12 +67,10 @@ const FormSection = ({ fields, onFieldChange }) => {
                 )
               : null;
 
-            const previousFieldValue = encounterContext.previousEncounter
-              ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)
-              : null;
-
-            const transformedHistoricalValue = historicalValue
+            const previousFieldValue = historicalValue
               ? historicalValueTransformer(fieldDescriptor, historicalValue)
+              : encounterContext.previousEncounter
+              ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)
               : null;
 
             if (FieldComponent) {
@@ -125,11 +123,8 @@ const FormSection = ({ fields, onFieldChange }) => {
                       fieldDescriptor.historicalExpression) && (
                       <div className={styles.previousValue}>
                         <PreviousValueReview
-                          previousValue={previousFieldValue || transformedHistoricalValue}
-                          displayText={formatPreviousValueDisplayText(
-                            fieldDescriptor,
-                            previousFieldValue || transformedHistoricalValue,
-                          )}
+                          previousValue={previousFieldValue}
+                          displayText={formatPreviousValueDisplayText(fieldDescriptor, previousFieldValue)}
                           setValue={setPreviousValues}
                           field={fieldDescriptor.id}
                         />

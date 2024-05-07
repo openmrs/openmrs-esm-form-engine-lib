@@ -58,11 +58,18 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   };
 
   useEffect(() => {
-    if (!isEmpty(previousValue) && Array.isArray(previousValue)) {
-      const valuesToSet = previousValue.map((eachItem) => eachItem.value);
-      setFieldValue(question.id, valuesToSet);
-      onChange(question.id, valuesToSet, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, valuesToSet, encounterContext);
+    if (!isEmpty(previousValue)) {
+      if (Array.isArray(previousValue)) {
+        const valuesToSet = previousValue.map((eachItem) => eachItem.value);
+        setFieldValue(question.id, valuesToSet);
+        onChange(question.id, valuesToSet, setErrors, setWarnings);
+        question.value = handler?.handleFieldSubmission(question, valuesToSet, encounterContext);
+      } else {
+        const valueToSet = [previousValue.value];
+        setFieldValue(question.id, valueToSet);
+        onChange(question.id, valueToSet, setErrors, setWarnings);
+        question.value = handler?.handleFieldSubmission(question, valueToSet, encounterContext);
+      }
     }
   }, [previousValue]);
 
