@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { act, render, screen } from '@testing-library/react';
 import { when } from 'jest-when';
 import { restBaseUrl } from '@openmrs/esm-framework';
-import { mockPatientAge16 } from '__mocks__/patient.mock';
+import { mockPatientAge8 } from '__mocks__/patient.mock';
 import { mockSessionDataResponse } from '__mocks__/session.mock';
 import { mockVisit } from '__mocks__/visit.mock';
 import bmiForAgeScoreTestSchema from '__mocks__/forms/rfe-forms/zscore-bmi-for-age-form.json';
@@ -31,7 +31,7 @@ jest.mock('@openmrs/esm-framework', () => {
     showNotification: jest.fn(),
     showToast: jest.fn(),
     getAsyncLifecycle: jest.fn(),
-    usePatient: jest.fn().mockImplementation(() => ({ patient: mockPatientAge16 })),
+    usePatient: jest.fn().mockImplementation(() => ({ patient: mockPatientAge8 })),
     registerExtension: jest.fn(),
     useSession: jest.fn().mockImplementation(() => mockSessionDataResponse.data),
     openmrsFetch: jest.fn().mockImplementation((args) => mockOpenmrsFetch(args)),

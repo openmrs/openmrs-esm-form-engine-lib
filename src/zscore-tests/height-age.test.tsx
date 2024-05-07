@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { render, screen, act } from '@testing-library/react';
 import { restBaseUrl } from '@openmrs/esm-framework';
 import { when } from 'jest-when';
-import { mockPatientAge16 } from '__mocks__/patient.mock';
+import { mockPatientAge8 } from '__mocks__/patient.mock';
 import { mockSessionDataResponse } from '__mocks__/session.mock';
 import { mockVisit } from '__mocks__/visit.mock';
 import demoHtsOpenmrsForm from '__mocks__/forms/afe-forms/demo_hts-form.json';
@@ -20,14 +20,12 @@ global.ResizeObserver = require('resize-observer-polyfill');
 when(mockOpenmrsFetch).calledWith(formsResourcePath).mockReturnValue({ data: demoHtsOpenmrsForm });
 when(mockOpenmrsFetch).calledWith(clobdataResourcePath).mockReturnValue({ data: demoHtsForm });
 
-const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
-
 jest.mock('@openmrs/esm-framework', () => {
   const originalModule = jest.requireActual('@openmrs/esm-framework');
 
   return {
     ...originalModule,
-    usePatient: jest.fn().mockImplementation(() => ({ patient: mockPatientAge16 })),
+    usePatient: jest.fn().mockImplementation(() => ({ patient: mockPatientAge8 })),
     useSession: jest.fn().mockImplementation(() => mockSessionDataResponse.data),
     openmrsFetch: jest.fn().mockImplementation((args) => mockOpenmrsFetch(args)),
   };
@@ -46,6 +44,16 @@ jest.mock('../../src/api/api', () => {
 });
 
 describe('heightForAge z-score', () => {
+  let globalSpy;
+  beforeEach(() => {
+    const mockedDate = new Date(2024, 4, 10);
+    globalSpy = jest.spyOn(global, 'Date').mockImplementation(() => mockedDate);
+  });
+
+  afterEach(() => {
+    globalSpy.mockRestore();
+  });
+
   it('should compute heightForAge z-score from the provided height and weight values', async () => {
     const user = userEvent.setup();
 
