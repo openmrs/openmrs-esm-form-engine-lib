@@ -5,10 +5,10 @@ import { codedTypes } from '../constants';
 export const DefaultFieldValueValidator: FormFieldValidator = {
   validate: (field: FormField, value: any) => {
     if (codedTypes.includes(field.questionOptions.rendering)) {
-      const valuesToCheck = Array.isArray(value) ? value : [value];
+      const valuesArray = Array.isArray(value) ? value : [value];
       // check whether value exists in answers
       if (
-        !valuesToCheck.every((val: string) => field.questionOptions.answers?.find((answer) => answer.concept === val))
+        !valuesArray.every((val: string) => field.questionOptions.answers?.find((answer) => answer.concept === val))
       ) {
         return [
           { resultType: 'error', errCode: 'invalid.defaultValue', message: 'Value not found in coded answers list' },
