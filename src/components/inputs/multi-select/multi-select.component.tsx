@@ -41,17 +41,11 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
     }));
 
   const initiallySelectedQuestionItems = useMemo(() => {
-    let selectedItems = [];
     if (isFieldInitializationComplete && field.value?.length && counter < 1) {
-      selectOptions.forEach((item) => {
-        if (field.value?.includes(item.concept)) {
-          selectedItems.push(item);
-        }
-      });
-      // re-mounts Carbon's MultiSelect component to pickup the initially selected items
       setCounter(counter + 1);
+      return selectOptions.filter((item) => field.value?.includes(item.concept));
     }
-    return selectedItems;
+    return [];
   }, [isFieldInitializationComplete, field.value]);
 
   const handleSelectItemsChange = ({ selectedItems }) => {
