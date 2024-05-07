@@ -147,7 +147,7 @@ function dataURItoFile(dataURI: string) {
 //Program Enrollment
 export function getPatientEnrolledPrograms(patientUuid: string, programUuid?: string) {
   return openmrsFetch(
-    `${restBaseUrl}/programenrollment?patient=${patientUuid}&v=custom:(uuid,display,program:(uuid,name,allWorkflows),states,dateEnrolled,dateCompleted,location:(uuid,display))`,
+    `${restBaseUrl}/programenrollment?patient=${patientUuid}&v=custom:(uuid,display,program:(uuid,name,allWorkflows),dateEnrolled,dateCompleted,location:(uuid,display),states:(state:(uuid,name,concept:(uuid),programWorkflow:(uuid)))`,
   ).then(({ data }) => {
     if (data) {
       if(programUuid) {
@@ -183,7 +183,7 @@ export function saveProgramEnrollment(payload: ProgramEnrollmentPayload, abortCo
   const body = { program, patient, dateEnrolled, dateCompleted, location, ...(states && { states }),...(uuid && { uuid })  };
   let url: string;
 
-  if(payload.uuid != undefined) {
+  if(payload.uuid) {
     url = `${restBaseUrl}/programenrollment/${payload.uuid}`;
   } else {
     url = `${restBaseUrl}/programenrollment`;

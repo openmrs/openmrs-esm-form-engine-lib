@@ -16,10 +16,17 @@ import RequiredFieldLabel from '../../required-field-label/required-field-label.
 import styles from './ui-select-extended.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
-const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
+const UiSelectExtended: React.FC<FormFieldProps> = ({
+  question,
+  handler,
+  onChange,
+  previousValue,
+  workFlowMeta,
+  setWorkflowManager,
+}) => {
   const { t } = useTranslation();
-  const [field ] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout,  } = React.useContext(FormContext);
+  const [field] = useField(question.id);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -53,6 +60,16 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
     handler?.handleFieldSubmission(question, value, encounterContext);
+    // check only if workflow
+    if (question.type === 'programWorkflow') {
+      setWorkflowManager((prevState) => ({
+        ...prevState,
+        [question.id]: {
+          label: question.id,
+          uuid: value,
+        },
+      }));
+    }
   };
 
   useEffect(() => {
@@ -85,10 +102,22 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
     // If not searchable, preload the items
     if (dataSource && !isTrue(question.questionOptions.isSearchable)) {
       setIsLoading(true);
-      dataSource.fetchData(null, config).then((dataItems) => {
-        setItems(dataItems.map(dataSource.toUuidAndDisplay));
-        setIsLoading(false);
-      });
+      if (question.type === 'programState') {
+        dataSource.fetchData(workFlowMeta, encounterContext.programUuid).then((dataItems) => {
+          setItems(dataItems.map(dataSource.toUuidAndDisplay));
+          setIsLoading(false);
+        });
+      } else if (question.type === 'programWorkflow') {
+        dataSource.fetchData('', encounterContext.programUuid).then((dataItems) => {
+          setItems(dataItems.map(dataSource.toUuidAndDisplay));
+          setIsLoading(false);
+        });
+      } else {
+        dataSource.fetchData(null, config).then((dataItems) => {
+          setItems(dataItems.map(dataSource.toUuidAndDisplay));
+          setIsLoading(false);
+        });
+      }
     }
   }, [dataSource, config]);
 

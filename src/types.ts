@@ -83,6 +83,13 @@ export interface FormSchema {
   };
   version?: string;
   translations?: Record<string, string>;
+  meta?: {
+    programs?: {
+      uuid?: string;
+      isEnrollment?: string;
+      discontinuationDateQuestionId?: string
+    };
+  }
 }
 
 export interface FormPage {
@@ -146,6 +153,8 @@ export interface FormFieldProps {
   // This is of util to components defined out of the engine
   useField?: (fieldId: string) => [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
   previousValue?: previousValue;
+  workFlowMeta?:  string;
+  setWorkflowManager?: React.Dispatch<React.SetStateAction<{}>>;
 }
 
 export interface FormSection {
@@ -384,7 +393,7 @@ export interface ProgramEnrollmentPayload {
   dateCompleted?: string;
   location: string;
   states?: Array<ProgramState>,
-  uuid: string;
+  uuid?: string;
 }
 
 export interface PatientIdentifier {
@@ -397,6 +406,7 @@ export interface PatientIdentifier {
 
 export interface ProgramState {
  state: string;
+ name?: string;
  startDate?: string;
  endDate?: string;
  retired?: boolean;
@@ -428,4 +438,37 @@ export interface Order {
   patient?: string;
   orderNumber?: string;
   voided?: boolean;
+}
+
+export interface PatientProgram {
+  uuid: string;
+  display: string;
+  patient: OpenmrsResource;
+  program: OpenmrsResource;
+  dateEnrolled: string;
+  dateCompleted?: string;
+  location: OpenmrsResource;
+  states?: Array<ProgramWorkflowState>;
+}
+
+export interface ProgramWorkflowState {
+  state: {
+    uuid: string;
+    concept: {
+      uuid: string;
+    },
+    programWorkflow: {
+      uuid: string;
+    },
+    retired: boolean;
+    name: string;
+  }
+}
+
+interface workFlowExtras {
+  uuid: string, 
+  label: string
+}
+export interface WorkFlowMeta {
+  id: workFlowExtras
 }

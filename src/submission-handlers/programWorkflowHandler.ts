@@ -1,8 +1,20 @@
+import { clearSubmission } from '../utils/common-utils';
 import { type EncounterContext, type FormField, type OpenmrsEncounter, type SubmissionHandler } from '..';
 import { getPatientProgram } from '../components/encounter/encounter-form-manager';
+import isEmpty from 'lodash-es/isEmpty';
+import dayjs from 'dayjs';
 
 export const ProgramWorkflowHandler: SubmissionHandler = {
   handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
+    clearSubmission(field);
+    if (field.meta?.previousValue?.value === value || isEmpty(value)) {
+      return null;
+    }
+    field.meta.submission.newValue = {
+      name: field.label,
+      state: value,
+      startDate: dayjs(context.encounterDate).format(),
+    };
     return value;
   },
   getInitialValue: (
@@ -11,20 +23,16 @@ export const ProgramWorkflowHandler: SubmissionHandler = {
     allFormFields: Array<FormField>,
     context: EncounterContext,
   ) => {
-    let count = 0;
-    console.log("==bet", context.patientPrograms)
     const programWorkflows = getPatientProgram(context.patientPrograms, context.programUuid);
-    console.log("====field", field)
-    console.log("====programWorkflows", programWorkflows)
 
-    if(field.type == 'programWorkflow') {
-      const workflowUuid = programWorkflows.shift()?.program.allWorkflows[count]?.uuid;
-      count += 1;
+    if (field.type == 'programWorkflow') {
+      const workflowUuid = programWorkflows.shift()?.states.find((state) => state.state.name === field.label)?.state
+        ?.programWorkflow?.uuid;
       return workflowUuid;
     }
-    console.log("====count", count)
-    if(field.type == 'programState') {
-      return programWorkflows[0]?.states?.find((state) => state.state.retired == false)?.state?.uuid;
+    if (field.type == 'programState') {
+      const programStateUuid = programWorkflows.shift()?.states?.find((state) => state.state.name === field.label && state.state.retired == false)?.state.uuid;
+      return programStateUuid;
     }
   },
 
@@ -35,4 +43,3 @@ export const ProgramWorkflowHandler: SubmissionHandler = {
     return null;
   },
 };
-

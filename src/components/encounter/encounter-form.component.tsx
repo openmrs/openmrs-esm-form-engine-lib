@@ -6,6 +6,7 @@ import type {
   FormPage as FormPageProps,
   FormSchema,
   OpenmrsEncounter,
+  PatientProgram,
   QuestionAnswerOption,
   SessionMode,
   ValidationResult,
@@ -57,6 +58,7 @@ interface EncounterFormProps {
   setSelectedPage: (page: string) => void;
   isSubmitting: boolean;
   setIsSubmitting?: Dispatch<SetStateAction<boolean>>;
+  patientPrograms: Array<PatientProgram>;
 }
 
 const EncounterForm: React.FC<EncounterFormProps> = ({
@@ -81,6 +83,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   setAllInitialValues,
   isSubmitting,
   setIsSubmitting,
+  patientPrograms,
 }) => {
   const { t } = useTranslation();
   const [fields, setFields] = useState<Array<FormField>>([]);
@@ -94,7 +97,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
-  const [patientProgram, setPatientProgram] = useState({});
+  const [programUuid, setProgramUuid] = useState('');
 
   const layoutType = useLayoutType();
   const encounterContext = useMemo(
@@ -112,7 +115,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setEncounterProvider,
       setEncounterLocation,
       initValues: initValues,
-      patientProgram: patientProgram,
+      programUuid: programUuid,
+      patientPrograms,
     }),
     [encounter, form?.encounter, encounterLocation, patient, previousEncounter, sessionMode, initValues],
   );
@@ -176,6 +180,10 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setInitValues(tempInitialValues);
     }
   }, [tempInitialValues]);
+
+  useEffect(() => {
+    setProgramUuid(formJson?.meta?.programs?.uuid);
+  }, []);
 
   // look up concepts via their references
   const { concepts, isLoading: isLoadingConcepts } = useConcepts(conceptReferences);
@@ -456,26 +464,22 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     }
 
     try {
-      const program = EncounterFormManager.prepareProgramEnrollment(fields, encounterDate, encounterLocation, patient);
-
+      const program = EncounterFormManager.prepareProgramEnrollment(
+        fields,
+        encounterLocation,
+        patient,
+        encounterContext,
+      );
       const { data: savedPatientProgram } = await EncounterFormManager.saveProgramEnrollments(
         program,
         sessionMode,
-        patient,
+        patientPrograms,
       );
       if (savedPatientProgram) {
         showSnackbar({
           title: t('enrollmentSaved', 'Enrollment saved'),
           kind: 'success',
           isLowContrast: true,
-        });
-      } else {
-        setIsSubmitting(false);
-        showSnackbar({
-          title: t('errorEnrolling', 'Error saving enrollment'),
-          subtitle: t('errorEnrolling', 'Error saving enrollment'),
-          kind: 'error',
-          isLowContrast: false,
         });
       }
     } catch (error) {
@@ -766,6 +770,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               workspaceLayout={workspaceLayout}
               setIsLoadingFormDependencies={setIsLoadingFormDependencies}
               isSubmitting
+              patientPrograms={patientPrograms}
             />
           );
         }

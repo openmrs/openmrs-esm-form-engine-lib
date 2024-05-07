@@ -19,6 +19,7 @@ export const templateToComponentMap = [
   },
   {
     name: 'select-concept-answers',
+    baseControlComponent: UiSelectExtended,
   },
   {
     name: 'program-workflow',

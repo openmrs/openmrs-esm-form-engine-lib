@@ -26,7 +26,7 @@ export class ProgramsWorkflowStateDataSource extends BaseOpenMRSDataSource {
   
     async fetchData(searchTerm: string, config?: Record<string, any>): Promise<any[]> {
       const rep = 'v=custom:(uuid,states,concept:(uuid,display))';
-      const url = `${restBaseUrl}/workflow/70921392-4e3e-5465-978d-45b68b7def5f?${rep}`;
+      const url = `${restBaseUrl}/workflow/${searchTerm}?${rep}`;
       const { data } = await openmrsFetch(url);
 
       const formattedStates = data?.states.map((state) =>({

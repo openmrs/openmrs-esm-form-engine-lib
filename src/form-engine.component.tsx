@@ -21,6 +21,8 @@ import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.compo
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import Sidebar from './components/sidebar/sidebar.component';
 import styles from './form-engine.scss';
+import { useActivePatientEnrollment } from '@openmrs/esm-patient-common-lib';
+import { usePatientEnrollment } from './hooks/usePatientEnrollments';
 
 interface FormProps {
   patientUUID: string;
@@ -107,6 +109,12 @@ const FormEngine: React.FC<FormProps> = ({
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
   const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(sessionMode);
+  const [hasPatientWorkflows, setHasPatientWorkflows] = useState(false);
+  const {
+    isLoading: isLoadingPatientPrograms,
+    error: patientProgramsError,
+    patientEnrollment,
+  } = usePatientEnrollment(patientUUID);
 
   const showSidebar = useMemo(() => {
     return workspaceLayout !== 'minimized' && scrollablePages.size > 1 && sessionMode !== 'embedded-view';
@@ -141,6 +149,18 @@ const FormEngine: React.FC<FormProps> = ({
   useEffect(() => {
     reportError(patientError, t);
   }, [patientError, t]);
+
+  useEffect(() => {
+    if (!isLoadingFormJson) {
+      refinedFormJson?.pages.forEach((page) => {
+        page.sections.forEach((section) => {
+          if (section.questions.some((question) => question.type === 'programWorkflow')) {
+            setHasPatientWorkflows(true);
+          }
+        });
+      });
+    }
+  }, [isLoadingFormJson]);
 
   const handleFormSubmit = (values: Record<string, any>) => {
     // validate the form and its subforms (when present)
@@ -289,6 +309,7 @@ const FormEngine: React.FC<FormProps> = ({
                       <EncounterForm
                         formJson={refinedFormJson}
                         patient={patient}
+                        patientPrograms={hasPatientWorkflows ? patientEnrollment : null}
                         formSessionDate={formSessionDate}
                         provider={currentProvider}
                         location={location}

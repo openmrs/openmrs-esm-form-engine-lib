@@ -59,7 +59,7 @@ export const inbuiltFieldSubmissionHandlers: Array<RegistryItem<SubmissionHandle
     type: 'programWorkflow'
   },
   {
-    name: 'PrograStateHandler',
+    name: 'ProgramStateHandler',
     component: ProgramWorkflowHandler,
     type: 'programState'
   }

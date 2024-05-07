@@ -30,6 +30,7 @@ const FormSection = ({ fields, onFieldChange }) => {
   const [previousValues, setPreviousValues] = useState<Record<string, previousValue>>({});
   const [fieldComponentMapEntries, setFieldComponentMapEntries] = useState<FieldComponentMap[]>([]);
   const { encounterContext, fields: fieldsFromEncounter } = useContext(FormContext);
+  const [workflowManager, setWorkflowManager] = useState({});
 
   const noop = () => {};
 
@@ -83,6 +84,10 @@ const FormSection = ({ fields, onFieldChange }) => {
                   handler={handler}
                   useField={useField}
                   previousValue={previousValues[fieldDescriptor.id]}
+                  workFlowMeta={
+                    workflowManager[fieldDescriptor.questionOptions.datasource?.config?.associatedWorkflowId]?.uuid
+                  }
+                  setWorkflowManager={setWorkflowManager}
                 />
               );
 
