@@ -33,6 +33,7 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
     formError: error,
   };
 }
+
 /**
  * Fetches a form JSON from OpenMRS and recursively fetches its subforms if they available.
  *
@@ -95,6 +96,7 @@ function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
     return new Error('InvalidArgumentsErr: Both formUuid and formJson cannot be provided at the same time.');
   }
 }
+
 /**
  * Refines the input form JSON object by parsing it, removing inline subforms, applying form schema transformers, setting the encounter type, and applying form intents if provided.
  * @param {any} formJson - The input form JSON object or string.

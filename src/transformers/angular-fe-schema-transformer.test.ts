@@ -1,5 +1,5 @@
-import testForm from '../../__mocks__/forms/omrs-forms/afe-schema-trasformer-form.json';
 import { AngularFormEngineSchemaTransformer } from './angular-fe-schema-transformer';
+import testForm from '__mocks__/forms/afe-forms/afe-schema-trasformer-form.json';
 
 const expectedTransformedSchema = {
   name: 'AFE form with aliased questions',
@@ -49,6 +49,30 @@ const expectedTransformedSchema = {
                   },
                 },
               ],
+            },
+            {
+              id: 'labOrder',
+              type: 'testOrder',
+              label: 'Add Lab Order',
+              questionOptions: {
+                rendering: 'repeating',
+                concept: 'f1742346-cf43-4a17-8c98-720e3f487fc0',
+                orderType: 'testorder',
+                orderSettingUuid: 'INPATIENT',
+                repeatOptions: {
+                  limit: 2,
+                },
+                answers: [
+                  {
+                    concept: '30e2da8f-34ca-4c93-94c8-d429f22d381c',
+                    label: 'Option 1',
+                  },
+                  {
+                    concept: '143264AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                    label: 'Option 2',
+                  },
+                ],
+              },
             },
           ],
         },

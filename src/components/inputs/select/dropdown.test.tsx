@@ -50,9 +50,9 @@ const encounterContext: EncounterContext = {
   setEncounterLocation: jest.fn,
 };
 
-const renderForm = (intialValues) => {
+const renderForm = (initialValues) => {
   render(
-    <Formik initialValues={intialValues} onSubmit={null}>
+    <Formik initialValues={initialValues} onSubmit={null}>
       {(props) => (
         <FormContext.Provider
           value={{

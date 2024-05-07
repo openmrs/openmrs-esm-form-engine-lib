@@ -2,11 +2,14 @@ import { showToast } from '@openmrs/esm-framework';
 import { createProgramEnrollment, getPatientEnrolledPrograms, updateProgramEnrollment } from '../api/api';
 import dayjs from 'dayjs';
 import { type PostSubmissionAction, type ProgramEnrollmentPayload } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
   applyAction: async function ({ patient, encounters, sessionMode }, config) {
     const encounter = encounters[0];
     const encounterLocation = encounter.location['uuid'];
+    const { t } = useTranslation();
+
     // only do this in enter or edit mode.
     if (sessionMode === 'view') {
       return;
@@ -33,8 +36,13 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
             (enrollment) => enrollment.program.uuid === programUuid && enrollment.dateCompleted === null,
           );
           if (hasActiveEnrollment) {
-            throw new Error('Cannot enroll patient to program. Patient already has an active enrollment');
+            showToast({
+              title: t('enrollmentFailed', 'Enrollment failed'),
+              kind: 'error',
+              critical: false,
+              description: t('cannotEnrollPatientToProgram', 'This patient is already enrolled in the selected program'),            });
           }
+          return;
         }
         createProgramEnrollment(payload, abortController).then(
           (response) => {
@@ -42,17 +50,17 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
               showToast({
                 critical: true,
                 kind: 'success',
-                description: 'It is now visible in the Programs table',
-                title: 'Program enrollment saved',
+                description: t('enrolledToProgram', 'Patient enrolled into ${programName}'),
+                title: t('enrollmentSaved', 'Enrollment saved'),
               });
             }
           },
           (err) => {
             showToast({
-              title: 'Error saving program enrollment',
+              title: t('errorEnrolling', 'Error saving enrollment'),
               kind: 'error',
               critical: false,
-              description: err?.message,
+              description: t(err?.message),
             });
           },
         );
@@ -75,14 +83,14 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
                 showToast({
                   critical: true,
                   kind: 'success',
-                  description: 'Changes to the program are now visible in the Programs table',
-                  title: 'Program enrollment updated',
+                  description: t('enrollmentUpdateSuccess', 'Updates to the program enrollment were made successfully'),
+                  title: t('enrollmentUpdated', 'Enrollment updated'),
                 });
               }
             },
             (err) => {
               showToast({
-                title: 'Error saving enrollment',
+                title: t('errorSavingEnrollment', 'Error saving enrollment'),
                 kind: 'error',
                 critical: false,
                 description: err?.message,

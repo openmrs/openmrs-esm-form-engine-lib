@@ -1,11 +1,11 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { mockVisit } from '../../../../__mocks__/visit.mock';
-import multiSelectFormSchema from '../../../../__mocks__/forms/rfe-forms/multi-select-form.json';
-import { mockPatient } from '../../../../__mocks__/patient.mock';
-import { mockSessionDataResponse } from '../../../../__mocks__/session.mock';
 import { type FormSchema } from '../../../types';
+import { mockPatient } from '__mocks__/patient.mock';
+import { mockSessionDataResponse } from '__mocks__/session.mock';
+import { mockVisit } from '__mocks__/visit.mock';
+import multiSelectFormSchema from '__mocks__/forms/rfe-forms/multi-select-form.json';
 import FormEngine from '../../../form-engine.component';
 
 const mockOpenmrsFetch = jest.fn();
