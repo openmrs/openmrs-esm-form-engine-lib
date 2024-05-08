@@ -1,3 +1,4 @@
+import { showToast } from '@openmrs/esm-framework';
 import { type FormFieldValidator, type FormField } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 
@@ -6,15 +7,35 @@ export const fieldOutOfBoundErrCode = 'field.outOfBound';
 export const fieldConditionalRequiredErrCode = 'field.conditionalRequired';
 
 export const FieldValidator: FormFieldValidator = {
-  validate: (field: FormField, value: any, formValues: Record<string, any> ) => {
+  validate: (field: FormField, value: any, formValues: Record<string, any>) => {
+    const IDENTIFIRE_TYPE_TITLE = 'Error saving patient Identifier';
+    const IDENTIFIER_TYPE_REQUIRED = 'IdentifierType prop  is required for patientIdentifier fields';
     if (field['submission']?.unspecified) {
       return [];
     }
+    const errors = [];
+
+    if (field.type === 'patientIdentifier') {
+      // Check if identifierType is not provided or empty
+      if (!field.questionOptions?.identifierType) {
+        showToast({
+          title: IDENTIFIRE_TYPE_TITLE,
+          kind: 'error',
+          critical: false,
+          description: IDENTIFIER_TYPE_REQUIRED,
+        });
+      }
+    }
     if (isEmpty(value)) {
-      if ( (typeof field.required === 'boolean' && isTrue(field.required)) || isTrue(field.unspecified)) {
-          return addError(fieldRequiredErrCode, 'Field is mandatory');
-      } else if (typeof field.required === 'object' && field.required?.type === "conditionalRequired" && !isEmpty(formValues) &&  field.required?.referenceQuestionAnswers.includes(formValues[field.required?.referenceQuestionId])) {
-            return addError(fieldConditionalRequiredErrCode, field.required.message);
+      if ((typeof field.required === 'boolean' && isTrue(field.required)) || isTrue(field.unspecified)) {
+        return addError(fieldRequiredErrCode, 'Field is mandatory');
+      } else if (
+        typeof field.required === 'object' &&
+        field.required?.type === 'conditionalRequired' &&
+        !isEmpty(formValues) &&
+        field.required?.referenceQuestionAnswers.includes(formValues[field.required?.referenceQuestionId])
+      ) {
+        return addError(fieldConditionalRequiredErrCode, field.required.message);
       }
     }
     if (field.questionOptions.rendering === 'text') {
