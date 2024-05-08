@@ -33,7 +33,7 @@ export const ObsGroup: React.FC<FormFieldProps> = ({ question, onChange }) => {
       if (FieldComponent) {
         return (
           <div className={classNames(styles.flexColumn)} key={keyId}>
-            <div className={styles.obsGroupContainer}>
+            <div className={styles.parentResizer}>
               <div
                 className={classNames({
                   [styles.questionInfoDefault]: field.questionInfo && rendering === 'radio',
