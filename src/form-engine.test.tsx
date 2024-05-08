@@ -29,6 +29,8 @@ import referenceByMappingForm from '__mocks__/forms/rfe-forms/reference-by-mappi
 import sampleFieldsForm from '__mocks__/forms/rfe-forms/sample_fields.json';
 import testEnrolmentForm from '__mocks__/forms/rfe-forms/test-enrolment-form.json';
 import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-form.json';
+import historicalExpressionsForm from '__mocks__/forms/rfe-forms/historical-expressions-form.json';
+import mockHxpEncounter from '__mocks__/forms/rfe-forms/mockHistoricalvisitsEncounter.json';
 import FormEngine from './form-engine.component';
 
 const mockShowToast = showToast as jest.Mock;
@@ -65,7 +67,7 @@ jest.mock('../src/api/api', () => {
 
   return {
     ...originalModule,
-    getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(null)),
+    getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(mockHxpEncounter)),
     getConcept: jest.fn().mockImplementation(() => Promise.resolve(null)),
     getLatestObs: jest.fn().mockImplementation(() => Promise.resolve({ valueNumeric: 60 })),
     saveEncounter: jest.fn(),
@@ -149,6 +151,27 @@ describe('Form engine component', () => {
 
       await user.hover(textFieldTooltip);
       await screen.findByText(/sample tooltip info for text/i);
+    });
+  });
+
+  describe('historical expressions', () => {
+    it('should ascertain getPreviousEncounter() returns an encounter and the historical expression displays on the UI', async () => {
+      const user = userEvent.setup();
+
+      renderForm(null, historicalExpressionsForm, 'COVID Assessment');
+
+      //ascertain form has rendered
+      await screen.findByRole('combobox', { name: /Reasons for assessment/i });
+
+      //ascertain function fetching the encounter has been called
+      expect(api.getPreviousEncounter).toHaveBeenCalled();
+      expect(api.getPreviousEncounter).toHaveReturnedWith(Promise.resolve(mockHxpEncounter));
+
+      const reuseValueButton = screen.getByRole('button', { name: /reuse value/i });
+      const evaluatedHistoricalValue = screen.getByText(/Entry into a country/i);
+
+      expect(reuseValueButton).toBeInTheDocument;
+      expect(evaluatedHistoricalValue).toBeInTheDocument;
     });
   });
 

@@ -1,0 +1,170 @@
+{
+  "name": "COVID Assessment Form",
+  "version": "1",
+  "published": true,
+  "retired": false,
+  "pages": [
+    {
+      "label": "COVID Assessment",
+      "sections": [
+        {
+          "label": "Assessment Details",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Reasons for assessment",
+              "type": "obs",
+              "historicalExpression": "HD.getObject('prevEnc').getValue('ae46f4b1-c15d-4bba-ab41-b9157b82b0ce')",
+              "questionOptions": {
+                "rendering": "checkbox",
+                "concept": "ae46f4b1-c15d-4bba-ab41-b9157b82b0ce",
+                "answers": [
+                  {
+                    "concept": "1068AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Symptomatic",
+                    "conceptMappings": [
+                      {
+                        "type": "AMPATH",
+                        "value": "1068"
+                      },
+                      {
+                        "type": "SNOMED-CT",
+                        "value": "264931009"
+                      }
+                    ]
+                  },
+                  {
+                    "concept": "0ed2e3ca-b9a6-4ff6-ac74-4d4cd9520acc",
+                    "label": "RDT confirmatory",
+                    "conceptMappings": []
+                  },
+                  {
+                    "concept": "f974e267-feeb-42be-9d37-61554dad16b1",
+                    "label": "Voluntary",
+                    "conceptMappings": []
+                  },
+                  {
+                    "concept": "1cee0ab3-bf06-49e9-a49c-baf261620c67",
+                    "label": "Post-mortem",
+                    "conceptMappings": []
+                  },
+                  {
+                    "concept": "e0f1584a-cc8b-48e9-980f-64d9f724caf8",
+                    "label": "Quarantine",
+                    "conceptMappings": []
+                  },
+                  {
+                    "concept": "ad8be6bf-ced7-4390-a6af-c5acebeac216",
+                    "label": "Follow-up",
+                    "conceptMappings": []
+                  },
+                  {
+                    "concept": "30320fb8-b29b-443f-98cf-f3ef491f8947",
+                    "label": "Health worker",
+                    "conceptMappings": []
+                  },
+                  {
+                    "concept": "38769c82-a3d3-4714-97b7-015726cdb209",
+                    "label": "Other frontline worker",
+                    "conceptMappings": []
+                  },
+                  {
+                    "concept": "f8c9c2cc-3070-444e-8818-26fb8100bb78",
+                    "label": "Travel out of country",
+                    "conceptMappings": []
+                  },
+                  {
+                    "concept": "677f4d21-7293-4810-abe6-57a192acde57",
+                    "label": "Entry into a country",
+                    "conceptMappings": []
+                  },
+                  {
+                    "concept": "8a6ab892-1b1d-4ad9-82da-c6c38ee8fcfb",
+                    "label": "Surveillance",
+                    "conceptMappings": []
+                  },
+                  {
+                    "concept": "5340f478-ec5d-41e6-bc62-961c52014d4d",
+                    "label": "Contact of a case",
+                    "conceptMappings": []
+                  },
+                  {
+                    "concept": "5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Other",
+                    "conceptMappings": [
+                      {
+                        "type": "PIH-Malawi",
+                        "value": "6408"
+                      },
+                      {
+                        "type": "org.openmrs.module.mdrtb",
+                        "value": "OTHER"
+                      },
+                      {
+                        "type": "CIEL",
+                        "value": "5622"
+                      },
+                      {
+                        "type": "SNOMED-MVP",
+                        "value": "56221000105001"
+                      },
+                      {
+                        "type": "PIH",
+                        "value": "5622"
+                      },
+                      {
+                        "type": "AMPATH",
+                        "value": "5622"
+                      },
+                      {
+                        "type": "SNOMED-CT",
+                        "value": "74964007"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "id": "reasonsForTesting",
+              "behaviours": [
+                {
+                  "intent": "*",
+                  "required": "true",
+                  "unspecified": "true",
+                  "hide": {
+                    "hideWhenExpression": "false"
+                  },
+                  "validators": []
+                },
+                {
+                  "intent": "COVID_LAB_ASSESSMENT_EMBED",
+                  "required": "true",
+                  "unspecified": "true",
+                  "hide": {
+                    "hideWhenExpression": "false"
+                  },
+                  "validators": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "availableIntents": [
+    {
+      "intent": "*",
+      "display": "COVID Assessment"
+    },
+    {
+      "intent": "COVID_LAB_ASSESSMENT_EMBED",
+      "display": "Covid Case Form"
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "uuid": "f5fb6bc4-6fc3-3462-a191-2fff0896bab3",
+  "referencedForms": [],
+  "encounterType": "253a43d3-c99e-415c-8b78-ee7d4d3c1d54",
+  "encounter": "COVID Case Assessment",
+  "allowUnspecifiedAll": true
+}
