@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Dropdown as DropdownInput, Layer } from '@carbon/react';
@@ -11,35 +11,15 @@ import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './dropdown.scss';
-import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
-import { getRegisteredDataSource } from '../../../registry/registry';
 
 const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
-  const [datasourceItems, setDatasourceItems] = React.useState([]);
   const [items, setItems] = React.useState([]);
   const [errors, setErrors] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [warnings, setWarnings] = useState([]);
-
-  useEffect(() => {
-    const template = getControlTemplate(question.questionOptions.rendering);
-    // check if the question has a control template as has a datasource name
-    if (template?.datasource?.name) {
-      getRegisteredDataSource(template.datasource.name).then((ds) => {
-        ds.fetchData(question.questionOptions.concept).then((dataItems) => {
-          setItems(dataItems.map((item) => item.uuid));
-          setDatasourceItems(dataItems.map((item) => ({ value: item.uuid, label: item.display })));
-        });
-      });
-    } else {
-      setItems(
-        question.questionOptions.answers.filter((answer) => !answer.isHidden).map((item) => item.value || item.concept),
-      );
-    }
-  }, [question.questionOptions]);
 
   useEffect(() => {
     if (question['submission']) {
@@ -63,19 +43,17 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     }
   }, [previousValue]);
 
-  const itemToString = useCallback(
-    (item: any): string => {
-      if (getControlTemplate(question.questionOptions.rendering)?.datasource?.name) {
-        const answer = datasourceItems.find((opt) => (opt.value ? opt.value == item : opt.concept == item));
-        return answer?.label;
-      }
-      const answer = question.questionOptions.answers.find((opt) =>
-        opt.value ? opt.value == item : opt.concept == item,
-      );
-      return answer?.label;
-    },
-    [datasourceItems, question.questionOptions],
-  );
+  const itemToString = (item) => {
+    const answer = question.questionOptions.answers.find((opt) =>
+      opt.value ? opt.value == item : opt.concept == item,
+    );
+    return answer?.label;
+  };
+  useEffect(() => {
+    setItems(
+      question.questionOptions.answers.filter((answer) => !answer.isHidden).map((item) => item.value || item.concept),
+    );
+  }, [question.questionOptions.answers]);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -101,7 +79,9 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
               question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
             }
             label={t('chooseAnOption', 'Choose an option')}
-            items={items}
+            items={question.questionOptions.answers
+              .filter((answer) => !answer.isHidden)
+              .map((item) => item.value || item.concept)}
             itemToString={itemToString}
             selectedItem={field.value}
             onChange={({ selectedItem }) => handleChange(selectedItem)}

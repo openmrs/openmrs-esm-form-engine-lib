@@ -40,11 +40,20 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
 
   useEffect(() => {
     const dataSource = question.questionOptions?.datasource?.name;
+    const template = getControlTemplate(question.questionOptions.rendering)?.datasource?.config || {};
+
     setConfig(
       dataSource
         ? question.questionOptions.datasource?.config
-        : getControlTemplate(question.questionOptions.rendering)?.datasource?.config,
+        : {
+            // if the config template has key concept, set the questionOptions concept as it's value
+            ...template,
+            ...(Object.prototype.hasOwnProperty.call(template, 'concept')
+              ? { concept: question.questionOptions.concept }
+              : {}),
+          },
     );
+
     getRegisteredDataSource(dataSource ? dataSource : question.questionOptions.rendering).then((ds) =>
       setDataSource(ds),
     );

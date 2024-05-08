@@ -6,10 +6,10 @@ export class ConceptSetMembersDataSource extends BaseOpenMRSDataSource {
     super(`${restBaseUrl}/concept/conceptUuid?v=custom:(uuid,setMembers:(uuid,display))`);
   }
 
-  fetchData(conceptUud: string): Promise<any[]> {
+  fetchData(searchTerm: string, config?: Record<string, any>): Promise<any[]> {
     let apiUrl = this.url;
     let urlParts = apiUrl.split('conceptUuid');
-    apiUrl = `${urlParts[0]}/${conceptUud}${urlParts[1]}`;
+    apiUrl = `${urlParts[0]}/${config.concept}${urlParts[1]}`;
     return openmrsFetch(apiUrl).then(({ data }) => {
       return data['setMembers'];
     });
