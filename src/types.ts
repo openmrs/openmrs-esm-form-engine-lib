@@ -251,7 +251,8 @@ export type RenderType =
   | 'ui-select-extended'
   | 'workspace-launcher'
   | 'fixed-value'
-  | 'file';
+  | 'file'
+  | 'select-concept-answers';
 
 export interface PostSubmissionAction {
   applyAction(

@@ -1,27 +1,45 @@
 import React from 'react';
-import { render, fireEvent, waitFor, act, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import UiSelectExtended from './ui-select-extended.component';
 import { type EncounterContext, FormContext } from '../../../form-context';
 import { Formik } from 'formik';
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
-import { type FormField } from '../../../types';
+import { type FormField, type RenderType } from '../../../types';
 
-const question: FormField = {
-  label: 'Transfer Location',
-  type: 'obs',
-  questionOptions: {
-    rendering: 'ui-select-extended',
-    concept: '160540AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-    datasource: {
-      name: 'location_datasource',
-      config: {
-        tag: 'test-tag',
+const questions: FormField[] = [
+  {
+    label: 'Transfer Location',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'ui-select-extended',
+      concept: '160540AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      datasource: {
+        name: 'location_datasource',
+        config: {
+          tag: 'test-tag',
+        },
       },
     },
+    value: null,
+    id: 'patient_transfer_location',
   },
-  value: null,
-  id: 'patient_transfer_location',
-};
+  {
+    label: 'Select criteria for new WHO stage:',
+    type: 'obs',
+    questionOptions: {
+      concept: '250e87b6-beb7-44a1-93a1-d3dd74d7e372',
+      rendering: 'select-concept-answers',
+      datasource: {
+        name: 'select_concept_answers_datasource',
+        config: {
+          concept: '250e87b6-beb7-44a1-93a1-d3dd74d7e372',
+        },
+      },
+    },
+    validators: [],
+    id: '__sq5ELJr7p',
+  },
+];
 
 const encounterContext: EncounterContext = {
   patient: {
@@ -54,12 +72,13 @@ const renderForm = (initialValues) => {
             obsGroupsToVoid: [],
             setObsGroupsToVoid: jest.fn(),
             encounterContext: encounterContext,
-            fields: [question],
+            fields: questions,
             isFieldInitializationComplete: true,
             isSubmitting: false,
             formFieldHandlers: { obs: ObsSubmissionHandler },
           }}>
-          <UiSelectExtended question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+          <UiSelectExtended question={questions[0]} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+          <UiSelectExtended question={questions[1]} onChange={jest.fn()} handler={ObsSubmissionHandler} />
         </FormContext.Provider>
       )}
     </Formik>,
@@ -69,20 +88,35 @@ const renderForm = (initialValues) => {
 // Mock the data source fetch behavior
 jest.mock('../../../registry/registry', () => ({
   getRegisteredDataSource: jest.fn().mockResolvedValue({
-    fetchData: jest.fn().mockResolvedValue([
-      {
-        uuid: 'aaa-1',
-        display: 'Kololo',
-      },
-      {
-        uuid: 'aaa-2',
-        display: 'Naguru',
-      },
-      {
-        uuid: 'aaa-3',
-        display: 'Muyenga',
-      },
-    ]),
+    fetchData: jest.fn().mockImplementation((...args) => {
+      if (args[1].concept) {
+        return Promise.resolve([
+          {
+            uuid: 'stage-1-uuid',
+            display: 'stage 1',
+          },
+          {
+            uuid: 'stage-2-uuid',
+            display: 'stage 2',
+          },
+        ]);
+      }
+
+      return Promise.resolve([
+        {
+          uuid: 'aaa-1',
+          display: 'Kololo',
+        },
+        {
+          uuid: 'aaa-2',
+          display: 'Naguru',
+        },
+        {
+          uuid: 'aaa-3',
+          display: 'Muyenga',
+        },
+      ]);
+    }),
     toUuidAndDisplay: (data) => data,
   }),
 }));
@@ -98,7 +132,7 @@ describe('UiSelectExtended Component', () => {
 
     // assert initial values
     await act(async () => {
-      expect(question.value).toBe(null);
+      expect(questions[0].value).toBe(null);
     });
 
     //Click on the UiSelectExtendedWidget to open the dropdown
@@ -108,6 +142,19 @@ describe('UiSelectExtended Component', () => {
     expect(screen.getByText('Kololo')).toBeInTheDocument();
     expect(screen.getByText('Naguru')).toBeInTheDocument();
     expect(screen.getByText('Muyenga')).toBeInTheDocument();
+  });
+
+  it('renders with items from the datasource of select-concept-answers rendering', async () => {
+    await act(async () => {
+      await renderForm({});
+    });
+
+    const uiSelectExtendedWidget = screen.getByLabelText(/Select criteria for new WHO stage:/i);
+    fireEvent.click(uiSelectExtendedWidget);
+
+    // Assert that all items are displayed
+    expect(screen.getByText('stage 1')).toBeInTheDocument();
+    expect(screen.getByText('stage 2')).toBeInTheDocument();
   });
 
   it('Selects a value from the list', async () => {
@@ -127,7 +174,7 @@ describe('UiSelectExtended Component', () => {
 
     // verify
     await act(async () => {
-      expect(question.value).toEqual({
+      expect(questions[0].value).toEqual({
         person: '833db896-c1f0-11eb-8529-0242ac130003',
         obsDatetime: new Date(2023, 8, 29),
         concept: '160540AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
@@ -184,7 +231,7 @@ describe('UiSelectExtended Component', () => {
     await act(async () => {
       await renderForm({});
     });
-    const config = question.questionOptions.datasource.config;
+    const config = questions[0].questionOptions.datasource.config;
 
     // Assert that the config is set with the expected configuration value
     expect(config).toEqual(expectedConfigValue);

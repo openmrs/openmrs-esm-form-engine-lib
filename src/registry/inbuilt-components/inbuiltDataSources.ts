@@ -1,8 +1,9 @@
-import { type DataSource } from '../../types';
-import { type RegistryItem } from '../registry';
-import { ConceptDataSource } from '../../datasources/concept-data-source';
-import { LocationDataSource } from '../../datasources/location-data-source';
-import { ProviderDataSource } from '../../datasources/provider-datasource';
+import {type DataSource} from '../../types';
+import {type RegistryItem} from '../registry';
+import {ConceptDataSource} from '../../datasources/concept-data-source';
+import {LocationDataSource} from '../../datasources/location-data-source';
+import {ProviderDataSource} from '../../datasources/provider-datasource';
+import {ConceptSetMembersDataSource} from '../../datasources/concept-set-members-data-source';
 
 /**
  * @internal
@@ -19,6 +20,10 @@ export const inbuiltDataSources: Array<RegistryItem<DataSource<any>>> = [
   {
     name: 'problem_datasource',
     component: new ConceptDataSource(),
+  },
+  {
+    name: 'select_concept_answers_datasource',
+    component: new ConceptSetMembersDataSource(),
   },
   {
     name: 'provider_datasource',
