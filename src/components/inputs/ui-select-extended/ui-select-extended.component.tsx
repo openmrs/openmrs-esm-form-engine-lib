@@ -25,10 +25,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(
-    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
-    [errors],
-  );
+  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
   const [inputValue, setInputValue] = useState('');
   const isProcessingSelection = useRef(false);
   const [dataSource, setDataSource] = useState(null);
