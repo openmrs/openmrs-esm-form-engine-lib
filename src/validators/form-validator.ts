@@ -13,8 +13,6 @@ export const FieldValidator: FormFieldValidator = {
     if (field['submission']?.unspecified) {
       return [];
     }
-    const errors = [];
-
     if (field.type === 'patientIdentifier') {
       // Check if identifierType is not provided or empty
       if (!field.questionOptions?.identifierType) {
