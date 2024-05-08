@@ -28,7 +28,13 @@ const questions: FormField[] = [
     type: 'obs',
     questionOptions: {
       concept: '250e87b6-beb7-44a1-93a1-d3dd74d7e372',
-      rendering: 'select-concept-answers' as unknown as RenderType,
+      rendering: 'select-concept-answers',
+      datasource: {
+        name: 'select_concept_answers_datasource',
+        config: {
+          concept: '250e87b6-beb7-44a1-93a1-d3dd74d7e372',
+        },
+      },
     },
     validators: [],
     id: '__sq5ELJr7p',
