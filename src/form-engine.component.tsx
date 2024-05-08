@@ -121,7 +121,7 @@ const FormEngine: React.FC<FormProps> = ({
     if (sessionMode === 'embedded-view') {
       return false;
     }
-    
+
     return workspaceLayout === 'minimized' || (workspaceLayout === 'maximized' && scrollablePages.size <= 1);
   }, [sessionMode, workspaceLayout, scrollablePages]);
 

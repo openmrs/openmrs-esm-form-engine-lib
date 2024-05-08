@@ -106,7 +106,6 @@ describe('Text field input', () => {
   });
 
   it('should edit obs', async () => {
-
     question.value = {
       person: '833db896-c1f0-11eb-8529-0242ac130003',
       obsDatetime: encounterContext.encounterDate,

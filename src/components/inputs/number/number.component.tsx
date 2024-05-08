@@ -3,7 +3,7 @@ import { Layer, NumberInput } from '@carbon/react';
 import classNames from 'classnames';
 import { useField } from 'formik';
 import { isTrue } from '../../../utils/boolean-utils';
-import { fieldRequiredErrCode, isEmpty, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { type FormFieldProps } from '../../../types';
@@ -16,11 +16,6 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(
-    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
-    [errors],
-  );
   const [warnings, setWarnings] = useState([]);
   const { t } = useTranslation();
 

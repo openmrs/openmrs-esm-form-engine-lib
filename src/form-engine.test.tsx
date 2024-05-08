@@ -207,7 +207,7 @@ describe('Form engine component', () => {
         { fieldName: 'If Unscheduled, actual scheduled reason radio *', fieldType: 'radio' },
       ]);
 
-      //Validate date field
+      // Validate date field
       const dateInputField = await screen.getByLabelText(/If Unscheduled, actual scheduled date/i);
       expect(dateInputField).toHaveClass('cds--date-picker__input--invalid');
       const errorMessage = await screen.getByText(
@@ -216,7 +216,7 @@ describe('Form engine component', () => {
       expect(errorMessage).toBeInTheDocument();
       expect(saveEncounterMock).toHaveBeenCalledTimes(0);
 
-      //Validate text field
+      // Validate text field
       const textInputField = await screen.getByLabelText(/If Unscheduled, actual text scheduled date/i);
       expect(textInputField).toHaveClass('cds--text-input--invalid');
       const textErrorMessage = await screen.getByText(
@@ -224,17 +224,16 @@ describe('Form engine component', () => {
       );
       expect(textErrorMessage).toBeInTheDocument();
 
-      //Validate number field
+      // Validate number field
       const numberInputField = await screen.getByLabelText(/If Unscheduled, actual number scheduled date/i);
       const dataInvalidValue = numberInputField.getAttribute('data-invalid');
       expect(dataInvalidValue).toBe('true');
-      //expect(numberInputField).toHaveClass('cds--number__invalid');
       const numberErrorMessage = await screen.getByText(
         'Patient visit marked as unscheduled. Please provide the scheduled number',
       );
       expect(numberErrorMessage).toBeInTheDocument();
 
-      //Validate text area field
+      // Validate text area field
       const textAreaInputField = await screen.getByLabelText(/If Unscheduled, actual text area scheduled date/i);
       expect(textAreaInputField).toHaveClass('cds--text-area cds--text-area--invalid');
       const textAreaErrorMessage = await screen.getByText(
@@ -252,7 +251,7 @@ describe('Form engine component', () => {
       );
       expect(selectErrorMessage).toBeInTheDocument();
 
-      //Validate multi-select field
+      // Validate multi-select field
       const multiSelectInputField = await screen.getByLabelText(
         /If Unscheduled, actual scheduled reason multi-select/i,
       );
@@ -263,7 +262,7 @@ describe('Form engine component', () => {
       );
       expect(multiSelectErrorMessage).toBeInTheDocument();
 
-      //Validate radio field
+      // Validate radio field
       const radioInputField = await screen.getByText('If Unscheduled, actual scheduled reason radio', {
         selector: 'span',
       });

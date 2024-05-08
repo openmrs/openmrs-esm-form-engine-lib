@@ -8,7 +8,7 @@ import { formatDate } from '@openmrs/esm-framework';
 import { isTrue } from '../../../utils/boolean-utils';
 import { type FormFieldProps } from '../../../types';
 import { isInlineView } from '../../../utils/form-helper';
-import { fieldRequiredErrCode, isEmpty, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
@@ -23,11 +23,6 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(
-    () => errors[0]?.errCode == fieldConditionalRequiredErrCode,
-    [errors],
-  );
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [time, setTime] = useState('');
 
@@ -181,7 +176,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   // be triggered as opposed to the former handler that only gets triggered at runtime.
                   onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
                   disabled={question.disabled}
-                  invalid={isFieldConditionalRequiredErrCode || isFieldRequiredError || errors.length > 0}
+                  invalid={errors.length > 0}
                   invalidText={errors[0]?.message}
                   warn={warnings.length > 0}
                   warnText={warnings[0]?.message}
