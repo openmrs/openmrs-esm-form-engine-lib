@@ -9,7 +9,7 @@ import { getRegisteredDataSource } from '../../../registry/registry';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
-import { fieldRequiredErrCode, isEmpty, fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
@@ -25,7 +25,6 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const isFieldConditionalRequiredErrCode = useMemo(() => errors[0]?.errCode == fieldConditionalRequiredErrCode, [errors]);
   const [inputValue, setInputValue] = useState('');
   const isProcessingSelection = useRef(false);
   const [dataSource, setDataSource] = useState(null);

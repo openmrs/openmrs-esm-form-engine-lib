@@ -29,6 +29,8 @@ import referenceByMappingForm from '__mocks__/forms/rfe-forms/reference-by-mappi
 import sampleFieldsForm from '__mocks__/forms/rfe-forms/sample_fields.json';
 import testEnrolmentForm from '__mocks__/forms/rfe-forms/test-enrolment-form.json';
 import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-form.json';
+import requiredTestForm from '__mocks__/forms/rfe-forms/required-form.json';
+import conditionalRequiredTestForm from '__mocks__/forms/rfe-forms/conditional-required-form.json';
 import FormEngine from './form-engine.component';
 
 const mockShowToast = showToast as jest.Mock;
