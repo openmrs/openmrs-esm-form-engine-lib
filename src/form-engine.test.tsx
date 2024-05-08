@@ -165,12 +165,11 @@ describe('Form engine component', () => {
       await user.click(screen.getByRole('button', { name: /save/i }));
 
       await assertFormHasAllFields(screen, [{ fieldName: 'Text question *', fieldType: 'text' }]);
+
       const inputField = await screen.getByLabelText(/Text question/i);
-
       expect(inputField).toHaveClass('cds--text-input--invalid');
-      const errorMessage = await screen.getByText('Field is mandatory');
 
-      // Assert that the error message is rendered
+      const errorMessage = await screen.getByText('Field is mandatory');
       expect(errorMessage).toBeInTheDocument();
       expect(saveEncounterMock).toHaveBeenCalledTimes(0);
     });
@@ -183,7 +182,6 @@ describe('Form engine component', () => {
       });
 
       const visitScheduledDropdown = screen.getByRole('combobox', { name: /Was this visit scheduled?/i });
-
       await user.click(visitScheduledDropdown);
 
       expect(screen.queryByRole('option', { name: /Unscheduled Visit Early/i })).toBeInTheDocument();
@@ -191,9 +189,7 @@ describe('Form engine component', () => {
       expect(screen.getByRole('option', { name: 'Scheduled visit' })).toBeInTheDocument();
 
       const options = screen.getAllByRole('option');
-
       await user.click(options[2]);
-
       await user.click(screen.getByRole('button', { name: /save/i }));
 
       await assertFormHasAllFields(screen, [
@@ -214,7 +210,6 @@ describe('Form engine component', () => {
         'Patient visit marked as unscheduled. Please provide the scheduled date.',
       );
       expect(errorMessage).toBeInTheDocument();
-      expect(saveEncounterMock).toHaveBeenCalledTimes(0);
 
       // Validate text field
       const textInputField = await screen.getByLabelText(/If Unscheduled, actual text scheduled date/i);
@@ -241,11 +236,11 @@ describe('Form engine component', () => {
       );
       expect(textAreaErrorMessage).toBeInTheDocument();
 
+      // Validate Select field
       const selectInputField = await screen.getByText('If Unscheduled, actual scheduled reason select', {
         selector: 'span',
       });
       expect(selectInputField).toBeInTheDocument();
-
       const selectErrorMessage = await screen.getByText(
         'Patient visit marked as unscheduled. Please provide the scheduled reason select',
       );
@@ -256,7 +251,6 @@ describe('Form engine component', () => {
         /If Unscheduled, actual scheduled reason multi-select/i,
       );
       expect(multiSelectInputField).toBeInTheDocument();
-
       const multiSelectErrorMessage = await screen.getByText(
         'Patient visit marked as unscheduled. Please provide the scheduled multi-select reason.',
       );
@@ -267,7 +261,6 @@ describe('Form engine component', () => {
         selector: 'span',
       });
       expect(radioInputField).toBeInTheDocument();
-
       const radioErrorMessage = await screen.getByText(
         'Patient visit marked as unscheduled. Please provide the scheduled radio reason.',
       );

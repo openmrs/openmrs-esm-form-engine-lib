@@ -18,7 +18,6 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [items, setItems] = React.useState([]);
   const [errors, setErrors] = useState([]);
-
   const [warnings, setWarnings] = useState([]);
   useEffect(() => {
     if (question['submission']) {
