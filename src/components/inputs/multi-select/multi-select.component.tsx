@@ -54,7 +54,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
     });
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+    handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
   useEffect(() => {
@@ -64,7 +64,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         : [previousValue.value];
       setFieldValue(question.id, previousValues);
       onChange(question.id, previousValues, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, previousValues, encounterContext);
+      handler?.handleFieldSubmission(question, previousValues, encounterContext);
     }
   }, [previousValue]);
 

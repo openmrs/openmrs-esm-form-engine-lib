@@ -14,17 +14,18 @@ const UnspecifiedField: React.FC<FormFieldProps> = ({ question, onChange, handle
   const { setFieldValue, encounterContext, fields } = React.useContext(FormContext);
   const [previouslyUnspecified, setPreviouslyUnspecified] = useState(false);
   const hideCheckBox = encounterContext.sessionMode == 'view';
-  const [errors, setErrors] = useState([]);
-  const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
     if (field.value) {
       setPreviouslyUnspecified(true);
-      question['submission'] = {
+      question.meta.submission = {
         unspecified: true,
-        errors: [],
-        warnings: [],
       };
+      // question['submission'] = {
+      //   unspecified: true,
+      //   errors: [],
+      //   warnings: [],
+      // };
       let emptyValue = null;
       switch (question.questionOptions.rendering) {
         case 'date':
@@ -34,9 +35,8 @@ const UnspecifiedField: React.FC<FormFieldProps> = ({ question, onChange, handle
           emptyValue = [];
       }
       setFieldValue(question.id, emptyValue);
-      question.value = null;
-    } else if (previouslyUnspecified && !question.value) {
-      question['submission'] = {
+    } else if (previouslyUnspecified) {
+      question.meta.submission = {
         unspecified: false,
         errors: FieldValidator.validate(question, null),
       };
@@ -44,23 +44,22 @@ const UnspecifiedField: React.FC<FormFieldProps> = ({ question, onChange, handle
   }, [field.value]);
 
   useEffect(() => {
-    if (question['submission']) {
-      question['submission'].errors && setErrors(question['submission'].errors);
-      question['submission'].warnings && setWarnings(question['submission'].warnings);
-    }
-  }, [question['submission']]);
-
-  useEffect(() => {
-    if (question.value) {
+    if (question.meta?.submission?.newValue) {
       setFieldValue(`${question.id}-unspecified`, false);
     }
-  }, [question.value]);
+  }, [question.meta?.submission]);
 
   const handleOnChange = useCallback(
     (value) => {
       setFieldValue(`${question.id}-unspecified`, value.target.checked);
-      onChange(question.id, field.value, setErrors, setWarnings, value.target.checked);
-      question.value = handler?.handleFieldSubmission(question, field.value, encounterContext);
+      onChange(
+        question.id,
+        field.value,
+        () => {},
+        () => {},
+        value.target.checked,
+      );
+      handler?.handleFieldSubmission(question, field.value, encounterContext);
     },
     [fields],
   );

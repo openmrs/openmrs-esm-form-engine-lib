@@ -28,14 +28,14 @@ const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler
       const { value } = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, null);
-      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+      handler?.handleFieldSubmission(question, value, encounterContext);
     }
   }, [previousValue]);
 
   const handleChange = (value) => {
     setFieldValue(question.id, value?.name);
     onChange(question.id, value?.name, setErrors, null);
-    question.value = handler?.handleFieldSubmission(question, value?.name, encounterContext);
+    handler?.handleFieldSubmission(question, value?.name, encounterContext);
   };
 
   const selectedIndex = useMemo(

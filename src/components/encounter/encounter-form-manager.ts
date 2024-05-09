@@ -1,9 +1,10 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormField, type OpenmrsEncounter, type OpenmrsObs, type PatientIdentifier } from '../../types';
-import { isEmpty } from '../../validators/form-validator';
 import { type EncounterContext } from '../../form-context';
 import { saveAttachment, saveEncounter, savePatientIdentifier } from '../../api/api';
-import { hasSubmission } from '../../utils/common-utils';
+import { hasRendering, hasSubmission } from '../../utils/common-utils';
+import { voidObs, constructObs } from '../../submission-handlers/obsHandler';
+import { isEmpty } from '../../validators/form-validator';
 
 export class EncounterFormManager {
   static preparePatientIdentifiers(fields: FormField[], encounterLocation: string): PatientIdentifier[] {
@@ -119,40 +120,43 @@ function prepareObs(
   encounterLocation: any,
 ) {
   fields
-    .filter((field) => field.value || field.type == 'obsGroup') // filter out fields with empty values except groups
-    .filter((field) => !field.isParentHidden && !field.isHidden && (field.type == 'obs' || field.type == 'obsGroup'))
-    .filter((field) => !field['groupId']) // filter out grouped obs
-    .filter((field) => !field.questionOptions.isTransient && field.questionOptions.rendering !== 'file')
+    .filter((field) => hasSubmitableObs(field))
     .forEach((field) => {
+      if ((field.isHidden || field.isParentHidden) && field.meta.previousValue) {
+        const valuesArray = Array.isArray(field.meta.previousValue)
+          ? field.meta.previousValue
+          : [field.meta.previousValue];
+        addObsToList(
+          obsForSubmission,
+          valuesArray.map((obs) => voidObs(obs)),
+        );
+        return;
+      }
       if (field.type == 'obsGroup') {
-        const obsGroup = {
-          person: patient?.id,
-          obsDatetime: encounterDate,
-          concept: field.questionOptions.concept,
-          location: encounterLocation,
-          order: null,
-          groupMembers: [],
-          uuid: field.uuid,
-          voided: false,
-        } as any as OpenmrsObs;
-
-        let hasValue = false;
+        if (field.meta.submission?.voidedValue) {
+          addObsToList(obsForSubmission, field.meta.submission.voidedValue);
+          return;
+        }
+        const obsGroup = constructObs(field, null) as any as OpenmrsObs;
+        if (field.meta.previousValue) {
+          obsGroup.uuid = field.meta.previousValue.uuid;
+        }
         field.questions.forEach((groupedField) => {
-          if (groupedField.value) {
-            hasValue = true;
-            if (Array.isArray(groupedField.value)) {
-              obsGroup.groupMembers.push(...groupedField.value);
-            } else {
-              obsGroup.groupMembers.push(groupedField.value);
-            }
+          if (hasSubmission(groupedField)) {
+            addObsToList(obsGroup.groupMembers, groupedField.meta.submission.newValue);
+            addObsToList(obsGroup.groupMembers, groupedField.meta.submission.voidedValue);
           }
         });
-        hasValue && cleanupAndAddObsToList(obsForSubmission, obsGroup);
-      } else {
-        cleanupAndAddObsToList(obsForSubmission, field.value);
+        if (obsGroup.groupMembers.length || obsGroup.voided) {
+          addObsToList(obsForSubmission, obsGroup);
+        }
+      }
+      if (hasSubmission(field)) {
+        addObsToList(obsForSubmission, field.meta.submission.newValue);
+        addObsToList(obsForSubmission, field.meta.submission.voidedValue);
       }
     });
-  obsGroupsToVoid.forEach((obs) => cleanupAndAddObsToList(obsForSubmission, obs));
+  obsGroupsToVoid.forEach((obs) => addObsToList(obsForSubmission, obs));
 }
 
 function prepareOrders(fields: FormField[]) {
@@ -162,32 +166,32 @@ function prepareOrders(fields: FormField[]) {
     .filter((o) => o);
 }
 
-function cleanupAndAddObsToList(obsList: Array<Partial<OpenmrsObs>>, obs: Partial<OpenmrsObs>) {
+function addObsToList(obsList: Array<Partial<OpenmrsObs>>, obs: Partial<OpenmrsObs>) {
+  if (!obs) {
+    return;
+  }
   if (Array.isArray(obs)) {
-    obs.forEach((o) => {
-      if (isEmpty(o.groupMembers)) {
-        delete o.groupMembers;
-      } else {
-        o.groupMembers.forEach((obsChild) => {
-          if (isEmpty(obsChild.groupMembers)) {
-            delete obsChild.groupMembers;
-          }
-        });
-      }
-      obsList.push(o);
-    });
+    obsList.push(...obs);
   } else {
-    if (isEmpty(obs.groupMembers)) {
-      delete obs.groupMembers;
-    } else {
-      obs.groupMembers.forEach((obsChild) => {
-        if (isEmpty(obsChild.groupMembers)) {
-          delete obsChild.groupMembers;
-        }
-      });
-    }
     obsList.push(obs);
   }
+}
+
+function hasSubmitableObs(field: FormField) {
+  const {
+    questionOptions: { isTransient },
+    type,
+    isHidden,
+    isParentHidden,
+  } = field;
+
+  if (isTransient || !['obs', 'obsGroup'].includes(type) || hasRendering(field, 'file') || field['groupId']) {
+    return false;
+  }
+  if ((field.isHidden || field.isParentHidden) && field.meta.previousValue) {
+    return true;
+  }
+  return !field.isHidden && !field.isParentHidden && (type === 'obsGroup' || hasSubmission(field));
 }
 
 export function getPatientLatestIdentifier(patient: fhir.Patient, identifierType: string) {

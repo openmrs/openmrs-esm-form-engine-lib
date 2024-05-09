@@ -34,7 +34,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     }
     if (previousValue !== field.value) {
       onChange(question.id, field.value, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, field.value, encounterContext);
+      handler?.handleFieldSubmission(question, field.value, encounterContext);
     }
   };
 

@@ -46,7 +46,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     setFieldValue(question.id, refinedDate);
     onChange(question.id, refinedDate, setErrors, setWarnings);
     onTimeChange(false, true);
-    question.value = handler?.handleFieldSubmission(question, refinedDate, encounterContext);
+    handler?.handleFieldSubmission(question, refinedDate, encounterContext);
   };
 
   useEffect(() => {
@@ -56,7 +56,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
       setFieldValue(question.id, refinedDate);
       onChange(question.id, refinedDate, setErrors, setWarnings);
       onTimeChange(false, true);
-      question.value = handler?.handleFieldSubmission(question, refinedDate, encounterContext);
+      handler?.handleFieldSubmission(question, refinedDate, encounterContext);
     }
   }, [previousValue]);
 
@@ -73,7 +73,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
       currentDateTime.setHours(splitTime[0] ?? '00', splitTime[1] ?? '00');
       setFieldValue(question.id, currentDateTime);
       onChange(question.id, currentDateTime, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, currentDateTime, encounterContext);
+      handler?.handleFieldSubmission(question, currentDateTime, encounterContext);
       setTime(time);
     }
   };

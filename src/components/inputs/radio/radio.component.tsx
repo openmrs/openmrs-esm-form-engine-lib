@@ -30,7 +30,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+    handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
   useEffect(() => {
@@ -38,7 +38,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
       const { value } = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+      handler?.handleFieldSubmission(question, value, encounterContext);
     }
   }, [previousValue]);
 

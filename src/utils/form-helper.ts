@@ -7,13 +7,7 @@ import { DefaultFieldValueValidator } from '../validators/default-value-validato
 import { isEmpty } from '../validators/form-validator';
 import { isTrue } from './boolean-utils';
 
-export function cascadeVisibityToChildFields(
-  visibility: boolean,
-  section: FormSection,
-  allFields: Array<FormField>,
-  obsToVoidList: Array<Record<string, any>>,
-  setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
-) {
+export function cascadeVisibityToChildFields(visibility: boolean, section: FormSection, allFields: Array<FormField>) {
   const candidateIds = section.questions.map((q) => q.id);
   allFields
     .filter((field) => candidateIds.includes(field.id))
@@ -24,7 +18,6 @@ export function cascadeVisibityToChildFields(
           member.isParentHidden = visibility;
         });
       }
-      voidObsValueOnFieldHidden(field, obsToVoidList, setFieldValue);
     });
 }
 

@@ -31,7 +31,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+    handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
   useEffect(() => {
@@ -39,7 +39,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
       const { value } = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+      handler?.handleFieldSubmission(question, value, encounterContext);
     }
   }, [previousValue]);
 

@@ -17,7 +17,6 @@ import {
   evaluateFieldReadonlyProp,
   findConceptByReference,
   findPagesWithErrors,
-  voidObsValueOnFieldHidden,
 } from '../../utils/form-helper';
 import { InstantEffect } from '../../utils/instant-effect';
 import { type FormSubmissionHandler } from '../../form-engine.component';
@@ -294,6 +293,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             });
           }
           field.meta = {
+            ...(field.meta || {}),
             concept: matchingConcept,
           };
           if (field.questionOptions.answers) {
@@ -365,11 +365,11 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     if (type == 'page') {
       value['sections'].forEach((section) => {
         section.isParentHidden = isHidden;
-        cascadeVisibityToChildFields(isHidden, section, allFields, obsGroupsToVoid, setFieldValue);
+        cascadeVisibityToChildFields(isHidden, section, allFields);
       });
     }
     if (type == 'section') {
-      cascadeVisibityToChildFields(isHidden, value, allFields, obsGroupsToVoid, setFieldValue);
+      cascadeVisibityToChildFields(isHidden, value, allFields);
     }
   };
 
@@ -569,7 +569,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         // evaluate hide
         if (dependant.hide) {
           evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
-          voidObsValueOnFieldHidden(dependant, obsGroupsToVoid, setFieldValue);
         }
 
         dependant?.questionOptions.answers
@@ -658,7 +657,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             if (isTrue(section.isHidden)) {
               section.questions.forEach((field) => {
                 field.isParentHidden = true;
-                voidObsValueOnFieldHidden(field, obsGroupsToVoid, setFieldValue);
               });
             }
             break;
@@ -674,7 +672,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           dependant.sections.forEach((section) => {
             section.questions.forEach((field) => {
               field.isParentHidden = true;
-              voidObsValueOnFieldHidden(field, obsGroupsToVoid, setFieldValue);
             });
           });
         }

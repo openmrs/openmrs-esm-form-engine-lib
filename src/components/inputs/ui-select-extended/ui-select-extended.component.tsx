@@ -60,7 +60,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+    handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
   useEffect(() => {
@@ -69,7 +69,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
       isProcessingSelection.current = true;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+      handler?.handleFieldSubmission(question, value, encounterContext);
     }
   }, [previousValue]);
 

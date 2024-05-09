@@ -26,7 +26,7 @@ export const TestOrderSubmissionHandler: SubmissionHandler = {
       // TODO: Only track previous value through field.meta.previousValue
       // Update this as part of O3-2164
       field.value = matchedOrder;
-      field.meta = { previousValue: matchedOrder, ...(field.meta || {}) };
+      field.meta = { ...(field.meta || {}), previousValue: matchedOrder };
       assignedOrderIds.push(matchedOrder.uuid);
       return matchedOrder.concept.uuid;
     }

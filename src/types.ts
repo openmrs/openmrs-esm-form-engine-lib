@@ -181,6 +181,9 @@ export interface QuestionMetaProps {
   submission?: {
     voidedValue?: any;
     newValue?: any;
+    unspecified?: boolean;
+    errors?: any[];
+    warnings?: any[];
   };
   repeat?: {
     isClone?: boolean;
