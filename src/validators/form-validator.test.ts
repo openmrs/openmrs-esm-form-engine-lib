@@ -15,6 +15,19 @@ describe('FieldValidator - validate', () => {
     id: 'sampleNumberQuestion',
   };
 
+  const numberWithDecimalsInputField: FormField = {
+    label: 'A Question of type obs that renders a Number input',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'number',
+      concept: 'a-system-defined-concept-uuid',
+      disallowDecimals: true,
+      min: '5.0',
+      max: '10.0',
+    },
+    id: 'sampleNumberWithDecimalsQuestion',
+  };
+
   const textInputField: FormField = {
     label: 'A Question of type obs that renders a Text input',
     type: 'obs',
@@ -155,6 +168,17 @@ describe('FieldValidator - validate', () => {
       {
         errCode: 'field.outOfBound',
         message: `Value must be lower than ${numberInputField.questionOptions.max}`,
+        resultType: 'error',
+      },
+    ]);
+  });
+
+  it('should fail for numbers with decimals', () => {
+    const validationErrors = FieldValidator.validate(numberWithDecimalsInputField, 100.5);
+    expect(validationErrors).toEqual([
+      {
+        errCode: 'field.outOfBound',
+        message: `Decimal values are not allowed`,
         resultType: 'error',
       },
     ]);
