@@ -11,8 +11,7 @@ export const saveIdentifier = (patient: fhir.Patient, patientIdentifier: Patient
 };
 
 export const getPatientLatestIdentifier = (patient: fhir.Patient, identifierType: string) => {
-  const patientIdentifiers = patient?.identifier;
-  return patientIdentifiers?.find((identifier) => {
+  return patient?.identifier?.find((identifier) => {
     if (identifier.type.coding && identifier.type.coding[0].code === identifierType) {
       return true;
     }
