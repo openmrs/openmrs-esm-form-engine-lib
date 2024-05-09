@@ -1,0 +1,89 @@
+{
+  "uuid": "82649039-540d-45e8-b935-2edf3ac68449",
+  "encounterDatetime": "2024-05-01T09:34:18.000+0000",
+  "encounterType": {
+    "uuid": "253a43d3-c99e-415c-8b78-ee7d4d3c1d54",
+    "display": "COVID Case Assessment",
+    "name": "COVID Case Assessment",
+    "description": "This encounter type is shared across the COVID Assessment Form/COVID Outcome Form and COVID Lab Result Form",
+    "retired": false,
+    "links": [
+      {
+        "rel": "self",
+        "uri": "https://ohri-dev.globalhealthapp.net/openmrs/ws/rest/v1/encountertype/253a43d3-c99e-415c-8b78-ee7d4d3c1d54",
+        "resourceAlias": "encountertype"
+      },
+      {
+        "rel": "full",
+        "uri": "https://ohri-dev.globalhealthapp.net/openmrs/ws/rest/v1/encountertype/253a43d3-c99e-415c-8b78-ee7d4d3c1d54?v=full",
+        "resourceAlias": "encountertype"
+      }
+    ],
+    "resourceVersion": "1.8"
+  },
+  "location": {
+    "uuid": "28066518-a0e5-4331-b23e-7b40f96d733a",
+    "name": "MCH Clinic"
+  },
+  "patient": {
+    "uuid": "b280078a-c0ce-443b-9997-3c66c63ec2f8",
+    "display": "100000Y - John Doe"
+  },
+  "encounterProviders": [
+    {
+      "uuid": "72d1879e-f949-48ba-bdbe-9ea157ab5c20",
+      "provider": {
+        "uuid": "bc450226-4138-40b7-ad88-9c98df687738",
+        "name": "Super User"
+      }
+    }
+  ],
+  "orders": [],
+  "obs": [
+    {
+      "uuid": "810d08df-9e14-494c-9c02-eada18af90ed",
+      "obsDatetime": "2024-05-01T09:34:18.000+0000",
+      "voided": false,
+      "groupMembers": null,
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-dateOfAssessment",
+      "concept": {
+        "uuid": "160753AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "name": {
+          "uuid": "f415bf25-2008-3ac2-8f0e-46e75648e30d",
+          "name": "Date of event"
+        }
+      },
+      "value": "2024-01-08T00:00:00.000+0000"
+    },
+    {
+      "uuid": "f03bc18e-b4bc-432c-bffc-47daff58892b",
+      "obsDatetime": "2024-05-01T09:34:18.000+0000",
+      "voided": false,
+      "groupMembers": null,
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-reasonsForTesting",
+      "concept": {
+        "uuid": "ae46f4b1-c15d-4bba-ab41-b9157b82b0ce",
+        "name": {
+          "uuid": "8b31f49b-04cf-3c31-b9da-149f262aa7b6",
+          "name": "What is the reason for COVID-19 testing?"
+        }
+      },
+      "value": {
+        "uuid": "677f4d21-7293-4810-abe6-57a192acde57",
+        "name": {
+          "uuid": "3f3b2df5-fe22-3833-b2e9-22368c88f6de",
+          "name": "Entry into a country"
+        },
+        "names": [
+          {
+            "uuid": "3f3b2df5-fe22-3833-b2e9-22368c88f6de",
+            "conceptNameType": "FULLY_SPECIFIED",
+            "name": "Entry into a country"
+          }
+        ]
+      }
+    }
+  ]
+}

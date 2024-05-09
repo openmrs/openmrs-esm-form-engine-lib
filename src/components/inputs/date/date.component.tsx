@@ -111,7 +111,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   }, []);
 
   useEffect(() => {
-    if (encounterContext?.previousEncounter && !isTrue(question.questionOptions.usePreviousValueDisabled)) {
+    if (encounterContext?.previousEncounter && isTrue(question.questionOptions.enablePreviousValue)) {
       let prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
 
       if (!isEmpty(prevValue?.value)) {
