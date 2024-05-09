@@ -1,7 +1,8 @@
 import { getRegisteredExpressionHelpers } from '../registry/registry';
-import { type FormField, type FormPage, type FormSection } from '../types';
+import { type OpenmrsEncounter, type FormField, type FormPage, type FormSection } from '../types';
 import { CommonExpressionHelpers } from './common-expression-helpers';
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
+import { HistoricalDataSourceService } from '../datasources/historical-data-source';
 
 export interface FormNode {
   value: FormPage | FormSection | FormField;
@@ -12,7 +13,10 @@ export interface ExpressionContext {
   mode: 'enter' | 'edit' | 'view' | 'embedded-view';
   myValue?: any;
   patient: any;
+  previousEncounter?: OpenmrsEncounter;
 }
+
+export const HD = new HistoricalDataSourceService();
 
 export function evaluateExpression(
   expression: string,
@@ -24,6 +28,7 @@ export function evaluateExpression(
   if (!expression?.trim()) {
     return null;
   }
+
   const allFieldsKeys = fields.map((f) => f.id);
   const parts = parseExpression(expression.trim());
   // register dependencies
@@ -32,9 +37,18 @@ export function evaluateExpression(
   let { myValue, patient } = context;
   const { sex, age } = patient && 'sex' in patient && 'age' in patient ? patient : { sex: undefined, age: undefined };
 
-  if (node.type === 'field' && myValue === undefined) {
+  if (node.type === 'field' && myValue === undefined && node.value) {
     myValue = fieldValues[node.value['id']];
   }
+
+  const HD = new HistoricalDataSourceService();
+
+  HD.putObject('prevEnc', {
+    value: context.previousEncounter,
+    getValue(concept) {
+      return this.value.obs.find((obs) => obs.concept.uuid == concept);
+    },
+  });
 
   const expressionContext = {
     ...new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys),
@@ -45,6 +59,7 @@ export function evaluateExpression(
     myValue,
     sex,
     age,
+    HD,
   };
 
   expression = linkReferencedFieldValues(fields, fieldValues, parts);
@@ -67,8 +82,10 @@ export async function evaluateAsyncExpression(
   if (!expression?.trim()) {
     return null;
   }
+
   const allFieldsKeys = fields.map((f) => f.id);
   let parts = parseExpression(expression.trim());
+
   // register dependencies
   findAndRegisterReferencedFields(node, parts, fields);
 
