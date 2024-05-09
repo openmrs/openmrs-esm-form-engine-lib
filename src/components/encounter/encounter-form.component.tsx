@@ -259,6 +259,14 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               },
             );
           }
+          if (field.type === 'patientIdentifier' && !field.questionOptions.identifierType) {
+            field.disabled = true;
+            return showSnackbar({
+              title: 'IdentifierType is missing ',
+              kind: 'error',
+              isLowContrast: false,
+            });
+          }
           const limitExpression = field.questionOptions.repeatOptions?.limitExpression;
           if (field.questionOptions.rendering === 'repeating' && !isEmpty(limitExpression)) {
             field.questionOptions.repeatOptions.limit = evaluateExpression(

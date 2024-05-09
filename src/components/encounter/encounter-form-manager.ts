@@ -7,7 +7,9 @@ import { hasSubmission } from '../../utils/common-utils';
 
 export class EncounterFormManager {
   static preparePatientIdentifiers(fields: FormField[], encounterLocation: string): PatientIdentifier[] {
-    const patientIdentifierFields = fields.filter((field) => field.type === 'patientIdentifier');
+    const patientIdentifierFields = fields.filter(
+      (field) => field.type === 'patientIdentifier' && field.questionOptions.identifierType,
+    );
     return patientIdentifierFields.map((field) => ({
       identifier: field.value,
       identifierType: field.questionOptions.identifierType,

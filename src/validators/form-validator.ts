@@ -8,22 +8,10 @@ export const fieldConditionalRequiredErrCode = 'field.conditionalRequired';
 
 export const FieldValidator: FormFieldValidator = {
   validate: (field: FormField, value: any, formValues: Record<string, any>) => {
-    const IDENTIFIRE_TYPE_TITLE = 'Error saving patient Identifier';
-    const IDENTIFIER_TYPE_REQUIRED = 'IdentifierType prop  is required for patientIdentifier fields';
     if (field['submission']?.unspecified) {
       return [];
     }
-    if (field.type === 'patientIdentifier') {
-      // Check if identifierType is not provided or empty
-      if (!field.questionOptions?.identifierType) {
-        showToast({
-          title: IDENTIFIRE_TYPE_TITLE,
-          kind: 'error',
-          critical: false,
-          description: IDENTIFIER_TYPE_REQUIRED,
-        });
-      }
-    }
+
     if (isEmpty(value)) {
       if ((typeof field.required === 'boolean' && isTrue(field.required)) || isTrue(field.unspecified)) {
         return addError(fieldRequiredErrCode, 'Field is mandatory');
