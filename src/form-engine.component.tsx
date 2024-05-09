@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 import { showSnackbar, useSession, type Visit } from '@openmrs/esm-framework';
 
 import { init, teardown } from './lifecycle';
-import type { FormSchema, SessionMode, FormPage as FormPageProps } from './types';
+import type { FormPage as FormPageProps, FormSchema, SessionMode } from './types';
 import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
 import { useFormJson } from './hooks/useFormJson';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
@@ -121,7 +121,7 @@ const FormEngine: React.FC<FormProps> = ({
     if (sessionMode === 'embedded-view') {
       return false;
     }
-    
+
     return workspaceLayout === 'minimized' || (workspaceLayout === 'maximized' && scrollablePages.size <= 1);
   }, [sessionMode, workspaceLayout, scrollablePages]);
 
@@ -161,7 +161,7 @@ const FormEngine: React.FC<FormProps> = ({
 
       Promise.all(submissions)
         .then(async (results) => {
-          if (mode === 'edit') {
+          if (sessionMode === 'edit') {
             showSnackbar({
               title: t('updatedRecord', 'Record updated'),
               subtitle: t('updatedRecordDescription', 'The patient encounter was updated'),
