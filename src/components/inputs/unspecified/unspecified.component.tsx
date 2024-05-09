@@ -38,7 +38,7 @@ const UnspecifiedField: React.FC<FormFieldProps> = ({ question, onChange, handle
     } else if (previouslyUnspecified && !question.value) {
       question['submission'] = {
         unspecified: false,
-        errors: FieldValidator.validate(question, null),
+        errors: FieldValidator.validate(question, null, null),
       };
     }
   }, [field.value]);

@@ -46,7 +46,7 @@ export interface FormFieldValidator {
   /**
    * Validates a field and returns validation errors
    */
-  validate(field: FormField, value: any, config?: any): Array<ValidationResult>;
+  validate(field: FormField, value: any, formValues: Record<string, any>, config?: any): Array<ValidationResult>;
 }
 
 export interface ValidationResult {
@@ -116,7 +116,7 @@ export interface FormField {
   fieldDependants?: Set<string>;
   pageDependants?: Set<string>;
   sectionDependants?: Set<string>;
-  required?: boolean;
+  required?: boolean | RequiredFieldProps;
   unspecified?: boolean;
   disabled?: boolean;
   readonly?: string | boolean;
@@ -126,6 +126,13 @@ export interface FormField {
   questionInfo?: string;
   constrainMaxWidth?: boolean;
   meta?: QuestionMetaProps;
+}
+
+export interface RequiredFieldProps {
+  type?: string;
+  message?: string;
+  referenceQuestionId?: string;
+  referenceQuestionAnswers?: Array<string>;
 }
 
 export interface previousValue {
@@ -146,6 +153,7 @@ export interface FormFieldProps {
   // This is of util to components defined out of the engine
   useField?: (fieldId: string) => [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
   previousValue?: previousValue;
+  isFieldConditionalRequiredErrCode?: boolean;
 }
 
 export interface FormSection {
@@ -251,7 +259,8 @@ export type RenderType =
   | 'ui-select-extended'
   | 'workspace-launcher'
   | 'fixed-value'
-  | 'file';
+  | 'file'
+  | 'select-concept-answers';
 
 export interface PostSubmissionAction {
   applyAction(

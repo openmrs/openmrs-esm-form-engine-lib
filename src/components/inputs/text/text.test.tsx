@@ -1,35 +1,33 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { render, fireEvent, screen, cleanup, act } from '@testing-library/react';
 import { Formik } from 'formik';
 import { type EncounterContext, FormContext } from '../../../form-context';
-import Dropdown from './dropdown.component';
 import { type FormField } from '../../../types';
+import TextField from './text.component';
+
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
 import { fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
 
 const question: FormField = {
-  label: 'Patient past program.',
+  label: 'Patient Name',
+  id: 'patient-name',
   type: 'obs',
   questionOptions: {
-    rendering: 'select',
-    concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-    answers: [
-      {
-        label: 'HIV Care and Treatment',
-        value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
-      },
-      {
-        label: 'Oncology Screening and Diagnosis Program',
-        value: '12f7be3d-fb5d-47dc-b5e3-56c501be80a6',
-      },
-      {
-        label: 'Fight Malaria Initiative',
-        value: '14cd2628-8a33-4b93-9c10-43989950bba0',
-      },
-    ],
+    rendering: 'text',
+    concept: 'your_concept_uuid_here',
   },
   value: null,
-  id: 'patient-past-program',
+};
+
+const question2: FormField = {
+  label: 'Patient Name',
+  id: 'patient-name',
+  type: 'obs',
+  questionOptions: {
+    rendering: 'text',
+    concept: 'your_concept_uuid_here',
+  },
+  value: null,
 };
 
 const encounterContext: EncounterContext = {
@@ -51,9 +49,9 @@ const encounterContext: EncounterContext = {
   setEncounterLocation: jest.fn,
 };
 
-const renderForm = (initialValues) => {
+const renderForm = (intialValues) => {
   render(
-    <Formik initialValues={initialValues} onSubmit={null}>
+    <Formik initialValues={intialValues} onSubmit={null}>
       {(props) => (
         <FormContext.Provider
           value={{
@@ -68,84 +66,72 @@ const renderForm = (initialValues) => {
             isSubmitting: false,
             formFieldHandlers: { obs: ObsSubmissionHandler },
           }}>
-          <Dropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+          <TextField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
         </FormContext.Provider>
       )}
     </Formik>,
   );
 };
 
-describe('dropdown input field', () => {
+describe('Text field input', () => {
   afterEach(() => {
-    // teardown
     question.value = null;
   });
 
   it('should record new obs', async () => {
     await renderForm({});
-    // setup
-    const dropdownWidget = screen.getByRole('combobox', { name: /Patient past program./ });
+    const inputField = screen.getByLabelText('Patient Name');
 
-    // assert initial values
     await act(async () => {
       expect(question.value).toBe(null);
     });
 
-    // choose an option
-    fireEvent.click(dropdownWidget);
-    const fightMalariaOption = screen.getByText('Fight Malaria Initiative');
-    fireEvent.click(fightMalariaOption);
+    fireEvent.change(inputField, { target: { value: 'John Doe' } });
+    fireEvent.blur(inputField);
 
-    // verify
     await act(async () => {
       expect(question.value).toEqual({
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: new Date(2020, 11, 29),
-        concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+        obsDatetime: encounterContext.encounterDate,
+        concept: 'your_concept_uuid_here',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
         groupMembers: [],
         voided: false,
         formFieldNamespace: 'rfe-forms',
-        formFieldPath: 'rfe-forms-patient-past-program',
-        value: '14cd2628-8a33-4b93-9c10-43989950bba0',
+        formFieldPath: 'rfe-forms-patient-name',
+        value: 'John Doe',
       });
     });
   });
 
   it('should edit obs', async () => {
-    // setup
     question.value = {
-      uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
       person: '833db896-c1f0-11eb-8529-0242ac130003',
       obsDatetime: encounterContext.encounterDate,
-      concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+      concept: 'your_concept_uuid_here',
       location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
       order: null,
       groupMembers: [],
       voided: false,
-      value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
+      value: 'Initial Name',
     };
-    await renderForm({ 'patient-past-program': question.value.value });
-    const dropdownWidget = screen.getByRole('combobox', { name: /Patient past program./ });
+    await renderForm({ 'patient-name': question.value });
+    const inputField = screen.getByLabelText('Patient Name');
 
-    // do some edits
-    fireEvent.click(dropdownWidget);
-    const oncologyScreeningOption = screen.getByText('Oncology Screening and Diagnosis Program');
-    fireEvent.click(oncologyScreeningOption);
+    fireEvent.change(inputField, { target: { value: 'Updated Name' } });
+    fireEvent.blur(inputField);
 
-    // verify
     await act(async () => {
       expect(question.value).toEqual({
-        uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
         person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: new Date(2020, 11, 29),
-        concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+        obsDatetime: encounterContext.encounterDate,
+        concept: 'your_concept_uuid_here',
         location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         order: null,
         groupMembers: [],
         voided: false,
-        value: '12f7be3d-fb5d-47dc-b5e3-56c501be80a6',
+        value: 'Updated Name',
       });
     });
   });

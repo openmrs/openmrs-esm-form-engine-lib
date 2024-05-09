@@ -3,9 +3,9 @@ import { isTrue } from '../utils/boolean-utils';
 import { FieldValidator } from './form-validator';
 
 export const DateValidator: FormFieldValidator = {
-  validate: (field: FormField, value: Date, config: any) => {
+  validate: (field: FormField, value: Date, formValues: Record<string, any>, config: any) => {
     const now = new Date();
-    const errors = !value ? FieldValidator.validate(field, value) : [];
+    const errors = !value ? FieldValidator.validate(field, value, formValues) : [];
     if (errors.length) {
       return errors;
     }

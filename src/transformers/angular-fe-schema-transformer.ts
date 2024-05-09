@@ -44,6 +44,9 @@ function transformByRendering(question: FormField) {
     case 'numeric':
       question.questionOptions.rendering = 'number';
       break;
+    case 'select-concept-answers':
+      handleSelectConceptAnswers(question);
+      break;
     case 'repeating':
     case 'group':
       handleLabOrders(question);
@@ -65,4 +68,15 @@ function handleLabOrders(question: FormField) {
 function updateQuestionAnswers(question: FormField) {
   question.questionOptions.answers = question.questionOptions.selectableOrders || [];
   delete question.questionOptions.selectableOrders;
+}
+
+function handleSelectConceptAnswers(question: FormField) {
+  if (!question.questionOptions.datasource?.config) {
+    question.questionOptions.datasource = {
+      name: 'select_concept_answers_datasource',
+      config: {
+        concept: question.questionOptions.concept,
+      },
+    };
+  }
 }

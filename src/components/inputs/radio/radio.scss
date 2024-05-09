@@ -25,3 +25,12 @@
   font-weight: 400;
   color: colors.$red-60;
 }
+
+.errorMessage {
+  display: block;
+  max-height: 12.5rem;
+  overflow: visible;
+  font-weight: 400;
+  color: colors.$red-60;
+  font-size: 0.800rem;
+}
