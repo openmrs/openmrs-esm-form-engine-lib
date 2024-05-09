@@ -2,7 +2,7 @@ import { getRegisteredExpressionHelpers } from '../registry/registry';
 import { type OpenmrsEncounter, type FormField, type FormPage, type FormSection } from '../types';
 import { CommonExpressionHelpers } from './common-expression-helpers';
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
-import { HistoricalDataSourceService } from './historical-data-source';
+import { HistoricalDataSourceService } from '../datasources/historical-data-source';
 
 export interface FormNode {
   value: FormPage | FormSection | FormField;

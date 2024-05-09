@@ -9,7 +9,7 @@ import {
   formatPreviousValueDisplayText,
   getFieldControlWithFallback,
   isUnspecifiedSupported,
-  historicalValueTransformer,
+  extractObsValueAndDisplay,
 } from './helpers';
 import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { isTrue } from '../../utils/boolean-utils';
@@ -19,6 +19,7 @@ import Tooltip from '../inputs/tooltip/tooltip.component';
 import UnspecifiedField from '../inputs/unspecified/unspecified.component';
 import styles from './form-section.scss';
 import { evaluateExpression } from '../../utils/expression-runner';
+
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<FormFieldProps>;
   fieldDescriptor: FormField;
@@ -68,7 +69,7 @@ const FormSection = ({ fields, onFieldChange }) => {
               : null;
 
             const previousFieldValue = historicalValue
-              ? historicalValueTransformer(fieldDescriptor, historicalValue)
+              ? extractObsValueAndDisplay(fieldDescriptor, historicalValue)
               : encounterContext.previousEncounter
               ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)
               : null;

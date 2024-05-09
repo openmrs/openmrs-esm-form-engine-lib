@@ -4,8 +4,6 @@ import { isTrue } from '../../utils/boolean-utils';
 import { type OpenmrsObs, type FormField } from '../../types';
 import { parseToLocalDateTime } from '../../utils/form-helper';
 import dayjs from 'dayjs';
-import { format } from 'path';
-import { render } from '@testing-library/react';
 
 /**
  * Retrieves the appropriate field control for a question, considering missing concepts.
@@ -61,7 +59,7 @@ export const formatPreviousValueDisplayText = (question: FormField, value: any) 
   }
 };
 
-export const historicalValueTransformer = (field: FormField, obs: OpenmrsObs) => {
+export const extractObsValueAndDisplay = (field: FormField, obs: OpenmrsObs) => {
   const rendering = field.questionOptions.rendering;
 
   if (typeof obs.value === 'string' || typeof obs.value === 'number') {
