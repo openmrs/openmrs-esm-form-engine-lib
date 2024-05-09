@@ -7,7 +7,7 @@ import { useField } from 'formik';
 import { FormContext } from '../../../form-context';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
-import { isEmpty } from '../../../validators/form-validator';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './radio.scss';
@@ -16,6 +16,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
+  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [warnings, setWarnings] = useState([]);
   const { t } = useTranslation();
 
@@ -63,7 +64,10 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
         legendText={
           question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
         }
-        className={styles.boldedLegend}
+        className={classNames({
+          [styles.errorLegend]: isFieldRequiredError,
+          [styles.boldedLegend]: !isFieldRequiredError,
+        })}
         disabled={question.disabled}
         invalid={errors.length > 0}>
         <RadioButtonGroup name={question.id} valueSelected={field.value} onChange={handleChange} orientation="vertical">
@@ -80,13 +84,18 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
               );
             })}
         </RadioButtonGroup>
-        {errors?.length > 0 && (
-          <div>
-            <div className={styles.errorMessage}>
-              {errors.length > 0 ? errors[0].message : warnings.length > 0 ? warnings[0].message : null}
+        {(!isFieldRequiredError && errors?.length > 0) ||
+          (warnings.length > 0 && (
+            <div
+              className={classNames({
+                [styles.errorLabel]: errors.length > 0,
+                [styles.warningLabel]: !errors.length && warnings.length > 0,
+              })}>
+              <div className="cds--form-requirement">
+                {errors.length ? errors[0].message : warnings.length ? warnings[0].message : null}
+              </div>
             </div>
-          </div>
-        )}
+          ))}
       </FormGroup>
     )
   );
