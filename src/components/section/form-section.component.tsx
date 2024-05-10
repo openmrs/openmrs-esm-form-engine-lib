@@ -5,7 +5,12 @@ import { useField } from 'formik';
 import type { FormField, FormFieldProps, previousValue, SubmissionHandler } from '../../types';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ToastNotification } from '@carbon/react';
-import { formatPreviousValueDisplayText, getFieldControlWithFallback, isUnspecifiedSupported } from './helpers';
+import {
+  formatPreviousValueDisplayText,
+  getFieldControlWithFallback,
+  isUnspecifiedSupported,
+  extractObsValueAndDisplay,
+} from './helpers';
 import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { isTrue } from '../../utils/boolean-utils';
 import { FormContext } from '../../form-context';
@@ -13,6 +18,7 @@ import PreviousValueReview from '../previous-value-review/previous-value-review.
 import Tooltip from '../inputs/tooltip/tooltip.component';
 import UnspecifiedField from '../inputs/unspecified/unspecified.component';
 import styles from './form-section.scss';
+import { evaluateExpression } from '../../utils/expression-runner';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<FormFieldProps>;
@@ -47,7 +53,24 @@ const FormSection = ({ fields, onFieldChange }) => {
           .map((entry, index) => {
             const { fieldComponent: FieldComponent, fieldDescriptor, handler } = entry;
             const rendering = fieldDescriptor.questionOptions.rendering;
-            const previousFieldValue = encounterContext.previousEncounter
+
+            const historicalValue = fieldDescriptor.historicalExpression
+              ? evaluateExpression(
+                  fieldDescriptor.historicalExpression,
+                  { value: fieldDescriptor, type: 'field' },
+                  fieldsFromEncounter,
+                  encounterContext.initValues,
+                  {
+                    mode: encounterContext.sessionMode,
+                    patient: encounterContext.patient,
+                    previousEncounter: encounterContext.previousEncounter,
+                  },
+                )
+              : null;
+
+            const previousFieldValue = historicalValue
+              ? extractObsValueAndDisplay(fieldDescriptor, historicalValue)
+              : encounterContext.previousEncounter
               ? handler?.getPreviousValue(fieldDescriptor, encounterContext.previousEncounter, fieldsFromEncounter)
               : null;
 
@@ -96,8 +119,9 @@ const FormSection = ({ fields, onFieldChange }) => {
                     )}
                   </div>
                   {encounterContext?.previousEncounter &&
-                    previousFieldValue &&
-                    !isTrue(fieldDescriptor.questionOptions.usePreviousValueDisabled) && (
+                    (previousFieldValue || historicalValue) &&
+                    (isTrue(fieldDescriptor.questionOptions.enablePreviousValue) ||
+                      fieldDescriptor.historicalExpression) && (
                       <div className={styles.previousValue}>
                         <PreviousValueReview
                           previousValue={previousFieldValue}

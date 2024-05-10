@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Layer, TextArea as TextAreaInput } from '@carbon/react';
 import { useField } from 'formik';
-import { isEmpty } from '../../../validators/form-validator';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
@@ -17,6 +18,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [previousValue, setPreviousValue] = useState();
   const [errors, setErrors] = useState([]);
+  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
@@ -60,7 +62,11 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     />
   ) : (
     !question.isHidden && (
-      <div className={styles.boldedLabel}>
+      <div
+        className={classNames({
+          [styles.errorLabel]: isFieldRequiredError,
+          [styles.boldedLabel]: !isFieldRequiredError,
+        })}>
         <Layer>
           <TextAreaInput
             {...field}
@@ -75,9 +81,9 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             disabled={question.disabled}
             readOnly={question.readonly}
             invalid={errors.length > 0}
-            invalidText={errors[0]?.message}
+            invalidText={errors.length && errors[0].message}
             warn={warnings.length > 0}
-            warnText={warnings[0]?.message}
+            warnText={warnings.length && warnings[0].message}
           />
         </Layer>
       </div>

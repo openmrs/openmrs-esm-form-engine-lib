@@ -1,7 +1,9 @@
 import { formatDate } from '@openmrs/esm-framework';
 import { getRegisteredControl } from '../../registry/registry';
 import { isTrue } from '../../utils/boolean-utils';
-import { type FormField } from '../../types';
+import { type OpenmrsObs, type FormField } from '../../types';
+import { parseToLocalDateTime } from '../../utils/form-helper';
+import dayjs from 'dayjs';
 
 /**
  * Retrieves the appropriate field control for a question, considering missing concepts.
@@ -46,10 +48,35 @@ function previousValueDisplayForCheckbox(previosValueItems: Object[]): String {
 export const formatPreviousValueDisplayText = (question: FormField, value: any) => {
   switch (question.questionOptions.rendering) {
     case 'date':
+      if (value instanceof Date) {
+        return formatDate(value);
+      }
       return formatDate(new Date(value?.display)) || formatDate(value?.value);
     case 'checkbox':
-      return Array.isArray(value) ? previousValueDisplayForCheckbox(value) : null;
+      return Array.isArray(value) ? previousValueDisplayForCheckbox(value) : value.display;
     default:
       return value?.display;
+  }
+};
+
+export const extractObsValueAndDisplay = (field: FormField, obs: OpenmrsObs) => {
+  const rendering = field.questionOptions.rendering;
+
+  if (typeof obs.value === 'string' || typeof obs.value === 'number') {
+    if (rendering === 'date' || rendering === 'datetime') {
+      const dateObj = parseToLocalDateTime(`${obs.value}`);
+      return { value: dateObj, display: dayjs(dateObj).format('YYYY-MM-DD HH:mm') };
+    }
+    return { value: obs.value, display: obs.value };
+  } else if (['toggle', 'checkbox'].includes(rendering)) {
+    return {
+      value: obs.value?.uuid,
+      display: obs.value?.name?.name,
+    };
+  } else {
+    return {
+      value: obs.value?.uuid,
+      display: field.questionOptions.answers?.find((option) => option.concept === obs.value?.uuid)?.label,
+    };
   }
 };

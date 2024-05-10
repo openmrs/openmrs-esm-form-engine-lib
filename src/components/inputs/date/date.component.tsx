@@ -8,7 +8,7 @@ import { formatDate } from '@openmrs/esm-framework';
 import { isTrue } from '../../../utils/boolean-utils';
 import { type FormFieldProps } from '../../../types';
 import { isInlineView } from '../../../utils/form-helper';
-import { isEmpty } from '../../../validators/form-validator';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
@@ -23,6 +23,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
+  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [time, setTime] = useState('');
 
@@ -110,7 +111,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   }, []);
 
   useEffect(() => {
-    if (encounterContext?.previousEncounter && !isTrue(question.questionOptions.usePreviousValueDisabled)) {
+    if (encounterContext?.previousEncounter && isTrue(question.questionOptions.enablePreviousValue)) {
       let prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
 
       if (!isEmpty(prevValue?.value)) {
@@ -156,7 +157,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
               <DatePicker
                 datePickerType="single"
                 onChange={onDateChange}
-                className={classNames(styles.boldedLabel)}
+                className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}
                 dateFormat={carbonDateFormat}>
                 <DatePickerInput
                   id={question.id}
@@ -200,8 +201,8 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                     time
                       ? time
                       : field.value instanceof Date
-                        ? field.value.toLocaleDateString(window.navigator.language)
-                        : field.value
+                      ? field.value.toLocaleDateString(window.navigator.language)
+                      : field.value
                   }
                   onChange={onTimeChange}
                 />

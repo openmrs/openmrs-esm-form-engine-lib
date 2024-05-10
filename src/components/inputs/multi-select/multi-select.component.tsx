@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import { ValueEmpty } from '../../value/value.component';
-import { isEmpty } from '../../../validators/form-validator';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -21,6 +21,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const [counter, setCounter] = useState(0);
+  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   useEffect(() => {
     if (question['submission']) {
@@ -57,11 +58,13 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   };
 
   useEffect(() => {
-    if (!isEmpty(previousValue) && Array.isArray(previousValue)) {
-      const valuesToSet = previousValue.map((eachItem) => eachItem.value);
-      setFieldValue(question.id, valuesToSet);
-      onChange(question.id, valuesToSet, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, valuesToSet, encounterContext);
+    if (!isEmpty(previousValue)) {
+      const previousValues = Array.isArray(previousValue)
+        ? previousValue.map((item) => item.value)
+        : [previousValue.value];
+      setFieldValue(question.id, previousValues);
+      onChange(question.id, previousValues, setErrors, setWarnings);
+      question.value = handler?.handleFieldSubmission(question, previousValues, encounterContext);
     }
   }, [previousValue]);
 
@@ -84,7 +87,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   ) : (
     !question.isHidden && (
       <>
-        <div className={styles.boldedLabel}>
+        <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
           <Layer>
             <FilterableMultiSelect
               placeholder={t('search', 'Search') + '...'}

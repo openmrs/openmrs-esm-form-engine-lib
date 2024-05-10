@@ -1,15 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import isEmpty from 'lodash-es/isEmpty';
+import { useTranslation } from 'react-i18next';
 import { Layer, TextInput } from '@carbon/react';
 import { useField } from 'formik';
 import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
+import { fieldRequiredErrCode } from '../../../validators/form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './text.scss';
-import { useTranslation } from 'react-i18next';
 
 const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -17,6 +19,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
+  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   useEffect(() => {
     if (question['submission']) {
@@ -67,7 +70,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   ) : (
     !question.isHidden && (
       <>
-        <div className={styles.boldedLabel}>
+        <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
           <Layer>
             <TextInput
               {...field}
@@ -80,7 +83,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
               disabled={question.disabled}
               readOnly={Boolean(question.readonly)}
               invalid={errors.length > 0}
-              invalidText={errors[0]?.message}
+              invalidText={errors.length && errors[0].message}
               warn={warnings.length > 0}
               warnText={warnings.length && warnings[0].message}
               maxLength={question.questionOptions.max || TextInput.maxLength}
