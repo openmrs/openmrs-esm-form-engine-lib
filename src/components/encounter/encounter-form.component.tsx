@@ -451,9 +451,10 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         });
       }
     } catch (error) {
+      const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: t('errorSavingPatientIdentifiers', 'Error saving patient identifiers'),
-        subtitle: error.message,
+        subtitle: t('errorDescription', '{{errorMessage}}', { errorMessage: errorMessages.join(', ') }),
         kind: 'error',
         isLowContrast: false,
       });
@@ -483,19 +484,21 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           });
         }
       } catch (error) {
+        const errorMessages = extractErrorMessagesFromResponse(error);
         return Promise.reject({
           title: t('errorSavingAttachments', 'Error saving attachment(s)'),
-          subtitle: error.message,
+          subtitle: t('errorDescription', '{{errorMessage}}', { errorMessage: errorMessages.join(', ') }),
           kind: 'error',
           isLowContrast: false,
         });
       }
       return savedEncounter;
     } catch (error) {
+      console.error(error.responseBody);
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: t('errorSavingEncounter', 'Error saving encounter'),
-        subtitle: t('errorDescription', errorMessages.join(', ')),
+        subtitle: t('errorDescription', '{{errorMessage}}', { errorMessage: errorMessages.join(', ') }),
         kind: 'error',
         isLowContrast: false,
       });

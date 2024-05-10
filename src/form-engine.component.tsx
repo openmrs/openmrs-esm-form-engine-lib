@@ -225,7 +225,6 @@ const FormEngine: React.FC<FormProps> = ({
           hideFormCollapseToggle();
         })
         .catch((error) => {
-          console.error(error);
           setIsSubmitting(false);
           showSnackbar(error);
         })

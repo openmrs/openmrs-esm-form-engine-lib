@@ -12,7 +12,7 @@
   "collapseAll": "Réduire tout",
   "createdRecord": "Enregistrement créé",
   "createdRecordDescription": "Une nouvelle rencontre a été créée",
-  "errorDescription": "",
+  "errorDescription": "{{errorMessage}}",
   "errorDescriptionTitle": "Erreur lors de l'enregistrement du formulaire",
   "errorRenderingField": "Erreur lors du rendu du champ",
   "expandAll": "Développer tout",
