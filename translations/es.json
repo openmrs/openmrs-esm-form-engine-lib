@@ -12,7 +12,6 @@
   "collapseAll": "Contraer todo",
   "createdRecord": "Registro creado",
   "createdRecordDescription": "Se creó un nuevo encuentro",
-  "errorDescription": "{{errorMessage}}",
   "errorDescriptionTitle": "Error al guardar el formulario",
   "errorRenderingField": "Error al renderizar el campo",
   "expandAll": "Expandir todo",

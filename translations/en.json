@@ -12,7 +12,6 @@
   "closesNotification": "Closes notification",
   "createdRecord": "Record created",
   "createdRecordDescription": "A new encounter was created",
-  "errorDescription": "{{errorMessage}}",
   "errorDescriptionTitle": "Error on saving form",
   "errorRenderingField": "Error rendering field",
   "errorSavingAttachments": "Error saving attachment(s)",

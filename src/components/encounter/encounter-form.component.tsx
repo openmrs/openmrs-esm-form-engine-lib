@@ -454,7 +454,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: t('errorSavingPatientIdentifiers', 'Error saving patient identifiers'),
-        subtitle: t('errorDescription', '{{errorMessage}}', { errorMessage: errorMessages.join(', ') }),
+        subtitle: errorMessages.join(', '),
         kind: 'error',
         isLowContrast: false,
       });
@@ -487,7 +487,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         const errorMessages = extractErrorMessagesFromResponse(error);
         return Promise.reject({
           title: t('errorSavingAttachments', 'Error saving attachment(s)'),
-          subtitle: t('errorDescription', '{{errorMessage}}', { errorMessage: errorMessages.join(', ') }),
+          subtitle: errorMessages.join(', '),
           kind: 'error',
           isLowContrast: false,
         });
@@ -498,7 +498,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: t('errorSavingEncounter', 'Error saving encounter'),
-        subtitle: t('errorDescription', '{{errorMessage}}', { errorMessage: errorMessages.join(', ') }),
+        subtitle: errorMessages.join(', '),
         kind: 'error',
         isLowContrast: false,
       });
