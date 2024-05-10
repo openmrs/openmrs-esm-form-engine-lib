@@ -34,6 +34,7 @@ import { useFormFieldHandlers } from '../../hooks/useFormFieldHandlers';
 import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
 import { useTranslation } from 'react-i18next';
 import { EncounterFormManager } from './encounter-form-manager';
+import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
 
 interface EncounterFormProps {
   formJson: FormSchema;
@@ -444,15 +445,14 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       await Promise.all(EncounterFormManager.savePatientIdentifiers(patient, patientIdentifiers));
       if (patientIdentifiers?.length) {
         showSnackbar({
-          title: t('patientIdentifiersSaved', 'Patient identifier(s) saved sucessfully'),
+          title: t('patientIdentifiersSaved', 'Patient identifier(s) saved successfully'),
           kind: 'success',
           isLowContrast: true,
         });
       }
     } catch (error) {
-      setIsSubmitting(false);
-      showSnackbar({
-        title: t('errorSavingPatientIndentifiers', 'Error saving patient identifiers'),
+      return Promise.reject({
+        title: t('errorSavingPatientIdentifiers', 'Error saving patient identifiers'),
         subtitle: error.message,
         kind: 'error',
         isLowContrast: false,
@@ -464,7 +464,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       const saveOrders = savedEncounter.orders.map((order) => order.orderNumber);
       if (saveOrders.length) {
         showSnackbar({
-          title: t('ordersSaved', 'Order(s) saved sucessfully'),
+          title: t('ordersSaved', 'Order(s) saved successfully'),
           subtitle: saveOrders.join(', '),
           kind: 'success',
           isLowContrast: true,
@@ -483,8 +483,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           });
         }
       } catch (error) {
-        setIsSubmitting(false);
-        showSnackbar({
+        return Promise.reject({
           title: t('errorSavingAttachments', 'Error saving attachment(s)'),
           subtitle: error.message,
           kind: 'error',
@@ -493,15 +492,14 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       }
       return savedEncounter;
     } catch (error) {
-      setIsSubmitting(false);
-      showSnackbar({
+      const errorMessages = extractErrorMessagesFromResponse(error);
+      return Promise.reject({
         title: t('errorSavingEncounter', 'Error saving encounter'),
-        subtitle: error.message,
+        subtitle: t('errorDescription', errorMessages.join(', ')),
         kind: 'error',
         isLowContrast: false,
       });
     }
-    return null;
   };
 
   const onFieldChange = (

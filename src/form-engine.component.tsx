@@ -226,13 +226,8 @@ const FormEngine: React.FC<FormProps> = ({
         })
         .catch((error) => {
           console.error(error);
-          const errorMessages = extractErrorMessagesFromResponse(error);
-          showSnackbar({
-            title: t('errorDescriptionTitle', 'Error on saving form'),
-            subtitle: t('errorDescription', errorMessages.join(', ')),
-            kind: 'error',
-            isLowContrast: false,
-          });
+          setIsSubmitting(false);
+          showSnackbar(error);
         })
         .finally(() => {
           setIsSubmitting(false);
