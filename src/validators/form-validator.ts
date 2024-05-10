@@ -36,7 +36,7 @@ export function numberInputRangeValidator(min: number, max: number, inputValue: 
   if (!Number.isNaN(min) && inputValue < min) {
     return [
       {
-        resultType: translateFrom('@openmrs/esm-form-engine-app', 'error', 'error'),
+        resultType: 'error',
         errCode: fieldOutOfBoundErrCode,
         message: translateFrom('@openmrs/esm-form-engine-app', 'minValue', 'Value must be greater than {{min}}', {
           min,
@@ -48,7 +48,7 @@ export function numberInputRangeValidator(min: number, max: number, inputValue: 
   if (!Number.isNaN(max) && inputValue > max) {
     return [
       {
-        resultType: translateFrom('@openmrs/esm-form-engine-app', 'error', 'error'),
+        resultType: 'error',
         errCode: fieldOutOfBoundErrCode,
         message: translateFrom('@openmrs/esm-form-engine-app', 'maxValue', 'Value must be lower than {{max}}', {
           max,
@@ -61,7 +61,7 @@ export function numberInputRangeValidator(min: number, max: number, inputValue: 
     if (typeof inputValue === 'number' && !Number.isInteger(inputValue)) {
       return [
         {
-          resultType: translateFrom('@openmrs/esm-form-engine-app', 'error', 'error'),
+          resultType: 'error',
           errCode: fieldOutOfBoundErrCode,
           message: translateFrom(
             '@openmrs/esm-form-engine-app',
