@@ -115,9 +115,9 @@ export function textInputLengthValidator(minLength: string, maxLength: string, i
 export function addError(errorCode: string, message: string): [{}] {
   return [
     {
-      resultType: translateFrom('@openmrs/esm-form-engine-app', 'error', 'error'),
+      resultType: 'error',
       errCode: errorCode,
-      message: translateFrom('@openmrs/esm-form-engine-app', 'message', message),
+      message: message,
     },
   ];
 }
