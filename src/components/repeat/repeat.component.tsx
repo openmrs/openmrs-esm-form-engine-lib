@@ -11,6 +11,7 @@ import { FormContext } from '../../form-context';
 import { getFieldControlWithFallback } from '../section/helpers';
 import { clearSubmission } from '../../utils/common-utils';
 import RepeatControls from './repeat-controls.component';
+import DeleteModal from './delete-modal';
 
 const renderingByTypeMap: Record<string, RenderType> = {
   obsGroup: 'group',
@@ -25,6 +26,8 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   const [counter, setCounter] = useState(0);
   const [rows, setRows] = useState([]);
   const [fieldComponent, setFieldComponent] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
 
   useEffect(() => {
     const repeatedFields = allFormFields.filter(
@@ -105,6 +108,11 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
     setRows(rows.filter((q) => q.id !== question.id));
   };
 
+  const onClickDeleteQuestion = (question: FormField) => {
+    setSelectedQuestion(question);
+    setShowDeleteModal(true);
+  };
+
   const nodes = useMemo(() => {
     return fieldComponent
       ? rows.map((question, index) => {
@@ -122,7 +130,7 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
                 rows={rows}
                 questionIndex={index}
                 handleDelete={() => {
-                  removeNthRow(question);
+                  onClickDeleteQuestion(question);
                 }}
                 handleAdd={() => {
                   const nextCount = counter + 1;
@@ -139,14 +147,31 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   if (question.isHidden || !nodes || !hasVisibleField(question)) {
     return null;
   }
-  return isGrouped ? (
-    <div className={styles.container}>
-      <FormGroup legendText={t(question.label)} className={styles.boldLegend}>
-        {nodes}
-      </FormGroup>
+  return (
+    <div>
+      {showDeleteModal ? (
+        <DeleteModal
+          onConfirm={() => {
+            removeNthRow(selectedQuestion);
+            setShowDeleteModal(false);
+          }}
+          onCancel={() => {
+            setShowDeleteModal(false);
+            setSelectedQuestion(null);
+          }}
+          showModal={showDeleteModal}
+        />
+      ) : null}
+      {isGrouped ? (
+        <div className={styles.container}>
+          <FormGroup legendText={t(question.label)} className={styles.boldLegend}>
+            {nodes}
+          </FormGroup>
+        </div>
+      ) : (
+        <div>{nodes}</div>
+      )}
     </div>
-  ) : (
-    <div>{nodes}</div>
   );
 };
 
