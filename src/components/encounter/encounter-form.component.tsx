@@ -26,7 +26,7 @@ import { getPreviousEncounter } from '../../api/api';
 import { isTrue } from '../../utils/boolean-utils';
 import { FieldValidator, isEmpty } from '../../validators/form-validator';
 import { scrollIntoView } from '../../utils/scroll-into-view';
-import { getEncounter } from '../../hooks/useEncounter';
+import { useEncounter } from '../../hooks/useEncounter';
 import { useInitialValues } from '../../hooks/useInitialValues';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { useConcepts } from '../../hooks/useConcepts';
@@ -88,8 +88,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [encounterLocation, setEncounterLocation] = useState(null);
   const [encounterDate, setEncounterDate] = useState(formSessionDate);
   const [encounterProvider, setEncounterProvider] = useState(provider);
-  const [encounter, setEncounter] = useState<OpenmrsEncounter>(null);
-  const [isLoadingEncounter, setIsLoadingEncounter] = useState(true);
+  const { encounter, isLoading: isLoadingEncounter } = useEncounter(formJson);
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
   const [form, setForm] = useState<FormSchema>(formJson);
@@ -173,13 +172,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     encounterContext,
     formFieldHandlers,
   );
-
-  useEffect(() => {
-    getEncounter(formJson).then((data) => {
-      setEncounter(data.encounter);
-      setIsLoadingEncounter(data.isLoading);
-    });
-  }, [formJson]);
 
   useEffect(() => {
     if (tempInitialValues) {

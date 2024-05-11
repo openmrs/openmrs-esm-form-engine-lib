@@ -1,27 +1,35 @@
+import { useEffect, useState } from 'react';
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { type FormSchema, type OpenmrsEncounter } from '../types';
 import { encounterRepresentation } from '../constants';
 
-export function getEncounter(formJson: FormSchema) {
+export function useEncounter(formJson: FormSchema) {
   const { encounter: encObjectOrUuid } = formJson;
+  const [formEncounter, setFormEncounter] = useState<OpenmrsEncounter>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const encounterObjectCache = getEncounterObjIfPresent(formJson.encounter);
   const url =
     encObjectOrUuid && !encounterObjectCache
       ? `${restBaseUrl}/encounter/${encObjectOrUuid}?v=${encounterRepresentation}`
       : null;
 
-  if (!url) {
-    // return the cached encounter
-    return Promise.resolve({ encounter: encounterObjectCache, error: null, isLoading: false });
-  }
+  useEffect(() => {
+    if (url) {
+      openmrsFetch(url)
+        .then(response => {
+          setFormEncounter(response.data);
+          setIsLoading(false);
+        })
+        .catch(error => {
+          setError(error);
+        });
+    }
+    setIsLoading(false);
+  }, [url]);
 
-  return openmrsFetch(url)
-    .then(response => {
-      return { encounter: encounterObjectCache || response.data, error: null, isLoading: false };
-    })
-    .catch(error => {
-      return { encounter: null, error, isLoading: false };
-    });
+  return { encounter: encounterObjectCache || formEncounter, error, isLoading };
 }
 
 function getEncounterObjIfPresent(encounterObjOrUuid: string | OpenmrsEncounter): OpenmrsEncounter {
