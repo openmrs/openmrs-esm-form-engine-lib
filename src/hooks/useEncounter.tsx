@@ -2,39 +2,30 @@ import { useEffect, useState } from 'react';
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { type FormSchema, type OpenmrsEncounter } from '../types';
 import { encounterRepresentation } from '../constants';
+import { isEmpty } from '../validators/form-validator';
+import isString from 'lodash-es/isString';
 
 export function useEncounter(formJson: FormSchema) {
-  const { encounter: encObjectOrUuid } = formJson;
-  const [formEncounter, setFormEncounter] = useState<OpenmrsEncounter>(null);
+  const [encounter, setEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const encounterObjectCache = getEncounterObjIfPresent(formJson.encounter);
-  const url =
-    encObjectOrUuid && !encounterObjectCache
-      ? `${restBaseUrl}/encounter/${encObjectOrUuid}?v=${encounterRepresentation}`
-      : null;
-
   useEffect(() => {
-    if (url) {
-      openmrsFetch(url)
-        .then(response => {
-          setFormEncounter(response.data);
+    if (!isEmpty(formJson.encounter) && isString(formJson.encounter)) {
+      openmrsFetch(`${restBaseUrl}/encounter/${formJson.encounter}?v=${encounterRepresentation}`)
+        .then((response) => {
+          setEncounter(response.data);
           setIsLoading(false);
         })
-        .catch(error => {
+        .catch((error) => {
           setError(error);
         });
+    } else if (!isEmpty(formJson.encounter)) {
+      setEncounter(formJson.encounter as OpenmrsEncounter);
+      setIsLoading(false);
     }
     setIsLoading(false);
-  }, [url]);
+  }, [formJson.encounter]);
 
-  return { encounter: encounterObjectCache || formEncounter, error, isLoading };
-}
-
-function getEncounterObjIfPresent(encounterObjOrUuid: string | OpenmrsEncounter): OpenmrsEncounter {
-  if (encounterObjOrUuid && typeof encounterObjOrUuid == 'object') {
-    return encounterObjOrUuid;
-  }
-  return null;
+  return { encounter: encounter, error, isLoading };
 }
