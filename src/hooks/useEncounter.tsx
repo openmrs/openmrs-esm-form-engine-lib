@@ -23,8 +23,9 @@ export function useEncounter(formJson: FormSchema) {
     } else if (!isEmpty(formJson.encounter)) {
       setEncounter(formJson.encounter as OpenmrsEncounter);
       setIsLoading(false);
+    } else {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, [formJson.encounter]);
 
   return { encounter: encounter, error, isLoading };
