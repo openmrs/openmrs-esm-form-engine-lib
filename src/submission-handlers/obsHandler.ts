@@ -120,8 +120,6 @@ export function constructObs(field: FormField, value: any) {
     ...draftObs,
     concept: field.questionOptions.concept,
     formFieldNamespace: 'rfe-forms',
-    // TODO: the prefix seems redundant here, should we considers using the form name instead?
-    // what happens when the name is changed?
     formFieldPath: `rfe-forms-${field.id}`,
   };
 }
@@ -165,7 +163,6 @@ export function hasPreviousObsValueChanged(field: FormField, newValue: any) {
   if (hasRendering(field, 'datetime')) {
     return dayjs(newValue).diff(dayjs(previousObs.value), 'minute') !== 0;
   }
-  // Question: should we continue supporting toggles?
   if (hasRendering(field, 'toggle')) {
     return (previousObs.value.uuid === ConceptTrue) !== newValue;
   }

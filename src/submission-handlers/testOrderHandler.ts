@@ -7,9 +7,7 @@ const defaultOrderType = 'testorder';
 
 export const TestOrderSubmissionHandler: SubmissionHandler = {
   handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
-    // TODO: Only track previous value through field.meta.previousValue
-    // Update this as part of O3-2164
-    if (context.sessionMode == 'edit' && (field.value?.uuid || field.meta?.previousValue?.uuid)) {
+    if (context.sessionMode == 'edit' && field.meta?.previousValue?.uuid) {
       return editOrder(value, field, context.encounterProvider);
     }
     const newValue = constructNewOrder(value, field, context.encounterProvider);
@@ -23,9 +21,6 @@ export const TestOrderSubmissionHandler: SubmissionHandler = {
       .filter((order) => !assignedOrderIds.includes(order.uuid) && !order.voided)
       .find((order) => availableOrderables.includes(order.concept.uuid));
     if (matchedOrder) {
-      // TODO: Only track previous value through field.meta.previousValue
-      // Update this as part of O3-2164
-      field.value = matchedOrder;
       field.meta = { ...(field.meta || {}), previousValue: matchedOrder };
       assignedOrderIds.push(matchedOrder.uuid);
       return matchedOrder.concept.uuid;
@@ -62,8 +57,7 @@ function editOrder(newOrder: any, field: FormField, orderer: string) {
     return null;
   }
   const voided = {
-    // TODO: Only track previous value through field.meta.previousValue
-    uuid: field.meta.previousValue?.uuid || field.value?.uuid,
+    uuid: field.meta.previousValue?.uuid,
     voided: true,
   };
   gracefullySetSubmission(field, constructNewOrder(newOrder, field, orderer), voided);

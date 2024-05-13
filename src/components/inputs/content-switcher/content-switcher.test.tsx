@@ -28,7 +28,6 @@ const question: FormField = {
     ],
   },
   meta: {},
-  value: null,
   id: 'patient-past-program',
 };
 

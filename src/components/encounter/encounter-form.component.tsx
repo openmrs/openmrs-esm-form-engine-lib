@@ -101,7 +101,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       patient: patient,
       encounter: encounter,
       previousEncounter,
-      location: location,
+      location: encounterLocation,
       sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
       encounterDate: formSessionDate,
       encounterProvider: provider,
@@ -112,7 +112,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setEncounterLocation,
       initValues: initValues,
     }),
-    [encounter, form?.encounter, location, patient, previousEncounter, sessionMode, initValues],
+    [encounter, form?.encounter, encounterLocation, patient, previousEncounter, sessionMode, initValues],
   );
   const { encounterRole } = useEncounterRole();
 
@@ -123,8 +123,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     form.pages?.forEach((page) =>
       page.sections?.forEach((section) => {
         section.questions?.forEach((question) => {
-          // explicitly set blank values to null
-          // TODO: shouldn't we be setting to the default behaviour?
           section.inlineRendering = isEmpty(section.inlineRendering) ? null : section.inlineRendering;
           page.inlineRendering = isEmpty(page.inlineRendering) ? null : page.inlineRendering;
           form.inlineRendering = isEmpty(form.inlineRendering) ? null : form.inlineRendering;
@@ -686,8 +684,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     <FormContext.Provider
       value={{
         values,
-        setFieldValue,
-        setEncounterLocation: setEncounterLocation,
         fields: fields,
         encounterContext,
         layoutType,
@@ -695,6 +691,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         isFieldInitializationComplete,
         isSubmitting,
         formFieldHandlers,
+        setFieldValue,
+        setEncounterLocation: setEncounterLocation,
       }}>
       <InstantEffect effect={addScrollablePages} />
       {form.pages.map((page, index) => {

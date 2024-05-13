@@ -3,7 +3,7 @@ import { type FetchResponse, type OpenmrsResource, openmrsFetch, restBaseUrl } f
 import useSWRInfinite from 'swr/infinite';
 
 const conceptRepresentation =
-  'custom:(uuid,display,conceptClass:(uuid,display),answers:(uuid,display),datatype:(uuid,display,name),conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
+  'custom:(uuid,display,conceptClass:(uuid,display),answers:(uuid,display),conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
 
 const chunkSize = 100;
 

@@ -106,7 +106,6 @@ export interface FormField {
   type: string;
   questionOptions: FormQuestionOptions;
   id: string;
-  uuid?: string;
   groupId?: string;
   questions?: Array<FormField>;
   value?: any;

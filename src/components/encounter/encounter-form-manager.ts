@@ -4,16 +4,12 @@ import { type EncounterContext } from '../../form-context';
 import { saveAttachment, saveEncounter, savePatientIdentifier } from '../../api/api';
 import { hasRendering, hasSubmission } from '../../utils/common-utils';
 import { voidObs, constructObs } from '../../submission-handlers/obsHandler';
-import { isEmpty } from '../../validators/form-validator';
 
 export class EncounterFormManager {
   static preparePatientIdentifiers(fields: FormField[], encounterLocation: string): PatientIdentifier[] {
-    const patientIdentifierFields = fields.filter((field) => field.type === 'patientIdentifier');
-    return patientIdentifierFields.map((field) => ({
-      identifier: field.value,
-      identifierType: field.questionOptions.identifierType,
-      location: encounterLocation,
-    }));
+    return fields
+      .filter((field) => field.type === 'patientIdentifier' && hasSubmission(field))
+      .map((field) => field.meta.submission.newValue);
   }
 
   static prepareEncounter(
@@ -83,8 +79,8 @@ export class EncounterFormManager {
   }
 
   static saveAttachments(fields: FormField[], encounter: OpenmrsEncounter, abortController: AbortController) {
-    const fileFields = fields?.filter((field) => field?.questionOptions.rendering === 'file');
-    return fileFields.map((field) => {
+    const complexFields = fields?.filter((field) => field?.questionOptions.rendering === 'file');
+    return complexFields.map((field) => {
       const patientUuid = typeof encounter?.patient === 'string' ? encounter?.patient : encounter?.patient?.uuid;
       return saveAttachment(
         patientUuid,
@@ -99,10 +95,6 @@ export class EncounterFormManager {
 
   static savePatientIdentifiers(patient: fhir.Patient, identifiers: PatientIdentifier[]) {
     return identifiers.map((patientIdentifier) => {
-      const identifier = getPatientLatestIdentifier(patient, patientIdentifier.identifierType);
-      if (identifier) {
-        patientIdentifier.uuid = identifier.id;
-      }
       return savePatientIdentifier(patientIdentifier, patient.id);
     });
   }
@@ -183,14 +175,4 @@ function hasSubmitableObs(field: FormField) {
     return true;
   }
   return !field.isHidden && !field.isParentHidden && (type === 'obsGroup' || hasSubmission(field));
-}
-
-export function getPatientLatestIdentifier(patient: fhir.Patient, identifierType: string) {
-  const patientIdentifiers = patient.identifier;
-  return patientIdentifiers.find((identifier) => {
-    if (identifier.type.coding && identifier.type.coding[0].code === identifierType) {
-      return true;
-    }
-    return false;
-  });
 }
