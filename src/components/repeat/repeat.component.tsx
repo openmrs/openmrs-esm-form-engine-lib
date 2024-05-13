@@ -113,6 +113,16 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
     setShowDeleteModal(true);
   };
 
+  const onConfirmDeleteQuestion = () => {
+    removeNthRow(selectedQuestion);
+    setShowDeleteModal(false);
+  };
+
+  const onCancelDeleteQuestion = () => {
+    setShowDeleteModal(false);
+    setSelectedQuestion(null);
+  };
+
   const nodes = useMemo(() => {
     return fieldComponent
       ? rows.map((question, index) => {
@@ -151,14 +161,8 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
     <div>
       {showDeleteModal ? (
         <DeleteModal
-          onConfirm={() => {
-            removeNthRow(selectedQuestion);
-            setShowDeleteModal(false);
-          }}
-          onCancel={() => {
-            setShowDeleteModal(false);
-            setSelectedQuestion(null);
-          }}
+          onConfirm={onConfirmDeleteQuestion}
+          onCancel={onCancelDeleteQuestion}
           showModal={showDeleteModal}
         />
       ) : null}

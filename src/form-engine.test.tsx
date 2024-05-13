@@ -728,6 +728,14 @@ describe('Form engine component', () => {
 
       await user.click(removeGroupButton);
 
+      const deleteModal = screen.getByRole('dialog');
+      expect(deleteModal).toBeInTheDocument();
+
+      const confirmButton = screen.getByRole('button', { name: /Delete question/i });
+      expect(deleteModal).toContainElement(confirmButton);
+
+      await user.click(confirmButton);
+
       expect(removeGroupButton).not.toBeInTheDocument();
     });
   });
