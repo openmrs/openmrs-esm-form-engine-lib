@@ -36,7 +36,7 @@ describe('DateValidator - validate', () => {
 
   it('should accept future dates for fields supporting them', () => {
     // setup and replay
-    const errors = DateValidator.validate(field, new Date('December 17, 2032 03:24:00',), null, {
+    const errors = DateValidator.validate(field, new Date('December 17, 2032 03:24:00'), null, {
       allowFutureDates: true,
     });
     // verify

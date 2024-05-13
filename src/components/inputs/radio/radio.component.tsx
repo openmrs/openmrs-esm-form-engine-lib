@@ -74,7 +74,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
               );
             })}
         </RadioButtonGroup>
-        {errors?.length > 0 && (
+        {(errors?.length > 0 || warnings?.length > 0) && (
           <div>
             <div className={styles.errorMessage}>
               {errors.length > 0 ? errors[0].message : warnings.length > 0 ? warnings[0].message : null}

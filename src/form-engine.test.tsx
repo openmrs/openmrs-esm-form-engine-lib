@@ -222,7 +222,7 @@ describe('Form engine component', () => {
       await user.click(screen.getByRole('button', { name: /save/i }));
 
       await assertFormHasAllFields(screen, [
-        { fieldName: 'Was this visit scheduled? *', fieldType: 'combobox' },
+        { fieldName: 'Was this visit scheduled?', fieldType: 'combobox' },
         { fieldName: 'If Unscheduled, actual text scheduled date *', fieldType: 'text' },
         { fieldName: 'If Unscheduled, actual scheduled date *', fieldType: 'date' },
         { fieldName: 'If Unscheduled, actual number scheduled date *', fieldType: 'number' },
@@ -430,6 +430,19 @@ describe('Form engine component', () => {
       await user.click(screen.getByRole('button', { name: /save/i }));
 
       expect(saveEncounterMock).toHaveBeenCalled();
+    });
+
+    it('should save on form submission on initial state', async () => {
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+
+      await act(async () => {
+        renderForm(null, conditionalRequiredTestForm);
+      });
+      await assertFormHasAllFields(screen, [{ fieldName: 'Was this visit scheduled?', fieldType: 'combobox' }]);
+      await user.click(screen.getByRole('button', { name: /save/i }));
+      expect(saveEncounterMock).toHaveBeenCalled();
+      expect(saveEncounterMock).toHaveBeenCalledWith(expect.any(AbortController), expect.any(Object), undefined);
+      expect(saveEncounterMock).toHaveReturned();
     });
   });
 

@@ -6,7 +6,6 @@ import { type FormField } from '../../../types';
 import TextField from './text.component';
 
 import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
-import { fieldConditionalRequiredErrCode } from '../../../validators/form-validator';
 
 const question: FormField = {
   label: 'Patient Name',
