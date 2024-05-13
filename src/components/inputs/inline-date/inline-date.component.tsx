@@ -13,7 +13,7 @@ const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.langua
 const dateFormatter = new Intl.DateTimeFormat(locale);
 
 const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => {
-  const [field, meta] = useField(question.id);
+  const [field, meta] = useField(`inline-${question.id}`);
   const { setFieldValue } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
