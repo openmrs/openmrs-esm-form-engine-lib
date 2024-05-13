@@ -472,26 +472,30 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         });
       }
       // handle attachments
-      try {
-        const attachmentsResponse = await Promise.all(
-          EncounterFormManager.saveAttachments(fields, savedEncounter, abortController),
-        );
-        if (attachmentsResponse?.length) {
-          showSnackbar({
-            title: t('attachmentsSaved', 'Attachment(s) saved successfully'),
-            kind: 'success',
-            isLowContrast: true,
+
+      if (fields.filter((eachField) => eachField.questionOptions.rendering === 'file')?.length) {
+        try {
+          const attachmentsResponse = await Promise.all(
+            EncounterFormManager.saveAttachments(fields, savedEncounter, abortController),
+          );
+          if (attachmentsResponse?.length) {
+            showSnackbar({
+              title: t('attachmentsSaved', 'Attachment(s) saved successfully'),
+              kind: 'success',
+              isLowContrast: true,
+            });
+          }
+        } catch (error) {
+          const errorMessages = extractErrorMessagesFromResponse(error);
+          return Promise.reject({
+            title: t('errorSavingAttachments', 'Error saving attachment(s)'),
+            subtitle: errorMessages.join(', '),
+            kind: 'error',
+            isLowContrast: false,
           });
         }
-      } catch (error) {
-        const errorMessages = extractErrorMessagesFromResponse(error);
-        return Promise.reject({
-          title: t('errorSavingAttachments', 'Error saving attachment(s)'),
-          subtitle: errorMessages.join(', '),
-          kind: 'error',
-          isLowContrast: false,
-        });
       }
+
       return savedEncounter;
     } catch (error) {
       console.error(error.responseBody);
