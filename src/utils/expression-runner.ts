@@ -3,6 +3,7 @@ import { type OpenmrsEncounter, type FormField, type FormPage, type FormSection 
 import { CommonExpressionHelpers } from './common-expression-helpers';
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
 import { HistoricalDataSourceService } from '../datasources/historical-data-source';
+import { Visit, VisitType } from '@openmrs/esm-framework';
 
 export interface FormNode {
   value: FormPage | FormSection | FormField;
@@ -14,6 +15,7 @@ export interface ExpressionContext {
   myValue?: any;
   patient: any;
   previousEncounter?: OpenmrsEncounter;
+  visit: Visit;
 }
 
 export const HD = new HistoricalDataSourceService();
@@ -50,6 +52,8 @@ export function evaluateExpression(
     },
   });
 
+  const visitTypeUuid = context.visit?.visitType.uuid ?? '';
+
   const expressionContext = {
     ...new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys),
     ...getRegisteredExpressionHelpers(),
@@ -60,6 +64,7 @@ export function evaluateExpression(
     sex,
     age,
     HD,
+    visitTypeUuid,
   };
 
   expression = linkReferencedFieldValues(fields, fieldValues, parts);
