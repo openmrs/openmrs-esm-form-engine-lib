@@ -19,7 +19,6 @@ export class EncounterFormManager {
   static prepareEncounter(
     allFields: FormField[],
     encounterContext: EncounterContext,
-    obsGroupsToVoid: OpenmrsObs[],
     encounterRole: OpenmrsResource,
     visit: OpenmrsResource,
     encounterType: string,
@@ -27,7 +26,7 @@ export class EncounterFormManager {
   ) {
     const { patient, encounter, encounterDate, encounterProvider, location } = encounterContext;
     const obsForSubmission = [];
-    prepareObs(obsForSubmission, obsGroupsToVoid, allFields, patient, encounterDate, location);
+    prepareObs(obsForSubmission, allFields);
     const ordersForSubmission = prepareOrders(allFields);
     let encounterForSubmission: OpenmrsEncounter = {};
 
@@ -111,14 +110,7 @@ export class EncounterFormManager {
 
 // Helpers
 
-function prepareObs(
-  obsForSubmission: OpenmrsObs[],
-  obsGroupsToVoid: OpenmrsObs[],
-  fields: FormField[],
-  patient: fhir.Patient,
-  encounterDate: Date,
-  encounterLocation: any,
-) {
+function prepareObs(obsForSubmission: OpenmrsObs[], fields: FormField[]) {
   fields
     .filter((field) => hasSubmitableObs(field))
     .forEach((field) => {
@@ -156,7 +148,6 @@ function prepareObs(
         addObsToList(obsForSubmission, field.meta.submission.voidedValue);
       }
     });
-  obsGroupsToVoid.forEach((obs) => addObsToList(obsForSubmission, obs));
 }
 
 function prepareOrders(fields: FormField[]) {

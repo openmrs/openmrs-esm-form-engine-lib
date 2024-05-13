@@ -11,6 +11,7 @@ describe('FieldValidator - validate', () => {
       min: '5',
       max: '10',
     },
+    meta: {},
     id: 'sampleNumberQuestion',
   };
 
@@ -23,6 +24,7 @@ describe('FieldValidator - validate', () => {
       minLength: '5',
       maxLength: '10',
     },
+    meta: {},
     id: 'sampleTextQuestion',
   };
 
@@ -33,6 +35,7 @@ describe('FieldValidator - validate', () => {
       rendering: 'text',
       concept: 'a-system-defined-concept-uuid',
     },
+    meta: {},
     id: 'sampleTextQuestion',
   };
 
@@ -44,6 +47,7 @@ describe('FieldValidator - validate', () => {
       concept: 'a-system-defined-concept-uuid',
       minLength: '5',
     },
+    meta: {},
     id: 'sampleTextQuestion',
   };
 
@@ -55,6 +59,7 @@ describe('FieldValidator - validate', () => {
       concept: 'a-system-defined-concept-uuid',
       maxLength: '10',
     },
+    meta: {},
     id: 'sampleTextQuestion',
   };
 

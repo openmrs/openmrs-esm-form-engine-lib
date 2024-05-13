@@ -69,8 +69,6 @@ const renderForm = (initialValues) => {
             values: props.values,
             setFieldValue: props.setFieldValue,
             setEncounterLocation: jest.fn(),
-            obsGroupsToVoid: [],
-            setObsGroupsToVoid: jest.fn(),
             encounterContext: encounterContext,
             fields: questions,
             isFieldInitializationComplete: true,

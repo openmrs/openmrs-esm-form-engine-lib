@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Layer, NumberInput } from '@carbon/react';
 import classNames from 'classnames';
 import { useField } from 'formik';
@@ -11,21 +11,14 @@ import { FormContext } from '../../../form-context';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './number.scss';
 import { useTranslation } from 'react-i18next';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
-  const [errors, setErrors] = useState([]);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const [warnings, setWarnings] = useState([]);
   const { t } = useTranslation();
-
-  useEffect(() => {
-    if (question['submission']) {
-      question['submission'].errors && setErrors(question['submission'].errors);
-      question['submission'].warnings && setWarnings(question['submission'].warnings);
-    }
-  }, [question['submission']]);
+  const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   field.onBlur = (event) => {
     if (event && event.target.value != field.value) {

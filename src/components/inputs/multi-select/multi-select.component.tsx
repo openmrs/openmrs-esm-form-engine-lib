@@ -12,23 +12,16 @@ import { isTrue } from '../../../utils/boolean-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './multi-select.scss';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
-  const [field, meta] = useField(question.id);
+  const [field] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, isFieldInitializationComplete } =
     React.useContext(FormContext);
-  const [errors, setErrors] = useState([]);
-  const [warnings, setWarnings] = useState([]);
   const [counter, setCounter] = useState(0);
+  const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-
-  useEffect(() => {
-    if (question['submission']) {
-      question['submission'].errors && setErrors(question['submission'].errors);
-      question['submission'].warnings && setWarnings(question['submission'].warnings);
-    }
-  }, [question['submission']]);
 
   const selectOptions = question.questionOptions.answers
     .filter((answer) => !answer.isHidden)

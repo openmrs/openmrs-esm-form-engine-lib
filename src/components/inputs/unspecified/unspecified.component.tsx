@@ -21,11 +21,6 @@ const UnspecifiedField: React.FC<FormFieldProps> = ({ question, onChange, handle
       question.meta.submission = {
         unspecified: true,
       };
-      // question['submission'] = {
-      //   unspecified: true,
-      //   errors: [],
-      //   warnings: [],
-      // };
       let emptyValue = null;
       switch (question.questionOptions.rendering) {
         case 'date':

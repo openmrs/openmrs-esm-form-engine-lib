@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { type FormField } from 'src/types';
+import { type FormField } from '../types';
 
 export function useFieldValidationResults(field: FormField) {
   const [errors, setErrors] = useState([]);

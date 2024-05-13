@@ -91,7 +91,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
   const [form, setForm] = useState<FormSchema>(formJson);
-  const [obsGroupsToVoid, setObsGroupsToVoid] = useState([]);
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
@@ -407,16 +406,13 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       // handle field validation
       fields
         .filter((field) => !field.isParentHidden && !field.disabled && !field.isHidden && !isTrue(field.readonly))
-        .filter((field) => field['submission']?.unspecified != true)
+        .filter((field) => field.meta.submission?.unspecified != true)
         .forEach((field) => {
           const errors =
             FieldValidator.validate(field, values[field.id]).filter((error) => error.resultType == 'error') ?? [];
           if (errors.length) {
             errorFields.push(field);
-            field['submission'] = {
-              ...field['submission'],
-              errors: errors,
-            };
+            field.meta.submission = { ...(field.meta.submission || {}), errors };
             formHasErrors = true;
             return;
           }
@@ -434,7 +430,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     const encounter = EncounterFormManager.prepareEncounter(
       fields,
       { ...encounterContext, encounterProvider, location: encounterLocation },
-      obsGroupsToVoid,
       encounterRole,
       visit,
       formJson.encounterType,
@@ -693,8 +688,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         values,
         setFieldValue,
         setEncounterLocation: setEncounterLocation,
-        setObsGroupsToVoid: setObsGroupsToVoid,
-        obsGroupsToVoid: obsGroupsToVoid,
         fields: fields,
         encounterContext,
         layoutType,
