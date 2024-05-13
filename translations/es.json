@@ -34,8 +34,5 @@
   "updatedRecordDescription": "Se actualizó el encuentro del paciente",
   "upload": "Subir",
   "uploadedPhoto": "Foto subida",
-  "uploadImage": "Subir imagen",
-  "areYouSure": "Are you sure?",
-  "confirmRepeatDeleteModalExplaination": "Do you want to delete the repeated field?",
-  "confirm": "Confirm"
+  "uploadImage": "Subir imagen"
 }

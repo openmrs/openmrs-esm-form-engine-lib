@@ -11,7 +11,7 @@ import { FormContext } from '../../form-context';
 import { getFieldControlWithFallback } from '../section/helpers';
 import { clearSubmission } from '../../utils/common-utils';
 import RepeatControls from './repeat-controls.component';
-import DeleteModal from './delete-modal';
+import DeleteModal from './delete-question-modal.component';
 
 const renderingByTypeMap: Record<string, RenderType> = {
   obsGroup: 'group',
