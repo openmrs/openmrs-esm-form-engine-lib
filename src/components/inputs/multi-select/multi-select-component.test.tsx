@@ -51,7 +51,6 @@ const renderForm = async () => {
         formUUID={null}
         patientUUID={patientUUID}
         formSessionIntent={undefined}
-        visit={visit}
       />,
     ),
   );

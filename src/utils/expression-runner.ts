@@ -15,7 +15,7 @@ export interface ExpressionContext {
   myValue?: any;
   patient: any;
   previousEncounter?: OpenmrsEncounter;
-  visit: Visit;
+  visit?: Visit;
 }
 
 export const HD = new HistoricalDataSourceService();
