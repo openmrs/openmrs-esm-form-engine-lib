@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ComposedModal, ModalHeader, ModalBody, ModalFooter, Button } from '@carbon/react';
-import styles from './delete-modal.scss';
 
 interface DeleteModalProps {
   onConfirm: () => void;
@@ -13,7 +12,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ onConfirm, onCancel, showModa
   const { t } = useTranslation();
 
   return (
-    <ComposedModal open={showModal} onClose={onCancel} preventCloseOnClickOutside className={styles.deleteRepeatModal}>
+    <ComposedModal open={showModal} onClose={onCancel} preventCloseOnClickOutside>
       <ModalHeader title={t('deleteQuestionConfirmation', 'Are you sure you want to delete this question?')} />
       <ModalBody>
         <p>{t('deleteQuestionExplainerText', 'This action cannot be undone.')}</p>

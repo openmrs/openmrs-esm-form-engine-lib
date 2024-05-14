@@ -1477,7 +1477,40 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/react@npm:^1.12.0, @carbon/react@npm:^1.37.0":
+"@carbon/react@npm:1.37.0, @carbon/react@npm:~1.37.0":
+  version: 1.37.0
+  resolution: "@carbon/react@npm:1.37.0"
+  dependencies:
+    "@babel/runtime": "npm:^7.18.3"
+    "@carbon/feature-flags": "npm:^0.16.0"
+    "@carbon/icons-react": "npm:^11.26.0"
+    "@carbon/layout": "npm:^11.19.0"
+    "@carbon/styles": "npm:^1.37.0"
+    "@carbon/telemetry": "npm:0.1.0"
+    classnames: "npm:2.3.2"
+    copy-to-clipboard: "npm:^3.3.1"
+    downshift: "npm:8.1.0"
+    flatpickr: "npm:4.6.9"
+    invariant: "npm:^2.2.3"
+    lodash.debounce: "npm:^4.0.8"
+    lodash.findlast: "npm:^4.5.0"
+    lodash.isequal: "npm:^4.5.0"
+    lodash.omit: "npm:^4.5.0"
+    lodash.throttle: "npm:^4.1.1"
+    prop-types: "npm:^15.7.2"
+    react-is: "npm:^18.2.0"
+    use-resize-observer: "npm:^6.0.0"
+    wicg-inert: "npm:^3.1.1"
+    window-or-global: "npm:^1.0.1"
+  peerDependencies:
+    react: ^16.8.6 || ^17.0.1 || ^18.2.0
+    react-dom: ^16.8.6 || ^17.0.1 || ^18.2.0
+    sass: ^1.33.0
+  checksum: 10/ea3963d6b3c13edcbc5fdbaf58071fe7635ea0b8c0f42dfdb50d92763ed6548308f2916bfc12667d031ce01cebc9897b6172f2bedfa8b98f57b88cf56e3e5a08
+  languageName: node
+  linkType: hard
+
+"@carbon/react@npm:^1.12.0":
   version: 1.55.0
   resolution: "@carbon/react@npm:1.55.0"
   dependencies:
@@ -1509,39 +1542,6 @@ __metadata:
     react-dom: ^16.8.6 || ^17.0.1 || ^18.2.0
     sass: ^1.33.0
   checksum: 10/bc8437213c39a63d117c3adda633300d6fc5c8834e0e32dee7426a83fd9e9047331b76c1179f237b9cc911e063da045f9d2067c1474671d0e89c4e9f8f4c5417
-  languageName: node
-  linkType: hard
-
-"@carbon/react@npm:~1.37.0":
-  version: 1.37.0
-  resolution: "@carbon/react@npm:1.37.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.18.3"
-    "@carbon/feature-flags": "npm:^0.16.0"
-    "@carbon/icons-react": "npm:^11.26.0"
-    "@carbon/layout": "npm:^11.19.0"
-    "@carbon/styles": "npm:^1.37.0"
-    "@carbon/telemetry": "npm:0.1.0"
-    classnames: "npm:2.3.2"
-    copy-to-clipboard: "npm:^3.3.1"
-    downshift: "npm:8.1.0"
-    flatpickr: "npm:4.6.9"
-    invariant: "npm:^2.2.3"
-    lodash.debounce: "npm:^4.0.8"
-    lodash.findlast: "npm:^4.5.0"
-    lodash.isequal: "npm:^4.5.0"
-    lodash.omit: "npm:^4.5.0"
-    lodash.throttle: "npm:^4.1.1"
-    prop-types: "npm:^15.7.2"
-    react-is: "npm:^18.2.0"
-    use-resize-observer: "npm:^6.0.0"
-    wicg-inert: "npm:^3.1.1"
-    window-or-global: "npm:^1.0.1"
-  peerDependencies:
-    react: ^16.8.6 || ^17.0.1 || ^18.2.0
-    react-dom: ^16.8.6 || ^17.0.1 || ^18.2.0
-    sass: ^1.33.0
-  checksum: 10/ea3963d6b3c13edcbc5fdbaf58071fe7635ea0b8c0f42dfdb50d92763ed6548308f2916bfc12667d031ce01cebc9897b6172f2bedfa8b98f57b88cf56e3e5a08
   languageName: node
   linkType: hard
 
@@ -3212,7 +3212,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@openmrs/openmrs-form-engine-lib@workspace:."
   dependencies:
-    "@carbon/react": "npm:^1.37.0"
+    "@carbon/react": "npm:1.37.0"
     "@openmrs/esm-framework": "npm:next"
     "@openmrs/esm-patient-common-lib": "npm:next"
     "@swc/cli": "npm:^0.1.65"
