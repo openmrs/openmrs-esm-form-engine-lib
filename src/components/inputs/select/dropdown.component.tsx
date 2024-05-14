@@ -25,7 +25,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value = getQuestionValue({ obsDate, question, value: value?.name, handler, encounterContext });
+    question.value = getQuestionValue({ obsDate, question, value, handler, encounterContext });
   };
 
   useEffect(() => {

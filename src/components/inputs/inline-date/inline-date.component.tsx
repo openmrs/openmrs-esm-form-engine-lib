@@ -9,7 +9,7 @@ import { useField } from 'formik';
 
 import styles from './inline-date.scss';
 
-const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
+const locale = window.i18next?.language == 'en' ? 'en-GB' : window.i18next?.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
 
 const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => {

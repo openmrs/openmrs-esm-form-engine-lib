@@ -35,7 +35,7 @@ const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler
   const handleChange = (value) => {
     setFieldValue(question.id, value?.name);
     onChange(question.id, value?.name, setErrors, null);
-    question.value = getQuestionValue({ obsDate, question, value, handler, encounterContext });
+    question.value = getQuestionValue({ obsDate, question, value: value?.name, handler, encounterContext });
   };
 
   const selectedIndex = useMemo(

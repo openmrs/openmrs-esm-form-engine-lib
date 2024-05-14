@@ -2,6 +2,16 @@ import MultiSelect from '../components/inputs/multi-select/multi-select.componen
 import Number from '../components/inputs/number/number.component';
 import { getRegisteredControl } from './registry';
 
+const mockI18next = {
+  language: 'en', // Set the language to a valid value for your test
+};
+
+beforeAll(() => {
+  // Define window.i18next in the global scope
+  Object.defineProperty(window, 'i18next', {
+    value: mockI18next,
+  });
+});
 describe('registry', () => {
   it('should load the NumberField component with alias "numeric"', async () => {
     const result = await getRegisteredControl('numeric');

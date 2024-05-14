@@ -72,6 +72,16 @@ const renderForm = (initialValues) => {
   );
 };
 
+const mockI18next = {
+  language: 'en',
+};
+
+beforeAll(() => {
+  Object.defineProperty(window, 'i18next', {
+    value: mockI18next,
+  });
+});
+
 describe('dropdown input field', () => {
   afterEach(() => {
     // teardown

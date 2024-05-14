@@ -73,6 +73,16 @@ const renderForm = (initialValues) => {
   );
 };
 
+const mockI18next = {
+  language: 'en',
+};
+
+beforeAll(() => {
+  Object.defineProperty(window, 'i18next', {
+    value: mockI18next,
+  });
+});
+
 describe('content-switcher input field', () => {
   afterEach(() => {
     // teardown

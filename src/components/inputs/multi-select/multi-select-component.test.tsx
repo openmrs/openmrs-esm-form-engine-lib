@@ -57,6 +57,16 @@ const renderForm = async () => {
   );
 };
 
+const mockI18next = {
+  language: 'en',
+};
+
+beforeAll(() => {
+  Object.defineProperty(window, 'i18next', {
+    value: mockI18next,
+  });
+});
+
 describe('OHRIMultiSelect Component', () => {
   it('renders correctly', async () => {
     await renderForm();
