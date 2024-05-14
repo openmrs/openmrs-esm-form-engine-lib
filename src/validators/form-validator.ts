@@ -6,7 +6,7 @@ export const fieldOutOfBoundErrCode = 'field.outOfBound';
 
 export const FieldValidator: FormFieldValidator = {
   validate: (field: FormField, value: any) => {
-    if (field.meta.submission?.unspecified) {
+    if (field?.meta.submission?.unspecified) {
       return [];
     }
     if (isTrue(field.required) || isTrue(field.unspecified)) {
@@ -39,7 +39,7 @@ export function numberInputRangeValidator(min: number, max: number, inputValue: 
     return addError(fieldOutOfBoundErrCode, `Value must be lower than ${max}` );
   }
 
-  if (field.questionOptions.disallowDecimals || field.meta.concept?.allowDecimal) {
+  if (field.questionOptions.disallowDecimals || field.meta?.concept?.allowDecimal) {
     if (typeof inputValue === 'number' && !Number.isInteger(inputValue)) {
       return addError(fieldOutOfBoundErrCode, 'Decimal values are not allowed for this field');
     }
