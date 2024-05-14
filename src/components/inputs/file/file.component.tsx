@@ -69,7 +69,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
     setSelectedFiles(newSelectedFiles);
     setImagePreview(null);
     setFieldValue(question.id, newSelectedFiles);
-    question.value = getQuestionValue({ obsDate, question, value: newSelectedFiles, handler, encounterContext });
+    getQuestionValue({ obsDate, question, value: newSelectedFiles, handler, encounterContext });
   };
 
   const setImages = (newImage) => {
@@ -77,7 +77,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
     setImagePreview(newImage);
     setCameraWidgetVisible(false);
     setFieldValue(question.id, newImage);
-    question.value = getQuestionValue({ obsDate, question, value: newImage, handler, encounterContext });
+    getQuestionValue({ obsDate, question, value: newImage, handler, encounterContext });
   };
 
   return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (

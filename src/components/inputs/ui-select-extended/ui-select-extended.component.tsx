@@ -15,6 +15,7 @@ import RequiredFieldLabel from '../../required-field-label/required-field-label.
 import InlineDate from '../inline-date/inline-date.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import { getQuestionValue } from '../../../utils/common-utils';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 import styles from './ui-select-extended.scss';
 
@@ -54,7 +55,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value = getQuestionValue({ obsDate, question, value, encounterContext, handler });
+    getQuestionValue({ obsDate, question, value, encounterContext, handler });
   };
 
   useEffect(() => {
@@ -63,7 +64,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
       isProcessingSelection.current = true;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
-      question.value = getQuestionValue({ obsDate, question, value, encounterContext, handler });
+      getQuestionValue({ obsDate, question, value, encounterContext, handler });
     }
   }, [previousValue]);
 

@@ -17,7 +17,7 @@ import styles from './text-area.scss';
 
 const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue: previousValueProp }) => {
   const { t } = useTranslation();
-  const [field, meta] = useField(question.id);
+  const [field] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [previousValue, setPreviousValue] = useState();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
@@ -29,7 +29,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     }
     if (previousValue !== field.value) {
       onChange(question.id, field.value, setErrors, setWarnings);
-      question.value = getQuestionValue({ obsDate, question, value: field?.value, handler, encounterContext });
+      getQuestionValue({ obsDate, question, value: field?.value, handler, encounterContext });
     }
   };
 

@@ -16,20 +16,21 @@ import styles from './toggle.scss';
 
 const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
-  const [field, meta] = useField(question.id);
+  const [field] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [obsDate, setObsDate] = useState<Date>();
 
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, null, null);
+    getQuestionValue({ obsDate, question, value, handler, encounterContext });
   };
 
   useEffect(() => {
     // The toogle input doesn't support blank values
     // by default, the value should be false
-    if (!question.value && encounterContext.sessionMode == 'enter') {
-      question.value = getQuestionValue({ obsDate, question, value: field.value ?? false, handler, encounterContext });
+    if (!question.meta?.previousValue && encounterContext.sessionMode == 'enter') {
+      getQuestionValue({ obsDate, question, value: field.value ?? false, handler, encounterContext });
     }
   }, []);
 
@@ -38,13 +39,7 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
       const value = booleanConceptToBoolean(previousValue);
       setFieldValue(question.id, value);
       onChange(question.id, value, null, null);
-      question.value =
-        obsDate === undefined
-          ? handler?.handleFieldSubmission(question, value, encounterContext)
-          : handler?.handleFieldSubmission(question, value, {
-              ...encounterContext,
-              encounterDate: obsDate !== undefined ? obsDate : undefined,
-            });
+      getQuestionValue({ obsDate, question, value, handler, encounterContext });
     }
   }, [previousValue]);
 

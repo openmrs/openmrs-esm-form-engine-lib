@@ -34,7 +34,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
     }
     if (previousValue !== field.value) {
       onChange(question.id, field.value, setErrors, setWarnings);
-      question.value = getQuestionValue({ obsDate, question, value: field?.value, handler, encounterContext });
+      getQuestionValue({ obsDate, question, value: field?.value, handler, encounterContext });
     }
   };
 
