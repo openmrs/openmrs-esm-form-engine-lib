@@ -24,16 +24,19 @@ const ErrorModal: React.FC<{ errors: ValidationResult[] }> = ({ errors }) => {
     </React.Fragment>
   ));
   return (
-    <div>
+    <section style={{ marginLeft: '0.75rem', marginRight: '0.75rem' }}>
       <InlineNotification
-        style={{ minWidth: '100%' }}
+        role="alert"
+        style={{
+          minWidth: '100%',
+          margin: '0.5rem 0',
+        }}
         kind="error"
         lowContrast={true}
-        hideCloseButton={false}
         title={t('fieldErrorDescriptionTitle', 'Validation Errors')}
         subtitle={errorMessage}
       />
-    </div>
+    </section>
   );
 };
 
