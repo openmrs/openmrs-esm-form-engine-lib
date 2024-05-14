@@ -98,6 +98,9 @@ export class EncounterFormManager {
       return savePatientIdentifier(patientIdentifier, patient.id);
     });
   }
+  static evaluatedAttachmentFields(fields: FormField[]) {
+    return fields.filter((eachField) => eachField.questionOptions.rendering === 'file');
+  }
 }
 
 // Helpers

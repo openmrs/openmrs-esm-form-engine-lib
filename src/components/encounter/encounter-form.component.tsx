@@ -466,7 +466,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       }
       // handle attachments
 
-      if (fields.filter((eachField) => eachField.questionOptions.rendering === 'file')?.length) {
+      if (EncounterFormManager.evaluatedAttachmentFields(fields)?.length) {
         try {
           const attachmentsResponse = await Promise.all(
             EncounterFormManager.saveAttachments(fields, savedEncounter, abortController),
