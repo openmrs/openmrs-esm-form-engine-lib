@@ -1,6 +1,7 @@
 import { type FormField } from '../types';
 import { FieldValidator } from './form-validator';
 
+
 describe('FieldValidator - validate', () => {
   const numberInputField: FormField = {
     label: 'A Question of type obs that renders a Number input',
@@ -174,11 +175,11 @@ describe('FieldValidator - validate', () => {
   });
 
   it('should fail for numbers with decimals', () => {
-    const validationErrors = FieldValidator.validate(numberWithDecimalsInputField, 100.5);
+    const validationErrors = FieldValidator.validate(numberWithDecimalsInputField, 8.5);
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
-        message: `Decimal values are not allowed`,
+        message: 'Decimal values are not allowed for this field',
         resultType: 'error',
       },
     ]);

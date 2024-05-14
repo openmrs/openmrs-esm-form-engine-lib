@@ -1,7 +1,5 @@
 import { type FormFieldValidator, type FormField } from '../types';
-import { moduleName } from '../globals';
 import { isTrue } from '../utils/boolean-utils';
-import { translateFrom } from '@openmrs/esm-framework';
 
 export const fieldRequiredErrCode = 'field.required';
 export const fieldOutOfBoundErrCode = 'field.outOfBound';
@@ -34,42 +32,16 @@ export const FieldValidator: FormFieldValidator = {
 
 export function numberInputRangeValidator(min: number, max: number, inputValue: number, field?: FormField) {
   if (!Number.isNaN(min) && inputValue < min) {
-    return [
-      {
-        resultType: 'error',
-        errCode: fieldOutOfBoundErrCode,
-        message: translateFrom('@openmrs/esm-form-engine-app', 'minValue', 'Value must be greater than {{min}}', {
-          min,
-        }),
-      },
-    ];
+    return addError(fieldOutOfBoundErrCode, `Value must be greater than ${min}` );
   }
 
   if (!Number.isNaN(max) && inputValue > max) {
-    return [
-      {
-        resultType: 'error',
-        errCode: fieldOutOfBoundErrCode,
-        message: translateFrom('@openmrs/esm-form-engine-app', 'maxValue', 'Value must be lower than {{max}}', {
-          max,
-        }),
-      },
-    ];
+    return addError(fieldOutOfBoundErrCode, `Value must be lower than ${max}` );
   }
 
   if (field.questionOptions.disallowDecimals || field.meta.concept?.allowDecimal) {
     if (typeof inputValue === 'number' && !Number.isInteger(inputValue)) {
-      return [
-        {
-          resultType: 'error',
-          errCode: fieldOutOfBoundErrCode,
-          message: translateFrom(
-            '@openmrs/esm-form-engine-app',
-            'decimalValue',
-            'Decimal values are not allowed for this field',
-          ),
-        },
-      ];
+      return addError(fieldOutOfBoundErrCode, 'Decimal values are not allowed for this field');
     }
   }
 
