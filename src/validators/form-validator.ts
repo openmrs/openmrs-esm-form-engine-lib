@@ -6,7 +6,7 @@ export const fieldOutOfBoundErrCode = 'field.outOfBound';
 
 export const FieldValidator: FormFieldValidator = {
   validate: (field: FormField, value: any) => {
-    if (field?.meta.submission?.unspecified) {
+    if (field?.meta?.submission?.unspecified) {
       return [];
     }
     if (isTrue(field.required) || isTrue(field.unspecified)) {
@@ -21,28 +21,28 @@ export const FieldValidator: FormFieldValidator = {
       return textInputLengthValidator(minLength, maxLength, value.length) ?? [];
     }
     if (field.questionOptions.rendering === 'number') {
-      const min = Number(field.questionOptions.min) || 0;
-      const max = Number(field.questionOptions.max) || 100;
+      const min = Number(field.questionOptions.min);
+      const max = Number(field.questionOptions.max);
+      const disallowDecimals = field.questionOptions.disallowDecimals || field.meta?.concept?.allowDecimal;
       if (isEmpty(value)) return [];
-      return !Number.isNaN(min) || !Number.isNaN(max) ? numberInputRangeValidator(min, max, value, field) : [];
+      if (disallowDecimals && !Number.isInteger(value)) {
+        return addError(fieldOutOfBoundErrCode, 'Decimal values are not allowed for this field');
+      }
+      if (!Number.isNaN(min) || !Number.isNaN(max)) {
+        return numberInputRangeValidator(min, max, value);
+      }
     }
     return [];
   },
 };
 
-export function numberInputRangeValidator(min: number, max: number, inputValue: number, field?: FormField) {
+export function numberInputRangeValidator(min: number, max: number, inputValue: number) {
   if (!Number.isNaN(min) && inputValue < min) {
     return addError(fieldOutOfBoundErrCode, `Value must be greater than ${min}` );
   }
 
   if (!Number.isNaN(max) && inputValue > max) {
     return addError(fieldOutOfBoundErrCode, `Value must be lower than ${max}` );
-  }
-
-  if (field.questionOptions.disallowDecimals || field.meta?.concept?.allowDecimal) {
-    if (typeof inputValue === 'number' && !Number.isInteger(inputValue)) {
-      return addError(fieldOutOfBoundErrCode, 'Decimal values are not allowed for this field');
-    }
   }
 
   return [];
