@@ -10,9 +10,10 @@ import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import InlineDate from '../inline-date/inline-date.component';
+import { getQuestionValue } from '../../../utils/common-utils';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 import styles from './dropdown.scss';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -24,13 +25,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value =
-      obsDate === undefined
-        ? handler?.handleFieldSubmission(question, value?.name, encounterContext)
-        : handler?.handleFieldSubmission(question, value?.name, {
-            ...encounterContext,
-            encounterDate: obsDate !== undefined ? obsDate : undefined,
-          });
+    question.value = getQuestionValue({ obsDate, question, value: value?.name, handler, encounterContext });
   };
 
   useEffect(() => {
@@ -38,13 +33,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
       const { value } = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
-      question.value =
-        obsDate === undefined
-          ? handler?.handleFieldSubmission(question, value, encounterContext)
-          : handler?.handleFieldSubmission(question, value, {
-              ...encounterContext,
-              encounterDate: obsDate !== undefined ? obsDate : undefined,
-            });
+      question.value = getQuestionValue({ obsDate, question, value, handler, encounterContext });
     }
   }, [previousValue]);
 
@@ -97,7 +86,6 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             <InlineDate
               question={question}
               setObsDateTime={(value) => setObsDate(value)}
-              onChange={() => {}}
             />
           </div>
           ) : null}

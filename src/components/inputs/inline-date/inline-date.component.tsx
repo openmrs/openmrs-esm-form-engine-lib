@@ -30,6 +30,7 @@ const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => 
     const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
     setFieldValue(`inline-${question.id}`, refinedDate);
     setObsDateTime(refinedDate);
+    question.value = Array.isArray(question?.value) ? question.value.map(value => ({...value, obsDatetime: refinedDate })) : {...question?.value, obsDatetime: refinedDate };
   };
 
   const { placeholder, carbonDateformat } = useMemo(() => {
@@ -76,10 +77,10 @@ const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => 
           <DatePickerInput
             id={`inline-${question.id}`}
             placeholder={placeholder}
-            labelText={` Date of ${question.label}`}
+            labelText={` Date of ${question.label}`} // needs translation
             value={field.value instanceof Date ? field.value.toLocaleDateString(locale) : field.value}
             onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
-            disabled={question.disabled}
+            disabled={question.disabled || !question?.value}
             invalid={!isFieldRequiredError && errors.length > 0}
             invalidText={errors[0]?.message}
             warn={warnings.length > 0}

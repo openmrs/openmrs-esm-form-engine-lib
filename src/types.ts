@@ -158,8 +158,6 @@ export interface FormFieldProps {
 export interface InlineDateProps {
   setObsDateTime: (value: Date) => void;
   question: FormField;
-  onChange: () => void;
-  handler: SubmissionHandler;
 }
 
 export interface FormSection {

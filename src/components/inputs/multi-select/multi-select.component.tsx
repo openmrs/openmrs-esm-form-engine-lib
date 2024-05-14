@@ -11,9 +11,10 @@ import { isTrue } from '../../../utils/boolean-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import InlineDate from '../inline-date/inline-date.component';
+import { getQuestionValue } from '../../../utils/common-utils';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 import styles from './multi-select.scss';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -58,14 +59,14 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         : [previousValue.value];
       setFieldValue(question.id, previousValues);
       onChange(question.id, previousValues, setErrors, setWarnings);
-    question.value =
-      obsDate === undefined
-        ? handler?.handleFieldSubmission(question, previousValues, encounterContext)
-        : handler?.handleFieldSubmission(question, previousValues, {
-            ...encounterContext,
-            encounterDate: obsDate !== undefined ? obsDate : undefined,
-          });
-        }
+      question.value =
+        obsDate === undefined
+          ? handler?.handleFieldSubmission(question, previousValues, encounterContext)
+          : handler?.handleFieldSubmission(question, previousValues, {
+              ...encounterContext,
+              encounterDate: obsDate !== undefined ? obsDate : undefined,
+            });
+    }
   }, [previousValue]);
 
   const isInline = useMemo(() => {
@@ -132,7 +133,6 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
             <InlineDate
               question={question}
               setObsDateTime={(value) => setObsDate(value)}
-              onChange={() => {}}
             />
           </div>
         ) : null}

@@ -4,11 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { isTrue } from '../../../utils/boolean-utils';
 import Camera from '../camera/camera.component';
 import { Close, DocumentPdf } from '@carbon/react/icons';
-import styles from './file.scss';
-import { createAttachment } from '../../../utils/common-utils';
+import { createAttachment, getQuestionValue } from '../../../utils/common-utils';
 import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { isInlineView } from '../../../utils/form-helper';
+import InlineDate from '../inline-date/inline-date.component';
+
+import styles from './file.scss';
 
 interface FileProps extends FormFieldProps {}
 type AllowedModes = 'uploader' | 'camera' | 'edit' | '';
@@ -20,6 +22,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
   const [selectedFiles, setSelectedFiles] = useState(null); // Add state for selected files
   const [imagePreview, setImagePreview] = useState(null);
   const [uploadMode, setUploadMode] = useState<AllowedModes>('');
+  const [obsDate, setObsDate] = useState<Date>();
 
   useEffect(() => {
     if (encounterContext.sessionMode === 'edit') {
@@ -66,7 +69,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
     setSelectedFiles(newSelectedFiles);
     setImagePreview(null);
     setFieldValue(question.id, newSelectedFiles);
-    handler?.handleFieldSubmission(question, newSelectedFiles, encounterContext);
+    question.value = getQuestionValue({ obsDate, question, value: newSelectedFiles, handler, encounterContext });
   };
 
   const setImages = (newImage) => {
@@ -74,7 +77,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
     setImagePreview(newImage);
     setCameraWidgetVisible(false);
     setFieldValue(question.id, newImage);
-    handler?.handleFieldSubmission(question, newImage, encounterContext);
+    question.value = getQuestionValue({ obsDate, question, value: newImage, handler, encounterContext });
   };
 
   return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (
@@ -178,6 +181,16 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
           )}
         </div>
       )}
+      {question.questionOptions.showDate === 'true' ? (
+          <div style={{ marginTop: '5px' }}>
+            <InlineDate
+              question={question}
+              setObsDateTime={(value) => setObsDate(value)}
+            />
+          </div>
+        ) : (
+          ''
+        )}
     </div>
   );
 };

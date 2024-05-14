@@ -10,7 +10,7 @@ import { isEmpty } from '../../../validators/form-validator';
 import { booleanConceptToBoolean } from '../../../utils/common-expression-helpers';
 import { useTranslation } from 'react-i18next';
 import InlineDate from '../inline-date/inline-date.component';
-import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
+import { getQuestionValue } from '../../../utils/common-utils';
 
 import styles from './toggle.scss';
 
@@ -18,32 +18,18 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
-  const [conceptName, setConceptName] = useState('Loading...');
   const [obsDate, setObsDate] = useState<Date>();
 
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, null, null);
-    question.value =
-        obsDate === undefined
-          ? handler?.handleFieldSubmission(question, value, encounterContext)
-          : handler?.handleFieldSubmission(question, value, {
-              ...encounterContext,
-              encounterDate: obsDate !== undefined ? obsDate : undefined,
-            });
   };
 
   useEffect(() => {
     // The toogle input doesn't support blank values
     // by default, the value should be false
-    if (!question.meta?.previousValue && encounterContext.sessionMode == 'enter') {
-      question.value =
-        obsDate === undefined
-          ? handler?.handleFieldSubmission(question, field.value ?? false, encounterContext)
-          : handler?.handleFieldSubmission(question, field.value ?? false, {
-              ...encounterContext,
-              encounterDate: obsDate !== undefined ? obsDate : undefined,
-            });
+    if (!question.value && encounterContext.sessionMode == 'enter') {
+      question.value = getQuestionValue({ obsDate, question, value: field.value ?? false, handler, encounterContext });
     }
   }, []);
 
@@ -95,8 +81,6 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
             <InlineDate
               question={question}
               setObsDateTime={(value) => setObsDate(value)}
-              onChange={() => {}}
-              handler={ObsSubmissionHandler}
             />
           </div>
         ) : (

@@ -11,6 +11,7 @@ import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import InlineDate from '../inline-date/inline-date.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import { getQuestionValue } from '../../../utils/common-utils';
 
 import styles from './text-area.scss';
 
@@ -28,13 +29,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     }
     if (previousValue !== field.value) {
       onChange(question.id, field.value, setErrors, setWarnings);
-      question.value =
-        obsDate === undefined
-          ? handler?.handleFieldSubmission(question, field?.value, encounterContext)
-          : handler?.handleFieldSubmission(question, field?.value, {
-              ...encounterContext,
-              encounterDate: obsDate !== undefined ? obsDate : undefined,
-            });
+      question.value = getQuestionValue({ obsDate, question, value: field?.value, handler, encounterContext });
     }
   };
 
@@ -86,7 +81,6 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             <InlineDate
               question={question}
               setObsDateTime={(value) => setObsDate(value)}
-              onChange={() => {}}
             />
           </div>
         ) : null}

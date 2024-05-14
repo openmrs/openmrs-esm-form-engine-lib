@@ -65,3 +65,12 @@ export function gracefullySetSubmission(field: FormField, newValue: any, voidedV
 export function hasSubmission(field: FormField) {
   return !!field.meta.submission?.newValue || !!field.meta.submission?.voidedValue;
 }
+
+export function getQuestionValue({ obsDate, question, handler, value, encounterContext }) {
+  return  obsDate
+  ? handler?.handleFieldSubmission(question, value, {
+      ...encounterContext,
+      encounterDate: obsDate,
+    })
+  : handler?.handleFieldSubmission(question, value, encounterContext);
+}

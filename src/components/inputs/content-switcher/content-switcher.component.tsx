@@ -10,9 +10,10 @@ import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
 import InlineDate from '../inline-date/inline-date.component';
+import { getQuestionValue } from '../../../utils/common-utils';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 import styles from './content-switcher.scss';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -27,26 +28,14 @@ const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler
       const { value } = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, null);
-      question.value =
-        obsDate === undefined
-          ? handler?.handleFieldSubmission(question, value, encounterContext)
-          : handler?.handleFieldSubmission(question, value, {
-              ...encounterContext,
-              encounterDate: obsDate !== undefined ? obsDate : undefined,
-            });
+      question.value = getQuestionValue({ obsDate, question, value, handler, encounterContext });
     }
   }, [previousValue]);
 
   const handleChange = (value) => {
     setFieldValue(question.id, value?.name);
     onChange(question.id, value?.name, setErrors, null);
-    question.value =
-      obsDate === undefined
-        ? handler?.handleFieldSubmission(question, value, encounterContext)
-        : handler?.handleFieldSubmission(question, value, {
-            ...encounterContext,
-            encounterDate: obsDate !== undefined ? obsDate : undefined,
-          });
+    question.value = getQuestionValue({ obsDate, question, value, handler, encounterContext });
   };
 
   const selectedIndex = useMemo(
@@ -100,7 +89,6 @@ const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler
             <InlineDate
               question={question}
               setObsDateTime={(value) => setObsDate(value)}
-              onChange={() => {}}
             />
           </div>
         ) : (

@@ -12,6 +12,7 @@ import RequiredFieldLabel from '../../required-field-label/required-field-label.
 import InlineDate from '../inline-date/inline-date.component';
 import { useTranslation } from 'react-i18next';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import { getQuestionValue } from '../../../utils/common-utils';
 
 import styles from './number.scss';
 
@@ -33,13 +34,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
     }
     if (previousValue !== field.value) {
       onChange(question.id, field.value, setErrors, setWarnings);
-      question.value =
-        obsDate === undefined
-          ? handler?.handleFieldSubmission(question, field?.value, encounterContext)
-          : handler?.handleFieldSubmission(question, field?.value, {
-              ...encounterContext,
-              encounterDate: obsDate !== undefined ? obsDate : undefined,
-            });
+      question.value = getQuestionValue({ obsDate, question, value: field?.value, handler, encounterContext });
     }
   };
 
@@ -99,7 +94,6 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
           <InlineDate
             question={question}
             setObsDateTime={(value) => setObsDate(value)}
-            onChange={() => {}}
           />
         </div>
       ) : (

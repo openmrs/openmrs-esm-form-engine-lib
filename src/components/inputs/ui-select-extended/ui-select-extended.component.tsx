@@ -14,6 +14,7 @@ import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import InlineDate from '../inline-date/inline-date.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import { getQuestionValue } from '../../../utils/common-utils';
 
 import styles from './ui-select-extended.scss';
 
@@ -53,13 +54,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value =
-      obsDate === undefined
-        ? handler?.handleFieldSubmission(question, value, encounterContext)
-        : handler?.handleFieldSubmission(question, value, {
-            ...encounterContext,
-            encounterDate: obsDate !== undefined ? obsDate : undefined,
-          });
+    question.value = getQuestionValue({ obsDate, question, value, encounterContext, handler });
   };
 
   useEffect(() => {
@@ -68,13 +63,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
       isProcessingSelection.current = true;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
-      question.value =
-        obsDate === undefined
-          ? handler?.handleFieldSubmission(question, value, encounterContext)
-          : handler?.handleFieldSubmission(question, value, {
-              ...encounterContext,
-              encounterDate: obsDate !== undefined ? obsDate : undefined,
-            });
+      question.value = getQuestionValue({ obsDate, question, value, encounterContext, handler });
     }
   }, [previousValue]);
 
@@ -183,7 +172,6 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
             <InlineDate
               question={question}
               setObsDateTime={(value) => setObsDate(value)}
-              onChange={() => {}}
             />
           ) : null}
         </Layer>

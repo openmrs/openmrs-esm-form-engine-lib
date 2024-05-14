@@ -11,6 +11,7 @@ import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import InlineDate from '../inline-date/inline-date.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import { getQuestionValue } from '../../../utils/common-utils';
 
 import styles from './radio.scss';
 
@@ -24,13 +25,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value =
-      obsDate === undefined
-        ? handler?.handleFieldSubmission(question, value?.name, encounterContext)
-        : handler?.handleFieldSubmission(question, value?.name, {
-            ...encounterContext,
-            encounterDate: obsDate !== undefined ? obsDate : undefined,
-          });
+    question.value = getQuestionValue({ obsDate, question, value: value?.name, handler, encounterContext });
   };
 
   useEffect(() => {
@@ -38,13 +33,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
       const { value } = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
-      question.value =
-        obsDate === undefined
-          ? handler?.handleFieldSubmission(question, value, encounterContext)
-          : handler?.handleFieldSubmission(question, value, {
-              ...encounterContext,
-              encounterDate: obsDate !== undefined ? obsDate : undefined,
-            });
+      question.value = getQuestionValue({ obsDate, question, value, handler, encounterContext });
     }
   }, [previousValue]);
 
@@ -99,7 +88,6 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
             <InlineDate
               question={question}
               setObsDateTime={(value) => setObsDate(value)}
-              onChange={() => {}}
             />
           </div>
         ) : null}
