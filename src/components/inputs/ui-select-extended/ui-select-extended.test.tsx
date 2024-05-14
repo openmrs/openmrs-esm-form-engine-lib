@@ -3,8 +3,8 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import UiSelectExtended from './ui-select-extended.component';
 import { type EncounterContext, FormContext } from '../../../form-context';
 import { Formik } from 'formik';
-import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
-import { type FormField, type RenderType } from '../../../types';
+import { type FormField } from '../../../types';
+import { ObsSubmissionHandler } from '../../../submission-handlers/obsHandler';
 
 const questions: FormField[] = [
   {
@@ -20,7 +20,7 @@ const questions: FormField[] = [
         },
       },
     },
-    value: null,
+    meta: {},
     id: 'patient_transfer_location',
   },
   {
@@ -69,8 +69,6 @@ const renderForm = (initialValues) => {
             values: props.values,
             setFieldValue: props.setFieldValue,
             setEncounterLocation: jest.fn(),
-            obsGroupsToVoid: [],
-            setObsGroupsToVoid: jest.fn(),
             encounterContext: encounterContext,
             fields: questions,
             isFieldInitializationComplete: true,
@@ -131,9 +129,7 @@ describe('UiSelectExtended Component', () => {
     const uiSelectExtendedWidget = screen.getByLabelText('Transfer Location');
 
     // assert initial values
-    await act(async () => {
-      expect(questions[0].value).toBe(null);
-    });
+    expect(questions[0].meta.submission).toBe(undefined);
 
     //Click on the UiSelectExtendedWidget to open the dropdown
     fireEvent.click(uiSelectExtendedWidget);
@@ -174,16 +170,10 @@ describe('UiSelectExtended Component', () => {
 
     // verify
     await act(async () => {
-      expect(questions[0].value).toEqual({
-        person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: new Date(2023, 8, 29),
+      expect(questions[0].meta.submission.newValue).toEqual({
         concept: '160540AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-        location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
         formFieldNamespace: 'rfe-forms',
         formFieldPath: 'rfe-forms-patient_transfer_location',
-        order: null,
-        groupMembers: [],
-        voided: false,
         value: 'aaa-2',
       });
     });
@@ -213,6 +203,7 @@ describe('UiSelectExtended Component', () => {
       expect(screen.queryByText('Muyenga')).not.toBeInTheDocument();
     });
   });
+
   it('Should set the correct value for the config parameter', async () => {
     // Mock the data source fetch behavior
     const expectedConfigValue = {

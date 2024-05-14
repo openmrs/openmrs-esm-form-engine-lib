@@ -5,7 +5,6 @@ import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import { showSnackbar, useSession, type Visit } from '@openmrs/esm-framework';
-
 import { init, teardown } from './lifecycle';
 import type { FormPage as FormPageProps, FormSchema, SessionMode } from './types';
 import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';

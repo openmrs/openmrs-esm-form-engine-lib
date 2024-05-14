@@ -19,7 +19,7 @@ export function saveEncounter(abortController: AbortController, payload, encount
 export function saveAttachment(patientUuid, field, conceptUuid, date, encounterUUID, abortController) {
   const url = `${restBaseUrl}/attachment`;
 
-  const content = field?.value.value;
+  const content = field.meta.submission?.newValue?.value;
   const cameraUploadType = typeof content === 'string' && content?.split(';')[0].split(':')[1].split('/')[1];
 
   const formData = new FormData();

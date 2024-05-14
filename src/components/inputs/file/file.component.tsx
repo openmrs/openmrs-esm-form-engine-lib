@@ -66,7 +66,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
     setSelectedFiles(newSelectedFiles);
     setImagePreview(null);
     setFieldValue(question.id, newSelectedFiles);
-    question.value = handler?.handleFieldSubmission(question, newSelectedFiles, encounterContext);
+    handler?.handleFieldSubmission(question, newSelectedFiles, encounterContext);
   };
 
   const setImages = (newImage) => {
@@ -74,7 +74,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
     setImagePreview(newImage);
     setCameraWidgetVisible(false);
     setFieldValue(question.id, newImage);
-    question.value = handler?.handleFieldSubmission(question, newImage, encounterContext);
+    handler?.handleFieldSubmission(question, newImage, encounterContext);
   };
 
   return encounterContext.sessionMode == 'view' || isTrue(question.readonly) ? (

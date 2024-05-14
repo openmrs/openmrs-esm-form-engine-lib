@@ -14,22 +14,21 @@ import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './ui-select-extended.scss';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
   const { t } = useTranslation();
-  const [field, meta] = useField(question.id);
+  const [field] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [items, setItems] = useState([]);
-  const [warnings, setWarnings] = useState([]);
-  const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const [inputValue, setInputValue] = useState('');
   const isProcessingSelection = useRef(false);
   const [dataSource, setDataSource] = useState(null);
   const [config, setConfig] = useState({});
   const [savedSearchableItem, setSavedSearchableItem] = useState({});
+  const { errors, setErrors, setWarnings } = useFieldValidationResults(question);
+  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -50,17 +49,10 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
     );
   }, [question.questionOptions?.datasource]);
 
-  useEffect(() => {
-    if (question['submission']) {
-      question['submission'].errors && setErrors(question['submission'].errors);
-      question['submission'].warnings && setWarnings(question['submission'].warnings);
-    }
-  }, [question['submission']]);
-
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+    handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
   useEffect(() => {
@@ -69,7 +61,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
       isProcessingSelection.current = true;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+      handler?.handleFieldSubmission(question, value, encounterContext);
     }
   }, [previousValue]);
 
@@ -78,7 +70,6 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
     setIsLoading(true);
     dataSource.fetchData(searchterm, config).then((dataItems) => {
       setItems(dataItems.map(dataSource.toUuidAndDisplay));
-
       setIsLoading(false);
     });
   }, 300);
@@ -170,7 +161,6 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
                 isProcessingSelection.current = false;
                 return;
               }
-              setInputValue(value);
               if (question.questionOptions['isSearchable']) {
                 setSearchTerm(value);
               }

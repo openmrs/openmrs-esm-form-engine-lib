@@ -1,5 +1,5 @@
 import setupFormEngineLibI18n from './setupI18n';
-import { teardownBaseHandlerUtils } from './submission-handlers/base-handlers';
+import { teardownObsHandler } from './submission-handlers/obsHandler';
 import { teardownTestOrderHandler } from './submission-handlers/testOrderHandler';
 
 /**
@@ -14,6 +14,6 @@ export function init() {
  * Invoked on unmounting the "FormEngine" component
  */
 export function teardown() {
-  teardownBaseHandlerUtils();
   teardownTestOrderHandler();
+  teardownObsHandler();
 }
