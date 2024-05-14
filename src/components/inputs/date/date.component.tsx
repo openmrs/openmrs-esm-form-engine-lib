@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
 import { DatePicker, DatePickerInput, Layer, TimePicker } from '@carbon/react';
 import { formatDate } from '@openmrs/esm-framework';
-import { isTrue } from '../../../utils/boolean-utils';
+import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
 import { type FormFieldProps } from '../../../types';
 import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
@@ -134,7 +134,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   id={question.id}
                   placeholder={placeholder}
                   labelText={
-                    question.required ? (
+                    isFieldRequired(question) && !question.isHidden && !question.isParentHidden ? (
                       <RequiredFieldLabel label={t(question.label)} />
                     ) : (
                       <span>{t(question.label)}</span>

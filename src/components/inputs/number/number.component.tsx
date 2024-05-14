@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { Layer, NumberInput } from '@carbon/react';
 import classNames from 'classnames';
 import { useField } from 'formik';
-import { isTrue } from '../../../utils/boolean-utils';
+import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
 import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -67,7 +67,13 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         id={question.id}
         invalid={errors.length > 0}
         invalidText={errors[0]?.message}
-        label={question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>}
+        label={
+          isFieldRequired(question) && !question.isHidden && !question.isParentHidden ? (
+            <RequiredFieldLabel label={t(question.label)} />
+          ) : (
+            <span>{t(question.label)}</span>
+          )
+        }
         max={Number(question.questionOptions.max) || undefined}
         min={Number(question.questionOptions.min) || undefined}
         name={question.id}

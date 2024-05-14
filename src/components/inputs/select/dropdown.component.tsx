@@ -5,7 +5,7 @@ import { Dropdown as DropdownInput, Layer } from '@carbon/react';
 import { useField } from 'formik';
 import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
-import { isTrue } from '../../../utils/boolean-utils';
+import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -63,7 +63,11 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
           <DropdownInput
             id={question.id}
             titleText={
-              question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+              isFieldRequired(question) && !question.isHidden && !question.isParentHidden ? (
+                <RequiredFieldLabel label={t(question.label)} />
+              ) : (
+                <span>{t(question.label)}</span>
+              )
             }
             label={t('chooseAnOption', 'Choose an option')}
             items={question.questionOptions.answers

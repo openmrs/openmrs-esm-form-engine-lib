@@ -4,7 +4,7 @@ import { Layer, TextArea as TextAreaInput } from '@carbon/react';
 import { useField } from 'formik';
 import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
-import { isTrue } from '../../../utils/boolean-utils';
+import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -60,7 +60,11 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             {...field}
             id={question.id}
             labelText={
-              question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+              isFieldRequired(question) && !question.isHidden && !question.isParentHidden ? (
+                <RequiredFieldLabel label={t(question.label)} />
+              ) : (
+                <span>{t(question.label)}</span>
+              )
             }
             name={question.id}
             value={field.value || ''}

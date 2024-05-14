@@ -227,6 +227,7 @@ describe('Form engine component', () => {
         { fieldName: 'If Unscheduled, actual scheduled date *', fieldType: 'date' },
         { fieldName: 'If Unscheduled, actual number scheduled date *', fieldType: 'number' },
         { fieldName: 'If Unscheduled, actual text area scheduled date *', fieldType: 'textarea' },
+        { fieldName: 'Not required actual text area scheduled date', fieldType: 'textarea' },
         { fieldName: 'If Unscheduled, actual scheduled reason select *', fieldType: 'select' },
         { fieldName: 'If Unscheduled, actual scheduled reason multi-select *', fieldType: 'combobox' },
         { fieldName: 'If Unscheduled, actual scheduled reason radio *', fieldType: 'radio' },

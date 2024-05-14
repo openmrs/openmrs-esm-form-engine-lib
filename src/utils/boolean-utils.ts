@@ -1,3 +1,4 @@
+import type {  FormField } from "../types";
 /**
  * Evaluates whether a value is truthy. This should be used when a string value is expected to parsed into a boolean ie.
  * ```bash
@@ -22,4 +23,12 @@ export function isTrue(value: string | boolean): boolean {
 export function isUuid(value: string): boolean {
   const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
   return uuidRegex.test(value);
+}
+
+export function isFieldRequired(value: FormField): boolean {
+  if (typeof value.required !== 'object' ){
+    return  isTrue(value.required);
+  } else if ( typeof value.required === 'object' && value.required.type === 'conditionalRequired' ){
+    return true;
+  }
 }

@@ -76,6 +76,17 @@
               "validators": []
             },
             {
+              "label": "Not required actual text area scheduled date",
+              "id": "actualDate9",
+              "type": "obs",
+              "required": "false",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "dc1942b2-5e50-4adc-949d-ad6c905f054e"
+              },
+              "validators": []
+            },
+            {
               "label": "If Unscheduled, actual scheduled date",
               "id": "actualDate3",
               "type": "obs",

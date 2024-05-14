@@ -8,7 +8,7 @@ import { type FormFieldProps } from '../../../types';
 import { ValueEmpty } from '../../value/value.component';
 import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
-import { isTrue } from '../../../utils/boolean-utils';
+import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './multi-select.scss';
@@ -90,7 +90,11 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
               initialSelectedItems={initiallySelectedQuestionItems}
               label={''}
               titleText={
-                question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+                isFieldRequired(question) && !question.isHidden && !question.isParentHidden ? (
+                  <RequiredFieldLabel label={t(question.label)} />
+                ) : (
+                  <span>{t(question.label)}</span>
+                )
               }
               key={counter}
               itemToString={(item) => (item ? item.label : ' ')}

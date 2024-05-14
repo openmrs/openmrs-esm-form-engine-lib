@@ -5,7 +5,7 @@ import { FormGroup, RadioButtonGroup, RadioButton } from '@carbon/react';
 import { type FormFieldProps } from '../../../types';
 import { useField } from 'formik';
 import { FormContext } from '../../../form-context';
-import { isTrue } from '../../../utils/boolean-utils';
+import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -55,7 +55,11 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
     !question.isHidden && (
       <FormGroup
         legendText={
-          question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+          isFieldRequired(question) && !question.isHidden && !question.isParentHidden ? (
+            <RequiredFieldLabel label={t(question.label)} />
+          ) : (
+            <span>{t(question.label)}</span>
+          )
         }
         className={styles.boldedLegend}
         disabled={question.disabled}

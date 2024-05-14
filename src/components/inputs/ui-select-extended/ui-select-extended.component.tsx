@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import debounce from 'lodash-es/debounce';
 import { ComboBox, DropdownSkeleton, Layer } from '@carbon/react';
 import { useField } from 'formik';
-import { isTrue } from '../../../utils/boolean-utils';
+import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
@@ -134,7 +134,13 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
         <Layer>
           <ComboBox
             id={question.id}
-            titleText={question.required ? <RequiredFieldLabel label={t(question.label)} /> : t(question.label)}
+            titleText={
+              isFieldRequired(question) && !question.isHidden && !question.isParentHidden ? (
+                <RequiredFieldLabel label={t(question.label)} />
+              ) : (
+                t(question.label)
+              )
+            }
             items={items}
             itemToString={(item) => item?.display}
             selectedItem={items.find((item) => item.uuid == field.value)}
