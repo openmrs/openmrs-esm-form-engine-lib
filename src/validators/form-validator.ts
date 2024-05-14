@@ -21,8 +21,8 @@ export const FieldValidator: FormFieldValidator = {
       return textInputLengthValidator(minLength, maxLength, value.length) ?? [];
     }
     if (field.questionOptions.rendering === 'number') {
-      const min = Number(field.questionOptions.min);
-      const max = Number(field.questionOptions.max);
+      const min = Number(field.questionOptions.min) || 0;
+      const max = Number(field.questionOptions.max) || 100;
       if (isEmpty(value)) return [];
       return !Number.isNaN(min) || !Number.isNaN(max) ? numberInputRangeValidator(min, max, value, field) : [];
     }
