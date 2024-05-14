@@ -404,7 +404,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       // handle field validation
       fields
         .filter((field) => !field.isParentHidden && !field.disabled && !field.isHidden && !isTrue(field.readonly))
-        .filter((field) => field.meta.submission?.unspecified != true)
+        .filter((field) => field.meta.submission?.unspecified !== true)
         .forEach((field) => {
           const errors =
             FieldValidator.validate(field, values[field.id]).filter((error) => error.resultType == 'error') ?? [];

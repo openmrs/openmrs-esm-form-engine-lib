@@ -7,7 +7,7 @@ import { hasRendering, flattenObsList, clearSubmission, gracefullySetSubmission 
 import { parseToLocalDateTime } from '../utils/form-helper';
 import { isEmpty } from '../validators/form-validator';
 
-// Temporarily holds observations that have already been binded with matching fields
+// Temporarily holds observations that have already been bound with matching fields
 export let assignedObsIds: string[] = [];
 
 export const ObsSubmissionHandler: SubmissionHandler = {
@@ -106,7 +106,7 @@ function extractFieldValue(field: FormField, obsList: OpenmrsObs[] = [], makeFie
   return '';
 }
 
-export function constructObs(field: FormField, value: any) {
+export function constructObs(field: FormField, value: any): Partial<OpenmrsObs> {
   if (isEmpty(value) && field.type !== 'obsGroup') {
     return null;
   }
@@ -139,7 +139,7 @@ function editObs(field: FormField, newValue: any) {
   };
 }
 
-function formatDate(field: FormField, value: any) {
+function formatDate(field: FormField, value: Date) {
   if (hasRendering(field, 'date')) {
     return dayjs(value).format('YYYY-MM-DD');
   }

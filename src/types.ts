@@ -285,7 +285,7 @@ export interface OpenmrsEncounter {
 }
 
 export interface OpenmrsObs extends OpenmrsResource {
-  concept: OpenmrsResource;
+  concept: any;
   obsDatetime: string | Date;
   obsGroup: OpenmrsObs;
   groupMembers: Array<OpenmrsObs>;
@@ -299,7 +299,6 @@ export interface OpenmrsObs extends OpenmrsResource {
   formFieldNamespace: string;
   status: string;
   interpretation: string;
-  [anythingElse: string]: any;
 }
 
 export interface OpenmrsForm {

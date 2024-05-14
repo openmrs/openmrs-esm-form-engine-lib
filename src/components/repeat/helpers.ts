@@ -79,7 +79,7 @@ export function hydateRepeatField(
   const unMappedGroups = encounter.obs.filter(
     (obs) =>
       obs.concept.uuid === field.questionOptions.concept &&
-      obs.uuid != field.meta?.previousValue?.uuid &&
+      obs.uuid != field.meta.previousValue?.uuid &&
       !assignedObsIds.includes(obs.uuid),
   );
   const unMappedOrders = encounter.orders.filter((order) => {

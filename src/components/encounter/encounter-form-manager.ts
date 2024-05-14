@@ -121,7 +121,7 @@ function prepareObs(obsForSubmission: OpenmrsObs[], fields: FormField[]) {
           addObsToList(obsForSubmission, field.meta.submission.voidedValue);
           return;
         }
-        const obsGroup = constructObs(field, null) as any as OpenmrsObs;
+        const obsGroup = constructObs(field, null);
         if (field.meta.previousValue) {
           obsGroup.uuid = field.meta.previousValue.uuid;
         }
