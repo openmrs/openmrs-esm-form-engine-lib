@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FilterableMultiSelect, Layer, Tag, CheckboxGroup, Checkbox } from '@carbon/react';
-import classNames from 'classnames';
 import { useField } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { FormContext } from '../../../form-context';
@@ -21,9 +20,8 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
     React.useContext(FormContext);
   const [counter, setCounter] = useState(0);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
   const [initiallyCheckedQuestionItems, setInitiallyCheckedQuestionItems] = useState([]);
-  const [isChecked, setChecked] = useState(false);
+  const isFirstRender = useRef(true);
 
   const selectOptions = question.questionOptions.answers
     .filter((answer) => !answer.isHidden)
@@ -64,31 +62,27 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   }, [previousValue]);
 
   useEffect(() => {
-    if (encounterContext.sessionMode == 'edit' && question['value']) {
-      const checkedItems = question.value.map((item) => {
-        return field['value'].find((value) => value === item.value.uuid);
-      });
-      setInitiallyCheckedQuestionItems(checkedItems);
+    if (isFirstRender.current && counter === 1) {
+      setInitiallyCheckedQuestionItems(initiallySelectedQuestionItems.map((item) => item.concept));
+      isFirstRender.current = false;
     }
-  }, [field]);
+  }, [initiallySelectedQuestionItems, isFirstRender]);
 
   const handleSelectCheckbox = (val) => {
     const value = val.concept;
-    const isChecked = initiallyCheckedQuestionItems.includes(value);
+    const isChecked = initiallyCheckedQuestionItems.some((item) => item === value);
     let updatedItems;
     if (isChecked) {
       updatedItems = initiallyCheckedQuestionItems.filter((item) => item !== value);
     } else {
-      updatedItems = initiallyCheckedQuestionItems.includes(value)
-        ? initiallyCheckedQuestionItems.filter((item) => item !== value.concept)
+      updatedItems = initiallyCheckedQuestionItems.some((val) => val === value)
+        ? initiallyCheckedQuestionItems.filter((item) => item !== value)
         : [...initiallyCheckedQuestionItems, value];
     }
     setInitiallyCheckedQuestionItems(updatedItems);
-
-    // Update form field value, errors, and warnings
     setFieldValue(question.id, updatedItems);
     onChange(question.id, updatedItems, setErrors, setWarnings);
-    question.value = handler?.handleFieldSubmission(question, updatedItems, encounterContext);
+    handler?.handleFieldSubmission(question, updatedItems, encounterContext);
   };
 
   const isInline = useMemo(() => {
@@ -112,56 +106,55 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
       <>
         <div className={styles.boldedLabel}>
           <Layer>
-            {question.questionOptions.answers?.length < 5 ? (
+            {question.questionOptions.answers?.length > 5 ? (
+              <FilterableMultiSelect
+                placeholder={t('search', 'Search') + '...'}
+                onChange={handleSelectItemsChange}
+                id={t(question.label)}
+                items={selectOptions}
+                initialSelectedItems={initiallySelectedQuestionItems}
+                label={''}
+                titleText={
+                  question.isRequired ? (
+                    <RequiredFieldLabel label={t(question.label)} />
+                  ) : (
+                    <span>{t(question.label)}</span>
+                  )
+                }
+                key={counter}
+                itemToString={(item) => (item ? item.label : ' ')}
+                disabled={question.isDisabled}
+                invalid={errors.length > 0}
+                invalidText={errors[0]?.message}
+                warn={warnings.length > 0}
+                warnText={warnings[0]?.message}
+                readOnly={question.readonly}
+              />
+            ) : (
               <CheckboxGroup legendText={question.label} name={question.id}>
-                {question.questionOptions.answers.map((q, index) => {
+                {question.questionOptions.answers?.map((value, index) => {
                   return (
                     <Checkbox
-                      key={q.concept}
+                      key={value.concept}
                       className={styles.checkbox}
-                      labelText={q.label}
-                      id={q.concept}
+                      labelText={value.label}
+                      id={value.concept}
                       onChange={() => {
-                        handleSelectCheckbox(q);
-                        setChecked(true);
+                        handleSelectCheckbox(value);
                       }}
-                      name={q.concept}
-                      defaultChecked={initiallyCheckedQuestionItems.some((item) => item === q.concept)}
-                      checked={initiallyCheckedQuestionItems.some((item) => item === q.concept)}
+                      name={value.concept}
+                      defaultChecked={initiallyCheckedQuestionItems.some((item) => item === value.concept)}
+                      checked={initiallyCheckedQuestionItems.some((item) => item === value.concept)}
                       onBlur={onblur}
                     />
                   );
                 })}
               </CheckboxGroup>
-            ) : (
-              <FilterableMultiSelect
-              placeholder={t('search', 'Search') + '...'}
-              onChange={handleSelectItemsChange}
-              id={t(question.label)}
-              items={selectOptions}
-              initialSelectedItems={initiallySelectedQuestionItems}
-              label={''}
-              titleText={
-                question.isRequired ? (
-                  <RequiredFieldLabel label={t(question.label)} />
-                ) : (
-                  <span>{t(question.label)}</span>
-                )
-              }
-              key={counter}
-              itemToString={(item) => (item ? item.label : ' ')}
-              disabled={question.isDisabled}
-              invalid={errors.length > 0}
-              invalidText={errors[0]?.message}
-              warn={warnings.length > 0}
-              warnText={warnings[0]?.message}
-              readOnly={question.readonly}
-            />
             )}
           </Layer>
         </div>
         <div className={styles.selectionDisplay}>
-          {field.value?.length && question.questionOptions.answers?.length > 5  ? (
+          {field.value?.length && question.questionOptions.answers?.length > 5 ? (
             <div className={styles.tagContainer}>
               {handler?.getDisplayValue(question, field.value)?.map((displayValue, index) => (
                 <Tag key={index} type="cool-gray">
