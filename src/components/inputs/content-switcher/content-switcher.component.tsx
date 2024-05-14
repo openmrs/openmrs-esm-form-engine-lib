@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import { FormGroup, ContentSwitcher as CdsContentSwitcher, Switch } from '@carbon/react';
@@ -10,32 +10,27 @@ import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
 import styles from './content-switcher.scss';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
-  const [field, meta] = useField(question.id);
+  const [field] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
-  const [errors, setErrors] = useState([]);
-
-  useEffect(() => {
-    if (question['submission']?.errors) {
-      setErrors(question['submission']?.errors);
-    }
-  }, [question]);
+  const { errors, setErrors } = useFieldValidationResults(question);
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
       const { value } = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, null);
-      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+      handler?.handleFieldSubmission(question, value, encounterContext);
     }
   }, [previousValue]);
 
   const handleChange = (value) => {
     setFieldValue(question.id, value?.name);
     onChange(question.id, value?.name, setErrors, null);
-    question.value = handler?.handleFieldSubmission(question, value?.name, encounterContext);
+    handler?.handleFieldSubmission(question, value?.name, encounterContext);
   };
 
   const selectedIndex = useMemo(

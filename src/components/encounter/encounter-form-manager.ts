@@ -1,24 +1,20 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormField, type OpenmrsEncounter, type OpenmrsObs, type PatientIdentifier } from '../../types';
-import { isEmpty } from '../../validators/form-validator';
 import { type EncounterContext } from '../../form-context';
 import { saveAttachment, saveEncounter, savePatientIdentifier } from '../../api/api';
-import { hasSubmission } from '../../utils/common-utils';
+import { hasRendering, hasSubmission } from '../../utils/common-utils';
+import { voidObs, constructObs } from '../../submission-handlers/obsHandler';
 
 export class EncounterFormManager {
   static preparePatientIdentifiers(fields: FormField[], encounterLocation: string): PatientIdentifier[] {
-    const patientIdentifierFields = fields.filter((field) => field.type === 'patientIdentifier');
-    return patientIdentifierFields.map((field) => ({
-      identifier: field.value,
-      identifierType: field.questionOptions.identifierType,
-      location: encounterLocation,
-    }));
+    return fields
+      .filter((field) => field.type === 'patientIdentifier' && hasSubmission(field))
+      .map((field) => field.meta.submission.newValue);
   }
 
   static prepareEncounter(
     allFields: FormField[],
     encounterContext: EncounterContext,
-    obsGroupsToVoid: OpenmrsObs[],
     encounterRole: OpenmrsResource,
     visit: OpenmrsResource,
     encounterType: string,
@@ -26,7 +22,7 @@ export class EncounterFormManager {
   ) {
     const { patient, encounter, encounterDate, encounterProvider, location } = encounterContext;
     const obsForSubmission = [];
-    prepareObs(obsForSubmission, obsGroupsToVoid, allFields, patient, encounterDate, location);
+    prepareObs(obsForSubmission, allFields);
     const ordersForSubmission = prepareOrders(allFields);
     let encounterForSubmission: OpenmrsEncounter = {};
 
@@ -83,8 +79,8 @@ export class EncounterFormManager {
   }
 
   static saveAttachments(fields: FormField[], encounter: OpenmrsEncounter, abortController: AbortController) {
-    const fileFields = fields?.filter((field) => field?.questionOptions.rendering === 'file');
-    return fileFields.map((field) => {
+    const complexFields = fields?.filter((field) => field?.questionOptions.rendering === 'file');
+    return complexFields.map((field) => {
       const patientUuid = typeof encounter?.patient === 'string' ? encounter?.patient : encounter?.patient?.uuid;
       return saveAttachment(
         patientUuid,
@@ -99,10 +95,6 @@ export class EncounterFormManager {
 
   static savePatientIdentifiers(patient: fhir.Patient, identifiers: PatientIdentifier[]) {
     return identifiers.map((patientIdentifier) => {
-      const identifier = getPatientLatestIdentifier(patient, patientIdentifier.identifierType);
-      if (identifier) {
-        patientIdentifier.uuid = identifier.id;
-      }
       return savePatientIdentifier(patientIdentifier, patient.id);
     });
   }
@@ -110,49 +102,44 @@ export class EncounterFormManager {
 
 // Helpers
 
-function prepareObs(
-  obsForSubmission: OpenmrsObs[],
-  obsGroupsToVoid: OpenmrsObs[],
-  fields: FormField[],
-  patient: fhir.Patient,
-  encounterDate: Date,
-  encounterLocation: any,
-) {
+function prepareObs(obsForSubmission: OpenmrsObs[], fields: FormField[]) {
   fields
-    .filter((field) => field.value || field.type == 'obsGroup') // filter out fields with empty values except groups
-    .filter((field) => !field.isParentHidden && !field.isHidden && (field.type == 'obs' || field.type == 'obsGroup'))
-    .filter((field) => !field['groupId']) // filter out grouped obs
-    .filter((field) => !field.questionOptions.isTransient && field.questionOptions.rendering !== 'file')
+    .filter((field) => hasSubmitableObs(field))
     .forEach((field) => {
+      if ((field.isHidden || field.isParentHidden) && field.meta.previousValue) {
+        const valuesArray = Array.isArray(field.meta.previousValue)
+          ? field.meta.previousValue
+          : [field.meta.previousValue];
+        addObsToList(
+          obsForSubmission,
+          valuesArray.map((obs) => voidObs(obs)),
+        );
+        return;
+      }
       if (field.type == 'obsGroup') {
-        const obsGroup = {
-          person: patient?.id,
-          obsDatetime: encounterDate,
-          concept: field.questionOptions.concept,
-          location: encounterLocation,
-          order: null,
-          groupMembers: [],
-          uuid: field.uuid,
-          voided: false,
-        } as any as OpenmrsObs;
-
-        let hasValue = false;
+        if (field.meta.submission?.voidedValue) {
+          addObsToList(obsForSubmission, field.meta.submission.voidedValue);
+          return;
+        }
+        const obsGroup = constructObs(field, null);
+        if (field.meta.previousValue) {
+          obsGroup.uuid = field.meta.previousValue.uuid;
+        }
         field.questions.forEach((groupedField) => {
-          if (groupedField.value) {
-            hasValue = true;
-            if (Array.isArray(groupedField.value)) {
-              obsGroup.groupMembers.push(...groupedField.value);
-            } else {
-              obsGroup.groupMembers.push(groupedField.value);
-            }
+          if (hasSubmission(groupedField)) {
+            addObsToList(obsGroup.groupMembers, groupedField.meta.submission.newValue);
+            addObsToList(obsGroup.groupMembers, groupedField.meta.submission.voidedValue);
           }
         });
-        hasValue && cleanupAndAddObsToList(obsForSubmission, obsGroup);
-      } else {
-        cleanupAndAddObsToList(obsForSubmission, field.value);
+        if (obsGroup.groupMembers.length || obsGroup.voided) {
+          addObsToList(obsForSubmission, obsGroup);
+        }
+      }
+      if (hasSubmission(field)) {
+        addObsToList(obsForSubmission, field.meta.submission.newValue);
+        addObsToList(obsForSubmission, field.meta.submission.voidedValue);
       }
     });
-  obsGroupsToVoid.forEach((obs) => cleanupAndAddObsToList(obsForSubmission, obs));
 }
 
 function prepareOrders(fields: FormField[]) {
@@ -162,40 +149,30 @@ function prepareOrders(fields: FormField[]) {
     .filter((o) => o);
 }
 
-function cleanupAndAddObsToList(obsList: Array<Partial<OpenmrsObs>>, obs: Partial<OpenmrsObs>) {
+function addObsToList(obsList: Array<Partial<OpenmrsObs>>, obs: Partial<OpenmrsObs>) {
+  if (!obs) {
+    return;
+  }
   if (Array.isArray(obs)) {
-    obs.forEach((o) => {
-      if (isEmpty(o.groupMembers)) {
-        delete o.groupMembers;
-      } else {
-        o.groupMembers.forEach((obsChild) => {
-          if (isEmpty(obsChild.groupMembers)) {
-            delete obsChild.groupMembers;
-          }
-        });
-      }
-      obsList.push(o);
-    });
+    obsList.push(...obs);
   } else {
-    if (isEmpty(obs.groupMembers)) {
-      delete obs.groupMembers;
-    } else {
-      obs.groupMembers.forEach((obsChild) => {
-        if (isEmpty(obsChild.groupMembers)) {
-          delete obsChild.groupMembers;
-        }
-      });
-    }
     obsList.push(obs);
   }
 }
 
-export function getPatientLatestIdentifier(patient: fhir.Patient, identifierType: string) {
-  const patientIdentifiers = patient.identifier;
-  return patientIdentifiers.find((identifier) => {
-    if (identifier.type.coding && identifier.type.coding[0].code === identifierType) {
-      return true;
-    }
+function hasSubmitableObs(field: FormField) {
+  const {
+    questionOptions: { isTransient },
+    type,
+    isHidden,
+    isParentHidden,
+  } = field;
+
+  if (isTransient || !['obs', 'obsGroup'].includes(type) || hasRendering(field, 'file') || field['groupId']) {
     return false;
-  });
+  }
+  if ((field.isHidden || field.isParentHidden) && field.meta.previousValue) {
+    return true;
+  }
+  return !field.isHidden && !field.isParentHidden && (type === 'obsGroup' || hasSubmission(field));
 }

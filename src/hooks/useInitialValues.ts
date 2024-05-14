@@ -60,14 +60,11 @@ export function useInitialValues(
     }
     if (encounter) {
       formFields
-        .filter((field) => isEmpty(field.value))
+        .filter((field) => isEmpty(field.meta?.previousValue))
         .filter((field) => field.questionOptions.rendering !== 'file')
         .forEach((field) => {
           if (hasRendering(field, 'repeating') && !field.meta?.repeat?.isClone) {
             repeatableFields.push(field);
-            if (field.type === 'obsGroup') {
-              return;
-            }
           }
           let existingVal = formFieldHandlers[field.type]?.getInitialValue(
             encounter,
@@ -75,7 +72,9 @@ export function useInitialValues(
             formFields,
             encounterContext,
           );
-
+          if (field.type === 'obsGroup') {
+            return;
+          }
           if (isEmpty(existingVal) && !isEmpty(field.questionOptions.defaultValue)) {
             existingVal = inferInitialValueFromDefaultFieldValue(
               field,
@@ -91,12 +90,6 @@ export function useInitialValues(
             initialValues[`${field.id}-unspecified`] = !existingVal;
           }
         });
-      repeatableFields.forEach((field) => {
-        const initialRepeatField = formFields.find((initField) => initField.id === field.id);
-        if (initialRepeatField?.questions?.length) {
-          initialRepeatField.uuid = initialRepeatField.questions[0].value?.obsGroup?.uuid;
-        }
-      });
       const flatenedFields = repeatableFields.flatMap((field) =>
         hydateRepeatField(field, formFields, encounter, initialValues, formFieldHandlers),
       );
@@ -168,7 +161,6 @@ export function useInitialValues(
             initialValues[eachField.id] = isEmpty(responseValue)
               ? emptyValues[eachField.questionOptions.rendering] ?? emptyValues.default
               : filteredResponseValue;
-
             setInitialValues({ ...initialValues });
           });
         });

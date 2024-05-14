@@ -13,6 +13,7 @@ import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './date.scss';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
@@ -21,18 +22,9 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
-  const [errors, setErrors] = useState([]);
-  const [warnings, setWarnings] = useState([]);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const [previousValueForReview, setPreviousValueForReview] = useState(null);
   const [time, setTime] = useState('');
-
-  useEffect(() => {
-    if (question['submission']) {
-      question['submission'].errors && setErrors(question['submission'].errors);
-      question['submission'].warnings && setWarnings(question['submission'].warnings);
-    }
-  }, [question['submission']]);
+  const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -46,7 +38,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     setFieldValue(question.id, refinedDate);
     onChange(question.id, refinedDate, setErrors, setWarnings);
     onTimeChange(false, true);
-    question.value = handler?.handleFieldSubmission(question, refinedDate, encounterContext);
+    handler?.handleFieldSubmission(question, refinedDate, encounterContext);
   };
 
   useEffect(() => {
@@ -56,7 +48,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
       setFieldValue(question.id, refinedDate);
       onChange(question.id, refinedDate, setErrors, setWarnings);
       onTimeChange(false, true);
-      question.value = handler?.handleFieldSubmission(question, refinedDate, encounterContext);
+      handler?.handleFieldSubmission(question, refinedDate, encounterContext);
     }
   }, [previousValue]);
 
@@ -73,7 +65,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
       currentDateTime.setHours(splitTime[0] ?? '00', splitTime[1] ?? '00');
       setFieldValue(question.id, currentDateTime);
       onChange(question.id, currentDateTime, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, currentDateTime, encounterContext);
+      handler?.handleFieldSubmission(question, currentDateTime, encounterContext);
       setTime(time);
     }
   };
@@ -109,27 +101,6 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
       .join('');
     return { placeholder: placeholder, carbonDateFormat: carbonDateFormat };
   }, []);
-
-  useEffect(() => {
-    if (encounterContext?.previousEncounter && isTrue(question.questionOptions.enablePreviousValue)) {
-      let prevValue = handler?.getPreviousValue(question, encounterContext?.previousEncounter, fields);
-
-      if (!isEmpty(prevValue?.value)) {
-        if (question?.questionOptions.rendering === 'datetime') {
-          const rawDate = new Date(prevValue.value);
-
-          prevValue = {
-            display: formatDate(prevValue.value, { mode: 'wide' }),
-            value: [rawDate],
-          };
-        } else {
-          prevValue.display = dateFormatter.format(prevValue.value);
-          prevValue.value = [prevValue.value];
-        }
-        setPreviousValueForReview(prevValue);
-      }
-    }
-  }, [encounterContext?.previousEncounter]);
 
   useEffect(() => {
     if (!time && field.value) {

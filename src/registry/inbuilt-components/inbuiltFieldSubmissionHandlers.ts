@@ -1,4 +1,3 @@
-import { ObsSubmissionHandler } from '../../submission-handlers/base-handlers';
 import { EncounterDatetimeHandler } from '../../submission-handlers/encounterDatetimeHandler';
 import { EncounterLocationSubmissionHandler } from '../../submission-handlers/encounterLocationHandler';
 import { EncounterProviderHandler } from '../../submission-handlers/encounterProviderHandler';
@@ -7,6 +6,7 @@ import { PatientIdentifierHandler } from '../../submission-handlers/patientIdent
 import { ControlHandler } from '../../submission-handlers/controlHandler';
 import { type RegistryItem } from '../registry';
 import { TestOrderSubmissionHandler } from '../../submission-handlers/testOrderHandler';
+import { ObsSubmissionHandler } from '../../submission-handlers/obsHandler';
 
 /**
  * @internal
