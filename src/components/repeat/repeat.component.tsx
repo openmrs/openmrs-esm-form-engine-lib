@@ -27,7 +27,7 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   const [rows, setRows] = useState([]);
   const [fieldComponent, setFieldComponent] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [questionToDelete, setQuestionToDelete] = useState(null);
 
   useEffect(() => {
     const repeatedFields = allFormFields.filter(
@@ -109,18 +109,18 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   };
 
   const onClickDeleteQuestion = (question: FormField) => {
-    setSelectedQuestion(question);
+    setQuestionToDelete(question);
     setShowDeleteModal(true);
   };
 
   const onConfirmDeleteQuestion = () => {
-    removeNthRow(selectedQuestion);
+    removeNthRow(questionToDelete);
     setShowDeleteModal(false);
   };
 
   const onCancelDeleteQuestion = () => {
     setShowDeleteModal(false);
-    setSelectedQuestion(null);
+    setQuestionToDelete(null);
   };
 
   const nodes = useMemo(() => {
