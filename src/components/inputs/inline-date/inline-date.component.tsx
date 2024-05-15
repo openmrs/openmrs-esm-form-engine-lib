@@ -13,16 +13,16 @@ const locale = window.i18next?.language == 'en' ? 'en-GB' : window.i18next?.lang
 const dateFormatter = new Intl.DateTimeFormat(locale);
 
 const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => {
-  const [field, meta] = useField(`inline-${question.id}`);
+  const [field] = useField(`inline-${question.id}`);
   const { setFieldValue } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   useEffect(() => {
-    if (question['submission']) {
-      question['submission'].errors && setErrors(question['submission'].errors);
-      question['submission'].warnings && setWarnings(question['submission'].warnings);
+    if (question?.meta?.submission) {
+      question?.meta?.submission?.errors && setErrors(question?.meta?.submission?.errors);
+      question?.meta?.submission?.warnings && setWarnings(question?.meta?.submission?.warnings);
     }
   }, [question['submission']]);
 
@@ -30,7 +30,7 @@ const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => 
     const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
     setFieldValue(`inline-${question.id}`, refinedDate);
     setObsDateTime(refinedDate);
-    question.value = Array.isArray(question?.value) ? question.value.map(value => ({...value, obsDatetime: refinedDate })) : {...question?.value, obsDatetime: refinedDate };
+    Array.isArray(question?.meta?.submission.newValue) ? question?.meta?.submission?.newValue.map(value => ({...value, obsDatetime: refinedDate })) : {...question?.value, obsDatetime: refinedDate };
   };
 
   const { placeholder, carbonDateformat } = useMemo(() => {
@@ -80,7 +80,7 @@ const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => 
             labelText={` Date of ${question.label}`} // needs translation
             value={field.value instanceof Date ? field.value.toLocaleDateString(locale) : field.value}
             onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
-            disabled={question.disabled || !question?.value}
+            disabled={question.disabled || !question?.meta?.submission?.newValue}
             invalid={!isFieldRequiredError && errors.length > 0}
             invalidText={errors[0]?.message}
             warn={warnings.length > 0}
