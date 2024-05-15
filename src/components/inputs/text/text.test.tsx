@@ -4,8 +4,7 @@ import { Formik } from 'formik';
 import { type EncounterContext, FormContext } from '../../../form-context';
 import { type FormField } from '../../../types';
 import TextField from './text.component';
-
-import { ObsSubmissionHandler } from '../../../submission-handlers/base-handlers';
+import { ObsSubmissionHandler } from '../../../submission-handlers/obsHandler';
 
 const question: FormField = {
   label: 'Patient Name',
@@ -15,7 +14,7 @@ const question: FormField = {
     rendering: 'text',
     concept: 'your_concept_uuid_here',
   },
-  value: null,
+  meta: {},
 };
 
 const question2: FormField = {
@@ -26,7 +25,7 @@ const question2: FormField = {
     rendering: 'text',
     concept: 'your_concept_uuid_here',
   },
-  value: null,
+  meta: {},
 };
 
 const encounterContext: EncounterContext = {
@@ -57,8 +56,6 @@ const renderForm = (intialValues) => {
             values: props.values,
             setFieldValue: props.setFieldValue,
             setEncounterLocation: jest.fn(),
-            obsGroupsToVoid: [],
-            setObsGroupsToVoid: jest.fn(),
             encounterContext: encounterContext,
             fields: [question],
             isFieldInitializationComplete: true,
@@ -74,7 +71,7 @@ const renderForm = (intialValues) => {
 
 describe('Text field input', () => {
   afterEach(() => {
-    question.value = null;
+    question.meta = {};
   });
 
   it('should record new obs', async () => {
@@ -82,21 +79,15 @@ describe('Text field input', () => {
     const inputField = screen.getByLabelText('Patient Name');
 
     await act(async () => {
-      expect(question.value).toBe(null);
+      expect(question.meta.submission).toBe(undefined);
     });
 
     fireEvent.change(inputField, { target: { value: 'John Doe' } });
     fireEvent.blur(inputField);
 
     await act(async () => {
-      expect(question.value).toEqual({
-        person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.encounterDate,
+      expect(question.meta.submission.newValue).toEqual({
         concept: 'your_concept_uuid_here',
-        location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-        order: null,
-        groupMembers: [],
-        voided: false,
         formFieldNamespace: 'rfe-forms',
         formFieldPath: 'rfe-forms-patient-name',
         value: 'John Doe',
@@ -105,7 +96,7 @@ describe('Text field input', () => {
   });
 
   it('should edit obs', async () => {
-    question.value = {
+    question.meta.previousValue = {
       person: '833db896-c1f0-11eb-8529-0242ac130003',
       obsDatetime: encounterContext.encounterDate,
       concept: 'your_concept_uuid_here',
@@ -115,22 +106,17 @@ describe('Text field input', () => {
       voided: false,
       value: 'Initial Name',
     };
-    await renderForm({ 'patient-name': question.value });
+    await renderForm({ 'patient-name': question.meta.previousValue });
     const inputField = screen.getByLabelText('Patient Name');
 
     fireEvent.change(inputField, { target: { value: 'Updated Name' } });
     fireEvent.blur(inputField);
 
     await act(async () => {
-      expect(question.value).toEqual({
-        person: '833db896-c1f0-11eb-8529-0242ac130003',
-        obsDatetime: encounterContext.encounterDate,
-        concept: 'your_concept_uuid_here',
-        location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-        order: null,
-        groupMembers: [],
-        voided: false,
+      expect(question.meta.submission.newValue).toEqual({
         value: 'Updated Name',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-patient-name',
       });
     });
   });

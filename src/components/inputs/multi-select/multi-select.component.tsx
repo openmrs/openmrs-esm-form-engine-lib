@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import { ValueEmpty } from '../../value/value.component';
-import { isEmpty } from '../../../validators/form-validator';
+import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
