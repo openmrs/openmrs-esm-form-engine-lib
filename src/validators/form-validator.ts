@@ -6,7 +6,7 @@ export const fieldOutOfBoundErrCode = 'field.outOfBound';
 
 export const FieldValidator: FormFieldValidator = {
   validate: (field: FormField, value: any) => {
-    if (field?.meta?.submission?.unspecified) {
+    if (field.meta?.submission?.unspecified) {
       return [];
     }
     if (isTrue(field.required) || isTrue(field.unspecified)) {
