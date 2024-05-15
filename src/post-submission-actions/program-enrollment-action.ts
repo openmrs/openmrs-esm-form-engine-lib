@@ -1,14 +1,13 @@
+import dayjs from 'dayjs';
 import { showToast } from '@openmrs/esm-framework';
 import { createProgramEnrollment, getPatientEnrolledPrograms, updateProgramEnrollment } from '../api/api';
-import dayjs from 'dayjs';
 import { type PostSubmissionAction, type ProgramEnrollmentPayload } from '../types';
-import { useTranslation } from 'react-i18next';
 
 export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
   applyAction: async function ({ patient, encounters, sessionMode }, config) {
     const encounter = encounters[0];
     const encounterLocation = encounter.location['uuid'];
-    const { t } = useTranslation();
+    const t = window.i18next.t;
 
     // only do this in enter or edit mode.
     if (sessionMode === 'view') {
@@ -40,7 +39,11 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
               title: t('enrollmentFailed', 'Enrollment failed'),
               kind: 'error',
               critical: false,
-              description: t('cannotEnrollPatientToProgram', 'This patient is already enrolled in the selected program'),            });
+              description: t(
+                'cannotEnrollPatientToProgram',
+                'This patient is already enrolled in the selected program',
+              ),
+            });
           }
           return;
         }
