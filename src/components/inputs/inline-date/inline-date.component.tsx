@@ -24,13 +24,13 @@ const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => 
       question?.meta?.submission?.errors && setErrors(question?.meta?.submission?.errors);
       question?.meta?.submission?.warnings && setWarnings(question?.meta?.submission?.warnings);
     }
-  }, [question['submission']]);
+  }, [question.meta?.submission]);
 
   const onDateChange = ([date]) => {
     const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
     setFieldValue(`inline-${question.id}`, refinedDate);
     setObsDateTime(refinedDate);
-    Array.isArray(question?.meta?.submission.newValue) ? question?.meta?.submission?.newValue.map(value => ({...value, obsDatetime: refinedDate })) : {...question?.value, obsDatetime: refinedDate };
+    question.meta.submission.newValue = Array.isArray(question?.meta?.submission.newValue) ? question?.meta?.submission?.newValue.map(value => ({...value, obsDatetime: refinedDate })) : {...question?.meta?.submission?.newValue, obsDatetime: refinedDate };
   };
 
   const { placeholder, carbonDateformat } = useMemo(() => {
