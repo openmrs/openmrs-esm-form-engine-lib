@@ -1,4 +1,3 @@
-import findLast from 'lodash-es/findLast';
 import { type EncounterContext } from '../form-context';
 import { type SubmissionHandler, type FormField, type OpenmrsEncounter } from '../types';
 import { clearSubmission } from '../utils/common-utils';
@@ -24,8 +23,7 @@ export const PatientIdentifierHandler: SubmissionHandler = {
     allFormFields: Array<FormField>,
     context: EncounterContext,
   ) => {
-    const latestIdentifier = findLast(
-      context.patient.identifier,
+    const latestIdentifier = context.patient.identifier.find(
       (identifier) => identifier.type?.coding[0]?.code === field.questionOptions.identifierType,
     );
     field.meta = { ...(field.meta || {}), previousValue: latestIdentifier };
