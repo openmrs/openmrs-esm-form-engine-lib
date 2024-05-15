@@ -212,7 +212,7 @@ const FormEngine: React.FC<FormProps> = ({
                       'errorDescriptionTitle',
                       actionId ? actionId.replace(/([a-z])([A-Z])/g, '$1 $2') : 'Post Submission Error',
                     ),
-                    subtitle: t('errorDescription', errorMessages.join(', ')),
+                    subtitle: t('errorDescription', '{{errors}}', { errors: errorMessages.join(', ')}),
                     kind: 'error',
                     isLowContrast: false,
                   });
