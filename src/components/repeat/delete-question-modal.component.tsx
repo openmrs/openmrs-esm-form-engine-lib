@@ -21,7 +21,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ onConfirm, onCancel, showModa
         <Button kind="secondary" onClick={onCancel}>
           {t('cancel', 'Cancel')}
         </Button>
-        <Button kind="primary" onClick={onConfirm}>
+        <Button kind="danger" onClick={onConfirm}>
           {t('deleteQuestion', 'Delete question')}
         </Button>
       </ModalFooter>
