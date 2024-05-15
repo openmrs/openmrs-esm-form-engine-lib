@@ -5,15 +5,8 @@ import { type EncounterContext } from '../form-context';
 import { type FormField, type FormPage, type FormSection, type SessionMode, type SubmissionHandler } from '../types';
 import { DefaultFieldValueValidator } from '../validators/default-value-validator';
 import { isEmpty } from '../validators/form-validator';
-import { isTrue } from './boolean-utils';
 
-export function cascadeVisibityToChildFields(
-  visibility: boolean,
-  section: FormSection,
-  allFields: Array<FormField>,
-  obsToVoidList: Array<Record<string, any>>,
-  setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
-) {
+export function cascadeVisibityToChildFields(visibility: boolean, section: FormSection, allFields: Array<FormField>) {
   const candidateIds = section.questions.map((q) => q.id);
   allFields
     .filter((field) => candidateIds.includes(field.id))
@@ -24,7 +17,6 @@ export function cascadeVisibityToChildFields(
           member.isParentHidden = visibility;
         });
       }
-      voidObsValueOnFieldHidden(field, obsToVoidList, setFieldValue);
     });
 }
 
@@ -69,25 +61,6 @@ export function evaluateFieldReadonlyProp(
     return;
   }
   field.readonly = !isEmpty(sectionReadonly) || !isEmpty(pageReadonly) || formReadonly;
-}
-
-export function voidObsValueOnFieldHidden(
-  field: FormField,
-  obsToVoidList: Array<Record<string, any>>,
-  setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
-) {
-  if ((isTrue(field.isHidden) || isTrue(field.isParentHidden)) && field.value) {
-    const isValueIterable = Array.isArray(field.value);
-    const iterableValue = isValueIterable ? field.value : [field.value];
-    iterableValue
-      .filter((val) => !!val.uuid)
-      .forEach((val) => {
-        val.voided = true;
-        obsToVoidList.push(val);
-      });
-    field.value = null;
-    setFieldValue(field.id, isValueIterable ? [] : null);
-  }
 }
 
 export function findPagesWithErrors(pages: Set<FormPage>, errorFields: FormField[]): string[] {

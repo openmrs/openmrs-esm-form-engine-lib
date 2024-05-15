@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Dropdown as DropdownInput, Layer } from '@carbon/react';
@@ -11,27 +11,19 @@ import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './dropdown.scss';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
-  const [items, setItems] = React.useState([]);
-  const [errors, setErrors] = useState([]);
+  const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const [warnings, setWarnings] = useState([]);
-
-  useEffect(() => {
-    if (question['submission']) {
-      question['submission'].errors && setErrors(question['submission'].errors);
-      question['submission'].warnings && setWarnings(question['submission'].warnings);
-    }
-  }, [question['submission']]);
 
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+    handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
   useEffect(() => {
@@ -39,7 +31,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
       const { value } = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+      handler?.handleFieldSubmission(question, value, encounterContext);
     }
   }, [previousValue]);
 
@@ -49,11 +41,6 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     );
     return answer?.label;
   };
-  useEffect(() => {
-    setItems(
-      question.questionOptions.answers.filter((answer) => !answer.isHidden).map((item) => item.value || item.concept),
-    );
-  }, [question.questionOptions.answers]);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {

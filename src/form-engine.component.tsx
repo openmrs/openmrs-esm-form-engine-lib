@@ -4,8 +4,7 @@ import classNames from 'classnames';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
-import { showSnackbar, useSession, useVisit } from '@openmrs/esm-framework';
-
+import { showSnackbar, useSession, useVisit, type Visit } from '@openmrs/esm-framework';
 import { init, teardown } from './lifecycle';
 import type { FormPage as FormPageProps, FormSchema, SessionMode } from './types';
 import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
@@ -212,7 +211,7 @@ const FormEngine: React.FC<FormProps> = ({
                       'errorDescriptionTitle',
                       actionId ? actionId.replace(/([a-z])([A-Z])/g, '$1 $2') : 'Post Submission Error',
                     ),
-                    subtitle: t('errorDescription', errorMessages.join(', ')),
+                    subtitle: t('errorDescription', '{{errors}}', { errors: errorMessages.join(', ')}),
                     kind: 'error',
                     isLowContrast: false,
                   });

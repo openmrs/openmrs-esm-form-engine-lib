@@ -52,7 +52,7 @@ describe('DefaultFieldValueValidator - validate', () => {
     ]);
   });
 
-  it.only('should accept valid date values', () => {
+  it('should accept valid date values', () => {
     // setup and replay
     const errors = DefaultFieldValueValidator.validate(dateField, '2020-01-20');
 

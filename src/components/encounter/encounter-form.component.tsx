@@ -17,7 +17,6 @@ import {
   evaluateFieldReadonlyProp,
   findConceptByReference,
   findPagesWithErrors,
-  voidObsValueOnFieldHidden,
 } from '../../utils/form-helper';
 import { InstantEffect } from '../../utils/instant-effect';
 import { type FormSubmissionHandler } from '../../form-engine.component';
@@ -92,7 +91,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
   const [form, setForm] = useState<FormSchema>(formJson);
-  const [obsGroupsToVoid, setObsGroupsToVoid] = useState([]);
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
@@ -103,7 +101,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       patient: patient,
       encounter: encounter,
       previousEncounter,
-      location: location,
+      location: encounterLocation,
       sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
       encounterDate: formSessionDate,
       encounterProvider: provider,
@@ -114,7 +112,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setEncounterLocation,
       initValues: initValues,
     }),
-    [encounter, form?.encounter, location, patient, previousEncounter, sessionMode, initValues],
+    [encounter, form?.encounter, encounterLocation, patient, previousEncounter, sessionMode, initValues],
   );
   const { encounterRole } = useEncounterRole();
 
@@ -125,8 +123,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     form.pages?.forEach((page) =>
       page.sections?.forEach((section) => {
         section.questions?.forEach((question) => {
-          // explicitly set blank values to null
-          // TODO: shouldn't we be setting to the default behaviour?
           section.inlineRendering = isEmpty(section.inlineRendering) ? null : section.inlineRendering;
           page.inlineRendering = isEmpty(page.inlineRendering) ? null : page.inlineRendering;
           form.inlineRendering = isEmpty(form.inlineRendering) ? null : form.inlineRendering;
@@ -298,6 +294,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             });
           }
           field.meta = {
+            ...(field.meta || {}),
             concept: matchingConcept,
           };
           if (field.questionOptions.answers) {
@@ -370,11 +367,11 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     if (type == 'page') {
       value['sections'].forEach((section) => {
         section.isParentHidden = isHidden;
-        cascadeVisibityToChildFields(isHidden, section, allFields, obsGroupsToVoid, setFieldValue);
+        cascadeVisibityToChildFields(isHidden, section, allFields);
       });
     }
     if (type == 'section') {
-      cascadeVisibityToChildFields(isHidden, value, allFields, obsGroupsToVoid, setFieldValue);
+      cascadeVisibityToChildFields(isHidden, value, allFields);
     }
   };
 
@@ -412,16 +409,13 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       // handle field validation
       fields
         .filter((field) => !field.isParentHidden && !field.disabled && !field.isHidden && !isTrue(field.readonly))
-        .filter((field) => field['submission']?.unspecified != true)
+        .filter((field) => field.meta.submission?.unspecified !== true)
         .forEach((field) => {
           const errors =
             FieldValidator.validate(field, values[field.id]).filter((error) => error.resultType == 'error') ?? [];
           if (errors.length) {
             errorFields.push(field);
-            field['submission'] = {
-              ...field['submission'],
-              errors: errors,
-            };
+            field.meta.submission = { ...(field.meta.submission || {}), errors };
             formHasErrors = true;
             return;
           }
@@ -439,7 +433,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     const encounter = EncounterFormManager.prepareEncounter(
       fields,
       { ...encounterContext, encounterProvider, location: encounterLocation },
-      obsGroupsToVoid,
       encounterRole,
       visit,
       formJson.encounterType,
@@ -575,7 +568,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         // evaluate hide
         if (dependant.hide) {
           evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
-          voidObsValueOnFieldHidden(dependant, obsGroupsToVoid, setFieldValue);
         }
 
         dependant?.questionOptions.answers
@@ -669,7 +661,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             if (isTrue(section.isHidden)) {
               section.questions.forEach((field) => {
                 field.isParentHidden = true;
-                voidObsValueOnFieldHidden(field, obsGroupsToVoid, setFieldValue);
               });
             }
             break;
@@ -685,7 +676,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           dependant.sections.forEach((section) => {
             section.questions.forEach((field) => {
               field.isParentHidden = true;
-              voidObsValueOnFieldHidden(field, obsGroupsToVoid, setFieldValue);
             });
           });
         }
@@ -705,10 +695,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     <FormContext.Provider
       value={{
         values,
-        setFieldValue,
-        setEncounterLocation: setEncounterLocation,
-        setObsGroupsToVoid: setObsGroupsToVoid,
-        obsGroupsToVoid: obsGroupsToVoid,
         fields: fields,
         encounterContext,
         layoutType,
@@ -716,6 +702,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         isFieldInitializationComplete,
         isSubmitting,
         formFieldHandlers,
+        setFieldValue,
+        setEncounterLocation: setEncounterLocation,
       }}>
       <InstantEffect effect={addScrollablePages} />
       {form.pages.map((page, index) => {

@@ -106,7 +106,6 @@ export interface FormField {
   type: string;
   questionOptions: FormQuestionOptions;
   id: string;
-  uuid?: string;
   groupId?: string;
   questions?: Array<FormField>;
   value?: any;
@@ -181,6 +180,9 @@ export interface QuestionMetaProps {
   submission?: {
     voidedValue?: any;
     newValue?: any;
+    unspecified?: boolean;
+    errors?: any[];
+    warnings?: any[];
   };
   repeat?: {
     isClone?: boolean;
@@ -209,6 +211,7 @@ export interface FormQuestionOptions {
   answers?: Array<QuestionAnswerOption>;
   weeksList?: string;
   locationTag?: string;
+  disallowDecimals?: boolean;
   rows?: number;
   toggleOptions?: { labelTrue: string; labelFalse: string };
   repeatOptions?: RepeatOptions;
@@ -283,7 +286,7 @@ export interface OpenmrsEncounter {
 }
 
 export interface OpenmrsObs extends OpenmrsResource {
-  concept: OpenmrsResource;
+  concept: any;
   obsDatetime: string | Date;
   obsGroup: OpenmrsObs;
   groupMembers: Array<OpenmrsObs>;
@@ -297,7 +300,6 @@ export interface OpenmrsObs extends OpenmrsResource {
   formFieldNamespace: string;
   status: string;
   interpretation: string;
-  [anythingElse: string]: any;
 }
 
 export interface OpenmrsForm {

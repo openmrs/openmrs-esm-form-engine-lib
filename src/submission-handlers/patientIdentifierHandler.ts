@@ -1,8 +1,21 @@
-import { type EncounterContext, type FormField, type OpenmrsEncounter, type SubmissionHandler } from '..';
-import { getPatientLatestIdentifier } from '../utils/patient-identifier-helper';
+import findLast from 'lodash-es/findLast';
+import { type EncounterContext } from '../form-context';
+import { type SubmissionHandler, type FormField, type OpenmrsEncounter } from '../types';
+import { clearSubmission } from '../utils/common-utils';
+import { isEmpty } from '../validators/form-validator';
 
 export const PatientIdentifierHandler: SubmissionHandler = {
   handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
+    clearSubmission(field);
+    if (field.meta?.previousValue?.value === value || isEmpty(value)) {
+      return null;
+    }
+    field.meta.submission.newValue = {
+      identifier: value,
+      identifierType: field.questionOptions.identifierType,
+      uuid: field.meta.previousValue.id,
+      location: context.location,
+    };
     return value;
   },
   getInitialValue: (
@@ -11,8 +24,12 @@ export const PatientIdentifierHandler: SubmissionHandler = {
     allFormFields: Array<FormField>,
     context: EncounterContext,
   ) => {
-    const patientIdentifier = getPatientLatestIdentifier(context.patient, field.questionOptions.identifierType);
-    return patientIdentifier?.value;
+    const latestIdentifier = findLast(
+      context.patient.identifier,
+      (identifier) => identifier.type?.coding[0]?.code === field.questionOptions.identifierType,
+    );
+    field.meta = { ...(field.meta || {}), previousValue: latestIdentifier };
+    return latestIdentifier?.value;
   },
 
   getDisplayValue: (field: FormField, value: any) => {

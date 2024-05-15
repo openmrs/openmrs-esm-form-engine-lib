@@ -1,10 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
 import { useInitialValues } from './useInitialValues';
-import { ObsSubmissionHandler } from '../submission-handlers/base-handlers';
 import type { FormField, OpenmrsEncounter } from '../types';
 import testEncounter from '__mocks__/use-initial-values/encounter.mock.json';
 import testPatient from '__mocks__/use-initial-values/patient.mock.json';
-import { TestOrderSubmissionHandler } from 'src/submission-handlers/testOrderHandler';
+import { ObsSubmissionHandler } from '../submission-handlers/obsHandler';
+import { TestOrderSubmissionHandler } from '../submission-handlers/testOrderHandler';
 
 const obsGroupMembers: Array<FormField> = [
   {
@@ -151,19 +151,13 @@ jest.mock('../utils/expression-runner', () => {
 describe('useInitialValues', () => {
   const encounterDate = new Date();
 
-  afterEach(() => {
-    allFormFields.slice(0, 6).forEach((field) => {
-      delete field.value;
-    });
-  });
-
   it('should return empty meaningful defaults in "enter" mode', async () => {
     let hook = null;
 
     await act(async () => {
       hook = renderHook(() =>
         useInitialValues(
-          allFormFields,
+          [...allFormFields],
           null,
           {
             encounter: null,
@@ -199,7 +193,7 @@ describe('useInitialValues', () => {
     await act(async () => {
       hook = renderHook(() =>
         useInitialValues(
-          allFormFields,
+          [...allFormFields],
           encounter,
           {
             encounter: encounter,
@@ -240,7 +234,7 @@ describe('useInitialValues', () => {
     expect(allFormFields.find((field) => field.id === 'infant_name_1')).not.toBeNull();
   });
 
-  it('should verify that the "isBindingComplete" flag is set to true only when the resolution of calculated values are completed', async () => {
+  it('should verify that the "isBindingComplete" flag is set to true only when the resolution of calculated values is completed', async () => {
     let hook = null;
     const fieldWithCalculateExpression: FormField = {
       label: 'Latest mother HIV status',
@@ -255,15 +249,14 @@ describe('useInitialValues', () => {
       },
       id: 'latest_mother_hiv_status',
     };
-
     allFormFields.push(fieldWithCalculateExpression);
     await act(async () => {
       hook = renderHook(() =>
         useInitialValues(
-          allFormFields,
+          [...allFormFields],
           null,
           {
-            encounter: null,
+            encounter: undefined,
             patient: testPatient,
             location,
             sessionMode: 'enter',
@@ -287,9 +280,7 @@ describe('useInitialValues', () => {
       notes: '',
       screening_methods: [],
       date_of_birth: '',
-      date_of_birth_1: '',
       infant_name: '',
-      infant_name_1: '',
       latest_mother_hiv_status: '664AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
     });
   });

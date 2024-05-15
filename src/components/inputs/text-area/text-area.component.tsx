@@ -11,22 +11,15 @@ import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './text-area.scss';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue: previousValueProp }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [previousValue, setPreviousValue] = useState();
-  const [errors, setErrors] = useState([]);
+  const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-  const [warnings, setWarnings] = useState([]);
-
-  useEffect(() => {
-    if (question['submission']) {
-      question['submission'].errors && setErrors(question['submission'].errors);
-      question['submission'].warnings && setWarnings(question['submission'].warnings);
-    }
-  }, [question['submission']]);
 
   field.onBlur = () => {
     if (field.value && question.unspecified) {
@@ -34,7 +27,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     }
     if (previousValue !== field.value) {
       onChange(question.id, field.value, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, field.value, encounterContext);
+      handler?.handleFieldSubmission(question, field.value, encounterContext);
     }
   };
 

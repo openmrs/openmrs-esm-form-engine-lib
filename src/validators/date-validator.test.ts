@@ -16,6 +16,7 @@ describe('DateValidator - validate', () => {
         allowFutureDates: 'false',
       },
     ],
+    meta: {},
     id: 'hts-date',
   };
 

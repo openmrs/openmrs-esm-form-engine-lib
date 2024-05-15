@@ -1,6 +1,7 @@
 import { type FormField } from '../types';
 import { FieldValidator } from './form-validator';
 
+
 describe('FieldValidator - validate', () => {
   const numberInputField: FormField = {
     label: 'A Question of type obs that renders a Number input',
@@ -11,7 +12,21 @@ describe('FieldValidator - validate', () => {
       min: '5',
       max: '10',
     },
+    meta: {},
     id: 'sampleNumberQuestion',
+  };
+
+  const numberWithDecimalsInputField: FormField = {
+    label: 'A Question of type obs that renders a Number input',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'number',
+      concept: 'a-system-defined-concept-uuid',
+      disallowDecimals: true,
+      min: '5.0',
+      max: '10.0',
+    },
+    id: 'sampleNumberWithDecimalsQuestion',
   };
 
   const textInputField: FormField = {
@@ -23,6 +38,7 @@ describe('FieldValidator - validate', () => {
       minLength: '5',
       maxLength: '10',
     },
+    meta: {},
     id: 'sampleTextQuestion',
   };
 
@@ -33,6 +49,7 @@ describe('FieldValidator - validate', () => {
       rendering: 'text',
       concept: 'a-system-defined-concept-uuid',
     },
+    meta: {},
     id: 'sampleTextQuestion',
   };
 
@@ -44,6 +61,7 @@ describe('FieldValidator - validate', () => {
       concept: 'a-system-defined-concept-uuid',
       minLength: '5',
     },
+    meta: {},
     id: 'sampleTextQuestion',
   };
 
@@ -55,6 +73,7 @@ describe('FieldValidator - validate', () => {
       concept: 'a-system-defined-concept-uuid',
       maxLength: '10',
     },
+    meta: {},
     id: 'sampleTextQuestion',
   };
 
@@ -150,6 +169,17 @@ describe('FieldValidator - validate', () => {
       {
         errCode: 'field.outOfBound',
         message: `Value must be lower than ${numberInputField.questionOptions.max}`,
+        resultType: 'error',
+      },
+    ]);
+  });
+
+  it('should fail for numbers with decimals', () => {
+    const validationErrors = FieldValidator.validate(numberWithDecimalsInputField, 8.5);
+    expect(validationErrors).toEqual([
+      {
+        errCode: 'field.outOfBound',
+        message: 'Decimal values are not allowed for this field',
         resultType: 'error',
       },
     ]);
