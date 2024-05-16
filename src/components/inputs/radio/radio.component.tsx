@@ -54,7 +54,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
     !question.isHidden && (
       <FormGroup
         legendText={
-          isFieldRequired(question, values) && !question.isHidden && !question.isParentHidden ? (
+          isFieldRequired(question, values) ? (
             <RequiredFieldLabel label={t(question.label)} />
           ) : (
             <span>{t(question.label)}</span>

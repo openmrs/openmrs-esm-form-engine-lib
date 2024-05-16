@@ -134,7 +134,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   id={question.id}
                   placeholder={placeholder}
                   labelText={
-                    isFieldRequired(question, values) && !question.isHidden && !question.isParentHidden ? (
+                    isFieldRequired(question, values) ? (
                       <RequiredFieldLabel label={t(question.label)} />
                     ) : (
                       <span>{t(question.label)}</span>

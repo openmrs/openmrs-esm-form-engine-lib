@@ -59,7 +59,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             {...field}
             id={question.id}
             labelText={
-              isFieldRequired(question, values) && !question.isHidden && !question.isParentHidden ? (
+              isFieldRequired(question, values) ? (
                 <RequiredFieldLabel label={t(question.label)} />
               ) : (
                 <span>{t(question.label)}</span>

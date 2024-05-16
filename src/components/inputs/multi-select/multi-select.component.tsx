@@ -89,7 +89,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
               initialSelectedItems={initiallySelectedQuestionItems}
               label={''}
               titleText={
-                isFieldRequired(question, values) && !question.isHidden && !question.isParentHidden ? (
+                isFieldRequired(question, values) ? (
                   <RequiredFieldLabel label={t(question.label)} />
                 ) : (
                   <span>{t(question.label)}</span>

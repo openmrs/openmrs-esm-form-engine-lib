@@ -63,7 +63,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
           <DropdownInput
             id={question.id}
             titleText={
-              isFieldRequired(question, values) && !question.isHidden && !question.isParentHidden ? (
+              isFieldRequired(question, values) ? (
                 <RequiredFieldLabel label={t(question.label)} />
               ) : (
                 <span>{t(question.label)}</span>

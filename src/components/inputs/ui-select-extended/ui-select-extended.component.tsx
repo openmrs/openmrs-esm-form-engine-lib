@@ -134,11 +134,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
           <ComboBox
             id={question.id}
             titleText={
-              isFieldRequired(question, values) && !question.isHidden && !question.isParentHidden ? (
-                <RequiredFieldLabel label={t(question.label)} />
-              ) : (
-                t(question.label)
-              )
+              isFieldRequired(question, values) ? <RequiredFieldLabel label={t(question.label)} /> : t(question.label)
             }
             items={items}
             itemToString={(item) => item?.display}
