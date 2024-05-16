@@ -215,8 +215,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
 
           if (typeof field.required === 'object' && field.required?.type === 'conditionalRequired') {
             evalConditionalRequired({ value: field, type: 'field' }, flattenedFields, tempInitialValues);
-          } else {
-            field.isHidden = false;
           }
 
           field.questionOptions.answers
