@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import classNames from 'classnames';
 import debounce from 'lodash-es/debounce';
 import { ComboBox, DropdownSkeleton, Layer } from '@carbon/react';
 import { useField } from 'formik';
-import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
+import { isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
@@ -19,7 +18,7 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
   const { t } = useTranslation();
   const [field] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, values } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -133,9 +132,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
         <Layer>
           <ComboBox
             id={question.id}
-            titleText={
-              isFieldRequired(question, values) ? <RequiredFieldLabel label={t(question.label)} /> : t(question.label)
-            }
+            titleText={question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : t(question.label)}
             items={items}
             itemToString={(item) => item?.display}
             selectedItem={items.find((item) => item.uuid == field.value)}

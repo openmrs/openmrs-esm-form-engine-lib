@@ -4,7 +4,7 @@ import { Layer, TextArea as TextAreaInput } from '@carbon/react';
 import { useField } from 'formik';
 import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
-import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
+import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -15,7 +15,7 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue: previousValueProp }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, values } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [previousValue, setPreviousValue] = useState();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
 
@@ -59,11 +59,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             {...field}
             id={question.id}
             labelText={
-              isFieldRequired(question, values) ? (
-                <RequiredFieldLabel label={t(question.label)} />
-              ) : (
-                <span>{t(question.label)}</span>
-              )
+              question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
             }
             name={question.id}
             value={field.value || ''}

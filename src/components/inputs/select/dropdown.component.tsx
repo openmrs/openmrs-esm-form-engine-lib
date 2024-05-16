@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
-import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Dropdown as DropdownInput, Layer } from '@carbon/react';
 import { useField } from 'formik';
 import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
-import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
+import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -16,8 +15,7 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields, values } =
-    React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
 
   const handleChange = (value) => {
@@ -63,11 +61,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
           <DropdownInput
             id={question.id}
             titleText={
-              isFieldRequired(question, values) ? (
-                <RequiredFieldLabel label={t(question.label)} />
-              ) : (
-                <span>{t(question.label)}</span>
-              )
+              question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
             }
             label={t('chooseAnOption', 'Choose an option')}
             items={question.questionOptions.answers

@@ -5,7 +5,7 @@ import { Layer, TextInput } from '@carbon/react';
 import { useField } from 'formik';
 import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
-import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
+import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
@@ -15,8 +15,7 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields, values } =
-    React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
 
   useEffect(() => {
@@ -36,12 +35,6 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
       onChange(question.id, field.value, setErrors, setWarnings);
       handler?.handleFieldSubmission(question, field.value, encounterContext);
     }
-  };
-
-  const setPrevValue = (value: any) => {
-    setFieldValue(question.id, value);
-    field['value'] = value;
-    field.onBlur(null);
   };
 
   const isInline = useMemo(() => {
@@ -67,7 +60,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
               {...field}
               id={question.id}
               labelText={
-                isFieldRequired(question, values) ? (
+                question.isRequired ? (
                   <RequiredFieldLabel label={t(question.label)} />
                 ) : (
                   <span>{t(question.label)}</span>

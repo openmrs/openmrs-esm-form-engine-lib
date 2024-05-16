@@ -4,8 +4,7 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
 import { DatePicker, DatePickerInput, Layer, TimePicker } from '@carbon/react';
-import { formatDate } from '@openmrs/esm-framework';
-import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
+import { isTrue } from '../../../utils/boolean-utils';
 import { type FormFieldProps } from '../../../types';
 import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
@@ -21,8 +20,7 @@ const dateFormatter = new Intl.DateTimeFormat(locale);
 const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields, values } =
-    React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [time, setTime] = useState('');
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
 
@@ -134,7 +132,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   id={question.id}
                   placeholder={placeholder}
                   labelText={
-                    isFieldRequired(question, values) ? (
+                    question.isRequired ? (
                       <RequiredFieldLabel label={t(question.label)} />
                     ) : (
                       <span>{t(question.label)}</span>
@@ -172,8 +170,8 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                     time
                       ? time
                       : field.value instanceof Date
-                        ? field.value.toLocaleDateString(window.navigator.language)
-                        : field.value
+                      ? field.value.toLocaleDateString(window.navigator.language)
+                      : field.value
                   }
                   onChange={onTimeChange}
                 />

@@ -14,6 +14,7 @@ import FormPage from '../page/form-page.component';
 import { FormContext } from '../../form-context';
 import {
   cascadeVisibityToChildFields,
+  evalConditionalRequired,
   evaluateFieldReadonlyProp,
   findConceptByReference,
   findPagesWithErrors,
@@ -212,9 +213,10 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           } else {
             field.isHidden = false;
           }
-
           if (typeof field.required === 'object' && field.required?.type === 'conditionalRequired') {
-            evalConditionalRequired({ value: field, type: 'field' }, flattenedFields, tempInitialValues);
+            field.isRequired = evalConditionalRequired(field, flattenedFields, tempInitialValues);
+          } else {
+            field.isRequired = isTrue(field.required);
           }
 
           field.questionOptions.answers
@@ -352,22 +354,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     }
   }, [isLoadingEncounter, isLoadingPreviousEncounter]);
 
-  const evalConditionalRequired = (node, allFields: FormField[], allValues: Record<string, any>) => {
-    const { value, type } = node;
-    const isHidden = !value.required?.referenceQuestionAnswers.includes(allValues[value.required?.referenceQuestionId]);
-    const parts = value.required?.referenceQuestionAnswers;
-    parts.push(value.required?.referenceQuestionId);
-    findAndRegisterReferencedFields(node, parts, fields);
-    linkReferencedFieldValues(fields, fields, parts);
-
-    node.value.isHidden = isHidden;
-    if (type == 'field' && node.value?.questions?.length) {
-      node.value?.questions.forEach((question) => {
-        question.isParentHidden = isHidden;
-      });
-    }
-  };
-
   const evalHide = (node, allFields: FormField[], allValues: Record<string, any>) => {
     const { value, type } = node;
     const isHidden = evaluateExpression(value['hide']?.hideWhenExpression, node, allFields, allValues, {
@@ -429,8 +415,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         .filter((field) => field.meta.submission?.unspecified !== true)
         .forEach((field) => {
           const errors =
-            FieldValidator.validate(field, values[field.id], values).filter((error) => error.resultType == 'error') ??
-            [];
+            FieldValidator.validate(field, values[field.id]).filter((error) => error.resultType == 'error') ?? [];
           if (errors.length) {
             errorFields.push(field);
             field.meta.submission = { ...(field.meta.submission || {}), errors };
@@ -589,7 +574,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         }
         // evaluate conditional required
         if (typeof dependant.required === 'object' && dependant.required?.type === 'conditionalRequired') {
-          evalConditionalRequired({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
+          dependant.isRequired = evalConditionalRequired(dependant, fields, { ...values, [fieldName]: value });
         }
 
         dependant?.questionOptions.answers

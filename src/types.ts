@@ -34,7 +34,7 @@ export interface SubmissionHandler {
   getDisplayValue: (field: FormField, value: any) => any;
 
   /**
-   * Fetches the previous value for a formfield
+   * Fetches the previous value for a form field
    */
   getPreviousValue?: (field: FormField, encounter: OpenmrsEncounter, allFormFields: Array<FormField>) => any;
 }
@@ -46,7 +46,7 @@ export interface FormFieldValidator {
   /**
    * Validates a field and returns validation errors
    */
-  validate(field: FormField, value: any, formValues: Record<string, any>, config?: any): Array<ValidationResult>;
+  validate(field: FormField, value: any, config?: any): Array<ValidationResult>;
 }
 
 export interface ValidationResult {
@@ -115,6 +115,7 @@ export interface FormField {
   fieldDependants?: Set<string>;
   pageDependants?: Set<string>;
   sectionDependants?: Set<string>;
+  isRequired?: boolean;
   required?: string | boolean | RequiredFieldProps;
   unspecified?: boolean;
   disabled?: boolean;
@@ -129,10 +130,10 @@ export interface FormField {
 }
 
 export interface RequiredFieldProps {
-  type?: string;
+  type: string;
   message?: string;
-  referenceQuestionId?: string;
-  referenceQuestionAnswers?: Array<string>;
+  referenceQuestionId: string;
+  referenceQuestionAnswers: Array<string>;
 }
 
 export interface previousValue {

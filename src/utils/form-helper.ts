@@ -91,6 +91,19 @@ export function parseToLocalDateTime(dateString: string): Date {
   return dateObj;
 }
 
+export function evalConditionalRequired(field: FormField, allFields: FormField[], formValues: Record<string, any>) {
+  if (typeof field.required !== 'object') {
+    return false;
+  }
+  const { referenceQuestionAnswers, referenceQuestionId } = field.required;
+  const referencedField = allFields.find((field) => field.id == referenceQuestionId);
+  if (referencedField) {
+    (referencedField.fieldDependants || (referencedField.fieldDependants = new Set())).add(field.id);
+    return referenceQuestionAnswers?.includes(formValues[referenceQuestionId]);
+  }
+  return false;
+}
+
 /**
  * Given a reference to a concept (either the uuid, or the source and reference term, ie "CIEL:1234") and a set of concepts, return matching concept, if any
  *

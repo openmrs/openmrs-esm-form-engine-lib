@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
-import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { FormGroup, RadioButtonGroup, RadioButton } from '@carbon/react';
 import { type FormFieldProps } from '../../../types';
 import { useField } from 'formik';
 import { FormContext } from '../../../form-context';
-import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
+import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -15,7 +14,7 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 
 const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, values } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { t } = useTranslation();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
 
@@ -54,11 +53,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
     !question.isHidden && (
       <FormGroup
         legendText={
-          isFieldRequired(question, values) ? (
-            <RequiredFieldLabel label={t(question.label)} />
-          ) : (
-            <span>{t(question.label)}</span>
-          )
+          question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
         }
         className={styles.boldedLegend}
         disabled={question.disabled}

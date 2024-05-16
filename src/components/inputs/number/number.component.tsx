@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { Layer, NumberInput } from '@carbon/react';
 import classNames from 'classnames';
 import { useField } from 'formik';
-import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
+import { isTrue } from '../../../utils/boolean-utils';
 import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -15,8 +15,7 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 
 const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields, values } =
-    React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { t } = useTranslation();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
 
@@ -68,11 +67,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         invalid={errors.length > 0}
         invalidText={errors[0]?.message}
         label={
-          isFieldRequired(question, values) ? (
-            <RequiredFieldLabel label={t(question.label)} />
-          ) : (
-            <span>{t(question.label)}</span>
-          )
+          question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
         }
         max={Number(question.questionOptions.max) || undefined}
         min={Number(question.questionOptions.min) || undefined}

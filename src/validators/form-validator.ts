@@ -5,18 +5,15 @@ export const fieldRequiredErrCode = 'field.required';
 export const fieldOutOfBoundErrCode = 'field.outOfBound';
 
 export const FieldValidator: FormFieldValidator = {
-  validate: (field: FormField, value: any, formValues: Record<string, any> ) => {
+  validate: (field: FormField, value: any) => {
     if (field.meta?.submission?.unspecified) {
       return [];
     }
-    if (isEmpty(value) && (field.required || field.unspecified)) {
-      if (typeof field.required !== 'object' && (isTrue(field.required) || isTrue(field.unspecified))) {
-        return addError(fieldRequiredErrCode, 'Field is mandatory');
-      } else if (
-        typeof field.required === 'object' &&  field.required?.type === 'conditionalRequired' &&
-        field.required?.referenceQuestionAnswers.includes(formValues[field.required?.referenceQuestionId])
-      ) {
+    if (isEmpty(value) && field.isRequired) {
+      if (typeof field.required === 'object' && field.required.type === 'conditionalRequired' && field.isRequired) {
         return addError(fieldRequiredErrCode, field.required.message ?? 'Field is mandatory');
+      } else if (field.isRequired) {
+        return addError(fieldRequiredErrCode, 'Field is mandatory');
       }
     }
     if (field.questionOptions.rendering === 'text') {
@@ -43,11 +40,11 @@ export const FieldValidator: FormFieldValidator = {
 
 export function numberInputRangeValidator(min: number, max: number, inputValue: number) {
   if (!Number.isNaN(min) && inputValue < min) {
-    return addError(fieldOutOfBoundErrCode, `Value must be greater than ${min}` );
+    return addError(fieldOutOfBoundErrCode, `Value must be greater than ${min}`);
   }
 
   if (!Number.isNaN(max) && inputValue > max) {
-    return addError(fieldOutOfBoundErrCode, `Value must be lower than ${max}` );
+    return addError(fieldOutOfBoundErrCode, `Value must be lower than ${max}`);
   }
 
   return [];

@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FilterableMultiSelect, Layer, Tag } from '@carbon/react';
-import classNames from 'classnames';
 import { useField } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { FormContext } from '../../../form-context';
@@ -8,7 +7,7 @@ import { type FormFieldProps } from '../../../types';
 import { ValueEmpty } from '../../value/value.component';
 import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
-import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
+import { isTrue } from '../../../utils/boolean-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './multi-select.scss';
@@ -17,7 +16,7 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, isFieldInitializationComplete, values } =
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout, isFieldInitializationComplete } =
     React.useContext(FormContext);
   const [counter, setCounter] = useState(0);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
@@ -89,7 +88,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
               initialSelectedItems={initiallySelectedQuestionItems}
               label={''}
               titleText={
-                isFieldRequired(question, values) ? (
+                question.isRequired ? (
                   <RequiredFieldLabel label={t(question.label)} />
                 ) : (
                   <span>{t(question.label)}</span>
