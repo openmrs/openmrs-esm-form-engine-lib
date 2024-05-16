@@ -7,7 +7,7 @@ import { useField } from 'formik';
 import { FormContext } from '../../../form-context';
 import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './radio.scss';
@@ -18,7 +18,6 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, values } = React.useContext(FormContext);
   const { t } = useTranslation();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   const handleChange = (value) => {
     setFieldValue(question.id, value);

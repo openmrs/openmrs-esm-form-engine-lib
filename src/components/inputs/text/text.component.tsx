@@ -6,7 +6,6 @@ import { useField } from 'formik';
 import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
-import { fieldRequiredErrCode } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
@@ -19,7 +18,6 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields, values } =
     React.useContext(FormContext);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {

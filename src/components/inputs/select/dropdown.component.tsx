@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Dropdown as DropdownInput, Layer } from '@carbon/react';
 import { useField } from 'formik';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
@@ -19,7 +19,6 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields, values } =
     React.useContext(FormContext);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   const handleChange = (value) => {
     setFieldValue(question.id, value);

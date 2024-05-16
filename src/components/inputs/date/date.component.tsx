@@ -8,7 +8,7 @@ import { formatDate } from '@openmrs/esm-framework';
 import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
 import { type FormFieldProps } from '../../../types';
 import { isInlineView } from '../../../utils/form-helper';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
@@ -25,7 +25,6 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     React.useContext(FormContext);
   const [time, setTime] = useState('');
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {

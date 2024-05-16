@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layer, TextArea as TextAreaInput } from '@carbon/react';
 import { useField } from 'formik';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
@@ -18,7 +18,6 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, values } = React.useContext(FormContext);
   const [previousValue, setPreviousValue] = useState();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   field.onBlur = () => {
     if (field.value && question.unspecified) {

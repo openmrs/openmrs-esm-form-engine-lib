@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import { ValueEmpty } from '../../value/value.component';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isFieldRequired, isTrue } from '../../../utils/boolean-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -21,7 +21,6 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
     React.useContext(FormContext);
   const [counter, setCounter] = useState(0);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   const selectOptions = question.questionOptions.answers
     .filter((answer) => !answer.isHidden)
