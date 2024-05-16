@@ -1,16 +1,20 @@
 {
   "name": "AFE form with aliased questions",
+  "readonly": "false",
   "pages": [
     {
       "label": "Page 1",
+      "readonly": "false",
       "sections": [
         {
           "label": "Section 1",
+          "isExpanded": "true",
           "questions": [
             {
               "label": "Multi Checkbox",
               "type": "obs",
               "id": "dem_multi_checkbox",
+              "required": true,
               "questionOptions": {
                 "rendering": "multiCheckbox"
               }
@@ -19,6 +23,7 @@
               "label": "Numeric",
               "id": "dem_numeric",
               "type": "obs",
+              "required": "false",
               "questionOptions": {
                 "rendering": "numeric"
               }
@@ -27,6 +32,7 @@
               "label": "Encounter Provider",
               "id": "dem_encounter_provider",
               "type": "encounterProvider",
+              "required": false,
               "questionOptions": {
                 "rendering": "ui-select-extended"
               }
@@ -34,6 +40,7 @@
             {
               "id": "dem_encounter_location",
               "type": "obsGroup",
+              "required": "false",
               "questionOptions": {
                 "rendering": "group"
               },
@@ -41,6 +48,7 @@
                 {
                   "label": "Encounter Location",
                   "type": "encounterLocation",
+                  "required": "false",
                   "questionOptions": {
                     "rendering": "ui-select-extended"
                   }
@@ -51,6 +59,7 @@
               "id": "labOrder",
               "type": "testOrder",
               "label": "Add Lab Order",
+              "required": true,
               "questionOptions": {
                 "rendering": "repeating",
                 "concept": "f1742346-cf43-4a17-8c98-720e3f487fc0",

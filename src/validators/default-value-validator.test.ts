@@ -1,7 +1,7 @@
 import { type FormField } from '../types';
-import { DefaultFieldValueValidator } from './default-value-validator';
+import { DefaultValueValidator } from './default-value-validator';
 
-describe('DefaultFieldValueValidator - validate', () => {
+describe('DefaultValueValidator - validate', () => {
   // setup
   const codedField: FormField = {
     label: 'Past enrolled patient programs',
@@ -36,7 +36,7 @@ describe('DefaultFieldValueValidator - validate', () => {
   };
   it('should accept valid values for coded types', () => {
     // setup and replay
-    const errors = DefaultFieldValueValidator.validate(codedField, '105e7ad6-c1fd-11eb-8529-0242ac130ju9', null);
+    const errors = DefaultValueValidator.validate(codedField, '105e7ad6-c1fd-11eb-8529-0242ac130ju9');
 
     // verify
     expect(errors).toEqual([]);
@@ -44,7 +44,7 @@ describe('DefaultFieldValueValidator - validate', () => {
 
   it('should reject invalid values for coded types', () => {
     // setup and replay
-    const errors = DefaultFieldValueValidator.validate(codedField, 'some none existing value', null);
+    const errors = DefaultValueValidator.validate(codedField, 'some none existing value');
 
     // verify
     expect(errors).toEqual([
@@ -54,7 +54,7 @@ describe('DefaultFieldValueValidator - validate', () => {
 
   it('should accept valid date values', () => {
     // setup and replay
-    const errors = DefaultFieldValueValidator.validate(dateField, '2020-01-20', null);
+    const errors = DefaultValueValidator.validate(dateField, '2020-01-20');
 
     // verify
     expect(errors).toEqual([]);
@@ -62,7 +62,7 @@ describe('DefaultFieldValueValidator - validate', () => {
 
   it('should reject invalid date values', () => {
     // setup and replay
-    const errors = DefaultFieldValueValidator.validate(dateField, 'test date', null);
+    const errors = DefaultValueValidator.validate(dateField, 'test date');
 
     // verify
     expect(errors).toEqual([
@@ -72,7 +72,7 @@ describe('DefaultFieldValueValidator - validate', () => {
 
   it('should accept valid numeric values', () => {
     // setup and replay
-    const errors = DefaultFieldValueValidator.validate(numericField, '500.5', null);
+    const errors = DefaultValueValidator.validate(numericField, '500.5');
 
     // verify
     expect(errors).toEqual([]);
@@ -80,7 +80,7 @@ describe('DefaultFieldValueValidator - validate', () => {
 
   it('should reject invalid numeric values', () => {
     // setup and replay
-    const errors = DefaultFieldValueValidator.validate(numericField, '500.5hds', null);
+    const errors = DefaultValueValidator.validate(numericField, '500.5hds');
 
     // verify
     expect(errors).toEqual([

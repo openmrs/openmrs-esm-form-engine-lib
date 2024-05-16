@@ -6,7 +6,7 @@ export function useFormFieldValidators(fields: FormField[]) {
   const [validators, setValidators] = useState<Record<string, FormFieldValidator>>();
 
   useEffect(() => {
-    const supportedTypes = new Set<string>(['default']);
+    const supportedTypes = new Set<string>();
     fields.forEach((field) => {
       field.validators?.forEach((validator) => supportedTypes.add(validator.type));
     });

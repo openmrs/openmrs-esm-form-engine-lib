@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { type FormFieldValidator, type FormField } from '../types';
 import { codedTypes } from '../constants';
 
-export const DefaultFieldValueValidator: FormFieldValidator = {
+export const DefaultValueValidator: FormFieldValidator = {
   validate: (field: FormField, value: any) => {
     if (codedTypes.includes(field.questionOptions.rendering)) {
       const valuesArray = Array.isArray(value) ? value : [value];
