@@ -176,7 +176,7 @@ describe('FieldValidator - validate', () => {
   });
 
   it('should fail for numbers with decimals', () => {
-    const validationErrors = FieldValidator.validate(numberWithDecimalsInputField, 8.5);
+    const validationErrors = FieldValidator.validate(numberWithDecimalsInputField, 8.5, null);
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
