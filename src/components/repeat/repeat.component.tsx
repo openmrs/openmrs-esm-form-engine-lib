@@ -136,7 +136,7 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
       : null;
   }, [rows, fieldComponent]);
 
-  if (question.isHidden || !nodes) {
+  if (question.isHidden || !nodes || !hasVisibleField(question)) {
     return null;
   }
   return isGrouped ? (
@@ -149,6 +149,13 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
     <div>{nodes}</div>
   );
 };
+
+function hasVisibleField(field: FormField) {
+  if (field.questions?.length) {
+    return field.questions?.some((child) => !child.isHidden);
+  }
+  return !field.isHidden;
+}
 
 function getQuestionWithSupportedRendering(question: FormField) {
   return {

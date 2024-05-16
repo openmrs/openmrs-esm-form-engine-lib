@@ -510,7 +510,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       ? [{ type: 'default' }, ...field.validators]
       : [{ type: 'default' }];
     // handle validation
-    const basevalidatorConfig = {
+    const baseValidatorConfig = {
       expressionContext: { patient, mode: sessionMode },
       values: { ...values, [fieldName]: value },
       fields,
@@ -519,13 +519,13 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     const warnings = [];
     if (!isUnspecified) {
       for (let validatorConfig of validators) {
-        const errorsAndWarinings =
-          formFieldValidators[validatorConfig.type].validate(field, value, {
-            ...basevalidatorConfig,
+        const errorsAndWarnings =
+          formFieldValidators[validatorConfig.type]?.validate(field, value, {
+            ...baseValidatorConfig,
             ...validatorConfig,
           }) || [];
-        errors.push(...errorsAndWarinings.filter((error) => error.resultType == 'error'));
-        warnings.push(...errorsAndWarinings.filter((error) => error.resultType == 'warning'));
+        errors.push(...errorsAndWarnings.filter((error) => error.resultType == 'error'));
+        warnings.push(...errorsAndWarnings.filter((error) => error.resultType == 'warning'));
       }
     }
     setErrors?.(errors);

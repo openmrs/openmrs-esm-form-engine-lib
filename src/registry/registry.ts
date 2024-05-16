@@ -94,7 +94,7 @@ export function registerExpressionHelper(name: string, fn: Function) {
   getFormsStore().expressionHelpers[name] = fn;
 }
 
-export function registereformSchemaTransformers(registration: ComponentRegistration<FormSchemaTransformer>) {
+export function registerFormSchemaTransformers(registration: ComponentRegistration<FormSchemaTransformer>) {
   const store = getFormsStore();
   const existingIndex = store.formSchemaTransformers.findIndex((reg) => reg.name === registration.name);
 
@@ -109,7 +109,7 @@ export function registereformSchemaTransformers(registration: ComponentRegistrat
 // Getters
 
 /**
- * A convinience function that returns the appropriate control for a given rendering type.
+ * A convenience function that returns the appropriate control for a given rendering type.
  */
 export async function getRegisteredControl(renderType: string) {
   if (registryCache.controls[renderType]) {
