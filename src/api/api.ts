@@ -147,7 +147,7 @@ function dataURItoFile(dataURI: string) {
 //Program Enrollment
 export function getPatientEnrolledPrograms(patientUuid: string) {
   return openmrsFetch(
-    `${restBaseUrl}/programenrollment?patient=${patientUuid}&v=custom:(uuid,display,program,dateEnrolled,dateCompleted,location:(uuid,display))`,
+    `${restBaseUrl}/programenrollment?patient=${patientUuid}&v=custom:(uuid,display,program:(uuid,name,allWorkflows),dateEnrolled,dateCompleted,location:(uuid,display),states:(state:(uuid,name,concept:(uuid),programWorkflow:(uuid)))`,
   ).then(({ data }) => {
     if (data) {
       return data;
@@ -205,5 +205,37 @@ export function savePatientIdentifier(patientIdentifier: PatientIdentifier, pati
     },
     method: 'POST',
     body: JSON.stringify(patientIdentifier),
+  });
+}
+
+export function saveProgramEnrollment(payload: ProgramEnrollmentPayload, abortController: AbortController) {
+  if (!payload) {
+    throw new Error('Program enrollment cannot be created because no payload is supplied');
+  }
+  const { program, patient, dateEnrolled, dateCompleted, location, states, uuid } = payload;
+  const body = {
+    program,
+    patient,
+    dateEnrolled,
+    dateCompleted,
+    location,
+    ...(states && { states }),
+    ...(uuid && { uuid }),
+  };
+  let url: string;
+
+  if (payload.uuid) {
+    url = `${restBaseUrl}/programenrollment/${payload.uuid}`;
+  } else {
+    url = `${restBaseUrl}/programenrollment`;
+  }
+
+  return openmrsFetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+    signal: abortController.signal,
   });
 }

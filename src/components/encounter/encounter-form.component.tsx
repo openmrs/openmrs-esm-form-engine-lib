@@ -6,6 +6,7 @@ import type {
   FormPage as FormPageProps,
   FormSchema,
   OpenmrsEncounter,
+  PatientProgram,
   QuestionAnswerOption,
   SessionMode,
   ValidationResult,
@@ -34,6 +35,7 @@ import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
 import { useTranslation } from 'react-i18next';
 import { EncounterFormManager } from './encounter-form-manager';
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
+import { usePatientEnrollments } from '../../hooks/usePatientEnrollment';
 
 interface EncounterFormProps {
   formJson: FormSchema;
@@ -96,6 +98,12 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
+  const [patientPrograms, setPatientPrograms] = useState<Array<PatientProgram>>([]);
+  const {
+    isLoading: isLoadingPatientPrograms,
+    error: patientProgramsError,
+    patientEnrollments,
+  } = usePatientEnrollments(patient?.id, fields);
 
   const layoutType = useLayoutType();
   const encounterContext = useMemo(
@@ -115,6 +123,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setEncounterLocation,
       setEncounterRole,
       initValues: initValues,
+      patientPrograms,
+      setPatientPrograms,
     }),
     [encounter, form?.encounter, encounterLocation, patient, previousEncounter, sessionMode, initValues],
   );
@@ -177,6 +187,12 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setInitValues(tempInitialValues);
     }
   }, [tempInitialValues]);
+
+  useEffect(() => {
+    if (!isLoadingPatientPrograms) {
+      setPatientPrograms(patientEnrollments);
+    }
+  }, [isLoadingPatientPrograms, isLoadingEncounter]);
 
   // look up concepts via their references
   const { concepts, isLoading: isLoadingConcepts } = useConcepts(conceptReferences);
@@ -456,6 +472,29 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       return Promise.reject({
         title: t('errorSavingPatientIdentifiers', 'Error saving patient identifiers'),
         subtitle: errorMessages.join(', '),
+        kind: 'error',
+        isLowContrast: false,
+      });
+    }
+
+    try {
+      const program = EncounterFormManager.prepareProgramEnrollment(
+        fields,
+        encounterLocation,
+        patient,
+        encounterContext,
+        patientPrograms,
+      );
+      await EncounterFormManager.saveProgramEnrollments(program, sessionMode, patientPrograms);
+      showSnackbar({
+        title: t('enrollmentSaved', 'Enrollment saved'),
+        kind: 'success',
+        isLowContrast: true,
+      });
+    } catch (error) {
+      showSnackbar({
+        title: t('errorEnrolling', 'Error saving enrollment'),
+        subtitle: t(error.message),
         kind: 'error',
         isLowContrast: false,
       });

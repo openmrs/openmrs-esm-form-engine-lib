@@ -1,9 +1,17 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
-import { type FormField, type OpenmrsEncounter, type OpenmrsObs, type PatientIdentifier } from '../../types';
+import {
+  type PatientProgram,
+  type FormField,
+  type OpenmrsEncounter,
+  type OpenmrsObs,
+  type PatientIdentifier,
+  type ProgramEnrollmentPayload,
+} from '../../types';
 import { type EncounterContext } from '../../form-context';
-import { saveAttachment, saveEncounter, savePatientIdentifier } from '../../api/api';
+import { saveAttachment, saveEncounter, savePatientIdentifier, saveProgramEnrollment } from '../../api/api';
 import { hasRendering, hasSubmission } from '../../utils/common-utils';
 import { voidObs, constructObs } from '../../submission-handlers/obsHandler';
+import dayjs from 'dayjs';
 
 export class EncounterFormManager {
   static preparePatientIdentifiers(fields: FormField[], encounterLocation: string): PatientIdentifier[] {
@@ -100,6 +108,58 @@ export class EncounterFormManager {
       return savePatientIdentifier(patientIdentifier, patient.id);
     });
   }
+
+  static prepareProgramEnrollment(
+    fields: FormField[],
+    encounterLocation: string,
+    patient: fhir.Patient,
+    encounterContext: EncounterContext,
+    patientPrograms: Array<PatientProgram>,
+  ) {
+    const programUuid = fields.find((field) => field.type === 'programState')?.questionOptions.programUuid;
+    const programEnrollmentInfo = getPatientProgram(patientPrograms,programUuid);
+    const previousProgramStates = programEnrollmentInfo?.states;
+    const patientProgramState = fields
+      .filter((field) => field.type === 'programState')
+      .map((field) => field?.meta?.submission?.newValue);
+    const currentProgramState = retirePreviousState(patientProgramState, previousProgramStates);
+
+    if (!programEnrollmentInfo) {
+      return {
+        patient: patient.id,
+        program: programUuid,
+        states: currentProgramState,
+        dateEnrolled: dayjs(encounterContext.encounterDate).format(),
+        location: encounterLocation,
+      };
+    } else {
+      return {
+        states: currentProgramState,
+        dateEnrolled: dayjs(encounterContext.encounterDate).format(),
+        location: encounterLocation,
+        uuid: programEnrollmentInfo.uuid,
+      };
+    }
+  }
+
+  static saveProgramEnrollments = (
+    programPayload: ProgramEnrollmentPayload,
+    sessionMode: string,
+    patientPrograms: Array<PatientProgram>,
+  ) => {
+    const ac = new AbortController();
+    if (programPayload.program) {
+      const patientProgramEnrollment = patientPrograms.filter(
+        (enrollment) => enrollment.program.uuid === programPayload.program && enrollment.dateCompleted === null,
+      );
+
+      if (sessionMode === 'enter' && patientProgramEnrollment?.length > 0) {
+        throw new Error('Patient enrolled into program');
+      } else {
+        return saveProgramEnrollment(programPayload, ac);
+      }
+    }
+  };
 }
 
 // Helpers
@@ -175,4 +235,24 @@ function hasSubmittableObs(field: FormField) {
     return true;
   }
   return !field.isHidden && !field.isParentHidden && (type === 'obsGroup' || hasSubmission(field));
+}
+
+export function getPatientProgram(patientPrograms: Array<PatientProgram>, programUuid: string) {
+  const programs = patientPrograms.find((program) => program.program.uuid === programUuid);
+  return programs;
+}
+
+function retirePreviousState(currentStates, previousStates) {
+  previousStates?.forEach((previousState) => {
+    const matchingObj = currentStates?.find((currentState) => currentState?.state == previousState?.state.uuid);
+    if (!matchingObj) {
+      const formattedMatchedObj = {
+        state: previousState?.state?.uuid,
+        startDate: previousState.startDate,
+        endDate: previousState.startDate,
+      };
+      currentStates.push(formattedMatchedObj);
+    }
+  });
+  return currentStates;
 }
