@@ -12,23 +12,16 @@ import { isTrue } from '../../../utils/boolean-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './multi-select.scss';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
-  const [field, meta] = useField(question.id);
+  const [field] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, isFieldInitializationComplete } =
     React.useContext(FormContext);
-  const [errors, setErrors] = useState([]);
-  const [warnings, setWarnings] = useState([]);
   const [counter, setCounter] = useState(0);
+  const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
-
-  useEffect(() => {
-    if (question['submission']) {
-      question['submission'].errors && setErrors(question['submission'].errors);
-      question['submission'].warnings && setWarnings(question['submission'].warnings);
-    }
-  }, [question['submission']]);
 
   const selectOptions = question.questionOptions.answers
     .filter((answer) => !answer.isHidden)
@@ -54,7 +47,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
     });
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
-    question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+    handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
   useEffect(() => {
@@ -64,7 +57,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         : [previousValue.value];
       setFieldValue(question.id, previousValues);
       onChange(question.id, previousValues, setErrors, setWarnings);
-      question.value = handler?.handleFieldSubmission(question, previousValues, encounterContext);
+      handler?.handleFieldSubmission(question, previousValues, encounterContext);
     }
   }, [previousValue]);
 

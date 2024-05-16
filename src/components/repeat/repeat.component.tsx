@@ -90,25 +90,16 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   );
 
   const removeNthRow = (question: FormField) => {
-    if (question.value && question.value.uuid) {
-      if (question.type === 'testOrder') {
-        // delete order using handler
-        handler.handleFieldSubmission(question, null, encounterContext);
-      }
-      question.value.voided = true;
-      question.meta.repeat = { wasDeleted: true, ...(question.meta.repeat || {}) };
+    if (question.meta.previousValue) {
+      handler.handleFieldSubmission(question, null, encounterContext);
+      question.meta.repeat = { ...(question.meta.repeat || {}), wasDeleted: true };
       if (question.type === 'obsGroup') {
         question.questions.forEach((child) => {
-          child.meta.repeat = { wasDeleted: true, ...(question.meta.repeat || {}) };
-          if (child.value && child.value.uuid) {
-            child.value.voided = true;
-          } else {
-            delete child.value;
-          }
+          child.meta.repeat = { ...(question.meta.repeat || {}), wasDeleted: true };
+          handler.handleFieldSubmission(child, null, encounterContext);
         });
       }
     } else {
-      delete question.value;
       clearSubmission(question);
     }
     setRows(rows.filter((q) => q.id !== question.id));

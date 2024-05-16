@@ -1,24 +1,23 @@
 import { cloneDeep } from 'lodash-es';
 import { type FormField, type OpenmrsEncounter, type SubmissionHandler } from '../../types';
-import { assignedObsIds } from '../../submission-handlers/base-handlers';
 import { assignedOrderIds } from '../../submission-handlers/testOrderHandler';
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { isEmpty } from '../../validators/form-validator';
+import { clearSubmission } from '../../utils/common-utils';
+import { assignedObsIds } from '../../submission-handlers/obsHandler';
 
 export function cloneRepeatField(srcField: FormField, value: OpenmrsResource, idSuffix: number) {
   const originalGroupMembersIds: string[] = [];
   const clonedField = cloneDeep(srcField) as FormField;
   clonedField.questionOptions.repeatOptions = { ...(clonedField.questionOptions.repeatOptions ?? {}) };
-  clonedField.meta = { repeat: { isClone: true }, ...(clonedField.meta ?? {}) };
-  // TODO: use meta object instead; fix as apart of https://openmrs.atlassian.net/browse/O3-2164
-  clonedField.value = value;
-  clonedField.uuid = value?.uuid;
+  clonedField.meta = { repeat: { ...(clonedField.meta ?? {}), isClone: true }, previousValue: value };
   clonedField.id = `${clonedField.id}_${idSuffix}`;
   clonedField.questions?.forEach((childField) => {
     originalGroupMembersIds.push(childField.id);
     childField.id = `${childField.id}_${idSuffix}`;
     childField['groupId'] = clonedField.id;
-    childField.value = null;
+    childField.meta.previousValue = null;
+    clearSubmission(childField);
 
     // cleanup expressions
 
@@ -80,7 +79,7 @@ export function hydateRepeatField(
   const unMappedGroups = encounter.obs.filter(
     (obs) =>
       obs.concept.uuid === field.questionOptions.concept &&
-      obs.uuid != field.value?.uuid &&
+      obs.uuid != field.meta.previousValue?.uuid &&
       !assignedObsIds.includes(obs.uuid),
   );
   const unMappedOrders = encounter.orders.filter((order) => {

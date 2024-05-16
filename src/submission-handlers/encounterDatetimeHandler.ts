@@ -12,7 +12,7 @@ export const EncounterDatetimeHandler: SubmissionHandler = {
   },
 
   getDisplayValue: (field: FormField, value: any) => {
-    return field.value;
+    return value;
   },
   getPreviousValue: (field: FormField, encounter: OpenmrsEncounter, allFormFields?: FormField[]) => {
     return new Date(encounter.encounterDatetime);

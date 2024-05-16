@@ -5,9 +5,8 @@ import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import { showSnackbar, useSession, type Visit } from '@openmrs/esm-framework';
-
 import { init, teardown } from './lifecycle';
-import type { FormSchema, SessionMode, FormPage as FormPageProps } from './types';
+import type { FormPage as FormPageProps, FormSchema, SessionMode } from './types';
 import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
 import { useFormJson } from './hooks/useFormJson';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
@@ -121,7 +120,7 @@ const FormEngine: React.FC<FormProps> = ({
     if (sessionMode === 'embedded-view') {
       return false;
     }
-    
+
     return workspaceLayout === 'minimized' || (workspaceLayout === 'maximized' && scrollablePages.size <= 1);
   }, [sessionMode, workspaceLayout, scrollablePages]);
 
@@ -161,7 +160,7 @@ const FormEngine: React.FC<FormProps> = ({
 
       Promise.all(submissions)
         .then(async (results) => {
-          if (mode === 'edit') {
+          if (sessionMode === 'edit') {
             showSnackbar({
               title: t('updatedRecord', 'Record updated'),
               subtitle: t('updatedRecordDescription', 'The patient encounter was updated'),
@@ -213,7 +212,7 @@ const FormEngine: React.FC<FormProps> = ({
                       'errorDescriptionTitle',
                       actionId ? actionId.replace(/([a-z])([A-Z])/g, '$1 $2') : 'Post Submission Error',
                     ),
-                    subtitle: t('errorDescription', errorMessages.join(', ')),
+                    subtitle: t('errorDescription', '{{errors}}', { errors: errorMessages.join(', ')}),
                     kind: 'error',
                     isLowContrast: false,
                   });
@@ -225,14 +224,8 @@ const FormEngine: React.FC<FormProps> = ({
           hideFormCollapseToggle();
         })
         .catch((error) => {
-          console.error(error);
-          const errorMessages = extractErrorMessagesFromResponse(error);
-          showSnackbar({
-            title: t('errorDescriptionTitle', 'Error on saving form'),
-            subtitle: t('errorDescription', errorMessages.join(', ')),
-            kind: 'error',
-            isLowContrast: false,
-          });
+          setIsSubmitting(false);
+          showSnackbar(error);
         })
         .finally(() => {
           setIsSubmitting(false);

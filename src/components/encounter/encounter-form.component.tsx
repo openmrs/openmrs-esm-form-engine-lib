@@ -17,7 +17,6 @@ import {
   evaluateFieldReadonlyProp,
   findConceptByReference,
   findPagesWithErrors,
-  voidObsValueOnFieldHidden,
 } from '../../utils/form-helper';
 import { InstantEffect } from '../../utils/instant-effect';
 import { type FormSubmissionHandler } from '../../form-engine.component';
@@ -34,6 +33,7 @@ import { useFormFieldHandlers } from '../../hooks/useFormFieldHandlers';
 import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
 import { useTranslation } from 'react-i18next';
 import { EncounterFormManager } from './encounter-form-manager';
+import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
 
 interface EncounterFormProps {
   formJson: FormSchema;
@@ -91,7 +91,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
   const [form, setForm] = useState<FormSchema>(formJson);
-  const [obsGroupsToVoid, setObsGroupsToVoid] = useState([]);
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
@@ -102,7 +101,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       patient: patient,
       encounter: encounter,
       previousEncounter,
-      location: location,
+      location: encounterLocation,
       sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
       encounterDate: formSessionDate,
       encounterProvider: provider,
@@ -113,7 +112,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setEncounterLocation,
       initValues: initValues,
     }),
-    [encounter, form?.encounter, location, patient, previousEncounter, sessionMode, initValues],
+    [encounter, form?.encounter, encounterLocation, patient, previousEncounter, sessionMode, initValues],
   );
   const { encounterRole } = useEncounterRole();
 
@@ -124,8 +123,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     form.pages?.forEach((page) =>
       page.sections?.forEach((section) => {
         section.questions?.forEach((question) => {
-          // explicitly set blank values to null
-          // TODO: shouldn't we be setting to the default behaviour?
           section.inlineRendering = isEmpty(section.inlineRendering) ? null : section.inlineRendering;
           page.inlineRendering = isEmpty(page.inlineRendering) ? null : page.inlineRendering;
           form.inlineRendering = isEmpty(form.inlineRendering) ? null : form.inlineRendering;
@@ -293,6 +290,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             });
           }
           field.meta = {
+            ...(field.meta || {}),
             concept: matchingConcept,
           };
           if (field.questionOptions.answers) {
@@ -364,11 +362,11 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     if (type == 'page') {
       value['sections'].forEach((section) => {
         section.isParentHidden = isHidden;
-        cascadeVisibityToChildFields(isHidden, section, allFields, obsGroupsToVoid, setFieldValue);
+        cascadeVisibityToChildFields(isHidden, section, allFields);
       });
     }
     if (type == 'section') {
-      cascadeVisibityToChildFields(isHidden, value, allFields, obsGroupsToVoid, setFieldValue);
+      cascadeVisibityToChildFields(isHidden, value, allFields);
     }
   };
 
@@ -406,16 +404,13 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       // handle field validation
       fields
         .filter((field) => !field.isParentHidden && !field.disabled && !field.isHidden && !isTrue(field.readonly))
-        .filter((field) => field['submission']?.unspecified != true)
+        .filter((field) => field.meta.submission?.unspecified !== true)
         .forEach((field) => {
           const errors =
             FieldValidator.validate(field, values[field.id]).filter((error) => error.resultType == 'error') ?? [];
           if (errors.length) {
             errorFields.push(field);
-            field['submission'] = {
-              ...field['submission'],
-              errors: errors,
-            };
+            field.meta.submission = { ...(field.meta.submission || {}), errors };
             formHasErrors = true;
             return;
           }
@@ -433,7 +428,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     const encounter = EncounterFormManager.prepareEncounter(
       fields,
       { ...encounterContext, encounterProvider, location: encounterLocation },
-      obsGroupsToVoid,
       encounterRole,
       visit,
       formJson.encounterType,
@@ -444,16 +438,16 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       await Promise.all(EncounterFormManager.savePatientIdentifiers(patient, patientIdentifiers));
       if (patientIdentifiers?.length) {
         showSnackbar({
-          title: t('patientIdentifiersSaved', 'Patient identifier(s) saved sucessfully'),
+          title: t('patientIdentifiersSaved', 'Patient identifier(s) saved successfully'),
           kind: 'success',
           isLowContrast: true,
         });
       }
     } catch (error) {
-      setIsSubmitting(false);
-      showSnackbar({
-        title: t('errorSavingPatientIndentifiers', 'Error saving patient identifiers'),
-        subtitle: error.message,
+      const errorMessages = extractErrorMessagesFromResponse(error);
+      return Promise.reject({
+        title: t('errorSavingPatientIdentifiers', 'Error saving patient identifiers'),
+        subtitle: errorMessages.join(', '),
         kind: 'error',
         isLowContrast: false,
       });
@@ -464,7 +458,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       const saveOrders = savedEncounter.orders.map((order) => order.orderNumber);
       if (saveOrders.length) {
         showSnackbar({
-          title: t('ordersSaved', 'Order(s) saved sucessfully'),
+          title: t('ordersSaved', 'Order(s) saved successfully'),
           subtitle: saveOrders.join(', '),
           kind: 'success',
           isLowContrast: true,
@@ -483,25 +477,25 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           });
         }
       } catch (error) {
-        setIsSubmitting(false);
-        showSnackbar({
+        const errorMessages = extractErrorMessagesFromResponse(error);
+        return Promise.reject({
           title: t('errorSavingAttachments', 'Error saving attachment(s)'),
-          subtitle: error.message,
+          subtitle: errorMessages.join(', '),
           kind: 'error',
           isLowContrast: false,
         });
       }
       return savedEncounter;
     } catch (error) {
-      setIsSubmitting(false);
-      showSnackbar({
+      console.error(error.responseBody);
+      const errorMessages = extractErrorMessagesFromResponse(error);
+      return Promise.reject({
         title: t('errorSavingEncounter', 'Error saving encounter'),
-        subtitle: error.message,
+        subtitle: errorMessages.join(', '),
         kind: 'error',
         isLowContrast: false,
       });
     }
-    return null;
   };
 
   const onFieldChange = (
@@ -568,7 +562,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         // evaluate hide
         if (dependant.hide) {
           evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
-          voidObsValueOnFieldHidden(dependant, obsGroupsToVoid, setFieldValue);
         }
 
         dependant?.questionOptions.answers
@@ -657,7 +650,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             if (isTrue(section.isHidden)) {
               section.questions.forEach((field) => {
                 field.isParentHidden = true;
-                voidObsValueOnFieldHidden(field, obsGroupsToVoid, setFieldValue);
               });
             }
             break;
@@ -673,7 +665,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           dependant.sections.forEach((section) => {
             section.questions.forEach((field) => {
               field.isParentHidden = true;
-              voidObsValueOnFieldHidden(field, obsGroupsToVoid, setFieldValue);
             });
           });
         }
@@ -693,10 +684,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     <FormContext.Provider
       value={{
         values,
-        setFieldValue,
-        setEncounterLocation: setEncounterLocation,
-        setObsGroupsToVoid: setObsGroupsToVoid,
-        obsGroupsToVoid: obsGroupsToVoid,
         fields: fields,
         encounterContext,
         layoutType,
@@ -704,6 +691,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         isFieldInitializationComplete,
         isSubmitting,
         formFieldHandlers,
+        setFieldValue,
+        setEncounterLocation: setEncounterLocation,
       }}>
       <InstantEffect effect={addScrollablePages} />
       {form.pages.map((page, index) => {

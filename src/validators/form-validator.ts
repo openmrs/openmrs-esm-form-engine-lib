@@ -6,7 +6,7 @@ export const fieldOutOfBoundErrCode = 'field.outOfBound';
 
 export const FieldValidator: FormFieldValidator = {
   validate: (field: FormField, value: any) => {
-    if (field['submission']?.unspecified) {
+    if (field.meta?.submission?.unspecified) {
       return [];
     }
     if (isTrue(field.required) || isTrue(field.unspecified)) {
@@ -23,8 +23,14 @@ export const FieldValidator: FormFieldValidator = {
     if (field.questionOptions.rendering === 'number') {
       const min = Number(field.questionOptions.min);
       const max = Number(field.questionOptions.max);
+      const disallowDecimals = field.questionOptions.disallowDecimals || field.meta?.concept?.allowDecimal;
       if (isEmpty(value)) return [];
-      return !Number.isNaN(min) || !Number.isNaN(max) ? numberInputRangeValidator(min, max, value) : [];
+      if (disallowDecimals && !Number.isInteger(value)) {
+        return addError(fieldOutOfBoundErrCode, 'Decimal values are not allowed for this field');
+      }
+      if (!Number.isNaN(min) || !Number.isNaN(max)) {
+        return numberInputRangeValidator(min, max, value);
+      }
     }
     return [];
   },
@@ -32,23 +38,11 @@ export const FieldValidator: FormFieldValidator = {
 
 export function numberInputRangeValidator(min: number, max: number, inputValue: number) {
   if (!Number.isNaN(min) && inputValue < min) {
-    return [
-      {
-        resultType: 'error',
-        errCode: fieldOutOfBoundErrCode,
-        message: `Value must be greater than ${min}`,
-      },
-    ];
+    return addError(fieldOutOfBoundErrCode, `Value must be greater than ${min}` );
   }
 
   if (!Number.isNaN(max) && inputValue > max) {
-    return [
-      {
-        resultType: 'error',
-        errCode: fieldOutOfBoundErrCode,
-        message: `Value must be lower than ${max}`,
-      },
-    ];
+    return addError(fieldOutOfBoundErrCode, `Value must be lower than ${max}` );
   }
 
   return [];

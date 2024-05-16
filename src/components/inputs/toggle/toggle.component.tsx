@@ -19,14 +19,14 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
   const handleChange = (value) => {
     setFieldValue(question.id, value);
     onChange(question.id, value, null, null);
-    question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+    handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
   useEffect(() => {
     // The toogle input doesn't support blank values
     // by default, the value should be false
-    if (!question.value && encounterContext.sessionMode == 'enter') {
-      question.value = handler?.handleFieldSubmission(question, field.value ?? false, encounterContext);
+    if (!question.meta?.previousValue && encounterContext.sessionMode == 'enter') {
+      handler?.handleFieldSubmission(question, field.value ?? false, encounterContext);
     }
   }, []);
 
@@ -35,7 +35,7 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
       const value = booleanConceptToBoolean(previousValue);
       setFieldValue(question.id, value);
       onChange(question.id, value, null, null);
-      question.value = handler?.handleFieldSubmission(question, value, encounterContext);
+      handler?.handleFieldSubmission(question, value, encounterContext);
     }
   }, [previousValue]);
 
