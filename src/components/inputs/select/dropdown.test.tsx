@@ -1,10 +1,11 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
 import { type EncounterContext, FormContext } from '../../../form-context';
 import Dropdown from './dropdown.component';
 import { type FormField } from '../../../types';
 import { ObsSubmissionHandler } from '../../../submission-handlers/obsHandler';
+import InlineDate from '../inline-date/inline-date.component';
 
 const question: FormField = {
   label: 'Patient past program.',
@@ -12,6 +13,32 @@ const question: FormField = {
   questionOptions: {
     rendering: 'select',
     concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+    answers: [
+      {
+        label: 'HIV Care and Treatment',
+        value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
+      },
+      {
+        label: 'Oncology Screening and Diagnosis Program',
+        value: '12f7be3d-fb5d-47dc-b5e3-56c501be80a6',
+      },
+      {
+        label: 'Fight Malaria Initiative',
+        value: '14cd2628-8a33-4b93-9c10-43989950bba0',
+      },
+    ],
+  },
+  meta: {},
+  id: 'patient-past-program',
+};
+
+const questionWithDateEnabled: FormField = {
+  label: 'Patient past program.',
+  type: 'obs',
+  questionOptions: {
+    rendering: 'select',
+    concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+    showDate: "true",
     answers: [
       {
         label: 'HIV Care and Treatment',
@@ -50,7 +77,7 @@ const encounterContext: EncounterContext = {
   setEncounterLocation: jest.fn,
 };
 
-const renderForm = (initialValues) => {
+const renderForm = (initialValues, questionObj) => {
   render(
     <Formik initialValues={initialValues} onSubmit={null}>
       {(props) => (
@@ -60,12 +87,12 @@ const renderForm = (initialValues) => {
             setFieldValue: props.setFieldValue,
             setEncounterLocation: jest.fn(),
             encounterContext: encounterContext,
-            fields: [question],
+            fields: [questionObj],
             isFieldInitializationComplete: true,
             isSubmitting: false,
             formFieldHandlers: { obs: ObsSubmissionHandler },
           }}>
-          <Dropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+          <Dropdown question={questionObj} onChange={jest.fn()} handler={ObsSubmissionHandler} />
         </FormContext.Provider>
       )}
     </Formik>,
@@ -89,7 +116,7 @@ describe('dropdown input field', () => {
   });
 
   it('should record new obs', async () => {
-    await renderForm({});
+    await renderForm({}, question);
     // setup
     const dropdownWidget = screen.getByRole('combobox', { name: /Patient past program./ });
 
@@ -127,7 +154,7 @@ describe('dropdown input field', () => {
       voided: false,
       value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
     };
-    await renderForm({ 'patient-past-program': question.meta.previousValue.value });
+    await renderForm({ 'patient-past-program': question.meta.previousValue.value }, question);
     const dropdownWidget = screen.getByRole('combobox', { name: /Patient past program./ });
 
     // do some edits
@@ -144,5 +171,47 @@ describe('dropdown input field', () => {
         formFieldPath: 'rfe-forms-patient-past-program',
       });
     });
+
+    // date shouldn't be there
+    const inlineDatePicker = screen.queryByLabelText('custom-inline-date-picker');
+    await expect(inlineDatePicker).not.toBeInTheDocument();
+  });
+
+  it('should append an inline date picker when showDate is true', async () => {
+    questionWithDateEnabled.meta.previousValue = {
+      uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+      person: '833db896-c1f0-11eb-8529-0242ac130003',
+      obsDatetime: encounterContext.encounterDate,
+      concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+      order: null,
+      groupMembers: [],
+      voided: false,
+      value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
+    };
+
+    await renderForm({ 'patient-past-program': questionWithDateEnabled.meta.previousValue.value }, questionWithDateEnabled);
+    const dropdownWidget = screen.getByRole('combobox', { name: /Patient past program./ });
+    const inlineDatePicker = screen.getByLabelText('custom-inline-date-picker');
+    expect(inlineDatePicker).toBeInTheDocument();
+
+    // choose an option
+    fireEvent.click(dropdownWidget);
+    const fightMalariaOption = screen.getByText('Fight Malaria Initiative');
+    fireEvent.click(fightMalariaOption);
+
+    // test handle change
+    fireEvent.change(inlineDatePicker, { target: { value: new Date('2022-05-17') } });
+
+    await act(async () => {
+      expect(questionWithDateEnabled.meta.submission?.newValue).toEqual({
+        uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+        value: '14cd2628-8a33-4b93-9c10-43989950bba0',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-patient-past-program',
+        obsDatetime: new Date('2022-05-17T03:00:00.000Z'),
+      });
+    });
+
   });
 });

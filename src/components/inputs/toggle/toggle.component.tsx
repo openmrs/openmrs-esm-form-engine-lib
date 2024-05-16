@@ -78,9 +78,7 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
               setObsDateTime={(value) => setObsDate(value)}
             />
           </div>
-        ) : (
-          ''
-        )}
+        ) : null}
       </div>
     )
   );

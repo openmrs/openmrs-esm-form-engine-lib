@@ -91,9 +91,7 @@ const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler
               setObsDateTime={(value) => setObsDate(value)}
             />
           </div>
-        ) : (
-          ''
-        )}
+        ) : null}
       </FormGroup>
     )
   );

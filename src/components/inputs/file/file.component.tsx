@@ -188,9 +188,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
               setObsDateTime={(value) => setObsDate(value)}
             />
           </div>
-        ) : (
-          ''
-        )}
+        ) : null}
     </div>
   );
 };

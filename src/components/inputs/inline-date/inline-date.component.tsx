@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import { type InlineDateProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { fieldRequiredErrCode } from '../../../validators/form-validator';
@@ -13,7 +14,8 @@ const locale = window.i18next?.language == 'en' ? 'en-GB' : window.i18next?.lang
 const dateFormatter = new Intl.DateTimeFormat(locale);
 
 const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => {
-  const [field] = useField(`inline-${question.id}`);
+  const { t } = useTranslation();
+  const [field] = useField(`inline-date-${question.id}`);
   const { setFieldValue } = React.useContext(FormContext);
   const [errors, setErrors] = useState([]);
   const [warnings, setWarnings] = useState([]);
@@ -28,9 +30,13 @@ const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => 
 
   const onDateChange = ([date]) => {
     const refinedDate = date instanceof Date ? new Date(date.getTime() - date.getTimezoneOffset() * 60000) : date;
-    setFieldValue(`inline-${question.id}`, refinedDate);
+    setFieldValue(`inline-date-${question.id}`, refinedDate);
     setObsDateTime(refinedDate);
-    question.meta.submission.newValue = Array.isArray(question?.meta?.submission.newValue) ? question?.meta?.submission?.newValue.map(value => ({...value, obsDatetime: refinedDate })) : {...question?.meta?.submission?.newValue, obsDatetime: refinedDate };
+    if (question.meta.submission) {
+      question.meta.submission.newValue = Array.isArray(question.meta.submission.newValue)
+        ? question.meta.submission.newValue.map((value) => ({ ...value, obsDatetime: refinedDate }))
+        : { ...question.meta.submission.newValue, obsDatetime: refinedDate };
+    }
   };
 
   const { placeholder, carbonDateformat } = useMemo(() => {
@@ -72,12 +78,13 @@ const InlineDate: React.FC<InlineDateProps> = ({ question, setObsDateTime }) => 
         <DatePicker
           datePickerType="single"
           onChange={onDateChange}
-          className={`${styles.boldedLabel} ${isFieldRequiredError ? styles.errorLabel : ''}`}
+          className={isFieldRequiredError ? styles.errorLabel : styles.boldedLabel}
           dateFormat={carbonDateformat}>
           <DatePickerInput
-            id={`inline-${question.id}`}
+            id={`inline-date-${question.id}`}
+            aria-label="custom-inline-date-picker"
             placeholder={placeholder}
-            labelText={` Date of ${question.label}`} // needs translation
+            labelText={<span>{t('dateInputLabel', 'Date of {{label}}', { label: question.label })}</span>}
             value={field.value instanceof Date ? field.value.toLocaleDateString(locale) : field.value}
             onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
             disabled={question.disabled || !question?.meta?.submission?.newValue}

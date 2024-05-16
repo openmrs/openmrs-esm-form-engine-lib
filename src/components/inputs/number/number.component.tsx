@@ -96,9 +96,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
             setObsDateTime={(value) => setObsDate(value)}
           />
         </div>
-      ) : (
-        ''
-      )}
+      ) : null}
     </Layer>
   );
 };
