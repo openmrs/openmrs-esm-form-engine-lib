@@ -25,10 +25,10 @@ export function isUuid(value: string): boolean {
   return uuidRegex.test(value);
 }
 
-export function isFieldRequired(value: FormField): boolean {
+export function isFieldRequired(value: FormField, values): boolean {
   if (typeof value.required !== 'object' ){
     return  isTrue(value.required);
   } else if ( typeof value.required === 'object' && value.required.type === 'conditionalRequired' ){
-    return true;
+    return  value.required?.referenceQuestionAnswers.includes(values[value.required?.referenceQuestionId])    ;
   }
 }

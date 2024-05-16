@@ -53,7 +53,6 @@
               },
               "validators": [],
               "hide": {
-                "hideWhenExpression": "!arrayContains(['a89ff816-1350-11df-a1f1-0026b9348838','a89ff8de-1350-11df-a1f1-0026b9348838'], scheduledVisit)"
               }
             },
             {

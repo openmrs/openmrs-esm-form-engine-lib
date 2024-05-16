@@ -21,7 +21,8 @@ const dateFormatter = new Intl.DateTimeFormat(locale);
 const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields, values } =
+    React.useContext(FormContext);
   const [time, setTime] = useState('');
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
@@ -134,7 +135,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   id={question.id}
                   placeholder={placeholder}
                   labelText={
-                    isFieldRequired(question) && !question.isHidden && !question.isParentHidden ? (
+                    isFieldRequired(question, values) && !question.isHidden && !question.isParentHidden ? (
                       <RequiredFieldLabel label={t(question.label)} />
                     ) : (
                       <span>{t(question.label)}</span>

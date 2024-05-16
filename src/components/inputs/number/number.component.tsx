@@ -15,7 +15,8 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 
 const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields, values } =
+    React.useContext(FormContext);
   const { t } = useTranslation();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
@@ -68,7 +69,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         invalid={errors.length > 0}
         invalidText={errors[0]?.message}
         label={
-          isFieldRequired(question) && !question.isHidden && !question.isParentHidden ? (
+          isFieldRequired(question, values) && !question.isHidden && !question.isParentHidden ? (
             <RequiredFieldLabel label={t(question.label)} />
           ) : (
             <span>{t(question.label)}</span>

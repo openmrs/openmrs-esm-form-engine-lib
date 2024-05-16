@@ -34,6 +34,7 @@ import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
 import { useTranslation } from 'react-i18next';
 import { EncounterFormManager } from './encounter-form-manager';
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
+import { findAndRegisterReferencedFields, linkReferencedFieldValues } from '../../utils/expression-parser';
 
 interface EncounterFormProps {
   formJson: FormSchema;
@@ -211,6 +212,13 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           } else {
             field.isHidden = false;
           }
+
+          if (typeof field.required === 'object' && field.required?.type === 'conditionalRequired') {
+            evalConditionalRequired({ value: field, type: 'field' }, flattenedFields, tempInitialValues);
+          } else {
+            field.isHidden = false;
+          }
+
           field.questionOptions.answers
             ?.filter((answer) => !isEmpty(answer.hide?.hideWhenExpression))
             .forEach((answer) => {
@@ -345,6 +353,22 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setIsLoadingFormDependencies(false);
     }
   }, [isLoadingEncounter, isLoadingPreviousEncounter]);
+
+  const evalConditionalRequired = (node, allFields: FormField[], allValues: Record<string, any>) => {
+    const { value, type } = node;
+    const isHidden = !value.required?.referenceQuestionAnswers.includes(allValues[value.required?.referenceQuestionId]);
+    const parts = value.required?.referenceQuestionAnswers;
+    parts.push(value.required?.referenceQuestionId);
+    findAndRegisterReferencedFields(node, parts, fields);
+    linkReferencedFieldValues(fields, fields, parts);
+
+    node.value.isHidden = isHidden;
+    if (type == 'field' && node.value?.questions?.length) {
+      node.value?.questions.forEach((question) => {
+        question.isParentHidden = isHidden;
+      });
+    }
+  };
 
   const evalHide = (node, allFields: FormField[], allValues: Record<string, any>) => {
     const { value, type } = node;
@@ -539,6 +563,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     if (field.questionOptions.rendering == 'toggle') {
       value = value ? ConceptTrue : ConceptFalse;
     }
+
     if (field.fieldDependants) {
       field.fieldDependants.forEach((dep) => {
         const dependant = fields.find((f) => f.id == dep);
@@ -563,6 +588,10 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         // evaluate hide
         if (dependant.hide) {
           evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
+        }
+        // evaluate conditional required
+        if (typeof dependant.required === 'object' && dependant.required?.type === 'conditionalRequired') {
+          evalConditionalRequired({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
         }
 
         dependant?.questionOptions.answers

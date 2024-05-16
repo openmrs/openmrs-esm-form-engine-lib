@@ -17,7 +17,7 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, isFieldInitializationComplete } =
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout, isFieldInitializationComplete, values } =
     React.useContext(FormContext);
   const [counter, setCounter] = useState(0);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
@@ -90,7 +90,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
               initialSelectedItems={initiallySelectedQuestionItems}
               label={''}
               titleText={
-                isFieldRequired(question) && !question.isHidden && !question.isParentHidden ? (
+                isFieldRequired(question, values) && !question.isHidden && !question.isParentHidden ? (
                   <RequiredFieldLabel label={t(question.label)} />
                 ) : (
                   <span>{t(question.label)}</span>

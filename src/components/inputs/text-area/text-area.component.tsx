@@ -15,7 +15,7 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue: previousValueProp }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout, values } = React.useContext(FormContext);
   const [previousValue, setPreviousValue] = useState();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
   const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
@@ -60,7 +60,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             {...field}
             id={question.id}
             labelText={
-              isFieldRequired(question) && !question.isHidden && !question.isParentHidden ? (
+              isFieldRequired(question, values) && !question.isHidden && !question.isParentHidden ? (
                 <RequiredFieldLabel label={t(question.label)} />
               ) : (
                 <span>{t(question.label)}</span>
