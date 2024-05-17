@@ -15,7 +15,6 @@ import RequiredFieldLabel from '../../required-field-label/required-field-label.
 import InlineDate from '../inline-date/inline-date.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import { getQuestionValue } from '../../../utils/common-utils';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 import styles from './ui-select-extended.scss';
 
