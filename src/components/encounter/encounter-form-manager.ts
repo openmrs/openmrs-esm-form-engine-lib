@@ -117,12 +117,12 @@ export class EncounterFormManager {
     patientPrograms: Array<PatientProgram>,
   ) {
     const programUuid = fields.find((field) => field.type === 'programState')?.questionOptions.programUuid;
-    const programEnrollmentInfo = getPatientProgram(patientPrograms,programUuid);
-    const previousProgramStates = programEnrollmentInfo?.states;
+    const programEnrollmentInfo = getPatientProgram(patientPrograms, programUuid);
+    const supportedStates = programEnrollmentInfo?.states;
     const patientProgramState = fields
       .filter((field) => field.type === 'programState')
       .map((field) => field?.meta?.submission?.newValue);
-    const currentProgramState = retirePreviousState(patientProgramState, previousProgramStates);
+    const currentProgramState = mergeStatesAndUpdatePrevious(patientProgramState, supportedStates);
 
     if (!programEnrollmentInfo) {
       return {
@@ -238,11 +238,10 @@ function hasSubmittableObs(field: FormField) {
 }
 
 export function getPatientProgram(patientPrograms: Array<PatientProgram>, programUuid: string) {
-  const programs = patientPrograms.find((program) => program.program.uuid === programUuid);
-  return programs;
+  return patientPrograms.find((program) => program.program.uuid === programUuid);
 }
 
-function retirePreviousState(currentStates, previousStates) {
+function mergeStatesAndUpdatePrevious(currentStates, previousStates) {
   previousStates?.forEach((previousState) => {
     const matchingObj = currentStates?.find((currentState) => currentState?.state == previousState?.state.uuid);
     if (!matchingObj) {
