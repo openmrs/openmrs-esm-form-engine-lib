@@ -11,7 +11,7 @@ import { isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
-import { useFieldValidationResults } from 'src/hooks/useFieldValidationResults';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 import styles from './date.scss';
 
