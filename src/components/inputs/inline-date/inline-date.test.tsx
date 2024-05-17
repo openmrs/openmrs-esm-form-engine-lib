@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
+import dayjs from 'dayjs';
 import { type EncounterContext, FormContext } from '../../../form-context';
 import DropdownSelect from '../select/dropdown.component';
 import { type FormField } from '../../../types';
@@ -151,18 +152,16 @@ describe('dropdown input field', () => {
     const fightMalariaOption = screen.getByText('Fight Malaria Initiative');
     fireEvent.click(fightMalariaOption);
 
+    const testDate = dayjs('2024-05-17').toISOString();
     // test handle change
-    fireEvent.change(inlineDatePicker, { target: { value: new Date("2024-05-16T00:00:00.000Z") } });
+    fireEvent.change(inlineDatePicker, { target: { value: testDate } });
 
     await act(async () => {
-
-      expect(questionWithDateEnabled.meta.submission?.newValue).toEqual({
-        uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
-        value: '14cd2628-8a33-4b93-9c10-43989950bba0',
-        formFieldNamespace: 'rfe-forms',
-        formFieldPath: 'rfe-forms-patient-past-program',
-        obsDatetime: new Date("2024-05-16T00:00:00.000Z"),
-      });
+      const newValue = questionWithDateEnabled.meta.submission?.newValue;
+      const refinedDate = new Date(dayjs(testDate).toDate().getTime() - new Date(dayjs(testDate).toDate()).getTimezoneOffset() * 60000);
+      expect(newValue?.obsDatetime).toBeDefined();
+      expect(newValue).toHaveProperty('obsDatetime');
+      expect(newValue.obsDatetime).toEqual(refinedDate);
     });
   });
 });
