@@ -29,7 +29,7 @@ export function inferInitialValueFromDefaultFieldValue(
     return field.questionOptions.defaultValue == ConceptTrue;
   }
   // validate default value
-  if (!DefaultFieldValueValidator.validate(field, field.questionOptions.defaultValue).length) {
+  if (!DefaultFieldValueValidator.validate(field, field.questionOptions.defaultValue, null).length) {
     // construct observation
     handler.handleFieldSubmission(field, field.questionOptions.defaultValue, context);
     return field.questionOptions.defaultValue;
@@ -89,6 +89,19 @@ export function parseToLocalDateTime(dateString: string): Date {
     console.error(e);
   }
   return dateObj;
+}
+
+export function evalConditionalRequired(field: FormField, allFields: FormField[], formValues: Record<string, any>) {
+  if (typeof field.required !== 'object') {
+    return false;
+  }
+  const { referenceQuestionAnswers, referenceQuestionId } = field.required;
+  const referencedField = allFields.find((field) => field.id == referenceQuestionId);
+  if (referencedField) {
+    (referencedField.fieldDependants || (referencedField.fieldDependants = new Set())).add(field.id);
+    return referenceQuestionAnswers?.includes(formValues[referenceQuestionId]);
+  }
+  return false;
 }
 
 /**

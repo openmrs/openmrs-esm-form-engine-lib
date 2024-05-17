@@ -1,0 +1,265 @@
+{
+  "name": "A New Sample Form",
+  "uuid": "36e67044-efb2-4706-b532-dfa6ce8e9aaf",
+  "processor": "EncounterFormProcessor",
+  "pages": [
+    {
+      "label": "Pre-clinic Review",
+      "sections": [
+        {
+          "label": "Pre-clinic Review",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Was this visit scheduled?",
+              "id": "scheduledVisit",
+              "questionOptions": {
+                "rendering": "select",
+                "concept": "a89ff9a6-1350-11df-a1f1-0026b9348838",
+                "answers": [
+                  {
+                    "concept": "a89b6440-1350-11df-a1f1-0026b9348838",
+                    "label": "Scheduled visit"
+                  },
+                  {
+                    "concept": "a89ff816-1350-11df-a1f1-0026b9348838",
+                    "label": "Unscheduled Visit Early"
+                  },
+                  {
+                    "concept": "a89ff8de-1350-11df-a1f1-0026b9348838",
+                    "label": "Unscheduled Visit Late"
+                  }
+                ]
+              },
+              "type": "obs",
+              "validators": []
+            },
+            {
+              "label": "If Unscheduled, actual text scheduled date",
+              "id": "actualDate1",
+              "type": "obs",
+              "required": {
+                "type": "conditionalRequired",
+                "message": "Patient visit marked as unscheduled. Please provide the scheduled text date.",
+                "referenceQuestionId": "scheduledVisit",
+                "referenceQuestionAnswers": [
+                  "a89ff816-1350-11df-a1f1-0026b9348838",
+                  "a89ff8de-1350-11df-a1f1-0026b9348838"
+                ]
+              },
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "dc1942b2-5e50-4adc-949d-ad6c905f054e"
+              },
+              "validators": [],
+              "hide": {
+              }
+            },
+            {
+              "label": "If Unscheduled, actual text area scheduled date",
+              "id": "actualDate2",
+              "type": "obs",
+              "required": {
+                "type": "conditionalRequired",
+                "message": "Patient visit marked as unscheduled. Please provide the scheduled text area date.",
+                "referenceQuestionId": "scheduledVisit",
+                "referenceQuestionAnswers": [
+                  "a89ff816-1350-11df-a1f1-0026b9348838",
+                  "a89ff8de-1350-11df-a1f1-0026b9348838"
+                ]
+              },
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "dc1942b2-5e50-4adc-949d-ad6c905f054e"
+              },
+              "validators": []
+            },
+            {
+              "label": "Not required actual text area scheduled date",
+              "id": "actualDate9",
+              "type": "obs",
+              "required": "false",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "dc1942b2-5e50-4adc-949d-ad6c905f054e"
+              },
+              "validators": []
+            },
+            {
+              "label": "If Unscheduled, actual scheduled date",
+              "id": "actualDate3",
+              "type": "obs",
+              "required": {
+                "type": "conditionalRequired",
+                "message": "Patient visit marked as unscheduled. Please provide the scheduled date.",
+                "referenceQuestionId": "scheduledVisit",
+                "referenceQuestionAnswers": [
+                  "a89ff816-1350-11df-a1f1-0026b9348838",
+                  "a89ff8de-1350-11df-a1f1-0026b9348838"
+                ]
+              },
+              "questionOptions": {
+                "rendering": "date",
+                "concept": "dc1942b2-5e50-4adc-949d-ad6c905f054e"
+              },
+              "validators": [
+                {
+                  "type": "date",
+                  "allowFutureDates": "true"
+                },
+                {
+                  "type": "js_expression",
+                  "failsWhenExpression": "!isEmpty(scheduledVisit) && arrayContains(['a89ff816-1350-11df-a1f1-0026b9348838','a89ff8de-1350-11df-a1f1-0026b9348838'], scheduledVisit) && isEmpty(myValue)",
+                  "message": "Patient visit marked as unscheduled. Please provide the scheduled date."
+                }
+              ],
+              "hide": {
+                "hideWhenExpression": "!arrayContains(['a89ff816-1350-11df-a1f1-0026b9348838','a89ff8de-1350-11df-a1f1-0026b9348838'], scheduledVisit)"
+              }
+            },
+            {
+              "label": "If Unscheduled, actual scheduled reason select",
+              "id": "actualDate4",
+              "type": "obs",
+              "required": {
+                "type": "conditionalRequired",
+                "message": "Patient visit marked as unscheduled. Please provide the scheduled reason select",
+                "referenceQuestionId": "scheduledVisit",
+                "referenceQuestionAnswers": [
+                  "a89ff816-1350-11df-a1f1-0026b9348838",
+                  "a89ff8de-1350-11df-a1f1-0026b9348838"
+                ]
+              },
+              "questionOptions": {
+                "rendering": "select",
+                "concept": "a89ff9a6-1350-11df-a1f1-0026b9348838",
+                "answers": [
+                  {
+                    "concept": "489ff816-1350-11df-a1f1-0026b9348838",
+                    "label": "No reason"
+                  },
+                  {
+                    "concept": "f89ff8de-1350-11df-a1f1-0026b9348838",
+                    "label": "Other reason"
+                  }
+                ]
+              },
+              "validators": [
+                {
+                  "type": "date",
+                  "allowFutureDates": "true"
+                },
+                {
+                  "type": "js_expression",
+                  "failsWhenExpression": "!isEmpty(scheduledVisit) && arrayContains(['a89ff816-1350-11df-a1f1-0026b9348838','a89ff8de-1350-11df-a1f1-0026b9348838'], scheduledVisit) && isEmpty(myValue)",
+                  "message": "Patient visit marked as unscheduled. Please provide the scheduled date."
+                }
+              ],
+              "hide": {
+                "hideWhenExpression": "!arrayContains(['a89ff816-1350-11df-a1f1-0026b9348838','a89ff8de-1350-11df-a1f1-0026b9348838'], scheduledVisit)"
+              }
+            },
+            {
+              "label": "If Unscheduled, actual scheduled reason multi-select",
+              "type": "obs",
+              "id": "actualDate6",
+              "required": {
+                "type": "conditionalRequired",
+                "message": "Patient visit marked as unscheduled. Please provide the scheduled multi-select reason.",
+                "referenceQuestionId": "scheduledVisit",
+                "referenceQuestionAnswers": [
+                  "a89ff816-1350-11df-a1f1-0026b9348838",
+                  "a89ff8de-1350-11df-a1f1-0026b9348838"
+                ]
+              },
+              "questionOptions": {
+                "rendering": "multiCheckbox",
+                "concept": "a89ff9a6-1350-11df-a1f1-0026b9348838",
+                "answers": [
+                  {
+                    "concept": "489ff816-1350-11df-a1f1-0026b9348838",
+                    "label": "No reason"
+                  },
+                  {
+                    "concept": "f89ff8de-1350-11df-a1f1-0026b9348838",
+                    "label": "Other reason"
+                  }
+                ]
+              },
+              "hide": {
+                "hideWhenExpression": "!arrayContains(['a89ff816-1350-11df-a1f1-0026b9348838','a89ff8de-1350-11df-a1f1-0026b9348838'], scheduledVisit)"
+              }
+            },
+            {
+              "label": "If Unscheduled, actual number scheduled date",
+              "id": "actualDate8",
+              "type": "obs",
+              "required": {
+                "type": "conditionalRequired",
+                "message": "Patient visit marked as unscheduled. Please provide the scheduled number",
+                "referenceQuestionId": "scheduledVisit",
+                "referenceQuestionAnswers": [
+                  "a89ff816-1350-11df-a1f1-0026b9348838",
+                  "a89ff8de-1350-11df-a1f1-0026b9348838"
+                ]
+              },
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "dc1942b2-5e50-4adc-949d-ad6c905f054e"
+              },
+              "validators": [],
+              "hide": {
+                "hideWhenExpression": "!arrayContains(['a89ff816-1350-11df-a1f1-0026b9348838','a89ff8de-1350-11df-a1f1-0026b9348838'], scheduledVisit)"
+              }
+            },
+            {
+              "label": "If Unscheduled, actual scheduled reason radio",
+              "id": "actualDate5",
+              "type": "obs",
+              "required": {
+                "type": "conditionalRequired",
+                "message": "Patient visit marked as unscheduled. Please provide the scheduled radio reason.",
+                "referenceQuestionId": "scheduledVisit",
+                "referenceQuestionAnswers": [
+                  "a89ff816-1350-11df-a1f1-0026b9348838",
+                  "a89ff8de-1350-11df-a1f1-0026b9348838"
+                ]
+              },
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "a89ff9a6-1350-11df-a1f1-0026b9348838",
+                "answers": [
+                  {
+                    "concept": "489ff816-1350-11df-a1f1-0026b9348838",
+                    "label": "No reason"
+                  },
+                  {
+                    "concept": "f89ff8de-1350-11df-a1f1-0026b9348838",
+                    "label": "Other reason"
+                  }
+                ]
+              },
+              "validators": [
+                {
+                  "type": "date",
+                  "allowFutureDates": "true"
+                },
+                {
+                  "type": "js_expression",
+                  "failsWhenExpression": "!isEmpty(scheduledVisit) && arrayContains(['a89ff816-1350-11df-a1f1-0026b9348838','a89ff8de-1350-11df-a1f1-0026b9348838'], scheduledVisit) && isEmpty(myValue)",
+                  "message": "Patient visit marked as unscheduled. Please provide the scheduled date."
+                }
+              ],
+              "hide": {
+                "hideWhenExpression": "!arrayContains(['a89ff816-1350-11df-a1f1-0026b9348838','a89ff8de-1350-11df-a1f1-0026b9348838'], scheduledVisit)"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "version": "1.0",
+  "description": "des",
+  "encounterType": "181820aa-88c9-479b-9077-af92f5364329"
+}

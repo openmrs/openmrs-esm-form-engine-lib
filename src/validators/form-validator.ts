@@ -9,8 +9,10 @@ export const FieldValidator: FormFieldValidator = {
     if (field.meta?.submission?.unspecified) {
       return [];
     }
-    if (isTrue(field.required) || isTrue(field.unspecified)) {
-      if (isEmpty(value)) {
+    if (isEmpty(value) && field.isRequired) {
+      if (typeof field.required === 'object' && field.required.type === 'conditionalRequired' && field.isRequired) {
+        return addError(fieldRequiredErrCode, field.required.message ?? 'Field is mandatory');
+      } else if (field.isRequired) {
         return addError(fieldRequiredErrCode, 'Field is mandatory');
       }
     }
@@ -38,11 +40,11 @@ export const FieldValidator: FormFieldValidator = {
 
 export function numberInputRangeValidator(min: number, max: number, inputValue: number) {
   if (!Number.isNaN(min) && inputValue < min) {
-    return addError(fieldOutOfBoundErrCode, `Value must be greater than ${min}` );
+    return addError(fieldOutOfBoundErrCode, `Value must be greater than ${min}`);
   }
 
   if (!Number.isNaN(max) && inputValue > max) {
-    return addError(fieldOutOfBoundErrCode, `Value must be lower than ${max}` );
+    return addError(fieldOutOfBoundErrCode, `Value must be lower than ${max}`);
   }
 
   return [];
