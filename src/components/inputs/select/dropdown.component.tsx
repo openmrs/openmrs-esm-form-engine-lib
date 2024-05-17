@@ -81,7 +81,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             warn={warnings.length > 0}
             warnText={warnings[0]?.message}
           />
-          {question.questionOptions.showDate ? (
+          {question.questionOptions.showDate === 'true' ? (
           <div style={{ marginTop: '5px' }}>
             <InlineDate
               question={question}
