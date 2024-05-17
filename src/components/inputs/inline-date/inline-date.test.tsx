@@ -161,7 +161,7 @@ describe('dropdown input field', () => {
         value: '14cd2628-8a33-4b93-9c10-43989950bba0',
         formFieldNamespace: 'rfe-forms',
         formFieldPath: 'rfe-forms-patient-past-program',
-        obsDatetime: new Date("2024-05-16T03:00:00.000Z"),
+        obsDatetime: new Date("2024-05-16T00:00:00.000Z"),
       });
     });
   });
