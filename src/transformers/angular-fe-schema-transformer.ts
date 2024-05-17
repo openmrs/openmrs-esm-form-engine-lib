@@ -9,6 +9,9 @@ export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
         });
       }
     });
+    if(form?.meta?.programs) {
+      handleProgramMetaTags(form);
+    }
     return form;
   },
 };
@@ -78,5 +81,25 @@ function handleSelectConceptAnswers(question: FormField) {
         concept: question.questionOptions.concept,
       },
     };
+  }
+}
+
+function handleProgramMetaTags(form: FormSchema) {
+  if (form.meta.programs.isEnrollment || form.meta.programs.discontinuationDateQuestionId) {
+    const config = {
+      programUuid: form.meta.programs.uuid
+    };
+
+    if (form.meta.programs.isEnrollment) {
+      config['enrollmentDate'] = '';
+    } else {
+      config['completionDate'] = form.meta.programs.discontinuationDateQuestionId;
+    }
+
+    form.postSubmissionActions = [{
+      actionId: "ProgramEnrollmentSubmissionAction",
+      enabled: "true",
+      config
+    }];
   }
 }
