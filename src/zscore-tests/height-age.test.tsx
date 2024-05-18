@@ -79,6 +79,7 @@ describe('heightForAge z-score', () => {
         formUUID={formUUID}
         patientUUID={patientUUID}
         formSessionIntent={intent}
+        visit={visit}
       />,
     );
   }

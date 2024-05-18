@@ -64,6 +64,14 @@ describe('weightForHeight z-score', () => {
     expect(weightForHeightZscore).toHaveValue('4');
   });
   function renderForm(formUUID, formJson, intent?: string) {
-    render(<FormEngine formJson={formJson} formUUID={formUUID} patientUUID={patientUUID} formSessionIntent={intent} />);
+    render(
+      <FormEngine
+        formJson={formJson}
+        formUUID={formUUID}
+        patientUUID={patientUUID}
+        formSessionIntent={intent}
+        visit={visit}
+      />,
+    );
   }
 });

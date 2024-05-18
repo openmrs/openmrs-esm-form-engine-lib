@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
-import { showSnackbar, useSession, useVisit, type Visit } from '@openmrs/esm-framework';
+import { showSnackbar, useSession, type Visit } from '@openmrs/esm-framework';
 import { init, teardown } from './lifecycle';
 import type { FormPage as FormPageProps, FormSchema, SessionMode } from './types';
 import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
@@ -27,6 +27,7 @@ interface FormProps {
   formUUID?: string;
   formJson?: FormSchema;
   encounterUUID?: string;
+  visit?: Visit;
   formSessionIntent?: string;
   onSubmit?: () => void;
   onCancel?: () => void;
@@ -72,6 +73,7 @@ const FormEngine: React.FC<FormProps> = ({
   formUUID,
   patientUUID,
   encounterUUID,
+  visit,
   mode,
   onSubmit,
   onCancel,
@@ -106,7 +108,6 @@ const FormEngine: React.FC<FormProps> = ({
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
   const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(sessionMode);
-  const { currentVisit: visit } = useVisit(patientUUID);
 
   const showSidebar = useMemo(() => {
     return workspaceLayout !== 'minimized' && scrollablePages.size > 1 && sessionMode !== 'embedded-view';

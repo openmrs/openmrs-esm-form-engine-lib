@@ -733,6 +733,14 @@ describe('Form engine component', () => {
   });
 
   function renderForm(formUUID, formJson, intent?: string) {
-    render(<FormEngine formJson={formJson} formUUID={formUUID} patientUUID={patientUUID} formSessionIntent={intent} />);
+    render(
+      <FormEngine
+        formJson={formJson}
+        formUUID={formUUID}
+        patientUUID={patientUUID}
+        formSessionIntent={intent}
+        visit={visit}
+      />,
+    );
   }
 });

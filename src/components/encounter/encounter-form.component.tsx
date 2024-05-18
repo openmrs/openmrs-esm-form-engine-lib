@@ -43,7 +43,7 @@ interface EncounterFormProps {
   formSessionDate: Date;
   provider: string;
   location: SessionLocation;
-  visit: Visit;
+  visit?: Visit;
   values: Record<string, any>;
   isFormExpanded: boolean;
   sessionMode: SessionMode;

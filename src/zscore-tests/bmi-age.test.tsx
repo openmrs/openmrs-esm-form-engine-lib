@@ -71,7 +71,13 @@ describe('bmiForAge z-score', () => {
   function renderForm(formUUID, formJson, intent?: string) {
     return act(() => {
       render(
-        <FormEngine formJson={formJson} formUUID={formUUID} patientUUID={patientUUID} formSessionIntent={intent} />,
+        <FormEngine
+          formJson={formJson}
+          formUUID={formUUID}
+          patientUUID={patientUUID}
+          formSessionIntent={intent}
+          visit={visit}
+        />,
       );
     });
   }
