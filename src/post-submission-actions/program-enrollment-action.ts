@@ -1,14 +1,15 @@
-import { showToast } from '@openmrs/esm-framework';
-import { createProgramEnrollment, getPatientEnrolledPrograms, updateProgramEnrollment } from '../api/api';
 import dayjs from 'dayjs';
+import { showToast, translateFrom } from '@openmrs/esm-framework';
+import { createProgramEnrollment, getPatientEnrolledPrograms, updateProgramEnrollment } from '../api/api';
 import { type PostSubmissionAction, type ProgramEnrollmentPayload } from '../types';
-import { useTranslation } from 'react-i18next';
+import { moduleName } from '../globals';
 
 export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
   applyAction: async function ({ patient, encounters, sessionMode }, config) {
     const encounter = encounters[0];
     const encounterLocation = encounter.location['uuid'];
-    const { t } = useTranslation();
+
+    const translateFn = (key, defaultValue?) => translateFrom(moduleName, key, defaultValue);
 
     // only do this in enter or edit mode.
     if (sessionMode === 'view') {
@@ -37,10 +38,15 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
           );
           if (hasActiveEnrollment) {
             showToast({
-              title: t('enrollmentFailed', 'Enrollment failed'),
+              title: translateFn('enrollmentFailed', 'Enrollment failed'),
               kind: 'error',
               critical: false,
-              description: t('cannotEnrollPatientToProgram', 'This patient is already enrolled in the selected program'),            });
+              description: translateFrom(
+                moduleName,
+                'cannotEnrollPatientToProgram',
+                'This patient is already enrolled in the selected program',
+              ),
+            });
           }
           return;
         }
@@ -50,17 +56,17 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
               showToast({
                 critical: true,
                 kind: 'success',
-                description: t('enrolledToProgram', 'Patient enrolled into ${programName}'),
-                title: t('enrollmentSaved', 'Enrollment saved'),
+                description: translateFn('enrolledToProgram', 'Patient enrolled into ${programName}'),
+                title: translateFn('enrollmentSaved', 'Enrollment saved'),
               });
             }
           },
           (err) => {
             showToast({
-              title: t('errorEnrolling', 'Error saving enrollment'),
+              title: translateFn('errorEnrolling', 'Error saving enrollment'),
               kind: 'error',
               critical: false,
-              description: t(err?.message),
+              description: translateFn(err?.message),
             });
           },
         );
@@ -83,14 +89,17 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
                 showToast({
                   critical: true,
                   kind: 'success',
-                  description: t('enrollmentUpdateSuccess', 'Updates to the program enrollment were made successfully'),
-                  title: t('enrollmentUpdated', 'Enrollment updated'),
+                  description: translateFn(
+                    'enrollmentUpdateSuccess',
+                    'Updates to the program enrollment were made successfully',
+                  ),
+                  title: translateFn('enrollmentUpdated', 'Enrollment updated'),
                 });
               }
             },
             (err) => {
               showToast({
-                title: t('errorSavingEnrollment', 'Error saving enrollment'),
+                title: translateFn('errorSavingEnrollment', 'Error saving enrollment'),
                 kind: 'error',
                 critical: false,
                 description: err?.message,

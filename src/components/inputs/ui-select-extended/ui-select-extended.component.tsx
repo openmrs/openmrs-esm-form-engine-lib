@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import classNames from 'classnames';
 import debounce from 'lodash-es/debounce';
 import { ComboBox, DropdownSkeleton, Layer } from '@carbon/react';
 import { useField } from 'formik';
@@ -9,7 +8,7 @@ import { getRegisteredDataSource } from '../../../registry/registry';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
@@ -28,7 +27,6 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   const [config, setConfig] = useState({});
   const [savedSearchableItem, setSavedSearchableItem] = useState({});
   const { errors, setErrors, setWarnings } = useFieldValidationResults(question);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -130,11 +128,11 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
     />
   ) : (
     !question.isHidden && (
-      <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
+      <div className={styles.boldedLabel}>
         <Layer>
           <ComboBox
             id={question.id}
-            titleText={question.required ? <RequiredFieldLabel label={t(question.label)} /> : t(question.label)}
+            titleText={question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : t(question.label)}
             items={items}
             itemToString={(item) => item?.display}
             selectedItem={items.find((item) => item.uuid == field.value)}

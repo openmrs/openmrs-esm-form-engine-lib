@@ -100,6 +100,7 @@ const FormEngine: React.FC<FormProps> = ({
   const [scrollablePages, setScrollablePages] = useState(new Set<FormPageProps>());
   const [selectedPage, setSelectedPage] = useState('');
   const [isLoadingFormDependencies, setIsLoadingFormDependencies] = useState(true);
+  const [isFormDirty, setIsFormDirty] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
@@ -140,6 +141,10 @@ const FormEngine: React.FC<FormProps> = ({
   useEffect(() => {
     reportError(patientError, t);
   }, [patientError, t]);
+
+  useEffect(() => {
+    markFormAsDirty?.(isFormDirty);
+  }, [isFormDirty]);
 
   const handleFormSubmit = (values: Record<string, any>) => {
     // validate the form and its subforms (when present)
@@ -211,7 +216,7 @@ const FormEngine: React.FC<FormProps> = ({
                       'errorDescriptionTitle',
                       actionId ? actionId.replace(/([a-z])([A-Z])/g, '$1 $2') : 'Post Submission Error',
                     ),
-                    subtitle: t('errorDescription', '{{errors}}', { errors: errorMessages.join(', ')}),
+                    subtitle: t('errorDescription', '{{errors}}', { errors: errorMessages.join(', ') }),
                     kind: 'error',
                     isLowContrast: false,
                   });
@@ -242,9 +247,7 @@ const FormEngine: React.FC<FormProps> = ({
         setSubmitting(false);
       }}>
       {(props) => {
-        useEffect(() => {
-          markFormAsDirty?.(props.dirty);
-        }, [props.dirty]);
+        setIsFormDirty(props.dirty);
 
         return (
           <Form className={classNames('cds--form', 'no-padding', styles.formEngine)} ref={ref}>

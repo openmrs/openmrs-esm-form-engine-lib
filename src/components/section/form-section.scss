@@ -27,14 +27,14 @@
 
 .sectionContainer {
   margin-top: 1rem;
-  width: 90%;
+  width: 100%;
 }
 
 .questionInfoCentralized {
   display: flex;
   align-items: center !important;
 
-  >.questionInfoControl {
+  > .questionInfoControl {
     padding-top: 1.5rem;
   }
 }

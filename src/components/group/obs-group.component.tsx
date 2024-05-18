@@ -32,7 +32,7 @@ export const ObsGroup: React.FC<FormFieldProps> = ({ question, onChange }) => {
       const rendering = field.questionOptions.rendering;
       if (FieldComponent) {
         return (
-          <div className={classNames(styles.flexColumn, styles.obsGroupColumn)} key={keyId}>
+          <div className={classNames(styles.flexColumn)} key={keyId}>
             <div className={styles.parentResizer}>
               <div
                 className={classNames({

@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo } from 'react';
-import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Dropdown as DropdownInput, Layer } from '@carbon/react';
 import { useField } from 'formik';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
@@ -16,9 +15,8 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   const handleChange = (value) => {
     setFieldValue(question.id, value);
@@ -58,12 +56,12 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
     />
   ) : (
     !question.isHidden && (
-      <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
+      <div className={styles.boldedLabel}>
         <Layer>
           <DropdownInput
             id={question.id}
             titleText={
-              question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+              question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
             }
             label={t('chooseAnOption', 'Choose an option')}
             items={question.questionOptions.answers
@@ -75,9 +73,9 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             disabled={question.disabled}
             readOnly={question.readonly}
             invalid={errors.length > 0}
-            invalidText={errors.length && errors[0].message}
+            invalidText={errors[0]?.message}
             warn={warnings.length > 0}
-            warnText={warnings.length ? warnings[0].message : ''}
+            warnText={warnings[0]?.message}
           />
         </Layer>
       </div>

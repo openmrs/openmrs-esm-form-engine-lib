@@ -34,7 +34,7 @@ export interface SubmissionHandler {
   getDisplayValue: (field: FormField, value: any) => any;
 
   /**
-   * Fetches the previous value for a formfield
+   * Fetches the previous value for a form field
    */
   getPreviousValue?: (field: FormField, encounter: OpenmrsEncounter, allFormFields: Array<FormField>) => any;
 }
@@ -115,7 +115,8 @@ export interface FormField {
   fieldDependants?: Set<string>;
   pageDependants?: Set<string>;
   sectionDependants?: Set<string>;
-  required?: boolean;
+  isRequired?: boolean;
+  required?: string | boolean | RequiredFieldProps;
   unspecified?: boolean;
   disabled?: boolean;
   readonly?: string | boolean;
@@ -126,6 +127,13 @@ export interface FormField {
   historicalExpression?: string;
   constrainMaxWidth?: boolean;
   meta?: QuestionMetaProps;
+}
+
+export interface RequiredFieldProps {
+  type: string;
+  message?: string;
+  referenceQuestionId: string;
+  referenceQuestionAnswers: Array<string>;
 }
 
 export interface previousValue {
