@@ -9,6 +9,7 @@ describe('DateValidator - validate', () => {
       rendering: 'date',
       concept: 'j8b6705b-b6d8-4eju-8f37-0b14f5347569',
     },
+    isRequired: true,
     required: true,
     validators: [
       {

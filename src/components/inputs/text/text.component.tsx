@@ -1,12 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import classNames from 'classnames';
 import isEmpty from 'lodash-es/isEmpty';
 import { useTranslation } from 'react-i18next';
 import { Layer, TextInput } from '@carbon/react';
 import { useField } from 'formik';
 import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
-import { fieldRequiredErrCode } from '../../../validators/form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -17,9 +15,8 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
@@ -40,12 +37,6 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     }
   };
 
-  const setPrevValue = (value: any) => {
-    setFieldValue(question.id, value);
-    field['value'] = value;
-    field.onBlur(null);
-  };
-
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
       return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
@@ -63,20 +54,24 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   ) : (
     !question.isHidden && (
       <>
-        <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
+        <div className={styles.boldedLabel}>
           <Layer>
             <TextInput
               {...field}
               id={question.id}
               labelText={
-                question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+                question.isRequired ? (
+                  <RequiredFieldLabel label={t(question.label)} />
+                ) : (
+                  <span>{t(question.label)}</span>
+                )
               }
               name={question.id}
               value={field.value || ''}
               disabled={question.disabled}
               readOnly={Boolean(question.readonly)}
               invalid={errors.length > 0}
-              invalidText={errors.length && errors[0].message}
+              invalidText={errors[0]?.message}
               warn={warnings.length > 0}
               warnText={warnings.length && warnings[0].message}
               maxLength={question.questionOptions.max || TextInput.maxLength}

@@ -31,6 +31,8 @@ import testEnrolmentForm from '__mocks__/forms/rfe-forms/test-enrolment-form.jso
 import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-form.json';
 import historicalExpressionsForm from '__mocks__/forms/rfe-forms/historical-expressions-form.json';
 import mockHxpEncounter from '__mocks__/forms/rfe-forms/mockHistoricalvisitsEncounter.json';
+import requiredTestForm from '__mocks__/forms/rfe-forms/required-form.json';
+import conditionalRequiredTestForm from '__mocks__/forms/rfe-forms/conditional-required-form.json';
 import FormEngine from './form-engine.component';
 
 const mockShowToast = showToast as jest.Mock;
@@ -176,6 +178,126 @@ describe('Form engine component', () => {
   });
 
   describe('Form submission', () => {
+    it('should validate required field on form submission', async () => {
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+
+      await act(async () => {
+        renderForm(null, requiredTestForm);
+      });
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      await assertFormHasAllFields(screen, [{ fieldName: 'Text question *', fieldType: 'text' }]);
+
+      const inputFields = await screen.getAllByLabelText(/Text question/i);
+      expect(inputFields).toHaveLength(2);
+      inputFields.forEach((inputField) => {
+        expect(inputField).toHaveClass('cds--text-input--invalid');
+      });
+
+      const errorMessages = screen.getAllByText('Field is mandatory');
+      expect(errorMessages).toHaveLength(2);
+      errorMessages.forEach((errorMessage, index) => {
+        expect(errorMessage).toBeInTheDocument();
+      });
+      expect(saveEncounterMock).toHaveBeenCalledTimes(0);
+    });
+
+    it('should validate conditional required field on form submission', async () => {
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+
+      await act(async () => {
+        renderForm(null, conditionalRequiredTestForm);
+      });
+
+      const visitScheduledDropdown = screen.getByRole('combobox', { name: /Was this visit scheduled?/i });
+      await user.click(visitScheduledDropdown);
+
+      expect(screen.queryByRole('option', { name: /Unscheduled Visit Early/i })).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: /Unscheduled Visit Late/i })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Scheduled visit' })).toBeInTheDocument();
+
+      const options = screen.getAllByRole('option');
+      await user.click(options[2]);
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      await assertFormHasAllFields(screen, [
+        { fieldName: 'Was this visit scheduled?', fieldType: 'combobox' },
+        { fieldName: 'If Unscheduled, actual text scheduled date *', fieldType: 'text' },
+        { fieldName: 'If Unscheduled, actual scheduled date *', fieldType: 'date' },
+        { fieldName: 'If Unscheduled, actual number scheduled date *', fieldType: 'number' },
+        { fieldName: 'If Unscheduled, actual text area scheduled date *', fieldType: 'textarea' },
+        { fieldName: 'Not required actual text area scheduled date', fieldType: 'textarea' },
+        { fieldName: 'If Unscheduled, actual scheduled reason select *', fieldType: 'select' },
+        { fieldName: 'If Unscheduled, actual scheduled reason multi-select *', fieldType: 'combobox' },
+        { fieldName: 'If Unscheduled, actual scheduled reason radio *', fieldType: 'radio' },
+      ]);
+
+      // Validate date field
+      const dateInputField = await screen.getByLabelText(/If Unscheduled, actual scheduled date/i);
+      expect(dateInputField).toHaveClass('cds--date-picker__input--invalid');
+      const errorMessage = await screen.getByText(
+        'Patient visit marked as unscheduled. Please provide the scheduled date.',
+      );
+      expect(errorMessage).toBeInTheDocument();
+
+      // Validate text field
+      const textInputField = await screen.getByLabelText(/If Unscheduled, actual text scheduled date/i);
+      expect(textInputField).toHaveClass('cds--text-input--invalid');
+      const textErrorMessage = await screen.getByText(
+        'Patient visit marked as unscheduled. Please provide the scheduled text date.',
+      );
+      expect(textErrorMessage).toBeInTheDocument();
+
+      // Validate number field
+      const numberInputField = await screen.getByLabelText(/If Unscheduled, actual number scheduled date/i);
+      const dataInvalidValue = numberInputField.getAttribute('data-invalid');
+      expect(dataInvalidValue).toBe('true');
+      const numberErrorMessage = await screen.getByText(
+        'Patient visit marked as unscheduled. Please provide the scheduled number',
+      );
+      expect(numberErrorMessage).toBeInTheDocument();
+
+      // Validate text area field
+      const textAreaInputField = await screen.getByLabelText(/If Unscheduled, actual text area scheduled date/i);
+      expect(textAreaInputField).toHaveClass('cds--text-area cds--text-area--invalid');
+      const textAreaErrorMessage = await screen.getByText(
+        'Patient visit marked as unscheduled. Please provide the scheduled text area date.',
+      );
+      expect(textAreaErrorMessage).toBeInTheDocument();
+
+      // Validate Select field
+      const selectInputField = await screen.getByText('If Unscheduled, actual scheduled reason select', {
+        selector: 'span',
+      });
+      expect(selectInputField).toBeInTheDocument();
+      const selectErrorMessage = await screen.getByText(
+        'Patient visit marked as unscheduled. Please provide the scheduled reason select',
+      );
+      expect(selectErrorMessage).toBeInTheDocument();
+
+      // Validate multi-select field
+      const multiSelectInputField = await screen.getByLabelText(
+        /If Unscheduled, actual scheduled reason multi-select/i,
+      );
+      expect(multiSelectInputField).toBeInTheDocument();
+      const multiSelectErrorMessage = await screen.getByText(
+        'Patient visit marked as unscheduled. Please provide the scheduled multi-select reason.',
+      );
+      expect(multiSelectErrorMessage).toBeInTheDocument();
+
+      // Validate radio field
+      const radioInputField = await screen.getByText('If Unscheduled, actual scheduled reason radio', {
+        selector: 'span',
+      });
+      expect(radioInputField).toBeInTheDocument();
+      const radioErrorMessage = await screen.getByText(
+        'Patient visit marked as unscheduled. Please provide the scheduled radio reason.',
+      );
+      expect(radioErrorMessage).toBeInTheDocument();
+      expect(saveEncounterMock).toHaveBeenCalledTimes(0);
+    });
+
     it('should validate form submission', async () => {
       const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
 
@@ -309,6 +431,19 @@ describe('Form engine component', () => {
       await user.click(screen.getByRole('button', { name: /save/i }));
 
       expect(saveEncounterMock).toHaveBeenCalled();
+    });
+
+    it('should save on form submission on initial state', async () => {
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+
+      await act(async () => {
+        renderForm(null, conditionalRequiredTestForm);
+      });
+      await assertFormHasAllFields(screen, [{ fieldName: 'Was this visit scheduled?', fieldType: 'combobox' }]);
+      await user.click(screen.getByRole('button', { name: /save/i }));
+      expect(saveEncounterMock).toHaveBeenCalled();
+      expect(saveEncounterMock).toHaveBeenCalledWith(expect.any(AbortController), expect.any(Object), undefined);
+      expect(saveEncounterMock).toHaveReturned();
     });
   });
 

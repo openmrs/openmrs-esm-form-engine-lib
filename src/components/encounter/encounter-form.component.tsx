@@ -14,6 +14,7 @@ import FormPage from '../page/form-page.component';
 import { FormContext } from '../../form-context';
 import {
   cascadeVisibityToChildFields,
+  evalConditionalRequired,
   evaluateFieldReadonlyProp,
   findConceptByReference,
   findPagesWithErrors,
@@ -34,6 +35,7 @@ import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
 import { useTranslation } from 'react-i18next';
 import { EncounterFormManager } from './encounter-form-manager';
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
+import { findAndRegisterReferencedFields, linkReferencedFieldValues } from '../../utils/expression-parser';
 
 interface EncounterFormProps {
   formJson: FormSchema;
@@ -211,6 +213,12 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           } else {
             field.isHidden = false;
           }
+          if (typeof field.required === 'object' && field.required?.type === 'conditionalRequired') {
+            field.isRequired = evalConditionalRequired(field, flattenedFields, tempInitialValues);
+          } else {
+            field.isRequired = isTrue(field.required);
+          }
+
           field.questionOptions.answers
             ?.filter((answer) => !isEmpty(answer.hide?.hideWhenExpression))
             .forEach((answer) => {
@@ -510,7 +518,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       ? [{ type: 'default' }, ...field.validators]
       : [{ type: 'default' }];
     // handle validation
-    const basevalidatorConfig = {
+    const baseValidatorConfig = {
       expressionContext: { patient, mode: sessionMode },
       values: { ...values, [fieldName]: value },
       fields,
@@ -519,13 +527,13 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     const warnings = [];
     if (!isUnspecified) {
       for (let validatorConfig of validators) {
-        const errorsAndWarinings =
-          formFieldValidators[validatorConfig.type].validate(field, value, {
-            ...basevalidatorConfig,
+        const errorsAndWarnings =
+          formFieldValidators[validatorConfig.type]?.validate(field, value, {
+            ...baseValidatorConfig,
             ...validatorConfig,
           }) || [];
-        errors.push(...errorsAndWarinings.filter((error) => error.resultType == 'error'));
-        warnings.push(...errorsAndWarinings.filter((error) => error.resultType == 'warning'));
+        errors.push(...errorsAndWarnings.filter((error) => error.resultType == 'error'));
+        warnings.push(...errorsAndWarnings.filter((error) => error.resultType == 'warning'));
       }
     }
     setErrors?.(errors);
@@ -538,6 +546,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     if (field.questionOptions.rendering == 'toggle') {
       value = value ? ConceptTrue : ConceptFalse;
     }
+
     if (field.fieldDependants) {
       field.fieldDependants.forEach((dep) => {
         const dependant = fields.find((f) => f.id == dep);
@@ -562,6 +571,10 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         // evaluate hide
         if (dependant.hide) {
           evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
+        }
+        // evaluate conditional required
+        if (typeof dependant.required === 'object' && dependant.required?.type === 'conditionalRequired') {
+          dependant.isRequired = evalConditionalRequired(dependant, fields, { ...values, [fieldName]: value });
         }
 
         dependant?.questionOptions.answers
