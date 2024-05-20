@@ -473,7 +473,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         });
       }
       // handle attachments
-
       try {
         const attachmentsResponse = await Promise.all(
           EncounterFormManager.saveAttachments(fields, savedEncounter, abortController),
@@ -494,7 +493,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           isLowContrast: false,
         });
       }
-
       return savedEncounter;
     } catch (error) {
       console.error(error.responseBody);
