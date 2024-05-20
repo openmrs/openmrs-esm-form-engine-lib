@@ -1,7 +1,7 @@
 {
   "name": "@openmrs/openmrs-form-engine-lib",
   "version": "2.0.0",
-  "description": "A React based Forms Engine for OpenMRS 3.X",
+  "description": "React Form Engine for O3",
   "browser": "dist/openmrs-form-engine-lib.js",
   "main": "src/index.ts",
   "license": "MIT",
@@ -10,6 +10,7 @@
     "lint": "eslint src --ext .ts,.tsx --fix",
     "verify": "turbo lint typescript test --concurrency=5",
     "test": "jest --config ./jest.config.js --passWithNoTests",
+    "typescript": "tsc",
     "build": "webpack --mode production",
     "coverage": "yarn test --coverage",
     "analyze": "webpack --mode=production --env.analyze=true",
@@ -30,7 +31,7 @@
     "ace-builds": "^1.4.12",
     "classnames": "^2.5.1",
     "dayjs": "1.x",
-    "formik": "^2.2.6",
+    "formik": "^2.4.6",
     "lodash-es": "^4.17.15",
     "react-error-boundary": "^4.0.11",
     "react-markdown": "^7.1.0",
@@ -63,7 +64,7 @@
     "@types/jest": "^29.5.11",
     "@types/lodash": "^4.14.182",
     "@types/lodash-es": "^4.17.3",
-    "@types/react": "^18.2.22",
+    "@types/react": "^18.3.2",
     "@types/webpack-env": "^1.15.1",
     "@types/yup": "^0.29.11",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
@@ -105,8 +106,5 @@
     "*.{ts,tsx}": "eslint --cache --fix --max-warnings 0",
     "*.{css,scss,ts,tsx}": "prettier --write --list-different"
   },
-  "packageManager": "yarn@4.2.2",
-  "resolutions": {
-    "@types/react": "18.2.22"
-  }
+  "packageManager": "yarn@4.2.2"
 }
