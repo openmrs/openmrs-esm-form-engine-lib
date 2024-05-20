@@ -230,7 +230,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
                 {
                   mode: sessionMode,
                   patient,
-                  visit,
                 },
               );
             });
@@ -247,7 +246,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
                 {
                   mode: sessionMode,
                   patient,
-                  visit,
                 },
               );
             });
@@ -263,7 +261,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               {
                 mode: sessionMode,
                 patient,
-                visit,
               },
             );
           }
@@ -277,7 +274,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               {
                 mode: sessionMode,
                 patient,
-                visit,
               },
             );
           }
@@ -363,7 +359,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     const isHidden = evaluateExpression(value['hide']?.hideWhenExpression, node, allFields, allValues, {
       mode: sessionMode,
       patient,
-      visit,
     });
     node.value.isHidden = isHidden;
     if (type == 'field' && node.value?.questions?.length) {
@@ -565,7 +560,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             {
               mode: sessionMode,
               patient,
-              visit,
             },
           ).then((result) => {
             result = isEmpty(result) ? '' : result;
@@ -594,7 +588,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               {
                 mode: sessionMode,
                 patient,
-                visit,
               },
             );
           });
@@ -610,7 +603,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               {
                 mode: sessionMode,
                 patient,
-                visit,
               },
             );
           });
@@ -625,7 +617,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             {
               mode: sessionMode,
               patient,
-              visit,
             },
           );
         }
@@ -642,7 +633,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             {
               mode: sessionMode,
               patient,
-              visit,
             },
           );
           ({
@@ -654,7 +644,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               {
                 mode: sessionMode,
                 patient,
-                visit,
               },
             ),
           });
