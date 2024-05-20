@@ -4,21 +4,21 @@
   flex-grow: 1;
 }
 
-.formEngineContainer {
+.container {
   display: flex;
   height: 100%;
   overflow-y: hidden;
   flex-direction: column;
 }
 
-.formEngineBody {
+.body {
   display: flex;
   flex-direction: row;
   height: 100%;
 }
 
 .loader {
-  @extend .formEngineBody;
+  @extend .body;
   height: 1rem;
 }
 
@@ -26,8 +26,8 @@
   font-size: 0.875rem;
 }
 
-.formContent {
-  height: calc(100vh - 6rem);
+.content {
+  height: var(--desktop-workspace-window-height);
   margin: 0;
   flex-basis: 65%;
   flex-grow: 1;
@@ -36,32 +36,34 @@
   overflow-y: hidden;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
-.formContentBody {
+.contentBody {
   overflow-y: auto;
   width: inherit;
   position: sticky;
 }
 
-.minifiedFormContentBody {
-  margin-bottom: 4rem !important;
-}
-
 .minifiedButtons {
-  width: 100%;
-  height: 63.5px;
-  position: absolute;
-  bottom: 0;
+  button {
+    height: 4rem;
+    display: flex;
+    align-content: flex-start;
+    align-items: baseline;
+    min-width: 50%;
+  }
 }
 
-.minifiedButtons :global(.cds--btn) {
-  max-width: 50%;
-  height: 3.9rem;
-}
+:global(.omrs-breakpoint-lt-desktop) {
+  .content {
+    height: var(--tablet-workspace-window-height);
+  }
 
-.minifiedButtons > button {
-  width: 50%;
+  .minifiedButtons {
+    padding: 1.5rem 1rem;
+    background-color: white;
+  }
 }
 
 .markdownContainer {

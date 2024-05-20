@@ -91,7 +91,7 @@ const Sidebar = ({
           )
         );
       })}
-      {mode !== 'view' && <hr className={styles.sideBarHorizontalLine} />}
+      {mode !== 'view' && <hr className={styles.divider} />}
       <div className={styles.sidenavActions}>
         {allowUnspecifiedAll && mode !== 'view' && (
           <div style={{ marginBottom: '.6rem' }}>
