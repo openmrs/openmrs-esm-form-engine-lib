@@ -4,11 +4,10 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
 import { DatePicker, DatePickerInput, Layer, TimePicker } from '@carbon/react';
-import { formatDate } from '@openmrs/esm-framework';
 import { isTrue } from '../../../utils/boolean-utils';
 import { type FormFieldProps } from '../../../types';
 import { isInlineView } from '../../../utils/form-helper';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
@@ -24,7 +23,6 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [time, setTime] = useState('');
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -128,13 +126,13 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
               <DatePicker
                 datePickerType="single"
                 onChange={onDateChange}
-                className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}
+                className={classNames(styles.boldedLabel)}
                 dateFormat={carbonDateFormat}>
                 <DatePickerInput
                   id={question.id}
                   placeholder={placeholder}
                   labelText={
-                    question.required ? (
+                    question.isRequired ? (
                       <RequiredFieldLabel label={t(question.label)} />
                     ) : (
                       <span>{t(question.label)}</span>

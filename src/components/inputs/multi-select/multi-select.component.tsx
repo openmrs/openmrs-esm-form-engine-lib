@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FilterableMultiSelect, Layer, Tag } from '@carbon/react';
-import classNames from 'classnames';
 import { useField } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import { ValueEmpty } from '../../value/value.component';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -21,7 +20,6 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
     React.useContext(FormContext);
   const [counter, setCounter] = useState(0);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   const selectOptions = question.questionOptions.answers
     .filter((answer) => !answer.isHidden)
@@ -80,7 +78,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   ) : (
     !question.isHidden && (
       <>
-        <div className={classNames(styles.boldedLabel, { [styles.errorLabel]: isFieldRequiredError })}>
+        <div className={styles.boldedLabel}>
           <Layer>
             <FilterableMultiSelect
               placeholder={t('search', 'Search') + '...'}
@@ -90,7 +88,11 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
               initialSelectedItems={initiallySelectedQuestionItems}
               label={''}
               titleText={
-                question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+                question.isRequired ? (
+                  <RequiredFieldLabel label={t(question.label)} />
+                ) : (
+                  <span>{t(question.label)}</span>
+                )
               }
               key={counter}
               itemToString={(item) => (item ? item.label : ' ')}

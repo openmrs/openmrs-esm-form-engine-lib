@@ -1,6 +1,7 @@
 import { type FormField } from '../types';
 import { FieldValidator } from './form-validator';
 
+
 describe('FieldValidator - validate', () => {
   const numberInputField: FormField = {
     label: 'A Question of type obs that renders a Number input',
@@ -13,6 +14,19 @@ describe('FieldValidator - validate', () => {
     },
     meta: {},
     id: 'sampleNumberQuestion',
+  };
+
+  const numberWithDecimalsInputField: FormField = {
+    label: 'A Question of type obs that renders a Number input',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'number',
+      concept: 'a-system-defined-concept-uuid',
+      disallowDecimals: true,
+      min: '5.0',
+      max: '10.0',
+    },
+    id: 'sampleNumberWithDecimalsQuestion',
   };
 
   const textInputField: FormField = {
@@ -64,7 +78,7 @@ describe('FieldValidator - validate', () => {
   };
 
   it('should fail on wrong max length only for inputText', () => {
-    const validationErrors = FieldValidator.validate(textInputFieldWithMaxValidation, 'super long text to test');
+    const validationErrors = FieldValidator.validate(textInputFieldWithMaxValidation, 'super long text to test', null);
 
     expect(validationErrors).toEqual([
       {
@@ -76,7 +90,7 @@ describe('FieldValidator - validate', () => {
   });
 
   it('should fail on wrong min length only for inputText', () => {
-    const validationErrors = FieldValidator.validate(textInputFieldWithMinValidation, 'sup');
+    const validationErrors = FieldValidator.validate(textInputFieldWithMinValidation, 'sup', null);
 
     expect(validationErrors).toEqual([
       {
@@ -91,13 +105,14 @@ describe('FieldValidator - validate', () => {
     const validationErrors = FieldValidator.validate(
       textInputFieldWithoutValidation,
       'super text super text super text',
+      null
     );
 
     expect(validationErrors).toEqual([]);
   });
 
   it('should fail for text length greater than the max defined length', () => {
-    const validationErrors = FieldValidator.validate(textInputField, 'super text super text super text');
+    const validationErrors = FieldValidator.validate(textInputField, 'super text super text super text', null);
 
     expect(validationErrors).toEqual([
       {
@@ -109,7 +124,7 @@ describe('FieldValidator - validate', () => {
   });
 
   it('should fail for text length lesser than the min defined length', () => {
-    const validationErrors = FieldValidator.validate(textInputField, 'text');
+    const validationErrors = FieldValidator.validate(textInputField, 'text', null);
 
     expect(validationErrors).toEqual([
       {
@@ -121,23 +136,23 @@ describe('FieldValidator - validate', () => {
   });
 
   it('should accept value with length within the defined range', () => {
-    const validationErrors = FieldValidator.validate(textInputField, 'qwertyu');
+    const validationErrors = FieldValidator.validate(textInputField, 'qwertyu', null);
     expect(validationErrors).toEqual([]);
   });
 
   it('should accept value with length equal to minLength', () => {
-    const validationErrors = FieldValidator.validate(textInputField, 'qwert');
+    const validationErrors = FieldValidator.validate(textInputField, 'qwert', null);
     expect(validationErrors).toEqual([]);
   });
 
   it('should accept value with length equal to maxLength', () => {
-    const validationErrors = FieldValidator.validate(textInputField, 'qwertyuiop');
+    const validationErrors = FieldValidator.validate(textInputField, 'qwertyuiop', null);
     expect(validationErrors).toEqual([]);
   });
 
   // Number Input Validator Tests
   it('should fail for number lesser than the defined min allowed', () => {
-    const validationErrors = FieldValidator.validate(numberInputField, 3);
+    const validationErrors = FieldValidator.validate(numberInputField, 3, null);
 
     expect(validationErrors).toEqual([
       {
@@ -149,12 +164,23 @@ describe('FieldValidator - validate', () => {
   });
 
   it('should fail for numbers greater than the defined max allowed', () => {
-    const validationErrors = FieldValidator.validate(numberInputField, 100);
+    const validationErrors = FieldValidator.validate(numberInputField, 100, null);
 
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
         message: `Value must be lower than ${numberInputField.questionOptions.max}`,
+        resultType: 'error',
+      },
+    ]);
+  });
+
+  it('should fail for numbers with decimals', () => {
+    const validationErrors = FieldValidator.validate(numberWithDecimalsInputField, 8.5, null);
+    expect(validationErrors).toEqual([
+      {
+        errCode: 'field.outOfBound',
+        message: 'Decimal values are not allowed for this field',
         resultType: 'error',
       },
     ]);

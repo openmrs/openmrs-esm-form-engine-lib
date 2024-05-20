@@ -107,7 +107,7 @@ export class EncounterFormManager {
 
 function prepareObs(obsForSubmission: OpenmrsObs[], fields: FormField[]) {
   fields
-    .filter((field) => hasSubmitableObs(field))
+    .filter((field) => hasSubmittableObs(field))
     .forEach((field) => {
       if ((field.isHidden || field.isParentHidden) && field.meta.previousValue) {
         const valuesArray = Array.isArray(field.meta.previousValue)
@@ -163,12 +163,10 @@ function addObsToList(obsList: Array<Partial<OpenmrsObs>>, obs: Partial<OpenmrsO
   }
 }
 
-function hasSubmitableObs(field: FormField) {
+function hasSubmittableObs(field: FormField) {
   const {
     questionOptions: { isTransient },
     type,
-    isHidden,
-    isParentHidden,
   } = field;
 
   if (isTransient || !['obs', 'obsGroup'].includes(type) || hasRendering(field, 'file') || field['groupId']) {

@@ -3,7 +3,7 @@ import { Layer, NumberInput } from '@carbon/react';
 import classNames from 'classnames';
 import { useField } from 'formik';
 import { isTrue } from '../../../utils/boolean-utils';
-import { fieldRequiredErrCode, isEmpty } from '../../../validators/form-validator';
+import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { type FormFieldProps } from '../../../types';
@@ -15,10 +15,9 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 
 const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { t } = useTranslation();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const isFieldRequiredError = useMemo(() => errors[0]?.errCode == fieldRequiredErrCode, [errors]);
 
   field.onBlur = (event) => {
     if (event && event.target.value != field.value) {
@@ -67,7 +66,9 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         id={question.id}
         invalid={errors.length > 0}
         invalidText={errors[0]?.message}
-        label={question.required ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>}
+        label={
+          question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+        }
         max={Number(question.questionOptions.max) || undefined}
         min={Number(question.questionOptions.min) || undefined}
         name={question.id}
@@ -78,10 +79,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         onWheel={(e) => e.target.blur()}
         disabled={question.disabled}
         readOnly={question.readonly}
-        className={classNames(
-          styles.controlWidthConstrained,
-          isFieldRequiredError ? styles.errorLabel : styles.boldedLabel,
-        )}
+        className={classNames(styles.controlWidthConstrained, styles.boldedLabel)}
         warn={warnings.length > 0}
         warnText={warnings[0]?.message}
         step={0.01}
