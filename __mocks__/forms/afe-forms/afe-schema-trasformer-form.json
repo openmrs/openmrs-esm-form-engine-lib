@@ -48,22 +48,6 @@
               ]
             },
             {
-              "id": "dem_encounter_role",
-              "type": "obsGroup",
-              "questionOptions": {
-                "rendering": "group"
-              },
-              "questions": [
-                {
-                  "label": "Encounter Role",
-                  "type": "encounterRole",
-                  "questionOptions": {
-                    "rendering": "ui-select-extended"
-                  }
-                }
-              ]
-            },
-            {
               "id": "labOrder",
               "type": "testOrder",
               "label": "Add Lab Order",

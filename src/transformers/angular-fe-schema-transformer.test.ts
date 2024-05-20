@@ -35,14 +35,6 @@ const expectedTransformedSchema = {
               },
             },
             {
-              label: 'Encounter Role',
-              id: 'dem_encounter_role',
-              type: 'encounterRole',
-              questionOptions: {
-                rendering: 'encounter-role',
-              },
-            },
-            {
               id: 'dem_encounter_location',
               type: 'obsGroup',
               questionOptions: {
