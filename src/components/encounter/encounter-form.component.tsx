@@ -28,20 +28,19 @@ import { FieldValidator, isEmpty } from '../../validators/form-validator';
 import { scrollIntoView } from '../../utils/scroll-into-view';
 import { useEncounter } from '../../hooks/useEncounter';
 import { useInitialValues } from '../../hooks/useInitialValues';
-import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { useConcepts } from '../../hooks/useConcepts';
 import { useFormFieldHandlers } from '../../hooks/useFormFieldHandlers';
 import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
 import { useTranslation } from 'react-i18next';
 import { EncounterFormManager } from './encounter-form-manager';
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
-import { findAndRegisterReferencedFields, linkReferencedFieldValues } from '../../utils/expression-parser';
 
 interface EncounterFormProps {
   formJson: FormSchema;
   patient: any;
   formSessionDate: Date;
   provider: string;
+  role: string;
   location: SessionLocation;
   visit?: Visit;
   values: Record<string, any>;
@@ -66,6 +65,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   patient,
   formSessionDate,
   provider,
+  role,
   location,
   visit,
   values,
@@ -82,13 +82,13 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   allInitialValues,
   setAllInitialValues,
   isSubmitting,
-  setIsSubmitting,
 }) => {
   const { t } = useTranslation();
   const [fields, setFields] = useState<Array<FormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
   const [encounterDate, setEncounterDate] = useState(formSessionDate);
   const [encounterProvider, setEncounterProvider] = useState(provider);
+  const [encounterRole, setEncounterRole] = useState(role);
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(formJson);
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
@@ -107,16 +107,17 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
       encounterDate: formSessionDate,
       encounterProvider: provider,
+      encounterRole: role,
       form: form,
       visit: visit,
       setEncounterDate,
       setEncounterProvider,
       setEncounterLocation,
+      setEncounterRole,
       initValues: initValues,
     }),
     [encounter, form?.encounter, encounterLocation, patient, previousEncounter, sessionMode, initValues],
   );
-  const { encounterRole } = useEncounterRole();
 
   // given the form, flatten the fields and pull out all concept references
   const [flattenedFields, conceptReferences] = useMemo(() => {
@@ -435,8 +436,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     const patientIdentifiers = EncounterFormManager.preparePatientIdentifiers(fields, encounterLocation);
     const encounter = EncounterFormManager.prepareEncounter(
       fields,
-      { ...encounterContext, encounterProvider, location: encounterLocation },
-      encounterRole,
+      { ...encounterContext, encounterProvider, encounterRole, location: encounterLocation },
       visit,
       formJson.encounterType,
       formJson.uuid,
@@ -728,6 +728,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               patient={patient}
               formSessionDate={encounterDate}
               provider={provider}
+              role={role}
               location={location}
               visit={visit}
               values={values}

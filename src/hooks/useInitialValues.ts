@@ -22,6 +22,7 @@ export function useInitialValues(
     'encounterDatetime',
     'encounterLocation',
     'patientIdentifier',
+    'encounterRole'
   ];
 
   useEffect(() => {

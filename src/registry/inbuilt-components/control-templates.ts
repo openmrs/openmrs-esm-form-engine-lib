@@ -26,6 +26,12 @@ export const controlTemplates: Array<ControlTemplate> = [
     },
   },
   {
+    name: 'encounter-role',
+    datasource: {
+      name: 'encounter_role_datasource',
+    },
+  },
+  {
     name: 'encounter-location',
     datasource: {
       name: 'location_datasource',

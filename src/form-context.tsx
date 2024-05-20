@@ -32,6 +32,8 @@ export interface EncounterContext {
   encounterProvider: string;
   setEncounterProvider(value: string): void;
   setEncounterLocation(value: any): void;
+  encounterRole: string;
+  setEncounterRole(value: string): void;
   initValues?: Record<string, any>;
   patientIdentifier?: PatientIdentifier;
 }
