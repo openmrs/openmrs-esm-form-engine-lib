@@ -474,27 +474,25 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       }
       // handle attachments
 
-      if (EncounterFormManager.evaluatedAttachmentFields(fields)?.length) {
-        try {
-          const attachmentsResponse = await Promise.all(
-            EncounterFormManager.saveAttachments(fields, savedEncounter, abortController),
-          );
-          if (attachmentsResponse?.length) {
-            showSnackbar({
-              title: t('attachmentsSaved', 'Attachment(s) saved successfully'),
-              kind: 'success',
-              isLowContrast: true,
-            });
-          }
-        } catch (error) {
-          const errorMessages = extractErrorMessagesFromResponse(error);
-          return Promise.reject({
-            title: t('errorSavingAttachments', 'Error saving attachment(s)'),
-            subtitle: errorMessages.join(', '),
-            kind: 'error',
-            isLowContrast: false,
+      try {
+        const attachmentsResponse = await Promise.all(
+          EncounterFormManager.saveAttachments(fields, savedEncounter, abortController),
+        );
+        if (attachmentsResponse?.length) {
+          showSnackbar({
+            title: t('attachmentsSaved', 'Attachment(s) saved successfully'),
+            kind: 'success',
+            isLowContrast: true,
           });
         }
+      } catch (error) {
+        const errorMessages = extractErrorMessagesFromResponse(error);
+        return Promise.reject({
+          title: t('errorSavingAttachments', 'Error saving attachment(s)'),
+          subtitle: errorMessages.join(', '),
+          kind: 'error',
+          isLowContrast: false,
+        });
       }
 
       return savedEncounter;
