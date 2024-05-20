@@ -9,7 +9,7 @@ export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
         });
       }
     });
-    if(form?.meta?.programs) {
+    if (form.meta?.programs) {
       handleProgramMetaTags(form);
     }
     return form;
@@ -87,7 +87,7 @@ function handleSelectConceptAnswers(question: FormField) {
 function handleProgramMetaTags(form: FormSchema) {
   if (form.meta.programs.isEnrollment || form.meta.programs.discontinuationDateQuestionId) {
     const config = {
-      programUuid: form.meta.programs.uuid
+      programUuid: form.meta.programs.uuid,
     };
 
     if (form.meta.programs.isEnrollment) {
@@ -96,10 +96,12 @@ function handleProgramMetaTags(form: FormSchema) {
       config['completionDate'] = form.meta.programs.discontinuationDateQuestionId;
     }
 
-    form.postSubmissionActions = [{
-      actionId: "ProgramEnrollmentSubmissionAction",
-      enabled: "true",
-      config
-    }];
+    form.postSubmissionActions = [
+      {
+        actionId: 'ProgramEnrollmentSubmissionAction',
+        enabled: 'true',
+        config,
+      },
+    ];
   }
 }
