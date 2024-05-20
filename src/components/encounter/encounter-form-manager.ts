@@ -80,6 +80,9 @@ export class EncounterFormManager {
 
   static saveAttachments(fields: FormField[], encounter: OpenmrsEncounter, abortController: AbortController) {
     const complexFields = fields?.filter((field) => field?.questionOptions.rendering === 'file');
+
+    if (!complexFields?.length) return [];
+
     return complexFields.map((field) => {
       const patientUuid = typeof encounter?.patient === 'string' ? encounter?.patient : encounter?.patient?.uuid;
       return saveAttachment(
