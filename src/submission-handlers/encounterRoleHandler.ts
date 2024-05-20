@@ -11,7 +11,6 @@ export const EncounterRoleHandler: SubmissionHandler = {
     allFormFields: Array<FormField>,
     context: EncounterContext,
   ) => {
-    console.log(encounter, '---handlker')
     if (encounter) {
       return encounter.encounterProviders[0]?.encounterRole;
     } else {
