@@ -37,14 +37,13 @@
   letter-spacing: 0.16px;
   color: colors.$gray-100;
   cursor: pointer;
+
+  :hover {
+    outline: none;
+  }
 }
 
-.link:hover {
-  outline: none;
-}
-
-// Sidebar-Section
-.sidebarSection {
+.section {
   border-left: 0.5rem solid colors.$teal-20;
   display: flex;
   align-items: center;
@@ -54,41 +53,69 @@
   cursor: pointer;
 }
 
-.sidebarSectionLink {
+/* Tablet */
+:global(.omrs-breakpoint-lt-desktop) {
+  .section {
+    height: 3rem;
+  }
+}
+
+.sectionLink {
   @include type.type-style('body-01');
   color: colors.$gray-100;
 }
 
-.sidebarSectionActive {
-  @extend .sidebarSection;
+.activeSection {
+  @extend .section;
   border-left: 0.5rem solid colors.$teal-50;
   background-color: #ededed;
 
-  .sidebarSectionLink {
+  .sectionLink {
     font-weight: 600;
   }
 }
 
-.sidebarSectionDone {
-  @extend .sidebarSection;
+.sectionDone {
+  @extend .section;
   border-left: 0.5rem solid colors.$teal-80;
   background-color: colors.$green-10;
 }
 
-.sidebarSectionError {
-  @extend .sidebarSection;
+.erroredSection {
+  @extend .section;
   border-left: 0.5rem solid colors.$red-60;
   color: colors.$red-70 !important;
   background-color: colors.$red-20;
 }
 
-.sidebarSectionErrorActive {
-  @extend .sidebarSectionError;
+.activeErroredSection {
+  @extend .erroredSection;
   font-weight: 600;
 }
 
 .divider {
   border: 0;
-  border-top: 0.5px solid colors.$gray-40;
-  margin: 1rem 0.5rem;
+  border-top: 1px solid colors.$gray-40;
+  margin: 2.5rem 0.5rem 1rem;
+}
+
+.button {
+  width: 11rem;
+}
+
+.topMargin {
+  margin-top: 1.5rem;
+}
+
+.saveButton {
+  @extend .button;
+  margin-bottom: 0.625rem;
+}
+
+.closeButton {
+  @extend .button;
+}
+
+.toggleContainer {
+  margin-bottom: 0.5rem;
 }

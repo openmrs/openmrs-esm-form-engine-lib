@@ -1,18 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
-import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
 import { DatePicker, DatePickerInput, Layer, TimePicker } from '@carbon/react';
-import { isTrue } from '../../../utils/boolean-utils';
 import { type FormFieldProps } from '../../../types';
+import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './date.scss';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
@@ -126,7 +125,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
               <DatePicker
                 datePickerType="single"
                 onChange={onDateChange}
-                className={classNames(styles.boldedLabel)}
+                className={styles.boldedLabel}
                 dateFormat={carbonDateFormat}>
                 <DatePickerInput
                   id={question.id}

@@ -285,7 +285,7 @@ const FormEngine: React.FC<FormProps> = ({
                         <MarkdownWrapper markdown={refinedFormJson.markdown} />
                       </div>
                     )}
-                    <div className={classNames(styles.contentBody)}>
+                    <div className={styles.contentBody}>
                       <EncounterForm
                         formJson={refinedFormJson}
                         patient={patient}
