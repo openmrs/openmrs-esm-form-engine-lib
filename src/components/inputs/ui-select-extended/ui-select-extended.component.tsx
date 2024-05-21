@@ -15,7 +15,13 @@ import RequiredFieldLabel from '../../required-field-label/required-field-label.
 import styles from './ui-select-extended.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
-const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
+const UiSelectExtended: React.FC<FormFieldProps> = ({
+  question,
+  handler,
+  onChange,
+  previousValue,
+  dataSourceReference,
+}) => {
   const { t } = useTranslation();
   const [field] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
@@ -37,15 +43,20 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
 
   useEffect(() => {
     const dataSource = question.questionOptions?.datasource?.name;
+
     setConfig(
-      dataSource
+      question.questionOptions.rendering === 'select-concept-answers' && dataSourceReference
+        ? //the idea is to only use this for select-concept-answers, we need to find a way to restrict is from passing to this point
+          //if the rendering is not s-c-a...
+          dataSourceReference
+        : dataSource
         ? question.questionOptions.datasource?.config
         : getControlTemplate(question.questionOptions.rendering)?.datasource?.config,
     );
     getRegisteredDataSource(dataSource ? dataSource : question.questionOptions.rendering).then((ds) =>
       setDataSource(ds),
     );
-  }, [question.questionOptions?.datasource]);
+  }, [question.questionOptions?.datasource, dataSourceReference]);
 
   const handleChange = (value) => {
     setFieldValue(question.id, value);

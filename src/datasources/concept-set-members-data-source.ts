@@ -7,7 +7,7 @@ export class ConceptSetMembersDataSource extends BaseOpenMRSDataSource {
   }
 
   fetchData(searchTerm: string, config?: Record<string, any>): Promise<any[]> {
-    const apiUrl = this.url.replace('conceptUuid', config.concept);
+    const apiUrl = this.url.replace('conceptUuid', config.value || config.concept);
     return openmrsFetch(apiUrl).then(({ data }) => {
       return data['setMembers'];
     });

@@ -12,13 +12,15 @@ import RequiredFieldLabel from '../../required-field-label/required-field-label.
 import styles from './dropdown.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
-const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
+const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue, setDataSourceReference }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
 
   const handleChange = (value) => {
+    //WIP, built into one field to test functionlaity, will expand
+    setDataSourceReference((initialState) => ({ ...initialState, [question.id]: { value: value } }));
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
     handler?.handleFieldSubmission(question, value, encounterContext);

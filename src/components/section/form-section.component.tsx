@@ -29,9 +29,12 @@ interface FieldComponentMap {
 const FormSection = ({ fields, onFieldChange }) => {
   const [previousValues, setPreviousValues] = useState<Record<string, previousValue>>({});
   const [fieldComponentMapEntries, setFieldComponentMapEntries] = useState<FieldComponentMap[]>([]);
+  const [dataSourceReference, setDataSourceReference] = useState({}); //will add stringent types here as well
   const { encounterContext, fields: fieldsFromEncounter } = useContext(FormContext);
 
   const noop = () => {};
+
+  Object.entries(dataSourceReference).length && console.log('dataSourceReference', dataSourceReference);
 
   useEffect(() => {
     Promise.all(
@@ -83,6 +86,8 @@ const FormSection = ({ fields, onFieldChange }) => {
                   handler={handler}
                   useField={useField}
                   previousValue={previousValues[fieldDescriptor.id]}
+                  dataSourceReference={dataSourceReference[fieldDescriptor.questionOptions.config?.referencedField]}
+                  setDataSourceReference={setDataSourceReference}
                 />
               );
 
