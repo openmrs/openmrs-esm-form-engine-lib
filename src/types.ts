@@ -1,6 +1,6 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FieldHelperProps, type FieldInputProps, type FieldMetaProps } from 'formik';
-import { Dispatch, SetStateAction } from 'react';
+import { type Dispatch, type SetStateAction } from 'react';
 import { type EncounterContext } from './form-context';
 
 /**

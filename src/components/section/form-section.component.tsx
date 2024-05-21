@@ -34,8 +34,6 @@ const FormSection = ({ fields, onFieldChange }) => {
 
   const noop = () => {};
 
-  Object.entries(dataSourceReference).length && console.log('dataSourceReference', dataSourceReference);
-
   useEffect(() => {
     Promise.all(
       fields.map(async (fieldDescriptor) => {
