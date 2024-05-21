@@ -84,3 +84,7 @@ typings/
 /playwright/.cache/
 e2e/storageState.json
 results.xml
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
