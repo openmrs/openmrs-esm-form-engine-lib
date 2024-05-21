@@ -2,14 +2,15 @@ import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { BaseOpenMRSDataSource } from './data-source';
 
 export class ConceptSetMembersDataSource extends BaseOpenMRSDataSource {
+  //might need to rename if we are returning both setMembers and answers
   constructor() {
-    super(`${restBaseUrl}/concept/conceptUuid?v=custom:(uuid,setMembers:(uuid,display))`);
+    super(`${restBaseUrl}/concept/conceptUuid?v=custom:(uuid,setMembers:(uuid,display),answers:(uuid,display))`);
   }
 
   fetchData(searchTerm: string, config?: Record<string, any>): Promise<any[]> {
     const apiUrl = this.url.replace('conceptUuid', config.value || config.concept);
     return openmrsFetch(apiUrl).then(({ data }) => {
-      return data['setMembers'];
+      return data['setMembers']?.length ? data['setMembers'] : data['answers'];
     });
   }
 }
