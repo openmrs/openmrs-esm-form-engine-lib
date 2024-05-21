@@ -4,7 +4,7 @@ import { type OpenmrsForm, type PatientIdentifier, type ProgramEnrollmentPayload
 import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
-  const url = encounterUuid ? `${restBaseUrl}/encounter/${encounterUuid}?v=full` : `${restBaseUrl}/encounter?v=full`;
+  const url = encounterUuid ? `${restBaseUrl}/encounter/${encounterUuid}?v=${encounterRepresentation}` : `${restBaseUrl}/encounter?v=${encounterRepresentation}`;
 
   return openmrsFetch(url, {
     headers: {
