@@ -191,7 +191,11 @@ const FormEngine: React.FC<FormProps> = ({
                       if (result?.data) {
                         encounterData.push(result.data);
                       }
+                      if (result?.uuid) {
+                        encounterData.push(result);
+                      }
                     });
+
                     if (encounterData.length) {
                       const isActionEnabled = enabled ? evaluatePostSubmissionExpression(enabled, encounterData) : true;
                       if (isActionEnabled) {
@@ -251,17 +255,17 @@ const FormEngine: React.FC<FormProps> = ({
         setIsFormDirty(props.dirty);
 
         return (
-          <Form className={classNames('cds--form', 'no-padding', styles.formEngine)} ref={ref}>
+          <Form className={classNames('cds--form', styles.formEngine)} ref={ref}>
             {isLoadingPatient || isLoadingFormJson ? (
               <Loader />
             ) : (
-              <div className={styles.formEngineContainer}>
+              <div className={styles.container}>
                 {isLoadingFormDependencies && (
                   <div className={styles.linearActivity}>
                     <div className={styles.indeterminate}></div>
                   </div>
                 )}
-                <div className={styles.formEngineBody}>
+                <div className={styles.body}>
                   {showSidebar && (
                     <Sidebar
                       isFormSubmitting={isSubmitting}
@@ -278,17 +282,14 @@ const FormEngine: React.FC<FormProps> = ({
                       hideFormCollapseToggle={hideFormCollapseToggle}
                     />
                   )}
-                  <div className={styles.formContent}>
+                  <div className={styles.content}>
                     {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow />}
                     {refinedFormJson.markdown && (
                       <div className={styles.markdownContainer}>
                         <MarkdownWrapper markdown={refinedFormJson.markdown} />
                       </div>
                     )}
-                    <div
-                      className={classNames(styles.formContentBody, {
-                        [styles.minifiedFormContentBody]: workspaceLayout === 'minimized' || sessionMode === 'view',
-                      })}>
+                    <div className={styles.contentBody}>
                       <EncounterForm
                         formJson={refinedFormJson}
                         patient={patient}
