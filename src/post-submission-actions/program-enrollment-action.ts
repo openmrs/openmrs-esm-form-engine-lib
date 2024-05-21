@@ -3,11 +3,13 @@ import { showToast, translateFrom } from '@openmrs/esm-framework';
 import { createProgramEnrollment, getPatientEnrolledPrograms, updateProgramEnrollment } from '../api/api';
 import { type PostSubmissionAction, type ProgramEnrollmentPayload } from '../types';
 import { moduleName } from '../globals';
+import isDate from 'lodash/isDate';
 
 export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
   applyAction: async function ({ patient, encounters, sessionMode }, config) {
     const encounter = encounters[0];
     const encounterLocation = encounter.location['uuid'];
+    const encounterDate: string = encounter.encounterDatetime.toString();
 
     const translateFn = (key, defaultValue?) => translateFrom(moduleName, key, defaultValue);
 
@@ -25,7 +27,7 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
       const payload: ProgramEnrollmentPayload = {
         patient: patient.id,
         program: programUuid,
-        dateEnrolled: enrollmentDate ? dayjs(enrollmentDate).format() : null,
+        dateEnrolled: isDate(enrollmentDate) ? dayjs(enrollmentDate).format() : encounterDate,
         dateCompleted: completionDate ? dayjs(completionDate).format() : null,
         location: encounterLocation,
       };
@@ -47,8 +49,8 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
                 'This patient is already enrolled in the selected program',
               ),
             });
+            return;
           }
-          return;
         }
         createProgramEnrollment(payload, abortController).then(
           (response) => {
@@ -56,7 +58,7 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
               showToast({
                 critical: true,
                 kind: 'success',
-                description: translateFn('enrolledToProgram', 'Patient enrolled into ${programName}'),
+                description: translateFn('enrolledToProgram', 'Patient enrolled into program'),
                 title: translateFn('enrollmentSaved', 'Enrollment saved'),
               });
             }

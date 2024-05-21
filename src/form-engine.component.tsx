@@ -191,7 +191,11 @@ const FormEngine: React.FC<FormProps> = ({
                       if (result?.data) {
                         encounterData.push(result.data);
                       }
+                      if (result?.uuid) {
+                        encounterData.push(result);
+                      }
                     });
+
                     if (encounterData.length) {
                       const isActionEnabled = enabled ? evaluatePostSubmissionExpression(enabled, encounterData) : true;
                       if (isActionEnabled) {

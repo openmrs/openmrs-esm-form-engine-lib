@@ -77,12 +77,15 @@ export interface FormSchema {
   readonly?: string | boolean;
   inlineRendering?: 'single-line' | 'multiline' | 'automatic';
   markdown?: any;
-  postSubmissionActions?: Array<{ actionId: string; config?: Record<string, any> }>;
+  postSubmissionActions?: Array<{ actionId: string; enabled?: string, config?: Record<string, any> }>;
   formOptions?: {
     usePreviousValueDisabled: boolean;
   };
   version?: string;
   translations?: Record<string, string>;
+  meta?: {
+    programs?: Record<string, any>;
+  }
 }
 
 export interface FormPage {
