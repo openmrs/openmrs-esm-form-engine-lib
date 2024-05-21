@@ -5,7 +5,7 @@ export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
     form.pages.forEach((page) => {
       if (page.sections) {
         page.sections.forEach((section) => {
-          section?.questions?.forEach((question, index) => handleQuestion(question, index));
+          section?.questions?.forEach((question, index) => handleQuestion(question, form));
         });
       }
     });
@@ -16,12 +16,19 @@ export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
   },
 };
 
-function handleQuestion(question: FormField, index) {
+function handleQuestion(question: FormField, form: FormSchema) {
+  if (question.type === 'programState') {
+    const formMeta = form.meta ?? {};
+    formMeta.programs = formMeta.programs
+      ? { ...formMeta.programs, hasProgramFields: true }
+      : { hasProgramFields: true };
+    form.meta = formMeta;
+  }
   try {
     transformByType(question);
     transformByRendering(question);
     if (question?.questions?.length) {
-      question.questions.forEach((question) => handleQuestion(question, index));
+      question.questions.forEach((question) => handleQuestion(question, form));
     }
   } catch (error) {
     console.error(error);

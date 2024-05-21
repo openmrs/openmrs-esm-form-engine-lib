@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { showToast, translateFrom } from '@openmrs/esm-framework';
-import { createProgramEnrollment, getPatientEnrolledPrograms, updateProgramEnrollment } from '../api/api';
-import { type PostSubmissionAction, type ProgramEnrollmentPayload } from '../types';
+import { getPatientEnrolledPrograms, saveProgramEnrollment } from '../api/api';
+import { type PostSubmissionAction, type PatientProgramPayload } from '../types';
 import { moduleName } from '../globals';
 import isDate from 'lodash/isDate';
 
@@ -24,7 +24,7 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
 
     if (programUuid) {
       const abortController = new AbortController();
-      const payload: ProgramEnrollmentPayload = {
+      const payload: PatientProgramPayload = {
         patient: patient.id,
         program: programUuid,
         dateEnrolled: isDate(enrollmentDate) ? dayjs(enrollmentDate).format() : encounterDate,
@@ -52,7 +52,7 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
             return;
           }
         }
-        createProgramEnrollment(payload, abortController).then(
+        saveProgramEnrollment(payload, abortController).then(
           (response) => {
             if (response.status === 201) {
               showToast({
@@ -85,7 +85,7 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
           if (!payload.dateEnrolled) {
             payload.dateEnrolled = patientProgramEnrollment.dateEnrolled;
           }
-          updateProgramEnrollment(patientProgramEnrollment.uuid, payload, abortController).then(
+          saveProgramEnrollment({ ...payload, uuid: patientProgramEnrollment.uuid }, abortController).then(
             (response) => {
               if (response.status === 200) {
                 showToast({

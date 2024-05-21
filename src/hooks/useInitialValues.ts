@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { type EncounterContext, inferInitialValueFromDefaultFieldValue, isEmpty } from '..';
 import { type FormField, type OpenmrsEncounter, type SubmissionHandler } from '../types';
 import { evaluateAsyncExpression } from '../utils/expression-runner';
-import { hydateRepeatField } from '../components/repeat/helpers';
+import { hydrateRepeatField } from '../components/repeat/helpers';
 import { hasRendering } from '../utils/common-utils';
 
 export function useInitialValues(
   formFields: FormField[],
   encounter: OpenmrsEncounter,
+  isLoadingContextDependencies: boolean,
   encounterContext: EncounterContext,
   formFieldHandlers: Record<string, SubmissionHandler>,
 ) {
@@ -26,6 +27,9 @@ export function useInitialValues(
   ];
 
   useEffect(() => {
+    if (isLoadingContextDependencies) {
+      return;
+    }
     const asyncItemsKeys = Object.keys(asyncInitValues ?? {});
     if (asyncItemsKeys.length) {
       Promise.all(asyncItemsKeys.map((key) => asyncInitValues[key])).then((results) => {
@@ -47,7 +51,7 @@ export function useInitialValues(
     } else if (asyncInitValues) {
       setHasResolvedCalculatedValues(true);
     }
-  }, [asyncInitValues, formFieldHandlers]);
+  }, [asyncInitValues, formFieldHandlers, isLoadingContextDependencies]);
 
   useEffect(() => {
     const repeatableFields = [];
@@ -56,7 +60,7 @@ export function useInitialValues(
       toggle: false,
       default: '',
     };
-    if (!Object.keys(formFieldHandlers).length) {
+    if (!Object.keys(formFieldHandlers).length || isLoadingContextDependencies) {
       return;
     }
     if (encounter) {
@@ -91,10 +95,10 @@ export function useInitialValues(
             initialValues[`${field.id}-unspecified`] = !existingVal;
           }
         });
-      const flatenedFields = repeatableFields.flatMap((field) =>
-        hydateRepeatField(field, formFields, encounter, initialValues, formFieldHandlers),
+      const flattenedFields = repeatableFields.flatMap((field) =>
+        hydrateRepeatField(field, formFields, encounter, initialValues, formFieldHandlers),
       );
-      formFields.push(...flatenedFields);
+      formFields.push(...flattenedFields);
       setIsEncounterBindingComplete(true);
       // TODO: Address behaviour in edit mode; see: https://issues.openmrs.org/browse/O3-2252
       setAsyncInitValues({});
@@ -135,7 +139,7 @@ export function useInitialValues(
       setAsyncInitValues({ ...(asyncInitValues ?? {}), ...tempAsyncValues });
     }
     setInitialValues({ ...initialValues });
-  }, [encounter, formFieldHandlers]);
+  }, [encounter, formFieldHandlers, isLoadingContextDependencies]);
 
   useEffect(() => {
     const emptyValues = {
@@ -145,7 +149,7 @@ export function useInitialValues(
     };
     const attachmentFields = formFields.filter((field) => field.questionOptions.rendering === 'file');
 
-    if (attachmentFields.length) {
+    if (attachmentFields.length && !isLoadingContextDependencies) {
       if (encounter) {
         Promise.all(
           attachmentFields.map((field) => {
@@ -167,7 +171,7 @@ export function useInitialValues(
         });
       }
     }
-  }, [encounter]);
+  }, [encounter, isLoadingContextDependencies]);
   return {
     initialValues,
     isBindingComplete: isEncounterBindingComplete && hasResolvedCalculatedValues,

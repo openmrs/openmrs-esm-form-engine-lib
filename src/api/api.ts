@@ -1,6 +1,6 @@
 import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
-import { type OpenmrsForm, type PatientIdentifier, type ProgramEnrollmentPayload } from '../types';
+import { type OpenmrsForm, type PatientIdentifier, type PatientProgramPayload } from '../types';
 import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
@@ -129,22 +129,7 @@ export async function fetchClobData(form: OpenmrsForm): Promise<any | null> {
   return clobDataResponse;
 }
 
-function dataURItoFile(dataURI: string) {
-  const byteString = atob(dataURI.split(',')[1]);
-  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-
-  // write the bytes of the string to a typed array
-  const buffer = new Uint8Array(byteString.length);
-
-  for (let i = 0; i < byteString.length; i++) {
-    buffer[i] = byteString.charCodeAt(i);
-  }
-
-  const blob = new Blob([buffer], { type: mimeString });
-  return blob;
-}
-
-//Program Enrollment
+// Program Enrollment
 export function getPatientEnrolledPrograms(patientUuid: string) {
   return openmrsFetch(
     `${restBaseUrl}/programenrollment?patient=${patientUuid}&v=custom:(uuid,display,program:(uuid,name,allWorkflows),dateEnrolled,dateCompleted,location:(uuid,display),states:(state:(uuid,name,concept:(uuid),programWorkflow:(uuid)))`,
@@ -156,36 +141,17 @@ export function getPatientEnrolledPrograms(patientUuid: string) {
   });
 }
 
-export function createProgramEnrollment(payload: ProgramEnrollmentPayload, abortController: AbortController) {
+export function saveProgramEnrollment(payload: PatientProgramPayload, abortController: AbortController) {
   if (!payload) {
     throw new Error('Program enrollment cannot be created because no payload is supplied');
   }
-  const { program, patient, dateEnrolled, dateCompleted, location } = payload;
-  return openmrsFetch(`${restBaseUrl}/programenrollment`, {
+  const url = payload.uuid ? `${restBaseUrl}/programenrollment/${payload.uuid}` : `${restBaseUrl}/programenrollment`;
+  return openmrsFetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: { program, patient, dateEnrolled, dateCompleted, location },
-    signal: abortController.signal,
-  });
-}
-
-export function updateProgramEnrollment(
-  programEnrollmentUuid: string,
-  payload: ProgramEnrollmentPayload,
-  abortController: AbortController,
-) {
-  if (!payload || !programEnrollmentUuid) {
-    throw new Error('Program enrollment cannot be edited without a payload or a program Uuid');
-  }
-  const { dateEnrolled, dateCompleted, location } = payload;
-  return openmrsFetch(`${restBaseUrl}/programenrollment/${programEnrollmentUuid}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: { dateEnrolled, dateCompleted, location },
+    body: JSON.stringify(payload),
     signal: abortController.signal,
   });
 }
@@ -205,37 +171,5 @@ export function savePatientIdentifier(patientIdentifier: PatientIdentifier, pati
     },
     method: 'POST',
     body: JSON.stringify(patientIdentifier),
-  });
-}
-
-export function saveProgramEnrollment(payload: ProgramEnrollmentPayload, abortController: AbortController) {
-  if (!payload) {
-    throw new Error('Program enrollment cannot be created because no payload is supplied');
-  }
-  const { program, patient, dateEnrolled, dateCompleted, location, states, uuid } = payload;
-  const body = {
-    program,
-    patient,
-    dateEnrolled,
-    dateCompleted,
-    location,
-    ...(states && { states }),
-    ...(uuid && { uuid }),
-  };
-  let url: string;
-
-  if (payload.uuid) {
-    url = `${restBaseUrl}/programenrollment/${payload.uuid}`;
-  } else {
-    url = `${restBaseUrl}/programenrollment`;
-  }
-
-  return openmrsFetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-    signal: abortController.signal,
   });
 }

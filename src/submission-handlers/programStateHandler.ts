@@ -1,6 +1,5 @@
 import { clearSubmission } from '../utils/common-utils';
 import { type EncounterContext, type FormField, type OpenmrsEncounter, type SubmissionHandler } from '..';
-import { getPatientProgram } from '../components/encounter/encounter-form-manager';
 import isEmpty from 'lodash-es/isEmpty';
 import dayjs from 'dayjs';
 
@@ -10,11 +9,10 @@ export const ProgramStateHandler: SubmissionHandler = {
     if (field.meta?.previousValue?.value === value || isEmpty(value)) {
       return null;
     }
-    const formattedvalue = (field.meta.submission.newValue = {
+    field.meta.submission.newValue = {
       state: value,
-      startDate: dayjs(context.encounterDate).format(),
-    });
-    return formattedvalue;
+      startDate: dayjs().format(),
+    };
   },
   getInitialValue: (
     encounter: OpenmrsEncounter,
@@ -22,16 +20,16 @@ export const ProgramStateHandler: SubmissionHandler = {
     allFormFields: Array<FormField>,
     context: EncounterContext,
   ) => {
-    const programWorkflows = getPatientProgram(context.patientPrograms, field.questionOptions.programUuid);
-
-    if (programWorkflows?.states?.length > 0) {
-      return programWorkflows.states.find(
-        (state) => state.state.programWorkflow?.uuid == field.questionOptions.workFlowUuid,
-      ).state.uuid;
+    const program = context.patientPrograms.find(
+      (program) => program.program.uuid === field.questionOptions.programUuid,
+    );
+    if (program?.states?.length > 0) {
+      return program.states
+        .filter((state) => !state.endDate)
+        .find((state) => state.state.programWorkflow?.uuid === field.questionOptions.workflowUuid)?.state?.uuid;
     }
     return null;
   },
-
   getDisplayValue: (field: FormField, value: any) => {
     return value;
   },

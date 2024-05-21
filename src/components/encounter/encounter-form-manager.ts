@@ -5,7 +5,7 @@ import {
   type OpenmrsEncounter,
   type OpenmrsObs,
   type PatientIdentifier,
-  type ProgramEnrollmentPayload,
+  type PatientProgramPayload,
 } from '../../types';
 import { type EncounterContext } from '../../form-context';
 import { saveAttachment, saveEncounter, savePatientIdentifier, saveProgramEnrollment } from '../../api/api';
@@ -109,56 +109,33 @@ export class EncounterFormManager {
     });
   }
 
-  static prepareProgramEnrollment(
+  static preparePatientPrograms(
     fields: FormField[],
-    encounterLocation: string,
     patient: fhir.Patient,
-    encounterContext: EncounterContext,
-    patientPrograms: Array<PatientProgram>,
-  ) {
-    const programUuid = fields.find((field) => field.type === 'programState')?.questionOptions.programUuid;
-    const programEnrollmentInfo = getPatientProgram(patientPrograms, programUuid);
-    const supportedStates = programEnrollmentInfo?.states;
-    const patientProgramState = fields
-      .filter((field) => field.type === 'programState')
-      .map((field) => field?.meta?.submission?.newValue);
-    const currentProgramState = mergeStatesAndUpdatePrevious(patientProgramState, supportedStates);
-
-    if (!programEnrollmentInfo) {
+    currentPatientPrograms: Array<PatientProgram>,
+  ): Array<PatientProgramPayload> {
+    const programFields = fields.filter((field) => field.type === 'programState' && hasSubmission(field));
+    return programFields.map((field) => {
+      const programUuid = field.questionOptions.programUuid;
+      const existingProgramEnrollment = currentPatientPrograms.find((program) => program.program.uuid === programUuid);
+      if (existingProgramEnrollment) {
+        return {
+          uuid: existingProgramEnrollment.uuid,
+          states: [field.meta.submission.newValue],
+        };
+      }
       return {
         patient: patient.id,
         program: programUuid,
-        states: currentProgramState,
-        dateEnrolled: dayjs(encounterContext.encounterDate).format(),
-        location: encounterLocation,
+        states: [field.meta.submission.newValue],
+        dateEnrolled: dayjs().format(),
       };
-    } else {
-      return {
-        states: currentProgramState,
-        dateEnrolled: dayjs(encounterContext.encounterDate).format(),
-        location: encounterLocation,
-        uuid: programEnrollmentInfo.uuid,
-      };
-    }
+    });
   }
 
-  static saveProgramEnrollments = (
-    programPayload: ProgramEnrollmentPayload,
-    sessionMode: string,
-    patientPrograms: Array<PatientProgram>,
-  ) => {
+  static savePatientPrograms = (patientPrograms: PatientProgramPayload[]) => {
     const ac = new AbortController();
-    if (programPayload.program) {
-      const patientProgramEnrollment = patientPrograms.filter(
-        (enrollment) => enrollment.program.uuid === programPayload.program && enrollment.dateCompleted === null,
-      );
-
-      if (sessionMode === 'enter' && patientProgramEnrollment?.length > 0) {
-        throw new Error('Patient enrolled into program');
-      } else {
-        return saveProgramEnrollment(programPayload, ac);
-      }
-    }
+    return Promise.all(patientPrograms.map((programPayload) => saveProgramEnrollment(programPayload, ac)));
   };
 }
 
@@ -235,23 +212,4 @@ function hasSubmittableObs(field: FormField) {
     return true;
   }
   return !field.isHidden && !field.isParentHidden && (type === 'obsGroup' || hasSubmission(field));
-}
-
-export function getPatientProgram(patientPrograms: Array<PatientProgram>, programUuid: string) {
-  return patientPrograms.find((program) => program.program.uuid === programUuid);
-}
-
-function mergeStatesAndUpdatePrevious(currentStates, previousStates) {
-  previousStates?.forEach((previousState) => {
-    const matchingObj = currentStates?.find((currentState) => currentState?.state == previousState?.state.uuid);
-    if (!matchingObj) {
-      const formattedMatchedObj = {
-        state: previousState?.state?.uuid,
-        startDate: previousState.startDate,
-        endDate: previousState.startDate,
-      };
-      currentStates.push(formattedMatchedObj);
-    }
-  });
-  return currentStates;
 }
