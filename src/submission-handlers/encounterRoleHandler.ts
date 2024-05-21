@@ -12,7 +12,7 @@ export const EncounterRoleHandler: SubmissionHandler = {
     context: EncounterContext,
   ) => {
     if (encounter) {
-      return encounter.encounterProviders[0]?.encounterRole;
+      return encounter.encounterProviders[0]?.encounterRole?.uuid;
     } else {
       return context.encounterRole;
     }
@@ -22,7 +22,7 @@ export const EncounterRoleHandler: SubmissionHandler = {
     return value;
   },
   getPreviousValue: (field: FormField, encounter: OpenmrsEncounter, allFormFields: Array<FormField>) => {
-    const encounterRole = encounter.encounterProviders[0]?.encounterRole;
+    const encounterRole = encounter.encounterProviders[0]?.encounterRole?.uuid;
     return encounterRole || null;
   },
 };

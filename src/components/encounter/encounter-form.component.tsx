@@ -107,7 +107,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
       encounterDate: formSessionDate,
       encounterProvider: provider,
-      encounterRole: role,
+      encounterRole,
       form: form,
       visit: visit,
       setEncounterDate,
@@ -728,7 +728,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               patient={patient}
               formSessionDate={encounterDate}
               provider={provider}
-              role={role}
+              role={encounterRole}
               location={location}
               visit={visit}
               values={values}
