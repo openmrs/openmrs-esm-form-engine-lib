@@ -77,3 +77,10 @@ typings/
 
 # vscode
 .vscode/*
+
+# Playwright and e2e tests
+/test-results/
+/playwright-report/
+/playwright/.cache/
+e2e/storageState.json
+results.xml

@@ -10,7 +10,7 @@ module.exports = {
     },
   },
   coverageReporters: ['json-summary', 'lcov'],
-  collectCoverageFrom: ['./src/**', '!./src/components/**/*.snap'],
+  collectCoverageFrom: ['./src/**', '!./src/components/**/*.snap', '!**/e2e/**'],
   transform: {
     '^.+\\.(t|j)sx?$': '@swc/jest',
   },
