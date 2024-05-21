@@ -1,5 +1,12 @@
 .loaderContainer {
-  height: calc(100vh - var(--omrs-navbar-height) - var(--workspace-header-height));
+  height: var(--desktop-workspace-window-height);
+}
+
+// tablet
+:global(.omrs-breakpoint-lt-desktop) {
+  .loaderContainer {
+    height: var(--tablet-workspace-window-height);
+  }
 }
 
 .loader {
