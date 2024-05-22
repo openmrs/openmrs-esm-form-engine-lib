@@ -39,37 +39,41 @@ function handleQuestion(question: FormField, form: FormSchema) {
 }
 
 export function handleInlinedDate(questions: Array<FormField>): Array<FormField> {
-  const updatedQuestions: Array<FormField> = [];
+  try {
+    const updatedQuestions: Array<FormField> = [];
 
-  questions.forEach((question) => {
-    updatedQuestions.push(question);
+    questions.forEach((question) => {
+      updatedQuestions.push(question);
 
-    const defaultDisableExpression = { disableWhenExpression: `isEmpty(${question.id})`};
+      const defaultDisableExpression = { disableWhenExpression: `isEmpty(${question.id})`};
 
-    if (question.type !== 'inlineDate' && isTrue(question.questionOptions.showDate)) {
+      if (question.type !== 'inlineDate' && isTrue(question.questionOptions.showDate)) {
 
-      const inlinedDate: FormField = {
-        id: `${question.id}-inline-date`,
-        label: `Date for ${question.label}`,
-        type: 'inlineDate',
-        questionOptions: {
-          rendering: 'date',
-          isTransient: true,
-        },
-        validators: question?.questionOptions?.showDateOptions?.validators,
-        disable: defaultDisableExpression,
-        hide: question?.questionOptions?.showDateOptions?.hide,
-        meta: {
-          targetField: question.id,
-          previousValue: question?.meta?.previousValue?.obsDatetime
-        },
-      };
+        const inlinedDate: FormField = {
+          id: `${question.id}-inline-date`,
+          label: `Date for ${question.label}`,
+          type: 'inlineDate',
+          questionOptions: {
+            rendering: 'date',
+            isTransient: true,
+          },
+          validators: question?.questionOptions?.showDateOptions?.validators,
+          disable: defaultDisableExpression,
+          hide: question?.questionOptions?.showDateOptions?.hide,
+          meta: {
+            targetField: question.id,
+            previousValue: question?.meta?.previousValue?.obsDatetime
+          },
+        };
 
-      updatedQuestions.push(inlinedDate);
-    }
-  });
+        updatedQuestions.push(inlinedDate);
+      }
+    });
 
-  return updatedQuestions;
+    return updatedQuestions;
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function transformByType(question: FormField) {

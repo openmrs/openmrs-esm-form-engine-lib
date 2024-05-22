@@ -223,7 +223,7 @@ export interface FormQuestionOptions {
   maxLength?: string;
   minLength?: string;
   showDate?: string;
-  showDateOptions?: { validators: Array<Record<string, any>>, hide: { hideWhenExpression: string; }, disable: DisableProps }
+  showDateOptions?: { validators?: Array<Record<string, any>>, hide?: { hideWhenExpression: string; }, disable?: DisableProps }
   answers?: Array<QuestionAnswerOption>;
   weeksList?: string;
   locationTag?: string;
