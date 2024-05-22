@@ -36,6 +36,9 @@ function transformByType(question: FormField) {
     case 'encounterLocation':
       question.questionOptions.rendering = 'encounter-location';
       break;
+    case 'encounterRole':
+      question.questionOptions.rendering = 'encounter-role';
+      break;
   }
 }
 

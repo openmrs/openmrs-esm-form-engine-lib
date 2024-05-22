@@ -257,6 +257,7 @@ export type RenderType =
   | 'datetime'
   | 'encounter-location'
   | 'encounter-provider'
+  | 'encounter-role'
   | 'fixed-value'
   | 'file'
   | 'group'

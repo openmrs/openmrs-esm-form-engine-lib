@@ -21,4 +21,8 @@ export const templateToComponentMap = [
     name: 'select-concept-answers',
     baseControlComponent: UiSelectExtended,
   },
+  {
+    name: 'encounter-role',
+    baseControlComponent: UiSelectExtended,
+  },
 ];
