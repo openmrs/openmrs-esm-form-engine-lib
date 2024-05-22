@@ -27,4 +27,5 @@ module.exports = {
   },
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   testEnvironment: 'jsdom',
+  testPathIgnorePatterns: [path.resolve(__dirname, 'e2e')],
 };

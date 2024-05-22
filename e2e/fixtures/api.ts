@@ -17,8 +17,8 @@ export const api: WorkerFixture<APIRequestContext, PlaywrightWorkerArgs> = async
   const ctx = await playwright.request.newContext({
     baseURL: `${process.env.E2E_BASE_URL}/ws/rest/v1/`,
     httpCredentials: {
-      username: process.env.E2E_USER_ADMIN_USERNAME,
-      password: process.env.E2E_USER_ADMIN_PASSWORD,
+      username: process.env.E2E_USER_ADMIN_USERNAME!,
+      password: process.env.E2E_USER_ADMIN_PASSWORD!,
     },
   });
 
