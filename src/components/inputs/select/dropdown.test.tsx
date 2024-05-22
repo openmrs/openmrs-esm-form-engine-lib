@@ -50,6 +50,8 @@ const encounterContext: EncounterContext = {
   setEncounterLocation: jest.fn,
 };
 
+const setDataSourceReference = jest.fn();
+
 const renderForm = (initialValues) => {
   render(
     <Formik initialValues={initialValues} onSubmit={null}>
@@ -65,7 +67,12 @@ const renderForm = (initialValues) => {
             isSubmitting: false,
             formFieldHandlers: { obs: ObsSubmissionHandler },
           }}>
-          <Dropdown question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
+          <Dropdown
+            question={question}
+            onChange={jest.fn()}
+            handler={ObsSubmissionHandler}
+            setDataSourceReference={setDataSourceReference}
+          />
         </FormContext.Provider>
       )}
     </Formik>,
