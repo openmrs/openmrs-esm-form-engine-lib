@@ -2,9 +2,7 @@ import { type EncounterContext, type FormField, type OpenmrsEncounter, type Subm
 import { hasSubmission } from '../utils/common-utils';
 import { isEmpty } from '../validators/form-validator';
 
-const locale = window.i18next?.language == 'en' ? 'en-GB' : window.i18next?.language;
-
-export const InlineDateHandler = {
+export const InlineDateHandler: SubmissionHandler = {
   handleFieldSubmission(field: FormField, value: any, context: EncounterContext) {
     const targetField = context.getFormField(field.meta.targetField);
     if (hasSubmission(targetField) && !isEmpty(value)) {

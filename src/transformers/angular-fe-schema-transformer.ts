@@ -6,8 +6,7 @@ export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
     form.pages.forEach((page) => {
       if (page.sections) {
         page.sections.forEach((section) => {
-          const updatedQuestions = handleInlinedDate(section.questions);
-          section.questions = updatedQuestions;
+          section.questions = handleQuestionsWithDateOptions(section.questions);
           section?.questions?.forEach((question, index) => handleQuestion(question, form));
         });
       }
@@ -38,7 +37,7 @@ function handleQuestion(question: FormField, form: FormSchema) {
   }
 }
 
-export function handleInlinedDate(questions: Array<FormField>): Array<FormField> {
+export function handleQuestionsWithDateOptions(questions: Array<FormField>): Array<FormField> {
   try {
     const updatedQuestions: Array<FormField> = [];
 
@@ -50,16 +49,16 @@ export function handleInlinedDate(questions: Array<FormField>): Array<FormField>
       if (question.type !== 'inlineDate' && isTrue(question.questionOptions.showDate)) {
 
         const inlinedDate: FormField = {
-          id: `${question.id}-inline-date`,
+          id: `${question.id}_inline_date`,
           label: `Date for ${question.label}`,
           type: 'inlineDate',
           questionOptions: {
             rendering: 'date',
             isTransient: true,
           },
-          validators: question?.questionOptions?.showDateOptions?.validators,
+          validators: question?.questionOptions?.shownDateOptions?.validators,
           disable: defaultDisableExpression,
-          hide: question?.questionOptions?.showDateOptions?.hide,
+          hide: question.questionOptions.shownDateOptions?.hide ?? question.hide,
           meta: {
             targetField: question.id,
             previousValue: question?.meta?.previousValue?.obsDatetime
