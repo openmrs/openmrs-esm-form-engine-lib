@@ -1,8 +1,7 @@
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { BaseOpenMRSDataSource } from './data-source';
 
-export class ConceptSetMembersDataSource extends BaseOpenMRSDataSource {
-  //might need to rename if we are returning both setMembers and answers
+export class ConceptSetAndAnswersDataSource extends BaseOpenMRSDataSource {
   constructor() {
     super(`${restBaseUrl}/concept/conceptUuid?v=custom:(uuid,setMembers:(uuid,display),answers:(uuid,display))`);
   }

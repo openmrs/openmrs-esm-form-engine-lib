@@ -158,7 +158,7 @@ export interface FormFieldProps {
   // This is of util to components defined out of the engine
   useField?: (fieldId: string) => [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
   previousValue?: previousValue;
-  dataSourceReference?: Record<string, any>; //will update with better types
+  dataSourceReference?: dataSourceValue;
   setDataSourceReference?: Dispatch<SetStateAction<{}>>;
 }
 
@@ -245,7 +245,7 @@ export interface FormQuestionOptions {
   orderSettingUuid?: string;
   orderType?: string;
   selectableOrders?: Array<Record<any, any>>;
-  config?: Record<string, any>; //will also clean this up
+  config?: Record<'referencedField', string>;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
@@ -433,4 +433,11 @@ export interface Order {
   patient?: string;
   orderNumber?: string;
   voided?: boolean;
+}
+
+export interface dataSourceReferenceType {
+  [fieldId: string]: dataSourceValue;
+}
+interface dataSourceValue {
+  value: string;
 }

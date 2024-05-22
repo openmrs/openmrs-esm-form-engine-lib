@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
-import type { FormField, FormFieldProps, previousValue, SubmissionHandler } from '../../types';
+import type { dataSourceReferenceType, FormField, FormFieldProps, previousValue, SubmissionHandler } from '../../types';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ToastNotification } from '@carbon/react';
 import {
@@ -29,7 +29,7 @@ interface FieldComponentMap {
 const FormSection = ({ fields, onFieldChange }) => {
   const [previousValues, setPreviousValues] = useState<Record<string, previousValue>>({});
   const [fieldComponentMapEntries, setFieldComponentMapEntries] = useState<FieldComponentMap[]>([]);
-  const [dataSourceReference, setDataSourceReference] = useState({}); //will add stringent types here as well
+  const [dataSourceReference, setDataSourceReference] = useState<dataSourceReferenceType>({});
   const { encounterContext, fields: fieldsFromEncounter } = useContext(FormContext);
 
   const noop = () => {};

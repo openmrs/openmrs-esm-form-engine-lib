@@ -46,9 +46,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({
 
     setConfig(
       question.questionOptions.rendering === 'select-concept-answers' && dataSourceReference
-        ? //the idea is to only use this for select-concept-answers, we need to find a way to restrict is from passing to this point
-          //if the rendering is not s-c-a...
-          dataSourceReference
+        ? dataSourceReference
         : dataSource
         ? question.questionOptions.datasource?.config
         : getControlTemplate(question.questionOptions.rendering)?.datasource?.config,

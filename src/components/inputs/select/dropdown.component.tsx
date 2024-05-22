@@ -19,7 +19,6 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
 
   const handleChange = (value) => {
-    //WIP, built into one field to test functionlaity, will expand
     setDataSourceReference((initialState) => ({ ...initialState, [question.id]: { value: value } }));
     setFieldValue(question.id, value);
     onChange(question.id, value, setErrors, setWarnings);
