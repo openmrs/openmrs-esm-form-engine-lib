@@ -1,10 +1,13 @@
 import { type FormField, type FormSchemaTransformer, type FormSchema } from '../types';
+import { isTrue } from '../utils/boolean-utils';
 
 export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
   transform: (form: FormSchema) => {
     form.pages.forEach((page) => {
       if (page.sections) {
         page.sections.forEach((section) => {
+          const updatedQuestions = handleInlinedDate(section.questions);
+          section.questions = updatedQuestions;
           section?.questions?.forEach((question, index) => handleQuestion(question, form));
         });
       }
@@ -33,6 +36,39 @@ function handleQuestion(question: FormField, form: FormSchema) {
   } catch (error) {
     console.error(error);
   }
+}
+
+export function handleInlinedDate(questions: Array<FormField>): Array<FormField> {
+  const updatedQuestions: Array<FormField> = [];
+
+  questions.forEach((question) => {
+    updatedQuestions.push(question);
+
+    if (question.type !== 'inlineDate' && isTrue(question.questionOptions.showDate)) {
+
+      const inlinedDate: FormField = {
+        id: `${question.id}-inline-date`,
+        label: `Date for ${question.label}`,
+        type: 'inlineDate',
+        questionOptions: {
+          rendering: 'date',
+          isTransient: true,
+        },
+        validators: question?.questionOptions?.showDateOptions?.validators,
+        hide: question?.questionOptions?.showDateOptions?.hide,
+        // disabled: !question?.meta?.submission?.newValue, // this is not working, we need a way to listen to the value change
+        meta: {
+          targetField: question.id,
+          previousValue: question?.meta?.previousValue?.obsDatetime
+        },
+      };
+
+      // Insert the new inlinedDate question right after the current question
+      updatedQuestions.push(inlinedDate);
+    }
+  });
+
+  return updatedQuestions;
 }
 
 function transformByType(question: FormField) {

@@ -99,6 +99,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [initValues, setInitValues] = useState({});
   const { isLoading: isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(patient?.id, formJson);
 
+  const getFormField = (id: string) => fields.find(field => field.id === id);
+
   const layoutType = useLayoutType();
   const { encounterContext, isLoadingContextDependencies } = useMemo(() => {
     const contextObject = {
@@ -118,6 +120,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setEncounterProvider,
       setEncounterLocation,
       setEncounterRole,
+      getFormField,
     };
     return {
       encounterContext: contextObject,

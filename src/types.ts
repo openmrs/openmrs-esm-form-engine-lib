@@ -124,7 +124,7 @@ export interface FormField {
   isRequired?: boolean;
   required?: string | boolean | RequiredFieldProps;
   unspecified?: boolean;
-  disabled?: boolean;
+  disabled?: boolean | string;
   readonly?: string | boolean;
   inlineRendering?: 'single-line' | 'multiline' | 'automatic';
   validators?: Array<Record<string, any>>;
@@ -222,6 +222,7 @@ export interface FormQuestionOptions {
   maxLength?: string;
   minLength?: string;
   showDate?: string;
+  showDateOptions?: { validators: Array<Record<string, any>>, hide: { hideWhenExpression: string; }, disable: DisableProps }
   answers?: Array<QuestionAnswerOption>;
   weeksList?: string;
   locationTag?: string;

@@ -38,6 +38,7 @@ export interface EncounterContext {
   initValues?: Record<string, any>;
   patientIdentifier?: PatientIdentifier;
   patientPrograms?: Array<PatientProgram>;
+  getFormField?: (id: string) => FormField;
 }
 
 export const FormContext = React.createContext<FormContextProps | undefined>(undefined);
