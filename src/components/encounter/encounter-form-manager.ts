@@ -15,12 +15,11 @@ export class EncounterFormManager {
   static prepareEncounter(
     allFields: FormField[],
     encounterContext: EncounterContext,
-    encounterRole: OpenmrsResource,
     visit: OpenmrsResource,
     encounterType: string,
     formUuid: string,
   ) {
-    const { patient, encounter, encounterDate, encounterProvider, location } = encounterContext;
+    const { patient, encounter, encounterDate, encounterRole, encounterProvider, location } = encounterContext;
     const obsForSubmission = [];
     prepareObs(obsForSubmission, allFields);
     const ordersForSubmission = prepareOrders(allFields);
@@ -39,7 +38,7 @@ export class EncounterFormManager {
           ...encounterForSubmission.encounterProviders,
           {
             provider: encounterProvider,
-            encounterRole: encounterRole?.uuid,
+            encounterRole,
           },
         ];
         encounterForSubmission.form = {
@@ -60,7 +59,7 @@ export class EncounterFormManager {
         encounterProviders: [
           {
             provider: encounterProvider,
-            encounterRole: encounterRole?.uuid,
+            encounterRole,
           },
         ],
         obs: obsForSubmission,

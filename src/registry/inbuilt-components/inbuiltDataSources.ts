@@ -4,6 +4,7 @@ import {ConceptDataSource} from '../../datasources/concept-data-source';
 import {LocationDataSource} from '../../datasources/location-data-source';
 import {ProviderDataSource} from '../../datasources/provider-datasource';
 import {ConceptSetMembersDataSource} from '../../datasources/concept-set-members-data-source';
+import { EncounterRoleDataSource } from '../../datasources/encounter-role-datasource';
 
 /**
  * @internal
@@ -28,6 +29,10 @@ export const inbuiltDataSources: Array<RegistryItem<DataSource<any>>> = [
   {
     name: 'provider_datasource',
     component: new ProviderDataSource(),
+  },
+  {
+    name: 'encounter_role_datasource',
+    component: new EncounterRoleDataSource(),
   },
 ];
 
