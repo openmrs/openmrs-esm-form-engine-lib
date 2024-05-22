@@ -240,6 +240,11 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           } else {
             field.isRequired = isTrue(field.required);
           }
+          if (field.disable) {
+            evalDisable({ value: field, type: 'field' }, flattenedFields, tempInitialValues);
+          } else {
+            field.disabled = false;
+          }
 
           field.questionOptions.answers
             ?.filter((answer) => !isEmpty(answer.hide?.hideWhenExpression))
@@ -397,6 +402,31 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     }
     if (type == 'section') {
       cascadeVisibityToChildFields(isHidden, value, allFields);
+    }
+  };
+
+  // disable expression
+  const evalDisable = (node, allFields: FormField[], allValues: Record<string, any>) => {
+    const { value, type } = node;
+    const isDisabled = evaluateExpression(value['disable']?.disableWhenExpression, node, allFields, allValues, {
+      mode: sessionMode,
+      patient,
+    });
+    node.value.disabled = isDisabled;
+    if (type == 'field' && node.value?.questions?.length) {
+      node.value?.questions.forEach((question) => {
+        question.disabled = isDisabled;
+      });
+    }
+    // cascade enable/disable
+    if (type == 'page') {
+      value['sections'].forEach((section) => {
+        section.disabled = isDisabled;
+        cascadeVisibityToChildFields(isDisabled, section, allFields);
+      });
+    }
+    if (type == 'section') {
+      cascadeVisibityToChildFields(isDisabled, value, allFields);
     }
   };
 
@@ -612,6 +642,11 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         // evaluate hide
         if (dependant.hide) {
           evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
+        }
+
+        // evaluate disable
+        if (dependant.disable) {
+          evalDisable({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
         }
         // evaluate conditional required
         if (typeof dependant.required === 'object' && dependant.required?.type === 'conditionalRequired') {

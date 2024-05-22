@@ -23,7 +23,8 @@ export const InlineDateHandler = {
       const dateField = field.id.split('-');
       const correspondingQuestion = allFormFields.find(field => field.id === dateField[0]);
       const dateValue = correspondingQuestion?.meta?.previousValue?.obsDatetime;
-      return dateValue instanceof Date ? dateValue.toLocaleDateString(locale) : dateValue;
+
+      return new Date(dateValue);
     }
     return null;
   },
@@ -35,7 +36,7 @@ export const InlineDateHandler = {
       const dateField = field.id.split('-');
       const correspondingQuestion = allFormFields.find(field => field.id === dateField[0]);
       const dateValue = correspondingQuestion?.meta?.previousValue?.obsDatetime;
-      return dateValue instanceof Date ? dateValue.toLocaleDateString(locale) : dateValue;
+      return new Date(dateValue);
     }
     return null;
   },

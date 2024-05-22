@@ -44,6 +44,8 @@ export function handleInlinedDate(questions: Array<FormField>): Array<FormField>
   questions.forEach((question) => {
     updatedQuestions.push(question);
 
+    const defaultDisableExpression = { disableWhenExpression: `isEmpty(${question.id})`};
+
     if (question.type !== 'inlineDate' && isTrue(question.questionOptions.showDate)) {
 
       const inlinedDate: FormField = {
@@ -55,15 +57,14 @@ export function handleInlinedDate(questions: Array<FormField>): Array<FormField>
           isTransient: true,
         },
         validators: question?.questionOptions?.showDateOptions?.validators,
+        disable: defaultDisableExpression,
         hide: question?.questionOptions?.showDateOptions?.hide,
-        // disabled: !question?.meta?.submission?.newValue, // this is not working, we need a way to listen to the value change
         meta: {
           targetField: question.id,
           previousValue: question?.meta?.previousValue?.obsDatetime
         },
       };
 
-      // Insert the new inlinedDate question right after the current question
       updatedQuestions.push(inlinedDate);
     }
   });

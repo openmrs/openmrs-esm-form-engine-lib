@@ -124,7 +124,7 @@ export interface FormField {
   isRequired?: boolean;
   required?: string | boolean | RequiredFieldProps;
   unspecified?: boolean;
-  disabled?: boolean | string;
+  disabled?: boolean;
   readonly?: string | boolean;
   inlineRendering?: 'single-line' | 'multiline' | 'automatic';
   validators?: Array<Record<string, any>>;
@@ -133,6 +133,7 @@ export interface FormField {
   historicalExpression?: string;
   constrainMaxWidth?: boolean;
   meta?: QuestionMetaProps;
+  disable?: DisableProps;
 }
 
 export interface RequiredFieldProps {
