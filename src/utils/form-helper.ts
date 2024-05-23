@@ -5,7 +5,6 @@ import { type EncounterContext } from '../form-context';
 import { type FormField, type FormPage, type FormSection, type SessionMode, type SubmissionHandler } from '../types';
 import { DefaultFieldValueValidator } from '../validators/default-value-validator';
 import { isEmpty } from '../validators/form-validator';
-import { evaluateExpression } from './expression-runner';
 
 export function inferInitialValueFromDefaultFieldValue(
   field: FormField,
@@ -97,9 +96,10 @@ export function evaluateDisabled(
   allValues: Record<string, any>,
   sessionMode: SessionMode,
   patient: fhir.Patient,
+  expressionRunnerFn,
 ) {
   const { value } = node;
-  const isDisabled = evaluateExpression(value['disabled']?.disableWhenExpression, node, allFields, allValues, {
+  const isDisabled = expressionRunnerFn(value['disabled']?.disableWhenExpression, node, allFields, allValues, {
     mode: sessionMode,
     patient,
   });
@@ -112,9 +112,10 @@ export function evaluateHide(
   allValues: Record<string, any>,
   sessionMode: SessionMode,
   patient: fhir.Patient,
+  expressionRunnerFn,
 ) {
   const { value, type } = node;
-  const isHidden = evaluateExpression(value['hide']?.hideWhenExpression, node, allFields, allValues, {
+  const isHidden = expressionRunnerFn(value['hide']?.hideWhenExpression, node, allFields, allValues, {
     mode: sessionMode,
     patient,
   });

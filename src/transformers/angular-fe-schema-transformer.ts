@@ -37,33 +37,30 @@ function handleQuestion(question: FormField, form: FormSchema) {
   }
 }
 
-export function handleQuestionsWithDateOptions(sectionQuestions: Array<FormField>): Array<FormField> {
+function handleQuestionsWithDateOptions(sectionQuestions: Array<FormField>): Array<FormField> {
   const augmentedQuestions: Array<FormField> = [];
-  sectionQuestions.forEach((question) => {
-    try {
-      augmentedQuestions.push(question);
-      if (question.type !== 'inlineDate' && isTrue(question.questionOptions.showDate)) {
-        const inlinedDate: FormField = {
-          id: `${question.id}_inline_date`,
-          label: `Date for ${question.label}`,
-          type: 'inlineDate',
-          questionOptions: {
-            rendering: 'date',
-            isTransient: true,
-          },
-          validators: question?.questionOptions?.shownDateOptions?.validators,
-          disabled: { disableWhenExpression: `isEmpty(${question.id})` },
-          hide: question.questionOptions.shownDateOptions?.hide || question.hide,
-          meta: {
-            targetField: question.id,
-            previousValue: question?.meta?.previousValue?.obsDatetime,
-          },
-        };
 
-        augmentedQuestions.push(inlinedDate);
-      }
-    } catch (error) {
-      console.error(error);
+  sectionQuestions?.forEach((question) => {
+    augmentedQuestions.push(question);
+    if (question.type !== 'inlineDate' && isTrue(question.questionOptions?.showDate)) {
+      const inlinedDate: FormField = {
+        id: `${question.id}_inline_date`,
+        label: `Date for ${question.label}`,
+        type: 'inlineDate',
+        questionOptions: {
+          rendering: 'date',
+          isTransient: true,
+        },
+        validators: question.questionOptions.shownDateOptions?.validators,
+        disabled: { disableWhenExpression: `isEmpty(${question.id})` },
+        hide: question.questionOptions.shownDateOptions?.hide || question.hide,
+        meta: {
+          targetField: question.id,
+          previousValue: question.meta?.previousValue?.obsDatetime,
+        },
+      };
+
+      augmentedQuestions.push(inlinedDate);
     }
   });
 

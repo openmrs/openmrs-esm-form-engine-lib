@@ -231,7 +231,14 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setFields(
         flattenedFields.map((field) => {
           if (field.hide) {
-            evaluateHide({ value: field, type: 'field' }, flattenedFields, tempInitialValues, sessionMode, patient);
+            evaluateHide(
+              { value: field, type: 'field' },
+              flattenedFields,
+              tempInitialValues,
+              sessionMode,
+              patient,
+              evaluateExpression,
+            );
           } else {
             field.isHidden = false;
           }
@@ -248,6 +255,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
                   tempInitialValues,
                   sessionMode,
                   patient,
+                  evaluateExpression,
                 )
               : isTrue(field.disabled);
           }
@@ -350,13 +358,27 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
 
       form?.pages?.forEach((page) => {
         if (page.hide) {
-          evaluateHide({ value: page, type: 'page' }, flattenedFields, tempInitialValues, sessionMode, patient);
+          evaluateHide(
+            { value: page, type: 'page' },
+            flattenedFields,
+            tempInitialValues,
+            sessionMode,
+            patient,
+            evaluateExpression,
+          );
         } else {
           page.isHidden = false;
         }
         page?.sections?.forEach((section) => {
           if (section.hide) {
-            evaluateHide({ value: section, type: 'section' }, flattenedFields, tempInitialValues, sessionMode, patient);
+            evaluateHide(
+              { value: section, type: 'section' },
+              flattenedFields,
+              tempInitialValues,
+              sessionMode,
+              patient,
+              evaluateExpression,
+            );
           } else {
             section.isHidden = false;
           }
@@ -604,6 +626,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             { ...values, [fieldName]: value },
             sessionMode,
             patient,
+            evaluateExpression,
           );
         }
 
@@ -615,6 +638,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             { ...values, [fieldName]: value },
             sessionMode,
             patient,
+            evaluateExpression,
           );
         }
         // evaluate conditional required
@@ -710,6 +734,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               { ...values, [fieldName]: value },
               sessionMode,
               patient,
+              evaluateExpression,
             );
             if (isTrue(section.isHidden)) {
               section.questions.forEach((field) => {
@@ -730,6 +755,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           { ...values, [fieldName]: value },
           sessionMode,
           patient,
+          evaluateExpression,
         );
         if (isTrue(dependant.isHidden)) {
           dependant.sections.forEach((section) => {
