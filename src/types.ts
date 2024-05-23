@@ -160,6 +160,7 @@ export interface FormFieldProps {
   // This is of util to components defined out of the engine
   useField?: (fieldId: string) => [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
   previousValue?: previousValue;
+  referencedField?: any; //improve this type as well
 }
 
 export interface FormSection {
@@ -247,6 +248,7 @@ export interface FormQuestionOptions {
   selectableOrders?: Array<Record<any, any>>;
   programUuid?: string;
   workflowUuid?: string;
+  config?: Record<string, any>; //will improve typing
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';

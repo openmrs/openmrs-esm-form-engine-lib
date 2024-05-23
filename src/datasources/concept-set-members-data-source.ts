@@ -3,13 +3,14 @@ import { BaseOpenMRSDataSource } from './data-source';
 
 export class ConceptSetMembersDataSource extends BaseOpenMRSDataSource {
   constructor() {
-    super(`${restBaseUrl}/concept/conceptUuid?v=custom:(uuid,setMembers:(uuid,display))`);
+    super(`${restBaseUrl}/concept/conceptUuid?v=custom:(uuid,setMembers:(uuid,display),answers:(uuid,display))`);
   }
 
   fetchData(searchTerm: string, config?: Record<string, any>): Promise<any[]> {
-    const apiUrl = this.url.replace('conceptUuid', config.concept);
+    console.log(config);
+    const apiUrl = this.url.replace('conceptUuid', config.value || config.concept);
     return openmrsFetch(apiUrl).then(({ data }) => {
-      return data['setMembers'];
+      return data['setMembers']?.length ? data['setMembers'] : data['answers'];
     });
   }
 }

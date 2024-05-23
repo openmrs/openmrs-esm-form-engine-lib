@@ -97,6 +97,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
+  const [referencedFields, setReferencedFields] = useState([]);
   const { isLoading: isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(patient.id, formJson);
 
   const layoutType = useLayoutType();
@@ -118,6 +119,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setEncounterProvider,
       setEncounterLocation,
       setEncounterRole,
+      referencedFields,
     };
     return {
       encounterContext: contextObject,
@@ -130,6 +132,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     previousEncounter,
     sessionMode,
     initValues,
+    referencedFields,
     patientPrograms,
     isLoadingPatientPrograms,
     isLoadingPreviousEncounter,
@@ -137,7 +140,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   ]);
 
   // given the form, flatten the fields and pull out all concept references
-  const [flattenedFields, conceptReferences] = useMemo(() => {
+  const [flattenedFields, conceptReferences, FieldReferenceDependantFields] = useMemo(() => {
+    const FieldReferenceDependantFields = [];
     const flattenedFieldsTemp = [];
     const conceptReferencesTemp = new Set<string>();
     form.pages?.forEach((page) =>
@@ -148,6 +152,15 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           form.inlineRendering = isEmpty(form.inlineRendering) ? null : form.inlineRendering;
           question.inlineRendering = section.inlineRendering ?? page.inlineRendering ?? form.inlineRendering;
           evaluateFieldReadonlyProp(question, section.readonly, page.readonly, form.readonly);
+
+          if (question.questionOptions.config?.referencedField) {
+            FieldReferenceDependantFields.push({
+              fieldId: question.id,
+              dependantField: question.questionOptions.config?.referencedField,
+              value: '',
+            });
+          }
+
           if (question.questionOptions?.rendering == 'fixed-value' && !question['fixedValue']) {
             question['fixedValue'] = question.value;
           }
@@ -177,7 +190,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         });
       }
     });
-    return [flattenedFieldsTemp, conceptReferencesTemp];
+    setReferencedFields(FieldReferenceDependantFields);
+    return [flattenedFieldsTemp, conceptReferencesTemp, FieldReferenceDependantFields];
   }, []);
 
   const formFieldHandlers = useFormFieldHandlers(flattenedFields);
@@ -724,6 +738,20 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         form_temp[index] = dependant;
         setForm(form_temp);
       });
+    }
+
+    if (referencedFields?.find((item) => item.dependantField === fieldName)) {
+      //check if using FieldReferenceDependantFields will do any difference
+      const referencedFieldswithValue = referencedFields.map((eachField) => {
+        if (eachField.dependantField) {
+          return { ...eachField, value: value };
+        }
+        return eachField;
+      });
+
+      setReferencedFields(referencedFieldswithValue);
+
+      // console.log();
     }
   };
 

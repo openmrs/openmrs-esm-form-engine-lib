@@ -83,6 +83,9 @@ const FormSection = ({ fields, onFieldChange }) => {
                   handler={handler}
                   useField={useField}
                   previousValue={previousValues[fieldDescriptor.id]}
+                  referencedField={encounterContext.referencedFields.find(
+                    (eachItem) => eachItem.fieldId === fieldDescriptor.id,
+                  )}
                 />
               );
 

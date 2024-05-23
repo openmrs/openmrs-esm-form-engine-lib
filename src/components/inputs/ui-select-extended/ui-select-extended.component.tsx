@@ -15,7 +15,13 @@ import RequiredFieldLabel from '../../required-field-label/required-field-label.
 import styles from './ui-select-extended.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
-const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
+const UiSelectExtended: React.FC<FormFieldProps> = ({
+  question,
+  handler,
+  onChange,
+  previousValue,
+  referencedField,
+}) => {
   const { t } = useTranslation();
   const [field] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
@@ -37,15 +43,18 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
 
   useEffect(() => {
     const dataSource = question.questionOptions?.datasource?.name;
+
     setConfig(
-      dataSource
+      referencedField.value
+        ? referencedField
+        : dataSource
         ? question.questionOptions.datasource?.config
         : getControlTemplate(question.questionOptions.rendering)?.datasource?.config,
     );
     getRegisteredDataSource(dataSource ? dataSource : question.questionOptions.rendering).then((ds) =>
       setDataSource(ds),
     );
-  }, [question.questionOptions?.datasource]);
+  }, [question.questionOptions?.datasource, referencedField]);
 
   const handleChange = (value) => {
     setFieldValue(question.id, value);
