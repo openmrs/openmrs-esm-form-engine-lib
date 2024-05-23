@@ -7,6 +7,7 @@ import type {
   FormSchema,
   OpenmrsEncounter,
   QuestionAnswerOption,
+  referenceObjectType,
   SessionMode,
   ValidationResult,
 } from '../../types';
@@ -97,7 +98,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
-  const [referencedFields, setReferencedFields] = useState([]);
+  const [referencedFields, setReferencedFields] = useState<Array<referenceObjectType>>([]);
   const { isLoading: isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(patient.id, formJson);
 
   const layoutType = useLayoutType();
@@ -140,7 +141,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   ]);
 
   // given the form, flatten the fields and pull out all concept references
-  const [flattenedFields, conceptReferences, FieldReferenceDependantFields] = useMemo(() => {
+  const [flattenedFields, conceptReferences] = useMemo(() => {
     const FieldReferenceDependantFields = [];
     const flattenedFieldsTemp = [];
     const conceptReferencesTemp = new Set<string>();
@@ -156,7 +157,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           if (question.questionOptions.config?.referencedField) {
             FieldReferenceDependantFields.push({
               fieldId: question.id,
-              dependantField: question.questionOptions.config?.referencedField,
+              referencedField: question.questionOptions.config?.referencedField,
               value: '',
             });
           }
@@ -740,18 +741,15 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       });
     }
 
-    if (referencedFields?.find((item) => item.dependantField === fieldName)) {
-      //check if using FieldReferenceDependantFields will do any difference
+    if (referencedFields?.find((item) => item.referencedField === fieldName)) {
       const referencedFieldswithValue = referencedFields.map((eachField) => {
-        if (eachField.dependantField) {
+        if (eachField.referencedField) {
           return { ...eachField, value: value };
         }
         return eachField;
       });
 
       setReferencedFields(referencedFieldswithValue);
-
-      // console.log();
     }
   };
 

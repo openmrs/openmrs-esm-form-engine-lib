@@ -7,6 +7,7 @@ import {
   type PatientIdentifier,
   type SessionMode,
   type SubmissionHandler,
+  type referenceObjectType,
 } from './types';
 
 type FormContextProps = {
@@ -38,7 +39,7 @@ export interface EncounterContext {
   initValues?: Record<string, any>;
   patientIdentifier?: PatientIdentifier;
   patientPrograms?: Array<PatientProgram>;
-  referencedFields?: Array<any>; //will need to improve this type as well
+  referencedFields?: Array<referenceObjectType>;
 }
 
 export const FormContext = React.createContext<FormContextProps | undefined>(undefined);
