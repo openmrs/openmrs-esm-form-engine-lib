@@ -11,7 +11,7 @@ import { FormContext } from '../../form-context';
 import { getFieldControlWithFallback } from '../section/helpers';
 import { clearSubmission } from '../../utils/common-utils';
 import RepeatControls from './repeat-controls.component';
-import { getGlobalStore } from '@openmrs/esm-framework';
+import { createErrorHandler, getGlobalStore } from '@openmrs/esm-framework';
 
 const renderingByTypeMap: Record<string, RenderType> = {
   obsGroup: 'group',
@@ -113,7 +113,7 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
     if (handleConfirmQuestionDeletion && typeof handleConfirmQuestionDeletion === 'function') {
       const result = handleConfirmQuestionDeletion(question);
       if (result && typeof result.then === 'function' && typeof result.catch === 'function') {
-        result.then(() => removeNthRow(question)).catch(() => console.error('Modal has being cancelled'));
+        result.then(() => removeNthRow(question)).catch(() => createErrorHandler());
       } else if (typeof result === 'boolean') {
         result && removeNthRow(question);
       } else {
