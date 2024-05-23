@@ -28,13 +28,7 @@ export function cloneRepeatField(srcField: FormField, value: OpenmrsResource, id
         originalGroupMembersIds,
       );
     }
-    if (childField['disable'] && childField['disable'].disableWhenExpression) {
-      childField['disable'].disableWhenExpression = updateFieldIdInExpression(
-        childField['disable'].disableWhenExpression,
-        idSuffix,
-        originalGroupMembersIds,
-      );
-    }
+
     if (childField.validators?.length) {
       childField.validators.forEach((validator) => {
         if (validator.type === 'js_expression') {

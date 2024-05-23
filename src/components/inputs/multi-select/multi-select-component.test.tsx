@@ -12,7 +12,6 @@ const mockOpenmrsFetch = jest.fn();
 global.ResizeObserver = require('resize-observer-polyfill');
 const visit = mockVisit;
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
-const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 
 jest.mock('@openmrs/esm-framework', () => {
   const originalModule = jest.requireActual('@openmrs/esm-framework');

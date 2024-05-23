@@ -70,7 +70,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             itemToString={itemToString}
             selectedItem={field.value}
             onChange={({ selectedItem }) => handleChange(selectedItem)}
-            disabled={question.disabled}
+            disabled={question.isDisabled}
             readOnly={question.readonly}
             invalid={errors.length > 0}
             invalidText={errors[0]?.message}

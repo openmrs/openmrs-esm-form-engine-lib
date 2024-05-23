@@ -77,7 +77,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         size="lg"
         hideSteppers={true}
         onWheel={(e) => e.target.blur()}
-        disabled={question.disabled}
+        disabled={question.isDisabled}
         readOnly={question.readonly}
         className={classNames(styles.controlWidthConstrained, styles.boldedLabel)}
         warn={warnings.length > 0}

@@ -57,8 +57,8 @@ export function handleQuestionsWithDateOptions(questions: Array<FormField>): Arr
             isTransient: true,
           },
           validators: question?.questionOptions?.shownDateOptions?.validators,
-          disable: defaultDisableExpression,
-          hide: question.questionOptions.shownDateOptions?.hide ?? question.hide,
+          disabled: defaultDisableExpression,
+          hide: question.questionOptions.shownDateOptions?.hide || question.hide,
           meta: {
             targetField: question.id,
             previousValue: question?.meta?.previousValue?.obsDatetime

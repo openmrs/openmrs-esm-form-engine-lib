@@ -70,7 +70,7 @@ const UnspecifiedField: React.FC<FormFieldProps> = ({ question, onChange, handle
           value={t('unspecified', 'Unspecified')}
           onChange={handleOnChange}
           checked={field.value}
-          disabled={question.disabled}
+          disabled={question.isDisabled}
         />
       </div>
     )

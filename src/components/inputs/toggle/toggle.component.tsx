@@ -64,7 +64,7 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
           labelB={question.questionOptions.toggleOptions.labelTrue}
           onToggle={handleChange}
           toggled={!!field.value}
-          disabled={question.disabled}
+          disabled={question.isDisabled}
           readOnly={question.readonly}
         />
       </div>
