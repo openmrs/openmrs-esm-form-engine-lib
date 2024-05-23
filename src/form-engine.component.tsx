@@ -4,9 +4,15 @@ import { Form, Formik } from 'formik';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
-import { showSnackbar, useSession, type Visit } from '@openmrs/esm-framework';
+import { createGlobalStore, showSnackbar, useSession, type Visit } from '@openmrs/esm-framework';
 import { init, teardown } from './lifecycle';
-import type { FormPage as FormPageProps, FormSchema, SessionMode } from './types';
+import type {
+  FormField,
+  FormPage as FormPageProps,
+  FormSchema,
+  HandleConfirmDeletionFunctionStore,
+  SessionMode,
+} from './types';
 import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
 import { useFormJson } from './hooks/useFormJson';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
@@ -33,6 +39,7 @@ interface FormProps {
   onSubmit?: () => void;
   onCancel?: () => void;
   handleClose?: () => void;
+  handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   mode?: SessionMode;
   meta?: {
     /**
@@ -69,6 +76,10 @@ export interface FormSubmissionHandler {
   validate: (values) => boolean;
 }
 
+const functionStore = createGlobalStore<HandleConfirmDeletionFunctionStore | null>('functionStore', {
+  handleConfirmQuestionDeletion: null,
+});
+
 const FormEngine: React.FC<FormProps> = ({
   formJson,
   formUUID,
@@ -79,6 +90,7 @@ const FormEngine: React.FC<FormProps> = ({
   onSubmit,
   onCancel,
   handleClose,
+  handleConfirmQuestionDeletion,
   formSessionIntent,
   meta,
   encounterUuid,
@@ -94,6 +106,7 @@ const FormEngine: React.FC<FormProps> = ({
     isLoading: isLoadingFormJson,
     formError,
   } = useFormJson(formUUID, formJson, encounterUUID || encounterUuid, formSessionIntent);
+  if (handleConfirmQuestionDeletion) functionStore.setState({ handleConfirmQuestionDeletion });
 
   const { t } = useTranslation();
   const formSessionDate = useMemo(() => new Date(), []);

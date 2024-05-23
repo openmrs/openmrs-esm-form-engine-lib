@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormGroup } from '@carbon/react';
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { type FormField, type FormFieldProps, type RenderType } from '../../types';
+import type { HandleConfirmDeletionFunctionStore, FormField, FormFieldProps, RenderType } from '../../types';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { isEmpty } from '../../validators/form-validator';
 import styles from './repeat.scss';
@@ -11,7 +11,7 @@ import { FormContext } from '../../form-context';
 import { getFieldControlWithFallback } from '../section/helpers';
 import { clearSubmission } from '../../utils/common-utils';
 import RepeatControls from './repeat-controls.component';
-import { showModal } from '@openmrs/esm-framework';
+import { getGlobalStore } from '@openmrs/esm-framework';
 
 const renderingByTypeMap: Record<string, RenderType> = {
   obsGroup: 'group',
@@ -26,6 +26,9 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   const [counter, setCounter] = useState(0);
   const [rows, setRows] = useState([]);
   const [fieldComponent, setFieldComponent] = useState(null);
+
+  const functionStore = getGlobalStore<HandleConfirmDeletionFunctionStore>('functionStore');
+  const { handleConfirmQuestionDeletion } = functionStore.getState();
 
   useEffect(() => {
     const repeatedFields = allFormFields.filter(
@@ -106,17 +109,17 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
     setRows(rows.filter((q) => q.id !== question.id));
   };
 
-  const onClickDeleteQuestion = (question: FormField) => {
-    try {
-      const dispose = showModal('delete-question-confirm-modal', {
-        onCancel: () => dispose(),
-        onConfirm: () => {
-          removeNthRow(question);
-          dispose();
-        },
-      });
-      if (dispose === null) throw Error('Cannot find modal');
-    } catch (error) {
+  const onClickDeleteQuestion = (question: Readonly<FormField>) => {
+    if (handleConfirmQuestionDeletion && typeof handleConfirmQuestionDeletion === 'function') {
+      const result = handleConfirmQuestionDeletion(question);
+      if (result && typeof result.then === 'function' && typeof result.catch === 'function') {
+        result.then(() => removeNthRow(question)).catch(() => console.error('Modal has being cancelled'));
+      } else if (typeof result === 'boolean') {
+        result && removeNthRow(question);
+      } else {
+        removeNthRow(question);
+      }
+    } else {
       removeNthRow(question);
     }
   };

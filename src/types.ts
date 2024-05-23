@@ -468,3 +468,9 @@ export interface PatientProgramPayload {
     endDate?: string;
   }>;
 }
+
+export interface HandleConfirmDeletionFunctionStore {
+  handleConfirmQuestionDeletion: {
+    (question: Readonly<FormField>): Promise<void>;
+  };
+}
