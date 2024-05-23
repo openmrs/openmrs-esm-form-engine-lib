@@ -45,7 +45,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({
     const dataSource = question.questionOptions?.datasource?.name;
 
     setConfig(
-      referencedField.value
+      referencedField?.value
         ? referencedField
         : dataSource
         ? question.questionOptions.datasource?.config
