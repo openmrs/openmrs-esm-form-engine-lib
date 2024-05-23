@@ -3,7 +3,7 @@ import { type RegistryItem } from '../registry';
 import { ConceptDataSource } from '../../datasources/concept-data-source';
 import { LocationDataSource } from '../../datasources/location-data-source';
 import { ProviderDataSource } from '../../datasources/provider-datasource';
-import { ConceptSetAndAnswersDataSource } from '../../datasources/concept-set-and-answers-data-source';
+import { selectConceptAnswersDatasource } from '../../datasources/concept-set-and-answers-data-source';
 import { EncounterRoleDataSource } from '../../datasources/encounter-role-datasource';
 
 /**
@@ -24,7 +24,7 @@ export const inbuiltDataSources: Array<RegistryItem<DataSource<any>>> = [
   },
   {
     name: 'select_concept_answers_datasource',
-    component: new ConceptSetAndAnswersDataSource(),
+    component: new selectConceptAnswersDatasource(),
   },
   {
     name: 'provider_datasource',
