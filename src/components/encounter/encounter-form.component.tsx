@@ -34,6 +34,7 @@ import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
 import { useTranslation } from 'react-i18next';
 import { EncounterFormManager } from './encounter-form-manager';
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
+import { usePatientPrograms } from '../../hooks/usePatientPrograms';
 
 interface EncounterFormProps {
   formJson: FormSchema;
@@ -96,28 +97,44 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [isFieldInitializationComplete, setIsFieldInitializationComplete] = useState(false);
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
+  const { isLoading: isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(patient.id, formJson);
 
   const layoutType = useLayoutType();
-  const encounterContext = useMemo(
-    () => ({
+  const { encounterContext, isLoadingContextDependencies } = useMemo(() => {
+    const contextObject = {
       patient: patient,
       encounter: encounter,
       previousEncounter,
       location: encounterLocation,
-      sessionMode: sessionMode || (form?.encounter ? 'edit' : 'enter'),
+      sessionMode: sessionMode || (encounter ? 'edit' : 'enter'),
       encounterDate: formSessionDate,
       encounterProvider: provider,
       encounterRole,
       form: form,
       visit: visit,
+      initValues: initValues,
+      patientPrograms,
       setEncounterDate,
       setEncounterProvider,
       setEncounterLocation,
       setEncounterRole,
-      initValues: initValues,
-    }),
-    [encounter, form?.encounter, encounterLocation, patient, previousEncounter, sessionMode, initValues],
-  );
+    };
+    return {
+      encounterContext: contextObject,
+      isLoadingContextDependencies: isLoadingEncounter || isLoadingPreviousEncounter || isLoadingPatientPrograms,
+    };
+  }, [
+    encounter,
+    encounterLocation,
+    patient,
+    previousEncounter,
+    sessionMode,
+    initValues,
+    patientPrograms,
+    isLoadingPatientPrograms,
+    isLoadingPreviousEncounter,
+    isLoadingEncounter,
+  ]);
 
   // given the form, flatten the fields and pull out all concept references
   const [flattenedFields, conceptReferences] = useMemo(() => {
@@ -168,6 +185,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const { initialValues: tempInitialValues, isBindingComplete } = useInitialValues(
     flattenedFields,
     encounter,
+    isLoadingContextDependencies,
     encounterContext,
     formFieldHandlers,
   );
@@ -462,6 +480,26 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     }
 
     try {
+      const programs = EncounterFormManager.preparePatientPrograms(fields, patient, patientPrograms);
+      const savedPrograms = await EncounterFormManager.savePatientPrograms(programs);
+      if (savedPrograms?.length) {
+        showSnackbar({
+          title: t('patientProgramsSaved', 'Patient program(s) saved successfully'),
+          kind: 'success',
+          isLowContrast: true,
+        });
+      }
+    } catch (error) {
+      const errorMessages = extractErrorMessagesFromResponse(error);
+      return Promise.reject({
+        title: t('errorSavingPatientPrograms', 'Error saving patient program(s)'),
+        subtitle: errorMessages.join(', '),
+        kind: 'error',
+        isLowContrast: false,
+      });
+    }
+
+    try {
       const { data: savedEncounter } = await EncounterFormManager.saveEncounter(encounter, abortController);
       const saveOrders = savedEncounter.orders.map((order) => order.orderNumber);
       if (saveOrders.length) {
@@ -693,6 +731,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   if (sessionMode !== 'view') {
     handlers.set(form.name, { validate: validate, submit: handleFormSubmit });
   }
+
   return (
     <FormContext.Provider
       value={{

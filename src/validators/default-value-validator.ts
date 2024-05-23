@@ -8,7 +8,7 @@ export const DefaultFieldValueValidator: FormFieldValidator = {
       const valuesArray = Array.isArray(value) ? value : [value];
       // check whether value exists in answers
       if (
-        !valuesArray.every((val: string) => field.questionOptions.answers?.find((answer) => answer.concept === val))
+        !valuesArray.every((val: string) => field.questionOptions.answers?.find((answer) => answer.concept === val || answer.value === val))
       ) {
         return [
           { resultType: 'error', errCode: 'invalid.defaultValue', message: 'Value not found in coded answers list' },
