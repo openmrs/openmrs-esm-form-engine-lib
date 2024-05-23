@@ -91,6 +91,7 @@ export async function evaluateAsyncExpression(
   const allFieldsKeys = fields.map((f) => f.id);
   let parts = parseExpression(expression.trim());
 
+  const visitTypeUuid = context.visit?.visitType.uuid ?? '';
   // register dependencies
   findAndRegisterReferencedFields(node, parts, fields);
 
@@ -111,6 +112,7 @@ export async function evaluateAsyncExpression(
     sex,
     age,
     temporaryObjectsMap: {},
+    visitTypeUuid,
   };
 
   expression = linkReferencedFieldValues(fields, fieldValues, parts);
