@@ -77,15 +77,18 @@ export interface FormSchema {
   readonly?: string | boolean;
   inlineRendering?: 'single-line' | 'multiline' | 'automatic';
   markdown?: any;
-  postSubmissionActions?: Array<{ actionId: string; enabled?: string, config?: Record<string, any> }>;
+  postSubmissionActions?: Array<{ actionId: string; enabled?: string; config?: Record<string, any> }>;
   formOptions?: {
     usePreviousValueDisabled: boolean;
   };
   version?: string;
   translations?: Record<string, string>;
   meta?: {
-    programs?: Record<string, any>;
-  }
+    programs?: {
+      hasProgramFields?: boolean;
+      [anythingElse: string]: any;
+    };
+  };
 }
 
 export interface FormPage {
@@ -242,6 +245,8 @@ export interface FormQuestionOptions {
   orderSettingUuid?: string;
   orderType?: string;
   selectableOrders?: Array<Record<any, any>>;
+  programUuid?: string;
+  workflowUuid?: string;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
@@ -387,14 +392,6 @@ export type RepeatObsGroupCounter = {
   limit?: number;
 };
 
-export interface ProgramEnrollmentPayload {
-  patient: string;
-  program: string;
-  dateEnrolled: string;
-  dateCompleted?: string;
-  location: string;
-}
-
 export interface PatientIdentifier {
   uuid?: string;
   identifier: string;
@@ -430,4 +427,42 @@ export interface Order {
   patient?: string;
   orderNumber?: string;
   voided?: boolean;
+}
+
+export interface ProgramState {
+  name?: string;
+  startDate?: string;
+  uuid?: string;
+  concept: OpenmrsResource;
+  programWorkflow: OpenmrsResource;
+}
+
+export interface ProgramWorkflowState {
+  state: ProgramState;
+  endDate?: string;
+  startDate?: string;
+}
+
+export interface PatientProgram extends OpenmrsResource {
+  patient?: OpenmrsResource;
+  program?: OpenmrsResource;
+  dateEnrolled?: string;
+  dateCompleted?: string;
+  location?: OpenmrsResource;
+  states?: Array<ProgramWorkflowState>;
+}
+
+export interface PatientProgramPayload {
+  program?: string;
+  uuid?: string;
+  display?: string;
+  patient?: string;
+  dateEnrolled?: string;
+  dateCompleted?: string;
+  location?: string;
+  states?: Array<{
+    state?: string;
+    startDate?: string;
+    endDate?: string;
+  }>;
 }
