@@ -98,7 +98,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
   const [referencedFields, setReferencedFields] = useState([]);
-  const { isLoading: isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(patient.id, formJson);
+  const { isLoading: isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(patient?.id, formJson);
 
   const layoutType = useLayoutType();
   const { encounterContext, isLoadingContextDependencies } = useMemo(() => {
