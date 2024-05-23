@@ -74,7 +74,7 @@ const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler
               name={option.concept || option.value}
               text={option.label}
               key={index}
-              disabled={question.disabled}
+              disabled={question.isDisabled}
             />
           ))}
         </CdsContentSwitcher>

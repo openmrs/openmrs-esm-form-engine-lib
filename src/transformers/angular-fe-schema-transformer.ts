@@ -1,10 +1,12 @@
 import { type FormField, type FormSchemaTransformer, type FormSchema } from '../types';
+import { isTrue } from '../utils/boolean-utils';
 
 export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
   transform: (form: FormSchema) => {
     form.pages.forEach((page) => {
       if (page.sections) {
         page.sections.forEach((section) => {
+          section.questions = handleQuestionsWithDateOptions(section.questions);
           section?.questions?.forEach((question, index) => handleQuestion(question, form));
         });
       }
@@ -33,6 +35,36 @@ function handleQuestion(question: FormField, form: FormSchema) {
   } catch (error) {
     console.error(error);
   }
+}
+
+function handleQuestionsWithDateOptions(sectionQuestions: Array<FormField>): Array<FormField> {
+  const augmentedQuestions: Array<FormField> = [];
+
+  sectionQuestions?.forEach((question) => {
+    augmentedQuestions.push(question);
+    if (question.type !== 'inlineDate' && isTrue(question.questionOptions?.showDate)) {
+      const inlinedDate: FormField = {
+        id: `${question.id}_inline_date`,
+        label: `Date for ${question.label}`,
+        type: 'inlineDate',
+        questionOptions: {
+          rendering: 'date',
+          isTransient: true,
+        },
+        validators: question.questionOptions.shownDateOptions?.validators,
+        disabled: { disableWhenExpression: `isEmpty(${question.id})` },
+        hide: question.questionOptions.shownDateOptions?.hide || question.hide,
+        meta: {
+          targetField: question.id,
+          previousValue: question.meta?.previousValue?.obsDatetime,
+        },
+      };
+
+      augmentedQuestions.push(inlinedDate);
+    }
+  });
+
+  return augmentedQuestions;
 }
 
 function transformByType(question: FormField) {

@@ -65,7 +65,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
             value={field.value || ''}
             onFocus={() => setPreviousValue(field.value)}
             rows={question.questionOptions.rows || 4}
-            disabled={question.disabled}
+            disabled={question.isDisabled}
             readOnly={question.readonly}
             invalid={errors.length > 0}
             invalidText={errors[0]?.message}

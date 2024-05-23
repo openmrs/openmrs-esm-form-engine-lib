@@ -28,6 +28,7 @@ export function cloneRepeatField(srcField: FormField, value: OpenmrsResource, id
         originalGroupMembersIds,
       );
     }
+
     if (childField.validators?.length) {
       childField.validators.forEach((validator) => {
         if (validator.type === 'js_expression') {

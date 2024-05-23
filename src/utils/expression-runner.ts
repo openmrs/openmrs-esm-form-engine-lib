@@ -3,7 +3,7 @@ import { type OpenmrsEncounter, type FormField, type FormPage, type FormSection 
 import { CommonExpressionHelpers } from './common-expression-helpers';
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
 import { HistoricalDataSourceService } from '../datasources/historical-data-source';
-import { Visit } from '@openmrs/esm-framework';
+import { type Visit } from '@openmrs/esm-framework';
 
 export interface FormNode {
   value: FormPage | FormSection | FormField;

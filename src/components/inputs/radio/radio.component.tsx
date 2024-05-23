@@ -56,7 +56,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
           question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
         }
         className={styles.boldedLegend}
-        disabled={question.disabled}
+        disabled={question.isDisabled}
         invalid={errors.length > 0}>
         <RadioButtonGroup name={question.id} valueSelected={field.value} onChange={handleChange} orientation="vertical">
           {question.questionOptions.answers

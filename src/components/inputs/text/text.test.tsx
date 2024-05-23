@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, screen, cleanup, act } from '@testing-library/react';
+import { render, fireEvent, screen, act } from '@testing-library/react';
 import { Formik } from 'formik';
 import { type EncounterContext, FormContext } from '../../../form-context';
 import { type FormField } from '../../../types';
