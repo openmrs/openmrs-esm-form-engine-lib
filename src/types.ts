@@ -248,7 +248,7 @@ export interface FormQuestionOptions {
   selectableOrders?: Array<Record<any, any>>;
   programUuid?: string;
   workflowUuid?: string;
-  config?: Record<string, any>; //will improve typing
+  config?: Record<'referencedField', string>;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
