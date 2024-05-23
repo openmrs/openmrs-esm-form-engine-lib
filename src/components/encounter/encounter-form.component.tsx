@@ -55,7 +55,7 @@ interface EncounterFormProps {
   setAllInitialValues: (values: Record<string, any>) => void;
   setScrollablePages: (pages: Set<FormPageProps>) => void;
   setPagesWithErrors: (pages: string[]) => void;
-  setFieldErrors: React.Dispatch<React.SetStateAction<string[]>>;
+  setFieldErrors: React.Dispatch<React.SetStateAction<ValidationResult[]>>;
   setIsLoadingFormDependencies?: (value: boolean) => void;
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
   setSelectedPage: (page: string) => void;
@@ -454,7 +454,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             errorFields.push(field);
             field.meta.submission = { ...(field.meta.submission || {}), errors };
             formHasErrors = true;
-            setFieldErrors((prevErrors: any) => [...prevErrors, ...errors]);
+            setFieldErrors((prevErrors: ValidationResult[]) => [...prevErrors, ...errors]);
             return;
           }
         });

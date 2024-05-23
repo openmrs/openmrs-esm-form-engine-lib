@@ -112,7 +112,7 @@ const FormEngine: React.FC<FormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState([]);
   const postSubmissionHandlers = usePostSubmissionAction(refinedFormJson?.postSubmissionActions);
-  const [fieldErrors, setFieldErrors] = useState([]);
+  const [fieldErrors, setFieldErrors] = useState<ValidationResult[]>([]);
   const sessionMode = mode ? mode : encounterUUID || encounterUuid ? 'edit' : 'enter';
   const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(sessionMode);
 
