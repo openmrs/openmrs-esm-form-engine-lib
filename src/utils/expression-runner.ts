@@ -1,4 +1,5 @@
 import { getRegisteredExpressionHelpers } from '../registry/registry';
+import _ from 'lodash';
 import { type OpenmrsEncounter, type FormField, type FormPage, type FormSection } from '../types';
 import { CommonExpressionHelpers } from './common-expression-helpers';
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
@@ -46,7 +47,7 @@ export function evaluateExpression(
   const HD = new HistoricalDataSourceService();
 
   HD.putObject('prevEnc', {
-    value: context.previousEncounter,
+    value: context.previousEncounter || { obs: [] },
     getValue(concept) {
       return this.value.obs.find((obs) => obs.concept.uuid == concept);
     },
@@ -65,6 +66,7 @@ export function evaluateExpression(
     age,
     HD,
     visitTypeUuid,
+    _,
   };
 
   expression = linkReferencedFieldValues(fields, fieldValues, parts);
@@ -102,6 +104,15 @@ export async function evaluateAsyncExpression(
     myValue = fieldValues[node.value['id']];
   }
 
+  const HD = new HistoricalDataSourceService();
+
+  HD.putObject('prevEnc', {
+    value: context.previousEncounter || { obs: [] },
+    getValue(concept) {
+      return this.value.obs.find((obs) => obs.concept.uuid == concept);
+    },
+  });
+
   const expressionContext = {
     ...new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys),
     ...getRegisteredExpressionHelpers(),
@@ -112,7 +123,9 @@ export async function evaluateAsyncExpression(
     sex,
     age,
     temporaryObjectsMap: {},
+    HD,
     visitTypeUuid,
+    _,
   };
 
   expression = linkReferencedFieldValues(fields, fieldValues, parts);
