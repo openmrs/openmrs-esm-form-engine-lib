@@ -1,119 +1,138 @@
 import dayjs from 'dayjs';
-import { showToast, translateFrom } from '@openmrs/esm-framework';
-import { createProgramEnrollment, getPatientEnrolledPrograms, updateProgramEnrollment } from '../api/api';
-import { type PostSubmissionAction, type ProgramEnrollmentPayload } from '../types';
+import { showSnackbar, translateFrom } from '@openmrs/esm-framework';
+import { getPatientEnrolledPrograms, saveProgramEnrollment } from '../api/api';
+import { type PostSubmissionAction, type PatientProgramPayload } from '../types';
 import { moduleName } from '../globals';
-import isDate from 'lodash/isDate';
+import { extractErrorMessagesFromResponse } from '../utils/error-utils';
 
 export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
   applyAction: async function ({ patient, encounters, sessionMode }, config) {
     const encounter = encounters[0];
     const encounterLocation = encounter.location['uuid'];
-    const encounterDate: string = encounter.encounterDatetime.toString();
-
     const translateFn = (key, defaultValue?) => translateFrom(moduleName, key, defaultValue);
+    const programUuid = config.programUuid;
 
-    // only do this in enter or edit mode.
     if (sessionMode === 'view') {
       return;
     }
-
-    const enrollmentDate = encounter.obs?.find((item) => item.formFieldPath.includes(config.enrollmentDate))?.value;
-    const completionDate = encounter.obs?.find((item) => item.formFieldPath.includes(config.completionDate))?.value;
-    const programUuid = config.programUuid;
-
-    if (programUuid) {
-      const abortController = new AbortController();
-      const payload: ProgramEnrollmentPayload = {
-        patient: patient.id,
-        program: programUuid,
-        dateEnrolled: isDate(enrollmentDate) ? dayjs(enrollmentDate).format() : encounterDate,
-        dateCompleted: completionDate ? dayjs(completionDate).format() : null,
-        location: encounterLocation,
-      };
-
-      if (sessionMode === 'enter') {
-        const patientEnrolledPrograms = await getPatientEnrolledPrograms(patient.id);
-        if (patientEnrolledPrograms) {
-          const hasActiveEnrollment = patientEnrolledPrograms.results.some(
-            (enrollment) => enrollment.program.uuid === programUuid && enrollment.dateCompleted === null,
-          );
-          if (hasActiveEnrollment) {
-            showToast({
-              title: translateFn('enrollmentFailed', 'Enrollment failed'),
-              kind: 'error',
-              critical: false,
-              description: translateFrom(
-                moduleName,
-                'cannotEnrollPatientToProgram',
-                'This patient is already enrolled in the selected program',
-              ),
-            });
-            return;
-          }
-        }
-        createProgramEnrollment(payload, abortController).then(
-          (response) => {
-            if (response.status === 201) {
-              showToast({
-                critical: true,
-                kind: 'success',
-                description: translateFn('enrolledToProgram', 'Patient enrolled into program'),
-                title: translateFn('enrollmentSaved', 'Enrollment saved'),
-              });
-            }
-          },
-          (err) => {
-            showToast({
-              title: translateFn('errorEnrolling', 'Error saving enrollment'),
-              kind: 'error',
-              critical: false,
-              description: translateFn(err?.message),
-            });
-          },
-        );
-      } else {
-        const patientEnrolledPrograms = await getPatientEnrolledPrograms(patient.id);
-        let patientProgramEnrollment = null;
-        if (patientEnrolledPrograms) {
-          patientProgramEnrollment = patientEnrolledPrograms.results.find(
-            (enrollment) => enrollment.program.uuid === programUuid && enrollment.dateCompleted === null,
-          );
-        }
-
-        if (patientProgramEnrollment) {
-          if (!payload.dateEnrolled) {
-            payload.dateEnrolled = patientProgramEnrollment.dateEnrolled;
-          }
-          updateProgramEnrollment(patientProgramEnrollment.uuid, payload, abortController).then(
-            (response) => {
-              if (response.status === 200) {
-                showToast({
-                  critical: true,
-                  kind: 'success',
-                  description: translateFn(
-                    'enrollmentUpdateSuccess',
-                    'Updates to the program enrollment were made successfully',
-                  ),
-                  title: translateFn('enrollmentUpdated', 'Enrollment updated'),
-                });
-              }
-            },
-            (err) => {
-              showToast({
-                title: translateFn('errorSavingEnrollment', 'Error saving enrollment'),
-                kind: 'error',
-                critical: false,
-                description: err?.message,
-              });
-            },
-          );
-        }
-      }
-    } else {
-      throw new Error('Please provide Program Uuid to enroll patient to.');
+    if (!programUuid) {
+      throw new Error('Program UUID not configured');
     }
+
+    const enrollmentDate = encounter.obs?.find((item) =>
+      item.formFieldPath.includes(config.enrollmentDate || null),
+    )?.value;
+    const completionDate = encounter.obs?.find((item) =>
+      item.formFieldPath.includes(config.completionDate || null),
+    )?.value;
+
+    const abortController = new AbortController();
+    let payload: PatientProgramPayload = {
+      patient: patient.id,
+      program: programUuid,
+      dateEnrolled: enrollmentDate ?? dayjs().format(),
+      location: encounterLocation,
+    };
+    const patientPrograms = await getPatientEnrolledPrograms(patient.id);
+    const existingProgramEnrollment = patientPrograms?.results.find(
+      (enrollment) => enrollment.program.uuid === programUuid && !enrollment.dateCompleted,
+    );
+
+    if (config.completionDate) {
+      if (!completionDate) {
+        throw new Error('Completion date was not found in the encounter');
+      }
+      if (existingProgramEnrollment) {
+        payload = {
+          uuid: existingProgramEnrollment.uuid,
+          dateCompleted: updateTimeToNow(completionDate),
+        };
+      } else {
+        showSnackbar({
+          title: translateFn('enrollmentDiscontinuationNotAllowed', 'Enrollment discontinuation not allowed'),
+          subtitle: translateFn('cannotDiscontinueEnrollment', 'Cannot discontinue an enrollment that does not exist'),
+          kind: 'error',
+          isLowContrast: false,
+        });
+        return;
+      }
+    }
+
+    if (existingProgramEnrollment) {
+      if (!existingProgramEnrollment.dateCompleted && !completionDate) {
+        // The patient is already enrolled in the program and there is no completion date provided.
+        if (sessionMode === 'enter') {
+          showSnackbar({
+            title: translateFn('enrollmentNotAllowed', 'Enrollment not allowed'),
+            subtitle: translateFn(
+              'alreadyEnrolledDescription',
+              'This patient is already enrolled in the selected program and cannot be enrolled again.',
+            ),
+            kind: 'error',
+            isLowContrast: false,
+          });
+        }
+        return;
+      } else if (existingProgramEnrollment.dateCompleted) {
+        // The enrollment has already been completed
+        if (sessionMode === 'enter') {
+          showSnackbar({
+            title: translateFn('enrollmentAlreadyDiscontinued', 'Enrollment already discontinued'),
+            subtitle: translateFn(
+              'alreadyDiscontinuedDescription',
+              'This patient is already enrolled in the selected program and has already been discontinued.',
+            ),
+            kind: 'error',
+            isLowContrast: false,
+          });
+        }
+        return;
+      }
+    }
+    saveProgramEnrollment(payload, abortController).then(
+      (response) => {
+        showSnackbar({
+          kind: 'success',
+          title: getSnackTitle(translateFn, response),
+          isLowContrast: true,
+        });
+      },
+      (err) => {
+        showSnackbar({
+          title: translateFn('errorSavingEnrollment', 'Error saving enrollment'),
+          subtitle: extractErrorMessagesFromResponse(err).join(', '),
+          kind: 'error',
+          isLowContrast: false,
+        });
+      },
+    );
   },
 };
+
+function getSnackTitle(translateFn, response) {
+  if (response.data.dateCompleted) {
+    return translateFn(
+      'enrollmentDiscontinued',
+      "The patient's program enrollment has been successfully discontinued.",
+    );
+  }
+  return translateFn('enrolledToProgram', 'The patient has been successfully enrolled in the program.');
+}
+
+function updateTimeToNow(dateString) {
+  // Check if the input date string has the time set to midnight (00:00:00.000+0000)
+  if (!dateString.endsWith('T00:00:00.000+0000')) {
+    return dateString;
+  }
+  const now = dayjs();
+  const originalDate = dayjs(dateString);
+  const updatedDate = originalDate
+    .hour(now.hour())
+    .minute(now.minute())
+    .second(now.second())
+    .millisecond(now.millisecond());
+
+  return updatedDate.format();
+}
 
 export default ProgramEnrollmentSubmissionAction;
