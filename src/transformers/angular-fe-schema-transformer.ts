@@ -37,17 +37,12 @@ function handleQuestion(question: FormField, form: FormSchema) {
   }
 }
 
-export function handleQuestionsWithDateOptions(questions: Array<FormField>): Array<FormField> {
-  try {
-    const updatedQuestions: Array<FormField> = [];
-
-    questions.forEach((question) => {
-      updatedQuestions.push(question);
-
-      const defaultDisableExpression = { disableWhenExpression: `isEmpty(${question.id})`};
-
+export function handleQuestionsWithDateOptions(sectionQuestions: Array<FormField>): Array<FormField> {
+  const augmentedQuestions: Array<FormField> = [];
+  sectionQuestions.forEach((question) => {
+    try {
+      augmentedQuestions.push(question);
       if (question.type !== 'inlineDate' && isTrue(question.questionOptions.showDate)) {
-
         const inlinedDate: FormField = {
           id: `${question.id}_inline_date`,
           label: `Date for ${question.label}`,
@@ -57,22 +52,22 @@ export function handleQuestionsWithDateOptions(questions: Array<FormField>): Arr
             isTransient: true,
           },
           validators: question?.questionOptions?.shownDateOptions?.validators,
-          disabled: defaultDisableExpression,
+          disabled: { disableWhenExpression: `isEmpty(${question.id})` },
           hide: question.questionOptions.shownDateOptions?.hide || question.hide,
           meta: {
             targetField: question.id,
-            previousValue: question?.meta?.previousValue?.obsDatetime
+            previousValue: question?.meta?.previousValue?.obsDatetime,
           },
         };
 
-        updatedQuestions.push(inlinedDate);
+        augmentedQuestions.push(inlinedDate);
       }
-    });
+    } catch (error) {
+      console.error(error);
+    }
+  });
 
-    return updatedQuestions;
-  } catch (error) {
-    console.error(error);
-  }
+  return augmentedQuestions;
 }
 
 function transformByType(question: FormField) {

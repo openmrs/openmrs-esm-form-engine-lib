@@ -1,10 +1,9 @@
 import { getRegisteredExpressionHelpers } from '../registry/registry';
-import { type OpenmrsEncounter, type FormField, type FormPage, type FormSection, type SessionMode } from '../types';
+import { type OpenmrsEncounter, type FormField, type FormPage, type FormSection } from '../types';
 import { CommonExpressionHelpers } from './common-expression-helpers';
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
 import { HistoricalDataSourceService } from '../datasources/historical-data-source';
 import { type Visit } from '@openmrs/esm-framework';
-import { cascadeVisibityToChildFields } from './form-helper';
 
 export interface FormNode {
   value: FormPage | FormSection | FormField;
@@ -191,49 +190,4 @@ function evaluate(expression: string, expressionContext?: Record<string, any>) {
     undefined,
     ...Object.values(expressionContext),
   );
-}
-
-export function evaluateHide(
-  node,
-  allFields: FormField[],
-  allValues: Record<string, any>,
-  sessionMode: SessionMode,
-  patient,
-) {
-  const { value, type } = node;
-  const isHidden = evaluateExpression(value['hide']?.hideWhenExpression, node, allFields, allValues, {
-    mode: sessionMode,
-    patient,
-  });
-  node.value.isHidden = isHidden;
-  if (type == 'field' && node.value?.questions?.length) {
-    node.value?.questions.forEach((question) => {
-      question.isParentHidden = isHidden;
-    });
-  }
-  // cascade visibility
-  if (type == 'page') {
-    value['sections'].forEach((section) => {
-      section.isParentHidden = isHidden;
-      cascadeVisibityToChildFields(isHidden, section, allFields);
-    });
-  }
-  if (type == 'section') {
-    cascadeVisibityToChildFields(isHidden, value, allFields);
-  }
-}
-
-export function evaluateDisabled(
-  node,
-  allFields: FormField[],
-  allValues: Record<string, any>,
-  sessionMode: SessionMode,
-  patient,
-) {
-  const { value } = node;
-  const isDisabled = evaluateExpression(value['disabled']?.disableWhenExpression, node, allFields, allValues, {
-    mode: sessionMode,
-    patient,
-  });
-  return isDisabled;
 }
