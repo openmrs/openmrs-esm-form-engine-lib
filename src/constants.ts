@@ -5,7 +5,7 @@ export const encounterRepresentation =
   'custom:(uuid,encounterDatetime,encounterType:(uuid,name,description),location:(uuid,name),' +
   'patient:(uuid,display),encounterProviders:(uuid,provider:(uuid,name),encounterRole:(uuid,name)),' +
   'orders:(uuid,display,concept:(uuid,display),voided),' +
-  'obs:(uuid,obsDatetime,voided,groupMembers,formFieldNamespace,formFieldPath,concept:(uuid,name:(uuid,name)),value:(uuid,name:(uuid,name),' +
+  'obs:(uuid,obsDatetime,comment,voided,groupMembers,formFieldNamespace,formFieldPath,concept:(uuid,name:(uuid,name)),value:(uuid,name:(uuid,name),' +
   'names:(uuid,conceptNameType,name))))';
 export const FormsStore = 'forms-engine-store';
 export const PatientChartWorkspaceHeaderSlot = 'patient-chart-workspace-header-slot';

@@ -2,12 +2,11 @@ import { type EncounterContext, type FormField, type OpenmrsEncounter, type Subm
 import { hasSubmission } from '../utils/common-utils';
 import { isEmpty } from '../validators/form-validator';
 
-export const InlineDateHandler: SubmissionHandler = {
+export const ObsCommentHandler: SubmissionHandler = {
   handleFieldSubmission(field: FormField, value: any, context: EncounterContext) {
     const targetField = context.getFormField(field.meta.targetField);
     if (hasSubmission(targetField) && !isEmpty(value)) {
-      const refinedDate = value instanceof Date ? new Date(value.getTime() - value.getTimezoneOffset() * 60000) : value;
-      targetField.meta.submission.newValue.obsDatetime = refinedDate;
+      targetField.meta.submission.newValue.comment = value;
     }
     return targetField;
   },
@@ -18,11 +17,9 @@ export const InlineDateHandler: SubmissionHandler = {
     context: EncounterContext,
   ) => {
     if (encounter) {
-      const dateField = field.id.split('_');
-      const correspondingQuestion = allFormFields.find((field) => field.id === dateField[0]);
-      const dateValue = correspondingQuestion?.meta?.previousValue?.obsDatetime;
-
-      return new Date(dateValue);
+      const commentField = field.id.split('_');
+      const correspondingQuestion = allFormFields.find((field) => field.id === commentField[0]);
+      return correspondingQuestion?.meta?.previousValue?.comment;
     }
     return null;
   },
@@ -31,10 +28,10 @@ export const InlineDateHandler: SubmissionHandler = {
   },
   getPreviousValue: (field: FormField, encounter: OpenmrsEncounter, allFormFields: Array<FormField>) => {
     if (encounter) {
-      const dateField = field.id.split('_');
-      const correspondingQuestion = allFormFields.find((field) => field.id === dateField[0]);
-      const dateValue = correspondingQuestion?.meta?.previousValue?.obsDatetime;
-      return new Date(dateValue);
+      const commentField = field.id.split('_');
+      const correspondingQuestion = allFormFields.find((field) => field.id === commentField[0]);
+      const t = correspondingQuestion?.meta?.previousValue?.comment;
+      return t;
     }
     return null;
   },
