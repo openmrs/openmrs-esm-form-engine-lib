@@ -13,7 +13,7 @@ import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
-import useDatasourceDependentValue from 'src/hooks/useDatasourceDependentValue';
+import useDatasourceDependentValue from '../../../hooks/useDatasourceDependentValue';
 import styles from './ui-select-extended.scss';
 
 const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
