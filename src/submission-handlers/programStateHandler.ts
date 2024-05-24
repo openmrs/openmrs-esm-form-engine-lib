@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 export const ProgramStateHandler: SubmissionHandler = {
   handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
     clearSubmission(field);
-    if (field.meta?.previousValue?.value === value || isEmpty(value)) {
+    if (field.meta?.previousValue?.uuid === value || isEmpty(value)) {
       return null;
     }
     field.meta.submission.newValue = {
@@ -23,10 +23,13 @@ export const ProgramStateHandler: SubmissionHandler = {
     const program = context.patientPrograms.find(
       (program) => program.program.uuid === field.questionOptions.programUuid,
     );
+
     if (program?.states?.length > 0) {
-      return program.states
+      const currentState = program.states
         .filter((state) => !state.endDate)
-        .find((state) => state.state.programWorkflow?.uuid === field.questionOptions.workflowUuid)?.state?.uuid;
+        .find((state) => state.state.programWorkflow?.uuid === field.questionOptions.workflowUuid)?.state;
+      field.meta = { ...(field.meta || {}), previousValue: currentState };
+      return currentState.uuid;
     }
     return null;
   },
