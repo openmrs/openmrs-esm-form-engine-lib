@@ -13,9 +13,10 @@ import type {
 import FormPage from '../page/form-page.component';
 import { FormContext } from '../../form-context';
 import {
-  cascadeVisibityToChildFields,
   evalConditionalRequired,
+  evaluateDisabled,
   evaluateFieldReadonlyProp,
+  evaluateHide,
   findConceptByReference,
   findPagesWithErrors,
 } from '../../utils/form-helper';
@@ -98,6 +99,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
   const { isLoading: isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(patient?.id, formJson);
+  const getFormField = useCallback((id: string) => fields.find((field) => field.id === id), [fields]);
 
   const layoutType = useLayoutType();
   const { encounterContext, isLoadingContextDependencies } = useMemo(() => {
@@ -118,6 +120,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setEncounterProvider,
       setEncounterLocation,
       setEncounterRole,
+      getFormField,
     };
     return {
       encounterContext: contextObject,
@@ -228,7 +231,14 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setFields(
         flattenedFields.map((field) => {
           if (field.hide) {
-            evalHide({ value: field, type: 'field' }, flattenedFields, tempInitialValues);
+            evaluateHide(
+              { value: field, type: 'field' },
+              flattenedFields,
+              tempInitialValues,
+              sessionMode,
+              patient,
+              evaluateExpression,
+            );
           } else {
             field.isHidden = false;
           }
@@ -236,6 +246,18 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             field.isRequired = evalConditionalRequired(field, flattenedFields, tempInitialValues);
           } else {
             field.isRequired = isTrue(field.required);
+          }
+          if (field.disabled) {
+            field.isDisabled = field.disabled?.disableWhenExpression
+              ? evaluateDisabled(
+                  { value: field, type: 'field' },
+                  flattenedFields,
+                  tempInitialValues,
+                  sessionMode,
+                  patient,
+                  evaluateExpression,
+                )
+              : isTrue(field.disabled);
           }
 
           field.questionOptions.answers
@@ -336,13 +358,27 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
 
       form?.pages?.forEach((page) => {
         if (page.hide) {
-          evalHide({ value: page, type: 'page' }, flattenedFields, tempInitialValues);
+          evaluateHide(
+            { value: page, type: 'page' },
+            flattenedFields,
+            tempInitialValues,
+            sessionMode,
+            patient,
+            evaluateExpression,
+          );
         } else {
           page.isHidden = false;
         }
         page?.sections?.forEach((section) => {
           if (section.hide) {
-            evalHide({ value: section, type: 'section' }, flattenedFields, tempInitialValues);
+            evaluateHide(
+              { value: section, type: 'section' },
+              flattenedFields,
+              tempInitialValues,
+              sessionMode,
+              patient,
+              evaluateExpression,
+            );
           } else {
             section.isHidden = false;
           }
@@ -372,30 +408,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setIsLoadingFormDependencies(false);
     }
   }, [isLoadingEncounter, isLoadingPreviousEncounter]);
-
-  const evalHide = (node, allFields: FormField[], allValues: Record<string, any>) => {
-    const { value, type } = node;
-    const isHidden = evaluateExpression(value['hide']?.hideWhenExpression, node, allFields, allValues, {
-      mode: sessionMode,
-      patient,
-    });
-    node.value.isHidden = isHidden;
-    if (type == 'field' && node.value?.questions?.length) {
-      node.value?.questions.forEach((question) => {
-        question.isParentHidden = isHidden;
-      });
-    }
-    // cascade visibility
-    if (type == 'page') {
-      value['sections'].forEach((section) => {
-        section.isParentHidden = isHidden;
-        cascadeVisibityToChildFields(isHidden, section, allFields);
-      });
-    }
-    if (type == 'section') {
-      cascadeVisibityToChildFields(isHidden, value, allFields);
-    }
-  };
 
   useEffect(() => {
     if (invalidFields?.length) {
@@ -608,7 +620,26 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         }
         // evaluate hide
         if (dependant.hide) {
-          evalHide({ value: dependant, type: 'field' }, fields, { ...values, [fieldName]: value });
+          evaluateHide(
+            { value: dependant, type: 'field' },
+            fields,
+            { ...values, [fieldName]: value },
+            sessionMode,
+            patient,
+            evaluateExpression,
+          );
+        }
+
+        // evaluate disabled
+        if (typeof dependant.disabled === 'object' && dependant.disabled.disableWhenExpression) {
+          dependant.isDisabled = evaluateDisabled(
+            { value: dependant, type: 'field' },
+            fields,
+            { ...values, [fieldName]: value },
+            sessionMode,
+            patient,
+            evaluateExpression,
+          );
         }
         // evaluate conditional required
         if (typeof dependant.required === 'object' && dependant.required?.type === 'conditionalRequired') {
@@ -697,7 +728,14 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         for (let i = 0; i < form.pages.length; i++) {
           const section = form.pages[i].sections.find((section, _sectionIndex) => section.label == dependant);
           if (section) {
-            evalHide({ value: section, type: 'section' }, fields, { ...values, [fieldName]: value });
+            evaluateHide(
+              { value: section, type: 'section' },
+              fields,
+              { ...values, [fieldName]: value },
+              sessionMode,
+              patient,
+              evaluateExpression,
+            );
             if (isTrue(section.isHidden)) {
               section.questions.forEach((field) => {
                 field.isParentHidden = true;
@@ -711,7 +749,14 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     if (field.pageDependants) {
       field.pageDependants?.forEach((dep) => {
         const dependant = form.pages.find((f) => f.label == dep);
-        evalHide({ value: dependant, type: 'page' }, fields, { ...values, [fieldName]: value });
+        evaluateHide(
+          { value: dependant, type: 'page' },
+          fields,
+          { ...values, [fieldName]: value },
+          sessionMode,
+          patient,
+          evaluateExpression,
+        );
         if (isTrue(dependant.isHidden)) {
           dependant.sections.forEach((section) => {
             section.questions.forEach((field) => {

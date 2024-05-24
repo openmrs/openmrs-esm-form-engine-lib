@@ -144,7 +144,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   // When we manually trigger an onchange event using the 'fireEvent' lib, the handler below will
                   // be triggered as opposed to the former handler that only gets triggered at runtime.
                   onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
-                  disabled={question.disabled}
+                  disabled={question.isDisabled}
                   invalid={errors.length > 0}
                   invalidText={errors[0]?.message}
                   warn={warnings.length > 0}

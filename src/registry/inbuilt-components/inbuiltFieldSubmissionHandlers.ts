@@ -9,6 +9,7 @@ import { TestOrderSubmissionHandler } from '../../submission-handlers/testOrderH
 import { ObsSubmissionHandler } from '../../submission-handlers/obsHandler';
 import { EncounterRoleHandler } from '../../submission-handlers/encounterRoleHandler';
 import { ProgramStateHandler } from '../../submission-handlers/programStateHandler';
+import { InlineDateHandler } from '../../submission-handlers/inlineDateHandler';
 
 /**
  * @internal
@@ -43,6 +44,11 @@ export const inbuiltFieldSubmissionHandlers: Array<RegistryItem<SubmissionHandle
     name: 'PatientIdentifierHandler',
     component: PatientIdentifierHandler,
     type: 'patientIdentifier',
+  },
+  {
+    name: 'InlineDateHandler',
+    component: InlineDateHandler,
+    type: 'inlineDate',
   },
   {
     name: 'controlHandler',

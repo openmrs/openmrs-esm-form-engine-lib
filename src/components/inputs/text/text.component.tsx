@@ -68,7 +68,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
               }
               name={question.id}
               value={field.value || ''}
-              disabled={question.disabled}
+              disabled={question.isDisabled}
               readOnly={Boolean(question.readonly)}
               invalid={errors.length > 0}
               invalidText={errors[0]?.message}

@@ -149,7 +149,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
               isProcessingSelection.current = true;
               handleChange(selectedItem?.uuid);
             }}
-            disabled={question.disabled}
+            disabled={question.isDisabled}
             readOnly={question.readonly}
             invalid={errors.length > 0}
             invalidText={errors.length && errors[0].message}

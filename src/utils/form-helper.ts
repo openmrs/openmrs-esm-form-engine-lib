@@ -6,20 +6,6 @@ import { type FormField, type FormPage, type FormSection, type SessionMode, type
 import { DefaultFieldValueValidator } from '../validators/default-value-validator';
 import { isEmpty } from '../validators/form-validator';
 
-export function cascadeVisibityToChildFields(visibility: boolean, section: FormSection, allFields: Array<FormField>) {
-  const candidateIds = section.questions.map((q) => q.id);
-  allFields
-    .filter((field) => candidateIds.includes(field.id))
-    .forEach((field) => {
-      field.isParentHidden = visibility;
-      if (field.questionOptions.rendering == 'group') {
-        field.questions.forEach((member) => {
-          member.isParentHidden = visibility;
-        });
-      }
-    });
-}
-
 export function inferInitialValueFromDefaultFieldValue(
   field: FormField,
   context: EncounterContext,
@@ -102,6 +88,67 @@ export function evalConditionalRequired(field: FormField, allFields: FormField[]
     return referenceQuestionAnswers?.includes(formValues[referenceQuestionId]);
   }
   return false;
+}
+
+export function evaluateDisabled(
+  node,
+  allFields: FormField[],
+  allValues: Record<string, any>,
+  sessionMode: SessionMode,
+  patient: fhir.Patient,
+  expressionRunnerFn,
+) {
+  const { value } = node;
+  const isDisabled = expressionRunnerFn(value['disabled']?.disableWhenExpression, node, allFields, allValues, {
+    mode: sessionMode,
+    patient,
+  });
+  return isDisabled;
+}
+
+export function evaluateHide(
+  node,
+  allFields: FormField[],
+  allValues: Record<string, any>,
+  sessionMode: SessionMode,
+  patient: fhir.Patient,
+  expressionRunnerFn,
+) {
+  const { value, type } = node;
+  const isHidden = expressionRunnerFn(value['hide']?.hideWhenExpression, node, allFields, allValues, {
+    mode: sessionMode,
+    patient,
+  });
+  node.value.isHidden = isHidden;
+  if (type == 'field' && node.value?.questions?.length) {
+    node.value?.questions.forEach((question) => {
+      question.isParentHidden = isHidden;
+    });
+  }
+  // cascade visibility
+  if (type == 'page') {
+    value['sections'].forEach((section) => {
+      section.isParentHidden = isHidden;
+      cascadeVisibilityToChildFields(isHidden, section, allFields);
+    });
+  }
+  if (type == 'section') {
+    cascadeVisibilityToChildFields(isHidden, value, allFields);
+  }
+}
+
+function cascadeVisibilityToChildFields(visibility: boolean, section: FormSection, allFields: Array<FormField>) {
+  const candidateIds = section.questions.map((q) => q.id);
+  allFields
+    .filter((field) => candidateIds.includes(field.id))
+    .forEach((field) => {
+      field.isParentHidden = visibility;
+      if (field.questionOptions.rendering == 'group') {
+        field.questions.forEach((member) => {
+          member.isParentHidden = visibility;
+        });
+      }
+    });
 }
 
 /**
