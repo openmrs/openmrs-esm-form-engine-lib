@@ -21,7 +21,7 @@ import Loader from './components/loaders/loader.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import Sidebar from './components/sidebar/sidebar.component';
-import { HandleDeletionConfirmationContext } from './components/repeat/handle-deletion-confirmation-context';
+import { ExternalFunctionContext } from './external-function-context';
 import styles from './form-engine.scss';
 
 interface FormProps {
@@ -260,7 +260,7 @@ const FormEngine: React.FC<FormProps> = ({
         setIsFormDirty(props.dirty);
 
         return (
-          <HandleDeletionConfirmationContext.Provider value={{ handleConfirmQuestionDeletion }}>
+          <ExternalFunctionContext.Provider value={{ handleConfirmQuestionDeletion }}>
             <Form className={classNames('cds--form', styles.formEngine)} ref={ref}>
               {isLoadingPatient || isLoadingFormJson ? (
                 <Loader />
@@ -346,7 +346,7 @@ const FormEngine: React.FC<FormProps> = ({
                 </div>
               )}
             </Form>
-          </HandleDeletionConfirmationContext.Provider>
+          </ExternalFunctionContext.Provider>
         );
       }}
     </Formik>

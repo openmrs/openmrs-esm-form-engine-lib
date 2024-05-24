@@ -12,7 +12,7 @@ import { getFieldControlWithFallback } from '../section/helpers';
 import { clearSubmission } from '../../utils/common-utils';
 import RepeatControls from './repeat-controls.component';
 import { createErrorHandler } from '@openmrs/esm-framework';
-import { HandleDeletionConfirmationContext } from './handle-deletion-confirmation-context';
+import { ExternalFunctionContext } from '../../external-function-context';
 
 const renderingByTypeMap: Record<string, RenderType> = {
   obsGroup: 'group',
@@ -28,7 +28,7 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   const [rows, setRows] = useState([]);
   const [fieldComponent, setFieldComponent] = useState(null);
 
-  const { handleConfirmQuestionDeletion } = useContext(HandleDeletionConfirmationContext);
+  const { handleConfirmQuestionDeletion } = useContext(ExternalFunctionContext);
 
   useEffect(() => {
     const repeatedFields = allFormFields.filter(
