@@ -6,7 +6,7 @@ import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import { showSnackbar, useSession, type Visit } from '@openmrs/esm-framework';
 import { init, teardown } from './lifecycle';
-import type { FormPage as FormPageProps, FormSchema, SessionMode } from './types';
+import type { FormField, FormPage as FormPageProps, FormSchema, SessionMode } from './types';
 import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
 import { useFormJson } from './hooks/useFormJson';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
@@ -21,6 +21,7 @@ import Loader from './components/loaders/loader.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import Sidebar from './components/sidebar/sidebar.component';
+import { ExternalFunctionContext } from './external-function-context';
 import styles from './form-engine.scss';
 
 interface FormProps {
@@ -33,6 +34,7 @@ interface FormProps {
   onSubmit?: () => void;
   onCancel?: () => void;
   handleClose?: () => void;
+  handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   mode?: SessionMode;
   meta?: {
     /**
@@ -79,6 +81,7 @@ const FormEngine: React.FC<FormProps> = ({
   onSubmit,
   onCancel,
   handleClose,
+  handleConfirmQuestionDeletion,
   formSessionIntent,
   meta,
   encounterUuid,
@@ -257,91 +260,93 @@ const FormEngine: React.FC<FormProps> = ({
         setIsFormDirty(props.dirty);
 
         return (
-          <Form className={classNames('cds--form', styles.formEngine)} ref={ref}>
-            {isLoadingPatient || isLoadingFormJson ? (
-              <Loader />
-            ) : (
-              <div className={styles.container}>
-                {isLoadingFormDependencies && (
-                  <div className={styles.linearActivity}>
-                    <div className={styles.indeterminate}></div>
-                  </div>
-                )}
-                <div className={styles.body}>
-                  {showSidebar && (
-                    <Sidebar
-                      isFormSubmitting={isSubmitting}
-                      pagesWithErrors={pagesWithErrors}
-                      scrollablePages={scrollablePages}
-                      selectedPage={selectedPage}
-                      mode={mode}
-                      onCancel={onCancel}
-                      handleClose={handleClose}
-                      values={props.values}
-                      setValues={props.setValues}
-                      allowUnspecifiedAll={formJson.allowUnspecifiedAll}
-                      defaultPage={formJson.defaultPage}
-                      hideFormCollapseToggle={hideFormCollapseToggle}
-                    />
-                  )}
-                  <div className={styles.content}>
-                    {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow />}
-                    {refinedFormJson.markdown && (
-                      <div className={styles.markdownContainer}>
-                        <MarkdownWrapper markdown={refinedFormJson.markdown} />
-                      </div>
-                    )}
-                    <div className={styles.contentBody}>
-                      <EncounterForm
-                        formJson={refinedFormJson}
-                        patient={patient}
-                        formSessionDate={formSessionDate}
-                        provider={currentProvider}
-                        role={encounterRole?.uuid}
-                        location={location}
-                        visit={visit}
-                        values={props.values}
-                        isFormExpanded={isFormExpanded}
-                        sessionMode={sessionMode}
-                        scrollablePages={scrollablePages}
-                        setAllInitialValues={setInitialValues}
-                        allInitialValues={initialValues}
-                        setScrollablePages={setScrollablePages}
-                        setPagesWithErrors={setPagesWithErrors}
-                        setIsLoadingFormDependencies={setIsLoadingFormDependencies}
-                        setFieldValue={props.setFieldValue}
-                        setSelectedPage={setSelectedPage}
-                        handlers={handlers}
-                        workspaceLayout={workspaceLayout}
-                        isSubmitting={isSubmitting}
-                        setIsSubmitting={setIsSubmitting}
-                      />
+          <ExternalFunctionContext.Provider value={{ handleConfirmQuestionDeletion }}>
+            <Form className={classNames('cds--form', styles.formEngine)} ref={ref}>
+              {isLoadingPatient || isLoadingFormJson ? (
+                <Loader />
+              ) : (
+                <div className={styles.container}>
+                  {isLoadingFormDependencies && (
+                    <div className={styles.linearActivity}>
+                      <div className={styles.indeterminate}></div>
                     </div>
-                    {showButtonSet && (
-                      <ButtonSet className={styles.minifiedButtons}>
-                        <Button
-                          kind="secondary"
-                          onClick={() => {
-                            onCancel && onCancel();
-                            handleClose && handleClose();
-                            hideFormCollapseToggle();
-                          }}>
-                          {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
-                        </Button>
-                        <Button type="submit" disabled={mode === 'view' || isSubmitting}>
-                          {isSubmitting ? (
-                            <InlineLoading description={t('submitting', 'Submitting') + '...'} />
-                          ) : (
-                            <span>{`${t('save', 'Save')}`}</span>
-                          )}
-                        </Button>
-                      </ButtonSet>
+                  )}
+                  <div className={styles.body}>
+                    {showSidebar && (
+                      <Sidebar
+                        isFormSubmitting={isSubmitting}
+                        pagesWithErrors={pagesWithErrors}
+                        scrollablePages={scrollablePages}
+                        selectedPage={selectedPage}
+                        mode={mode}
+                        onCancel={onCancel}
+                        handleClose={handleClose}
+                        values={props.values}
+                        setValues={props.setValues}
+                        allowUnspecifiedAll={formJson.allowUnspecifiedAll}
+                        defaultPage={formJson.defaultPage}
+                        hideFormCollapseToggle={hideFormCollapseToggle}
+                      />
                     )}
+                    <div className={styles.content}>
+                      {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow />}
+                      {refinedFormJson.markdown && (
+                        <div className={styles.markdownContainer}>
+                          <MarkdownWrapper markdown={refinedFormJson.markdown} />
+                        </div>
+                      )}
+                      <div className={styles.contentBody}>
+                        <EncounterForm
+                          formJson={refinedFormJson}
+                          patient={patient}
+                          formSessionDate={formSessionDate}
+                          provider={currentProvider}
+                          role={encounterRole?.uuid}
+                          location={location}
+                          visit={visit}
+                          values={props.values}
+                          isFormExpanded={isFormExpanded}
+                          sessionMode={sessionMode}
+                          scrollablePages={scrollablePages}
+                          setAllInitialValues={setInitialValues}
+                          allInitialValues={initialValues}
+                          setScrollablePages={setScrollablePages}
+                          setPagesWithErrors={setPagesWithErrors}
+                          setIsLoadingFormDependencies={setIsLoadingFormDependencies}
+                          setFieldValue={props.setFieldValue}
+                          setSelectedPage={setSelectedPage}
+                          handlers={handlers}
+                          workspaceLayout={workspaceLayout}
+                          isSubmitting={isSubmitting}
+                          setIsSubmitting={setIsSubmitting}
+                        />
+                      </div>
+                      {showButtonSet && (
+                        <ButtonSet className={styles.minifiedButtons}>
+                          <Button
+                            kind="secondary"
+                            onClick={() => {
+                              onCancel && onCancel();
+                              handleClose && handleClose();
+                              hideFormCollapseToggle();
+                            }}>
+                            {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
+                          </Button>
+                          <Button type="submit" disabled={mode === 'view' || isSubmitting}>
+                            {isSubmitting ? (
+                              <InlineLoading description={t('submitting', 'Submitting') + '...'} />
+                            ) : (
+                              <span>{`${t('save', 'Save')}`}</span>
+                            )}
+                          </Button>
+                        </ButtonSet>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </Form>
+              )}
+            </Form>
+          </ExternalFunctionContext.Provider>
         );
       }}
     </Formik>

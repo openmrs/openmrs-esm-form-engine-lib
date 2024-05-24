@@ -106,5 +106,8 @@
     "*.{ts,tsx}": "eslint --cache --fix --max-warnings 0",
     "*.{css,scss,ts,tsx}": "prettier --write --list-different"
   },
+  "resolutions": {
+    "@carbon/react": "1.37.0"
+  },
   "packageManager": "yarn@4.2.2"
 }

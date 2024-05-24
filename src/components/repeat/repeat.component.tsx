@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { FormGroup } from '@carbon/react';
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { type FormField, type FormFieldProps, type RenderType } from '../../types';
+import type { FormField, FormFieldProps, RenderType } from '../../types';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { isEmpty } from '../../validators/form-validator';
 import styles from './repeat.scss';
@@ -11,6 +11,8 @@ import { FormContext } from '../../form-context';
 import { getFieldControlWithFallback } from '../section/helpers';
 import { clearSubmission } from '../../utils/common-utils';
 import RepeatControls from './repeat-controls.component';
+import { createErrorHandler } from '@openmrs/esm-framework';
+import { ExternalFunctionContext } from '../../external-function-context';
 
 const renderingByTypeMap: Record<string, RenderType> = {
   obsGroup: 'group',
@@ -25,6 +27,8 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   const [counter, setCounter] = useState(0);
   const [rows, setRows] = useState([]);
   const [fieldComponent, setFieldComponent] = useState(null);
+
+  const { handleConfirmQuestionDeletion } = useContext(ExternalFunctionContext);
 
   useEffect(() => {
     const repeatedFields = allFormFields.filter(
@@ -105,6 +109,21 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
     setRows(rows.filter((q) => q.id !== question.id));
   };
 
+  const onClickDeleteQuestion = (question: Readonly<FormField>) => {
+    if (handleConfirmQuestionDeletion && typeof handleConfirmQuestionDeletion === 'function') {
+      const result = handleConfirmQuestionDeletion(question);
+      if (result && typeof result.then === 'function' && typeof result.catch === 'function') {
+        result.then(() => removeNthRow(question)).catch(() => createErrorHandler());
+      } else if (typeof result === 'boolean') {
+        result && removeNthRow(question);
+      } else {
+        removeNthRow(question);
+      }
+    } else {
+      removeNthRow(question);
+    }
+  };
+
   const nodes = useMemo(() => {
     return fieldComponent
       ? rows.map((question, index) => {
@@ -122,7 +141,7 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
                 rows={rows}
                 questionIndex={index}
                 handleDelete={() => {
-                  removeNthRow(question);
+                  onClickDeleteQuestion(question);
                 }}
                 handleAdd={() => {
                   const nextCount = counter + 1;
@@ -139,14 +158,19 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   if (question.isHidden || !nodes || !hasVisibleField(question)) {
     return null;
   }
-  return isGrouped ? (
-    <div className={styles.container}>
-      <FormGroup legendText={t(question.label)} className={styles.boldLegend}>
-        {nodes}
-      </FormGroup>
-    </div>
-  ) : (
-    <div>{nodes}</div>
+
+  return (
+    <React.Fragment>
+      {isGrouped ? (
+        <div className={styles.container}>
+          <FormGroup legendText={t(question.label)} className={styles.boldLegend}>
+            {nodes}
+          </FormGroup>
+        </div>
+      ) : (
+        <div>{nodes}</div>
+      )}
+    </React.Fragment>
   );
 };
 
