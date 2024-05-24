@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { FormGroup } from '@carbon/react';
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-import type { HandleConfirmDeletionFunctionStore, FormField, FormFieldProps, RenderType } from '../../types';
+import type { FormField, FormFieldProps, RenderType } from '../../types';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { isEmpty } from '../../validators/form-validator';
 import styles from './repeat.scss';
@@ -11,7 +11,8 @@ import { FormContext } from '../../form-context';
 import { getFieldControlWithFallback } from '../section/helpers';
 import { clearSubmission } from '../../utils/common-utils';
 import RepeatControls from './repeat-controls.component';
-import { createErrorHandler, getGlobalStore } from '@openmrs/esm-framework';
+import { createErrorHandler } from '@openmrs/esm-framework';
+import { HandleDeletionConfirmationContext } from './handle-deletion-confirmation-context';
 
 const renderingByTypeMap: Record<string, RenderType> = {
   obsGroup: 'group',
@@ -27,8 +28,7 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   const [rows, setRows] = useState([]);
   const [fieldComponent, setFieldComponent] = useState(null);
 
-  const functionStore = getGlobalStore<HandleConfirmDeletionFunctionStore>('functionStore');
-  const { handleConfirmQuestionDeletion } = functionStore.getState();
+  const { handleConfirmQuestionDeletion } = useContext(HandleDeletionConfirmationContext);
 
   useEffect(() => {
     const repeatedFields = allFormFields.filter(
@@ -160,7 +160,7 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   }
 
   return (
-    <div>
+    <React.Fragment>
       {isGrouped ? (
         <div className={styles.container}>
           <FormGroup legendText={t(question.label)} className={styles.boldLegend}>
@@ -170,7 +170,7 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
       ) : (
         <div>{nodes}</div>
       )}
-    </div>
+    </React.Fragment>
   );
 };
 
