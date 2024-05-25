@@ -12,7 +12,7 @@ export const PatientIdentifierHandler: SubmissionHandler = {
     field.meta.submission.newValue = {
       identifier: value,
       identifierType: field.questionOptions.identifierType,
-      uuid: field.meta.previousValue.id,
+      uuid: field.meta.previousValue?.id,
       location: context.location,
     };
     return value;
@@ -23,7 +23,7 @@ export const PatientIdentifierHandler: SubmissionHandler = {
     allFormFields: Array<FormField>,
     context: EncounterContext,
   ) => {
-    const latestIdentifier = context.patient.identifier.find(
+    const latestIdentifier = context.patient?.identifier?.find(
       (identifier) => identifier.type?.coding[0]?.code === field.questionOptions.identifierType,
     );
     field.meta = { ...(field.meta || {}), previousValue: latestIdentifier };

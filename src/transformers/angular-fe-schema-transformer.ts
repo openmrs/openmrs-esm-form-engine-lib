@@ -1,5 +1,6 @@
 import { type FormField, type FormSchemaTransformer, type FormSchema } from '../types';
 import { isTrue } from '../utils/boolean-utils';
+import { hasRendering } from '../utils/common-utils';
 
 export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
   transform: (form: FormSchema) => {
@@ -78,6 +79,9 @@ function transformByType(question: FormField) {
     case 'encounterRole':
       question.questionOptions.rendering = 'encounter-role';
       break;
+    case 'encounterDatetime':
+      question.questionOptions.rendering = 'date';
+      break;
   }
 }
 
@@ -101,18 +105,13 @@ function transformByRendering(question: FormField) {
 }
 
 function handleLabOrders(question: FormField) {
-  if (question.questionOptions.rendering === 'repeating' && question.type === 'testOrder') {
-    updateQuestionAnswers(question);
+  if (hasRendering(question, 'group') && question.questions?.length) {
+    question.questions.forEach(handleLabOrders);
   }
-  if (question.questionOptions.rendering === 'group') {
-    question?.questions?.filter((orderQuestion) => orderQuestion.type === 'testOrder').forEach(updateQuestionAnswers);
+  if (question.type === 'testOrder' && question.questionOptions.selectableOrders?.length) {
+    question.questionOptions.answers = question.questionOptions.selectableOrders || [];
+    delete question.questionOptions.selectableOrders;
   }
-  return question;
-}
-
-function updateQuestionAnswers(question: FormField) {
-  question.questionOptions.answers = question.questionOptions.selectableOrders || [];
-  delete question.questionOptions.selectableOrders;
 }
 
 function handleSelectConceptAnswers(question: FormField) {
