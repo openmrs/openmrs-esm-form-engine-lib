@@ -8,30 +8,24 @@ import styles from './error.scss';
 const ErrorModal: React.FC<{ errors: ValidationResult[] }> = ({ errors }) => {
   const { t } = useTranslation();
 
-  const errorMessages = {};
+  const errorMessage = useMemo(() => {
+    const errorMessages: { [key: string]: string } = {};
 
-  errors.forEach((error) => {
-    if (error?.errCode === fieldRequiredErrCode && !errorMessages[fieldRequiredErrCode]) {
-      errorMessages[fieldRequiredErrCode] = t('nullMandatoryField', 'Please fill the required fields');
-    } else if (error?.errCode === fieldOutOfBoundErrCode && !errorMessages[fieldOutOfBoundErrCode]) {
-      errorMessages[fieldOutOfBoundErrCode] = t('valuesOutOfBound', 'Some of the values are out of bounds');
-    }
-  });
+    errors.forEach((error) => {
+      if (error?.errCode === fieldRequiredErrCode && !errorMessages[fieldRequiredErrCode]) {
+        errorMessages[fieldRequiredErrCode] = t('nullMandatoryField', 'Please fill the required fields');
+      } else if (error?.errCode === fieldOutOfBoundErrCode && !errorMessages[fieldOutOfBoundErrCode]) {
+        errorMessages[fieldOutOfBoundErrCode] = t('valuesOutOfBound', 'Some of the values are out of bounds');
+      }
+    });
 
-  const errorMessage = useMemo(
-    () =>
-      Object.values(errorMessages).map((error: string, index) => (
-        <React.Fragment key={index}>
-          <span key={index}>{error}</span>
-        </React.Fragment>
-      )),
-    [errorMessages],
-  );
+    return Object.values(errorMessages).map((error: string, index) => <span key={index}>{error}</span>);
+  }, [errors, t]);
 
   return (
     <InlineNotification
       role="alert"
-      className={styles.margin}
+      className={styles.inlineErrorMessage}
       kind="error"
       lowContrast={true}
       title={t('fieldErrorDescriptionTitle', 'Validation Errors')}

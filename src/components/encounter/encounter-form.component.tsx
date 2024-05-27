@@ -443,6 +443,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     (values) => {
       let errorFields = [];
       let formHasErrors = false;
+      setFieldErrors([]);
       // handle field validation
       fields
         .filter((field) => !field.isParentHidden && !field.disabled && !field.isHidden && !isTrue(field.readonly))
