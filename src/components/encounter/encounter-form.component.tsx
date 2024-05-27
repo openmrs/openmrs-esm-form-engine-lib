@@ -85,7 +85,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   allInitialValues,
   setAllInitialValues,
   isSubmitting,
-  setIsSubmitting,
   setFieldErrors,
 }) => {
   const { t } = useTranslation();
