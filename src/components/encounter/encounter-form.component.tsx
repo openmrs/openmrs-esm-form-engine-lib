@@ -1,5 +1,5 @@
 import React, { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { type SessionLocation, showSnackbar, useLayoutType, type Visit } from '@openmrs/esm-framework';
+import { showSnackbar, useLayoutType, type Visit, useSession } from '@openmrs/esm-framework';
 import { codedTypes, ConceptFalse, ConceptTrue } from '../../constants';
 import type {
   FormField,
@@ -22,28 +22,26 @@ import {
 } from '../../utils/form-helper';
 import { InstantEffect } from '../../utils/instant-effect';
 import { type FormSubmissionHandler } from '../../form-engine.component';
+import { EncounterFormManager } from './encounter-form-manager';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
+import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
+import { FieldValidator, isEmpty } from '../../validators/form-validator';
 import { getPreviousEncounter } from '../../api/api';
 import { isTrue } from '../../utils/boolean-utils';
-import { FieldValidator, isEmpty } from '../../validators/form-validator';
 import { scrollIntoView } from '../../utils/scroll-into-view';
-import { useEncounter } from '../../hooks/useEncounter';
-import { useInitialValues } from '../../hooks/useInitialValues';
 import { useConcepts } from '../../hooks/useConcepts';
+import { useEncounter } from '../../hooks/useEncounter';
+import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { useFormFieldHandlers } from '../../hooks/useFormFieldHandlers';
 import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
-import { useTranslation } from 'react-i18next';
-import { EncounterFormManager } from './encounter-form-manager';
-import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
+import { useInitialValues } from '../../hooks/useInitialValues';
 import { usePatientPrograms } from '../../hooks/usePatientPrograms';
+import { useTranslation } from 'react-i18next';
 
 interface EncounterFormProps {
+  encounterUuid?: string;
   formJson: FormSchema;
   patient: any;
-  formSessionDate: Date;
-  provider: string;
-  role: string;
-  location: SessionLocation;
   visit?: Visit;
   values: Record<string, any>;
   isFormExpanded: boolean;
@@ -63,12 +61,9 @@ interface EncounterFormProps {
 }
 
 const EncounterForm: React.FC<EncounterFormProps> = ({
+  encounterUuid,
   formJson,
   patient,
-  formSessionDate,
-  provider,
-  role,
-  location,
   visit,
   values,
   isFormExpanded,
@@ -85,12 +80,18 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   setAllInitialValues,
   isSubmitting,
 }) => {
+  const formSessionDate = useMemo(() => new Date(), []);
   const { t } = useTranslation();
+  const session = useSession();
+  const { encounterRole: role } = useEncounterRole();
+
+  const currentSessionProvider = session?.currentProvider?.uuid ?? null;
+  const currentSessionLocation = session && !encounterUuid ? session?.sessionLocation : null;
   const [fields, setFields] = useState<Array<FormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
   const [encounterDate, setEncounterDate] = useState(formSessionDate);
-  const [encounterProvider, setEncounterProvider] = useState(provider);
-  const [encounterRole, setEncounterRole] = useState(role);
+  const [encounterProvider, setEncounterProvider] = useState(currentSessionProvider);
+  const [encounterRole, setEncounterRole] = useState(role?.uuid);
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(formJson);
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
@@ -110,7 +111,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       location: encounterLocation,
       sessionMode: sessionMode || (encounter ? 'edit' : 'enter'),
       encounterDate: formSessionDate,
-      encounterProvider: provider,
+      encounterProvider: currentSessionProvider,
       encounterRole,
       form: form,
       visit: visit,
@@ -218,13 +219,13 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   }, [scrollablePages, formJson]);
 
   useEffect(() => {
-    if (!encounterLocation && location) {
-      setEncounterLocation(location);
+    if (!encounterLocation && currentSessionLocation) {
+      setEncounterLocation(currentSessionLocation);
     }
     if (encounter && !encounterLocation) {
       setEncounterLocation(encounter.location);
     }
-  }, [location, encounter]);
+  }, [currentSessionLocation, encounter]);
 
   useEffect(() => {
     if (Object.keys(tempInitialValues ?? {}).length && !isFieldInitializationComplete) {
@@ -802,7 +803,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           return null;
         }
         if (isTrue(page.isSubform) && page.subform?.form && !page.isHidden) {
-          if (sessionMode != 'enter' && !page.subform?.form.encounter) {
+          if (sessionMode !== 'enter' && !page.subform?.form.encounter) {
             return null;
           }
           return (
@@ -810,10 +811,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               key={index}
               formJson={page.subform?.form}
               patient={patient}
-              formSessionDate={encounterDate}
-              provider={provider}
-              role={encounterRole}
-              location={location}
               visit={visit}
               values={values}
               isFormExpanded={isFormExpanded}
