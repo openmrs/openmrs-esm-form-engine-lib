@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { type FetchResponse, type OpenmrsResource, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import useSWRInfinite from 'swr/infinite';
-import { useSystemSetting } from './useSystemSetting';
+import useRestMaxResultsCount from './useRestMaxResultsCount';
 
 type ConceptFetchResponse = FetchResponse<{ results: Array<OpenmrsResource> }>;
 
@@ -13,9 +13,7 @@ export function useConcepts(references: Set<string>): {
   isLoading: boolean;
   error: Error | undefined;
 } {
-  const { isLoading: isLoadingMaxResultsDefault, systemSetting } = useSystemSetting(
-    'webservices.rest.maxResultsDefault',
-  );
+  const { isLoading: isLoadingMaxResultsDefault, systemSetting } = useRestMaxResultsCount();
   const chunkSize = systemSetting?.value ? parseInt(systemSetting.value) : null;
   const totalCount = references.size;
   const totalPages = Math.ceil(totalCount / chunkSize);

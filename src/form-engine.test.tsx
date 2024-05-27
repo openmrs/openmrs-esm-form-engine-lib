@@ -77,6 +77,8 @@ jest.mock('../src/api/api', () => {
   };
 });
 
+jest.mock('./hooks/useRestMaxResultsCount', () => jest.fn().mockReturnValue({ systemSetting: { value: '50' } }));
+
 describe('Form engine component', () => {
   const user = userEvent.setup();
 

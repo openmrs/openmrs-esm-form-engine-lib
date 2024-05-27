@@ -9,7 +9,7 @@ export interface SystemSetting {
   value: string;
 }
 
-export function useSystemSetting(setting: string) {
+export default function useSystemSetting(setting: string) {
   const { t } = useTranslation();
   const apiUrl = `${restBaseUrl}/systemsetting/${setting}?v=custom:(value)`;
   const { data, error, isLoading } = useSWRImmutable<{ data: SystemSetting }, Error>(apiUrl, openmrsFetch);
