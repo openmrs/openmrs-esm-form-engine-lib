@@ -1,22 +1,31 @@
 import { useMemo } from 'react';
 import { type FetchResponse, type OpenmrsResource, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import useSWRInfinite from 'swr/infinite';
+import { useSystemSetting } from './useSystemSetting';
+
+type ConceptFetchResponse = FetchResponse<{ results: Array<OpenmrsResource> }>;
 
 const conceptRepresentation =
   'custom:(uuid,display,conceptClass:(uuid,display),answers:(uuid,display),conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
-
-const chunkSize = 100;
 
 export function useConcepts(references: Set<string>): {
   concepts: Array<OpenmrsResource> | undefined;
   isLoading: boolean;
   error: Error | undefined;
 } {
+  const { isLoading: isLoadingMaxResultsDefault, systemSetting } = useSystemSetting(
+    'webservices.rest.maxResultsDefault',
+  );
+  const chunkSize = systemSetting?.value ? parseInt(systemSetting.value) : null;
   const totalCount = references.size;
   const totalPages = Math.ceil(totalCount / chunkSize);
 
-  const getUrl = (index) => {
+  const getUrl = (index, prevPageData: ConceptFetchResponse) => {
     if (index >= totalPages) {
+      return null;
+    }
+
+    if (!chunkSize) {
       return null;
     }
 
@@ -26,22 +35,21 @@ export function useConcepts(references: Set<string>): {
     return `${restBaseUrl}/concept?references=${chunk.join(',')}&v=${conceptRepresentation}&limit=${chunkSize}`;
   };
 
-  const { data, error, isLoading } = useSWRInfinite<FetchResponse<{ results: Array<OpenmrsResource> }>, Error>(
-    getUrl,
-    openmrsFetch,
-    {
-      initialSize: totalPages,
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    },
-  );
+  const { data, error, isLoading } = useSWRInfinite<ConceptFetchResponse, Error>(getUrl, openmrsFetch, {
+    initialSize: totalPages,
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
 
   const results = useMemo(
     () => ({
-      concepts: data ? [].concat(data?.map((res) => res?.data?.results).flat()) : undefined,
+      // data?.[0] check is added for tests, as response is undefined in tests
+      // hence the returned concepts are [undefined], which breaks the form-helper.ts
+      // As it cannot read `uuid` of `undefined`
+      concepts: data && data?.[0] ? [].concat(...data.map((res) => res?.data?.results)) : undefined,
       error,
-      isLoading,
+      isLoading: isLoadingMaxResultsDefault || isLoading,
     }),
     [data, error, isLoading],
   );

@@ -173,7 +173,7 @@ export function findConceptByReference(reference: string, concepts) {
   } else {
     // handle uuid
     return concepts?.find((concept) => {
-      return concept?.uuid === reference;
+      return concept.uuid === reference;
     });
   }
 }
