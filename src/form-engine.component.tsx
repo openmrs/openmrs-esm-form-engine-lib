@@ -6,7 +6,7 @@ import { I18nextProvider, useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import { showSnackbar, useSession, type Visit } from '@openmrs/esm-framework';
 import { init, teardown } from './lifecycle';
-import type { FormField, FormPage as FormPageProps, FormSchema, SessionMode } from './types';
+import type { FormField, FormPage as FormPageProps, FormSchema, SessionMode, ValidationResult } from './types';
 import { extractErrorMessagesFromResponse, reportError } from './utils/error-utils';
 import { useFormJson } from './hooks/useFormJson';
 import { usePostSubmissionAction } from './hooks/usePostSubmissionAction';
@@ -314,6 +314,7 @@ const FormEngine: React.FC<FormProps> = ({
                           allInitialValues={initialValues}
                           setScrollablePages={setScrollablePages}
                           setPagesWithErrors={setPagesWithErrors}
+                          setFieldErrors={setFieldErrors}
                           setIsLoadingFormDependencies={setIsLoadingFormDependencies}
                           setFieldValue={props.setFieldValue}
                           setSelectedPage={setSelectedPage}
@@ -322,6 +323,9 @@ const FormEngine: React.FC<FormProps> = ({
                           isSubmitting={isSubmitting}
                           setIsSubmitting={setIsSubmitting}
                         />
+                        <div className={styles.errorContainer}>
+                          <div>{fieldErrors.length > 0 ? <ErrorModal errors={fieldErrors} /> : null}</div>{' '}
+                        </div>
                       </div>
                       {showButtonSet && (
                         <ButtonSet className={styles.minifiedButtons}>
