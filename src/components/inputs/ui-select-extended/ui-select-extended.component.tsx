@@ -12,8 +12,9 @@ import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
-import styles from './ui-select-extended.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import useDatasourceDependentValue from '../../../hooks/useDatasourceDependentValue';
+import styles from './ui-select-extended.scss';
 
 const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
   const { t } = useTranslation();
@@ -27,6 +28,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   const [config, setConfig] = useState({});
   const [savedSearchableItem, setSavedSearchableItem] = useState({});
   const { errors, setErrors, setWarnings } = useFieldValidationResults(question);
+  const datasourceDependentValue = useDatasourceDependentValue(question);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -83,12 +85,12 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
     // If not searchable, preload the items
     if (dataSource && !isTrue(question.questionOptions.isSearchable)) {
       setIsLoading(true);
-      dataSource.fetchData(null, config).then((dataItems) => {
+      dataSource.fetchData(null, { ...(config || {}), referencedValue: datasourceDependentValue }).then((dataItems) => {
         setItems(dataItems.map(dataSource.toUuidAndDisplay));
         setIsLoading(false);
       });
     }
-  }, [dataSource, config]);
+  }, [dataSource, config, datasourceDependentValue]);
 
   useEffect(() => {
     if (dataSource && isTrue(question.questionOptions.isSearchable) && !isEmpty(searchTerm)) {
