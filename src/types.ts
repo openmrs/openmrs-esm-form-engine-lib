@@ -249,6 +249,9 @@ export interface FormQuestionOptions {
   selectableOrders?: Array<Record<any, any>>;
   programUuid?: string;
   workflowUuid?: string;
+  showComment?: boolean;
+  comment?: string;
+  shownCommentOptions?: { validators?: Array<Record<string, any>>; hide?: { hideWhenExpression: string } };
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';

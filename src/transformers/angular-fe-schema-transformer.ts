@@ -8,6 +8,7 @@ export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
       if (page.sections) {
         page.sections.forEach((section) => {
           section.questions = handleQuestionsWithDateOptions(section.questions);
+          section.questions = handleQuestionsWithObsComments(section.questions);
           section?.questions?.forEach((question, index) => handleQuestion(question, form));
         });
       }
@@ -145,4 +146,34 @@ function handleProgramMetaTags(form: FormSchema) {
       },
     ];
   }
+}
+
+function handleQuestionsWithObsComments(sectionQuestions: Array<FormField>): Array<FormField> {
+  const augmentedQuestions: Array<FormField> = [];
+
+  sectionQuestions?.forEach((question) => {
+    augmentedQuestions.push(question);
+    if (question.type !== 'obsComment' && isTrue(question.questionOptions?.showComment)) {
+      const obsComment: FormField = {
+        id: `${question.id}_obs_comment`,
+        label: `Comment for ${question.label}`,
+        type: 'obsComment',
+        questionOptions: {
+          rendering: 'text',
+          isTransient: true,
+        },
+        validators: question.questionOptions.shownCommentOptions?.validators,
+        disabled: { disableWhenExpression: `isEmpty(${question.id})` },
+        hide: question.questionOptions.shownCommentOptions?.hide || question.hide,
+        meta: {
+          targetField: question.id,
+          previousValue: question.meta?.previousValue?.comment,
+        },
+      };
+
+      augmentedQuestions.push(obsComment);
+    }
+  });
+
+  return augmentedQuestions;
 }
