@@ -1,4 +1,5 @@
 import { getRegisteredExpressionHelpers } from '../registry/registry';
+import { isEmpty } from 'lodash-es';
 import { type OpenmrsEncounter, type FormField, type FormPage, type FormSection } from '../types';
 import { CommonExpressionHelpers } from './common-expression-helpers';
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
@@ -46,13 +47,18 @@ export function evaluateExpression(
   const HD = new HistoricalDataSourceService();
 
   HD.putObject('prevEnc', {
-    value: context.previousEncounter,
+    value: context.previousEncounter || { obs: [] },
     getValue(concept) {
       return this.value.obs.find((obs) => obs.concept.uuid == concept);
     },
   });
 
-  const visitTypeUuid = context.visit?.visitType.uuid ?? '';
+  const visitType = context.visit?.visitType || { uuid: '' };
+  const visitTypeUuid = visitType.uuid ?? '';
+
+  const _ = {
+    isEmpty,
+  };
 
   const expressionContext = {
     ...new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys),
@@ -64,7 +70,9 @@ export function evaluateExpression(
     sex,
     age,
     HD,
+    visitType,
     visitTypeUuid,
+    _,
   };
 
   expression = linkReferencedFieldValues(fields, fieldValues, parts);
@@ -91,7 +99,9 @@ export async function evaluateAsyncExpression(
   const allFieldsKeys = fields.map((f) => f.id);
   let parts = parseExpression(expression.trim());
 
-  const visitTypeUuid = context.visit?.visitType.uuid ?? '';
+  const visitType = context.visit?.visitType || { uuid: '' };
+  const visitTypeUuid = visitType.uuid ?? '';
+
   // register dependencies
   findAndRegisterReferencedFields(node, parts, fields);
 
@@ -101,6 +111,19 @@ export async function evaluateAsyncExpression(
   if (node.type === 'field' && myValue === undefined) {
     myValue = fieldValues[node.value['id']];
   }
+
+  const HD = new HistoricalDataSourceService();
+
+  HD.putObject('prevEnc', {
+    value: context.previousEncounter || { obs: [] },
+    getValue(concept) {
+      return this.value.obs.find((obs) => obs.concept.uuid == concept);
+    },
+  });
+
+  const _ = {
+    isEmpty,
+  };
 
   const expressionContext = {
     ...new CommonExpressionHelpers(node, patient, fields, fieldValues, allFieldsKeys),
@@ -112,7 +135,10 @@ export async function evaluateAsyncExpression(
     sex,
     age,
     temporaryObjectsMap: {},
+    HD,
+    visitType,
     visitTypeUuid,
+    _,
   };
 
   expression = linkReferencedFieldValues(fields, fieldValues, parts);
