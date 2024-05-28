@@ -86,7 +86,9 @@ export class EncounterFormManager {
   }
 
   static saveAttachments(fields: FormField[], encounter: OpenmrsEncounter, abortController: AbortController) {
-    const complexFields = fields?.filter((field) => field?.questionOptions.rendering === 'file');
+    const complexFields = fields?.filter(
+      (field) => field?.questionOptions.rendering === 'file' && hasSubmission(field),
+    );
 
     if (!complexFields?.length) return [];
 
