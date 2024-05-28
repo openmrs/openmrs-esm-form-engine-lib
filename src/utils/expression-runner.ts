@@ -1,5 +1,5 @@
 import { getRegisteredExpressionHelpers } from '../registry/registry';
-import { isEmpty, find, filter } from 'lodash-es';
+import { isEmpty } from 'lodash-es';
 import { type OpenmrsEncounter, type FormField, type FormPage, type FormSection } from '../types';
 import { CommonExpressionHelpers } from './common-expression-helpers';
 import { findAndRegisterReferencedFields, linkReferencedFieldValues, parseExpression } from './expression-parser';
@@ -58,8 +58,6 @@ export function evaluateExpression(
 
   const _ = {
     isEmpty,
-    filter,
-    find,
   };
 
   const expressionContext = {
@@ -125,8 +123,6 @@ export async function evaluateAsyncExpression(
 
   const _ = {
     isEmpty,
-    filter,
-    find,
   };
 
   const expressionContext = {
