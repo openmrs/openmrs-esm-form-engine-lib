@@ -6,8 +6,10 @@ export function useFieldValidationResults(field: FormField) {
   const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
-    if (field.meta?.submission) {
+    if (field.meta?.submission?.errors?.length) {
       setErrors((previousErrors) => [...previousErrors, field.meta.submission.errors || []]);
+    }
+    if (field.meta?.submission?.warnings?.length) {
       setWarnings((previousWarnings) => [...previousWarnings, field.meta.submission.warnings || []]);
     }
   }, [field.meta?.submission]);
