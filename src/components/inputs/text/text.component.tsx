@@ -17,6 +17,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const [field] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const [lastBlurredValue, setLastBlurredValue] = useState(field.value);
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
@@ -27,11 +28,12 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     }
   }, [previousValue]);
 
-  field.onBlur = () => {
+  field.onBlur = (event) => {
     if (field.value && question.unspecified) {
       setFieldValue(`${question.id}-unspecified`, false);
     }
-    if (previousValue !== field.value) {
+    if (previousValue !== field.value && lastBlurredValue !== field.value) {
+      setLastBlurredValue(field.value);
       onChange(question.id, field.value, setErrors, setWarnings);
       handler?.handleFieldSubmission(question, field.value, encounterContext);
     }

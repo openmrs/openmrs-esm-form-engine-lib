@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Layer, NumberInput } from '@carbon/react';
 import classNames from 'classnames';
 import { useField } from 'formik';
@@ -18,6 +18,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { t } = useTranslation();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const [lastBlurredValue, setLastBlurredValue] = useState(field.value);
 
   field.onBlur = (event) => {
     if (event && event.target.value != field.value) {
@@ -28,7 +29,8 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
     if (field.value && question.unspecified) {
       setFieldValue(`${question.id}-unspecified`, false);
     }
-    if (previousValue !== field.value) {
+    if (previousValue !== field.value && lastBlurredValue !== field.value) {
+      setLastBlurredValue(field.value);
       onChange(question.id, field.value, setErrors, setWarnings);
       handler?.handleFieldSubmission(question, field.value, encounterContext);
     }

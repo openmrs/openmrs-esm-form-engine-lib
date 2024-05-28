@@ -18,12 +18,14 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [previousValue, setPreviousValue] = useState();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const [lastBlurredValue, setLastBlurredValue] = useState(field.value);
 
   field.onBlur = () => {
     if (field.value && question.unspecified) {
       setFieldValue(`${question.id}-unspecified`, false);
     }
-    if (previousValue !== field.value) {
+    if (previousValue !== field.value && lastBlurredValue !== field.value) {
+      setLastBlurredValue(field.value);
       onChange(question.id, field.value, setErrors, setWarnings);
       handler?.handleFieldSubmission(question, field.value, encounterContext);
     }
