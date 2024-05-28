@@ -53,7 +53,8 @@ export function evaluateExpression(
     },
   });
 
-  const visitTypeUuid = context.visit?.visitType.uuid ?? '';
+  const visitType = context.visit?.visitType || { uuid: '' };
+  const visitTypeUuid = visitType.uuid ?? '';
 
   const _ = {
     isEmpty,
@@ -71,6 +72,7 @@ export function evaluateExpression(
     sex,
     age,
     HD,
+    visitType,
     visitTypeUuid,
     _,
   };
@@ -99,7 +101,9 @@ export async function evaluateAsyncExpression(
   const allFieldsKeys = fields.map((f) => f.id);
   let parts = parseExpression(expression.trim());
 
-  const visitTypeUuid = context.visit?.visitType.uuid ?? '';
+  const visitType = context.visit?.visitType || { uuid: '' };
+  const visitTypeUuid = visitType.uuid ?? '';
+
   // register dependencies
   findAndRegisterReferencedFields(node, parts, fields);
 
@@ -136,6 +140,7 @@ export async function evaluateAsyncExpression(
     age,
     temporaryObjectsMap: {},
     HD,
+    visitType,
     visitTypeUuid,
     _,
   };
