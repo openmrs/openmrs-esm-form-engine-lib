@@ -116,23 +116,36 @@ export class EncounterFormManager {
     patient: fhir.Patient,
     currentPatientPrograms: Array<PatientProgram>,
   ): Array<PatientProgramPayload> {
-    const programFields = fields.filter((field) => field.type === 'programState' && hasSubmission(field));
-    return programFields.map((field) => {
+    const programStateFields = fields.filter((field) => field.type === 'programState' && hasSubmission(field));
+    const programMap = new Map<string, PatientProgramPayload>();
+    programStateFields.forEach((field) => {
       const programUuid = field.questionOptions.programUuid;
+      const newState = field.meta.submission.newValue;
       const existingProgramEnrollment = currentPatientPrograms.find((program) => program.program.uuid === programUuid);
+
       if (existingProgramEnrollment) {
-        return {
-          uuid: existingProgramEnrollment.uuid,
-          states: [field.meta.submission.newValue],
-        };
+        if (programMap.has(programUuid)) {
+          programMap.get(programUuid).states.push(newState);
+        } else {
+          programMap.set(programUuid, {
+            uuid: existingProgramEnrollment.uuid,
+            states: [newState],
+          });
+        }
+      } else {
+        if (programMap.has(programUuid)) {
+          programMap.get(programUuid).states.push(newState);
+        } else {
+          programMap.set(programUuid, {
+            patient: patient.id,
+            program: programUuid,
+            states: [newState],
+            dateEnrolled: dayjs().format(),
+          });
+        }
       }
-      return {
-        patient: patient.id,
-        program: programUuid,
-        states: [field.meta.submission.newValue],
-        dateEnrolled: dayjs().format(),
-      };
     });
+    return Array.from(programMap.values());
   }
 
   static savePatientPrograms = (patientPrograms: PatientProgramPayload[]) => {
