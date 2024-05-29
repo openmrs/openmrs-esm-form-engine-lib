@@ -1,42 +1,82 @@
-import { AngularFormEngineSchemaTransformer } from './angular-fe-schema-transformer';
-import testForm from '__mocks__/forms/afe-forms/afe-schema-trasformer-form.json';
+import { DefaultFormSchemaTransformer } from './default-schema-transformer';
+import testForm from '__mocks__/forms/afe-forms/test-schema-transformer-form.json';
 
 const expectedTransformedSchema = {
   name: 'AFE form with aliased questions',
+  readonly: false,
   pages: [
     {
       label: 'Page 1',
+      readonly: false,
       sections: [
         {
           label: 'Section 1',
+          isExpanded: true,
           questions: [
             {
               label: 'Multi Checkbox',
               type: 'obs',
+              required: true,
               id: 'dem_multi_checkbox',
               questionOptions: {
                 rendering: 'checkbox',
+              },
+              validators: [
+                {
+                  type: 'form_field',
+                },
+                {
+                  type: 'default_value',
+                },
+              ],
+              meta: {
+                submission: null,
               },
             },
             {
               label: 'Numeric',
               id: 'dem_numeric',
               type: 'obs',
+              required: false,
               questionOptions: {
                 rendering: 'number',
+              },
+              validators: [
+                {
+                  type: 'form_field',
+                },
+                {
+                  type: 'default_value',
+                },
+              ],
+              meta: {
+                submission: null,
               },
             },
             {
               label: 'Encounter Provider',
               id: 'dem_encounter_provider',
               type: 'encounterProvider',
+              required: false,
               questionOptions: {
                 rendering: 'encounter-provider',
+              },
+              validators: [
+                {
+                  type: 'form_field',
+                },
+                {
+                  type: 'default_value',
+                },
+              ],
+              meta: {
+                submission: null,
               },
             },
             {
               id: 'dem_encounter_location',
               type: 'obsGroup',
+              required: false,
               questionOptions: {
                 rendering: 'group',
               },
@@ -44,16 +84,32 @@ const expectedTransformedSchema = {
                 {
                   label: 'Encounter Location',
                   type: 'encounterLocation',
+                  required: false,
                   questionOptions: {
                     rendering: 'encounter-location',
                   },
+                  validators: [
+                    {
+                      type: 'form_field',
+                    },
+                    {
+                      type: 'default_value',
+                    },
+                  ],
+                  meta: {
+                    submission: null,
+                  },
                 },
               ],
+              meta: {
+                submission: null,
+              },
             },
             {
               id: 'labOrder',
               type: 'testOrder',
               label: 'Add Lab Order',
+              required: true,
               questionOptions: {
                 rendering: 'repeating',
                 concept: 'f1742346-cf43-4a17-8c98-720e3f487fc0',
@@ -73,6 +129,17 @@ const expectedTransformedSchema = {
                   },
                 ],
               },
+              validators: [
+                {
+                  type: 'form_field',
+                },
+                {
+                  type: 'default_value',
+                },
+              ],
+              meta: {
+                submission: null,
+              },
             },
           ],
         },
@@ -81,8 +148,8 @@ const expectedTransformedSchema = {
   ],
 };
 
-describe('AFE form schema transformer', () => {
+describe('Default form schema transformer', () => {
   it('should transform AFE schema to be compatible with RFE', () => {
-    expect(AngularFormEngineSchemaTransformer.transform(testForm as any)).toEqual(expectedTransformedSchema);
+    expect(DefaultFormSchemaTransformer.transform(testForm as any)).toEqual(expectedTransformedSchema);
   });
 });

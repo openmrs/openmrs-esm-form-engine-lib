@@ -564,9 +564,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     isUnspecified: boolean,
   ) => {
     const field = fields.find((field) => field.id == fieldName);
-    const validators = Array.isArray(field.validators)
-      ? [{ type: 'default' }, ...field.validators]
-      : [{ type: 'default' }];
     // handle validation
     const baseValidatorConfig = {
       expressionContext: { patient, mode: sessionMode },
@@ -576,7 +573,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     const errors = [];
     const warnings = [];
     if (!isUnspecified) {
-      for (let validatorConfig of validators) {
+      for (let validatorConfig of field.validators) {
         const errorsAndWarnings =
           formFieldValidators[validatorConfig.type]?.validate(field, value, {
             ...baseValidatorConfig,

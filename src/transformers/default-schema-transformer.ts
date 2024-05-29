@@ -2,13 +2,17 @@ import { type FormField, type FormSchemaTransformer, type FormSchema } from '../
 import { isTrue } from '../utils/boolean-utils';
 import { hasRendering } from '../utils/common-utils';
 
-export const AngularFormEngineSchemaTransformer: FormSchemaTransformer = {
+export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
   transform: (form: FormSchema) => {
+    parseBooleanTokenIfPresent(form, 'readonly');
     form.pages.forEach((page) => {
+      parseBooleanTokenIfPresent(page, 'readonly');
       if (page.sections) {
         page.sections.forEach((section) => {
           section.questions = handleQuestionsWithDateOptions(section.questions);
           section.questions = handleQuestionsWithObsComments(section.questions);
+          parseBooleanTokenIfPresent(section, 'readonly');
+          parseBooleanTokenIfPresent(section, 'isExpanded');
           section?.questions?.forEach((question, index) => handleQuestion(question, form));
         });
       }
@@ -29,6 +33,8 @@ function handleQuestion(question: FormField, form: FormSchema) {
     form.meta = formMeta;
   }
   try {
+    sanitizeQuestion(question);
+    setFieldValidators(question);
     transformByType(question);
     transformByRendering(question);
     if (question?.questions?.length) {
@@ -67,6 +73,44 @@ function handleQuestionsWithDateOptions(sectionQuestions: Array<FormField>): Arr
   });
 
   return augmentedQuestions;
+}
+
+function sanitizeQuestion(question: FormField) {
+  parseBooleanTokenIfPresent(question, 'readonly');
+  parseBooleanTokenIfPresent(question, 'required');
+  parseBooleanTokenIfPresent(question, 'unspecified');
+  parseBooleanTokenIfPresent(question.questionOptions, 'disallowDecimals');
+  parseBooleanTokenIfPresent(question.questionOptions, 'isSearchable');
+  parseBooleanTokenIfPresent(question.questionOptions, 'isTransient');
+  parseBooleanTokenIfPresent(question.questionOptions, 'enablePreviousValue');
+  parseBooleanTokenIfPresent(question.questionOptions, 'allowMultiple');
+  question.meta = {
+    submission: null,
+  };
+}
+
+function parseBooleanTokenIfPresent(node: any, token: any) {
+  if (node && typeof node[token] === 'string') {
+    const trimmed = node[token].trim().toLowerCase();
+    if (trimmed === 'true' || trimmed === 'false') {
+      node[token] = trimmed === 'true';
+    }
+  }
+
+  return node;
+}
+
+function setFieldValidators(question: FormField) {
+  if (hasRendering(question, 'group')) {
+    return;
+  }
+  question.validators = question.validators || [];
+  if (question.validators.findIndex((v) => v.type === 'form_field') < 0) {
+    question.validators.push({ type: 'form_field' });
+  }
+  if (question.validators.findIndex((v) => v.type === 'default_value') < 0) {
+    question.validators.push({ type: 'default_value' });
+  }
 }
 
 function transformByType(question: FormField) {

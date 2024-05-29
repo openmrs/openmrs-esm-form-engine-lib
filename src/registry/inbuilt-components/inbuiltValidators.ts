@@ -1,6 +1,7 @@
 import { type FormFieldValidator } from '../../types';
 import { DateValidator } from '../../validators/date-validator';
-import { DefaultFieldValueValidator } from '../../validators/default-value-validator';
+import { DefaultValueValidator } from '../../validators/default-value-validator';
+import { FieldValidator } from '../../validators/form-validator';
 import { ExpressionValidator } from '../../validators/js-expression-validator';
 import { type RegistryItem } from '../registry';
 
@@ -9,8 +10,12 @@ import { type RegistryItem } from '../registry';
  */
 export const inbuiltValidators: Array<RegistryItem<FormFieldValidator>> = [
   {
-    name: 'default',
-    component: DefaultFieldValueValidator,
+    name: 'default_value',
+    component: DefaultValueValidator,
+  },
+  {
+    name: 'form_field',
+    component: FieldValidator,
   },
   {
     name: 'date',

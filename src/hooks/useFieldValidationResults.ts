@@ -7,8 +7,8 @@ export function useFieldValidationResults(field: FormField) {
 
   useEffect(() => {
     if (field.meta?.submission) {
-      setErrors(field.meta.submission.errors || []);
-      setWarnings(field.meta.submission.warnings || []);
+      setErrors((prevErrors) => [...prevErrors, ...(field.meta.submission.errors || [])]);
+      setWarnings((prevWarnings) => [...prevWarnings, ...(field.meta.submission.warnings || [])]);
     }
   }, [field.meta?.submission]);
 
