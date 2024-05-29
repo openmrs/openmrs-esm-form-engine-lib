@@ -9,7 +9,7 @@ import { mockSessionDataResponse } from '__mocks__/session.mock';
 import demoHtsOpenmrsForm from '__mocks__/forms/afe-forms/demo_hts-form.json';
 import demoHtsForm from '__mocks__/forms/rfe-forms/demo_hts-form.json';
 import weightForHeightZscoreTestSchema from '__mocks__/forms/rfe-forms/zscore-weight-height-form.json';
-import FormEngine from '../form-engine.component';
+import FormEngine from '../form-engine/form-engine.component';
 
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;

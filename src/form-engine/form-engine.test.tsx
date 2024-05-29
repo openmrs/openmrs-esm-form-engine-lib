@@ -4,9 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { act, cleanup, render, screen, within, fireEvent, waitFor } from '@testing-library/react';
 import { restBaseUrl, showToast } from '@openmrs/esm-framework';
 import { when } from 'jest-when';
-import * as api from '../src/api/api';
-import { assertFormHasAllFields, findMultiSelectInput, findSelectInput } from './utils/test-utils';
-import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
+import * as api from '../api/api';
+import { assertFormHasAllFields, findMultiSelectInput, findSelectInput } from '../utils/test-utils';
+import { evaluatePostSubmissionExpression } from '../utils/post-submission-action-helper';
 import { mockPatient } from '__mocks__/patient.mock';
 import { mockSessionDataResponse } from '__mocks__/session.mock';
 import { mockVisit } from '__mocks__/visit.mock';
@@ -64,8 +64,8 @@ jest.mock('@openmrs/esm-framework', () => {
   };
 });
 
-jest.mock('../src/api/api', () => {
-  const originalModule = jest.requireActual('../src/api/api');
+jest.mock('../../src/api/api', () => {
+  const originalModule = jest.requireActual('../../src/api/api');
 
   return {
     ...originalModule,

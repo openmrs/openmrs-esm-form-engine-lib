@@ -21,7 +21,7 @@ import {
   findPagesWithErrors,
 } from '../../utils/form-helper';
 import { InstantEffect } from '../../utils/instant-effect';
-import { type FormSubmissionHandler } from '../../form-engine.component';
+import { type FormSubmissionHandler } from '../../form-engine/form-engine.component';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { getPreviousEncounter } from '../../api/api';
 import { isTrue } from '../../utils/boolean-utils';
