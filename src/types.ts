@@ -46,7 +46,7 @@ export interface FormFieldValidator {
   /**
    * Validates a field and returns validation errors
    */
-  validate(field: FormField, value: any, config?: any): Array<ValidationResult>;
+  validate(field: FormField, value?: any, config?: any): Array<ValidationResult>;
 }
 
 export interface ValidationResult {

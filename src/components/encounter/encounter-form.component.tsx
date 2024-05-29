@@ -36,6 +36,7 @@ import { useTranslation } from 'react-i18next';
 import { EncounterFormManager } from './encounter-form-manager';
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
 import { usePatientPrograms } from '../../hooks/usePatientPrograms';
+import { useFieldValidationResults } from '../../hooks/useFieldValidationResults';
 
 interface EncounterFormProps {
   formJson: FormSchema;
@@ -258,6 +259,15 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
                   evaluateExpression,
                 )
               : isTrue(field.disabled);
+          }
+          if (field.validators?.some((validator) => validator.type === 'conditionalAnswered')) {
+            const referencedFieldId = field.validators.find(
+              (validator) => validator.type === 'conditionalAnswered',
+            ).referenceQuestionId;
+            const referencedField = flattenedFields.find((field) => field.id == referencedFieldId);
+            if (referencedField) {
+              (referencedField.fieldDependants || (referencedField.fieldDependants = new Set())).add(field.id);
+            }
           }
 
           field.questionOptions.answers
@@ -563,6 +573,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     setWarnings: (warnings: Array<ValidationResult>) => void,
     isUnspecified: boolean,
   ) => {
+    console.log('value passed to on change:', value);
     const field = fields.find((field) => field.id == fieldName);
     // handle validation
     const baseValidatorConfig = {
@@ -597,6 +608,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     if (field.fieldDependants) {
       field.fieldDependants.forEach((dep) => {
         const dependant = fields.find((f) => f.id == dep);
+        console.log('still tracking value in the forEach', value);
         // evaluate calculated value
         if (dependant.questionOptions.calculate?.calculateExpression) {
           evaluateAsyncExpression(
@@ -641,6 +653,22 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         // evaluate conditional required
         if (typeof dependant.required === 'object' && dependant.required?.type === 'conditionalRequired') {
           dependant.isRequired = evalConditionalRequired(dependant, fields, { ...values, [fieldName]: value });
+        }
+
+        //evaluate conditional answered
+        if (dependant.validators?.some((validator) => validator.type === 'conditionalAnswered')) {
+          const fieldValidatorConfig = dependant.validators?.find(
+            (validator) => validator.type === 'conditionalAnswered',
+          );
+          const validationResults = formFieldValidators['conditionalAnswered'].validate(
+            dependant,
+            dependant.meta.submission?.newValue,
+            {
+              ...baseValidatorConfig,
+              ...fieldValidatorConfig,
+            },
+          );
+          // dependant.meta.submission?.errors.push([...validationResults]);
         }
 
         dependant?.questionOptions.answers
