@@ -260,7 +260,10 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
                 )
               : isTrue(field.disabled);
           }
+
+          //field dependant registration for conditional Answered
           if (field.validators?.some((validator) => validator.type === 'conditionalAnswered')) {
+            //move this to the helper
             const referencedFieldId = field.validators.find(
               (validator) => validator.type === 'conditionalAnswered',
             ).referenceQuestionId;
@@ -555,7 +558,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       }
       return savedEncounter;
     } catch (error) {
-      console.error(error.responseBody);
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: t('errorSavingEncounter', 'Error saving encounter'),
@@ -573,7 +575,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     setWarnings: (warnings: Array<ValidationResult>) => void,
     isUnspecified: boolean,
   ) => {
-    console.log('value passed to on change:', value);
     const field = fields.find((field) => field.id == fieldName);
     // handle validation
     const baseValidatorConfig = {
@@ -590,6 +591,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             ...baseValidatorConfig,
             ...validatorConfig,
           }) || [];
+
+        console.log(errorsAndWarnings);
         errors.push(...errorsAndWarnings.filter((error) => error.resultType == 'error'));
         warnings.push(...errorsAndWarnings.filter((error) => error.resultType == 'warning'));
       }
@@ -608,7 +611,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     if (field.fieldDependants) {
       field.fieldDependants.forEach((dep) => {
         const dependant = fields.find((f) => f.id == dep);
-        console.log('still tracking value in the forEach', value);
         // evaluate calculated value
         if (dependant.questionOptions.calculate?.calculateExpression) {
           evaluateAsyncExpression(
@@ -660,6 +662,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           const fieldValidatorConfig = dependant.validators?.find(
             (validator) => validator.type === 'conditionalAnswered',
           );
+
           const validationResults = formFieldValidators['conditionalAnswered'].validate(
             dependant,
             dependant.meta.submission?.newValue,
@@ -668,7 +671,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               ...fieldValidatorConfig,
             },
           );
-          // dependant.meta.submission?.errors.push([...validationResults]);
+
+          dependant.meta.submission = { ...dependant.meta.submission, errors: validationResults };
         }
 
         dependant?.questionOptions.answers
