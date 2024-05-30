@@ -14,6 +14,7 @@ import FormPage from '../page/form-page.component';
 import { FormContext } from '../../form-context';
 import {
   evalConditionalRequired,
+  evaluateConditionalAnswered,
   evaluateDisabled,
   evaluateFieldReadonlyProp,
   evaluateHide,
@@ -261,17 +262,11 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               : isTrue(field.disabled);
           }
 
-          //field dependant registration for conditional Answered
           if (field.validators?.some((validator) => validator.type === 'conditionalAnswered')) {
-            //move this to the helper
-            const referencedFieldId = field.validators.find(
-              (validator) => validator.type === 'conditionalAnswered',
-            ).referenceQuestionId;
-            const referencedField = flattenedFields.find((field) => field.id == referencedFieldId);
-            if (referencedField) {
-              (referencedField.fieldDependants || (referencedField.fieldDependants = new Set())).add(field.id);
-            }
+            evaluateConditionalAnswered(field, flattenedFields);
           }
+
+          console.log('flattenedFields', flattenedFields);
 
           field.questionOptions.answers
             ?.filter((answer) => !isEmpty(answer.hide?.hideWhenExpression))
@@ -592,7 +587,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             ...validatorConfig,
           }) || [];
 
-        console.log(errorsAndWarnings);
         errors.push(...errorsAndWarnings.filter((error) => error.resultType == 'error'));
         warnings.push(...errorsAndWarnings.filter((error) => error.resultType == 'warning'));
       }
@@ -671,7 +665,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               ...fieldValidatorConfig,
             },
           );
-
           dependant.meta.submission = { ...dependant.meta.submission, errors: validationResults };
         }
 

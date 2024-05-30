@@ -8,17 +8,9 @@ export const conditionalAnsweredValidator: FormFieldValidator = {
     const referencedFieldValue = values[referencedField.id] || referencedField.meta?.submission?.newValue?.value;
 
     if (!referencedFieldValue || !referenceQuestionAnswers.includes(referencedFieldValue)) {
-      console.log('referencedFieldValue', referencedFieldValue);
-      // console.log('referenceQuestionAnswers', referenceQuestionAnswers);
-      if (!referencedFieldValue) {
-        console.log('this failed because the referenced field has no value');
-      }
-      if (!referenceQuestionAnswers.includes(referencedFieldValue)) {
-        console.log('this failed because the selected answer in the referenced field is not in the referenced answers');
-      }
       return [{ resultType: 'error', errCode: 'invalid.valueSelected', message: message }];
     }
-    console.log('validation should pass and return nothing');
+
     return [];
   },
 };
