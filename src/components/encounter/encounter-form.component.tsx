@@ -37,7 +37,6 @@ import { useTranslation } from 'react-i18next';
 import { EncounterFormManager } from './encounter-form-manager';
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
 import { usePatientPrograms } from '../../hooks/usePatientPrograms';
-import { useFieldValidationResults } from '../../hooks/useFieldValidationResults';
 
 interface EncounterFormProps {
   formJson: FormSchema;
@@ -584,7 +583,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             ...baseValidatorConfig,
             ...validatorConfig,
           }) || [];
-
         errors.push(...errorsAndWarnings.filter((error) => error.resultType == 'error'));
         warnings.push(...errorsAndWarnings.filter((error) => error.resultType == 'warning'));
       }
@@ -649,7 +647,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           dependant.isRequired = evalConditionalRequired(dependant, fields, { ...values, [fieldName]: value });
         }
 
-        //evaluate conditional answered
         if (dependant.validators?.some((validator) => validator.type === 'conditionalAnswered')) {
           const fieldValidatorConfig = dependant.validators?.find(
             (validator) => validator.type === 'conditionalAnswered',
