@@ -266,8 +266,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             evaluateConditionalAnswered(field, flattenedFields);
           }
 
-          console.log('flattenedFields', flattenedFields);
-
           field.questionOptions.answers
             ?.filter((answer) => !isEmpty(answer.hide?.hideWhenExpression))
             .forEach((answer) => {
