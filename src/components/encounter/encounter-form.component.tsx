@@ -55,6 +55,7 @@ interface EncounterFormProps {
   setAllInitialValues: (values: Record<string, any>) => void;
   setScrollablePages: (pages: Set<FormPageProps>) => void;
   setPagesWithErrors: (pages: string[]) => void;
+  setFieldErrors: React.Dispatch<React.SetStateAction<ValidationResult[]>>;
   setIsLoadingFormDependencies?: (value: boolean) => void;
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
   setSelectedPage: (page: string) => void;
@@ -84,6 +85,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   allInitialValues,
   setAllInitialValues,
   isSubmitting,
+  setFieldErrors,
 }) => {
   const { t } = useTranslation();
   const [fields, setFields] = useState<Array<FormField>>([]);
@@ -440,6 +442,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     (values) => {
       let errorFields = [];
       let formHasErrors = false;
+      setFieldErrors([]);
       // handle field validation
       fields
         .filter((field) => !field.isParentHidden && !field.disabled && !field.isHidden && !isTrue(field.readonly))
@@ -451,6 +454,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             errorFields.push(field);
             field.meta.submission = { ...(field.meta.submission || {}), errors };
             formHasErrors = true;
+            setFieldErrors((prevErrors: ValidationResult[]) => [...prevErrors, ...errors]);
             return;
           }
         });
@@ -823,6 +827,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               setFieldValue={setFieldValue}
               setSelectedPage={setSelectedPage}
               handlers={handlers}
+              setFieldErrors={setFieldErrors}
               workspaceLayout={workspaceLayout}
               setIsLoadingFormDependencies={setIsLoadingFormDependencies}
               isSubmitting
