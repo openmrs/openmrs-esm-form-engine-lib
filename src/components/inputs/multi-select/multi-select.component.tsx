@@ -50,9 +50,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      const previousValues = Array.isArray(previousValue)
-        ? previousValue.map((item) => item.value)
-        : [previousValue.value];
+      const previousValues = Array.isArray(previousValue) ? previousValue.map((item) => item.value) : [previousValue];
       setFieldValue(question.id, previousValues);
       onChange(question.id, previousValues, setErrors, setWarnings);
       handler?.handleFieldSubmission(question, previousValues, encounterContext);

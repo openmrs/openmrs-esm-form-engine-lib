@@ -26,7 +26,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      const { value } = previousValue;
+      const value = previousValue;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);
       handler?.handleFieldSubmission(question, value, encounterContext);
