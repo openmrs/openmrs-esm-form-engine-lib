@@ -177,12 +177,28 @@
                 "concept": "a89ff9a6-1350-11df-a1f1-0026b9348838",
                 "answers": [
                   {
-                    "concept": "489ff816-1350-11df-a1f1-0026b9348838",
+                    "concept": "489ff816-1350-11df-a1f1-0026b9348833",
                     "label": "No reason"
                   },
                   {
-                    "concept": "f89ff8de-1350-11df-a1f1-0026b9348838",
+                    "concept": "f89ff8de-1350-11df-a1f1-0026b9348834",
                     "label": "Other reason"
+                  },
+                  {
+                    "concept": "489ff816-1350-11df-a1f1-0026b9348835",
+                    "label": "Full reason"
+                  },
+                  {
+                    "concept": "f89ff8de-1350-11df-a1f1-0026b9348836",
+                    "label": "Partial reason"
+                  },
+                  {
+                    "concept": "489ff816-1350-11df-a1f1-0026b9348837",
+                    "label": "True reason"
+                  },
+                  {
+                    "concept": "f89ff8de-1350-11df-a1f1-0026b9348838",
+                    "label": "False reason"
                   }
                 ]
               },

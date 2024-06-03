@@ -52,8 +52,20 @@
                     }
                   },
                   {
-                    "concept": "a89ff8de-1350-11df-a1f1-0026b9348838",
+                    "concept": "a89ff8de-1350-11df-a1f1-0026b9348837",
                     "label": "Unscheduled visit late"
+                  },
+                  {
+                    "concept": "a89ff8de-1350-11df-a1f1-0026b9348838",
+                    "label": "Late visit"
+                  },
+                  {
+                    "concept": "a89ff8de-1350-11df-a1f1-0026b9348839",
+                    "label": "Walk in visit"
+                  },
+                  {
+                    "concept": "a89ff8de-1350-11df-a1f1-0026b9348839",
+                    "label": "Follow up visit"
                   }
                 ]
               },
