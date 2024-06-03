@@ -1,0 +1,97 @@
+{
+  "name": "ampath_poc_adult_return_visit_form_v1.9",
+  "uuid": "xxxx",
+  "EncounterType": "xxxx",
+  "referencedForms": [],
+  "processor": "EncounterFormProcessor",
+  "pages": [
+    {
+      "label": "Encounter Details",
+      "sections": [
+        {
+          "label": "Hospitalization History",
+          "questions": [
+            {
+              "type": "obsGroup",
+              "label": "Recent hospitalizations",
+              "questionOptions": {
+                "rendering": "group",
+                "concept": "a8a003a6-1350-11df-a1f1-0026b9348838"
+              },
+              "questions": [
+                {
+                  "label": "Was the patient hospitalized since last visit?",
+                  "id": "wasHospitalized",
+                  "questionOptions": {
+                    "concept": "a898c56e-1350-11df-a1f1-0026b9348838",
+                    "answers": [
+                      {
+                        "concept": "a899b35c-1350-11df-a1f1-0026b9348838",
+                        "label": "Yes"
+                      },
+                      {
+                        "concept": "a899b42e-1350-11df-a1f1-0026b9348838",
+                        "label": "No"
+                      }
+                    ],
+                    "rendering": "select"
+                  },
+                  "type": "obs",
+                  "validators": []
+                }
+              ],
+              "id": "__qLKuwyDMu"
+            },
+            {
+              "type": "obsGroup",
+              "label": "If yes reason for hospitalization:",
+              "questionOptions": {
+                "concept": "a8a003a6-1350-11df-a1f1-0026b9348838",
+                "rendering": "repeating"
+              },
+              "questions": [
+                {
+                  "label": "Reason for hospitalization:",
+                  "id": "hospReason",
+                  "questionOptions": {
+                    "concept": "a8a07a48-1350-11df-a1f1-0026b9348838",
+                    "rendering": "select",
+                    "answers": [
+                      {
+                        "concept": "a89b6440-1350-11df-a1f1-0026b9348838",
+                        "label": "Maternal visit"
+                      },
+                      {
+                        "concept": "a89ff816-1350-11df-a1f1-0026b9348838",
+                        "label": "Emergency visit"
+                      },
+                      {
+                        "concept": "a89ff8de-1350-11df-a1f1-0026b9348838",
+                        "label": "Unscheduled visit late"
+                      }
+                    ]
+                  },
+                  "type": "obs",
+                  "validators": [
+                    {
+                      "type": "conditionalAnswered",
+                      "message": "Providing diagnosis but didn't answer that patient was hospitalized in question",
+                      "referenceQuestionId": "wasHospitalized",
+                      "referenceQuestionAnswers": ["a899b35c-1350-11df-a1f1-0026b9348838"]
+                    },
+                    {
+                      "type": "js_expression",
+                      "failsWhenExpression": "isEmpty(myValue) && !isEmpty(wasHospitalized) && wasHospitalized === 'a899b35c-1350-11df-a1f1-0026b9348838'",
+                      "message": "Patient previously marked as hospitalized. Please provide hospitalization reason."
+                    }
+                  ]
+                }
+              ],
+              "id": "__wIytMGq5E"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

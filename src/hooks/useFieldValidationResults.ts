@@ -6,7 +6,7 @@ export function useFieldValidationResults(field: FormField) {
   const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
-    if (field.meta?.submission?.errors) {
+    if (field.meta.submission?.errors) {
       setErrors(field.meta.submission.errors);
     }
     if (field.meta?.submission?.warnings) {

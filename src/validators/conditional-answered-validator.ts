@@ -1,3 +1,4 @@
+import { isEmpty } from '../validators/form-validator';
 import { type FormFieldValidator, type FormField } from '../types';
 
 export const conditionalAnsweredValidator: FormFieldValidator = {
@@ -5,9 +6,9 @@ export const conditionalAnsweredValidator: FormFieldValidator = {
     const { referenceQuestionId, referenceQuestionAnswers, values, fields, message } = config;
 
     const referencedField = fields.find((field) => field.id === referenceQuestionId);
-    const referencedFieldValue = values[referencedField.id] || referencedField.meta?.submission?.newValue?.value;
+    const referencedFieldValue = values[referencedField.id];
 
-    if (!referencedFieldValue || !referenceQuestionAnswers.includes(referencedFieldValue)) {
+    if (!isEmpty(value) && !referenceQuestionAnswers.includes(referencedFieldValue)) {
       return [{ resultType: 'error', errCode: 'invalid.valueSelected', message: message }];
     }
 
