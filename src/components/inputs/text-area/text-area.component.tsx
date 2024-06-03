@@ -33,7 +33,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
 
   useEffect(() => {
     if (!isEmpty(previousValueProp)) {
-      const { value } = previousValueProp;
+      const value = previousValueProp;
       setFieldValue(question.id, value);
       field['value'] = value;
     }

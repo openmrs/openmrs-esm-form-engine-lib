@@ -57,7 +57,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      const { value } = previousValue;
+      const value = previousValue;
       isProcessingSelection.current = true;
       setFieldValue(question.id, value);
       onChange(question.id, value, setErrors, setWarnings);

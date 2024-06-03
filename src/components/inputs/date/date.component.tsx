@@ -40,7 +40,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      const date = previousValue.value;
+      const date = previousValue;
       const refinedDate = date instanceof Date ? new Date(date.setHours(0, 0, 0, 0)) : date;
       setFieldValue(question.id, refinedDate);
       onChange(question.id, refinedDate, setErrors, setWarnings);

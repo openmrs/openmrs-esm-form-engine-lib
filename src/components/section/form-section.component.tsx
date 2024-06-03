@@ -82,7 +82,7 @@ const FormSection = ({ fields, onFieldChange }) => {
                   key={index}
                   handler={handler}
                   useField={useField}
-                  previousValue={previousValues[fieldDescriptor.id]}
+                  previousValue={previousValues[fieldDescriptor.id]?.value}
                 />
               );
 

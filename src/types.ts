@@ -160,7 +160,7 @@ export interface FormFieldProps {
   handler: SubmissionHandler;
   // This is of util to components defined out of the engine
   useField?: (fieldId: string) => [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
-  previousValue?: previousValue;
+  previousValue?: string | number | Date | boolean | previousValue[];
 }
 
 export interface FormSection {
