@@ -88,12 +88,12 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   setFieldErrors,
 }) => {
   const { t } = useTranslation();
-  const { newEncounterRole, isLoading: isLoadingEncounterRole } = useEncounterRole();
+  const { encounterRole: defaultEncounterRole, isLoading: isLoadingEncounterRole } = useEncounterRole();
   const [fields, setFields] = useState<Array<FormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
   const [encounterDate, setEncounterDate] = useState(formSessionDate);
   const [encounterProvider, setEncounterProvider] = useState(provider);
-  const [encounterRole, setEncounterRole] = useState(newEncounterRole?.uuid);
+  const [encounterRole, setEncounterRole] = useState(null);
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(formJson);
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
@@ -230,6 +230,12 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setEncounterLocation(encounter.location);
     }
   }, [location, encounter]);
+
+  useEffect(() => {
+    if (defaultEncounterRole && !encounterRole) {
+      setEncounterRole(defaultEncounterRole.uuid);
+    }
+  }, [defaultEncounterRole]);
 
   useEffect(() => {
     if (Object.keys(tempInitialValues ?? {}).length && !isFieldInitializationComplete) {
