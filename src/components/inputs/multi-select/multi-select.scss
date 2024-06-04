@@ -1,6 +1,7 @@
 @use '@carbon/colors';
 
-.boldedLabel label {
+.boldedLabel label,
+legend > span {
   font-weight: 600;
   color: colors.$black-100;
 }
@@ -20,5 +21,5 @@
 
 .checkbox label {
   color: colors.$black-100 !important;
-  font-weight: 500 !important; 
+  font-weight: 500 !important;
 }
