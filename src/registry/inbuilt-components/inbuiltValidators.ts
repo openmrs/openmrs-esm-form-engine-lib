@@ -1,3 +1,4 @@
+import { conditionalAnsweredValidator } from '../../validators/conditional-answered-validator';
 import { type FormFieldValidator } from '../../types';
 import { DateValidator } from '../../validators/date-validator';
 import { DefaultValueValidator } from '../../validators/default-value-validator';
@@ -24,5 +25,9 @@ export const inbuiltValidators: Array<RegistryItem<FormFieldValidator>> = [
   {
     name: 'js_expression',
     component: ExpressionValidator,
+  },
+  {
+    name: 'conditionalAnswered',
+    component: conditionalAnsweredValidator,
   },
 ];

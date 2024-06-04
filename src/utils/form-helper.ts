@@ -37,6 +37,16 @@ export function isInlineView(
   return renderingType == 'single-line';
 }
 
+export function evaluateConditionalAnswered(field: FormField, allFields: FormField[]) {
+  const referencedFieldId = field.validators.find(
+    (validator) => validator.type === 'conditionalAnswered',
+  ).referenceQuestionId;
+  const referencedField = allFields.find((field) => field.id == referencedFieldId);
+  if (referencedField) {
+    (referencedField.fieldDependants || (referencedField.fieldDependants = new Set())).add(field.id);
+  }
+}
+
 export function evaluateFieldReadonlyProp(
   field: FormField,
   sectionReadonly: string | boolean,

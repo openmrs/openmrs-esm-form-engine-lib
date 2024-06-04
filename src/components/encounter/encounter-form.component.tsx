@@ -14,6 +14,7 @@ import FormPage from '../page/form-page.component';
 import { FormContext } from '../../form-context';
 import {
   evalConditionalRequired,
+  evaluateConditionalAnswered,
   evaluateDisabled,
   evaluateFieldReadonlyProp,
   evaluateHide,
@@ -260,6 +261,10 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
                   evaluateExpression,
                 )
               : isTrue(field.disabled);
+          }
+
+          if (field.validators?.some((validator) => validator.type === 'conditionalAnswered')) {
+            evaluateConditionalAnswered(field, flattenedFields);
           }
 
           field.questionOptions.answers
@@ -549,7 +554,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       }
       return savedEncounter;
     } catch (error) {
-      console.error(error.responseBody);
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: t('errorSavingEncounter', 'Error saving encounter'),
@@ -645,6 +649,22 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         // evaluate conditional required
         if (typeof dependant.required === 'object' && dependant.required?.type === 'conditionalRequired') {
           dependant.isRequired = evalConditionalRequired(dependant, fields, { ...values, [fieldName]: value });
+        }
+
+        if (dependant.validators?.some((validator) => validator.type === 'conditionalAnswered')) {
+          const fieldValidatorConfig = dependant.validators?.find(
+            (validator) => validator.type === 'conditionalAnswered',
+          );
+
+          const validationResults = formFieldValidators['conditionalAnswered'].validate(
+            dependant,
+            dependant.meta.submission?.newValue,
+            {
+              ...baseValidatorConfig,
+              ...fieldValidatorConfig,
+            },
+          );
+          dependant.meta.submission = { ...dependant.meta.submission, errors: validationResults };
         }
 
         dependant?.questionOptions.answers

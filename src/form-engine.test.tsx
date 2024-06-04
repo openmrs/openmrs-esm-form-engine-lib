@@ -33,6 +33,7 @@ import historicalExpressionsForm from '__mocks__/forms/rfe-forms/historical-expr
 import mockHxpEncounter from '__mocks__/forms/rfe-forms/mockHistoricalvisitsEncounter.json';
 import requiredTestForm from '__mocks__/forms/rfe-forms/required-form.json';
 import conditionalRequiredTestForm from '__mocks__/forms/rfe-forms/conditional-required-form.json';
+import conditionalAnsweredForm from '__mocks__/forms/rfe-forms/conditional-answered-form.json';
 import FormEngine from './form-engine.component';
 
 const mockShowToast = showToast as jest.Mock;
@@ -153,6 +154,50 @@ describe('Form engine component', () => {
 
       await user.hover(textFieldTooltip);
       await screen.findByText(/sample tooltip info for text/i);
+    });
+  });
+
+  describe('conditional answered validation', () => {
+    it('should fail if the referenced field has a value that does not exist on the referenced answers array', async () => {
+      await act(async () => {
+        renderForm(null, conditionalAnsweredForm);
+      });
+
+      const hospitalizationHistoryDropdown = screen.getByRole('combobox', {
+        name: /was the patient hospitalized since last visit\?/i,
+      });
+      const hospitalizationReasonDropdown = screen.getByRole('combobox', {
+        name: /reason for hospitalization:/i,
+      });
+
+      expect(hospitalizationHistoryDropdown);
+      expect(hospitalizationReasonDropdown);
+
+      fireEvent.click(hospitalizationHistoryDropdown);
+
+      expect(screen.getByText(/yes/i)).toBeInTheDocument();
+      expect(screen.getByText(/no/i)).toBeInTheDocument();
+
+      fireEvent.click(screen.getByText(/no/i));
+
+      fireEvent.click(hospitalizationReasonDropdown);
+
+      expect(screen.getByText(/Maternal Visit/i)).toBeInTheDocument();
+      expect(screen.getByText(/Emergency Visit/i)).toBeInTheDocument();
+      expect(screen.getByText(/Unscheduled visit late/i)).toBeInTheDocument();
+
+      fireEvent.click(screen.getByText(/Maternal Visit/i));
+
+      const errorMessage = screen.getByText(
+        /Providing diagnosis but didn't answer that patient was hospitalized in question/i,
+      );
+
+      expect(errorMessage).toBeInTheDocument();
+
+      fireEvent.click(hospitalizationHistoryDropdown);
+      fireEvent.click(screen.getByText(/yes/i));
+
+      expect(errorMessage).not.toBeInTheDocument();
     });
   });
 
