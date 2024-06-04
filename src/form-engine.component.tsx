@@ -15,7 +15,6 @@ import { usePatientData } from './hooks/usePatientData';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import { moduleName } from './globals';
 import { useFormCollapse } from './hooks/useFormCollapse';
-import { useEncounterRole } from './hooks/useEncounterRole';
 import EncounterForm from './components/encounter/encounter-form.component';
 import Loader from './components/loaders/loader.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
@@ -89,7 +88,6 @@ const FormEngine: React.FC<FormProps> = ({
   markFormAsDirty,
 }) => {
   const session = useSession();
-  const { encounterRole } = useEncounterRole();
   const currentProvider = session?.currentProvider?.uuid ? session.currentProvider.uuid : null;
   const location = session && !(encounterUUID || encounterUuid) ? session?.sessionLocation : null;
   const { patient, isLoadingPatient: isLoadingPatient, patientError: patientError } = usePatientData(patientUUID);
@@ -302,7 +300,6 @@ const FormEngine: React.FC<FormProps> = ({
                           patient={patient}
                           formSessionDate={formSessionDate}
                           provider={currentProvider}
-                          role={encounterRole?.uuid}
                           location={location}
                           visit={visit}
                           values={props.values}

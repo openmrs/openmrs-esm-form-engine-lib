@@ -30,6 +30,7 @@ import { FieldValidator, isEmpty } from '../../validators/form-validator';
 import { scrollIntoView } from '../../utils/scroll-into-view';
 import { useEncounter } from '../../hooks/useEncounter';
 import { useInitialValues } from '../../hooks/useInitialValues';
+import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { useConcepts } from '../../hooks/useConcepts';
 import { useFormFieldHandlers } from '../../hooks/useFormFieldHandlers';
 import { useFormFieldValidators } from '../../hooks/useFormFieldValidators';
@@ -43,7 +44,6 @@ interface EncounterFormProps {
   patient: any;
   formSessionDate: Date;
   provider: string;
-  role: string;
   location: SessionLocation;
   visit?: Visit;
   values: Record<string, any>;
@@ -69,7 +69,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   patient,
   formSessionDate,
   provider,
-  role,
   location,
   visit,
   values,
@@ -89,11 +88,12 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   setFieldErrors,
 }) => {
   const { t } = useTranslation();
+  const { encounterRole: defaultEncounterRole, isLoading: isLoadingEncounterRole } = useEncounterRole();
   const [fields, setFields] = useState<Array<FormField>>([]);
   const [encounterLocation, setEncounterLocation] = useState(null);
   const [encounterDate, setEncounterDate] = useState(formSessionDate);
   const [encounterProvider, setEncounterProvider] = useState(provider);
-  const [encounterRole, setEncounterRole] = useState(role);
+  const [encounterRole, setEncounterRole] = useState(null);
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(formJson);
   const [previousEncounter, setPreviousEncounter] = useState<OpenmrsEncounter>(null);
   const [isLoadingPreviousEncounter, setIsLoadingPreviousEncounter] = useState(true);
@@ -127,7 +127,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     };
     return {
       encounterContext: contextObject,
-      isLoadingContextDependencies: isLoadingEncounter || isLoadingPreviousEncounter || isLoadingPatientPrograms,
+      isLoadingContextDependencies:
+        isLoadingEncounter || isLoadingPreviousEncounter || isLoadingPatientPrograms || isLoadingEncounterRole,
     };
   }, [
     encounter,
@@ -140,6 +141,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     isLoadingPatientPrograms,
     isLoadingPreviousEncounter,
     isLoadingEncounter,
+    isLoadingEncounterRole,
   ]);
 
   // given the form, flatten the fields and pull out all concept references
@@ -228,6 +230,12 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       setEncounterLocation(encounter.location);
     }
   }, [location, encounter]);
+
+  useEffect(() => {
+    if (defaultEncounterRole && !encounterRole) {
+      setEncounterRole(defaultEncounterRole.uuid);
+    }
+  }, [defaultEncounterRole]);
 
   useEffect(() => {
     if (Object.keys(tempInitialValues ?? {}).length && !isFieldInitializationComplete) {
@@ -411,10 +419,10 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   }, [sessionMode]);
 
   useEffect(() => {
-    if (!isLoadingEncounter && !isLoadingPreviousEncounter) {
+    if (!isLoadingEncounter && !isLoadingPreviousEncounter && !isLoadingEncounterRole) {
       setIsLoadingFormDependencies(false);
     }
-  }, [isLoadingEncounter, isLoadingPreviousEncounter]);
+  }, [isLoadingEncounter, isLoadingPreviousEncounter, isLoadingEncounterRole]);
 
   useEffect(() => {
     if (invalidFields?.length) {
@@ -833,7 +841,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
               patient={patient}
               formSessionDate={encounterDate}
               provider={provider}
-              role={encounterRole}
               location={location}
               visit={visit}
               values={values}
