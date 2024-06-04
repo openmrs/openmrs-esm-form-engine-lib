@@ -158,8 +158,6 @@ describe('Form engine component', () => {
   });
 
   describe('conditional answered validation', () => {
-    it('should fail if target field has a value but no value is selected on the referenced field', () => {});
-
     it('should fail if the referenced field has a value that does not exist on the referenced answers array', async () => {
       await act(async () => {
         renderForm(null, conditionalAnsweredForm);
