@@ -26,10 +26,9 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      const value = previousValue;
-      setFieldValue(question.id, value);
-      onChange(question.id, value, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, value, encounterContext);
+      setFieldValue(question.id, previousValue);
+      onChange(question.id, previousValue, setErrors, setWarnings);
+      handler?.handleFieldSubmission(question, previousValue, encounterContext);
     }
   }, [previousValue]);
 
