@@ -21,9 +21,8 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      const value = previousValue;
-      setFieldValue(question.id, value);
-      field['value'] = value;
+      setFieldValue(question.id, previousValue);
+      field['value'] = previousValue;
       field.onBlur(null);
     }
   }, [previousValue]);
