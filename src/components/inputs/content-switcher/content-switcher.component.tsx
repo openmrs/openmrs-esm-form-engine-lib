@@ -20,10 +20,9 @@ const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      const value = previousValue;
-      setFieldValue(question.id, value);
-      onChange(question.id, value, setErrors, null);
-      handler?.handleFieldSubmission(question, value, encounterContext);
+      setFieldValue(question.id, previousValue);
+      onChange(question.id, previousValue, setErrors, null);
+      handler?.handleFieldSubmission(question, previousValue, encounterContext);
     }
   }, [previousValue]);
 
