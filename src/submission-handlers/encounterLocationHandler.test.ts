@@ -62,23 +62,32 @@ const encounterContext: EncounterContext = {
 };
 
 describe('EncounterLocationSubmissionHandler', () => {
+  let field: FormField;
+
+  beforeEach(() => {
+    // Define the field once before each test
+    field = {
+      label: 'Encounter Location',
+      type: 'encounterLocation',
+      required: false,
+      id: 'encounterLocation',
+      questionOptions: {
+        rendering: 'ui-select-extended',
+      },
+      validators: [],
+    };
+  });
+
+  afterEach(() => {
+    // Clean up any side effects if needed
+    jest.clearAllMocks();
+  });
+
   describe('handleFieldSubmission', () => {
     it('should handle encounter location submission', async () => {
       // Setup mock
       const locations = [{ uuid: '5c95f6f5-788e-4e73-9079-5626911231fa', display: 'Test Location' }];
       mockedGetAllLocations.mockResolvedValue(locations);
-
-      // Setup field
-      const field: FormField = {
-        label: 'Encounter Location',
-        type: 'encounterLocation',
-        required: false,
-        id: 'encounterLocation',
-        questionOptions: {
-          rendering: 'ui-select-extended',
-        },
-        validators: [],
-      };
 
       // Replay
       await EncounterLocationSubmissionHandler.handleFieldSubmission(
@@ -94,18 +103,6 @@ describe('EncounterLocationSubmissionHandler', () => {
 
   describe('getInitialValue', () => {
     it('should return the location UUID from the encounter if present', () => {
-      // Setup field
-      const field: FormField = {
-        label: 'Encounter Location',
-        type: 'encounterLocation',
-        required: false,
-        id: 'encounterLocation',
-        questionOptions: {
-          rendering: 'ui-select-extended',
-        },
-        validators: [],
-      };
-
       const initialValue = EncounterLocationSubmissionHandler.getInitialValue(
         encounterWithLocation,
         field,
@@ -116,18 +113,6 @@ describe('EncounterLocationSubmissionHandler', () => {
     });
 
     it('should return the location UUID from the context if encounter location is not present', () => {
-      // Setup field
-      const field: FormField = {
-        label: 'Encounter Location',
-        type: 'encounterLocation',
-        required: false,
-        id: 'encounterLocation',
-        questionOptions: {
-          rendering: 'ui-select-extended',
-        },
-        validators: [],
-      };
-
       const initialValue = EncounterLocationSubmissionHandler.getInitialValue(
         encounterContext.encounter,
         field,
@@ -138,18 +123,6 @@ describe('EncounterLocationSubmissionHandler', () => {
     });
 
     it('should return undefined if neither the encounter nor the context has a location', () => {
-      // Setup field
-      const field: FormField = {
-        label: 'Encounter Location',
-        type: 'encounterLocation',
-        required: false,
-        id: 'encounterLocation',
-        questionOptions: {
-          rendering: 'ui-select-extended',
-        },
-        validators: [],
-      };
-
       const initialValue = EncounterLocationSubmissionHandler.getInitialValue(
         encounterWithoutLocation,
         field,
@@ -159,19 +132,9 @@ describe('EncounterLocationSubmissionHandler', () => {
       expect(initialValue).toBeUndefined();
     });
   });
+
   describe('getDisplayValue', () => {
     it('should return display value when value is defined', () => {
-      const field: FormField = {
-        label: 'Encounter Location',
-        type: 'encounterLocation',
-        required: false,
-        id: 'encounterLocation',
-        questionOptions: {
-          rendering: 'ui-select-extended',
-        },
-        validators: [],
-      };
-
       const value = { display: 'Test Location', uuid: '5c95f6f5-788e-4e73-9079-5626911231fa' };
       const displayValue = EncounterLocationSubmissionHandler.getDisplayValue(field, value);
 
@@ -179,17 +142,6 @@ describe('EncounterLocationSubmissionHandler', () => {
     });
 
     it('should return undefined when value is null', () => {
-      const field: FormField = {
-        label: 'Encounter Location',
-        type: 'encounterLocation',
-        required: false,
-        id: 'encounterLocation',
-        questionOptions: {
-          rendering: 'ui-select-extended',
-        },
-        validators: [],
-      };
-
       const value = null;
       const displayValue = EncounterLocationSubmissionHandler.getDisplayValue(field, value);
 
@@ -197,36 +149,15 @@ describe('EncounterLocationSubmissionHandler', () => {
     });
 
     it('should return undefined when value is undefined', () => {
-      const field: FormField = {
-        label: 'Encounter Location',
-        type: 'encounterLocation',
-        required: false,
-        id: 'encounterLocation',
-        questionOptions: {
-          rendering: 'ui-select-extended',
-        },
-        validators: [],
-      };
-
       const value = undefined;
       const displayValue = EncounterLocationSubmissionHandler.getDisplayValue(field, value);
 
       expect(displayValue).toBeUndefined();
     });
   });
+
   describe('getPreviousValue', () => {
     it('should return display and value when encounter has location', () => {
-      const field: FormField = {
-        label: 'Encounter Location',
-        type: 'encounterLocation',
-        required: false,
-        id: 'encounterLocation',
-        questionOptions: {
-          rendering: 'ui-select-extended',
-        },
-        validators: [],
-      };
-
       const encounter = {
         location: { name: 'Previous Location', uuid: '95e6e516-c1f0-11eb-8529-0242ac130006' },
       };
@@ -238,17 +169,6 @@ describe('EncounterLocationSubmissionHandler', () => {
     });
 
     it('should return undefined when encounter has no location', () => {
-      const field: FormField = {
-        label: 'Encounter Location',
-        type: 'encounterLocation',
-        required: false,
-        id: 'encounterLocation',
-        questionOptions: {
-          rendering: 'ui-select-extended',
-        },
-        validators: [],
-      };
-
       const encounter = {};
       const allFormFields = [];
 
