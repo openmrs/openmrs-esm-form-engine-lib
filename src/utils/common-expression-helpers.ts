@@ -259,7 +259,7 @@ export class CommonExpressionHelpers {
     return values;
   };
 
-  calcGravida(parityTerm, parityAbortion) {
+  calcGravida = (parityTerm, parityAbortion) => {
     let gravida = 0;
     if (parityTerm === parseInt(parityTerm)) {
       gravida = parityTerm + 1;
@@ -271,7 +271,7 @@ export class CommonExpressionHelpers {
       parityAbortion + parityTerm + 1;
     }
     return gravida;
-  }
+  };
 
   calcWeightForHeightZscore = (height, weight) => {
     const birthDate = new Date(this.patient.birthDate);
