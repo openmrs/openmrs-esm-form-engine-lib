@@ -38,9 +38,8 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      const value = previousValue;
-      setFieldValue(question.id, value);
-      field['value'] = value;
+      setFieldValue(question.id, previousValue);
+      field['value'] = previousValue;
       field.onBlur(null);
     }
   }, [previousValue]);
