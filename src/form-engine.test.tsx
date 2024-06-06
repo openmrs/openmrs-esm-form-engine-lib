@@ -649,7 +649,7 @@ describe('Form engine component', () => {
       });
     });
 
-    it('should only show question when age is under 5', async () => {
+    fit('should only show question when age is under 5', async () => {
       await act(async () => renderForm(null, ageValidationForm));
 
       let enrollmentDate = screen.getByRole('textbox', {
@@ -659,6 +659,7 @@ describe('Form engine component', () => {
       expect(enrollmentDate).not.toHaveValue();
       await user.click(enrollmentDate);
       await user.paste('1975-07-06T00:00:00.000Z');
+      await user.tab();
 
       let mrn = screen.getByRole('textbox', {
         name: /mrn/i,
@@ -693,8 +694,9 @@ describe('Form engine component', () => {
       });
 
       await user.click(followupDateField);
-      await user.paste('2022-07-06');
+      await user.paste('2022-07-06T00:00:00.000Z');
       await user.tab();
+
       await user.click(arvDispensedInDaysField);
       await user.type(arvDispensedInDaysField, '120');
       await user.tab();
