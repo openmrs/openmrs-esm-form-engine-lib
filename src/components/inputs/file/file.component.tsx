@@ -9,6 +9,7 @@ import { createAttachment } from '../../../utils/common-utils';
 import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { isInlineView } from '../../../utils/form-helper';
+import { isEmpty } from '../../../validators/form-validator';
 
 interface FileProps extends FormFieldProps {}
 type AllowedModes = 'uploader' | 'camera' | 'edit' | '';
@@ -39,7 +40,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
 
   const attachmentValue = useMemo(() => {
     const firstValue = Object?.values(myInitVal)[0];
-    if (firstValue) {
+    if (!isEmpty(firstValue)) {
       const attachment = createAttachment(firstValue?.[0]);
       return attachment;
     }
