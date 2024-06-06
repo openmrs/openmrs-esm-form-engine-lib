@@ -125,7 +125,9 @@ function transformByType(question: FormField) {
       question.questionOptions.rendering = 'encounter-role';
       break;
     case 'encounterDatetime':
-      question.questionOptions.rendering = 'date';
+      question.questionOptions.rendering = hasRendering(question, 'ui-select-extended')
+        ? 'date'
+        : question.questionOptions.rendering;
       break;
   }
 }
