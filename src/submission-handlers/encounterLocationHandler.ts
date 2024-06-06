@@ -10,7 +10,7 @@ export const EncounterLocationSubmissionHandler: SubmissionHandler = {
   },
 
   getInitialValue: (encounter: any, field: FormField, allFormFields: Array<FormField>, context: EncounterContext) => {
-    if (encounter) {
+    if (encounter && encounter.location) {
       return encounter.location.uuid;
     } else {
       return context?.location?.uuid;
@@ -23,8 +23,8 @@ export const EncounterLocationSubmissionHandler: SubmissionHandler = {
 
   getPreviousValue: (field: FormField, encounter: any, allFormFields: Array<FormField>) => {
     return {
-      display: encounter.location.name,
-      value: encounter.location.uuid,
+      display: encounter?.location?.name,
+      value: encounter?.location?.uuid,
     };
   },
 };
