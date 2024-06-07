@@ -382,7 +382,7 @@ describe('Form engine component', () => {
       const generalPopulationField = screen.getByRole('radio', { name: /general population/i });
 
       await user.click(enrolmentDateField);
-      await user.paste('2023-09-09');
+      await user.paste('2023-09-09T00:00:00.000Z');
       await user.type(uniqueIdField, 'U0-001109');
       await user.click(motherEnrolledField);
       await user.click(generalPopulationField);
@@ -521,7 +521,8 @@ describe('Form engine component', () => {
       expect(dateOfBirth).toBeInTheDocument();
 
       await user.click(dateOfBirth);
-      await user.paste('2022-03-11');
+      await user.paste('2022-03-11T00:00:00.000Z');
+      await user.tab()
 
       expect(dateOfBirth).toHaveValue('11/03/2022');
 
@@ -597,7 +598,8 @@ describe('Form engine component', () => {
       const lmpField = screen.getByRole('textbox', { name: /lmp/i });
 
       await user.click(lmpField);
-      await user.paste('2022-07-06');
+      await user.paste('2022-07-06T00:00:00.000Z');
+      await user.tab();
 
       expect(lmpField).toHaveValue(dayjs('2022-07-06').toDate().toLocaleDateString(locale));
       expect(eddField).toHaveValue(dayjs('2023-04-12').toDate().toLocaleDateString(locale));
@@ -659,6 +661,7 @@ describe('Form engine component', () => {
       expect(enrollmentDate).not.toHaveValue();
       await user.click(enrollmentDate);
       await user.paste('1975-07-06T00:00:00.000Z');
+      await user.tab();
 
       let mrn = screen.getByRole('textbox', {
         name: /mrn/i,
@@ -693,8 +696,9 @@ describe('Form engine component', () => {
       });
 
       await user.click(followupDateField);
-      await user.paste('2022-07-06');
+      await user.paste('2022-07-06T00:00:00.000Z');
       await user.tab();
+
       await user.click(arvDispensedInDaysField);
       await user.type(arvDispensedInDaysField, '120');
       await user.tab();

@@ -2,16 +2,17 @@ import React, { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
-import { DatePicker, DatePickerInput, Layer, TimePicker } from '@carbon/react';
+import { Layer, TimePicker } from '@carbon/react';
 import { type FormFieldProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './date.scss';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import { OpenmrsDatePicker } from '@openmrs/esm-framework';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
@@ -22,6 +23,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [time, setTime] = useState('');
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const datePickerType = 'single';
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -121,36 +123,30 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
         <div className={styles.datetime}>
           <div>
             <Layer>
-              <DatePicker
-                datePickerType="single"
-                onChange={onDateChange}
-                className={styles.boldedLabel}
-                dateFormat={carbonDateFormat}>
-                <DatePickerInput
-                  id={question.id}
-                  placeholder={placeholder}
-                  labelText={
-                    question.isRequired ? (
-                      <RequiredFieldLabel label={t(question.label)} />
-                    ) : (
-                      <span>{t(question.label)}</span>
-                    )
-                  }
-                  value={field.value instanceof Date ? field.value.toLocaleDateString(locale) : field.value}
-                  // Added for testing purposes.
-                  // Notes:
-                  // Something strange is happening with the way events are propagated and handled by Carbon.
-                  // When we manually trigger an onchange event using the 'fireEvent' lib, the handler below will
-                  // be triggered as opposed to the former handler that only gets triggered at runtime.
-                  onChange={(e) => onDateChange([dayjs(e.target.value, placeholder.toUpperCase()).toDate()])}
-                  disabled={question.isDisabled}
-                  invalid={errors.length > 0}
-                  invalidText={errors[0]?.message}
-                  warn={warnings.length > 0}
-                  warnText={warnings[0]?.message}
-                  readOnly={question.readonly}
-                />
-              </DatePicker>
+              <OpenmrsDatePicker
+                id={question.id}
+                dateFormat={carbonDateFormat}
+                onChange={(date) => onDateChange([date])}
+                labelText={
+                  question.isRequired ? (
+                    <RequiredFieldLabel label={t(question.label)} />
+                  ) : (
+                    <span>{t(question.label)}</span>
+                  )
+                }
+                invalid={errors.length > 0}
+                invalidText={errors[0]?.message}
+                value={field.value}
+                disabled={question.isDisabled}
+                readonly={isTrue(question.readonly)}
+                carbonOptions={{
+                  placeholder: placeholder,
+                  warn: warnings[0]?.message,
+                  warnText: warnings[0]?.message,
+                  className: styles.boldedLabel,
+                  datePickerType: datePickerType,
+                }}
+              />
             </Layer>
           </div>
           {question?.questionOptions.rendering === 'datetime' ? (
