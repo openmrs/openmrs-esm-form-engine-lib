@@ -263,7 +263,6 @@ export type RenderType =
   | 'content-switcher'
   | 'date'
   | 'datetime'
-  | 'time'
   | 'encounter-location'
   | 'encounter-provider'
   | 'encounter-role'
