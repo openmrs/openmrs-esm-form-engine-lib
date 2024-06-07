@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
 import { Layer, TimePicker } from '@carbon/react';
+import classNames from 'classnames';
 import { type FormFieldProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
@@ -122,7 +123,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
       <>
         <div className={styles.datetime}>
           {(question.datePickerFormat === 'calendar' || question.datePickerFormat === 'both') && (
-            <div>
+            <div className={styles.datePickerSpacing}>
               <Layer>
                 <OpenmrsDatePicker
                   id={question.id}
@@ -153,10 +154,10 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
           )}
 
           {question.datePickerFormat === 'both' || question.datePickerFormat === 'timer' ? (
-            <div className={styles.timePickerSpacing}>
+            <div>
               <Layer>
                 <TimePicker
-                  className={styles.boldedLabel && styles.timeInput}
+                  className={classNames(styles.boldedLabel, styles.timeInput)}
                   id={question.id}
                   labelText={<RequiredFieldLabel label={t('time', 'Time')} />}
                   placeholder="HH:MM"
