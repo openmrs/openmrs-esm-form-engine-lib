@@ -137,6 +137,8 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                 invalid={errors.length > 0}
                 invalidText={errors[0]?.message}
                 value={field.value}
+                disabled={question.isDisabled}
+                readonly={isTrue(question.readonly)}
                 carbonOptions={{
                   placeholder: placeholder,
                   warn: warnings[0]?.message,
@@ -144,8 +146,6 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   className: styles.boldedLabel,
                   datePickerType: datePickerType,
                 }}
-                {...(typeof question.readonly === 'boolean' && { readonly: question.readonly })}
-                {...(typeof question.disabled === 'boolean' && { disabled: question.disabled })}
               />
             </Layer>
           </div>
