@@ -19,3 +19,13 @@
     margin-left: 1rem;
   }
 }
+
+.timeInput {
+  width: auto;
+  :hover {
+    cursor: text;
+  }
+  :focus {
+    cursor: text;
+  }
+}

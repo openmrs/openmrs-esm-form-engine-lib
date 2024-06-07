@@ -111,6 +111,7 @@ export interface FormField {
   label: string;
   type: string;
   questionOptions: FormQuestionOptions;
+  datePickerFormat?: 'both' | 'calendar' | 'timer';
   id: string;
   groupId?: string;
   questions?: Array<FormField>;
@@ -262,6 +263,7 @@ export type RenderType =
   | 'content-switcher'
   | 'date'
   | 'datetime'
+  | 'time'
   | 'encounter-location'
   | 'encounter-provider'
   | 'encounter-role'

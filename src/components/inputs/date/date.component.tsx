@@ -121,39 +121,42 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     !question.isHidden && (
       <>
         <div className={styles.datetime}>
-          <div>
-            <Layer>
-              <OpenmrsDatePicker
-                id={question.id}
-                dateFormat={carbonDateFormat}
-                onChange={(date) => onDateChange([date])}
-                labelText={
-                  question.isRequired ? (
-                    <RequiredFieldLabel label={t(question.label)} />
-                  ) : (
-                    <span>{t(question.label)}</span>
-                  )
-                }
-                invalid={errors.length > 0}
-                invalidText={errors[0]?.message}
-                value={field.value}
-                disabled={question.isDisabled}
-                readonly={isTrue(question.readonly)}
-                carbonOptions={{
-                  placeholder: placeholder,
-                  warn: warnings[0]?.message,
-                  warnText: warnings[0]?.message,
-                  className: styles.boldedLabel,
-                  datePickerType: datePickerType,
-                }}
-              />
-            </Layer>
-          </div>
-          {question?.questionOptions.rendering === 'datetime' ? (
+          {(question.datePickerFormat === 'calendar' || question.datePickerFormat === 'both') && (
+            <div>
+              <Layer>
+                <OpenmrsDatePicker
+                  id={question.id}
+                  dateFormat={carbonDateFormat}
+                  onChange={(date) => onDateChange([date])}
+                  labelText={
+                    question.isRequired ? (
+                      <RequiredFieldLabel label={t(question.label)} />
+                    ) : (
+                      <span>{t(question.label)}</span>
+                    )
+                  }
+                  invalid={errors.length > 0}
+                  invalidText={errors[0]?.message}
+                  value={field.value}
+                  disabled={question.isDisabled}
+                  readonly={isTrue(question.readonly)}
+                  carbonOptions={{
+                    placeholder: placeholder,
+                    warn: warnings[0]?.message,
+                    warnText: warnings[0]?.message,
+                    className: styles.boldedLabel,
+                    datePickerType: datePickerType,
+                  }}
+                />
+              </Layer>
+            </div>
+          )}
+
+          {question.datePickerFormat === 'both' || question.datePickerFormat === 'timer' ? (
             <div className={styles.timePickerSpacing}>
               <Layer>
                 <TimePicker
-                  className={styles.boldedLabel}
+                  className={styles.boldedLabel && styles.timeInput}
                   id={question.id}
                   labelText={<RequiredFieldLabel label={t('time', 'Time')} />}
                   placeholder="HH:MM"

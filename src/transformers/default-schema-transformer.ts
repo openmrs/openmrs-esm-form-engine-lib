@@ -147,6 +147,8 @@ function transformByRendering(question: FormField) {
     case 'group':
       handleLabOrders(question);
       break;
+    case 'date':
+      question.datePickerFormat = question.datePickerFormat ?? 'calendar';
   }
   return question;
 }
