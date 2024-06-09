@@ -57,7 +57,11 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
         className={styles.boldedLegend}
         disabled={question.isDisabled}
         invalid={errors.length > 0}>
-        <RadioButtonGroup name={question.id} valueSelected={field.value} onChange={handleChange} orientation="vertical">
+        <RadioButtonGroup
+          name={question.id}
+          valueSelected={field.value}
+          onChange={handleChange}
+          orientation={question.questionOptions?.orientation}>
           {question.questionOptions.answers
             .filter((answer) => !answer.isHidden)
             .map((answer, index) => {

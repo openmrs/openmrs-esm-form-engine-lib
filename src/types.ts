@@ -251,6 +251,7 @@ export interface FormQuestionOptions {
   workflowUuid?: string;
   showComment?: boolean;
   comment?: string;
+  orientation?: 'vertical' | 'horizontal';
   shownCommentOptions?: { validators?: Array<Record<string, any>>; hide?: { hideWhenExpression: string } };
 }
 
