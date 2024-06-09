@@ -15,6 +15,6 @@ export const EncounterDatetimeHandler: SubmissionHandler = {
     return value;
   },
   getPreviousValue: (field: FormField, encounter: OpenmrsEncounter, allFormFields?: FormField[]) => {
-    return new Date(encounter.encounterDatetime);
+    return encounter?.encounterDatetime ? new Date(encounter.encounterDatetime) : undefined;
   },
 };
