@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dropdown as DropdownInput, Layer } from '@carbon/react';
 import { useField } from 'formik';
@@ -7,10 +7,10 @@ import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
+import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './dropdown.scss';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 
 const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -18,11 +18,14 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
 
-  const handleChange = (value) => {
-    setFieldValue(question.id, value);
-    onChange(question.id, value, setErrors, setWarnings);
-    handler?.handleFieldSubmission(question, value, encounterContext);
-  };
+  const handleChange = useCallback(
+    (value) => {
+      setFieldValue(question.id, value);
+      onChange(question.id, value, setErrors, setWarnings);
+      handler?.handleFieldSubmission(question, value, encounterContext);
+    },
+    [question.id, onChange, setErrors, setWarnings, handler, encounterContext, setFieldValue],
+  );
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
@@ -30,14 +33,17 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
       onChange(question.id, previousValue, setErrors, setWarnings);
       handler?.handleFieldSubmission(question, previousValue, encounterContext);
     }
-  }, [previousValue]);
+  }, [previousValue, question.id, onChange, setErrors, setWarnings, handler, encounterContext, setFieldValue]);
 
-  const itemToString = (item) => {
-    const answer = question.questionOptions.answers.find((opt) =>
-      opt.value ? opt.value == item : opt.concept == item,
-    );
-    return answer?.label;
-  };
+  const itemToString = useCallback(
+    (item) => {
+      const answer = question.questionOptions.answers.find((opt) =>
+        opt.value ? opt.value == item : opt.concept == item,
+      );
+      return answer?.label;
+    },
+    [question.questionOptions.answers],
+  );
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
