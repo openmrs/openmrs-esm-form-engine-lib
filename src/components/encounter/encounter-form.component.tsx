@@ -47,7 +47,7 @@ interface EncounterFormProps {
   location: SessionLocation;
   visit?: Visit;
   values: Record<string, any>;
-  isFormExpanded: boolean;
+  isFormExpanded: boolean | undefined;
   sessionMode: SessionMode;
   scrollablePages: Set<FormPageProps>;
   handlers: Map<string, FormSubmissionHandler>;

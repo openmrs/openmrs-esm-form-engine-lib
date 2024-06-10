@@ -1,14 +1,13 @@
-import { FormSection } from 'src/types';
+import { type FormExpanded, type FormSection } from '../types';
 import { isTrue } from './boolean-utils';
 
-export function isSectionExpanded(section: FormSection, isFormExpanded): boolean {
-  let sectionIsExpanded = true;
-
+export function isSectionExpanded(section: FormSection, isFormExpanded: FormExpanded): FormExpanded {
   if (isFormExpanded !== undefined) {
-    sectionIsExpanded = isFormExpanded;
+    return isFormExpanded;
   }
-  if (!isTrue(section?.isExpanded)) {
-    if (section?.isExpanded !== undefined && section?.isExpanded !== null) sectionIsExpanded = false;
+
+  if (section?.isExpanded !== undefined && section?.isExpanded !== null) {
+    return isTrue(section.isExpanded);
   }
-  return sectionIsExpanded;
+  return true;
 }
