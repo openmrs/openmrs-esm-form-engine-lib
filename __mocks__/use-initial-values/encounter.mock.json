@@ -798,6 +798,74 @@
         }
       ],
       "resourceVersion": "2.1"
+    },
+    {
+      "uuid": "30f1206c-4354-4deb-9cfa-bcb18e934144",
+      "obsDatetime": "2024-06-11T11:43:33.000+0000",
+      "comment": null,
+      "voided": false,
+      "groupMembers": null,
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-height",
+      "concept": {
+        "uuid": "5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "name": {
+          "uuid": "d17c467f-e5c1-30dc-b916-e7d5f9a8935a",
+          "name": "Height (cm)"
+        }
+      },
+      "value": 176.0
+    },
+    {
+      "uuid": "037aaaca-14f1-460c-bc59-579817569794",
+      "obsDatetime": "2024-06-11T11:43:33.000+0000",
+      "comment": null,
+      "voided": false,
+      "groupMembers": null,
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-weight",
+      "concept": {
+        "uuid": "5089AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "name": {
+          "uuid": "c1015fd1-729b-33c7-82e8-0b14a5a824ed",
+          "name": "Weight (kg)"
+        }
+      },
+      "value": 56.0
+    },
+    {
+      "uuid": "5c281bdc-3798-4d18-b780-34e177e2fdb4",
+      "obsDatetime": "2024-06-11T11:43:33.000+0000",
+      "comment": null,
+      "voided": false,
+      "groupMembers": null,
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-bmi",
+      "concept": {
+        "uuid": "1342AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "name": {
+          "uuid": "1431BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+          "name": "Body mass index"
+        }
+      },
+      "value": 2
+    },
+    {
+      "uuid": "50729006-9b87-4bfb-80c0-4c53379b49a7",
+      "obsDatetime": "2024-06-26T14:51:42.000+0000",
+      "comment": null,
+      "voided": false,
+      "groupMembers": null,
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-bodyWeight",
+      "concept": {
+        "uuid": "159428AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "name": {
+          "uuid": "106514BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+          "name": "Weight percentile"
+        }
+      },
+      "valueNumeric": 2
     }
   ],
   "orders": [

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { type EncounterContext, inferInitialValueFromDefaultFieldValue, isEmpty } from '..';
 import { type FormField, type OpenmrsEncounter, type SubmissionHandler } from '../types';
-import { evaluateAsyncExpression } from '../utils/expression-runner';
+import { evaluateAsyncExpression, evaluateExpression, FormNode } from '../utils/expression-runner';
 import { hydrateRepeatField } from '../components/repeat/helpers';
 import { hasRendering } from '../utils/common-utils';
 
@@ -23,7 +23,7 @@ export function useInitialValues(
     'encounterDatetime',
     'encounterLocation',
     'patientIdentifier',
-    'encounterRole'
+    'encounterRole',
   ];
 
   useEffect(() => {
@@ -35,13 +35,20 @@ export function useInitialValues(
       Promise.all(asyncItemsKeys.map((key) => asyncInitValues[key])).then((results) => {
         asyncItemsKeys.forEach((key, index) => {
           const result = isEmpty(results[index]) ? '' : results[index];
-          initialValues[key] = result;
           const field = formFields.find((field) => field.id === key);
+          initialValues[key] = result;
           try {
             if (!isEmpty(result)) {
               formFieldHandlers[field.type].handleFieldSubmission(field, result, encounterContext);
             }
           } catch (error) {
+            const encounterValue = formFieldHandlers[field.type]?.getInitialValue(
+              encounter,
+              field,
+              formFields,
+              encounterContext,
+            );
+            formFieldHandlers[field.type].handleFieldSubmission(field, encounterValue, encounterContext);
             console.error(error);
           }
         });
@@ -60,6 +67,8 @@ export function useInitialValues(
       toggle: false,
       default: '',
     };
+    const tempAsyncValues = {};
+
     if (!Object.keys(formFieldHandlers).length || isLoadingContextDependencies) {
       return;
     }
@@ -77,10 +86,29 @@ export function useInitialValues(
             formFields,
             encounterContext,
           );
+
+          if (field.questionOptions.calculate?.calculateExpression) {
+            const expression = field.questionOptions.calculate.calculateExpression;
+            const node: FormNode = { value: field, type: 'field' };
+            const context = {
+              mode: encounterContext.sessionMode,
+              patient: encounterContext.patient,
+            };
+            if (field.questionOptions.calculate.calculateExpression.includes('resolve(')) {
+              tempAsyncValues[field.id] = evaluateAsyncExpression(expression, node, formFields, initialValues, context);
+            } else {
+              const evaluatedValue = evaluateExpression(expression, node, formFields, initialValues, context);
+              existingVal = evaluatedValue ?? existingVal;
+            }
+          }
           if (field.type === 'obsGroup') {
             return;
           }
-          if (isEmpty(existingVal) && !isEmpty(field.questionOptions.defaultValue)) {
+          if (
+            isEmpty(existingVal) &&
+            !isEmpty(field.questionOptions.defaultValue) &&
+            !field.questionOptions.calculate?.calculateExpression
+          ) {
             existingVal = inferInitialValueFromDefaultFieldValue(
               field,
               encounterContext,
@@ -100,10 +128,8 @@ export function useInitialValues(
       );
       formFields.push(...flattenedFields);
       setIsEncounterBindingComplete(true);
-      // TODO: Address behaviour in edit mode; see: https://issues.openmrs.org/browse/O3-2252
-      setAsyncInitValues({});
+      setAsyncInitValues({ ...(asyncInitValues ?? {}), ...tempAsyncValues });
     } else {
-      const tempAsyncValues = {};
       formFields
         .filter((field) => field.questionOptions.rendering !== 'group' && field.type !== 'obsGroup')
         .forEach((field) => {
