@@ -23,7 +23,7 @@ export function useInitialValues(
     'encounterDatetime',
     'encounterLocation',
     'patientIdentifier',
-    'encounterRole'
+    'encounterRole',
   ];
 
   useEffect(() => {
@@ -77,10 +77,39 @@ export function useInitialValues(
             formFields,
             encounterContext,
           );
+
+          if (field.questionOptions.calculate?.calculateExpression) {
+            evaluateAsyncExpression(
+              field.questionOptions.calculate.calculateExpression,
+              { value: field, type: 'field' },
+              formFields,
+              initialValues,
+              {
+                mode: encounterContext.sessionMode,
+                patient: encounterContext.patient,
+              },
+            )
+              .then((res) => {
+                // Assuming setInitialValues is a function that updates initialValues
+                if (
+                  res === existingVal ||
+                  (res && !existingVal) ||
+                  (res && field.questionOptions.defaultValue)
+                ) {
+                  setInitialValues((prevValues) => ({
+                    ...prevValues,
+                    [field.id]: res,
+                  }));
+                }
+              })
+              .catch((err) => {
+                initialValues[field.id] = err?.message;
+              });
+          }
           if (field.type === 'obsGroup') {
             return;
           }
-          if (isEmpty(existingVal) && !isEmpty(field.questionOptions.defaultValue)) {
+          if (isEmpty(existingVal) && !isEmpty(field.questionOptions.defaultValue) && !field.questionOptions.calculate?.calculateExpression) {
             existingVal = inferInitialValueFromDefaultFieldValue(
               field,
               encounterContext,
