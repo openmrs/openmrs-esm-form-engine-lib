@@ -61,7 +61,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
           name={question.id}
           valueSelected={field.value}
           onChange={handleChange}
-          orientation={question.questionOptions?.orientation}>
+          orientation={question.questionOptions?.orientation || "vertical"}>
           {question.questionOptions.answers
             .filter((answer) => !answer.isHidden)
             .map((answer, index) => {
