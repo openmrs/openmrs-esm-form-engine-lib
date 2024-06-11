@@ -34,19 +34,28 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   const onDateChange = ([date]) => {
-    const refinedDate = date instanceof Date ? new Date(date.setHours(0, 0, 0, 0)) : date;
+    let refinedDate = date instanceof Date ? new Date(date.setHours(0, 0, 0, 0)) : date;
+    refinedDate = setTimeInStateToDate(refinedDate);
     setFieldValue(question.id, refinedDate);
     onChange(question.id, refinedDate, setErrors, setWarnings);
-    onTimeChange(false, true);
     handler?.handleFieldSubmission(question, refinedDate, encounterContext);
+  };
+
+  const setTimeInStateToDate = (date) => {
+    date = new Date(date);
+    if (!isEmpty(time)) {
+      const splitTime = time.split(':');
+      date.setHours(splitTime[0] ?? '00', splitTime[1] ?? '00');
+    }
+    return date;
   };
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
       const refinedDate = previousValue instanceof Date ? new Date(previousValue.setHours(0, 0, 0, 0)) : previousValue;
+      onTimeChange(false, true);
       setFieldValue(question.id, refinedDate);
       onChange(question.id, refinedDate, setErrors, setWarnings);
-      onTimeChange(false, true);
       handler?.handleFieldSubmission(question, refinedDate, encounterContext);
     }
   }, [previousValue]);
@@ -59,15 +68,16 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
       setTime(dayjs(prevValue?.value).format('hh:mm'));
     } else {
       const time = event.target.value;
+      setTime(time);
       const currentDateTime = field.value;
       const splitTime = time.split(':');
       currentDateTime.setHours(splitTime[0] ?? '00', splitTime[1] ?? '00');
       setFieldValue(question.id, currentDateTime);
       onChange(question.id, currentDateTime, setErrors, setWarnings);
       handler?.handleFieldSubmission(question, currentDateTime, encounterContext);
-      setTime(time);
     }
   };
+
   const { placeholder, carbonDateFormat } = useMemo(() => {
     const formatObj = dateFormatter.formatToParts(new Date());
     const placeholder = formatObj
@@ -114,7 +124,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <FieldValueView
       label={t(question.label)}
-      value={field.value instanceof Date ? getDisplay(field.value, question.questionOptions.rendering) : field.value}
+      value={field.value instanceof Date ? getDisplay(field.value, question.datePickerFormat) : field.value}
       conceptName={question.meta?.concept?.display}
       isInline={isInline}
     />
@@ -159,7 +169,13 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                 <TimePicker
                   className={classNames(styles.boldedLabel, styles.timeInput)}
                   id={question.id}
-                  labelText={<RequiredFieldLabel label={t('time', 'Time')} />}
+                  labelText={
+                    question.isRequired ? (
+                      <RequiredFieldLabel label={t('time', 'Time')} />
+                    ) : (
+                      <span>{t('time', 'Time')}</span>
+                    )
+                  }
                   placeholder="HH:MM"
                   pattern="(1[012]|[1-9]):[0-5][0-9])$"
                   type="time"
@@ -186,7 +202,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
 
 function getDisplay(date: Date, rendering: string) {
   const dateString = formatDate(date);
-  if (rendering == 'datetime') {
+  if (rendering == 'both') {
     return `${dateString} ${formatTime(date)}`;
   }
   return dateString;
