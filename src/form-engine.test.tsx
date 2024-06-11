@@ -524,7 +524,7 @@ describe('Form engine component', () => {
 
       await user.click(dateOfBirth);
       await user.paste('2022-03-11T00:00:00.000Z');
-      await user.tab()
+      await user.tab();
 
       expect(dateOfBirth).toHaveValue('11/03/2022');
 
