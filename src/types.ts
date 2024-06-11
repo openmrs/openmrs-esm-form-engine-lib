@@ -472,3 +472,5 @@ export interface PatientProgramPayload {
     endDate?: string;
   }>;
 }
+
+export type FormExpanded = boolean | undefined;

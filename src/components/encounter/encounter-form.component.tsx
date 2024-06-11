@@ -2,6 +2,7 @@ import React, { type Dispatch, type SetStateAction, useCallback, useEffect, useM
 import { type SessionLocation, showSnackbar, useLayoutType, type Visit } from '@openmrs/esm-framework';
 import { codedTypes, ConceptFalse, ConceptTrue } from '../../constants';
 import type {
+  FormExpanded,
   FormField,
   FormPage as FormPageProps,
   FormSchema,
@@ -47,7 +48,7 @@ interface EncounterFormProps {
   location: SessionLocation;
   visit?: Visit;
   values: Record<string, any>;
-  isFormExpanded: boolean;
+  isFormExpanded: FormExpanded;
   sessionMode: SessionMode;
   scrollablePages: Set<FormPageProps>;
   handlers: Map<string, FormSubmissionHandler>;

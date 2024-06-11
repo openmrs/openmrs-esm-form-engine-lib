@@ -6,6 +6,7 @@ import FormSection from '../section/form-section.component';
 import { FormContext } from '../../form-context';
 import styles from './form-page.scss';
 import { useTranslation } from 'react-i18next';
+import { isSectionExpanded } from '../../utils/form-page-utils';
 
 function FormPage({ page, onFieldChange, setSelectedPage, isFormExpanded }) {
   const { t } = useTranslation();
@@ -42,7 +43,7 @@ function FormPage({ page, onFieldChange, setSelectedPage, isFormExpanded }) {
           {visibleSections.map((section) => (
             <AccordionItem
               title={t(section.label)}
-              open={isFormExpanded !== undefined ? isFormExpanded : isTrue(section.isExpanded)}
+              open={isSectionExpanded(section, isFormExpanded)}
               className={styles.sectionContent}
               key={`section-${section.id}`}>
               <div className={styles.formSection}>
