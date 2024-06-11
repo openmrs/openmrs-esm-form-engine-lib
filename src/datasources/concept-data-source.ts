@@ -7,11 +7,15 @@ export class ConceptDataSource extends BaseOpenMRSDataSource {
   }
 
   fetchData(searchTerm: string, config?: Record<string, any>, uuid?: string): Promise<any[]> {
+    if (!config?.class && !config?.useSetMembersByConcept) {
+      return Promise.resolve([]);
+    }
+
     let apiUrl = this.url;
     if (config?.class) {
       if (typeof config.class == 'string') {
-        let urlParts = apiUrl.split('name=');
-        apiUrl = `${urlParts[0]}&name=&class=${config.class}&${urlParts[1]}`;
+        const urlParts = apiUrl.split('searchType=fuzzy');
+        apiUrl = `${urlParts[0]}searchType=fuzzy&class=${config.class}&${urlParts[1]}`;
       } else {
         return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
           return data.results.filter(
