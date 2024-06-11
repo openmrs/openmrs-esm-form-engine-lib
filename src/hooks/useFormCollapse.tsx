@@ -1,8 +1,8 @@
-import { type SessionMode } from '../types';
+import type { FormExpanded, SessionMode } from '../types';
 import { useCallback, useEffect, useState } from 'react';
 
 export function useFormCollapse(sessionMode: SessionMode) {
-  const [isFormExpanded, setIsFormExpanded] = useState<boolean | undefined>(undefined);
+  const [isFormExpanded, setIsFormExpanded] = useState<FormExpanded>(undefined);
 
   const hideFormCollapseToggle = useCallback(() => {
     const HideFormCollapseToggle = new CustomEvent('openmrs:form-view-embedded', { detail: { value: false } });
