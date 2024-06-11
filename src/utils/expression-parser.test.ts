@@ -1,7 +1,9 @@
 import { type FormField } from '../types';
 import { ConceptFalse } from '../constants';
 import {
+  extractArgs,
   findAndRegisterReferencedFields,
+  hasParentheses,
   linkReferencedFieldValues,
   parseExpression,
   replaceFieldRefWithValuePath,
@@ -215,5 +217,92 @@ describe('findAndRegisterReferencedFields', () => {
     const htsProviderRemarks = testFields.find((f) => f.id === 'htsProviderRemarks');
     expect(linkedToCare.fieldDependants).toStrictEqual(new Set(['patientIdentificationNumber']));
     expect(htsProviderRemarks.fieldDependants).toStrictEqual(new Set(['patientIdentificationNumber']));
+  });
+});
+
+describe('extractArgs', () => {
+  it('should extract single argument correctly', () => {
+    const expression = "('arg1')";
+    const expectedOutput = ['arg1'];
+    expect(extractArgs(expression)).toEqual(expectedOutput);
+  });
+
+  it('should extract multiple arguments correctly', () => {
+    const expression = "('arg1', 'arg2', 'arg3')";
+    const expectedOutput = ['arg1', 'arg2', 'arg3'];
+    expect(extractArgs(expression)).toEqual(expectedOutput);
+  });
+
+  it('should handle arguments with spaces correctly', () => {
+    const expression = "('arg with spaces', 'another arg')";
+    const expectedOutput = ['arg with spaces', 'another arg'];
+    expect(extractArgs(expression)).toEqual(expectedOutput);
+  });
+
+  it('should handle arguments with special characters correctly', () => {
+    const expression = "('arg!@#$', 'another$%^&arg')";
+    const expectedOutput = ['arg!@#$', 'another$%^&arg'];
+    expect(extractArgs(expression)).toEqual(expectedOutput);
+  });
+
+  it('should handle no arguments correctly', () => {
+    const expression = '()';
+    const expectedOutput = [];
+    expect(extractArgs(expression)).toEqual(expectedOutput);
+  });
+
+  it('should handle arguments with escaped quotes correctly', () => {
+    const expression = "('arg\\'with\\'escaped\\'quotes', 'another\\'arg')";
+    const expectedOutput = ["arg'with'escaped'quotes", "another'arg"];
+    expect(extractArgs(expression)).toEqual(expectedOutput);
+  });
+
+  it('should handle complex expressions with various argument types', () => {
+    const expression = "('string', 123, true, 'another string')";
+    const expectedOutput = ['string', '123', 'true', 'another string'];
+    expect(extractArgs(expression)).toEqual(expectedOutput);
+  });
+
+  it('should handle arguments with no quotes correctly', () => {
+    const expression = '(arg1, arg2)';
+    const expectedOutput = ['arg1', 'arg2'];
+    expect(extractArgs(expression)).toEqual(expectedOutput);
+  });
+});
+
+describe('hasParentheses', () => {
+  it('should return true for expression with single set of parentheses', () => {
+    const expression = 'myFunction(arg1, arg2)';
+    expect(hasParentheses(expression)).toBe(true);
+  });
+
+  it('should return true for expression with multiple sets of parentheses', () => {
+    const expression = '(arg1 && (arg2 || arg3))';
+    expect(hasParentheses(expression)).toBe(true);
+  });
+
+  it('should return true for expression with nested parentheses', () => {
+    const expression = 'outerFunction(innerFunction(arg1, arg2))';
+    expect(hasParentheses(expression)).toBe(true);
+  });
+
+  it('should return false for expression without parentheses', () => {
+    const expression = 'arg1 && arg2 || arg3';
+    expect(hasParentheses(expression)).toBe(false);
+  });
+
+  it('should return true for expression with parentheses inside quotes', () => {
+    const expression = "myFunction('arg(with)parentheses')";
+    expect(hasParentheses(expression)).toBe(true);
+  });
+
+  it('should return true for expression with mixed characters and parentheses', () => {
+    const expression = 'a + b * (c - d)';
+    expect(hasParentheses(expression)).toBe(true);
+  });
+
+  it('should return true for complex expression with multiple types of parentheses', () => {
+    const expression = 'func1(arg1, (func2(arg2) && func3(arg3)))';
+    expect(hasParentheses(expression)).toBe(true);
   });
 });
