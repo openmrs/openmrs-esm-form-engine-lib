@@ -1,6 +1,6 @@
 import { type FormField } from '../types';
 import { ConceptFalse, ConceptTrue } from '../constants';
-import { registerDependency } from './common-expression-helpers';
+import { expressionFormatter, registerDependency } from './common-expression-helpers';
 import { type FormNode } from './expression-runner';
 
 /**
@@ -15,8 +15,10 @@ export function parseExpression(expression: string): string[] {
   let inQuote = false;
   let openParensCount = 0;
 
-  for (let i = 0; i < expression.length; i++) {
-    const char = expression.charAt(i);
+  const sanitizedExpression = expressionFormatter(expression);
+
+  for (let i = 0; i < sanitizedExpression.length; i++) {
+    const char = sanitizedExpression.charAt(i);
 
     if (char === "'" || char === '"') {
       if (inQuote) {

@@ -32,68 +32,6 @@ export function evaluateExpression(
     return null;
   }
 
-  const operators = [
-    '+',
-    '*',
-    '/',
-    '%',
-    '==',
-    '!=',
-    '===',
-    '!==',
-    '>',
-    '<',
-    '>=',
-    '<=',
-    '&&',
-    '||',
-    '&',
-    '|',
-    '^',
-    '~',
-    '<<',
-    '>>',
-    '>>>',
-    '+=',
-    '-=',
-    '*=',
-    '/=',
-    '%=',
-    '?:',
-    '?',
-    ':',
-    '=>',
-  ];
-
-  function splitter(delimiter: string, expression: string) {
-    return expression
-      .split(delimiter)
-      .map((item) => item.trim())
-      .join(` ${delimiter} `);
-  }
-
-  const expressionFormatter = (expression: string): string => {
-    let sanitizedExpression;
-
-    operators.forEach((operator) => {
-      const expressionParts = expression.split(operator).map((eachItem) => eachItem.trim());
-      if (expressionParts.length > 1) {
-        const [firstPart, lastPart] = expressionParts;
-
-        if (!/[a-zA-Z0-9']/.test(firstPart.charAt(firstPart.length - 1)) || !/[a-zA-Z0-9']/.test(lastPart?.charAt(0))) {
-          // these have been split by an invalid operator
-          console.log('split by invalid delimiter');
-        } else {
-          sanitizedExpression = splitter(operator, expression);
-        }
-      }
-    });
-
-    return sanitizedExpression;
-  };
-
-  expressionFormatter(expression);
-
   const allFieldsKeys = fields.map((f) => f.id);
   const parts = parseExpression(expression.trim());
   // register dependencies

@@ -11,7 +11,7 @@ import { type FormNode } from './expression-runner';
 import { isEmpty as isValueEmpty } from '../validators/form-validator';
 import * as apiFunctions from '../api/api';
 import { getZRefByGenderAndAge } from './zscore-service';
-import { ConceptFalse, ConceptTrue } from '../constants';
+import { ConceptFalse, ConceptTrue, expressionDelimiters } from '../constants';
 
 export class CommonExpressionHelpers {
   node: FormNode = null;
@@ -491,3 +491,27 @@ export const booleanConceptToBoolean = (booleanConceptRepresentation): boolean =
     return false;
   }
 };
+
+export const expressionFormatter = (expression: string): string => {
+  let sanitizedExpression;
+
+  expressionDelimiters.forEach((delimiter) => {
+    const expressionParts = expression.split(delimiter).map((eachItem) => eachItem.trim());
+    if (expressionParts.length > 1) {
+      const [firstPart, lastPart] = expressionParts; //add a map to check for all elements in the array
+
+      if (/[a-zA-Z0-9'()]/.test(firstPart.charAt(firstPart.length - 1)) || /[a-zA-Z0-9'()]/.test(lastPart?.charAt(0))) {
+        sanitizedExpression = splitAndFormat(delimiter, expression);
+      }
+    }
+  });
+
+  return sanitizedExpression;
+};
+
+function splitAndFormat(delimiter: string, expression: string): string {
+  return expression
+    .split(delimiter)
+    .map((item) => item.trim())
+    .join(` ${delimiter} `);
+}
