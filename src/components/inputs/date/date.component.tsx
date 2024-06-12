@@ -34,20 +34,18 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   const onDateChange = ([date]) => {
-    let refinedDate = date instanceof Date ? new Date(date.setHours(0, 0, 0, 0)) : date;
-    refinedDate = setTimeInStateToDate(refinedDate);
+    const refinedDate = date instanceof Date ? new Date(date.setHours(0, 0, 0, 0)) : new Date(date);
+    setTimeIfPresent(refinedDate, time);
     setFieldValue(question.id, refinedDate);
     onChange(question.id, refinedDate, setErrors, setWarnings);
     handler?.handleFieldSubmission(question, refinedDate, encounterContext);
   };
 
-  const setTimeInStateToDate = (date) => {
-    date = new Date(date);
+  const setTimeIfPresent = (date: Date, time: string) => {
     if (!isEmpty(time)) {
-      const splitTime = time.split(':');
-      date.setHours(splitTime[0] ?? '00', splitTime[1] ?? '00');
+      const [hours, minutes] = time.split(':').map(Number);
+      date.setHours(hours ?? 0, minutes ?? 0);
     }
-    return date;
   };
 
   useEffect(() => {
@@ -69,12 +67,11 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     } else {
       const time = event.target.value;
       setTime(time);
-      const currentDateTime = question.datePickerFormat === 'timer' ? new Date() : field.value;
-      const splitTime = time.split(':');
-      currentDateTime.setHours(splitTime[0] ?? '00', splitTime[1] ?? '00');
-      setFieldValue(question.id, currentDateTime);
-      onChange(question.id, currentDateTime, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, currentDateTime, encounterContext);
+      const dateValue = question.datePickerFormat === 'timer' ? new Date() : field.value;
+      setTimeIfPresent(dateValue, time);
+      setFieldValue(question.id, dateValue);
+      onChange(question.id, dateValue, setErrors, setWarnings);
+      handler?.handleFieldSubmission(question, dateValue, encounterContext);
     }
   };
 
