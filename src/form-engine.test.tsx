@@ -94,7 +94,9 @@ describe('Form engine component', () => {
   });
 
   it('should render by the form UUID without dying', async () => {
-    renderForm('955ab92f-f93e-4dc0-9c68-b7b2346def55', null);
+    await act(async () => {
+      renderForm('955ab92f-f93e-4dc0-9c68-b7b2346def55', null);
+    });
 
     await assertFormHasAllFields(screen, [
       { fieldName: 'When was the HIV test conducted? *', fieldType: 'date' },
@@ -524,7 +526,7 @@ describe('Form engine component', () => {
 
       await user.click(dateOfBirth);
       await user.paste('2022-03-11T00:00:00.000Z');
-      await user.tab()
+      await user.tab();
 
       expect(dateOfBirth).toHaveValue('11/03/2022');
 

@@ -10,6 +10,7 @@ import { ObsSubmissionHandler } from '../../../submission-handlers/obsHandler';
 const question: FormField = {
   label: 'Visit Date',
   type: 'obs',
+  datePickerFormat: 'calendar',
   questionOptions: {
     rendering: 'date',
     concept: '163260AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
@@ -35,7 +36,7 @@ const encounterContext: EncounterContext = {
   setEncounterProvider: jest.fn,
   setEncounterLocation: jest.fn,
   encounterRole: '8cb3a399-d18b-4b62-aefb-5a0f948a3809',
-  setEncounterRole: jest.fn
+  setEncounterRole: jest.fn,
 };
 
 const renderForm = (initialValues) => {

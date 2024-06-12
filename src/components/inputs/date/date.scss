@@ -15,7 +15,17 @@
   flex-direction: row;
   flex-wrap: wrap;
 
-  > .timePickerSpacing {
-    margin-left: 1rem;
+  > .datePickerSpacing {
+    margin-right: 1rem;
+  }
+}
+
+.timeInput {
+  width: auto;
+  :hover {
+    cursor: text;
+  }
+  :focus {
+    cursor: text;
   }
 }

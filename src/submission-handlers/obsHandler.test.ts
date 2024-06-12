@@ -20,7 +20,7 @@ const encounterContext: EncounterContext = {
   setEncounterProvider: jest.fn,
   setEncounterLocation: jest.fn,
   encounterRole: '',
-  setEncounterRole: jest.fn
+  setEncounterRole: jest.fn,
 };
 
 describe('ObsSubmissionHandler - handleFieldSubmission', () => {
@@ -133,6 +133,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     const field: FormField = {
       label: 'HTS Date',
       type: 'obs',
+      datePickerFormat: 'calendar',
       questionOptions: {
         rendering: 'date',
         concept: 'j8b6705b-b6d8-4eju-8f37-0b14f5347569',
@@ -315,6 +316,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     const field: FormField = {
       label: 'HTS date',
       type: 'obs',
+      datePickerFormat: 'calendar',
       questionOptions: {
         rendering: 'date',
         concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
@@ -470,6 +472,7 @@ describe('ObsSubmissionHandler - handleFieldSubmission', () => {
     const field: FormField = {
       label: 'HTS date',
       type: 'obs',
+      datePickerFormat: 'calendar',
       questionOptions: {
         rendering: 'date',
         concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
@@ -594,6 +597,7 @@ describe('ObsSubmissionHandler - getInitialValue', () => {
     const field: FormField = {
       label: 'HTS Date',
       type: 'obs',
+      datePickerFormat: 'calendar',
       questionOptions: {
         rendering: 'date',
         concept: 'j8b6705b-b6d8-4eju-8f37-0b14f5347569',
@@ -753,6 +757,7 @@ describe('hasPreviousObsValueChanged', () => {
   });
   it('should support date values', () => {
     const dateField = {
+      datePickerFormat: 'calendar',
       questionOptions: {
         rendering: 'date',
       },
@@ -767,6 +772,7 @@ describe('hasPreviousObsValueChanged', () => {
   });
   it('should support datetime values', () => {
     const dateTimeField = {
+      datePickerFormat: 'both',
       questionOptions: {
         rendering: 'datetime',
       },

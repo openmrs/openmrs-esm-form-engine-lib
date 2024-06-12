@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
 import { Layer, TimePicker } from '@carbon/react';
+import classNames from 'classnames';
 import { type FormFieldProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
@@ -33,19 +34,26 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   const onDateChange = ([date]) => {
-    const refinedDate = date instanceof Date ? new Date(date.setHours(0, 0, 0, 0)) : date;
+    const refinedDate = date instanceof Date ? new Date(date.setHours(0, 0, 0, 0)) : new Date(date);
+    setTimeIfPresent(refinedDate, time);
     setFieldValue(question.id, refinedDate);
     onChange(question.id, refinedDate, setErrors, setWarnings);
-    onTimeChange(false, true);
     handler?.handleFieldSubmission(question, refinedDate, encounterContext);
+  };
+
+  const setTimeIfPresent = (date: Date, time: string) => {
+    if (!isEmpty(time)) {
+      const [hours, minutes] = time.split(':').map(Number);
+      date.setHours(hours ?? 0, minutes ?? 0);
+    }
   };
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
       const refinedDate = previousValue instanceof Date ? new Date(previousValue.setHours(0, 0, 0, 0)) : previousValue;
+      onTimeChange(false, true);
       setFieldValue(question.id, refinedDate);
       onChange(question.id, refinedDate, setErrors, setWarnings);
-      onTimeChange(false, true);
       handler?.handleFieldSubmission(question, refinedDate, encounterContext);
     }
   }, [previousValue]);
@@ -58,15 +66,15 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
       setTime(dayjs(prevValue?.value).format('hh:mm'));
     } else {
       const time = event.target.value;
-      const currentDateTime = field.value;
-      const splitTime = time.split(':');
-      currentDateTime.setHours(splitTime[0] ?? '00', splitTime[1] ?? '00');
-      setFieldValue(question.id, currentDateTime);
-      onChange(question.id, currentDateTime, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, currentDateTime, encounterContext);
       setTime(time);
+      const dateValue = question.datePickerFormat === 'timer' ? new Date() : field.value;
+      setTimeIfPresent(dateValue, time);
+      setFieldValue(question.id, dateValue);
+      onChange(question.id, dateValue, setErrors, setWarnings);
+      handler?.handleFieldSubmission(question, dateValue, encounterContext);
     }
   };
+
   const { placeholder, carbonDateFormat } = useMemo(() => {
     const formatObj = dateFormatter.formatToParts(new Date());
     const placeholder = formatObj
@@ -113,7 +121,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <FieldValueView
       label={t(question.label)}
-      value={field.value instanceof Date ? getDisplay(field.value, question.questionOptions.rendering) : field.value}
+      value={field.value instanceof Date ? getDisplay(field.value, question.datePickerFormat) : field.value}
       conceptName={question.meta?.concept?.display}
       isInline={isInline}
     />
@@ -121,45 +129,54 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     !question.isHidden && (
       <>
         <div className={styles.datetime}>
-          <div>
-            <Layer>
-              <OpenmrsDatePicker
-                id={question.id}
-                dateFormat={carbonDateFormat}
-                onChange={(date) => onDateChange([date])}
-                labelText={
-                  question.isRequired ? (
-                    <RequiredFieldLabel label={t(question.label)} />
-                  ) : (
-                    <span>{t(question.label)}</span>
-                  )
-                }
-                invalid={errors.length > 0}
-                invalidText={errors[0]?.message}
-                value={field.value}
-                disabled={question.isDisabled}
-                readonly={isTrue(question.readonly)}
-                carbonOptions={{
-                  placeholder: placeholder,
-                  warn: warnings[0]?.message,
-                  warnText: warnings[0]?.message,
-                  className: styles.boldedLabel,
-                  datePickerType: datePickerType,
-                }}
-              />
-            </Layer>
-          </div>
-          {question?.questionOptions.rendering === 'datetime' ? (
-            <div className={styles.timePickerSpacing}>
+          {(question.datePickerFormat === 'calendar' || question.datePickerFormat === 'both') && (
+            <div className={styles.datePickerSpacing}>
+              <Layer>
+                <OpenmrsDatePicker
+                  id={question.id}
+                  dateFormat={carbonDateFormat}
+                  onChange={(date) => onDateChange([date])}
+                  labelText={
+                    question.isRequired ? (
+                      <RequiredFieldLabel label={t(question.label)} />
+                    ) : (
+                      <span>{t(question.label)}</span>
+                    )
+                  }
+                  invalid={errors.length > 0}
+                  invalidText={errors[0]?.message}
+                  value={field.value}
+                  disabled={question.isDisabled}
+                  readonly={isTrue(question.readonly)}
+                  carbonOptions={{
+                    placeholder: placeholder,
+                    warn: warnings[0]?.message,
+                    warnText: warnings[0]?.message,
+                    className: styles.boldedLabel,
+                    datePickerType: datePickerType,
+                  }}
+                />
+              </Layer>
+            </div>
+          )}
+
+          {question.datePickerFormat === 'both' || question.datePickerFormat === 'timer' ? (
+            <div>
               <Layer>
                 <TimePicker
-                  className={styles.boldedLabel}
+                  className={classNames(styles.boldedLabel, styles.timeInput)}
                   id={question.id}
-                  labelText={<RequiredFieldLabel label={t('time', 'Time')} />}
+                  labelText={
+                    question.isRequired ? (
+                      <RequiredFieldLabel label={t('time', 'Time')} />
+                    ) : (
+                      <span>{t('time', 'Time')}</span>
+                    )
+                  }
                   placeholder="HH:MM"
                   pattern="(1[012]|[1-9]):[0-5][0-9])$"
                   type="time"
-                  disabled={!field.value ? true : false}
+                  disabled={question.datePickerFormat === 'timer' ? question.isDisabled : !field.value ? true : false}
                   value={
                     time
                       ? time
@@ -182,7 +199,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
 
 function getDisplay(date: Date, rendering: string) {
   const dateString = formatDate(date);
-  if (rendering == 'datetime') {
+  if (rendering == 'both') {
     return `${dateString} ${formatTime(date)}`;
   }
   return dateString;

@@ -140,11 +140,17 @@ function editObs(field: FormField, newValue: any) {
 }
 
 function formatDate(field: FormField, value: Date) {
-  if (hasRendering(field, 'date')) {
-    return dayjs(value).format('YYYY-MM-DD');
-  }
-  if (hasRendering(field, 'datetime')) {
-    return dayjs(value).format('YYYY-MM-DD HH:mm');
+  if (field.datePickerFormat) {
+    switch (field.datePickerFormat) {
+      case 'calendar':
+        return dayjs(value).format('YYYY-MM-DD');
+      case 'timer':
+        return dayjs(value).format('HH:mm');
+      case 'both':
+        return dayjs(value).format('YYYY-MM-DD HH:mm');
+      default:
+        return dayjs(value).format('YYYY-MM-DD');
+    }
   }
   return value;
 }
