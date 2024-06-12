@@ -74,6 +74,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
         setIsLoading(false);
       })
       .catch((err) => {
+        console.error(err)
         setIsLoading(false);
         setItems([]);
       });
@@ -87,6 +88,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
         setIsLoading(false);
       })
       .catch((err) => {
+        console.error(err)
         setIsLoading(false);
         setItems([]);
       });
@@ -94,7 +96,6 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
 
   useEffect(() => {
     // If not searchable, preload the items
-    // Ensure this effect runs only when both dataSource and config are available
     if (dataSource && !isTrue(question.questionOptions.isSearchable)) {
       setItems([]);
       setIsLoading(true);
@@ -105,6 +106,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
           setIsLoading(false);
         })
         .catch((err) => {
+          console.error(err)
           setIsLoading(false);
           setItems([]);
         });

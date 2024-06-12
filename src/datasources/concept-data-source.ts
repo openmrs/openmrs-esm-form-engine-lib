@@ -7,7 +7,7 @@ export class ConceptDataSource extends BaseOpenMRSDataSource {
   }
 
   fetchData(searchTerm: string, config?: Record<string, any>, uuid?: string): Promise<any[]> {
-    if (!config?.class && !config?.useSetMembersByConcept) {
+    if (!config?.class && !config?.useSetMembersByConcept && !searchTerm) {
       return Promise.resolve([]);
     }
 
