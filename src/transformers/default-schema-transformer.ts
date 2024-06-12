@@ -151,7 +151,7 @@ function transformByRendering(question: FormField) {
       question.datePickerFormat = question.datePickerFormat ?? 'calendar';
       break;
     case 'datetime':
-      question.datePickerFormat = 'both';
+      question.datePickerFormat = question.datePickerFormat ?? 'both';
       break;
   }
   return question;

@@ -69,7 +69,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     } else {
       const time = event.target.value;
       setTime(time);
-      const currentDateTime = field.value;
+      const currentDateTime = question.datePickerFormat === 'timer' ? new Date() : field.value;
       const splitTime = time.split(':');
       currentDateTime.setHours(splitTime[0] ?? '00', splitTime[1] ?? '00');
       setFieldValue(question.id, currentDateTime);
@@ -179,7 +179,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   placeholder="HH:MM"
                   pattern="(1[012]|[1-9]):[0-5][0-9])$"
                   type="time"
-                  disabled={!field.value ? true : false}
+                  disabled={question.datePickerFormat === 'timer' ? question.isDisabled : !field.value ? true : false}
                   value={
                     time
                       ? time
