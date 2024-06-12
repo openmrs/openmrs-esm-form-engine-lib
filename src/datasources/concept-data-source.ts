@@ -1,5 +1,6 @@
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { BaseOpenMRSDataSource } from './data-source';
+import { isEmpty } from '../validators/form-validator';
 
 export class ConceptDataSource extends BaseOpenMRSDataSource {
   constructor() {
@@ -7,7 +8,7 @@ export class ConceptDataSource extends BaseOpenMRSDataSource {
   }
 
   fetchData(searchTerm: string, config?: Record<string, any>, uuid?: string): Promise<any[]> {
-    if (!config?.class && !config?.useSetMembersByConcept && !searchTerm) {
+    if (isEmpty(config?.class) && isEmpty(config?.concept) && !config?.useSetMembersByConcept && isEmpty(searchTerm)) {
       return Promise.resolve([]);
     }
 
@@ -25,7 +26,7 @@ export class ConceptDataSource extends BaseOpenMRSDataSource {
       }
     }
 
-    if (config?.useSetMembersByConcept) {
+    if (config?.concept && config?.useSetMembersByConcept) {
       let urlParts = apiUrl.split('?name=&searchType=fuzzy&v=');
       apiUrl = `${urlParts[0]}/${config.concept}?v=custom:(uuid,setMembers:(uuid,display))`;
       return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {

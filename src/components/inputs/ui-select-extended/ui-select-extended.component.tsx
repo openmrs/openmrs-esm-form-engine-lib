@@ -74,7 +74,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
         setIsLoading(false);
       })
       .catch((err) => {
-        console.error(err)
+        console.error(err);
         setIsLoading(false);
         setItems([]);
       });
@@ -88,7 +88,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
         setIsLoading(false);
       })
       .catch((err) => {
-        console.error(err)
+        console.error(err);
         setIsLoading(false);
         setItems([]);
       });
@@ -106,7 +106,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
           setIsLoading(false);
         })
         .catch((err) => {
-          console.error(err)
+          console.error(err);
           setIsLoading(false);
           setItems([]);
         });
