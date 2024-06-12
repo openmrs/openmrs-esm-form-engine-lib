@@ -12,7 +12,7 @@ import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './date.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
-import { OpenmrsDatePicker } from '@openmrs/esm-framework';
+import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 const dateFormatter = new Intl.DateTimeFormat(locale);
@@ -181,9 +181,9 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
 };
 
 function getDisplay(date: Date, rendering: string) {
-  const dateString = date.toLocaleDateString(window.navigator.language);
+  const dateString = formatDate(date);
   if (rendering == 'datetime') {
-    return `${dateString} ${date.toLocaleTimeString()}`;
+    return `${dateString} ${formatTime(date)}`;
   }
   return dateString;
 }
