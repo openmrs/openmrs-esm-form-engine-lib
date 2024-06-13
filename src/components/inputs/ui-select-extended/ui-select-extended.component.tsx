@@ -67,27 +67,49 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   const debouncedSearch = debounce((searchterm, dataSource) => {
     setItems([]);
     setIsLoading(true);
-    dataSource.fetchData(searchterm, config).then((dataItems) => {
-      setItems(dataItems.map(dataSource.toUuidAndDisplay));
-      setIsLoading(false);
-    });
+    dataSource
+      .fetchData(searchterm, config)
+      .then((dataItems) => {
+        setItems(dataItems.map(dataSource.toUuidAndDisplay));
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsLoading(false);
+        setItems([]);
+      });
   }, 300);
 
   const processSearchableValues = (value) => {
-    dataSource.fetchData(null, config, value).then((dataItem) => {
-      setSavedSearchableItem(dataItem);
-      setIsLoading(false);
-    });
+    dataSource
+      .fetchData(null, config, value)
+      .then((dataItem) => {
+        setSavedSearchableItem(dataItem);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsLoading(false);
+        setItems([]);
+      });
   };
 
   useEffect(() => {
     // If not searchable, preload the items
     if (dataSource && !isTrue(question.questionOptions.isSearchable)) {
+      setItems([]);
       setIsLoading(true);
-      dataSource.fetchData(null, { ...(config || {}), referencedValue: datasourceDependentValue }).then((dataItems) => {
-        setItems(dataItems.map(dataSource.toUuidAndDisplay));
-        setIsLoading(false);
-      });
+      dataSource
+        .fetchData(null, { ...config, referencedValue: datasourceDependentValue })
+        .then((dataItems) => {
+          setItems(dataItems.map(dataSource.toUuidAndDisplay));
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setIsLoading(false);
+          setItems([]);
+        });
     }
   }, [dataSource, config, datasourceDependentValue]);
 
