@@ -127,7 +127,9 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
   const nodes = useMemo(() => {
     return fieldComponent
       ? rows.map((question, index) => {
-          const component = <fieldComponent.Component question={question} onChange={onChange} handler={handler} />;
+          const component = (
+            <fieldComponent.Component key={question.id} question={question} onChange={onChange} handler={handler} />
+          );
           return (
             <div key={question.id + '_wrapper'}>
               {index !== 0 && (
