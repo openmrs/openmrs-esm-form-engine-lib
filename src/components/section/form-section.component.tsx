@@ -79,7 +79,7 @@ const FormSection = ({ fields, onFieldChange }) => {
                 <FieldComponent
                   question={fieldDescriptor}
                   onChange={onFieldChange}
-                  key={index}
+                  key={fieldDescriptor.id}
                   handler={handler}
                   useField={useField}
                   previousValue={previousValues[fieldDescriptor.id]?.value}
