@@ -51,9 +51,9 @@ export const ObsGroup: React.FC<FormFieldProps> = ({ question, onChange }) => {
                     ].includes(rendering),
                   })}>
                   <FieldComponent
+                    key={field.id}
                     question={field}
                     onChange={onChange}
-                    key={index}
                     handler={formFieldHandlers[field.type]}
                     useField={useField}
                   />
