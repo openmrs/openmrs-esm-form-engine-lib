@@ -29,6 +29,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@carbon/react": ">1.47.0 <1.50.0",
     "ace-builds": "^1.33.2",
     "classnames": "^2.5.1",
     "dayjs": "1.x",
@@ -41,7 +42,6 @@
     "yup": "^1.4.0"
   },
   "peerDependencies": {
-    "@carbon/react": "1.x",
     "@openmrs/esm-framework": "5.x",
     "@openmrs/esm-patient-common-lib": "8.x",
     "dayjs": "1.x",
@@ -52,7 +52,6 @@
     "swr": "2.x"
   },
   "devDependencies": {
-    "@carbon/react": "^1.37.0",
     "@openmrs/esm-framework": "next",
     "@openmrs/esm-patient-common-lib": "next",
     "@swc/cli": "^0.1.65",
@@ -106,9 +105,6 @@
   "lint-staged": {
     "*.{ts,tsx}": "eslint --cache --fix --max-warnings 0",
     "*.{css,scss,ts,tsx}": "prettier --write --list-different"
-  },
-  "resolutions": {
-    "@carbon/react": "1.37.0"
   },
   "packageManager": "yarn@4.2.2"
 }

@@ -73,7 +73,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
               .filter((answer) => !answer.isHidden)
               .map((item) => item.value || item.concept)}
             itemToString={itemToString}
-            selectedItem={field.value}
+            selectedItem={field.value || null}
             onChange={({ selectedItem }) => handleChange(selectedItem)}
             disabled={question.isDisabled}
             readOnly={question.readonly}
