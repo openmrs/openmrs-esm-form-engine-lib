@@ -641,11 +641,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             patient,
             evaluateExpression,
           );
-
-          if (isTrue(dependant.isHidden)) {
-            setFieldValue(dependant.id, null);
-            dependant.meta.submission = null;
-          }
         }
 
         // evaluate disabled
@@ -773,8 +768,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
             if (isTrue(section.isHidden)) {
               section.questions.forEach((field) => {
                 field.isParentHidden = true;
-                field.meta.submission = null;
-                setFieldValue(field.id, null);
               });
             }
             break;
@@ -797,8 +790,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
           dependant.sections.forEach((section) => {
             section.questions.forEach((field) => {
               field.isParentHidden = true;
-              field.meta.submission = null;
-              setFieldValue(field.id, null);
             });
           });
         }
