@@ -134,7 +134,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
               <Layer>
                 <OpenmrsDatePicker
                   onChange={(date) => onDateChange([date])}
-                  label={t(question.label)}
+                  label={t(`${question.label}${question.required ? ' *' : ''}`)}
                   value={field.value}
                   className={styles.datePickerLabel}
                 />
