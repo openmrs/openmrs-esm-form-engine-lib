@@ -133,28 +133,10 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
             <div className={styles.datePickerSpacing}>
               <Layer>
                 <OpenmrsDatePicker
-                  id={question.id}
-                  dateFormat={carbonDateFormat}
                   onChange={(date) => onDateChange([date])}
-                  labelText={
-                    question.isRequired ? (
-                      <RequiredFieldLabel label={t(question.label)} />
-                    ) : (
-                      <span>{t(question.label)}</span>
-                    )
-                  }
-                  invalid={errors.length > 0}
-                  invalidText={errors[0]?.message}
+                  label={t(question.label)}
                   value={field.value}
-                  disabled={question.isDisabled}
-                  readonly={isTrue(question.readonly)}
-                  carbonOptions={{
-                    placeholder: placeholder,
-                    warn: warnings[0]?.message,
-                    warnText: warnings[0]?.message,
-                    className: styles.boldedLabel,
-                    datePickerType: datePickerType,
-                  }}
+                  className={styles.boldedLabel}
                 />
               </Layer>
             </div>
