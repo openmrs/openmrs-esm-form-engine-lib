@@ -136,7 +136,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   onChange={(date) => onDateChange([date])}
                   label={t(question.label)}
                   value={field.value}
-                  className={styles.boldedLabel}
+                  className={styles.datePickerLabel}
                 />
               </Layer>
             </div>

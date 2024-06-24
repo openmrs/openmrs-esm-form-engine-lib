@@ -1,5 +1,12 @@
 @use '@carbon/colors';
 
+.datePickerLabel {
+  span {
+    font-weight: 600;
+    color: colors.$black-100;
+  } 
+}
+
 .boldedLabel label {
   font-weight: 600;
   color: colors.$black-100;
