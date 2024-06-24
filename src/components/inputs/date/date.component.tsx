@@ -16,15 +16,13 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
-const dateFormatter = new Intl.DateTimeFormat(locale);
 
 const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [time, setTime] = useState('');
-  const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const datePickerType = 'single';
+  const { setErrors, setWarnings } = useFieldValidationResults(question);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -74,39 +72,6 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
       handler?.handleFieldSubmission(question, dateValue, encounterContext);
     }
   };
-
-  const { placeholder, carbonDateFormat } = useMemo(() => {
-    const formatObj = dateFormatter.formatToParts(new Date());
-    const placeholder = formatObj
-      .map((obj) => {
-        switch (obj.type) {
-          case 'day':
-            return 'dd';
-          case 'month':
-            return 'mm';
-          case 'year':
-            return 'yyyy';
-          default:
-            return obj.value;
-        }
-      })
-      .join('');
-    const carbonDateFormat = formatObj
-      .map((obj) => {
-        switch (obj.type) {
-          case 'day':
-            return 'd';
-          case 'month':
-            return 'm';
-          case 'year':
-            return 'Y';
-          default:
-            return obj.value;
-        }
-      })
-      .join('');
-    return { placeholder: placeholder, carbonDateFormat: carbonDateFormat };
-  }, []);
 
   useEffect(() => {
     if (!time && field.value) {
