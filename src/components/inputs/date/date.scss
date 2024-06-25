@@ -1,5 +1,22 @@
 @use '@carbon/colors';
 
+.datePickerError {
+  font-size: 0.75rem;
+  color: colors.$red-60;
+}
+
+.datePickerWarn {
+  font-size: 0.75rem;
+  color: colors.$black-100;
+}
+
+.datePickerLabel {
+  span {
+    font-weight: 600;
+    color: colors.$black-100;
+  } 
+}
+
 .boldedLabel label {
   font-weight: 600;
   color: colors.$black-100;

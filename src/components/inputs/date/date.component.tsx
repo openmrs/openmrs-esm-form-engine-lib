@@ -15,16 +15,12 @@ import styles from './date.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
 
-const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
-const dateFormatter = new Intl.DateTimeFormat(locale);
-
 const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
-  const [field, meta] = useField(question.id);
+  const [field] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [time, setTime] = useState('');
-  const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const datePickerType = 'single';
+  const { errors, setErrors, warnings, setWarnings } = useFieldValidationResults(question);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -75,39 +71,6 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     }
   };
 
-  const { placeholder, carbonDateFormat } = useMemo(() => {
-    const formatObj = dateFormatter.formatToParts(new Date());
-    const placeholder = formatObj
-      .map((obj) => {
-        switch (obj.type) {
-          case 'day':
-            return 'dd';
-          case 'month':
-            return 'mm';
-          case 'year':
-            return 'yyyy';
-          default:
-            return obj.value;
-        }
-      })
-      .join('');
-    const carbonDateFormat = formatObj
-      .map((obj) => {
-        switch (obj.type) {
-          case 'day':
-            return 'd';
-          case 'month':
-            return 'm';
-          case 'year':
-            return 'Y';
-          default:
-            return obj.value;
-        }
-      })
-      .join('');
-    return { placeholder: placeholder, carbonDateFormat: carbonDateFormat };
-  }, []);
-
   useEffect(() => {
     if (!time && field.value) {
       if (field.value instanceof Date) {
@@ -134,7 +97,6 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
               <Layer>
                 <OpenmrsDatePicker
                   id={question.id}
-                  dateFormat={carbonDateFormat}
                   onChange={(date) => onDateChange([date])}
                   labelText={
                     question.isRequired ? (
@@ -143,20 +105,16 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                       <span>{t(question.label)}</span>
                     )
                   }
-                  invalid={errors.length > 0}
-                  invalidText={errors[0]?.message}
+                  isDisabled={question.isDisabled}
+                  isReadOnly={isTrue(question.readonly)}
+                  isRequired={question.isRequired ?? false}
+                  isInvalid={errors.length > 0}
                   value={field.value}
-                  disabled={question.isDisabled}
-                  readonly={isTrue(question.readonly)}
-                  carbonOptions={{
-                    placeholder: placeholder,
-                    warn: warnings[0]?.message,
-                    warnText: warnings[0]?.message,
-                    className: styles.boldedLabel,
-                    datePickerType: datePickerType,
-                  }}
+                  className={styles.datePickerLabel}
                 />
               </Layer>
+              {errors.length > 0 ? <div className={styles.datePickerError}>{errors[0]?.message}</div> : null}
+              {warnings.length > 0 ? <div className={styles.datePickerWarn}>{warnings[0]?.message}</div> : null}
             </div>
           )}
 
