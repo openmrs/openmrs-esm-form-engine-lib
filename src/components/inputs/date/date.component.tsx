@@ -19,10 +19,10 @@ const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.langua
 
 const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
-  const [field, meta] = useField(question.id);
+  const [field] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [time, setTime] = useState('');
-  const { setErrors, setWarnings } = useFieldValidationResults(question);
+  const { errors, setErrors, setWarnings } = useFieldValidationResults(question);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -98,8 +98,19 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
             <div className={styles.datePickerSpacing}>
               <Layer>
                 <OpenmrsDatePicker
+                  id={question.id}
                   onChange={(date) => onDateChange([date])}
-                  label={t(`${question.label}${question.required ? ' *' : ''}`)}
+                  labelText={
+                    question.isRequired ? (
+                      <RequiredFieldLabel label={t(question.label)} />
+                    ) : (
+                      <span>{t(question.label)}</span>
+                    )
+                  }
+                  isDisabled={question.isDisabled}
+                  isReadOnly={isTrue(question.readonly)}
+                  isRequired={question.isRequired ?? false}
+                  isInvalid={errors.length > 0}
                   value={field.value}
                   className={styles.datePickerLabel}
                 />
