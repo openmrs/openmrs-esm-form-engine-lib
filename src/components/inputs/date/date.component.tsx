@@ -20,7 +20,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const [field] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [time, setTime] = useState('');
-  const { errors, setErrors, setWarnings } = useFieldValidationResults(question);
+  const { errors, setErrors, warnings, setWarnings } = useFieldValidationResults(question);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -113,6 +113,8 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   className={styles.datePickerLabel}
                 />
               </Layer>
+              {errors.length > 0 ? <div className={styles.datePickerError}>{errors[0]?.message}</div> : null}
+              {warnings.length > 0 ? <div className={styles.datePickerWarn}>{warnings[0]?.message}</div> : null}
             </div>
           )}
 
