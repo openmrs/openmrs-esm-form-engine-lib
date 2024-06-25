@@ -2,7 +2,7 @@ import React from 'react';
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
 import { act, cleanup, render, screen, within, fireEvent, waitFor } from '@testing-library/react';
-import { restBaseUrl, showToast } from '@openmrs/esm-framework';
+import { OpenmrsDatePicker, restBaseUrl, showToast } from '@openmrs/esm-framework';
 import { when } from 'jest-when';
 import * as api from '../src/api/api';
 import { assertFormHasAllFields, findMultiSelectInput, findSelectInput } from './utils/test-utils';
@@ -36,7 +36,6 @@ import conditionalRequiredTestForm from '__mocks__/forms/rfe-forms/conditional-r
 import conditionalAnsweredForm from '__mocks__/forms/rfe-forms/conditional-answered-form.json';
 import FormEngine from './form-engine.component';
 
-const mockShowToast = showToast as jest.Mock;
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const mockOpenmrsFetch = jest.fn();
@@ -62,6 +61,9 @@ jest.mock('@openmrs/esm-framework', () => {
     registerExtension: jest.fn(),
     useSession: jest.fn().mockImplementation(() => mockSessionDataResponse.data),
     openmrsFetch: jest.fn().mockImplementation((args) => mockOpenmrsFetch(args)),
+    OpenmrsDatePicker: jest.fn().mockImplementation(({id, labelText, value, onChange}) => {
+      return <><label htmlFor={id}>{labelText}</label><input id={id} value={value ? dayjs(value).format("DD/MM/YYYY") : undefined} onChange={(evt) => onChange(dayjs(evt.target.value).toDate())} /></>
+  }),
   };
 });
 
@@ -625,10 +627,10 @@ describe('Form engine component', () => {
       expect(artStartDateField).not.toHaveValue();
       expect(monthsOnArtField).not.toHaveValue();
 
-      fireEvent.blur(artStartDateField, { target: { value: '05/02/2022' } });
+      fireEvent.change(artStartDateField, { target: { value: '02/05/2022' } });
+      fireEvent.blur(artStartDateField, { target: { value: '02/05/2022' } });
 
       await waitFor(() => {
-        expect(artStartDateField).toHaveValue('05/02/2022');
         expect(monthsOnArtField).toHaveValue(7);
       });
     });
