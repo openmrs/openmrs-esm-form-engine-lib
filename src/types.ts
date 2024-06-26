@@ -134,6 +134,7 @@ export interface FormField {
   questionInfo?: string;
   historicalExpression?: string;
   constrainMaxWidth?: boolean;
+  inlineMultiCheckbox?: boolean;
   meta?: QuestionMetaProps;
 }
 
