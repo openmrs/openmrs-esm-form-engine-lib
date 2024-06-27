@@ -482,6 +482,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const handleFormSubmit = async (values: Record<string, any>) => {
     const abortController = new AbortController();
     const patientIdentifiers = EncounterFormManager.preparePatientIdentifiers(fields, encounterLocation);
+    const personAttributes = EncounterFormManager.preparePersonAttributes(fields, encounterLocation);
+
     const encounter = EncounterFormManager.prepareEncounter(
       fields,
       { ...encounterContext, encounterProvider, encounterRole, location: encounterLocation },
@@ -508,6 +510,26 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         isLowContrast: false,
       });
     }
+
+    try {
+      await Promise.all(EncounterFormManager.savePersonAttributes(patient, personAttributes));
+      if (personAttributes?.length) {
+        showSnackbar({
+          title: t('personAttributesSaved', 'Person Attribute(s) saved successfully'),
+          kind: 'success',
+          isLowContrast: true,
+        });
+      }
+    } catch (error) {
+      const errorMessages = extractErrorMessagesFromResponse(error);
+      return Promise.reject({
+        title: t('errorSavingPersonAttributes', 'Error saving person attributes'),
+        subtitle: errorMessages.join(', '),
+        kind: 'error',
+        isLowContrast: false,
+      });
+    }
+
 
     try {
       const programs = EncounterFormManager.preparePatientPrograms(fields, patient, patientPrograms);

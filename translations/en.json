@@ -28,6 +28,8 @@
   "ordersSaved": "Order(s) saved sucessfully",
   "patientIdentifiersSaved": "Patient identifier(s) saved sucessfully",
   "patientProgramsSaved": "Patient program(s) saved successfully",
+  "personAttributesSaved": "Person Attribute(s) saved successfully",
+  "errorSavingPersonAttributes": "Error saving person attributes",
   "preview": "Preview",
   "previousValue": "Previous value:",
   "remove": "Remove",

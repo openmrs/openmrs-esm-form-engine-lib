@@ -1,6 +1,7 @@
 import { type FormField, type FormSchemaTransformer, type FormSchema } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { hasRendering } from '../utils/common-utils';
+import { getPersonAttributeTypeFormat } from '../../src/api/api';
 
 export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
   transform: (form: FormSchema) => {
@@ -129,7 +130,35 @@ function transformByType(question: FormField) {
         ? 'date'
         : question.questionOptions.rendering;
       break;
+    case 'personAttribute':
+      handlePersonAttributeType(question);
+      break;
   }
+}
+
+async function handlePersonAttributeType(question: FormField) {
+  if (question.questionOptions.rendering !== 'text') {
+    question.questionOptions.rendering === 'ui-select-extended';
+  }
+  const inputFormat = await getPersonAttributeTypeFormat(question.questionOptions?.attributeType);
+  const obj = inputFormat;
+  if (obj?.format === 'org.openmrs.Location') {
+    if (!question.questionOptions.datasource?.config) {
+      question.questionOptions.datasource = {
+        name: 'person_attribute_location_datasource',
+      };
+    }
+  }
+  // else {
+  //   if (!question.questionOptions.datasource?.config) {
+  //     question.questionOptions.datasource = {
+  //       name: 'select_concept_answers_datasource',
+  //       config: {
+  //         concept: question.questionOptions?.concept,
+  //       },
+  //     };
+  //   }
+  // }
 }
 
 function transformByRendering(question: FormField) {

@@ -246,6 +246,7 @@ export interface FormQuestionOptions {
   workspaceName?: string;
   buttonLabel?: string;
   identifierType?: string;
+  attributeType?: string;
   orderSettingUuid?: string;
   orderType?: string;
   selectableOrders?: Array<Record<any, any>>;
@@ -255,6 +256,12 @@ export interface FormQuestionOptions {
   comment?: string;
   orientation?: 'vertical' | 'horizontal';
   shownCommentOptions?: { validators?: Array<Record<string, any>>; hide?: { hideWhenExpression: string } };
+}
+
+export interface PersonAttribute {
+  uuid?: string;
+  value: string;
+  attributeType?: string;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';

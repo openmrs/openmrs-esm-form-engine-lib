@@ -11,6 +11,7 @@ import { EncounterRoleHandler } from '../../submission-handlers/encounterRoleHan
 import { ProgramStateHandler } from '../../submission-handlers/programStateHandler';
 import { InlineDateHandler } from '../../submission-handlers/inlineDateHandler';
 import { ObsCommentHandler } from '../../submission-handlers/obsCommentHandler';
+import { PersonAttributeHandler } from '../../submission-handlers/personAttributeHandler';
 
 /**
  * @internal
@@ -75,5 +76,10 @@ export const inbuiltFieldSubmissionHandlers: Array<RegistryItem<SubmissionHandle
     name: 'ObsCommentHandler',
     component: ObsCommentHandler,
     type: 'obsComment',
+  },
+  {
+    name: 'PersonAttributeHandler',
+    component: PersonAttributeHandler,
+    type: 'personAttribute',
   },
 ];

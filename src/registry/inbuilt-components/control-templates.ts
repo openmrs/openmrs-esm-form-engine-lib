@@ -20,6 +20,12 @@ export const controlTemplates: Array<ControlTemplate> = [
     },
   },
   {
+    name: 'person-attribute-location',
+    datasource: {
+      name: 'person_attribute_location_datasource',
+    },
+  },
+  {
     name: 'encounter-provider',
     datasource: {
       name: 'provider_datasource',

@@ -5,6 +5,7 @@ import { LocationDataSource } from '../../datasources/location-data-source';
 import { ProviderDataSource } from '../../datasources/provider-datasource';
 import { SelectConceptAnswersDatasource } from '../../datasources/select-concept-answers-datasource';
 import { EncounterRoleDataSource } from '../../datasources/encounter-role-datasource';
+import { PersonAttributeLocationDataSource } from '../../datasources/person-attribute-datasource-location';
 
 /**
  * @internal
@@ -33,6 +34,10 @@ export const inbuiltDataSources: Array<RegistryItem<DataSource<any>>> = [
   {
     name: 'encounter_role_datasource',
     component: new EncounterRoleDataSource(),
+  },
+  {
+    name: 'person_attribute_location_datasource',
+    component: new PersonAttributeLocationDataSource(),
   },
 ];
 

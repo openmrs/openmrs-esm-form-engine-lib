@@ -5,10 +5,11 @@ import {
   type OpenmrsEncounter,
   type OpenmrsObs,
   type PatientIdentifier,
+  type PersonAttribute,
   type PatientProgramPayload,
 } from '../../types';
 import { type EncounterContext } from '../../form-context';
-import { saveAttachment, saveEncounter, savePatientIdentifier, saveProgramEnrollment } from '../../api/api';
+import { saveAttachment, saveEncounter, savePatientIdentifier, saveProgramEnrollment, savePersonAttribute, } from '../../api/api';
 import { hasRendering, hasSubmission } from '../../utils/common-utils';
 import { voidObs, constructObs } from '../../submission-handlers/obsHandler';
 import dayjs from 'dayjs';
@@ -79,6 +80,18 @@ export class EncounterFormManager {
       };
     }
     return encounterForSubmission;
+  }
+
+  static preparePersonAttributes(fields: FormField[], encounterLocation: string): PersonAttribute[] {
+    return fields
+      .filter((field) => field.type === 'personAttribute' && hasSubmission(field))
+      .map((field) => field.meta.submission.newValue);
+  }
+
+  static savePersonAttributes(person: fhir.Person, attributes: PersonAttribute[]) {
+    return attributes.map((personAttribute) => {
+      return savePersonAttribute(personAttribute, person.id);
+    });
   }
 
   static saveEncounter(encounter: OpenmrsEncounter, abortController: AbortController) {
