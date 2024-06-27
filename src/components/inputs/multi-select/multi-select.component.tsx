@@ -108,25 +108,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
       <>
         <div className={styles.boldedLabel}>
           <Layer>
-            {question.questionOptions.answers?.length > 5 ? (
-              <FilterableMultiSelect
-                placeholder={t('search', 'Search') + '...'}
-                onChange={handleSelectItemsChange}
-                id={t(question.label)}
-                items={selectOptions}
-                initialSelectedItems={initiallySelectedQuestionItems}
-                label={''}
-                titleText={label}
-                key={counter}
-                itemToString={(item) => (item ? item.label : ' ')}
-                disabled={question.isDisabled}
-                invalid={errors.length > 0}
-                invalidText={errors[0]?.message}
-                warn={warnings.length > 0}
-                warnText={warnings[0]?.message}
-                readOnly={question.readonly}
-              />
-            ) : (
+            {question.inlineMultiCheckbox ? (
               <CheckboxGroup legendText={label} name={question.id}>
                 {question.questionOptions.answers?.map((value, index) => {
                   return (
@@ -146,6 +128,24 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
                   );
                 })}
               </CheckboxGroup>
+            ) : (
+              <FilterableMultiSelect
+                placeholder={t('search', 'Search') + '...'}
+                onChange={handleSelectItemsChange}
+                id={t(question.label)}
+                items={selectOptions}
+                initialSelectedItems={initiallySelectedQuestionItems}
+                label={''}
+                titleText={label}
+                key={counter}
+                itemToString={(item) => (item ? item.label : ' ')}
+                disabled={question.isDisabled}
+                invalid={errors.length > 0}
+                invalidText={errors[0]?.message}
+                warn={warnings.length > 0}
+                warnText={warnings[0]?.message}
+                readOnly={question.readonly}
+              />
             )}
           </Layer>
         </div>
