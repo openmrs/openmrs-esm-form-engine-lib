@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
@@ -34,7 +33,6 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const onDateChange = (date: CalendarDate) => {
     const refinedDate = new Date(date.toString());
     refinedDate.setHours(0, 0, 0, 0);
-    console.log(refinedDate);
     setTimeIfPresent(refinedDate, time);
     setFieldValue(question.id, refinedDate);
     onChange(question.id, refinedDate, setErrors, setWarnings);
