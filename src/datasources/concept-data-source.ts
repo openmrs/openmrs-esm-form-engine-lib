@@ -18,11 +18,24 @@ export class ConceptDataSource extends BaseOpenMRSDataSource {
         const urlParts = apiUrl.split('searchType=fuzzy');
         apiUrl = `${urlParts[0]}searchType=fuzzy&class=${config.class}&${urlParts[1]}`;
       } else {
-        return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
-          return data.results.filter(
-            (concept) => concept.conceptClass && config.class.includes(concept.conceptClass.uuid),
-          );
-        });
+        const fetchAllConcepts = (): Promise<any[]> => {
+          const fetchConceptsByClass = (classUuid: string) => {
+            const urlParts = apiUrl.split('searchType=fuzzy');
+            const url = `${urlParts[0]}searchType=fuzzy&class=${classUuid}&${urlParts[1] || ''}`;
+            return openmrsFetch(url).then(({ data }) => {
+              return data.results;
+            });
+          };
+
+          return Promise.all(config.class.map(fetchConceptsByClass))
+            .then((results) => results.flat())
+            .catch((error) => {
+              console.error('Error fetching data:', error);
+              return [];
+            });
+        };
+
+        return fetchAllConcepts();
       }
     }
 
