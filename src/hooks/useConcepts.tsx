@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { type FetchResponse, type OpenmrsResource, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import useSWRInfinite from 'swr/infinite';
-import useRestMaxResultsCount from './useRestMaxResultsCount';
 
 type ConceptFetchResponse = FetchResponse<{ results: Array<OpenmrsResource> }>;
 
@@ -13,8 +12,8 @@ export function useConcepts(references: Set<string>): {
   isLoading: boolean;
   error: Error | undefined;
 } {
-  const { isLoading: isLoadingMaxResultsDefault, systemSetting } = useRestMaxResultsCount();
-  const chunkSize = systemSetting?.value ? parseInt(systemSetting.value) : null;
+
+  const chunkSize = 100;
   const totalCount = references.size;
   const totalPages = Math.ceil(totalCount / chunkSize);
 
@@ -29,8 +28,8 @@ export function useConcepts(references: Set<string>): {
 
     const start = index * chunkSize;
     const end = start + chunkSize;
-    const chunk = Array.from(references).slice(start, end);
-    return `${restBaseUrl}/concept?references=${chunk.join(',')}&v=${conceptRepresentation}&limit=${chunkSize}`;
+    const referenceChunk = Array.from(references).slice(start, end);
+    return `${restBaseUrl}/concept?references=${referenceChunk.join(',')}&v=${conceptRepresentation}`;
   };
 
   const { data, error, isLoading } = useSWRInfinite<ConceptFetchResponse, Error>(getUrl, openmrsFetch, {
@@ -47,7 +46,7 @@ export function useConcepts(references: Set<string>): {
       // As it cannot read `uuid` of `undefined`
       concepts: data && data?.[0] ? [].concat(...data.map((res) => res?.data?.results)) : undefined,
       error,
-      isLoading: isLoadingMaxResultsDefault || isLoading,
+      isLoading,
     }),
     [data, error, isLoading],
   );
