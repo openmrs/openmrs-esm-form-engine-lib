@@ -177,23 +177,24 @@ export function savePatientIdentifier(patientIdentifier: PatientIdentifier, pati
   });
 }
 
-export async function getPersonAttributeTypeFormat(personAttributeTypeUuid: string) {
-  let response = await openmrsFetch(
-    `${restBaseUrl}/personattributetype/${personAttributeTypeUuid}?v=custom:(format)`,
-  ).then(({ data }) => data);
-  if (response) {
-    return response;
-  }
-  return;
-}
-export async function getPatientAttribute(patientAttributeUuid: string) {
-  let response = await openmrsFetch(`${restBaseUrl}/patient/${patientAttributeUuid}?v=custom:(attributes)`).then(
-    ({ data }) => data,
+export function getPersonAttributeTypeFormat(personAttributeTypeUuid: string) {
+  return openmrsFetch(`${restBaseUrl}/personattributetype/${personAttributeTypeUuid}?v=custom:(format)`).then(
+    ({ data }) => {
+      if (data) {
+        return data;
+      }
+      return null;
+    },
   );
-  if (response) {
-    return response;
-  }
-  return;
+}
+export function getPatientAttribute(patientAttributeUuid: string) {
+  console.log('attributes updated');
+  return openmrsFetch(`${restBaseUrl}/patient/${patientAttributeUuid}?v=custom:(attributes)`).then(({ data }) => {
+    if (data) {
+      return data;
+    }
+    return null;
+  });
 }
 
 export function savePersonAttribute(personAttribute: PersonAttribute, personUuid: string) {

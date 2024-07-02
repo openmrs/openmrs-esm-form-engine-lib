@@ -6,6 +6,9 @@ import { isEmpty } from '../validators/form-validator';
 
 export const PersonAttributeHandler: SubmissionHandler = {
   handleFieldSubmission: (field: FormField, value: any, context: EncounterContext) => {
+    // eslint-disable-next-line no-console
+    console.log('personAttribute');
+
     clearSubmission(field);
     if (field.meta?.previousValue?.value === value || isEmpty(value)) {
       return null;
@@ -16,19 +19,20 @@ export const PersonAttributeHandler: SubmissionHandler = {
     };
     return value;
   },
-  getInitialValue: async (
+  getInitialValue: (
     encounter: OpenmrsEncounter,
     field: FormField,
     allFormFields: Array<FormField>,
     context: EncounterContext,
   ) => {
-    const personAttribute = await getPatientAttribute(context?.patient?.id);
-
-    const initialAttribute = getDisplayAttributeValue(personAttribute);
-
-    field.meta = { ...(field.meta || {}), previousValue: initialAttribute };
+    const personAttribute = getPatientAttribute(context?.patient?.id);
     // eslint-disable-next-line no-console
-    console.log(field.meta);
+    console.log(personAttribute);
+
+    const initialAttribute = extractAttributeFieldValue(field, personAttribute);
+
+    // field.meta = { ...(field.meta || {}), previousValue: initialAttribute };
+    // eslint-disable-next-line no-console
 
     return initialAttribute;
   },
@@ -40,10 +44,36 @@ export const PersonAttributeHandler: SubmissionHandler = {
     return null;
   },
 };
-function getDisplayAttributeValue(inputFormat: any) {
-  if (inputFormat?.attributes && inputFormat?.attributes?.length > 0) {
-    // Get the first attribute's display value
-    return inputFormat?.attributes[0]?.display;
+
+function extractAttributeFieldValue(field: FormField, attributeList: any) {
+  const rendering = field.questionOptions.rendering;
+  if (!field.meta) {
+    field.meta = {
+      previousValue: null,
+    };
   }
-  return null;
+  const attributes = attributeList;
+  // eslint-disable-next-line no-console
+  console.log(attributes);
+  if (rendering == 'ui-select-extended') {
+    // eslint-disable-next-line no-console
+    console.log(attributes.value?.uuid);
+    return attributes.value?.uuid;
+  }
+
+  if (typeof attributes.value === 'string' || typeof attributes.value === 'number') {
+    // eslint-disable-next-line no-console
+    console.log(attributes.value);
+    return attributes.value?.display;
+  }
+
+  return attributes.value?.uuid || attributes.value?.display;
 }
+
+// function getDisplayAttributeValue(inputFormat: any) {
+//   if (inputFormat?.attributes && inputFormat?.attributes?.length > 0) {
+//     // Get the first attribute's display value
+//     return inputFormat?.attributes[0]?.display;
+//   }
+//   return null;
+// }
