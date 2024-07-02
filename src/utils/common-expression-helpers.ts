@@ -260,17 +260,7 @@ export class CommonExpressionHelpers {
   };
 
   calcGravida = (parityTerm, parityAbortion) => {
-    let gravida = 0;
-    if (parityTerm === parseInt(parityTerm)) {
-      gravida = parityTerm + 1;
-    }
-    if (parityAbortion === parseInt(parityAbortion)) {
-      gravida = parityAbortion + 1;
-    }
-    if (parityAbortion === parseInt(parityAbortion) && parityTerm === parseInt(parityTerm)) {
-      parityAbortion + parityTerm + 1;
-    }
-    return gravida;
+    return parseInt(parityTerm) + parseInt(parityAbortion);
   };
 
   calcWeightForHeightZscore = (height, weight) => {
