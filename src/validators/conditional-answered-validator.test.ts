@@ -14,7 +14,7 @@ describe('conditionalAnsweredValidator', () => {
   beforeEach(() => {
     field = {
       label: 'Test Field',
-      type: 'text',
+      type: 'obs',
       questionOptions: { rendering: 'repeating', concept: 'j8b6705b-b6d8-4eju-8f37-0b14f5347569' },
       id: 'testFieldId',
     } as FormField;
