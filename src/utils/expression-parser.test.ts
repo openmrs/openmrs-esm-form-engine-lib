@@ -7,8 +7,14 @@ import {
   linkReferencedFieldValues,
   parseExpression,
   replaceFieldRefWithValuePath,
+  expressionFormatter,
 } from './expression-parser';
 import { testFields } from './expression-runner.test';
+
+const testFieldValues = {
+  patientIdentificationNumber: 'test value 1',
+  linkedToCare: 'test value 2',
+};
 
 describe('Expression parsing', () => {
   it('should split expression 1 into parts correctly', () => {
@@ -304,5 +310,38 @@ describe('hasParentheses', () => {
   it('should return true for complex expression with multiple types of parentheses', () => {
     const expression = 'func1(arg1, (func2(arg2) && func3(arg3)))';
     expect(hasParentheses(expression)).toBe(true);
+  });
+});
+
+describe('expression formatter function', () => {
+  it('should not care about whether there are spaces around operators', () => {
+    const expressionA = "linkedToCare!=='a8aaf3e2-1350-11df-a1f1-0026b9348838";
+    const expressionB = 'patientIdentificationNumber+linkedToCare';
+    const expressionC = "patientIdentificationNumber== 'a8aaf3e2-1350-11df-a1f1-0026b9348838";
+    const expressionD =
+      "!isEmpty(referredToPreventionServices)&&isEmpty(myValue) && (bodyTemperature==='a890d1ba-1350-11df-a1f1-0026b9348838')";
+
+    const testFieldValues = {
+      patientIdentificationNumber: 'test value 1',
+      linkedToCare: 'test value 2',
+      bodyTemperature: 'test value 3',
+      referredToPreventionServices: 'test value 4',
+    };
+
+    expect(expressionFormatter(expressionA, testFields, testFieldValues)).toBe(
+      "fieldValues.linkedToCare!=='a8aaf3e2-1350-11df-a1f1-0026b9348838",
+    );
+
+    expect(expressionFormatter(expressionB, testFields, testFieldValues)).toBe(
+      'fieldValues.patientIdentificationNumber+fieldValues.linkedToCare',
+    );
+
+    expect(expressionFormatter(expressionC, testFields, testFieldValues)).toBe(
+      "fieldValues.patientIdentificationNumber== 'a8aaf3e2-1350-11df-a1f1-0026b9348838",
+    );
+
+    expect(expressionFormatter(expressionD, testFields, testFieldValues)).toBe(
+      "!isEmpty(fieldValues.referredToPreventionServices)&&isEmpty(myValue) && (fieldValues.bodyTemperature==='a890d1ba-1350-11df-a1f1-0026b9348838')",
+    );
   });
 });
