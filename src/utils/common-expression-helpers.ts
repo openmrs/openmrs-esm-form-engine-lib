@@ -260,7 +260,14 @@ export class CommonExpressionHelpers {
   };
 
   calcGravida = (parityTerm, parityAbortion) => {
-    return parseInt(parityTerm) + parseInt(parityAbortion);
+    const term = parseInt(parityTerm, 10);
+    const abortion = parseInt(parityAbortion, 10);
+
+    if (isNaN(term) || isNaN(abortion)) {
+      throw new Error('Both inputs must be valid numbers.');
+    }
+
+    return term + abortion;
   };
 
   calcWeightForHeightZscore = (height, weight) => {
