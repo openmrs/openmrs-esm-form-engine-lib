@@ -334,7 +334,7 @@ const FormEngine: React.FC<FormProps> = ({
                             }}>
                             {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
                           </Button>
-                          <Button type="submit" disabled={mode === 'view' || isSubmitting}>
+                          <Button type="submit" disabled={isLoadingFormDependencies || mode === 'view' || isSubmitting}>
                             {isSubmitting ? (
                               <InlineLoading description={t('submitting', 'Submitting') + '...'} />
                             ) : (
