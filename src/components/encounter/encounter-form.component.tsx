@@ -613,7 +613,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
 
     if (codedTypes.includes(field.questionOptions.rendering)) {
       field.questionOptions.answers.forEach((answer) => {
-        if (answer.disable?.disableWhenExpression) {
+        const disableExpression = answer.disable?.disableWhenExpression;
+        if (disableExpression && disableExpression.includes('myValue')) {
           answer.disable.isDisabled = evaluateExpression(
             answer.disable?.disableWhenExpression,
             { value: field, type: 'field' },
