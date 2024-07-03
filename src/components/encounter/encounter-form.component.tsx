@@ -611,6 +611,24 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       value = value ? ConceptTrue : ConceptFalse;
     }
 
+    if (codedTypes.includes(field.questionOptions.rendering)) {
+      field.questionOptions.answers.forEach((answer) => {
+        const disableExpression = answer.disable?.disableWhenExpression;
+        if (disableExpression && disableExpression.includes('myValue')) {
+          answer.disable.isDisabled = evaluateExpression(
+            answer.disable?.disableWhenExpression,
+            { value: field, type: 'field' },
+            fields,
+            { ...values, [fieldName]: value },
+            {
+              mode: sessionMode,
+              patient,
+            },
+          );
+        }
+      });
+    }
+
     if (field.fieldDependants) {
       field.fieldDependants.forEach((dep) => {
         const dependant = fields.find((f) => f.id == dep);
