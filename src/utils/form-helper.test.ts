@@ -486,7 +486,7 @@ describe('Form Engine Helper', () => {
       );
     });
 
-    test('handles invalid expressions gracefully', () => {
+    test('throws if the expression causes an error', () => {
       mockExpressionRunnerFn.mockImplementation(() => {
         throw new Error('Invalid expression');
       });
