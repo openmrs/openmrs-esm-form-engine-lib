@@ -5,6 +5,7 @@ import testEncounter from '__mocks__/use-initial-values/encounter.mock.json';
 import testPatient from '__mocks__/use-initial-values/patient.mock.json';
 import { ObsSubmissionHandler } from '../submission-handlers/obsHandler';
 import { TestOrderSubmissionHandler } from '../submission-handlers/testOrderHandler';
+import { CommonExpressionHelpers } from 'src/utils/common-expression-helpers';
 
 const obsGroupMembers: Array<FormField> = [
   {
@@ -148,38 +149,42 @@ jest.mock('../utils/expression-runner', () => {
   };
 });
 
+const encounterDate = new Date();
+
+const renderUseInitialValuesHook = async (encounter, formFields) => {
+  let hook = null;
+
+  await act(async () => {
+    hook = renderHook(() =>
+      useInitialValues(
+        [...formFields],
+        encounter,
+        false,
+        {
+          encounter,
+          patient: testPatient,
+          location,
+          sessionMode: 'enter',
+          encounterDate: encounterDate,
+          setEncounterDate: jest.fn,
+          encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
+          setEncounterProvider: jest.fn,
+          setEncounterLocation: jest.fn,
+          encounterRole: '',
+          setEncounterRole: jest.fn,
+        },
+        formFieldHandlers,
+      ),
+    );
+  });
+
+  return hook.result.current;
+};
+
 describe('useInitialValues', () => {
-  const encounterDate = new Date();
-
   it('should return empty meaningful defaults in "enter" mode', async () => {
-    let hook = null;
+    const { initialValues, isBindingComplete } = await renderUseInitialValuesHook(null, allFormFields);
 
-    await act(async () => {
-      hook = renderHook(() =>
-        useInitialValues(
-          [...allFormFields],
-          null,
-          false,
-          {
-            encounter: null,
-            patient: testPatient,
-            location,
-            sessionMode: 'enter',
-            encounterDate: encounterDate,
-            setEncounterDate: jest.fn,
-            encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
-            setEncounterProvider: jest.fn,
-            setEncounterLocation: jest.fn,
-            encounterRole: '',
-            setEncounterRole: jest.fn
-          },
-          formFieldHandlers,
-        ),
-      );
-    });
-    const {
-      current: { initialValues, isBindingComplete },
-    } = hook.result;
     expect(isBindingComplete).toBe(true);
     expect(initialValues).toEqual({
       number_of_babies: '',
@@ -191,34 +196,8 @@ describe('useInitialValues', () => {
   });
 
   it('should return existing encounter values in "edit" mode', async () => {
-    let hook = null;
+    const { initialValues, isBindingComplete } = await renderUseInitialValuesHook(encounter, allFormFields);
 
-    await act(async () => {
-      hook = renderHook(() =>
-        useInitialValues(
-          [...allFormFields],
-          encounter,
-          false,
-          {
-            encounter: encounter,
-            patient: testPatient,
-            location,
-            sessionMode: 'enter',
-            encounterDate: encounterDate,
-            setEncounterDate: jest.fn,
-            encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
-            setEncounterProvider: jest.fn,
-            setEncounterLocation: jest.fn,
-            encounterRole: '',
-            setEncounterRole: jest.fn
-          },
-          formFieldHandlers,
-        ),
-      );
-    });
-    const {
-      current: { initialValues, isBindingComplete },
-    } = hook.result;
     expect(isBindingComplete).toBe(true);
     const initialValuesWithFormatedDateValues = {
       ...initialValues,
@@ -241,7 +220,6 @@ describe('useInitialValues', () => {
   });
 
   it('should verify that the "isBindingComplete" flag is set to true only when the resolution of calculated values is completed', async () => {
-    let hook = null;
     const fieldWithCalculateExpression: FormField = {
       label: 'Latest mother HIV status',
       type: 'obs',
@@ -255,76 +233,19 @@ describe('useInitialValues', () => {
       },
       id: 'latest_mother_hiv_status',
     };
-    allFormFields.push(fieldWithCalculateExpression);
-    await act(async () => {
-      hook = renderHook(() =>
-        useInitialValues(
-          [...allFormFields],
-          null,
-          false,
-          {
-            encounter: undefined,
-            patient: testPatient,
-            location,
-            sessionMode: 'enter',
-            encounterDate: encounterDate,
-            setEncounterDate: jest.fn,
-            encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
-            setEncounterProvider: jest.fn,
-            setEncounterLocation: jest.fn,
-            encounterRole: '',
-            setEncounterRole: jest.fn
-          },
-          formFieldHandlers,
-        ),
-      );
-    });
-    const {
-      current: { initialValues, isBindingComplete },
-    } = hook.result;
+    const { initialValues, isBindingComplete } = await renderUseInitialValuesHook(undefined, [
+      fieldWithCalculateExpression,
+    ]);
 
     expect(isBindingComplete).toBe(true);
     expect(initialValues).toEqual({
-      number_of_babies: '',
-      notes: '',
-      screening_methods: [],
-      date_of_birth: '',
-      infant_name: '',
       latest_mother_hiv_status: '664AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
     });
   });
 
   it('should hydrate test orders', async () => {
-    let hook = null;
-
-    await act(async () => {
-      hook = renderHook(() =>
-        useInitialValues(
-          [testOrder],
-          encounter,
-          false,
-          {
-            encounter: encounter,
-            patient: testPatient,
-            location,
-            sessionMode: 'enter',
-            encounterDate: encounterDate,
-            setEncounterDate: jest.fn,
-            encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
-            setEncounterProvider: jest.fn,
-            setEncounterLocation: jest.fn,
-            encounterRole: '8cb3a399-d18b-4b62-aefb-5a0f948a3809',
-            setEncounterRole: jest.fn
-          },
-          formFieldHandlers,
-        ),
-      );
-    });
-    const {
-      current: { initialValues, isBindingComplete },
-    } = hook.result;
+    const { initialValues, isBindingComplete } = await renderUseInitialValuesHook(encounter, [testOrder]);
     expect(isBindingComplete).toBe(true);
-
     expect(initialValues).toEqual({
       testOrder: '30e2da8f-34ca-4c93-94c8-d429f22d381c',
       testOrder_1: '87b3f6a1-6d79-4923-9485-200dfd937782',
@@ -332,5 +253,153 @@ describe('useInitialValues', () => {
     });
     expect(allFormFields.find((field) => field.id === 'testOrder_1')).not.toBeNull();
     expect(allFormFields.find((field) => field.id === 'testOrder_2')).not.toBeNull();
+  });
+
+  it('should return synchronous calculated values for calculated fields in "edit" mode', async () => {
+    let formFields: Array<FormField> = [
+      {
+        label: 'Height (cm)',
+        type: 'obs',
+        required: false,
+        id: 'height',
+        questionOptions: {
+          rendering: 'number',
+          concept: '5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          answers: [],
+        },
+      },
+      {
+        label: 'Weight (Kgs)',
+        type: 'obs',
+        required: false,
+        id: 'weight',
+        questionOptions: {
+          rendering: 'number',
+          concept: '5089AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          answers: [],
+        },
+        validators: [],
+      },
+      {
+        label: 'BMI:Kg/M2 (Function calcBMI | useFieldValue)',
+        type: 'obs',
+        required: false,
+        id: 'bmi',
+        questionOptions: {
+          rendering: 'number',
+          defaultValue: 0,
+          concept: '1342AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          isTransient: true,
+          disallowDecimals: false,
+          calculate: {
+            calculateExpression: 'calcBMI(height,weight)',
+          },
+        },
+        validators: [],
+        questionInfo: 'this calculates BMI using calcBMI function and useFieldValue of weight and height',
+      },
+    ];
+    const allFields = JSON.parse(JSON.stringify(formFields));
+    const allFieldsKeys = allFields.map((f) => f.id);
+    let valuesMap = {
+      height: '',
+      wight: '',
+      bmi: '',
+    };
+
+    const helper = new CommonExpressionHelpers(
+      { value: allFields[1], type: 'field' },
+      {},
+      allFields,
+      valuesMap,
+      allFieldsKeys,
+    );
+
+    const { initialValues, isBindingComplete } = await renderUseInitialValuesHook(encounter, formFields);
+    expect(isBindingComplete).toBe(true);
+
+    const heightVal = initialValues['height'];
+    const weightVal = initialValues['weight'];
+
+    const calculatedBmi = helper.calcBMI(heightVal, weightVal);
+
+    expect(initialValues['height']).toBe(176);
+    expect(initialValues['weight']).toBe(56);
+    expect(initialValues['bmi']).toBe(calculatedBmi);
+  });
+
+  it('should return asynchronous calculated values for calculated fields in "edit" mode', async () => {
+    const fieldWithCalculateExpression: FormField = {
+      label: 'Latest mother HIV status',
+      type: 'obs',
+      questionOptions: {
+        rendering: 'fixed-value',
+        concept: 'af7c1fe6-d669-414e-b066-e9733f0de7a8',
+        calculate: {
+          calculateExpression:
+            "resolve(api.getLatestObs(patient.id, '159427AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', '2549af50-75c8-4aeb-87ca-4bb2cef6c69a'))?.valueCodeableConcept?.coding[0]?.code",
+        },
+      },
+      id: 'latest_mother_hiv_status',
+    };
+    const { initialValues, isBindingComplete } = await renderUseInitialValuesHook(encounter, [
+      fieldWithCalculateExpression,
+    ]);
+
+    expect(isBindingComplete).toBe(true);
+    expect(initialValues['latest_mother_hiv_status']).toBe('664AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+  });
+
+  it('should fall back to encounter value if the calculated expression result is null or undefined', async () => {
+    let formFields: Array<FormField> = [
+      {
+        label: 'Height (cm)',
+        type: 'obs',
+        required: false,
+        id: 'height',
+        questionOptions: {
+          rendering: 'number',
+          concept: '5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          answers: [],
+        },
+      },
+      {
+        label: 'Weight (Kgs)',
+        type: 'obs',
+        required: false,
+        id: 'weight',
+        questionOptions: {
+          rendering: 'number',
+          concept: '5089AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          answers: [],
+        },
+        validators: [],
+      },
+      {
+        label: 'BMI:Kg/M2 (Function calcBMI | useFieldValue)',
+        type: 'obs',
+        required: false,
+        id: 'bmi',
+        questionOptions: {
+          rendering: 'number',
+          defaultValue: 0,
+          concept: '1342AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          isTransient: true,
+          disallowDecimals: false,
+          calculate: {
+            calculateExpression: 'whoops()',
+          },
+        },
+        validators: [],
+        questionInfo: 'this calculates BMI using calcBMI function and useFieldValue of weight and height',
+      },
+    ];
+    const { initialValues, isBindingComplete } = await renderUseInitialValuesHook(encounter, formFields);
+
+    expect(isBindingComplete).toBe(true);
+
+    expect(initialValues['height']).toBe(176);
+    expect(initialValues['weight']).toBe(56);
+    expect(initialValues['bmi']).toBe(2);
   });
 });
