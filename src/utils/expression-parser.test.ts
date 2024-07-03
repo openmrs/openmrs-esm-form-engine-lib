@@ -314,7 +314,7 @@ describe('hasParentheses', () => {
 });
 
 describe('expression formatter function', () => {
-  it('should replace the field id with fieldValue.field id for all form fields', () => {
+  it('should not care about whether there are spaces around operators', () => {
     const expressionA = "linkedToCare!=='a8aaf3e2-1350-11df-a1f1-0026b9348838";
     const expressionB = 'patientIdentificationNumber+linkedToCare';
     const expressionC = "patientIdentificationNumber== 'a8aaf3e2-1350-11df-a1f1-0026b9348838";
