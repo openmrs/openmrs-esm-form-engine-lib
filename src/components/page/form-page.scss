@@ -56,6 +56,11 @@
   background-color: colors.$gray-10;
 }
 
+// TODO: try removing this when upgrading @carbon/react. Added at 1.37
+:global(.cds--accordion__wrapper) {
+  max-block-size: unset !important;
+}
+
 @media (min-width: 640px) {
   :global(.cds--accordion__content) {
     padding-right: 2rem !important;
