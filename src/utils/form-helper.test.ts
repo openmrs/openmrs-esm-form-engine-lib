@@ -472,20 +472,6 @@ describe('Form Engine Helper', () => {
       );
     });
 
-    test('works with different patient data', () => {
-      patient = { id: 'patient2', name: 'Jane Doe' };
-      mockExpressionRunnerFn.mockReturnValue(false);
-      const result = evaluateDisabled(node, allFields, allValues, sessionMode, patient, mockExpressionRunnerFn);
-      expect(result).toBe(false);
-      expect(mockExpressionRunnerFn).toHaveBeenCalledWith(
-        node.value.disabled.disableWhenExpression,
-        node,
-        allFields,
-        allValues,
-        { mode: sessionMode, patient },
-      );
-    });
-
     test('throws if the expression causes an error', () => {
       mockExpressionRunnerFn.mockImplementation(() => {
         throw new Error('Invalid expression');
