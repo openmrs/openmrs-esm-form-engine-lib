@@ -99,21 +99,21 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   id={question.id}
                   onChange={(date) => onDateChange([date])}
                   labelText={
-                    question.isRequired ? (
-                      <RequiredFieldLabel label={t(question.label)} />
-                    ) : (
-                      <span>{t(question.label)}</span>
-                    )
+                    <span className={styles.datePickerLabel}>
+                      {question.isRequired ? (
+                        <RequiredFieldLabel label={t(question.label)} />
+                      ) : (
+                        <span>{t(question.label)}</span>
+                      )}
+                    </span>
                   }
                   isDisabled={question.isDisabled}
                   isReadOnly={isTrue(question.readonly)}
                   isRequired={question.isRequired ?? false}
                   isInvalid={errors.length > 0}
                   value={field.value}
-                  className={styles.datePickerLabel}
                 />
               </Layer>
-              {errors.length > 0 ? <div className={styles.datePickerError}>{errors[0]?.message}</div> : null}
               {warnings.length > 0 ? <div className={styles.datePickerWarn}>{warnings[0]?.message}</div> : null}
             </div>
           )}
