@@ -111,7 +111,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   isReadOnly={isTrue(question.readonly)}
                   isRequired={question.isRequired ?? false}
                   isInvalid={errors.length > 0}
-                  invalidText={errors[0].message}
+                  invalidText={errors[0]?.message}
                   value={field.value}
                 />
               </Layer>
