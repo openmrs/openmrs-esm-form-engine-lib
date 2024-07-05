@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FormGroup, RadioButtonGroup, RadioButton } from '@carbon/react';
 import { type FormFieldProps } from '../../../types';
@@ -17,11 +17,14 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { t } = useTranslation();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const [selectedValue, setSelectedValue] = useState(field.value);
 
   const handleChange = (value) => {
-    setFieldValue(question.id, value);
-    onChange(question.id, value, setErrors, setWarnings);
-    handler?.handleFieldSubmission(question, value, encounterContext);
+    const newValue = selectedValue === value ? null : value;
+    setSelectedValue(newValue);
+    setFieldValue(question.id, newValue);
+    onChange(question.id, newValue, setErrors, setWarnings);
+    handler?.handleFieldSubmission(question, newValue, encounterContext);
   };
 
   useEffect(() => {
@@ -71,6 +74,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
                   labelText={answer.label ?? ''}
                   value={answer.concept}
                   key={index}
+                  onClick={() => handleChange(answer.concept)}
                 />
               );
             })}
