@@ -3185,9 +3185,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openmrs/esm-framework@npm:5.6.1-pre.2051, @openmrs/esm-framework@npm:next":
-  version: 5.6.1-pre.2051
-  resolution: "@openmrs/esm-framework@npm:5.6.1-pre.2051"
+"@openmrs/esm-framework@npm:5.6.1-pre.2033, @openmrs/esm-framework@npm:next":
+  version: 5.6.1-pre.2033
+  resolution: "@openmrs/esm-framework@npm:5.6.1-pre.2033"
   dependencies:
     "@openmrs/esm-api": "npm:5.6.1-pre.2051"
     "@openmrs/esm-config": "npm:5.6.1-pre.2051"
@@ -3485,6 +3485,7 @@ __metadata:
     sass: "npm:^1.77.2"
     swc-loader: "npm:^0.2.6"
     swr: "npm:^2.2.5"
+    turbo: "npm:^2.0.6"
     turbo: "npm:^2.0.6"
     typescript: "npm:^4.9.5"
     webpack: "npm:^5.91.0"
@@ -14540,8 +14541,8 @@ __metadata:
   linkType: hard
 
 "openmrs@npm:next":
-  version: 5.6.1-pre.2051
-  resolution: "openmrs@npm:5.6.1-pre.2051"
+  version: 5.6.1-pre.2033
+  resolution: "openmrs@npm:5.6.1-pre.2033"
   dependencies:
     "@openmrs/esm-app-shell": "npm:5.6.1-pre.2051"
     "@openmrs/webpack-config": "npm:5.6.1-pre.2051"
@@ -18004,10 +18005,16 @@ __metadata:
 "turbo-darwin-64@npm:2.0.6":
   version: 2.0.6
   resolution: "turbo-darwin-64@npm:2.0.6"
+"turbo-darwin-64@npm:2.0.6":
+  version: 2.0.6
+  resolution: "turbo-darwin-64@npm:2.0.6"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
+"turbo-darwin-arm64@npm:2.0.6":
+  version: 2.0.6
+  resolution: "turbo-darwin-arm64@npm:2.0.6"
 "turbo-darwin-arm64@npm:2.0.6":
   version: 2.0.6
   resolution: "turbo-darwin-arm64@npm:2.0.6"
@@ -18018,10 +18025,16 @@ __metadata:
 "turbo-linux-64@npm:2.0.6":
   version: 2.0.6
   resolution: "turbo-linux-64@npm:2.0.6"
+"turbo-linux-64@npm:2.0.6":
+  version: 2.0.6
+  resolution: "turbo-linux-64@npm:2.0.6"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
+"turbo-linux-arm64@npm:2.0.6":
+  version: 2.0.6
+  resolution: "turbo-linux-arm64@npm:2.0.6"
 "turbo-linux-arm64@npm:2.0.6":
   version: 2.0.6
   resolution: "turbo-linux-arm64@npm:2.0.6"
@@ -18032,10 +18045,16 @@ __metadata:
 "turbo-windows-64@npm:2.0.6":
   version: 2.0.6
   resolution: "turbo-windows-64@npm:2.0.6"
+"turbo-windows-64@npm:2.0.6":
+  version: 2.0.6
+  resolution: "turbo-windows-64@npm:2.0.6"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
+"turbo-windows-arm64@npm:2.0.6":
+  version: 2.0.6
+  resolution: "turbo-windows-arm64@npm:2.0.6"
 "turbo-windows-arm64@npm:2.0.6":
   version: 2.0.6
   resolution: "turbo-windows-arm64@npm:2.0.6"
@@ -18046,7 +18065,16 @@ __metadata:
 "turbo@npm:^2.0.6":
   version: 2.0.6
   resolution: "turbo@npm:2.0.6"
+"turbo@npm:^2.0.6":
+  version: 2.0.6
+  resolution: "turbo@npm:2.0.6"
   dependencies:
+    turbo-darwin-64: "npm:2.0.6"
+    turbo-darwin-arm64: "npm:2.0.6"
+    turbo-linux-64: "npm:2.0.6"
+    turbo-linux-arm64: "npm:2.0.6"
+    turbo-windows-64: "npm:2.0.6"
+    turbo-windows-arm64: "npm:2.0.6"
     turbo-darwin-64: "npm:2.0.6"
     turbo-darwin-arm64: "npm:2.0.6"
     turbo-linux-64: "npm:2.0.6"
@@ -18068,6 +18096,7 @@ __metadata:
       optional: true
   bin:
     turbo: bin/turbo
+  checksum: 10/685b12a565c823d3392992d77619b860999861a53e046c196a09b03e3ba001db96f62192a0bf68c92b26e3629d91de40f2bd17ec67f83a1f694dfb34d5f480b9
   checksum: 10/685b12a565c823d3392992d77619b860999861a53e046c196a09b03e3ba001db96f62192a0bf68c92b26e3629d91de40f2bd17ec67f83a1f694dfb34d5f480b9
   languageName: node
   linkType: hard
