@@ -105,8 +105,9 @@ export async function fetchOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm 
   if (isUUID) {
     return openmrsFormResponse;
   }
+
   return openmrsFormResponse.results?.length
-    ? openmrsFormResponse.results[openmrsFormResponse.results?.length - 1]
+    ? openmrsFormResponse.results.find((form) => form.retired === false)
     : new Error(`Form with ${nameOrUUID} was not found`);
 }
 
