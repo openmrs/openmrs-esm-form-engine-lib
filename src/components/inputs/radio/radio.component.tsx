@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FormGroup, RadioButtonGroup, RadioButton } from '@carbon/react';
 import { type FormFieldProps } from '../../../types';
