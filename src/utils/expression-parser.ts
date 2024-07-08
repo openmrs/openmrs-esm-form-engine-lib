@@ -156,21 +156,3 @@ function findReferencedFieldIfExists(fieldId: string, fields: FormField[]): Form
   }
   return fields.find((field) => field.id === fieldId);
 }
-
-export function expressionFormatter(expression: string, fields: FormField[], fieldValues: Record<string, any>): string {
-  const matchedFields = [];
-  let formattedExpression = expression;
-
-  fields.forEach((field) => {
-    if (expression.includes(field.id) && !expression.includes(`fieldValues.${field.id}`)) {
-      matchedFields.push(field);
-    }
-  });
-
-  if (matchedFields?.length) {
-    matchedFields.forEach((field) => {
-      formattedExpression = replaceFieldRefWithValuePath(field, fieldValues[field.id], formattedExpression);
-    });
-  }
-  return formattedExpression;
-}
