@@ -17,14 +17,11 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const { t } = useTranslation();
   const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const [selectedValue, setSelectedValue] = useState(field.value);
 
   const handleChange = (value) => {
-    const newValue = selectedValue === value ? null : value;
-    setSelectedValue(newValue);
-    setFieldValue(question.id, newValue);
-    onChange(question.id, newValue, setErrors, setWarnings);
-    handler?.handleFieldSubmission(question, newValue, encounterContext);
+    setFieldValue(question.id, value);
+    onChange(question.id, value, setErrors, setWarnings);
+    handler?.handleFieldSubmission(question, value, encounterContext);
   };
 
   useEffect(() => {
@@ -63,8 +60,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
         <RadioButtonGroup
           name={question.id}
           valueSelected={field.value}
-          onChange={handleChange}
-          orientation={question.questionOptions?.orientation || "vertical"}>
+          orientation={question.questionOptions?.orientation || 'vertical'}>
           {question.questionOptions.answers
             .filter((answer) => !answer.isHidden)
             .map((answer, index) => {
@@ -74,7 +70,14 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
                   labelText={answer.label ?? ''}
                   value={answer.concept}
                   key={index}
-                  onClick={() => handleChange(answer.concept)}
+                  onClick={(e) => {
+                    if (field.value && e.target.checked) {
+                      e.target.checked = false;
+                      handleChange(null);
+                    } else {
+                      handleChange(answer.concept);
+                    }
+                  }}
                 />
               );
             })}
