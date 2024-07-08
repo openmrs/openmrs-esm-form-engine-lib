@@ -3185,9 +3185,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openmrs/esm-framework@npm:5.6.1-pre.2033, @openmrs/esm-framework@npm:next":
-  version: 5.6.1-pre.2033
-  resolution: "@openmrs/esm-framework@npm:5.6.1-pre.2033"
+"@openmrs/esm-framework@npm:5.6.1-pre.2043, @openmrs/esm-framework@npm:next":
+  version: 5.6.1-pre.2043
+  resolution: "@openmrs/esm-framework@npm:5.6.1-pre.2043"
   dependencies:
     "@openmrs/esm-api": "npm:5.6.1-pre.2051"
     "@openmrs/esm-config": "npm:5.6.1-pre.2051"
@@ -14541,8 +14541,8 @@ __metadata:
   linkType: hard
 
 "openmrs@npm:next":
-  version: 5.6.1-pre.2033
-  resolution: "openmrs@npm:5.6.1-pre.2033"
+  version: 5.6.1-pre.2043
+  resolution: "openmrs@npm:5.6.1-pre.2043"
   dependencies:
     "@openmrs/esm-app-shell": "npm:5.6.1-pre.2051"
     "@openmrs/webpack-config": "npm:5.6.1-pre.2051"

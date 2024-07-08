@@ -101,9 +101,13 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   id={question.id}
                   onChange={onDateChange}
                   labelText={
-                    question.isRequired ? (
-                      <RequiredFieldLabel label={t(question.label)} />
-                    ) : <><TooltipFieldLabel label={t(question.label)} field={question} /></>
+                    <span className={styles.datePickerLabel}>
+                      {question.isRequired ? (
+                        <RequiredFieldLabel label={t(question.label)} />
+                      ) : (
+                        <span>{t(question.label)}</span>
+                      )}
+                    </span>
                   }
                   isDisabled={question.isDisabled}
                   isReadOnly={isTrue(question.readonly)}
