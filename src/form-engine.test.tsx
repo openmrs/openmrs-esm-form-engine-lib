@@ -61,7 +61,7 @@ jest.mock('@openmrs/esm-framework', () => {
     registerExtension: jest.fn(),
     useSession: jest.fn().mockImplementation(() => mockSessionDataResponse.data),
     openmrsFetch: jest.fn().mockImplementation((args) => mockOpenmrsFetch(args)),
-    OpenmrsDatePicker: jest.fn().mockImplementation(({ id, labelText, value, onChange }) => {
+    OpenmrsDatePicker: jest.fn().mockImplementation(({ id, labelText, value, onChange, isInvalid, invalidText }) => {
       return (
         <>
           <label htmlFor={id}>{labelText}</label>
@@ -70,6 +70,7 @@ jest.mock('@openmrs/esm-framework', () => {
             value={value ? dayjs(value).format('DD/MM/YYYY') : undefined}
             onChange={(evt) => onChange(dayjs(evt.target.value).toDate())}
           />
+          {isInvalid && invalidText && <span>{invalidText}</span>}
         </>
       );
     }),
