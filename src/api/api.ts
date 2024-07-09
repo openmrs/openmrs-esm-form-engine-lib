@@ -4,7 +4,9 @@ import { type OpenmrsForm, type PatientIdentifier, type PatientProgramPayload } 
 import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
-  const url = encounterUuid ? `${restBaseUrl}/encounter/${encounterUuid}?v=${encounterRepresentation}` : `${restBaseUrl}/encounter?v=${encounterRepresentation}`;
+  const url = encounterUuid
+    ? `${restBaseUrl}/encounter/${encounterUuid}?v=${encounterRepresentation}`
+    : `${restBaseUrl}/encounter?v=${encounterRepresentation}`;
 
   return openmrsFetch(url, {
     headers: {
@@ -103,8 +105,9 @@ export async function fetchOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm 
   if (isUUID) {
     return openmrsFormResponse;
   }
+
   return openmrsFormResponse.results?.length
-    ? openmrsFormResponse.results[0]
+    ? openmrsFormResponse.results.find((form) => form.retired === false)
     : new Error(`Form with ${nameOrUUID} was not found`);
 }
 
