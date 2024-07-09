@@ -14,7 +14,7 @@ import RequiredFieldLabel from '../../required-field-label/required-field-label.
 import styles from './date.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
-import { type CalendarDate } from '@internationalized/date';
+import { type CalendarDate, getLocalTimeZone } from '@internationalized/date';
 
 const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -31,8 +31,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
   const onDateChange = (date: CalendarDate) => {
-    const refinedDate = new Date(date.toString());
-    refinedDate.setHours(0, 0, 0, 0);
+    const refinedDate = date.toDate(getLocalTimeZone());
     setTimeIfPresent(refinedDate, time);
     setFieldValue(question.id, refinedDate);
     onChange(question.id, refinedDate, setErrors, setWarnings);
@@ -48,7 +47,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
 
   useEffect(() => {
     if (!isEmpty(previousValue)) {
-      const refinedDate = previousValue instanceof Date ? new Date(previousValue.setHours(0, 0, 0, 0)) : previousValue;
+      const refinedDate = new Date(previousValue.toString());
       onTimeChange(false, true);
       setFieldValue(question.id, refinedDate);
       onChange(question.id, refinedDate, setErrors, setWarnings);
