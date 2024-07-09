@@ -131,6 +131,24 @@ export async function fetchClobData(form: OpenmrsForm): Promise<any | null> {
 
   return clobDataResponse;
 }
+export async function getPersonAttributeTypeFormat(personAttributeTypeUuid: string) {
+  try {
+    const response = await openmrsFetch(
+      `${restBaseUrl}/personattributetype/${personAttributeTypeUuid}?v=custom:(format)`,
+    );
+    if (!response) {
+      throw new Error('openmrsFetch did not return a response');
+    }
+    const { data } = response;
+    if (!data || !data.results) {
+      throw new Error('Response data is invalid');
+    }
+    return data.results;
+  } catch (error) {
+    console.error('Error fetching person attribute type format:', error);
+    return null;
+  }
+}
 
 // Program Enrollment
 export function getPatientEnrolledPrograms(patientUuid: string) {
@@ -175,16 +193,6 @@ export function savePatientIdentifier(patientIdentifier: PatientIdentifier, pati
     method: 'POST',
     body: JSON.stringify(patientIdentifier),
   });
-}
-
-export async function getPersonAttributeTypeFormat(personAttributeTypeUuid: string) {
-  const { data } = await openmrsFetch(
-    `${restBaseUrl}/personattributetype/${personAttributeTypeUuid}?v=custom:(format)`,
-  );
-  if (data) {
-    return data;
-  }
-  return null;
 }
 
 export function savePersonAttribute(personAttribute: PersonAttribute, personUuid: string) {

@@ -1,42 +1,27 @@
+import useSWRImmutable from 'swr/immutable';
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
-import { useEffect, useState } from 'react';
-import { type FormSchema, type PersonAttribute } from '../types';
+import { type FormSchema } from '../types';
+
+const fetcher = (url: string) => openmrsFetch(url).then((response) => response.data);
 
 export const usePersonAttributes = (patientUuid: string, formJson: FormSchema) => {
-  const [personAttributes, setPersonAttributes] = useState<PersonAttribute | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { data, error } = useSWRImmutable(
+    formJson ? `${restBaseUrl}/patient/${patientUuid}?v=custom:(attributes)` : null,
+    fetcher,
+  );
 
-  useEffect(() => {
-    if (formJson) {
-      openmrsFetch(`${restBaseUrl}/patient/${patientUuid}?v=custom:(attributes)`)
-        .then((response) => {
-          const attributes = response?.data?.attributes || [];
-          if (attributes.length > 0) {
-            const firstAttribute = attributes[0];
-            const transformedAttribute = {
-              uuid: firstAttribute.uuid,
-              value: firstAttribute.value,
-              attributeType: firstAttribute.attributeType?.display,
-            };
-            setPersonAttributes(transformedAttribute);
-          } else {
-            setPersonAttributes(null);
-          }
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          setError(error);
-          setIsLoading(false);
-        });
-    } else {
-      setIsLoading(false);
-    }
-  }, [formJson]);
+  const personAttributes =
+    data?.attributes?.length > 0
+      ? {
+          uuid: data.attributes[0]?.uuid,
+          value: data.attributes[0]?.value,
+          attributeType: data.attributes[0]?.attributeType?.display,
+        }
+      : null;
 
   return {
     personAttributes,
     error,
-    isLoading,
+    isLoading: !error && !data,
   };
 };

@@ -143,20 +143,16 @@ async function handlePersonAttributeType(question: FormField) {
   const inputFormat = await getPersonAttributeTypeFormat(question.questionOptions?.attributeType);
   const obj = inputFormat;
   if (obj?.format === 'org.openmrs.Location') {
-    if (!question.questionOptions.datasource?.config) {
-      question.questionOptions.datasource = {
-        name: 'person_attribute_location_datasource',
-      };
-    }
+    question.questionOptions.datasource = {
+      name: 'person_attribute_location_datasource',
+    };
   } else {
-    if (!question.questionOptions.datasource?.config) {
-      question.questionOptions.datasource = {
-        name: 'select_concept_answers_datasource',
-        config: {
-          concept: question.questionOptions?.concept,
-        },
-      };
-    }
+    question.questionOptions.datasource = {
+      name: 'select_concept_answers_datasource',
+      config: {
+        concept: question.questionOptions?.concept,
+      },
+    };
   }
 }
 
