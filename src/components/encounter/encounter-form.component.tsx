@@ -39,6 +39,7 @@ import { useTranslation } from 'react-i18next';
 import { EncounterFormManager } from './encounter-form-manager';
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
 import { usePatientPrograms } from '../../hooks/usePatientPrograms';
+import { usePersonAttributes } from '../../hooks/usePersonAttributes';
 
 interface EncounterFormProps {
   formJson: FormSchema;
@@ -103,6 +104,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
   const [invalidFields, setInvalidFields] = useState([]);
   const [initValues, setInitValues] = useState({});
   const { isLoading: isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(patient?.id, formJson);
+  const { isLoading: isLoadingPersonAttributes, personAttributes } = usePersonAttributes(patient?.id, formJson);
   const getFormField = useCallback((id: string) => fields.find((field) => field.id === id), [fields]);
 
   const layoutType = useLayoutType();
@@ -120,6 +122,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       visit: visit,
       initValues: initValues,
       patientPrograms,
+      personAttributes,
       setEncounterDate,
       setEncounterProvider,
       setEncounterLocation,
@@ -129,7 +132,12 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     return {
       encounterContext: contextObject,
       isLoadingContextDependencies:
-        isLoadingEncounter || isLoadingPreviousEncounter || isLoadingPatientPrograms || isLoadingEncounterRole,
+        isLoadingEncounter ||
+        isLoadingPreviousEncounter ||
+        isLoadingPatientPrograms ||
+        isLoadingPersonAttributes ||
+        isLoadingEncounterRole ||
+        isLoadingPersonAttributes,
     };
   }, [
     encounter,
@@ -139,6 +147,7 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
     sessionMode,
     initValues,
     patientPrograms,
+    personAttributes,
     isLoadingPatientPrograms,
     isLoadingPreviousEncounter,
     isLoadingEncounter,
@@ -529,7 +538,6 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
         isLowContrast: false,
       });
     }
-
 
     try {
       const programs = EncounterFormManager.preparePatientPrograms(fields, patient, patientPrograms);

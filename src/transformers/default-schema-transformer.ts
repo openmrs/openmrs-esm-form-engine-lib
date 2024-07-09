@@ -148,17 +148,16 @@ async function handlePersonAttributeType(question: FormField) {
         name: 'person_attribute_location_datasource',
       };
     }
+  } else {
+    if (!question.questionOptions.datasource?.config) {
+      question.questionOptions.datasource = {
+        name: 'select_concept_answers_datasource',
+        config: {
+          concept: question.questionOptions?.concept,
+        },
+      };
+    }
   }
-  // else {
-  //   if (!question.questionOptions.datasource?.config) {
-  //     question.questionOptions.datasource = {
-  //       name: 'select_concept_answers_datasource',
-  //       config: {
-  //         concept: question.questionOptions?.concept,
-  //       },
-  //     };
-  //   }
-  // }
 }
 
 function transformByRendering(question: FormField) {

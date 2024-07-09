@@ -260,7 +260,7 @@ export interface FormQuestionOptions {
 
 export interface PersonAttribute {
   uuid?: string;
-  value: string;
+  value: string | { uuid: string; display: string };
   attributeType?: string;
 }
 

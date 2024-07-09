@@ -7,6 +7,7 @@ import {
   type PatientIdentifier,
   type SessionMode,
   type SubmissionHandler,
+  type PersonAttribute,
 } from './types';
 
 type FormContextProps = {
@@ -37,6 +38,7 @@ export interface EncounterContext {
   setEncounterRole(value: string): void;
   initValues?: Record<string, any>;
   patientIdentifier?: PatientIdentifier;
+  personAttributes?: PersonAttribute;
   patientPrograms?: Array<PatientProgram>;
   getFormField?: (id: string) => FormField;
 }
