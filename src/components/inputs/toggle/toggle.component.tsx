@@ -10,7 +10,7 @@ import { isEmpty } from '../../../validators/form-validator';
 import { booleanConceptToBoolean } from '../../../utils/common-expression-helpers';
 import styles from './toggle.scss';
 import { useTranslation } from 'react-i18next';
-import Tooltip from '../../inputs/tooltip/tooltip.component';
+import TooltipFieldLabel from '../../tooltip-field-label/tooltip-field-label.component';
 
 const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -56,25 +56,19 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
     !question.isHidden && (
       <div className={styles.boldedLabel}>
         <ToggleInput
-          labelText={
-            <>
-              {t(question.label)}
-              {question.questionInfo ? (
-                <span className={styles.tooltipContainer}>
-                  <Tooltip field={question} />
-                </span>
-              ) : null}
-            </>
-          }
-          className={styles.boldedLabel}
-          id={question.id}
-          labelA={question.questionOptions.toggleOptions.labelFalse}
-          labelB={question.questionOptions.toggleOptions.labelTrue}
-          onToggle={handleChange}
-          toggled={!!field.value}
-          disabled={question.isDisabled}
-          readOnly={question.readonly}
-        />
+  labelText={
+    <TooltipFieldLabel label={t(question.label)} field={question} />
+  }
+  className={styles.boldedLabel}
+  id={question.id}
+  labelA={question.questionOptions.toggleOptions.labelFalse}
+  labelB={question.questionOptions.toggleOptions.labelTrue}
+  onToggle={handleChange}
+  toggled={!!field.value}
+  disabled={question.isDisabled}
+  readOnly={question.readonly}
+/>
+
       </div>
     )
   );
