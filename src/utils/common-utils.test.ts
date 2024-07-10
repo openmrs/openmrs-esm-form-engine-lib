@@ -1,6 +1,7 @@
 import { flattenObsList, hasRendering, clearSubmission, gracefullySetSubmission, hasSubmission } from './common-utils';
 import { isEmpty } from '../validators/form-validator';
 import { type FormField, type OpenmrsObs } from '../types';
+import { obsList } from '__mocks__/forms/rfe-forms/obs-list-data';
 
 jest.mock('@openmrs/esm-framework', () => ({
   formatDate: jest.fn(),
@@ -14,44 +15,6 @@ jest.mock('../validators/form-validator', () => ({
 describe('utils functions', () => {
   describe('flattenObsList', () => {
     it('should flatten a nested obs list', () => {
-      const obsList: OpenmrsObs[] = [
-        {
-          concept: '7e43b05b-b6d8-4eb5-8f37-0b14f5347368',
-          obsDatetime: '2023-07-01',
-          obsGroup: null,
-          groupMembers: [
-            {
-              concept: '4c43b05b-b6d8-4eb5-8f37-0b14f5347548',
-              obsDatetime: '2023-07-02',
-              obsGroup: null,
-              groupMembers: [],
-              comment: '',
-              location: null,
-              order: null,
-              encounter: null,
-              voided: false,
-              value: null,
-              formFieldPath: '',
-              formFieldNamespace: '',
-              status: '',
-              interpretation: '',
-              uuid: '',
-            },
-          ],
-          comment: '',
-          location: null,
-          order: null,
-          encounter: null,
-          voided: false,
-          value: null,
-          formFieldPath: '',
-          formFieldNamespace: '',
-          status: '',
-          interpretation: '',
-          uuid: '',
-        },
-      ];
-
       const result = flattenObsList(obsList);
       expect(result).toHaveLength(2);
     });
