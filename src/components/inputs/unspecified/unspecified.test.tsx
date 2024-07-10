@@ -1,5 +1,6 @@
 import React from 'react';
 import dayjs from 'dayjs';
+import { parseDate } from '@internationalized/date';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Formik } from 'formik';
 import { type FormField, type EncounterContext, FormContext } from '../../..';
@@ -19,7 +20,7 @@ jest.mock('@openmrs/esm-framework', () => {
           <input
             id={id}
             value={value ? dayjs(value).format('DD/MM/YYYY') : undefined}
-            onChange={(evt) => onChange(dayjs(evt.target.value).toDate())}
+            onChange={(evt) => onChange(parseDate(dayjs(evt.target.value).format('YYYY-MM-DD')))}
           />
         </>
       );
