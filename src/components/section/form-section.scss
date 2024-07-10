@@ -2,7 +2,7 @@
 
 .parentResizer {
   margin-top: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 
 .unspecifiedContainer {
@@ -35,12 +35,15 @@
   align-items: center !important;
 
   > .questionInfoControl {
-    padding-top: 1.5rem;
+  
+    position: relative;
+    align-items: flex-start;
   }
 }
 
 .questionInfoControl {
   margin: 0 0.25rem;
+  align-items: start;
 }
 
 .controlWidthConstrained {

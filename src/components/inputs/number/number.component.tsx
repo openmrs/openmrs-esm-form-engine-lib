@@ -67,6 +67,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         id={question.id}
         invalid={errors.length > 0}
         invalidText={errors[0]?.message}
+        
         label={
           question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
         }

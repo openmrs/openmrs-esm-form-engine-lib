@@ -15,6 +15,7 @@ import RequiredFieldLabel from '../../required-field-label/required-field-label.
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import useDatasourceDependentValue from '../../../hooks/useDatasourceDependentValue';
 import styles from './ui-select-extended.scss';
+import Tooltip from '../tooltip/tooltip.component';
 
 const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
   const { t } = useTranslation();
@@ -155,7 +156,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
         <Layer>
           <ComboBox
             id={question.id}
-            titleText={question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : t(question.label)}
+            titleText={question.isRequired ? <RequiredFieldLabel label={t(question.label)} />  : t(question.label)}
             items={items}
             itemToString={(item) => item?.display}
             selectedItem={items.find((item) => item.uuid == field.value)}

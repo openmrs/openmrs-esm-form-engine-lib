@@ -11,6 +11,7 @@ import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './radio.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import Tooltip from '../tooltip/tooltip.component';
 
 const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -52,7 +53,9 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
     !question.isHidden && (
       <FormGroup
         legendText={
-          question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+          question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <><span>{t(question.label)}</span><>
+              {question.questionInfo ? <Tooltip field={question} /> : null}
+            </></>
         }
         className={styles.boldedLegend}
         disabled={question.isDisabled}

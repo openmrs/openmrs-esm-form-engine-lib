@@ -11,6 +11,7 @@ import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './text.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import Tooltip from '../tooltip/tooltip.component';
 
 const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -64,8 +65,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                 question.isRequired ? (
                   <RequiredFieldLabel label={t(question.label)} />
                 ) : (
-                  <span>{t(question.label)}</span>
-                )
+                  <span>{t(question.label)}</span>)
               }
               name={question.id}
               value={field.value || ''}
