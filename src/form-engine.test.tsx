@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
 import { act, cleanup, render, screen, within, fireEvent, waitFor } from '@testing-library/react';
 import { restBaseUrl } from '@openmrs/esm-framework';
+import { parseDate } from '@internationalized/date';
 import { when } from 'jest-when';
 import * as api from '../src/api/api';
 import { assertFormHasAllFields, findMultiSelectInput, findSelectInput } from './utils/test-utils';
@@ -68,7 +69,7 @@ jest.mock('@openmrs/esm-framework', () => {
           <input
             id={id}
             value={value ? dayjs(value).format('DD/MM/YYYY') : undefined}
-            onChange={(evt) => onChange(dayjs(evt.target.value).toDate())}
+            onChange={(evt) => onChange(parseDate(dayjs(evt.target.value).format('YYYY-MM-DD')))}
           />
           {isInvalid && invalidText && <span>{invalidText}</span>}
         </>
