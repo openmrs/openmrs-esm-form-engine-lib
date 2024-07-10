@@ -15,7 +15,6 @@ import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { isTrue } from '../../utils/boolean-utils';
 import { FormContext } from '../../form-context';
 import PreviousValueReview from '../previous-value-review/previous-value-review.component';
-import Tooltip from '../inputs/tooltip/tooltip.component';
 import UnspecifiedField from '../inputs/unspecified/unspecified.component';
 import styles from './form-section.scss';
 import { evaluateExpression } from '../../utils/expression-runner';
@@ -106,11 +105,6 @@ const FormSection = ({ fields, onFieldChange }) => {
                       })}>
                       {qnFragment}
                     </div>
-                    {fieldDescriptor.questionInfo && (
-                      <div className={styles.questionInfoControl}>
-                        <Tooltip field={fieldDescriptor} />
-                      </div>
-                    )}
                   </div>
 
                   <div className={styles.unspecifiedContainer}>

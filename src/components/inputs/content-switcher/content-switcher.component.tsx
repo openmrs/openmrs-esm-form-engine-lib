@@ -9,8 +9,10 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
-import styles from './content-switcher.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import QuestionLabelContainer from '../../question-label/question-label.component';
+
+import styles from './content-switcher.scss';
 
 const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -58,7 +60,10 @@ const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler
   ) : (
     !question.isHidden && (
       <FormGroup
-        legendText={t(question.label)}
+        legendText={
+          <div className={styles.boldedLegend}> <QuestionLabelContainer question={question}/></div>
+          
+        }
         className={classNames({
           [styles.errorLegend]: errors.length > 0,
           [styles.boldedLegend]: errors.length === 0,

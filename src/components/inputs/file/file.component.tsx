@@ -4,12 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { isTrue } from '../../../utils/boolean-utils';
 import Camera from '../camera/camera.component';
 import { Close, DocumentPdf } from '@carbon/react/icons';
-import styles from './file.scss';
 import { createAttachment } from '../../../utils/common-utils';
 import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
+import QuestionLabelContainer from '../../question-label/question-label.component';
+import styles from './file.scss';
+
 
 interface FileProps extends FormFieldProps {}
 type AllowedModes = 'uploader' | 'camera' | 'edit' | '';
@@ -107,7 +109,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
     </div>
   ) : (
     <div>
-      <div className={styles.label}>{t(question.label)}</div>
+      <div className={styles.label}> <QuestionLabelContainer question={question}/></div>
       <div className={styles.uploadSelector}>
         <div className={styles.selectorButton}>
           <Button onClick={() => setUploadMode('uploader')}>Upload file</Button>

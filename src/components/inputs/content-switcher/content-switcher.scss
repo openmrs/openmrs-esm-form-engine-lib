@@ -17,6 +17,10 @@
 .errorLegend legend, .errorLabel label {
   color: colors.$red-60 !important;
 }
+.boldedLegend{
+  font-weight: 600;
+  color: black;
+}
 
 .selectedOption {
   border-radius: 4px;

@@ -10,6 +10,7 @@ import { isEmpty } from '../../../validators/form-validator';
 import { booleanConceptToBoolean } from '../../../utils/common-expression-helpers';
 import styles from './toggle.scss';
 import { useTranslation } from 'react-i18next';
+import QuestionLabelContainer from '../../question-label/question-label.component';
 
 const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -23,9 +24,7 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
   };
 
   useEffect(() => {
-    // The toogle input doesn't support blank values
-    // by default, the value should be false
-    if (!question.meta?.previousValue && encounterContext.sessionMode == 'enter') {
+    if (!question.meta?.previousValue && encounterContext.sessionMode === 'enter') {
       handler?.handleFieldSubmission(question, field.value ?? false, encounterContext);
     }
   }, []);
@@ -46,7 +45,7 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
+  return encounterContext.sessionMode === 'view' || encounterContext.sessionMode === 'embedded-view' ? (
     <FieldValueView
       label={t(question.label)}
       value={!isEmpty(field.value) ? handler?.getDisplayValue(question, field.value) : field.value}
@@ -57,16 +56,17 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
     !question.isHidden && (
       <div className={styles.boldedLabel}>
         <ToggleInput
-          labelText={t(question.label)}
-          className={styles.boldedLabel}
-          id={question.id}
-          labelA={question.questionOptions.toggleOptions.labelFalse}
-          labelB={question.questionOptions.toggleOptions.labelTrue}
-          onToggle={handleChange}
-          toggled={!!field.value}
-          disabled={question.isDisabled}
-          readOnly={question.readonly}
-        />
+  labelText={<QuestionLabelContainer question={question} />}
+  className={styles.boldedLabel}
+  id={question.id}
+  labelA={question.questionOptions.toggleOptions.labelFalse}
+  labelB={question.questionOptions.toggleOptions.labelTrue}
+  onToggle={handleChange}
+  toggled={!!field.value}
+  disabled={question.isDisabled}
+  readOnly={question.readonly}
+/>
+
       </div>
     )
   );

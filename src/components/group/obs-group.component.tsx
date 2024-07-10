@@ -4,7 +4,6 @@ import { useField } from 'formik';
 import { FormContext } from '../../form-context';
 import { type FormFieldProps } from '../../types';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
-import Tooltip from '../inputs/tooltip/tooltip.component';
 import UnspecifiedField from '../inputs/unspecified/unspecified.component';
 import styles from '../section/form-section.scss';
 
@@ -58,11 +57,6 @@ export const ObsGroup: React.FC<FormFieldProps> = ({ question, onChange }) => {
                     useField={useField}
                   />
                 </div>
-                {field.questionInfo && (
-                  <div className={styles.questionInfoControl}>
-                    <Tooltip field={field} />
-                  </div>
-                )}
               </div>
               <div>
                 {isUnspecifiedSupported(field) && (

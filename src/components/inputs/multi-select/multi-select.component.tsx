@@ -9,9 +9,10 @@ import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
-import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
-import styles from './multi-select.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import QuestionLabelContainer from '../../question-label/question-label.component';
+
+import styles from './multi-select.scss';
 
 const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -90,10 +91,6 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  const label = useMemo(() => {
-    return question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>;
-  }, [question.isRequired, question.label, t]);
-
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <div className={styles.formField}>
       <FieldValueView
@@ -109,7 +106,9 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         <div className={styles.boldedLabel}>
           <Layer>
             {question.inlineMultiCheckbox ? (
-              <CheckboxGroup legendText={label} name={question.id}>
+              <CheckboxGroup legendText={<>
+                <QuestionLabelContainer question={question}/></>
+                  } name={question.id}>
                 {question.questionOptions.answers?.map((value, index) => {
                   return (
                     <Checkbox
@@ -136,7 +135,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
                 items={selectOptions}
                 initialSelectedItems={initiallySelectedQuestionItems}
                 label={''}
-                titleText={label}
+                titleText={<QuestionLabelContainer question={question}/>}
                 key={counter}
                 itemToString={(item) => (item ? item.label : ' ')}
                 disabled={question.isDisabled}

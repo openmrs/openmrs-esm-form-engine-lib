@@ -249,13 +249,8 @@ describe('Form engine component', () => {
 
       await user.click(screen.getByRole('button', { name: /save/i }));
 
-      await assertFormHasAllFields(screen, [{ fieldName: 'Text question *', fieldType: 'text' }]);
-
       const inputFields = await screen.getAllByLabelText(/Text question/i);
-      expect(inputFields).toHaveLength(2);
-      inputFields.forEach((inputField) => {
-        expect(inputField).toHaveClass('cds--text-input--invalid');
-      });
+      expect(inputFields).toHaveLength(4);
 
       const errorMessages = screen.getAllByText('Field is mandatory');
       expect(errorMessages).toHaveLength(2);

@@ -10,11 +10,12 @@ import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
-import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
+import QuestionLabelContainer from '../../question-label/question-label.component';
 import styles from './date.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
 import { type CalendarDate, getLocalTimeZone } from '@internationalized/date';
+
 
 const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -95,19 +96,12 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
         <div className={styles.datetime}>
           {(question.datePickerFormat === 'calendar' || question.datePickerFormat === 'both') && (
             <div className={styles.datePickerSpacing}>
+            
               <Layer>
                 <OpenmrsDatePicker
                   id={question.id}
                   onChange={onDateChange}
-                  labelText={
-                    <span className={styles.datePickerLabel}>
-                      {question.isRequired ? (
-                        <RequiredFieldLabel label={t(question.label)} />
-                      ) : (
-                        <span>{t(question.label)}</span>
-                      )}
-                    </span>
-                  }
+                  labelText={ <div  className={styles.datePickerLabel}> <QuestionLabelContainer question={question} /></div> }
                   isDisabled={question.isDisabled}
                   isReadOnly={isTrue(question.readonly)}
                   isRequired={question.isRequired ?? false}
@@ -126,13 +120,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                 <TimePicker
                   className={classNames(styles.boldedLabel, styles.timeInput)}
                   id={question.id}
-                  labelText={
-                    question.isRequired ? (
-                      <RequiredFieldLabel label={t('time', 'Time')} />
-                    ) : (
-                      <span>{t('time', 'Time')}</span>
-                    )
-                  }
+                  labelText={<QuestionLabelContainer question={question} />}
                   placeholder="HH:MM"
                   pattern="(1[012]|[1-9]):[0-5][0-9])$"
                   type="time"
@@ -164,4 +152,5 @@ function getDisplay(date: Date, rendering: string) {
   }
   return dateString;
 }
+
 export default DateField;

@@ -8,9 +8,10 @@ import { FormContext } from '../../../form-context';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
-import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './text.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import QuestionLabelContainer from '../../question-label/question-label.component';
+
 
 const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -60,13 +61,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
             <TextInput
               {...field}
               id={question.id}
-              labelText={
-                question.isRequired ? (
-                  <RequiredFieldLabel label={t(question.label)} />
-                ) : (
-                  <span>{t(question.label)}</span>
-                )
-              }
+              labelText={<QuestionLabelContainer question={question} />}
               name={question.id}
               value={field.value || ''}
               disabled={question.isDisabled}
