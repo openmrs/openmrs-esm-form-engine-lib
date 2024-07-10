@@ -259,18 +259,28 @@ export class CommonExpressionHelpers {
     return values;
   };
 
+  /**
+   * Calculates the gravida (total number of pregnancies) based on term pregnancies and abortions/miscarriages.
+   *
+   * @param {number|string} parityTerm - The number of term pregnancies.
+   * @param {number|string} parityAbortion - The number of abortions (including miscarriages).
+   * @returns {number} The total number of pregnancies (gravida).
+   * @throws {Error} If either input is not a valid number.
+   *
+   * @example
+   * const gravida = calcGravida(2, 1);
+   * console.log(gravida); // Output: 3
+   */
+
   calcGravida = (parityTerm, parityAbortion) => {
-    let gravida = 0;
-    if (parityTerm === parseInt(parityTerm)) {
-      gravida = parityTerm + 1;
+    const term = parseInt(parityTerm, 10);
+    const abortion = parseInt(parityAbortion, 10);
+
+    if (!Number.isInteger(term) || !Number.isInteger(abortion)) {
+      throw new Error('Both inputs must be valid numbers.');
     }
-    if (parityAbortion === parseInt(parityAbortion)) {
-      gravida = parityAbortion + 1;
-    }
-    if (parityAbortion === parseInt(parityAbortion) && parityTerm === parseInt(parityTerm)) {
-      parityAbortion + parityTerm + 1;
-    }
-    return gravida;
+
+    return term + abortion;
   };
 
   calcWeightForHeightZscore = (height, weight) => {
