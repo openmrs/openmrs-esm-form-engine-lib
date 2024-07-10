@@ -11,6 +11,7 @@ import { useFieldValidationResults } from '../../../hooks/useFieldValidationResu
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import styles from './dropdown.scss';
+import Tooltip from '../tooltip/tooltip.component';
 
 const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -66,7 +67,11 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
           <DropdownInput
             id={question.id}
             titleText={
-              question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+              question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <><span>{t(question.label)}</span><>
+                
+                {question.questionInfo ? <Tooltip field={question} /> : null}
+              </></>
+            
             }
             label={t('chooseAnOption', 'Choose an option')}
             items={question.questionOptions.answers

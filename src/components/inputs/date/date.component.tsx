@@ -11,6 +11,7 @@ import { isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
+import Tooltip from '../../inputs/tooltip/tooltip.component'; // Import Tooltip
 import styles from './date.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
@@ -102,7 +103,10 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                     question.isRequired ? (
                       <RequiredFieldLabel label={t(question.label)} />
                     ) : (
-                      <span>{t(question.label)}</span>
+                      <span>
+                        {t(question.label)}
+                        {question.questionInfo ? <Tooltip field={question} /> : null}
+                      </span>
                     )
                   }
                   isDisabled={question.isDisabled}
@@ -128,7 +132,10 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                     question.isRequired ? (
                       <RequiredFieldLabel label={t('time', 'Time')} />
                     ) : (
-                      <span>{t('time', 'Time')}</span>
+                      <span>
+                        {t('time', 'Time')}
+                        {question.questionInfo ? <Tooltip field={question} /> : null}
+                      </span>
                     )
                   }
                   placeholder="HH:MM"
@@ -162,4 +169,5 @@ function getDisplay(date: Date, rendering: string) {
   }
   return dateString;
 }
+
 export default DateField;
