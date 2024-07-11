@@ -10,6 +10,8 @@ import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
+import TooltipFieldLabel from '../../tooltip-field-label/tooltip-field-label.component';
+
 
 interface FileProps extends FormFieldProps {}
 type AllowedModes = 'uploader' | 'camera' | 'edit' | '';
@@ -107,7 +109,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
     </div>
   ) : (
     <div>
-      <div className={styles.label}>{t(question.label)}</div>
+      <div className={styles.label}> <TooltipFieldLabel label={t(question.label)} field={question} /></div>
       <div className={styles.uploadSelector}>
         <div className={styles.selectorButton}>
           <Button onClick={() => setUploadMode('uploader')}>Upload file</Button>

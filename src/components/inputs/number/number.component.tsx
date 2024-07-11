@@ -12,6 +12,7 @@ import RequiredFieldLabel from '../../required-field-label/required-field-label.
 import styles from './number.scss';
 import { useTranslation } from 'react-i18next';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import TooltipFieldLabel from '../../tooltip-field-label/tooltip-field-label.component';
 
 const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -67,9 +68,9 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         id={question.id}
         invalid={errors.length > 0}
         invalidText={errors[0]?.message}
-        
+
         label={
-          question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
+          question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> :<><TooltipFieldLabel label={t(question.label)} field={question} /></>
         }
         max={Number(question.questionOptions.max) || undefined}
         min={Number(question.questionOptions.min) || undefined}
