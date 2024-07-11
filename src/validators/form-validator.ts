@@ -9,17 +9,16 @@ export const FieldValidator: FormFieldValidator = {
     if (field.meta?.submission?.unspecified) {
       return [];
     }
-    if (isEmpty(value) && field.isRequired) {
+    if (field.isRequired && isEmpty(value)) {
       if (typeof field.required === 'object' && field.required.type === 'conditionalRequired' && field.isRequired) {
         return addError(fieldRequiredErrCode, field.required.message ?? 'Field is mandatory');
-      } else if (field.isRequired) {
+      } else {
         return addError(fieldRequiredErrCode, 'Field is mandatory');
       }
     }
     if (field.questionOptions.rendering === 'text') {
       const minLength = field.questionOptions.minLength;
       const maxLength = field.questionOptions.maxLength;
-
       return textInputLengthValidator(minLength, maxLength, value.length) ?? [];
     }
     if (field.questionOptions.rendering === 'number') {
