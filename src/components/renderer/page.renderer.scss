@@ -1,0 +1,31 @@
+@use '@carbon/colors';
+
+.pageContent:last-child > hr {
+  display: none;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: row;
+  margin: 0.5rem 1rem;
+}
+
+.pageTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: colors.$gray-100;
+  width: 100%;
+}
+
+.sectionContainer > div {
+  background-color: colors.$gray-10;
+}
+
+.formSection {
+  flex: 1 1 65%;
+}
+
+.formSection > div > fieldset {
+  margin-bottom: 0 !important;
+}

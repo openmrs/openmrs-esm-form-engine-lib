@@ -22,6 +22,18 @@ export function inferInitialValueFromDefaultFieldValue(
   }
 }
 
+export function shouldUseInlineLayout(
+  inlineRendering: 'single-line' | 'multiline' | 'automatic',
+  layoutType: LayoutType,
+  workspaceLayout: 'minimized' | 'maximized',
+  sessionMode: SessionMode,
+): boolean {
+  return isInlineView(inlineRendering, layoutType, workspaceLayout, sessionMode);
+}
+
+/**
+ * @deprecated
+ */
 export function isInlineView(
   renderingType: 'single-line' | 'multiline' | 'automatic',
   layoutType: LayoutType,

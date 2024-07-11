@@ -1,10 +1,12 @@
 import { cloneDeep } from 'lodash-es';
 import { type FormField, type OpenmrsEncounter, type SubmissionHandler } from '../../types';
-import { assignedOrderIds } from '../../submission-handlers/testOrderHandler';
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { isEmpty } from '../../validators/form-validator';
 import { clearSubmission } from '../../utils/common-utils';
-import { assignedObsIds } from '../../submission-handlers/obsHandler';
+import { assignedObsIds } from '../../adapters/obs-adapter';
+
+// TODO: placeholder for testOrderHandler
+const assignedOrderIds = [];
 
 export function cloneRepeatField(srcField: FormField, value: OpenmrsResource, idSuffix: number) {
   const originalGroupMembersIds: string[] = [];

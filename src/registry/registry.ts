@@ -15,14 +15,20 @@ import { inbuiltDataSources } from './inbuilt-components/inbuiltDataSources';
 import { getControlTemplate } from './inbuilt-components/control-templates';
 import { inbuiltPostSubmissionActions } from './inbuilt-components/InbuiltPostSubmissionActions';
 import { inbuiltFormTransformers } from './inbuilt-components/inbuiltTransformers';
+import { type FormFieldInputProps, type FormFieldValueAdapter } from '../types';
+import { inbuiltFieldValueAdapters } from './inbuilt-components/inbuiltFieldValueAdapters';
 
 /**
  * @internal
  */
 export interface RegistryItem<T> {
-  name: string;
+  // Do we need this?
+  name?: string;
   component: T;
   type?: string;
+  /**
+   * @deprecated
+   */
   alias?: string;
 }
 
@@ -31,18 +37,26 @@ export interface ComponentRegistration<T> {
   load: () => Promise<{ default: T }>;
 }
 
-export interface CustomControlRegistration extends ComponentRegistration<React.ComponentType<FormFieldProps>> {
+export interface CustomControlRegistration extends ComponentRegistration<React.ComponentType<FormFieldInputProps>> {
   type: string;
   alias?: string;
 }
 
+/**
+ * @deprecated
+ */
 export interface FieldSubmissionHandlerRegistration extends ComponentRegistration<SubmissionHandler> {
+  type: string;
+}
+
+export interface FieldValueAdapterRegistration extends ComponentRegistration<FormFieldValueAdapter> {
   type: string;
 }
 
 export interface FormsRegistryStoreState {
   controls: CustomControlRegistration[];
   fieldValidators: ComponentRegistration<FormFieldValidator>[];
+  fieldValueAdapters: FieldValueAdapterRegistration[];
   fieldSubmissionHandlers: FieldSubmissionHandlerRegistration[];
   postSubmissionActions: ComponentRegistration<PostSubmissionAction>[];
   dataSources: ComponentRegistration<DataSource<any>>[];
@@ -52,8 +66,10 @@ export interface FormsRegistryStoreState {
 
 interface FormRegistryCache {
   validators: Record<string, FormFieldValidator>;
-  controls: Record<string, React.ComponentType<FormFieldProps>>;
+  controls: Record<string, React.ComponentType<FormFieldInputProps>>;
+  // @deprecated
   fieldSubmissionHandlers: Record<string, SubmissionHandler>;
+  fieldValueAdapters: Record<string, FormFieldValueAdapter>;
   postSubmissionActions: Record<string, PostSubmissionAction>;
   dataSources: Record<string, DataSource<any>>;
   formSchemaTransformers: Record<string, FormSchemaTransformer>;
@@ -62,6 +78,7 @@ interface FormRegistryCache {
 const registryCache: FormRegistryCache = {
   validators: {},
   controls: {},
+  fieldValueAdapters: {},
   fieldSubmissionHandlers: {},
   postSubmissionActions: {},
   dataSources: {},
@@ -78,8 +95,15 @@ export function registerPostSubmissionAction(registration: ComponentRegistration
   getFormsStore().postSubmissionActions.push(registration);
 }
 
+/**
+ * @deprecated
+ */
 export function registerFieldSubmissionHandler(registration: FieldSubmissionHandlerRegistration) {
   getFormsStore().fieldSubmissionHandlers.push(registration);
+}
+
+export function registerFieldValueAdapter(registration: FieldValueAdapterRegistration) {
+  getFormsStore().fieldValueAdapters.push(registration);
 }
 
 export function registerFieldValidator(registration: ComponentRegistration<FormFieldValidator>) {
@@ -129,7 +153,24 @@ export async function getRegisteredControl(renderType: string) {
   return component;
 }
 
+export async function getRegisteredFieldValueAdapter(type: string): Promise<FormFieldValueAdapter> {
+  if (registryCache.fieldValueAdapters[type]) {
+    return registryCache.fieldValueAdapters[type];
+  }
+  let adapter = inbuiltFieldValueAdapters.find((adapter) => adapter.type === type)?.component;
+  // if undefined, try searching through the registered custom handlers
+  if (!adapter) {
+    const adapterImport = await getFormsStore()
+      .fieldValueAdapters.find((adapter) => adapter.type === type)
+      ?.load?.();
+    adapter = adapterImport?.default;
+  }
+  registryCache.fieldValueAdapters[type] = adapter;
+  return adapter;
+}
+
 /**
+ * @deprecated
  * A convinience function that returns the appropriate submission handler for a given type.
  */
 export async function getRegisteredFieldSubmissionHandler(type: string): Promise<SubmissionHandler> {
@@ -254,6 +295,7 @@ function getFormsStore(): FormsRegistryStoreState {
     postSubmissionActions: [],
     expressionHelpers: {},
     fieldValidators: [],
+    fieldValueAdapters: [],
     fieldSubmissionHandlers: [],
     dataSources: [],
     formSchemaTransformers: [],

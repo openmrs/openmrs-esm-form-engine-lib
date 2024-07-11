@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { type FormField, getRegisteredFieldSubmissionHandler, type SubmissionHandler } from '..';
 
 export function useFormFieldHandlers(fields: FormField[]) {
-  const [formFieldHandlers, setFormFieldHandlers] = useState<Record<string, SubmissionHandler>>({});
+  const [formFieldHandlers, setFormFieldHandlers] = useState<Record<string, SubmissionHandler>>();
 
   useEffect(() => {
     const supportedTypes = new Set<string>();

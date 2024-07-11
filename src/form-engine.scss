@@ -1,32 +1,27 @@
-.formEngine {
+// replaces .formEngine
+.form {
   height: 100%;
   overflow: hidden;
   flex-grow: 1;
 }
 
-.container {
+// replaces .container
+.formContainer {
   display: flex;
   height: 100%;
   overflow-y: hidden;
   flex-direction: column;
 }
 
-.body {
+// replaces .body
+.formContent {
   display: flex;
   flex-direction: row;
   height: 100%;
 }
 
-.loader {
-  @extend .body;
-  height: 1rem;
-}
-
-.formEngineContainer :global(.cds--label) {
-  font-size: 0.875rem;
-}
-
-.content {
+// replaces .content
+.formContentInner {
   height: var(--desktop-workspace-window-height);
   margin: 0;
   flex-basis: 65%;
@@ -39,7 +34,8 @@
   justify-content: space-between;
 }
 
-.contentBody {
+// replaces .contentBody
+.formBody {
   overflow-y: auto;
   width: inherit;
   position: relative;
@@ -59,8 +55,17 @@
   }
 }
 
+.markdownContainer {
+  padding: 1rem;
+}
+
+.loader {
+  @extend .formContent;
+  height: 1rem;
+}
+
 :global(.omrs-breakpoint-lt-desktop) {
-  .content {
+  .formContentInner {
     height: var(--tablet-workspace-window-height);
   }
 
@@ -69,10 +74,6 @@
     padding: 1.5rem 1rem;
     background-color: white;
   }
-}
-
-.markdownContainer {
-  padding: 1rem;
 }
 
 .linearActivity {
