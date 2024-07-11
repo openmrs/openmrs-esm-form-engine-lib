@@ -11,7 +11,7 @@ import { isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
 import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
-import Tooltip from '../../inputs/tooltip/tooltip.component'; // Import Tooltip
+import TooltipFieldLabel from '../../tooltip-field-label/tooltip-field-label.component';
 import styles from './date.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
@@ -103,12 +103,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   labelText={
                     question.isRequired ? (
                       <RequiredFieldLabel label={t(question.label)} />
-                    ) : (
-                      <span>
-                        {t(question.label)}
-                        {question.questionInfo ? <Tooltip field={question} /> : null}
-                      </span>
-                    )
+                    ) : <><TooltipFieldLabel label={t(question.label)} field={question} /></>
                   }
                   isDisabled={question.isDisabled}
                   isReadOnly={isTrue(question.readonly)}
