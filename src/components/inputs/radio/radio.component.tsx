@@ -60,8 +60,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
         <RadioButtonGroup
           name={question.id}
           valueSelected={field.value}
-          onChange={handleChange}
-          orientation={question.questionOptions?.orientation || "vertical"}>
+          orientation={question.questionOptions?.orientation || 'vertical'}>
           {question.questionOptions.answers
             .filter((answer) => !answer.isHidden)
             .map((answer, index) => {
@@ -71,6 +70,14 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
                   labelText={answer.label ?? ''}
                   value={answer.concept}
                   key={index}
+                  onClick={(e) => {
+                    if (field.value && e.target.checked) {
+                      e.target.checked = false;
+                      handleChange(null);
+                    } else {
+                      handleChange(answer.concept);
+                    }
+                  }}
                 />
               );
             })}
