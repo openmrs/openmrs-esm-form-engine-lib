@@ -1,10 +1,11 @@
 import dayjs from 'dayjs';
 import { type FormFieldValidator, type FormField } from '../types';
 import { codedTypes } from '../constants';
+import { isEmpty } from './form-validator';
 
 export const DefaultValueValidator: FormFieldValidator = {
   validate: (field: FormField, value: any) => {
-    if (codedTypes.includes(field.questionOptions.rendering) && value) {
+    if (!isEmpty(value) && codedTypes.includes(field.questionOptions.rendering)) {
       const valuesArray = Array.isArray(value) ? value : [value];
       // check whether value exists in answers
       if (
@@ -17,13 +18,13 @@ export const DefaultValueValidator: FormFieldValidator = {
         ];
       }
     }
-    if (field.questionOptions.rendering == 'date') {
+    if (!isEmpty(value) && field.questionOptions.rendering == 'date') {
       // Check if value is a valid date value
       if (!dayjs(value).isValid()) {
         return [{ resultType: 'error', errCode: 'invalid.defaultValue', message: `Invalid date value: '${value}'` }];
       }
     }
-    if (field.questionOptions.rendering == 'number') {
+    if (!isEmpty(value) && field.questionOptions.rendering == 'number') {
       if (isNaN(value)) {
         return [
           { resultType: 'error', errCode: 'invalid.defaultValue', message: `Invalid numerical  value: '${value}'` },

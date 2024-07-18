@@ -19,7 +19,7 @@ interface FormProcessorFactoryProps {
 }
 
 const FormProcessorFactory = ({ formJson, isSubForm = false }: FormProcessorFactoryProps) => {
-  const { patient, sessionMode, formProcessors, layoutType } = useFormFactory();
+  const { patient, sessionMode, formProcessors, layoutType, location, provider, sessionDate, visit } = useFormFactory();
 
   // TODO: load processor from the registry
   const processor = useMemo(() => {
@@ -39,7 +39,11 @@ const FormProcessorFactory = ({ formJson, isSubForm = false }: FormProcessorFact
     formJson,
     sessionMode,
     layoutType,
+    location,
+    currentProvider: provider,
     processor,
+    sessionDate,
+    visit,
   });
   const { formFields: rawFormFields, conceptReferences } = useFormFields(formJson);
   const { concepts: formFieldsConcepts, isLoading: isLoadingConcepts } = useConcepts(conceptReferences);

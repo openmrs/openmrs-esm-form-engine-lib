@@ -52,6 +52,9 @@ const FormEngine = ({
   const { t } = useTranslation();
   const session = useSession();
   const ref = useRef(null);
+  const sessionDate = useMemo(() => {
+    return new Date();
+  }, []);
   const workspaceLayout = useWorkspaceLayout(ref);
   const { patient, isLoadingPatient } = usePatientData(patientUUID);
   const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
@@ -87,10 +90,12 @@ const FormEngine = ({
         <FormFactoryProvider
           patient={patient}
           sessionMode={mode}
+          sessionDate={sessionDate}
           formJson={refinedFormJson}
           workspaceLayout={workspaceLayout}
           location={session?.sessionLocation}
           provider={session?.currentProvider}
+          visit={visit}
           formSubmissionProps={{
             isSubmitting,
             setIsSubmitting,

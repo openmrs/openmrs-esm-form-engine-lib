@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
-  type FormFieldProps,
   type FormField,
-  type SubmissionHandler,
   type RenderType,
   type ValidationResult,
   type FormFieldValidator,
   type SessionMode,
 } from '../../types';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import { ToastNotification } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -36,11 +34,11 @@ export const FormFieldRenderer = ({
     patient,
     sessionMode,
     formFields,
-    evalExpression,
     previousDomainObjectValue,
     formFieldValidators,
     addInvalidField,
     removeInvalidField,
+    evalExpression,
   } = context;
 
   const noop = () => {};
@@ -79,19 +77,27 @@ export const FormFieldRenderer = ({
 
   const onAfterChange = (value: any) => {
     // validate field value
-    const { errors, warnings } = validateFieldValue(field, value, formFieldValidators, {
-      fields: formFields,
-      values: getValues(),
-      expressionContext: { patient, mode: sessionMode },
-    });
-    setErrors(errors);
-    setWarnings(warnings);
-    if (errors.length === 0) {
-      valueAdapter.transformFieldValue(field, value, context);
+    const { errors: validationErrors, warnings: validationWarnings } = validateFieldValue(
+      field,
+      value,
+      formFieldValidators,
+      {
+        fields: formFields,
+        values: getValues(),
+        expressionContext: { patient, mode: sessionMode },
+      },
+    );
+    if (errors.length && !validationErrors.length) {
       removeInvalidField(field.id);
-    } else {
+      setErrors([]);
+    } else if (validationErrors.length) {
+      setErrors(validationErrors);
       addInvalidField(field);
     }
+    if (!validationErrors.length) {
+      valueAdapter.transformFieldValue(field, value, context);
+    }
+    setWarnings(validationWarnings);
   };
 
   if (!inputComponentWrapper) {
@@ -153,7 +159,7 @@ function isGroupField(rendering: RenderType) {
   return rendering === 'group' || rendering === 'repeating';
 }
 
-interface ValidatorContext {
+export interface ValidatorConfig {
   fields: FormField[];
   values: Record<string, any>;
   expressionContext: {
@@ -166,7 +172,7 @@ function validateFieldValue(
   field: FormField,
   value: any,
   validators: Record<string, FormFieldValidator>,
-  context: ValidatorContext,
+  context: ValidatorConfig,
 ): { errors: ValidationResult[]; warnings: ValidationResult[] } {
   const errors: ValidationResult[] = [];
   const warnings: ValidationResult[] = [];

@@ -29,3 +29,8 @@
 .formSection > div > fieldset {
   margin-bottom: 0 !important;
 }
+
+// TODO: try removing this when upgrading @carbon/react. Added at 1.37
+:global(.cds--accordion__wrapper) {
+  max-block-size: unset !important;
+}

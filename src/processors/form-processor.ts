@@ -7,13 +7,14 @@ export type FormProcessorConstructor = new (...args: ConstructorParameters<typeo
 export abstract class FormProcessor {
   formJson: FormSchema;
   domainObjectValue: any;
+
   constructor(formJson: FormSchema) {
     this.formJson = formJson;
   }
   getDomainObject() {
     return this.domainObjectValue;
   }
-  abstract processSubmission(context: FormContextProps): Promise<Record<string, any>>;
+  abstract processSubmission(context: FormContextProps, abortController: AbortController): Promise<Record<string, any>>;
   abstract loadDependencies(context: Partial<FormProcessorContextProps>): Promise<any>;
   abstract resolveContextDependencies(
     context: FormProcessorContextProps,
@@ -25,11 +26,7 @@ export abstract class FormProcessor {
       data: any;
       isLoading: boolean;
       error: any;
-      updateContext: (
-        data: any,
-        processor: FormProcessor,
-        setContext: (context: FormProcessorContextProps) => void,
-      ) => void;
+      updateContext: (data: any, setContext: React.Dispatch<React.SetStateAction<FormProcessorContextProps>>) => void;
     };
   };
   abstract prepareFormSchema(schema: FormSchema): FormSchema;

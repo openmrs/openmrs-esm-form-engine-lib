@@ -10,9 +10,13 @@ export interface FormProcessorContextProps {
   patient: fhir.Patient;
   formJson: FormSchema;
   sessionMode: SessionMode;
+  sessionDate: Date;
+  location: OpenmrsResource;
+  currentProvider: OpenmrsResource;
   layoutType: LayoutType;
   domainObjectValue?: OpenmrsResource;
   previousDomainObjectValue?: OpenmrsResource;
+  visit: OpenmrsResource;
   processor: FormProcessor;
   formFields?: FormField[];
   formFieldAdapters?: Record<string, FormFieldValueAdapter>;

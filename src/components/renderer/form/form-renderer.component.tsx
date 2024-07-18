@@ -36,6 +36,35 @@ export const FormRenderer = ({ processorContext, initialValues, isSubForm }: For
     defaultValues: initialValues,
   });
 
+  // Convenience functions
+  // TODO: define functions through a hook?
+  const addFormField = useCallback((field: FormField) => {
+    dispatch({ type: 'ADD_FORM_FIELD', value: field });
+  }, []);
+
+  const getFormField = useCallback(
+    (fieldId: string) => {
+      return formFields.find((field) => field.id === fieldId);
+    },
+    [formFields.length],
+  );
+
+  const removeFormField = useCallback((fieldId: string) => {
+    dispatch({ type: 'REMOVE_FORM_FIELD', value: fieldId });
+  }, []);
+
+  const setInvalidFields = useCallback((fields: FormField[]) => {
+    dispatch({ type: 'SET_INVALID_FIELDS', value: fields });
+  }, []);
+
+  const addInvalidField = useCallback((field: FormField) => {
+    dispatch({ type: 'ADD_INVALID_FIELD', value: field });
+  }, []);
+
+  const removeInvalidField = useCallback((fieldId: string) => {
+    dispatch({ type: 'REMOVE_INVALID_FIELD', value: fieldId });
+  }, []);
+
   const context: FormContextProps = useMemo(() => {
     return {
       ...processorContext,
@@ -44,6 +73,12 @@ export const FormRenderer = ({ processorContext, initialValues, isSubForm }: For
       formFields,
       formJson,
       invalidFields,
+      addFormField,
+      getFormField,
+      removeFormField,
+      setInvalidFields,
+      addInvalidField,
+      removeInvalidField,
     };
   }, [processorContext, workspaceLayout, methods, formFields, formJson, invalidFields]);
 
@@ -59,50 +94,6 @@ export const FormRenderer = ({ processorContext, initialValues, isSubForm }: For
       dispatch({ type: 'SET_FORM_JSON', value: evaluatedFormJson });
     }
   }, [evaluatedFields, evaluatedFormJson]);
-
-  // Convenience functions
-  // TODO: define functions through a hook?
-  const addFormField = useCallback(
-    (field: FormField) => {
-      dispatch({ type: 'ADD_FORM_FIELD', value: field });
-    },
-    [dispatch],
-  );
-
-  const getFormField = useCallback(
-    (fieldId: string) => {
-      return formFields.find((field) => field.id === fieldId);
-    },
-    [formFields],
-  );
-
-  const removeFormField = useCallback(
-    (fieldId: string) => {
-      dispatch({ type: 'REMOVE_FORM_FIELD', value: fieldId });
-    },
-    [dispatch],
-  );
-
-  const setInvalidFields = useCallback(
-    (fields: FormField[]) => {
-      dispatch({ type: 'SET_INVALID_FIELDS', value: fields });
-    },
-    [dispatch],
-  );
-
-  const addInvalidField = useCallback(
-    (field: FormField) => {
-      dispatch({ type: 'ADD_INVALID_FIELD', value: field });
-    },
-    [dispatch],
-  );
-
-  const removeInvalidField = useCallback(
-    (fieldId: string) => {
-      dispatch({ type: 'REMOVE_INVALID_FIELD', value: fieldId });
-    },
-    [dispatch],
-  );
 
   return (
     <FormProvider {...context}>

@@ -4,15 +4,17 @@ import { EncounterFormProcessor } from '../processors/encounter/encounter-form-p
 import { type LayoutType, useLayoutType, type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormProcessorConstructor } from '../processors/form-processor';
 import { type FormContextProps } from './form-provider';
-import { doSubmitForm, validateForm } from './form-factory-helper';
+import { validateForm } from './form-factory-helper';
 
 interface FormFactoryProviderContextProps {
   patient: fhir.Patient;
   sessionMode: SessionMode;
+  sessionDate: Date;
   formJson: FormSchema;
   formProcessors: Record<string, FormProcessorConstructor>;
   layoutType: LayoutType;
   workspaceLayout: 'minimized' | 'maximized';
+  visit: OpenmrsResource;
   location: OpenmrsResource;
   provider: OpenmrsResource;
   registerForm: (formId: string, context: FormContextProps, isSubForm: boolean) => void;
@@ -24,10 +26,12 @@ interface FormFactoryProviderContextProps {
 interface FormFactoryProviderProps {
   patient: fhir.Patient;
   sessionMode: SessionMode;
+  sessionDate: Date;
   formJson: FormSchema;
   workspaceLayout: 'minimized' | 'maximized';
   location: OpenmrsResource;
   provider: OpenmrsResource;
+  visit: OpenmrsResource;
   children: React.ReactNode;
   formSubmissionProps: {
     isSubmitting: boolean;
@@ -44,10 +48,12 @@ const FormFactoryProviderContext = createContext<FormFactoryProviderContextProps
 export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   patient,
   sessionMode,
+  sessionDate,
   formJson,
   workspaceLayout,
   location,
   provider,
+  visit,
   children,
   formSubmissionProps,
   setCurrentPage,
@@ -75,10 +81,12 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
       // TODO: find a dynamic way of managing the forms processing order
       const forms = [rootForm.current, ...getSubForms()];
       // validate all forms
-      const valid = forms.every((form) => validateForm(form));
+      const valid = forms.every((formContext) => validateForm(formContext));
       if (valid) {
-        Promise.all(forms.map((form) => doSubmitForm(form)))
-          .then(() => {
+        Promise.all(
+          forms.map((formContext) => formContext.processor.processSubmission(formContext, new AbortController())),
+        )
+          .then((results) => {
             // TODO: process post submission actions
             // TODO: handle form submission success
             formSubmissionProps.setIsSubmitting(false);
@@ -99,10 +107,12 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
       value={{
         patient,
         sessionMode,
+        sessionDate,
         formJson,
         formProcessors: formProcessors.current,
         layoutType,
         workspaceLayout,
+        visit,
         location,
         provider,
         registerForm,
