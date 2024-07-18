@@ -8,10 +8,11 @@ import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
-import styles from './number.scss';
 import { useTranslation } from 'react-i18next';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import QuestionLabelContainer from '../../question-label/question-label.component';
+
+import styles from './number.scss';
 
 const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);

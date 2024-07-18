@@ -8,9 +8,10 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
-import styles from './text-area.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import QuestionLabelContainer from '../../question-label/question-label.component';
+
+import styles from './text-area.scss';
 
 const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue: previousValueProp }) => {
   const { t } = useTranslation();

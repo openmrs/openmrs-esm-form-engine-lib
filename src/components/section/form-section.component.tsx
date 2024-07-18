@@ -16,8 +16,9 @@ import { isTrue } from '../../utils/boolean-utils';
 import { FormContext } from '../../form-context';
 import PreviousValueReview from '../previous-value-review/previous-value-review.component';
 import UnspecifiedField from '../inputs/unspecified/unspecified.component';
-import styles from './form-section.scss';
 import { evaluateExpression } from '../../utils/expression-runner';
+
+import styles from './form-section.scss';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<FormFieldProps>;

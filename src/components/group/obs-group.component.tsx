@@ -5,6 +5,7 @@ import { FormContext } from '../../form-context';
 import { type FormFieldProps } from '../../types';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
 import UnspecifiedField from '../inputs/unspecified/unspecified.component';
+
 import styles from '../section/form-section.scss';
 
 export const ObsGroup: React.FC<FormFieldProps> = ({ question, onChange }) => {

@@ -8,10 +8,10 @@ import { FormContext } from '../../../form-context';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
-import styles from './text.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import QuestionLabelContainer from '../../question-label/question-label.component';
 
+import styles from './text.scss';
 
 const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();

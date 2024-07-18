@@ -9,8 +9,9 @@ import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import FieldValueView from '../../value/view/field-value-view.component';
-import styles from './dropdown.scss';
 import QuestionLabelContainer from '../../question-label/question-label.component';
+
+import styles from './dropdown.scss';
 
 const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();

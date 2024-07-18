@@ -11,11 +11,11 @@ import { isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
 import QuestionLabelContainer from '../../question-label/question-label.component';
-import styles from './date.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
 import { type CalendarDate, getLocalTimeZone } from '@internationalized/date';
 
+import styles from './date.scss';
 
 const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();

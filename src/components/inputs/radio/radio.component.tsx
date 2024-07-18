@@ -8,9 +8,10 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import FieldValueView from '../../value/view/field-value-view.component';
-import styles from './radio.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import QuestionLabelContainer from '../../question-label/question-label.component';
+
+import styles from './radio.scss';
 
 const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
