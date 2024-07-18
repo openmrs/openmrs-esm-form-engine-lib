@@ -13,6 +13,7 @@ import FieldLabel from '../../field-label/field-label.component';
 
 import styles from './text-area.scss';
 
+
 const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue: previousValueProp }) => {
   const { t } = useTranslation();
   const [field, meta] = useField(question.id);

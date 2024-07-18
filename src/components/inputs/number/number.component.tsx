@@ -14,6 +14,7 @@ import FieldLabel from '../../field-label/field-label.component';
 
 import styles from './number.scss';
 
+
 const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
