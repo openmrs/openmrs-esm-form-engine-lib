@@ -13,7 +13,6 @@ import QuestionLabelContainer from '../../question-label/question-label.componen
 
 import styles from './file.scss';
 
-
 interface FileProps extends FormFieldProps {}
 type AllowedModes = 'uploader' | 'camera' | 'edit' | '';
 
@@ -110,7 +109,10 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
     </div>
   ) : (
     <div>
-      <div className={styles.label}> <QuestionLabelContainer question={question}/></div>
+      <div className={styles.label}>
+        {' '}
+        <QuestionLabelContainer question={question} />
+      </div>
       <div className={styles.uploadSelector}>
         <div className={styles.selectorButton}>
           <Button onClick={() => setUploadMode('uploader')}>Upload file</Button>

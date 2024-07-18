@@ -66,7 +66,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
         <Layer>
           <DropdownInput
             id={question.id}
-            titleText={<QuestionLabelContainer question={question}/>}
+            titleText={<QuestionLabelContainer question={question} />}
             label={t('chooseAnOption', 'Choose an option')}
             items={question.questionOptions.answers
               .filter((answer) => !answer.isHidden)

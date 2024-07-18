@@ -3,7 +3,7 @@
 .boldedLabel label {
   font-weight: 600;
   color: colors.$black-100;
-  justify-content: flex-start; 
+  justify-content: flex-start;
 }
 :global(.cds--toggle__label-text) {
   font-weight: 600;
@@ -13,5 +13,5 @@
   color: colors.$black-100;
 }
 .tooltipContainer {
-  padding-top: 20rem; 
+  padding-top: 20rem;
 }

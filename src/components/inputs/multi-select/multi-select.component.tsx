@@ -106,9 +106,13 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         <div className={styles.boldedLabel}>
           <Layer>
             {question.inlineMultiCheckbox ? (
-              <CheckboxGroup legendText={<>
-                <QuestionLabelContainer question={question}/></>
-                  } name={question.id}>
+              <CheckboxGroup
+                legendText={
+                  <>
+                    <QuestionLabelContainer question={question} />
+                  </>
+                }
+                name={question.id}>
                 {question.questionOptions.answers?.map((value, index) => {
                   return (
                     <Checkbox
@@ -135,7 +139,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
                 items={selectOptions}
                 initialSelectedItems={initiallySelectedQuestionItems}
                 label={''}
-                titleText={<QuestionLabelContainer question={question}/>}
+                titleText={<QuestionLabelContainer question={question} />}
                 key={counter}
                 itemToString={(item) => (item ? item.label : ' ')}
                 disabled={question.isDisabled}

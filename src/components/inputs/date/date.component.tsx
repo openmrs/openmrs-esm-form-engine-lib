@@ -96,12 +96,16 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
         <div className={styles.datetime}>
           {(question.datePickerFormat === 'calendar' || question.datePickerFormat === 'both') && (
             <div className={styles.datePickerSpacing}>
-            
               <Layer>
                 <OpenmrsDatePicker
                   id={question.id}
                   onChange={onDateChange}
-                  labelText={ <div  className={styles.datePickerLabel}> <QuestionLabelContainer question={question} /></div> }
+                  labelText={
+                    <div className={styles.datePickerLabel}>
+                      {' '}
+                      <QuestionLabelContainer question={question} />
+                    </div>
+                  }
                   isDisabled={question.isDisabled}
                   isReadOnly={isTrue(question.readonly)}
                   isRequired={question.isRequired ?? false}

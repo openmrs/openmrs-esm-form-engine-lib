@@ -68,7 +68,6 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         id={question.id}
         invalid={errors.length > 0}
         invalidText={errors[0]?.message}
-
         label={<QuestionLabelContainer question={question} />}
         max={Number(question.questionOptions.max) || undefined}
         min={Number(question.questionOptions.min) || undefined}

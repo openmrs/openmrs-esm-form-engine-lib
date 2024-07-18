@@ -61,8 +61,9 @@ const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler
     !question.isHidden && (
       <FormGroup
         legendText={
-          <div className={styles.boldedLegend}> <QuestionLabelContainer question={question}/></div>
-          
+          <div className={styles.boldedLegend}>
+            <QuestionLabelContainer question={question} />
+          </div>
         }
         className={classNames({
           [styles.errorLegend]: errors.length > 0,

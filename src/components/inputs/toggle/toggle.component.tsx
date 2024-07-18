@@ -57,17 +57,16 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
     !question.isHidden && (
       <div className={styles.boldedLabel}>
         <ToggleInput
-        labelText={<QuestionLabelContainer question={question} />}
-        className={styles.boldedLabel}
-        id={question.id}
-        labelA={question.questionOptions.toggleOptions.labelFalse}
-        labelB={question.questionOptions.toggleOptions.labelTrue}
-        onToggle={handleChange}
-        toggled={!!field.value}
-        disabled={question.isDisabled}
-        readOnly={question.readonly}
+          labelText={<QuestionLabelContainer question={question} />}
+          className={styles.boldedLabel}
+          id={question.id}
+          labelA={question.questionOptions.toggleOptions.labelFalse}
+          labelB={question.questionOptions.toggleOptions.labelTrue}
+          onToggle={handleChange}
+          toggled={!!field.value}
+          disabled={question.isDisabled}
+          readOnly={question.readonly}
         />
-
       </div>
     )
   );
