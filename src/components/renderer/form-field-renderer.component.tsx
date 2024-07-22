@@ -13,6 +13,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { type FormFieldValueAdapter, type FormFieldInputProps } from '../../types';
 import { getFieldControlWithFallback } from '../../utils/common-utils';
 import { useFormProviderContext } from '../../provider/form-provider';
+import { isEmpty } from '../../validators/form-validator';
 
 export const FormFieldRenderer = ({
   field,
@@ -61,6 +62,10 @@ export const FormFieldRenderer = ({
   }, [field.meta?.submission]);
 
   useEffect(() => {
+    const value = getValues(field.id);
+    if (!isEmpty(value) && !field.meta.submission?.newValue && !field.meta.submission?.unspecified) {
+      valueAdapter.transformFieldValue(field, value, context);
+    }
     if (previousDomainObjectValue) {
       if (field.historicalExpression) {
         const previousValue = evalExpression(field.historicalExpression, {

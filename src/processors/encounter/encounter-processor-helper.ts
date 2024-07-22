@@ -1,4 +1,3 @@
-import { type OpenmrsResource } from '@openmrs/esm-framework';
 import {
   type PatientProgram,
   type FormField,
@@ -6,12 +5,17 @@ import {
   type OpenmrsObs,
   type PatientIdentifier,
   type PatientProgramPayload,
+  type FormProcessorContextProps,
 } from '../../types';
 import { saveAttachment, savePatientIdentifier, saveProgramEnrollment } from '../../api/api';
 import { hasRendering, hasSubmission } from '../../utils/common-utils';
 import dayjs from 'dayjs';
-import { voidObs, constructObs } from '../../adapters/obs-adapter';
+import { voidObs, constructObs, assignedObsIds } from '../../adapters/obs-adapter';
 import { type FormContextProps } from '../../provider/form-provider';
+import { ConceptTrue } from '../../constants';
+import { DefaultValueValidator } from '../../validators/default-value-validator';
+import { cloneRepeatField } from '../../components/repeat/helpers';
+import { assignedOrderIds } from '../../adapters/orders-adapter';
 
 export function prepareEncounter(
   context: FormContextProps,
@@ -238,4 +242,66 @@ function hasSubmittableObs(field: FormField) {
     return true;
   }
   return !field.isHidden && !field.isParentHidden && (type === 'obsGroup' || hasSubmission(field));
+}
+
+export function inferInitialValueFromDefaultFieldValue(field: FormField) {
+  if (field.questionOptions.rendering == 'toggle' && typeof field.questionOptions.defaultValue != 'boolean') {
+    return field.questionOptions.defaultValue == ConceptTrue;
+  }
+  // validate default value
+  if (!DefaultValueValidator.validate(field, field.questionOptions.defaultValue).length) {
+    return field.questionOptions.defaultValue;
+  }
+}
+
+export async function hydrateRepeatField(
+  field: FormField,
+  encounter: OpenmrsEncounter,
+  initialValues: Record<string, any>,
+  context: FormProcessorContextProps,
+): Promise<FormField[]> {
+  let counter = 1;
+  const { formFieldAdapters } = context;
+  const unMappedGroups = encounter.obs.filter(
+    (obs) =>
+      obs.concept.uuid === field.questionOptions.concept &&
+      obs.uuid != field.meta.previousValue?.uuid &&
+      !assignedObsIds.includes(obs.uuid),
+  );
+  const unMappedOrders = encounter.orders.filter((order) => {
+    const availableOrderables = field.questionOptions.answers?.map((answer) => answer.concept) || [];
+    return availableOrderables.includes(order.concept?.uuid) && !assignedOrderIds.includes(order.uuid);
+  });
+  if (field.type === 'testOrder') {
+    return Promise.all(
+      unMappedOrders
+        .filter((order) => !order.voided)
+        .map(async (order) => {
+          const clone = cloneRepeatField(field, order, counter++);
+          initialValues[clone.id] = await formFieldAdapters[field.type].getInitialValue(
+            clone,
+            { orders: [order] } as any,
+            context,
+          );
+          return clone;
+        }),
+    );
+  }
+  // handle obs groups
+  return Promise.all(
+    unMappedGroups.map(async (group) => {
+      const clone = cloneRepeatField(field, group, counter++);
+      await Promise.all(
+        clone.questions.map(async (childField) => {
+          initialValues[childField.id] = await formFieldAdapters[field.type].getInitialValue(
+            childField,
+            { obs: [group] } as any,
+            context,
+          );
+        }),
+      );
+      assignedObsIds.push(group.uuid);
+      return [clone, ...clone.questions];
+    }),
+  ).then((results) => results.flat());
 }

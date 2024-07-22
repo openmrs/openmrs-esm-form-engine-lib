@@ -12,7 +12,13 @@ const useInitialValues = (
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (formProcessor && !isLoadingContextDependencies && context.formFieldAdapters && context.formFields?.length) {
+    if (
+      formProcessor &&
+      !isLoadingContextDependencies &&
+      context.formFieldAdapters &&
+      context.formFields?.length &&
+      !Object.keys(initialValues).length
+    ) {
       formProcessor
         .getInitialValues(context)
         .then((values) => {

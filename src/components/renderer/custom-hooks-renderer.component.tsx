@@ -13,15 +13,15 @@ export const CustomHooksRenderer = ({
     data: any;
     isLoading: boolean;
     error: any;
-    updateContext: (data: any, setContext: (context: FormProcessorContextProps) => void) => void;
+    updateContext: (setContext: (context: FormProcessorContextProps) => void) => void;
   };
   setIsLoadingCustomHooks: (isLoading: boolean) => void;
 }) => {
   const { isLoading = false, error = null, data, updateContext } = useCustomHooks(context);
 
   useEffect(() => {
-    if (data && updateContext) {
-      updateContext(data, setContext);
+    if (!isLoading && updateContext) {
+      updateContext(setContext);
       setIsLoadingCustomHooks(false);
     }
   }, [isLoading]);

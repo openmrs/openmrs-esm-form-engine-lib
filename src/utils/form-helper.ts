@@ -4,23 +4,6 @@ import { ConceptTrue } from '../constants';
 import { type EncounterContext } from '../form-context';
 import { type FormField, type FormPage, type FormSection, type SessionMode, type SubmissionHandler } from '../types';
 import { isEmpty } from '../validators/form-validator';
-import { DefaultValueValidator } from '../validators/default-value-validator';
-
-export function inferInitialValueFromDefaultFieldValue(
-  field: FormField,
-  context: EncounterContext,
-  handler: SubmissionHandler,
-) {
-  if (field.questionOptions.rendering == 'toggle') {
-    return field.questionOptions.defaultValue == ConceptTrue;
-  }
-  // validate default value
-  if (!DefaultValueValidator.validate(field, field.questionOptions.defaultValue).length) {
-    // construct observation
-    handler.handleFieldSubmission(field, field.questionOptions.defaultValue, context);
-    return field.questionOptions.defaultValue;
-  }
-}
 
 export function shouldUseInlineLayout(
   inlineRendering: 'single-line' | 'multiline' | 'automatic',
