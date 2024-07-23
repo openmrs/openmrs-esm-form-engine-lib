@@ -9,7 +9,7 @@ export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
     form.pages.forEach((page) => {
       parseBooleanTokenIfPresent(page, 'readonly');
       if (page.sections) {
-        page.sections.forEach(async (section) => {
+        page.sections.forEach( (section) => {
           section.questions = handleQuestionsWithDateOptions(section.questions);
           section.questions = handleQuestionsWithObsComments(section.questions);
           parseBooleanTokenIfPresent(section, 'readonly');
@@ -25,7 +25,7 @@ export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
   },
 };
 
-async function handleQuestion(question: FormField, form: FormSchema) {
+ function handleQuestion(question: FormField, form: FormSchema) {
   if (question.type === 'programState') {
     const formMeta = form.meta ?? {};
     formMeta.programs = formMeta.programs
@@ -36,7 +36,7 @@ async function handleQuestion(question: FormField, form: FormSchema) {
   try {
     sanitizeQuestion(question);
     setFieldValidators(question);
-    await transformByType(question);
+     transformByType(question);
     transformByRendering(question);
     if (question?.questions?.length) {
        question.questions.forEach((question) => handleQuestion(question, form));
@@ -114,7 +114,7 @@ function setFieldValidators(question: FormField) {
   }
 }
 
-async function transformByType(question: FormField) {
+ async function transformByType(question: FormField) {
   switch (question.type) {
     case 'encounterProvider':
       question.questionOptions.rendering = 'encounter-provider';
@@ -147,7 +147,7 @@ async function handlePersonAttributeType(question: FormField) {
     question.questionOptions.datasource = {
       name: 'person_attribute_location_datasource',
     };
-  } else if (attributeTypeFormat?.format === 'org.openmrs.Concept') {
+  } else if (attributeTypeFormat?.format === 'Concept') {
     question.questionOptions.datasource = {
       name: 'select_concept_answers_datasource',
       config: {
