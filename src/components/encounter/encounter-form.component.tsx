@@ -842,8 +842,8 @@ const EncounterForm: React.FC<EncounterFormProps> = ({
       <InstantEffect effect={addScrollablePages} />
       {form.pages.map((page, index) => {
         const pageHasNoVisibleContent =
-          page.sections.every((section) => section.isHidden) ||
-          page.sections.every((section) => section.questions.every((question) => question.isHidden)) ||
+          page.sections?.every((section) => section.isHidden) ||
+          page.sections?.every((section) => section.questions?.every((question) => question.isHidden)) ||
           isTrue(page.isHidden);
 
         if (!page.isSubform && pageHasNoVisibleContent) {
