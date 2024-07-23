@@ -9,12 +9,12 @@ export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
     form.pages.forEach((page) => {
       parseBooleanTokenIfPresent(page, 'readonly');
       if (page.sections) {
-        page.sections.forEach((section) => {
+        page.sections.forEach(async (section) => {
           section.questions = handleQuestionsWithDateOptions(section.questions);
           section.questions = handleQuestionsWithObsComments(section.questions);
           parseBooleanTokenIfPresent(section, 'readonly');
           parseBooleanTokenIfPresent(section, 'isExpanded');
-          section?.questions?.forEach((question, index) => handleQuestion(question, form));
+           section?.questions?.forEach((question, index) => handleQuestion(question, form));
         });
       }
     });
@@ -25,7 +25,7 @@ export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
   },
 };
 
-function handleQuestion(question: FormField, form: FormSchema) {
+async function handleQuestion(question: FormField, form: FormSchema) {
   if (question.type === 'programState') {
     const formMeta = form.meta ?? {};
     formMeta.programs = formMeta.programs
@@ -36,10 +36,10 @@ function handleQuestion(question: FormField, form: FormSchema) {
   try {
     sanitizeQuestion(question);
     setFieldValidators(question);
-    transformByType(question);
+    await transformByType(question);
     transformByRendering(question);
     if (question?.questions?.length) {
-      question.questions.forEach((question) => handleQuestion(question, form));
+       question.questions.forEach((question) => handleQuestion(question, form));
     }
   } catch (error) {
     console.error(error);
@@ -114,7 +114,7 @@ function setFieldValidators(question: FormField) {
   }
 }
 
-function transformByType(question: FormField) {
+async function transformByType(question: FormField) {
   switch (question.type) {
     case 'encounterProvider':
       question.questionOptions.rendering = 'encounter-provider';
@@ -131,7 +131,7 @@ function transformByType(question: FormField) {
         : question.questionOptions.rendering;
       break;
     case 'personAttribute':
-      handlePersonAttributeType(question);
+      await handlePersonAttributeType(question);
       break;
   }
 }
@@ -140,21 +140,25 @@ async function handlePersonAttributeType(question: FormField) {
   if (question.questionOptions.rendering !== 'text') {
     question.questionOptions.rendering === 'ui-select-extended';
   }
-  const inputFormat = await getPersonAttributeTypeFormat(question.questionOptions?.attributeType);
-  const obj = inputFormat;
-  if (obj?.format === 'org.openmrs.Location') {
+
+  const attributeTypeFormat = await getPersonAttributeTypeFormat(question.questionOptions?.attributeType);
+  
+  if (attributeTypeFormat?.format === 'org.openmrs.Location') {
     question.questionOptions.datasource = {
       name: 'person_attribute_location_datasource',
     };
-  } else {
+  } else if (attributeTypeFormat?.format === 'org.openmrs.Concept') {
     question.questionOptions.datasource = {
       name: 'select_concept_answers_datasource',
       config: {
         concept: question.questionOptions?.concept,
       },
     };
+  } else {
+    console.error(`Unsupported format: ${attributeTypeFormat?.format}`);
   }
 }
+
 
 function transformByRendering(question: FormField) {
   switch (question.questionOptions.rendering as any) {
