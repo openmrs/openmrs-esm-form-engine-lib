@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { type EncounterContext, inferInitialValueFromDefaultFieldValue, isEmpty } from '..';
 import { type FormField, type OpenmrsEncounter, type SubmissionHandler } from '../types';
-import { evaluateAsyncExpression, evaluateExpression, FormNode } from '../utils/expression-runner';
+import { evaluateAsyncExpression, evaluateExpression, type FormNode } from '../utils/expression-runner';
 import { hydrateRepeatField } from '../components/repeat/helpers';
 import { hasRendering } from '../utils/common-utils';
 
