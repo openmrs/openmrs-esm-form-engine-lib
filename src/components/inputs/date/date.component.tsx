@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useContext } from 'react';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { useField } from 'formik';
@@ -20,10 +20,9 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const { t } = useTranslation();
   const [field] = useField(question.id);
   const [unspecifiedField] = useField(`${question.id}-unspecified`);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = useContext(FormContext);
   const [time, setTime] = useState('');
   const { errors, setErrors, warnings, setWarnings } = useFieldValidationResults(question);
-  const [key, setKey] = useState(0);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -88,7 +87,6 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     if (unspecifiedField.value) {
       setFieldValue(question.id, null);
       setTime(null);
-      setKey(prevKey => prevKey + 1);
     }
   }, [unspecifiedField.value]);
 
@@ -107,7 +105,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
             <div className={styles.datePickerSpacing}>
               <Layer>
                 <OpenmrsDatePicker
-                  key={key}
+                  key={`${question.id}-${field.value}`}
                   id={question.id}
                   onChange={onDateChange}
                   labelText={
@@ -147,12 +145,12 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   placeholder="HH:MM"
                   pattern="(1[012]|[1-9]):[0-5][0-9])$"
                   type="time"
-                  disabled={question.datePickerFormat === 'timer' ? question.isDisabled : !field.value ? true : false}
+                  disabled={question.datePickerFormat === 'timer' ? question.isDisabled : !field.value}
                   value={
                     time
                       ? time
                       : field.value instanceof Date
-                      ? field.value.toLocaleDateString(window.navigator.language)
+                      ? field.value.toLocaleTimeString(window.navigator.language)
                       : field.value
                   }
                   onChange={onTimeChange}
@@ -175,4 +173,5 @@ function getDisplay(date: Date, rendering: string) {
   }
   return dateString;
 }
+
 export default DateField;
