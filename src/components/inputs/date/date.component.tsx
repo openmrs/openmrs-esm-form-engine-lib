@@ -19,9 +19,11 @@ import { type CalendarDate, getLocalTimeZone } from '@internationalized/date';
 const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field] = useField(question.id);
+  const [unspecifiedField] = useField(`${question.id}-unspecified`);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
   const [time, setTime] = useState('');
   const { errors, setErrors, warnings, setWarnings } = useFieldValidationResults(question);
+  const [key, setKey] = useState(0);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -82,7 +84,15 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     }
   }, [field.value, time]);
 
-  return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
+  useEffect(() => {
+    if (unspecifiedField.value) {
+      setFieldValue(question.id, null);
+      setTime(null);
+      setKey(prevKey => prevKey + 1);
+    }
+  }, [unspecifiedField.value]);
+
+  return encounterContext.sessionMode === 'view' || encounterContext.sessionMode === 'embedded-view' ? (
     <FieldValueView
       label={t(question.label)}
       value={field.value instanceof Date ? getDisplay(field.value, question.datePickerFormat) : field.value}
@@ -97,6 +107,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
             <div className={styles.datePickerSpacing}>
               <Layer>
                 <OpenmrsDatePicker
+                  key={key}
                   id={question.id}
                   onChange={onDateChange}
                   labelText={
@@ -159,7 +170,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
 
 function getDisplay(date: Date, rendering: string) {
   const dateString = formatDate(date);
-  if (rendering == 'both') {
+  if (rendering === 'both') {
     return `${dateString} ${formatTime(date)}`;
   }
   return dateString;
