@@ -8,7 +8,7 @@ export interface FormContextProps extends FormProcessorContextProps {
   methods: UseFormReturn<any>;
   workspaceLayout: 'minimized' | 'maximized';
   isSubmitting?: boolean;
-  evalExpression?: (expression: string, node: FormNode, value?: any) => string;
+  evalExpression?: (expression: string, node: FormNode, value?: any, otherProps?: any) => string;
   getFormField?: (field: string) => FormField;
   addFormField?: (field: FormField) => void;
   removeFormField?: (fieldId: string) => void;

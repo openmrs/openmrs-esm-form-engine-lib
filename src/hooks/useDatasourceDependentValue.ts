@@ -1,19 +1,16 @@
-import { useEffect, useState } from 'react';
-import { useField } from 'formik';
 import { type FormField } from '../types';
+import { useFormProviderContext } from '../provider/form-provider';
+import { useWatch } from 'react-hook-form';
 
-const useDatasourceDependentValue = (question: FormField) => {
-  const dependentField = question.questionOptions['config']?.referencedField;
-  const [field] = useField(dependentField);
-  const [dependentValue, setDependentValue] = useState();
+const useDataSourceDependentValue = (field: FormField) => {
+  const dependentField = field.questionOptions['config']?.referencedField;
+  const {
+    methods: { control },
+  } = useFormProviderContext();
 
-  useEffect(() => {
-    if (dependentField) {
-      setDependentValue(field.value);
-    }
-  }, [field]);
+  const dependentValue = useWatch({ control, name: dependentField, exact: true, disabled: !dependentField });
 
   return dependentValue;
 };
 
-export default useDatasourceDependentValue;
+export default useDataSourceDependentValue;

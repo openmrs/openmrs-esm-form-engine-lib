@@ -222,6 +222,31 @@ export class EncounterFormProcessor extends FormProcessor {
     }
     return initialValues;
   }
+
+  async getHistoricalValue(field: FormField, context: FormContextProps) {
+    const {
+      formFields,
+      sessionMode,
+      patient,
+      methods: { getValues },
+      formFieldAdapters,
+      previousDomainObjectValue,
+    } = context;
+    const node: FormNode = { value: field, type: 'field' };
+    const adapter = formFieldAdapters[field.type];
+    if (field.historicalExpression) {
+      const value = await evaluateAsyncExpression(field.historicalExpression, node, formFields, getValues(), {
+        mode: sessionMode,
+        patient: patient,
+        previousEncounter: previousDomainObjectValue,
+      });
+      return value;
+    }
+    if (previousDomainObjectValue && field.questionOptions.enablePreviousValue) {
+      return await adapter.getPreviousValue(field, previousDomainObjectValue, context);
+    }
+    return null;
+  }
 }
 
 async function evaluateCalculateExpression(
@@ -229,7 +254,7 @@ async function evaluateCalculateExpression(
   values: Record<string, any>,
   formContext: FormProcessorContextProps,
 ) {
-  const { formFields, sessionMode, patient, formFieldAdapters } = formContext;
+  const { formFields, sessionMode, patient } = formContext;
   const expression = field.questionOptions.calculate.calculateExpression;
   const node: FormNode = { value: field, type: 'field' };
   const context = {

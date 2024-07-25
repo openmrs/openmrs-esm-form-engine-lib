@@ -18,13 +18,13 @@ export const useExpressionRunner = (
     };
   }, [patient, sessionMode, formFields, formValues]);
 
-  function evalExpression(expression: string, node: FormNode, value?: any) {
+  function evalExpression(expression: string, node: FormNode, value?: any, otherProps?: any) {
     const updatedFormValues = { ...context.formValues };
     if (!isEmpty(value) && node.type === 'field') {
       const field = node.value as FormField;
       updatedFormValues[field.id] = value;
     }
-    return evaluateExpression(expression, node, context.formFields, updatedFormValues, context);
+    return evaluateExpression(expression, node, context.formFields, updatedFormValues, { ...context, ...otherProps });
   }
 
   return {

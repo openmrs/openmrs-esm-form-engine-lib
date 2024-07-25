@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import PageRenderer from '../page.renderer.component';
+import PageRenderer from '../page/page.renderer.component';
 import FormProcessorFactory from '../../processor-factory/form-processor-factory.component';
 import { formStateReducer, initialState } from './state';
 import { useEvaluateFormFieldExpressions } from '../../../hooks/useEvaluateFormFieldExpressions';
@@ -73,6 +73,7 @@ export const FormRenderer = ({ processorContext, initialValues, isSubForm }: For
       formFields,
       formJson,
       invalidFields,
+      evalExpression,
       addFormField,
       getFormField,
       removeFormField,
@@ -80,7 +81,7 @@ export const FormRenderer = ({ processorContext, initialValues, isSubForm }: For
       addInvalidField,
       removeInvalidField,
     };
-  }, [processorContext, workspaceLayout, methods, formFields, formJson, invalidFields]);
+  }, [processorContext, workspaceLayout, methods, formFields, formJson, invalidFields, evalExpression]);
 
   useEffect(() => {
     registerForm(formJson.name, context, isSubForm);

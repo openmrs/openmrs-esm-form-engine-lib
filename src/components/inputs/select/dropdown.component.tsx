@@ -1,81 +1,65 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dropdown as DropdownInput, Layer } from '@carbon/react';
-import { useField } from 'formik';
-import { isEmpty } from '../../../validators/form-validator';
-import { isInlineView } from '../../../utils/form-helper';
+import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
-import { FormContext } from '../../../form-context';
-import { type FormFieldProps } from '../../../types';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import { type FormFieldInputProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
 import FieldLabel from '../../field-label/field-label.component';
 
 import styles from './dropdown.scss';
+import { useFormProviderContext } from '../../../provider/form-provider';
 
-const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
+const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue, onAfterChange }) => {
   const { t } = useTranslation();
-  const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
-  const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const { layoutType, sessionMode, workspaceLayout, formFieldAdapters } = useFormProviderContext();
 
   const handleChange = useCallback(
     (value) => {
-      setFieldValue(question.id, value);
-      onChange(question.id, value, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, value, encounterContext);
+      setFieldValue(value);
+      onAfterChange(value);
     },
-    [question.id, onChange, setErrors, setWarnings, handler, encounterContext, setFieldValue],
+    [setFieldValue, onAfterChange],
   );
-
-  useEffect(() => {
-    if (!isEmpty(previousValue)) {
-      setFieldValue(question.id, previousValue);
-      onChange(question.id, previousValue, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, previousValue, encounterContext);
-    }
-  }, [previousValue, question.id, onChange, setErrors, setWarnings, handler, encounterContext, setFieldValue]);
 
   const itemToString = useCallback(
     (item) => {
-      const answer = question.questionOptions.answers.find((opt) =>
-        opt.value ? opt.value == item : opt.concept == item,
-      );
+      const answer = field.questionOptions.answers.find((opt) => (opt.value ? opt.value == item : opt.concept == item));
       return answer?.label;
     },
-    [question.questionOptions.answers],
+    [field.questionOptions.answers],
   );
 
   const isInline = useMemo(() => {
-    if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
+    if (['view', 'embedded-view'].includes(sessionMode) || isTrue(field.readonly)) {
+      return shouldUseInlineLayout(field.inlineRendering, layoutType, workspaceLayout, sessionMode);
     }
     return false;
-  }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
+  }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
+  return sessionMode == 'view' || sessionMode == 'embedded-view' ? (
     <FieldValueView
-      label={t(question.label)}
-      value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-      conceptName={question.meta?.concept?.display}
+      label={t(field.label)}
+      value={value ? formFieldAdapters[field.type].getDisplayValue(field, value) : value}
+      conceptName={field.meta?.concept?.display}
       isInline={isInline}
     />
   ) : (
-    !question.isHidden && (
+    !field.isHidden && (
       <div className={styles.boldedLabel}>
         <Layer>
           <DropdownInput
-            id={question.id}
-            titleText={<FieldLabel field={question} />}
+            id={field.id}
+            titleText={<FieldLabel field={field} />}
             label={t('chooseAnOption', 'Choose an option')}
-            items={question.questionOptions.answers
+            items={field.questionOptions.answers
               .filter((answer) => !answer.isHidden)
               .map((item) => item.value || item.concept)}
             itemToString={itemToString}
-            selectedItem={field.value || null}
+            selectedItem={value}
             onChange={({ selectedItem }) => handleChange(selectedItem)}
-            disabled={question.isDisabled}
-            readOnly={question.readonly}
+            disabled={field.isDisabled}
+            readOnly={field.readonly}
             invalid={errors.length > 0}
             invalidText={errors[0]?.message}
             warn={warnings.length > 0}

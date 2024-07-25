@@ -11,22 +11,28 @@ import { ToastNotification } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from 'react-error-boundary';
 import { type FormFieldValueAdapter, type FormFieldInputProps } from '../../types';
-import { getFieldControlWithFallback } from '../../utils/common-utils';
+import { getFieldControlWithFallback, hasRendering } from '../../utils/common-utils';
 import { useFormProviderContext } from '../../provider/form-provider';
 import { isEmpty } from '../../validators/form-validator';
+import PreviousValueReview from '../previous-value-review/previous-value-review.component';
+import { getRegisteredControl } from '../../registry/registry';
 
-export const FormFieldRenderer = ({
-  field,
-  valueAdapter,
-}: {
+export interface FormFieldRendererProps {
   field: FormField;
   valueAdapter: FormFieldValueAdapter;
-}) => {
+  repeatOptions?: {
+    targetRendering: RenderType;
+  };
+}
+// TODO: handle tooltips
+// TODO: handle unspecified
+export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFieldRendererProps) => {
   const [inputComponentWrapper, setInputComponentWrapper] = useState<{
     value: React.ComponentType<FormFieldInputProps>;
   }>(null);
   const [errors, setErrors] = useState<ValidationResult[]>([]);
   const [warnings, setWarnings] = useState<ValidationResult[]>([]);
+  const [historicalValue, setHistoricalValue] = useState<any>(null);
   const [previousValue, setPreviousValue] = useState<any>(null);
   const context = useFormProviderContext();
 
@@ -40,16 +46,34 @@ export const FormFieldRenderer = ({
     addInvalidField,
     removeInvalidField,
     evalExpression,
+    methods: { setValue },
   } = context;
 
   const noop = () => {};
 
   useEffect(() => {
-    getFieldControlWithFallback(field).then((component) => {
-      if (component) {
-        setInputComponentWrapper({ value: component });
+    if (hasRendering(field, 'repeating') && repeatOptions?.targetRendering) {
+      getRegisteredControl(repeatOptions.targetRendering).then((component) => {
+        if (component) {
+          setInputComponentWrapper({ value: component });
+        }
+      });
+    } else {
+      getFieldControlWithFallback(field).then((component) => {
+        if (component) {
+          setInputComponentWrapper({ value: component });
+        }
+      });
+    }
+    if (sessionMode === 'enter' && (field.historicalExpression || context.previousDomainObjectValue)) {
+      try {
+        context.processor.getHistoricalValue(field, context).then((value) => {
+          setHistoricalValue(value);
+        });
+      } catch (error) {
+        console.error(error);
       }
-    });
+    }
   }, []);
 
   useEffect(() => {
@@ -63,7 +87,8 @@ export const FormFieldRenderer = ({
 
   useEffect(() => {
     const value = getValues(field.id);
-    if (!isEmpty(value) && !field.meta.submission?.newValue && !field.meta.submission?.unspecified) {
+    const { submission, previousValue, unspecified } = field.meta;
+    if (!isEmpty(value) && !previousValue && !submission?.newValue && !unspecified) {
       valueAdapter.transformFieldValue(field, value, context);
     }
     if (previousDomainObjectValue) {
@@ -99,7 +124,8 @@ export const FormFieldRenderer = ({
       setErrors(validationErrors);
       addInvalidField(field);
     }
-    if (!validationErrors.length) {
+    if (!validationErrors.length && !isEmpty(value)) {
+      setValue(`${field.id}-unspecified`, false);
       valueAdapter.transformFieldValue(field, value, context);
     }
     setWarnings(validationWarnings);
@@ -111,7 +137,7 @@ export const FormFieldRenderer = ({
 
   const InputComponent = inputComponentWrapper.value;
 
-  if (isGroupField(field.questionOptions.rendering)) {
+  if (!repeatOptions?.targetRendering && isGroupField(field.questionOptions.rendering)) {
     return (
       <InputComponent
         field={field}
@@ -129,14 +155,26 @@ export const FormFieldRenderer = ({
         control={control}
         name={field.id}
         render={({ field: { onChange, value } }) => (
-          <InputComponent
-            field={field}
-            value={value}
-            errors={errors}
-            warnings={warnings}
-            setFieldValue={onChange}
-            onAfterChange={onAfterChange}
-          />
+          <div>
+            <InputComponent
+              field={field}
+              value={value}
+              errors={errors}
+              warnings={warnings}
+              setFieldValue={onChange}
+              onAfterChange={onAfterChange}
+            />
+            {historicalValue && (
+              <div>
+                <PreviousValueReview
+                  previousValue={historicalValue}
+                  displayText={valueAdapter.getDisplayValue(field, historicalValue)}
+                  onAfterChange={onAfterChange}
+                  field={field}
+                />
+              </div>
+            )}
+          </div>
         )}
       />
     </ErrorBoundary>

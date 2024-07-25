@@ -12,17 +12,20 @@ import { getAttachmentByUuid } from '../api/api';
 export let assignedObsIds: string[] = [];
 
 export const ObsAdapter: FormFieldValueAdapter = {
-  async getInitialValue(field: FormField, value: any, context: FormContextProps) {
-    const encounter = context.domainObjectValue as OpenmrsEncounter;
+  async getInitialValue(field: FormField, sourceObject: any, context: FormContextProps) {
+    const encounter = sourceObject ?? (context.domainObjectValue as OpenmrsEncounter);
     if (hasRendering(field, 'file')) {
       const ac = new AbortController();
       return getAttachmentByUuid(context.patient.id, encounter.uuid, ac);
     }
     return extractFieldValue(field, findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field), true);
   },
-  async getPreviousValue(field: FormField, value: any, context: FormContextProps) {
-    const encounter = context.domainObjectValue as OpenmrsEncounter;
-    return extractFieldValue(field, findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field), false);
+  async getPreviousValue(field: FormField, sourceObject: any, context: FormContextProps) {
+    const encounter = sourceObject ?? (context.previousDomainObjectValue as OpenmrsEncounter);
+    if (encounter) {
+      return extractFieldValue(field, findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field), true);
+    }
+    return null;
   },
   getDisplayValue: (field: FormField, value: any) => {
     const rendering = field.questionOptions.rendering;
@@ -61,6 +64,9 @@ export const ObsAdapter: FormFieldValueAdapter = {
       return gracefullySetSubmission(field, constructObs(field, value), undefined);
     }
     return null;
+  },
+  tearDown: function (): void {
+    assignedObsIds = [];
   },
 };
 

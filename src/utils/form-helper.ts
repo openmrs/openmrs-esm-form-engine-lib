@@ -16,6 +16,7 @@ export function shouldUseInlineLayout(
 
 /**
  * @deprecated
+ * Use `shouldUseInlineLayout` instead
  */
 export function isInlineView(
   renderingType: 'single-line' | 'multiline' | 'automatic',

@@ -1,71 +1,63 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Toggle as ToggleInput } from '@carbon/react';
-import { type FormFieldProps } from '../../../types';
-import { useField } from 'formik';
-import { FormContext } from '../../../form-context';
+import { type FormFieldInputProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
-import { isInlineView } from '../../../utils/form-helper';
+import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { isEmpty } from '../../../validators/form-validator';
-import { booleanConceptToBoolean } from '../../../utils/common-expression-helpers';
-import { useTranslation } from 'react-i18next';
-import FieldLabel from '../../field-label/field-label.component';
-
 import styles from './toggle.scss';
+import { useTranslation } from 'react-i18next';
+import { useFormProviderContext } from '../../../provider/form-provider';
 
-const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
+const Toggle: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue, onAfterChange }) => {
   const { t } = useTranslation();
-  const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
+  const context = useFormProviderContext();
 
   const handleChange = (value) => {
-    setFieldValue(question.id, value);
-    onChange(question.id, value, null, null);
-    handler?.handleFieldSubmission(question, value, encounterContext);
+    setFieldValue(value);
+    onAfterChange(value);
   };
 
   useEffect(() => {
-    if (!question.meta?.previousValue && encounterContext.sessionMode === 'enter') {
-      handler?.handleFieldSubmission(question, field.value ?? false, encounterContext);
+    // The toggle input doesn't support blank values
+    // by default, the value should be false
+    if (!field.meta?.previousValue && context.sessionMode == 'enter') {
+      context.formFieldAdapters[field.type].transformFieldValue(field, value ?? false, context);
     }
   }, []);
 
-  useEffect(() => {
-    if (!isEmpty(previousValue)) {
-      const value = booleanConceptToBoolean(previousValue);
-      setFieldValue(question.id, value);
-      onChange(question.id, value, null, null);
-      handler?.handleFieldSubmission(question, value, encounterContext);
-    }
-  }, [previousValue]);
-
   const isInline = useMemo(() => {
-    if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
+    if (['view', 'embedded-view'].includes(context.sessionMode) || isTrue(field.readonly)) {
+      return shouldUseInlineLayout(
+        field.inlineRendering,
+        context.layoutType,
+        context.workspaceLayout,
+        context.sessionMode,
+      );
     }
     return false;
-  }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
+  }, [context.sessionMode, field.readonly, field.inlineRendering, context.layoutType, context.workspaceLayout]);
 
-  return encounterContext.sessionMode === 'view' || encounterContext.sessionMode === 'embedded-view' ? (
+  return context.sessionMode == 'view' || context.sessionMode == 'embedded-view' ? (
     <FieldValueView
-      label={t(question.label)}
-      value={!isEmpty(field.value) ? handler?.getDisplayValue(question, field.value) : field.value}
-      conceptName={question.meta?.concept?.display}
+      label={t(field.label)}
+      value={!isEmpty(value) ? context.formFieldAdapters[field.type].getDisplayValue(field, value) : value}
+      conceptName={field.meta?.concept?.display}
       isInline={isInline}
     />
   ) : (
-    !question.isHidden && (
+    !field.isHidden && (
       <div className={styles.boldedLabel}>
         <ToggleInput
-          labelText={<FieldLabel field={question} />}
+          labelText={t(field.label)}
           className={styles.boldedLabel}
-          id={question.id}
-          labelA={question.questionOptions.toggleOptions.labelFalse}
-          labelB={question.questionOptions.toggleOptions.labelTrue}
+          id={field.id}
+          labelA={field.questionOptions.toggleOptions.labelFalse}
+          labelB={field.questionOptions.toggleOptions.labelTrue}
           onToggle={handleChange}
-          toggled={!!field.value}
-          disabled={question.isDisabled}
-          readOnly={question.readonly}
+          toggled={!!value}
+          disabled={field.isDisabled}
+          readOnly={field.readonly}
         />
       </div>
     )

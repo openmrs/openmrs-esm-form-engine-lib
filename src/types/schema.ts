@@ -85,6 +85,7 @@ export interface FormField {
   questionInfo?: string;
   historicalExpression?: string;
   constrainMaxWidth?: boolean;
+  inlineMultiCheckbox?: boolean;
   meta?: QuestionMetaProps;
 }
 
@@ -108,7 +109,6 @@ export interface FormFieldProps {
 
 export interface FormFieldInputProps {
   value: any;
-  previousValue?: any;
   field: FormField;
   errors: ValidationResult[];
   warnings: ValidationResult[];

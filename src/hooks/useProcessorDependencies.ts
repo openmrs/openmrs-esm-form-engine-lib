@@ -9,15 +9,14 @@ const useProcessorDependencies = (
 ) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { resolveContextDependencies, loadDependencies } = formProcessor;
+  const { loadDependencies } = formProcessor;
 
   useEffect(() => {
     if (loadDependencies) {
       setIsLoading(true);
-      loadDependencies(context)
+      loadDependencies(context, setContext)
         .then((results) => {
           setIsLoading(false);
-          resolveContextDependencies(results, setContext);
         })
         .catch((error) => {
           setError(error);

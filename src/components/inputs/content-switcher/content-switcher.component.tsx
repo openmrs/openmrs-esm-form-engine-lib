@@ -1,68 +1,61 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import { FormGroup, ContentSwitcher as CdsContentSwitcher, Switch } from '@carbon/react';
-import { useField } from 'formik';
-import { isInlineView } from '../../../utils/form-helper';
-import { isEmpty } from '../../../validators/form-validator';
+import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
-import { FormContext } from '../../../form-context';
-import { type FormFieldProps } from '../../../types';
+import { type FormFieldInputProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import styles from './content-switcher.scss';
+import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 
-import styles from './content-switcher.scss';
-
-const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
+const ContentSwitcher: React.FC<FormFieldInputProps> = ({
+  field,
+  value,
+  errors,
+  warnings,
+  setFieldValue,
+  onAfterChange,
+}) => {
   const { t } = useTranslation();
-  const [field] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
-  const { errors, setErrors } = useFieldValidationResults(question);
+  const { layoutType, sessionMode, workspaceLayout, formFieldAdapters } = useFormProviderContext();
 
-  useEffect(() => {
-    if (!isEmpty(previousValue)) {
-      setFieldValue(question.id, previousValue);
-      onChange(question.id, previousValue, setErrors, null);
-      handler?.handleFieldSubmission(question, previousValue, encounterContext);
-    }
-  }, [previousValue]);
-
-  const handleChange = (value) => {
-    setFieldValue(question.id, value?.name);
-    onChange(question.id, value?.name, setErrors, null);
-    handler?.handleFieldSubmission(question, value?.name, encounterContext);
-  };
+  const handleChange = useCallback(
+    (value) => {
+      setFieldValue(value.name);
+      onAfterChange(value.name);
+    },
+    [setFieldValue, onAfterChange],
+  );
 
   const selectedIndex = useMemo(
-    () => question.questionOptions.answers.findIndex((option) => option.concept == field.value),
-    [field.value, question.questionOptions.answers],
+    () => field.questionOptions.answers.findIndex((option) => option.concept == value),
+    [value, field.questionOptions.answers],
   );
 
   const isInline = useMemo(() => {
-    if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
+    if (['view', 'embedded-view'].includes(sessionMode) || isTrue(field.readonly)) {
+      return shouldUseInlineLayout(field.inlineRendering, layoutType, workspaceLayout, sessionMode);
     }
     return false;
-  }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
+  }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' ||
-    encounterContext.sessionMode == 'embedded-view' ||
-    isTrue(question.readonly) ? (
+  return sessionMode == 'view' || sessionMode == 'embedded-view' || isTrue(field.readonly) ? (
     <div className={styles.formField}>
       <FieldValueView
-        label={t(question.label)}
-        value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-        conceptName={question.meta?.concept?.display}
+        label={t(field.label)}
+        value={value ? formFieldAdapters[field.type].getDisplayValue(field, value) : value}
+        conceptName={field.meta?.concept?.display}
         isInline={isInline}
       />
     </div>
   ) : (
-    !question.isHidden && (
+    !field.isHidden && (
       <FormGroup
         legendText={
           <div className={styles.boldedLegend}>
-            <FieldLabel field={question} />
+            <FieldLabel field={field} />
           </div>
         }
         className={classNames({
@@ -74,13 +67,8 @@ const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler
           selectedIndex={selectedIndex}
           className={styles.selectedOption}
           size="md">
-          {question.questionOptions.answers.map((option, index) => (
-            <Switch
-              name={option.concept || option.value}
-              text={option.label}
-              key={index}
-              disabled={question.isDisabled}
-            />
+          {field.questionOptions.answers.map((option, index) => (
+            <Switch name={option.concept || option.value} text={option.label} key={index} disabled={field.isDisabled} />
           ))}
         </CdsContentSwitcher>
       </FormGroup>

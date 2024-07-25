@@ -153,6 +153,12 @@ function transformByRendering(question: FormField) {
     case 'datetime':
       question.datePickerFormat = question.datePickerFormat ?? 'both';
       break;
+    case 'workspace-launcher':
+      question.type = 'control';
+      break;
+    case 'markdown':
+      question.type = 'control';
+      break;
   }
   return question;
 }

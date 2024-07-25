@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import { type FormPage } from '../../types';
-import { isTrue } from '../../utils/boolean-utils';
+import { type FormPage } from '../../../types';
+import { isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';
-import { SectionRenderer } from './section-renderer.component';
+import { SectionRenderer } from '../section/section-renderer.component';
 import { Waypoint } from 'react-waypoint';
 import styles from './page.renderer.scss';
 import { Accordion, AccordionItem } from '@carbon/react';
-import { useFormFactory } from '../../provider/form-factory-provider';
+import { useFormFactory } from '../../../provider/form-factory-provider';
 
 interface PageRendererProps {
   page: FormPage;

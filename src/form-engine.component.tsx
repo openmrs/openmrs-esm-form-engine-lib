@@ -13,6 +13,7 @@ import styles from './form-engine.scss';
 import { ButtonSet, Button, InlineLoading } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import PatientBanner from './components/patient-banner/patient-banner.component';
+import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -30,7 +31,6 @@ interface FormEngineProps {
 
 // TODOs:
 // - Implement sidebar
-// - Implement form level markdown
 // - Conditionally render the button set
 // - Fix the form layout
 // - Patient banner
@@ -96,6 +96,7 @@ const FormEngine = ({
           location={session?.sessionLocation}
           provider={session?.currentProvider}
           visit={visit}
+          handleConfirmQuestionDeletion={handleConfirmQuestionDeletion}
           formSubmissionProps={{
             isSubmitting,
             setIsSubmitting,
@@ -115,7 +116,9 @@ const FormEngine = ({
               <div className={styles.formContentInner}>
                 {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow />}
                 {refinedFormJson.markdown && (
-                  <div className={styles.markdownContainer}>{/* Top level markdown goes here */}</div>
+                  <div className={styles.markdownContainer}>
+                    <MarkdownWrapper markdown={refinedFormJson.markdown} />
+                  </div>
                 )}
                 <div className={styles.formBody}>
                   <FormProcessorFactory formJson={refinedFormJson} isSubForm={false} />

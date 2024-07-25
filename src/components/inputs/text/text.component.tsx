@@ -6,38 +6,17 @@ import { useFormProviderContext } from '../../../provider/form-provider';
 import { type FormFieldInputProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
 import { shouldUseInlineLayout } from '../../../utils/form-helper';
-import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import FieldValueView from '../../value/view/field-value-view.component';
+import FieldLabel from '../../field-label/field-label.component';
 
-const TextField: React.FC<FormFieldInputProps> = ({
-  field,
-  value,
-  previousValue,
-  errors,
-  warnings,
-  setFieldValue,
-  onAfterChange,
-}) => {
+const TextField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue, onAfterChange }) => {
   const { t } = useTranslation();
   const [lastBlurredValue, setLastBlurredValue] = useState(null);
   const { layoutType, sessionMode, workspaceLayout } = useFormProviderContext();
 
-  // TODO: handle previousValue
-  // useEffect(() => {
-  //   if (!isEmpty(previousValue)) {
-  //     setFieldValue(question.id, previousValue);
-  //     field['value'] = previousValue;
-  //     field.onBlur(null);
-  //   }
-  // }, [previousValue]);
-
   const onBlur = (event) => {
-    if (value && field.unspecified) {
-      // TODO: handle unspecified
-      // setFieldValue(`${question.id}-unspecified`, false);
-    }
-    // Do we still need the lastBlurredValue state? Probably not!!
-    if (previousValue !== value && lastBlurredValue !== value) {
+    event.preventDefault();
+    if (lastBlurredValue !== value) {
       setLastBlurredValue(value);
       onAfterChange(value);
     }
@@ -64,9 +43,7 @@ const TextField: React.FC<FormFieldInputProps> = ({
           <Layer>
             <TextInput
               id={field.id}
-              labelText={
-                field.isRequired ? <RequiredFieldLabel label={t(field.label)} /> : <span>{t(field.label)}</span>
-              }
+              labelText={<FieldLabel field={field} />}
               onChange={setFieldValue}
               onBlur={onBlur}
               name={field.id}

@@ -9,6 +9,7 @@ export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
 export interface FormProcessorContextProps {
   patient: fhir.Patient;
   formJson: FormSchema;
+  visit: OpenmrsResource;
   sessionMode: SessionMode;
   sessionDate: Date;
   location: OpenmrsResource;
@@ -16,7 +17,6 @@ export interface FormProcessorContextProps {
   layoutType: LayoutType;
   domainObjectValue?: OpenmrsResource;
   previousDomainObjectValue?: OpenmrsResource;
-  visit: OpenmrsResource;
   processor: FormProcessor;
   formFields?: FormField[];
   formFieldAdapters?: Record<string, FormFieldValueAdapter>;
@@ -41,7 +41,7 @@ export interface FormFieldValueAdapter {
     field: FormField,
     sourceObject: OpenmrsResource,
     context: FormProcessorContextProps,
-  ) => Promise<any>;
+  ) => Promise<any> | any;
   /**
    * Very similar to `getInitialValue`, but used to extract "previous" values.
    */
@@ -49,11 +49,15 @@ export interface FormFieldValueAdapter {
     field: FormField,
     sourceObject: OpenmrsResource,
     context: FormProcessorContextProps,
-  ) => Promise<any>;
+  ) => Promise<any> | any;
   /**
    * Extracts the display value from a composite object.
    */
   getDisplayValue: (field: FormField, value: any) => any;
+  /**
+   * Tears down the adapter.
+   */
+  tearDown: () => void;
 }
 
 /**

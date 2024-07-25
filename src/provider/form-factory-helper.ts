@@ -10,27 +10,29 @@ export function validateForm(context: FormContextProps) {
     methods: { getValues },
   } = context;
   const values = getValues();
-  const errors = formFields.flatMap((field) =>
-    field.validators.flatMap((validatorConfig) => {
-      const validator = formFieldValidators[validatorConfig.type];
-      if (validator) {
-        const validationResults = validator.validate(field, values[field.id], {
-          fields: formFields,
-          values,
-          expressionContext: {
-            patient,
-            mode: sessionMode,
-          },
-          ...validatorConfig,
-        });
-        const errors = validationResults.filter((result) => result.resultType === 'error');
-        if (errors.length) {
-          field.meta.submission = { ...field.meta.submission, errors };
-          addInvalidField(field);
+  const errors = formFields
+    .flatMap((field) =>
+      field.validators?.flatMap((validatorConfig) => {
+        const validator = formFieldValidators[validatorConfig.type];
+        if (validator) {
+          const validationResults = validator.validate(field, values[field.id], {
+            fields: formFields,
+            values,
+            expressionContext: {
+              patient,
+              mode: sessionMode,
+            },
+            ...validatorConfig,
+          });
+          const errors = validationResults.filter((result) => result.resultType === 'error');
+          if (errors.length) {
+            field.meta.submission = { ...field.meta.submission, errors };
+            addInvalidField(field);
+          }
+          return errors;
         }
-        return errors;
-      }
-    }),
-  );
+      }),
+    )
+    .filter((error) => Boolean(error));
   return errors.length === 0;
 }

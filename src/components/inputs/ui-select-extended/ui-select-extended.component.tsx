@@ -1,26 +1,28 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import debounce from 'lodash-es/debounce';
 import { ComboBox, DropdownSkeleton, Layer } from '@carbon/react';
-import { useField } from 'formik';
 import { isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
-import { FormContext } from '../../../form-context';
-import { type FormFieldProps } from '../../../types';
+import { type FormFieldInputProps } from '../../../types';
 import { isEmpty } from '../../../validators/form-validator';
-import { isInlineView } from '../../../utils/form-helper';
+import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
-import useDatasourceDependentValue from '../../../hooks/useDatasourceDependentValue';
-import FieldLabel from '../../field-label/field-label.component';
-
 import styles from './ui-select-extended.scss';
+import { useFormProviderContext } from '../../../provider/form-provider';
+import FieldLabel from '../../field-label/field-label.component';
+import useDataSourceDependentValue from '../../../hooks/useDatasourceDependentValue';
 
-const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
+const UiSelectExtended: React.FC<FormFieldInputProps> = ({
+  field,
+  value,
+  errors,
+  warnings,
+  setFieldValue,
+  onAfterChange,
+}) => {
   const { t } = useTranslation();
-  const [field, meta, helpers] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,49 +30,36 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   const [dataSource, setDataSource] = useState(null);
   const [config, setConfig] = useState({});
   const [savedSearchableItem, setSavedSearchableItem] = useState({});
-  const { errors, setErrors, setWarnings } = useFieldValidationResults(question);
-  const datasourceDependentValue = useDatasourceDependentValue(question);
+  const dataSourceDependentValue = useDataSourceDependentValue(field);
+  const {
+    layoutType,
+    sessionMode,
+    workspaceLayout,
+    formFieldAdapters,
+    methods: { control },
+  } = useFormProviderContext();
 
   const isInline = useMemo(() => {
-    if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
+    if (['view', 'embedded-view'].includes(sessionMode) || isTrue(field.readonly)) {
+      return shouldUseInlineLayout(field.inlineRendering, layoutType, workspaceLayout, sessionMode);
     }
     return false;
-  }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
+  }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
 
   useEffect(() => {
-    const dataSource = question.questionOptions?.datasource?.name;
+    const dataSource = field.questionOptions?.datasource?.name;
     setConfig(
       dataSource
-        ? question.questionOptions.datasource?.config
-        : getControlTemplate(question.questionOptions.rendering)?.datasource?.config,
+        ? field.questionOptions.datasource?.config
+        : getControlTemplate(field.questionOptions.rendering)?.datasource?.config,
     );
-    getRegisteredDataSource(dataSource ? dataSource : question.questionOptions.rendering).then((ds) =>
-      setDataSource(ds),
-    );
-  }, [question.questionOptions?.datasource]);
+    getRegisteredDataSource(dataSource ? dataSource : field.questionOptions.rendering).then((ds) => setDataSource(ds));
+  }, [field.questionOptions?.datasource]);
 
   const handleChange = (value) => {
-    setFieldValue(question.id, value);
-    onChange(question.id, value, setErrors, setWarnings);
-    handler?.handleFieldSubmission(question, value, encounterContext);
+    setFieldValue(value);
+    onAfterChange(value);
   };
-
-  useEffect(() => {
-    if (!isEmpty(previousValue)) {
-      isProcessingSelection.current = true;
-      setFieldValue(question.id, previousValue);
-      onChange(question.id, previousValue, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, previousValue, encounterContext);
-    }
-  }, [previousValue]);
-
-  useEffect(() => {
-    if (field.value === null) {
-      helpers.setValue(null, false);
-      setSearchTerm('');
-    }
-  }, [field.value, helpers]);
 
   const debouncedSearch = debounce((searchterm, dataSource) => {
     setItems([]);
@@ -104,11 +93,11 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
 
   useEffect(() => {
     // If not searchable, preload the items
-    if (dataSource && !isTrue(question.questionOptions.isSearchable)) {
+    if (dataSource && !isTrue(field.questionOptions.isSearchable)) {
       setItems([]);
       setIsLoading(true);
       dataSource
-        .fetchData(null, { ...config, referencedValue: datasourceDependentValue })
+        .fetchData(null, { ...config, referencedValue: dataSourceDependentValue })
         .then((dataItems) => {
           setItems(dataItems.map(dataSource.toUuidAndDisplay));
           setIsLoading(false);
@@ -119,10 +108,10 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
           setItems([]);
         });
     }
-  }, [dataSource, config, datasourceDependentValue]);
+  }, [dataSource, config, dataSourceDependentValue]);
 
   useEffect(() => {
-    if (dataSource && isTrue(question.questionOptions.isSearchable) && !isEmpty(searchTerm)) {
+    if (dataSource && isTrue(field.questionOptions.isSearchable) && !isEmpty(searchTerm)) {
       debouncedSearch(searchTerm, dataSource);
     }
   }, [dataSource, searchTerm, config]);
@@ -130,43 +119,41 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
   useEffect(() => {
     if (
       dataSource &&
-      isTrue(question.questionOptions.isSearchable) &&
+      isTrue(field.questionOptions.isSearchable) &&
       isEmpty(searchTerm) &&
-      field.value &&
+      value &&
       !Object.keys(savedSearchableItem).length
     ) {
       setIsLoading(true);
-      processSearchableValues(field.value);
+      processSearchableValues(value);
     }
-  }, [field.value]);
+  }, [value]);
 
   if (isLoading) {
     return <DropdownSkeleton />;
   }
 
-  return encounterContext.sessionMode == 'view' ||
-    encounterContext.sessionMode == 'embedded-view' ||
-    isTrue(question.readonly) ? (
+  return sessionMode == 'view' || sessionMode == 'embedded-view' || isTrue(field.readonly) ? (
     <FieldValueView
-      label={t(question.label)}
+      label={t(field.label)}
       value={
-        field.value
-          ? handler?.getDisplayValue(question, items.find((item) => item.uuid == field.value)?.display)
-          : field.value
+        value
+          ? formFieldAdapters[field.type]?.getDisplayValue(field, items.find((item) => item.uuid == value)?.display)
+          : value
       }
-      conceptName={question.meta?.concept?.display}
+      conceptName={field.meta?.concept?.display}
       isInline={isInline}
     />
   ) : (
-    !question.isHidden && (
+    !field.isHidden && (
       <div className={styles.boldedLabel}>
         <Layer>
           <ComboBox
-            id={question.id}
-            titleText={<FieldLabel field={question} />}
+            id={field.id}
+            titleText={<FieldLabel field={field} />}
             items={items}
             itemToString={(item) => item?.display}
-            selectedItem={field.value ? items.find((item) => item.uuid === field.value) : null}
+            selectedItem={items.find((item) => item.uuid == value)}
             shouldFilterItem={({ item, inputValue }) => {
               if (!inputValue) {
                 // Carbon's initial call at component mount
@@ -178,8 +165,8 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
               isProcessingSelection.current = true;
               handleChange(selectedItem?.uuid);
             }}
-            disabled={question.isDisabled}
-            readOnly={question.readonly}
+            disabled={field.isDisabled}
+            readOnly={field.readonly}
             invalid={errors.length > 0}
             invalidText={errors.length && errors[0].message}
             onInputChange={(value) => {
@@ -190,7 +177,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
                 isProcessingSelection.current = false;
                 return;
               }
-              if (question.questionOptions['isSearchable']) {
+              if (field.questionOptions['isSearchable']) {
                 setSearchTerm(value);
               }
             }}

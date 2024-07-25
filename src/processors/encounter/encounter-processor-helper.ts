@@ -49,9 +49,11 @@ export function prepareEncounter(
       encounterForSubmission.form = {
         uuid: formJson.uuid,
       };
-      encounterForSubmission['visit'] = {
-        uuid: visit?.uuid,
-      };
+      if (visit) {
+        encounterForSubmission['visit'] = {
+          uuid: visit?.uuid,
+        };
+      }
     }
     encounterForSubmission.obs = obsForSubmission;
     encounterForSubmission.orders = ordersForSubmission;

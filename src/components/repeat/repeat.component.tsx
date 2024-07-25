@@ -1,48 +1,49 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormGroup } from '@carbon/react';
-import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-import type { FormField, FormFieldProps, RenderType } from '../../types';
+import type { FormField, FormFieldInputProps, RenderType } from '../../types';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { isEmpty } from '../../validators/form-validator';
 import styles from './repeat.scss';
 import { cloneRepeatField } from './helpers';
-import { FormContext } from '../../form-context';
-import { getFieldControlWithFallback } from '../section/helpers';
 import { clearSubmission } from '../../utils/common-utils';
 import RepeatControls from './repeat-controls.component';
 import { createErrorHandler } from '@openmrs/esm-framework';
-import { ExternalFunctionContext } from '../../external-function-context';
+import { useFormProviderContext } from '../../provider/form-provider';
+import { FormFieldRenderer } from '../renderer/form-field-renderer.component';
+import { useFormFactory } from '../../provider/form-factory-provider';
 
 const renderingByTypeMap: Record<string, RenderType> = {
   obsGroup: 'group',
   testOrder: 'select',
 };
 
-const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
+const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
   const { t } = useTranslation();
-  const isGrouped = useMemo(() => question.questions?.length > 1, [question]);
-  const { fields: allFormFields, encounterContext } = React.useContext(FormContext);
-  const { values, setFieldValue } = useFormikContext();
+  const isGrouped = useMemo(() => field.questions?.length > 1, [field]);
   const [counter, setCounter] = useState(0);
   const [rows, setRows] = useState([]);
-  const [fieldComponent, setFieldComponent] = useState(null);
-
-  const { handleConfirmQuestionDeletion } = useContext(ExternalFunctionContext);
+  const context = useFormProviderContext();
+  const { handleConfirmQuestionDeletion } = useFormFactory();
+  const {
+    patient,
+    sessionMode,
+    formFieldAdapters,
+    formFields,
+    methods: { getValues, setValue },
+    addFormField,
+  } = context;
 
   useEffect(() => {
-    const repeatedFields = allFormFields.filter(
-      (field) =>
-        field.questionOptions.concept === question.questionOptions.concept &&
-        field.id.startsWith(question.id) &&
-        !field.meta?.repeat?.wasDeleted,
+    const repeatedFields = formFields.filter(
+      (_field) =>
+        _field.questionOptions.concept === field.questionOptions.concept &&
+        _field.id.startsWith(field.id) &&
+        !_field.meta?.repeat?.wasDeleted,
     );
     setCounter(repeatedFields.length - 1);
     setRows(repeatedFields);
-    getFieldControlWithFallback(getQuestionWithSupportedRendering(question))?.then((component) =>
-      setFieldComponent({ Component: component }),
-    );
-  }, [allFormFields, question]);
+  }, [formFields, field]);
 
   const handleAdd = useCallback(
     (counter: number) => {
@@ -51,11 +52,11 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
           field.isHidden = evaluateExpression(
             field.hide.hideWhenExpression,
             { value: field, type: 'field' },
-            allFormFields,
-            values,
+            formFields,
+            getValues(),
             {
-              mode: encounterContext.sessionMode,
-              patient: encounterContext.patient,
+              mode: sessionMode,
+              patient: patient,
             },
           );
         }
@@ -63,101 +64,103 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
           evaluateAsyncExpression(
             field.questionOptions.calculate?.calculateExpression,
             { value: field, type: 'field' },
-            allFormFields,
-            values,
+            formFields,
+            getValues(),
             {
-              mode: encounterContext.sessionMode,
-              patient: encounterContext.patient,
+              mode: sessionMode,
+              patient: patient,
             },
           ).then((result) => {
             if (!isEmpty(result)) {
-              setFieldValue(field.id, result);
-              handler.handleFieldSubmission(field, result, encounterContext);
+              setValue(field.id, result);
+              formFieldAdapters[field.type]?.transformFieldValue(field, result, context);
             }
           });
         }
       }
-      const clonedField = cloneRepeatField(question, null, counter);
+      const clonedField = cloneRepeatField(field, null, counter);
       // run necessary expressions
       if (clonedField.type === 'obsGroup') {
         clonedField.questions?.forEach((childField) => {
           evaluateExpressions(childField);
-          allFormFields.push(childField);
+          addFormField(childField);
         });
       } else {
         evaluateExpressions(clonedField);
       }
-      allFormFields.push(clonedField);
+      addFormField(clonedField);
       setRows([...rows, clonedField]);
     },
-    [allFormFields, encounterContext, question, rows, setFieldValue, values],
+    [formFields, field, rows, context],
   );
 
-  const removeNthRow = (question: FormField) => {
-    if (question.meta.previousValue) {
-      handler.handleFieldSubmission(question, null, encounterContext);
-      question.meta.repeat = { ...(question.meta.repeat || {}), wasDeleted: true };
-      if (question.type === 'obsGroup') {
-        question.questions.forEach((child) => {
-          child.meta.repeat = { ...(question.meta.repeat || {}), wasDeleted: true };
-          handler.handleFieldSubmission(child, null, encounterContext);
+  const removeNthRow = (field: FormField) => {
+    if (field.meta.previousValue) {
+      formFieldAdapters[field.type]?.transformFieldValue(field, null, context);
+      field.meta.repeat = { ...(field.meta.repeat || {}), wasDeleted: true };
+      if (field.type === 'obsGroup') {
+        field.questions.forEach((child) => {
+          child.meta.repeat = { ...(field.meta.repeat || {}), wasDeleted: true };
+          formFieldAdapters[child.type]?.transformFieldValue(child, null, context);
         });
       }
     } else {
-      clearSubmission(question);
+      clearSubmission(field);
     }
-    setRows(rows.filter((q) => q.id !== question.id));
+    setRows(rows.filter((q) => q.id !== field.id));
   };
 
-  const onClickDeleteQuestion = (question: Readonly<FormField>) => {
+  const onClickDeleteQuestion = (field: Readonly<FormField>) => {
     if (handleConfirmQuestionDeletion && typeof handleConfirmQuestionDeletion === 'function') {
-      const result = handleConfirmQuestionDeletion(question);
+      const result = handleConfirmQuestionDeletion(field);
       if (result && typeof result.then === 'function' && typeof result.catch === 'function') {
-        result.then(() => removeNthRow(question)).catch(() => createErrorHandler());
+        result.then(() => removeNthRow(field)).catch(() => createErrorHandler());
       } else if (typeof result === 'boolean') {
-        result && removeNthRow(question);
+        result && removeNthRow(field);
       } else {
-        removeNthRow(question);
+        removeNthRow(field);
       }
     } else {
-      removeNthRow(question);
+      removeNthRow(field);
     }
   };
 
   const nodes = useMemo(() => {
-    return fieldComponent
-      ? rows.map((question, index) => {
-          const component = (
-            <fieldComponent.Component key={question.id} question={question} onChange={onChange} handler={handler} />
-          );
-          return (
-            <div key={question.id + '_wrapper'}>
-              {index !== 0 && (
-                <div>
-                  <hr className={styles.divider} />
-                </div>
-              )}
-              {isGrouped ? <div className={styles.obsGroupContainer}>{component}</div> : component}
-              <RepeatControls
-                question={question}
-                rows={rows}
-                questionIndex={index}
-                handleDelete={() => {
-                  onClickDeleteQuestion(question);
-                }}
-                handleAdd={() => {
-                  const nextCount = counter + 1;
-                  handleAdd(nextCount);
-                  setCounter(nextCount);
-                }}
-              />
+    return rows.map((field, index) => {
+      const component = (
+        <FormFieldRenderer
+          field={field}
+          valueAdapter={formFieldAdapters[field.type]}
+          repeatOptions={{ targetRendering: getQuestionWithSupportedRendering(field).questionOptions.rendering }}
+        />
+      );
+      return (
+        <div key={field.id + '_wrapper'}>
+          {index !== 0 && (
+            <div>
+              <hr className={styles.divider} />
             </div>
-          );
-        })
-      : null;
-  }, [rows, fieldComponent]);
+          )}
+          {isGrouped ? <div className={styles.obsGroupContainer}>{component}</div> : component}
+          <RepeatControls
+            question={field}
+            rows={rows}
+            questionIndex={index}
+            handleDelete={() => {
+              onClickDeleteQuestion(field);
+            }}
+            handleAdd={() => {
+              const nextCount = counter + 1;
+              handleAdd(nextCount);
+              setCounter(nextCount);
+            }}
+          />
+        </div>
+      );
+    });
+  }, [rows]);
 
-  if (question.isHidden || !nodes || !hasVisibleField(question)) {
+  if (field.isHidden || !nodes || !hasVisibleField(field)) {
     return null;
   }
 
@@ -165,7 +168,7 @@ const Repeat: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
     <React.Fragment>
       {isGrouped ? (
         <div className={styles.container}>
-          <FormGroup legendText={t(question.label)} className={styles.boldLegend}>
+          <FormGroup legendText={t(field.label)} className={styles.boldLegend}>
             {nodes}
           </FormGroup>
         </div>
@@ -183,12 +186,12 @@ function hasVisibleField(field: FormField) {
   return !field.isHidden;
 }
 
-function getQuestionWithSupportedRendering(question: FormField) {
+function getQuestionWithSupportedRendering(field: FormField) {
   return {
-    ...question,
+    ...field,
     questionOptions: {
-      ...question.questionOptions,
-      rendering: renderingByTypeMap[question.type] || question.questionOptions.rendering,
+      ...field.questionOptions,
+      rendering: renderingByTypeMap[field.type] || null,
     },
   };
 }

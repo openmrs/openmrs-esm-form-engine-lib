@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef } from 'react';
-import { type FormSchema, type SessionMode } from '../types';
+import { type FormField, type FormSchema, type SessionMode } from '../types';
 import { EncounterFormProcessor } from '../processors/encounter/encounter-form-processor';
 import { type LayoutType, useLayoutType, type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormProcessorConstructor } from '../processors/form-processor';
@@ -21,6 +21,7 @@ interface FormFactoryProviderContextProps {
   getSubForms: () => FormContextProps[];
   getRootForm: () => FormContextProps;
   setCurrentPage: (page: string) => void;
+  handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
 }
 
 interface FormFactoryProviderProps {
@@ -41,6 +42,7 @@ interface FormFactoryProviderProps {
     handleClose: () => void;
   };
   setCurrentPage: (page: string) => void;
+  handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
 }
 
 const FormFactoryProviderContext = createContext<FormFactoryProviderContextProps | undefined>(undefined);
@@ -57,6 +59,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   children,
   formSubmissionProps,
   setCurrentPage,
+  handleConfirmQuestionDeletion,
 }) => {
   const rootForm = useRef<FormContextProps>();
   const subForms = useRef<Record<string, FormContextProps>>({});
@@ -119,6 +122,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
         getSubForms,
         getRootForm,
         setCurrentPage,
+        handleConfirmQuestionDeletion,
       }}>
       {formProcessors.current && children}
     </FormFactoryProviderContext.Provider>
