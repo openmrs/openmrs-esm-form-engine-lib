@@ -23,6 +23,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
   const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = useContext(FormContext);
   const [time, setTime] = useState('');
   const { errors, setErrors, warnings, setWarnings } = useFieldValidationResults(question);
+  const [key, setKey] = useState(0);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
@@ -87,6 +88,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     if (unspecifiedField.value) {
       setFieldValue(question.id, null);
       setTime(null);
+      setKey(prevKey => prevKey + 1);
     }
   }, [unspecifiedField.value]);
 
@@ -105,7 +107,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
             <div className={styles.datePickerSpacing}>
               <Layer>
                 <OpenmrsDatePicker
-                  key={`${question.id}-${field.value}`}
+                  key={key}
                   id={question.id}
                   onChange={onDateChange}
                   labelText={
