@@ -137,6 +137,10 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   pattern="(1[012]|[1-9]):[0-5][0-9])$"
                   type="time"
                   disabled={question.datePickerFormat === 'timer' ? question.isDisabled : !field.value ? true : false}
+                  invalid={errors.length > 0}
+                  invalidText={errors[0]?.message}
+                  warning={warnings.length > 0}
+                  warningText={warnings[0]?.message}
                   value={
                     time
                       ? time
