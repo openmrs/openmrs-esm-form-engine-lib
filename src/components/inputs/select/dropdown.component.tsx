@@ -9,7 +9,7 @@ import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import FieldValueView from '../../value/view/field-value-view.component';
-import QuestionLabelContainer from '../../question-label/question-label.component';
+import FieldLabel from '../../field-label/field-label.component';
 
 import styles from './dropdown.scss';
 
@@ -66,7 +66,7 @@ const Dropdown: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
         <Layer>
           <DropdownInput
             id={question.id}
-            titleText={<QuestionLabelContainer question={question} />}
+            titleText={<FieldLabel field={question} />}
             label={t('chooseAnOption', 'Choose an option')}
             items={question.questionOptions.answers
               .filter((answer) => !answer.isHidden)

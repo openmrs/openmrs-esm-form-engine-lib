@@ -10,7 +10,7 @@ import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
-import QuestionLabelContainer from '../../question-label/question-label.component';
+import FieldLabel from '../../field-label/field-label.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
 import { type CalendarDate, getLocalTimeZone } from '@internationalized/date';
@@ -83,6 +83,16 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     }
   }, [field.value, time]);
 
+  const timePickerLabel = useMemo(
+    () =>
+      question.datePickerFormat === 'timer' ? (
+        <FieldLabel field={question} />
+      ) : (
+        <FieldLabel field={question} customLabel={t('time', 'Time')} />
+      ),
+    [question.datePickerFormat, question.label, t],
+  );
+
   return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
     <FieldValueView
       label={t(question.label)}
@@ -102,8 +112,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   onChange={onDateChange}
                   labelText={
                     <div className={styles.datePickerLabel}>
-                      {' '}
-                      <QuestionLabelContainer question={question} />
+                      <FieldLabel field={question} />
                     </div>
                   }
                   isDisabled={question.isDisabled}
@@ -124,7 +133,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                 <TimePicker
                   className={classNames(styles.boldedLabel, styles.timeInput)}
                   id={question.id}
-                  labelText={<QuestionLabelContainer question={question} />}
+                  labelText={timePickerLabel}
                   placeholder="HH:MM"
                   pattern="(1[012]|[1-9]):[0-5][0-9])$"
                   type="time"

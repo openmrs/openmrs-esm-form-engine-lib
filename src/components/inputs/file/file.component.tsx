@@ -9,7 +9,7 @@ import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
-import QuestionLabelContainer from '../../question-label/question-label.component';
+import FieldLabel from '../../field-label/field-label.component';
 
 import styles from './file.scss';
 
@@ -111,7 +111,7 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
     <div>
       <div className={styles.label}>
         {' '}
-        <QuestionLabelContainer question={question} />
+        <FieldLabel field={question} />
       </div>
       <div className={styles.uploadSelector}>
         <div className={styles.selectorButton}>

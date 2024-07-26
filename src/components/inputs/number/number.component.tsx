@@ -10,7 +10,7 @@ import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
 import { useTranslation } from 'react-i18next';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
-import QuestionLabelContainer from '../../question-label/question-label.component';
+import FieldLabel from '../../field-label/field-label.component';
 
 import styles from './number.scss';
 
@@ -68,7 +68,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         id={question.id}
         invalid={errors.length > 0}
         invalidText={errors[0]?.message}
-        label={<QuestionLabelContainer question={question} />}
+        label={<FieldLabel field={question} />}
         max={Number(question.questionOptions.max) || undefined}
         min={Number(question.questionOptions.min) || undefined}
         name={question.id}

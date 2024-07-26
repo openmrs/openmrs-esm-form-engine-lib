@@ -10,7 +10,7 @@ import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
-import QuestionLabelContainer from '../../question-label/question-label.component';
+import FieldLabel from '../../field-label/field-label.component';
 
 import styles from './content-switcher.scss';
 
@@ -62,7 +62,7 @@ const ContentSwitcher: React.FC<FormFieldProps> = ({ question, onChange, handler
       <FormGroup
         legendText={
           <div className={styles.boldedLegend}>
-            <QuestionLabelContainer question={question} />
+            <FieldLabel field={question} />
           </div>
         }
         className={classNames({

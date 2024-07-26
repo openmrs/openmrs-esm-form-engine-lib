@@ -36,34 +36,28 @@ export const ObsGroup: React.FC<FormFieldProps> = ({ question, onChange }) => {
             <div className={styles.parentResizer}>
               <div
                 className={classNames({
-                  [styles.questionInfoDefault]: field.questionInfo && rendering === 'radio',
-                  [styles.questionInfoCentralized]: field.questionInfo && rendering !== 'radio',
+                  [styles.flexBasisOn]: [
+                    'ui-select-extended',
+                    'content-switcher',
+                    'select',
+                    'textarea',
+                    'text',
+                    'checkbox',
+                  ].includes(rendering),
                 })}>
-                <div
-                  className={classNames({
-                    [styles.flexBasisOn]: [
-                      'ui-select-extended',
-                      'content-switcher',
-                      'select',
-                      'textarea',
-                      'text',
-                      'checkbox',
-                    ].includes(rendering),
-                  })}>
-                  <FieldComponent
-                    key={field.id}
-                    question={field}
-                    onChange={onChange}
-                    handler={formFieldHandlers[field.type]}
-                    useField={useField}
-                  />
-                </div>
+                <FieldComponent
+                  key={field.id}
+                  question={field}
+                  onChange={onChange}
+                  handler={formFieldHandlers[field.type]}
+                  useField={useField}
+                />
               </div>
-              <div>
-                {isUnspecifiedSupported(field) && (
-                  <UnspecifiedField question={field} onChange={onChange} handler={formFieldHandlers[field.type]} />
-                )}
-              </div>
+            </div>
+            <div>
+              {isUnspecifiedSupported(field) && (
+                <UnspecifiedField question={field} onChange={onChange} handler={formFieldHandlers[field.type]} />
+              )}
             </div>
           </div>
         );

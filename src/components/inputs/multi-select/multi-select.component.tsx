@@ -10,7 +10,7 @@ import { isInlineView } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
-import QuestionLabelContainer from '../../question-label/question-label.component';
+import FieldLabel from '../../field-label/field-label.component';
 
 import styles from './multi-select.scss';
 
@@ -106,13 +106,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         <div className={styles.boldedLabel}>
           <Layer>
             {question.inlineMultiCheckbox ? (
-              <CheckboxGroup
-                legendText={
-                  <>
-                    <QuestionLabelContainer question={question} />
-                  </>
-                }
-                name={question.id}>
+              <CheckboxGroup legendText={<FieldLabel field={question} />} name={question.id}>
                 {question.questionOptions.answers?.map((value, index) => {
                   return (
                     <Checkbox
@@ -139,7 +133,7 @@ const MultiSelect: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
                 items={selectOptions}
                 initialSelectedItems={initiallySelectedQuestionItems}
                 label={''}
-                titleText={<QuestionLabelContainer question={question} />}
+                titleText={<FieldLabel field={question} />}
                 key={counter}
                 itemToString={(item) => (item ? item.label : ' ')}
                 disabled={question.isDisabled}

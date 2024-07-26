@@ -2,7 +2,7 @@
 
 .parentResizer {
   margin-top: 0.5rem;
-  margin-bottom: 0;
+  margin-bottom: 1rem;
 }
 
 .unspecifiedContainer {
@@ -13,12 +13,6 @@
 
 .flexBasisOn {
   flex-basis: 100%;
-}
-
-.questionInfoFlexEnd {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
 }
 
 .questionInfoDefault {
@@ -33,16 +27,6 @@
 .questionInfoCentralized {
   display: flex;
   align-items: center !important;
-
-  > .questionInfoControl {
-    position: relative;
-    align-items: flex-start;
-  }
-}
-
-.questionInfoControl {
-  margin: 0 0.25rem;
-  align-items: start;
 }
 
 .controlWidthConstrained {

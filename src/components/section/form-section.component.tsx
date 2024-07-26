@@ -90,24 +90,17 @@ const FormSection = ({ fields, onFieldChange }) => {
                 <div key={index} className={styles.parentResizer}>
                   <div
                     className={classNames({
-                      [styles.questionInfoDefault]: fieldDescriptor.questionInfo && rendering === 'radio',
-                      [styles.questionInfoCentralized]: fieldDescriptor.questionInfo && rendering !== 'radio',
+                      [styles.flexBasisOn]: [
+                        'ui-select-extended',
+                        'content-switcher',
+                        'select',
+                        'textarea',
+                        'text',
+                        'checkbox',
+                      ].includes(rendering),
                     })}>
-                    <div
-                      className={classNames({
-                        [styles.flexBasisOn]: [
-                          'ui-select-extended',
-                          'content-switcher',
-                          'select',
-                          'textarea',
-                          'text',
-                          'checkbox',
-                        ].includes(rendering),
-                      })}>
-                      {qnFragment}
-                    </div>
+                    {qnFragment}
                   </div>
-
                   <div className={styles.unspecifiedContainer}>
                     {isUnspecifiedSupported(fieldDescriptor) && rendering != 'group' && (
                       <UnspecifiedField question={fieldDescriptor} onChange={onFieldChange} handler={handler} />

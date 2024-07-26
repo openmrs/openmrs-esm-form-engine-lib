@@ -9,7 +9,7 @@ import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
-import QuestionLabelContainer from '../../question-label/question-label.component';
+import FieldLabel from '../../field-label/field-label.component';
 
 import styles from './radio.scss';
 
@@ -52,7 +52,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
   ) : (
     !question.isHidden && (
       <FormGroup
-        legendText={<QuestionLabelContainer question={question} />}
+        legendText={<FieldLabel field={question} />}
         className={styles.boldedLegend}
         disabled={question.isDisabled}
         invalid={errors.length > 0}>

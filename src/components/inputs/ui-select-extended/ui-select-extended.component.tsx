@@ -13,7 +13,7 @@ import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import useDatasourceDependentValue from '../../../hooks/useDatasourceDependentValue';
-import QuestionLabelContainer from '../../question-label/question-label.component';
+import FieldLabel from '../../field-label/field-label.component';
 
 import styles from './ui-select-extended.scss';
 
@@ -156,7 +156,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
         <Layer>
           <ComboBox
             id={question.id}
-            titleText={<QuestionLabelContainer question={question} />}
+            titleText={<FieldLabel field={question} />}
             items={items}
             itemToString={(item) => item?.display}
             selectedItem={items.find((item) => item.uuid == field.value)}

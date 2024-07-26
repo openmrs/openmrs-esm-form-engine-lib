@@ -9,7 +9,7 @@ import FieldValueView from '../../value/view/field-value-view.component';
 import { isEmpty } from '../../../validators/form-validator';
 import { booleanConceptToBoolean } from '../../../utils/common-expression-helpers';
 import { useTranslation } from 'react-i18next';
-import QuestionLabelContainer from '../../question-label/question-label.component';
+import FieldLabel from '../../field-label/field-label.component';
 
 import styles from './toggle.scss';
 
@@ -57,7 +57,7 @@ const Toggle: React.FC<FormFieldProps> = ({ question, onChange, handler, previou
     !question.isHidden && (
       <div className={styles.boldedLabel}>
         <ToggleInput
-          labelText={<QuestionLabelContainer question={question} />}
+          labelText={<FieldLabel field={question} />}
           className={styles.boldedLabel}
           id={question.id}
           labelA={question.questionOptions.toggleOptions.labelFalse}

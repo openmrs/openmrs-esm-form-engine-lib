@@ -9,7 +9,7 @@ import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
-import QuestionLabelContainer from '../../question-label/question-label.component';
+import FieldLabel from '../../field-label/field-label.component';
 
 import styles from './text-area.scss';
 
@@ -60,7 +60,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
           <TextAreaInput
             {...field}
             id={question.id}
-            labelText={<QuestionLabelContainer question={question} />}
+            labelText={<FieldLabel field={question} />}
             name={question.id}
             value={field.value || ''}
             onFocus={() => setPreviousValue(field.value)}

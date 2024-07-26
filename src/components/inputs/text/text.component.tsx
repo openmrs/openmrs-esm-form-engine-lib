@@ -9,7 +9,7 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
-import QuestionLabelContainer from '../../question-label/question-label.component';
+import FieldLabel from '../../field-label/field-label.component';
 
 import styles from './text.scss';
 
@@ -61,7 +61,7 @@ const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
             <TextInput
               {...field}
               id={question.id}
-              labelText={<QuestionLabelContainer question={question} />}
+              labelText={<FieldLabel field={question} />}
               name={question.id}
               value={field.value || ''}
               disabled={question.isDisabled}
