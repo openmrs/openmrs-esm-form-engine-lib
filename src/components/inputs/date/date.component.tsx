@@ -133,10 +133,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                         label={question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')}
                       />
                     ) : (
-                      <span>
-                        {t('time', 'Time')}
-                        {question.questionInfo ? <Tooltip field={question} /> : null}
-                      </span>
+                      <span>{question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')}</span>
                     )
                   }
                   placeholder="HH:MM"
