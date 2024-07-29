@@ -128,9 +128,11 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   id={question.id}
                   labelText={
                     question.isRequired ? (
-                      <RequiredFieldLabel label={t('time', 'Time')} />
+                      <RequiredFieldLabel
+                        label={question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')}
+                      />
                     ) : (
-                      <span>{t('time', 'Time')}</span>
+                      <span>{question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')}</span>
                     )
                   }
                   placeholder="HH:MM"
