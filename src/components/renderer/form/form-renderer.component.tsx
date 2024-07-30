@@ -42,6 +42,10 @@ export const FormRenderer = ({ processorContext, initialValues, isSubForm }: For
     dispatch({ type: 'ADD_FORM_FIELD', value: field });
   }, []);
 
+  const updateFormField = useCallback((field: FormField) => {
+    dispatch({ type: 'UPDATE_FORM_FIELD', value: field });
+  }, []);
+
   const getFormField = useCallback(
     (fieldId: string) => {
       return formFields.find((field) => field.id === fieldId);
@@ -75,6 +79,7 @@ export const FormRenderer = ({ processorContext, initialValues, isSubForm }: For
       invalidFields,
       evalExpression,
       addFormField,
+      updateFormField,
       getFormField,
       removeFormField,
       setInvalidFields,

@@ -32,7 +32,6 @@ export function prepareEncounter(
 
   if (encounter) {
     Object.assign(encounterForSubmission, encounter);
-    encounterForSubmission.location = location;
     // update encounter providers
     const hasCurrentProvider =
       encounterForSubmission.encounterProviders.findIndex(
@@ -46,14 +45,15 @@ export function prepareEncounter(
           encounterRole,
         },
       ];
-      encounterForSubmission.form = {
-        uuid: formJson.uuid,
-      };
-      if (visit) {
-        encounterForSubmission['visit'] = {
-          uuid: visit?.uuid,
-        };
-      }
+    }
+    // TODO: Question: Should we be editing the location, form and visit here?
+    encounterForSubmission.encounterDatetime = encounterDate;
+    encounterForSubmission.location = location;
+    encounterForSubmission.form = {
+      uuid: formJson.uuid,
+    };
+    if (visit) {
+      encounterForSubmission.visit = visit.uuid;
     }
     encounterForSubmission.obs = obsForSubmission;
     encounterForSubmission.orders = ordersForSubmission;
@@ -153,16 +153,27 @@ export function saveAttachments(fields: FormField[], encounter: OpenmrsEncounter
 }
 
 export function getMutableSessionProps(context: FormContextProps) {
-  const { formFields, location, currentProvider, sessionDate, customDependencies } = context;
+  const {
+    formFields,
+    location,
+    currentProvider,
+    sessionDate,
+    customDependencies,
+    domainObjectValue: encounter,
+  } = context;
   const defaultRole = customDependencies?.encounterRole;
   const encounterRole =
     formFields.find((field) => field.type === 'encounterRole')?.meta.submission?.newValue || defaultRole?.uuid;
   const encounterProvider =
     formFields.find((field) => field.type === 'encounterProvider')?.meta.submission?.newValue || currentProvider.uuid;
   const encounterDate =
-    formFields.find((field) => field.type === 'encounterDate')?.meta.submission?.newValue || sessionDate;
+    formFields.find((field) => field.type === 'encounterDatetime')?.meta.submission?.newValue ||
+    encounter?.encounterDatetime ||
+    sessionDate;
   const encounterLocation =
-    formFields.find((field) => field.type === 'encounterLocation')?.meta.submission?.newValue || location.uuid;
+    formFields.find((field) => field.type === 'encounterLocation')?.meta.submission?.newValue ||
+    encounter?.location?.uuid ||
+    location.uuid;
   return {
     encounterRole: encounterRole as string,
     encounterProvider: encounterProvider as string,

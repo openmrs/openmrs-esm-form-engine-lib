@@ -8,9 +8,10 @@ export const EncounterLocationAdapter: FormFieldValueAdapter = {
     gracefullySetSubmission(field, value, null);
   },
   getInitialValue: function (field: FormField, sourceObject: OpenmrsResource, context: FormProcessorContextProps): any {
-    if (sourceObject['location']?.uuid) {
+    if (sourceObject && sourceObject['location']?.uuid) {
       return sourceObject['location'].uuid;
     }
+
     return context.location.uuid;
   },
   getPreviousValue: function (

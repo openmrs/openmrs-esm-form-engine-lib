@@ -60,7 +60,8 @@ function handleQuestionsWithDateOptions(sectionQuestions: Array<FormField>): Arr
           isTransient: true,
         },
         validators: question.questionOptions.shownDateOptions?.validators,
-        disabled: { disableWhenExpression: `isEmpty(${question.id})` },
+        // TODO: uncomment when skip logic is implemented
+        // disabled: { disableWhenExpression: `isEmpty(${question.id})` },
         hide: question.questionOptions.shownDateOptions?.hide || question.hide,
         meta: {
           targetField: question.id,
@@ -84,9 +85,11 @@ function sanitizeQuestion(question: FormField) {
   parseBooleanTokenIfPresent(question.questionOptions, 'isTransient');
   parseBooleanTokenIfPresent(question.questionOptions, 'enablePreviousValue');
   parseBooleanTokenIfPresent(question.questionOptions, 'allowMultiple');
-  question.meta = {
-    submission: null,
-  };
+  if (!question.meta) {
+    question.meta = {
+      submission: null,
+    };
+  }
 }
 
 function parseBooleanTokenIfPresent(node: any, token: any) {
@@ -221,7 +224,8 @@ function handleQuestionsWithObsComments(sectionQuestions: Array<FormField>): Arr
           isTransient: true,
         },
         validators: question.questionOptions.shownCommentOptions?.validators,
-        disabled: { disableWhenExpression: `isEmpty(${question.id})` },
+        // TODO: uncomment when skip logic is implemented
+        // disabled: { disableWhenExpression: `isEmpty(${question.id})` },
         hide: question.questionOptions.shownCommentOptions?.hide || question.hide,
         meta: {
           targetField: question.id,

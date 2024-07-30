@@ -1,24 +1,26 @@
-import { type OpenmrsResource } from '@openmrs/esm-framework';
+import { parseDate, toOmrsIsoString, type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormContextProps } from '../provider/form-provider';
+import { isNewSubmissionEffective } from './obs-comment-adapter';
+import { isEmpty } from '../validators/form-validator';
 import { type FormField, type FormFieldValueAdapter, type FormProcessorContextProps } from '../types';
 import { hasSubmission } from '../utils/common-utils';
-import { isEmpty } from '../validators/form-validator';
-import { editObs, hasPreviousObsValueChanged } from './obs-adapter';
+import { editObs } from './obs-adapter';
+import dayjs from 'dayjs';
 
-export const ObsCommentAdapter: FormFieldValueAdapter = {
+export const InlineDateAdapter: FormFieldValueAdapter = {
   transformFieldValue: function (field: FormField, value: any, context: FormContextProps) {
     const targetField = context.getFormField(field.meta.targetField);
     const targetFieldCurrentValue = context.methods.getValues(targetField.id);
-
+    const dateString = value instanceof Date ? toOmrsIsoString(value) : value;
     if (targetField.meta.submission?.newValue) {
-      if (isEmpty(value) && !isNewSubmissionEffective(targetField, targetFieldCurrentValue)) {
+      if (isEmpty(dateString) && !isNewSubmissionEffective(targetField, targetFieldCurrentValue)) {
         // clear submission
         targetField.meta.submission.newValue = null;
       } else {
-        targetField.meta.submission.newValue.comment = value;
+        targetField.meta.submission.newValue.obsDatetime = dateString;
       }
     } else if (!hasSubmission(targetField) && targetField.meta.previousValue) {
-      if (isEmpty(value) && isEmpty(targetField.meta.previousValue.comment)) {
+      if (isEmpty(value) && isEmpty(targetField.meta.previousValue.obsDatetime)) {
         return null;
       }
       // generate submission
@@ -26,18 +28,19 @@ export const ObsCommentAdapter: FormFieldValueAdapter = {
       targetField.meta.submission = {
         newValue: {
           ...newSubmission,
-          comment: value,
+          obsDatetime: dateString,
         },
       };
     }
-    return null;
   },
   getInitialValue: function (field: FormField, sourceObject: OpenmrsResource, context: FormProcessorContextProps) {
     const encounter = sourceObject ?? context.domainObjectValue;
     if (encounter) {
-      const targetFieldId = field.id.split('_obs_comment')[0];
+      const targetFieldId = field.id.split('_inline_date')[0];
       const targetField = context.formFields.find((field) => field.id === targetFieldId);
-      return targetField?.meta.previousValue?.comment;
+      if (targetField?.meta.previousValue?.obsDatetime) {
+        return parseDate(targetField?.meta.previousValue?.obsDatetime);
+      }
     }
     return null;
   },
@@ -49,19 +52,9 @@ export const ObsCommentAdapter: FormFieldValueAdapter = {
     return null;
   },
   getDisplayValue: function (field: FormField, value: any) {
-    if (value?.display) {
-      return value.display;
-    }
     return value;
   },
   tearDown: function (): void {
     return;
   },
 };
-
-export function isNewSubmissionEffective(targetField: FormField, targetFieldCurrentValue: any) {
-  return (
-    hasPreviousObsValueChanged(targetField, targetFieldCurrentValue) ||
-    !isEmpty(targetField.meta.submission.newValue.obsDatetime)
-  );
-}

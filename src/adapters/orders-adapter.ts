@@ -6,6 +6,7 @@ import { clearSubmission, gracefullySetSubmission } from '../utils/common-utils'
 
 export let assignedOrderIds: string[] = [];
 const defaultOrderType = 'testorder';
+const defaultCareSetting = '6f0c9a92-6f24-11e3-af88-005056821db0';
 
 export const OrdersAdapter: FormFieldValueAdapter = {
   transformFieldValue: function (field: FormField, value: any, context: FormContextProps) {
@@ -40,10 +41,7 @@ export const OrdersAdapter: FormFieldValueAdapter = {
     return null;
   },
   getDisplayValue: (field: FormField, value: any) => {
-    return (
-      field.questionOptions.answers?.find((option) => option.concept == value.concept.uuid)?.label ||
-      value.concept.display
-    );
+    return field.questionOptions.answers?.find((option) => option.concept == value)?.label || value;
   },
   tearDown: function (): void {
     assignedOrderIds = [];
@@ -58,7 +56,7 @@ function constructNewOrder(value: any, field: FormField, orderer: string) {
     action: 'NEW',
     concept: value,
     type: field?.questionOptions?.orderType || defaultOrderType,
-    careSetting: field?.questionOptions?.orderSettingUuid,
+    careSetting: field?.questionOptions?.orderSettingUuid || defaultCareSetting,
     orderer: orderer,
   };
 }

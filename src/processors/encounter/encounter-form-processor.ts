@@ -51,7 +51,7 @@ function useCustomHooks(context: Partial<FormProcessorContextProps>) {
           customDependencies: {
             ...context.customDependencies,
             patientPrograms: patientPrograms,
-            encounterRole: encounterRole,
+            defaultEncounterRole: encounterRole,
           },
         };
       });
@@ -62,8 +62,16 @@ function useCustomHooks(context: Partial<FormProcessorContextProps>) {
 const emptyValues = {
   checkbox: [],
   toggle: false,
+  text: '',
 };
 
+const contextInitializableTypes = [
+  'encounterProvider',
+  'encounterDatetime',
+  'encounterLocation',
+  'patientIdentifier',
+  'encounterRole',
+];
 export class EncounterFormProcessor extends FormProcessor {
   prepareFormSchema(schema: FormSchema) {
     return schema;
@@ -171,7 +179,7 @@ export class EncounterFormProcessor extends FormProcessor {
 
   async getInitialValues(context: FormProcessorContextProps) {
     // TODO: Handle context initializable fields eg. encounterProvider, encounterRole etc.
-    const { domainObjectValue: encounter, formFields, formFieldAdapters, sessionMode, patient } = context;
+    const { domainObjectValue: encounter, formFields, formFieldAdapters } = context;
     const initialValues = {};
     const repeatableFields = [];
     if (encounter) {
@@ -186,7 +194,12 @@ export class EncounterFormProcessor extends FormProcessor {
             if (field.type === 'obsGroup') {
               return;
             }
-            const value = await adapter.getInitialValue(field, encounter, context);
+            let value = null;
+            try {
+              value = await adapter.getInitialValue(field, encounter, context);
+            } catch (error) {
+              console.error(error);
+            }
             if (!isEmpty(value)) {
               initialValues[field.id] = value;
             } else if (!isEmpty(field.questionOptions.defaultValue)) {
@@ -196,10 +209,6 @@ export class EncounterFormProcessor extends FormProcessor {
             }
             if (field.questionOptions.calculate?.calculateExpression) {
               await evaluateCalculateExpression(field, initialValues, context);
-            }
-            // TODO: figure out a better way to handle unspecified fields
-            if (field.unspecified) {
-              initialValues[`${field.id}-unspecified`] = !value;
             }
           } else {
             console.warn(`No adapter found for field type ${field.type}`);
@@ -211,14 +220,25 @@ export class EncounterFormProcessor extends FormProcessor {
       ).then((results) => results.flat());
       formFields.push(...flattenedRepeatableFields);
     } else {
-      formFields
-        .filter((field) => field.questionOptions.rendering !== 'group' && field.type !== 'obsGroup')
-        .forEach(async (field) => {
+      const filteredFields = formFields.filter(
+        (field) => field.questionOptions.rendering !== 'group' && field.type !== 'obsGroup',
+      );
+      await Promise.all(
+        filteredFields.map(async (field) => {
+          const adapter = formFieldAdapters[field.type];
           initialValues[field.id] = emptyValues[field.questionOptions.rendering] ?? null;
           if (field.questionOptions.calculate?.calculateExpression) {
             await evaluateCalculateExpression(field, initialValues, context);
           }
-        });
+          if (isEmpty(initialValues[field.id]) && contextInitializableTypes.includes(field.type)) {
+            try {
+              initialValues[field.id] = await adapter.getInitialValue(field, null, context);
+            } catch (error) {
+              console.error(error);
+            }
+          }
+        }),
+      );
     }
     return initialValues;
   }

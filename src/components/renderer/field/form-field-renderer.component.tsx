@@ -5,17 +5,20 @@ import {
   type ValidationResult,
   type FormFieldValidator,
   type SessionMode,
-} from '../../types';
+} from '../../../types';
 import { Controller } from 'react-hook-form';
 import { ToastNotification } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from 'react-error-boundary';
-import { type FormFieldValueAdapter, type FormFieldInputProps } from '../../types';
-import { getFieldControlWithFallback, hasRendering } from '../../utils/common-utils';
-import { useFormProviderContext } from '../../provider/form-provider';
-import { isEmpty } from '../../validators/form-validator';
-import PreviousValueReview from '../previous-value-review/previous-value-review.component';
-import { getRegisteredControl } from '../../registry/registry';
+import { type FormFieldValueAdapter, type FormFieldInputProps } from '../../../types';
+import { getFieldControlWithFallback, hasRendering } from '../../../utils/common-utils';
+import { useFormProviderContext } from '../../../provider/form-provider';
+import { isEmpty } from '../../../validators/form-validator';
+import PreviousValueReview from '../../previous-value-review/previous-value-review.component';
+import { getRegisteredControl } from '../../../registry/registry';
+import styles from './form-field-renderer.scss';
+import { isTrue } from '../../../utils/boolean-utils';
+import UnspecifiedField from '../../inputs/unspecified/unspecified.component';
 
 export interface FormFieldRendererProps {
   field: FormField;
@@ -88,7 +91,8 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
   useEffect(() => {
     const value = getValues(field.id);
     const { submission, previousValue, unspecified } = field.meta;
-    if (!isEmpty(value) && !previousValue && !submission?.newValue && !unspecified) {
+    const { calculate, defaultValue } = field.questionOptions;
+    if (!isEmpty(value) && !submission?.newValue && !unspecified && (calculate?.calculateExpression || defaultValue)) {
       valueAdapter.transformFieldValue(field, value, context);
     }
     if (previousDomainObjectValue) {
@@ -106,7 +110,6 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
   }, []);
 
   const onAfterChange = (value: any) => {
-    // validate field value
     const { errors: validationErrors, warnings: validationWarnings } = validateFieldValue(
       field,
       value,
@@ -124,8 +127,7 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
       setErrors(validationErrors);
       addInvalidField(field);
     }
-    if (!validationErrors.length && !isEmpty(value)) {
-      setValue(`${field.id}-unspecified`, false);
+    if (!validationErrors.length) {
       valueAdapter.transformFieldValue(field, value, context);
     }
     setWarnings(validationWarnings);
@@ -164,6 +166,18 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
               setFieldValue={onChange}
               onAfterChange={onAfterChange}
             />
+            {isUnspecifiedSupported(field) && (
+              <div className={styles.unspecifiedContainer}>
+                {field.unspecified && (
+                  <UnspecifiedField
+                    field={field}
+                    setFieldValue={onChange}
+                    onAfterChange={onAfterChange}
+                    fieldValue={value}
+                  />
+                )}
+              </div>
+            )}
             {historicalValue && (
               <div>
                 <PreviousValueReview
@@ -196,10 +210,6 @@ function ErrorFallback({ error }) {
       title={t('errorRenderingField', 'Error rendering field')}
     />
   );
-}
-
-function isGroupField(rendering: RenderType) {
-  return rendering === 'group' || rendering === 'repeating';
 }
 
 export interface ValidatorConfig {
@@ -245,4 +255,24 @@ function validateFieldValue(
   }
 
   return { errors, warnings };
+}
+
+/**
+ * Determines whether a field can be unspecified
+ */
+export function isUnspecifiedSupported(question: FormField) {
+  const { rendering } = question.questionOptions;
+  return (
+    isTrue(question.unspecified) &&
+    rendering != 'toggle' &&
+    rendering != 'group' &&
+    rendering != 'repeating' &&
+    rendering != 'markdown' &&
+    rendering != 'extension-widget' &&
+    rendering != 'workspace-launcher'
+  );
+}
+
+function isGroupField(rendering: RenderType) {
+  return rendering === 'group' || rendering === 'repeating';
 }

@@ -28,7 +28,6 @@ const PreviousValueReview: React.FC<PreviousValueReviewProps> = ({
   const onReuseValue = (e) => {
     e.preventDefault();
     setValue(field.id, previousValue);
-    setValue(`${field.id}-unspecified`, false);
     onAfterChange(previousValue);
   };
 

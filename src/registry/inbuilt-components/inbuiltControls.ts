@@ -13,6 +13,7 @@ import Toggle from '../../components/inputs/toggle/toggle.component';
 import UiSelectExtended from '../../components/inputs/ui-select-extended/ui-select-extended.component';
 import WorkspaceLauncher from '../../components/inputs/workspace-launcher/workspace-launcher.component';
 import Repeat from '../../components/repeat/repeat.component';
+import File from '../../components/inputs/file/file.component';
 import { type FormFieldInputProps } from '../../types';
 import { type RegistryItem } from '../registry';
 import { controlTemplates } from './control-templates';
@@ -45,6 +46,10 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<FormFieldIn
   },
   {
     name: 'date',
+    component: DateField,
+  },
+  {
+    name: 'datetime',
     component: DateField,
   },
   {
@@ -82,6 +87,10 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<FormFieldIn
   {
     name: 'ui-select-extended',
     component: UiSelectExtended,
+  },
+  {
+    name: 'file',
+    component: File,
   },
   ...controlTemplates.map((template) => ({
     name: template.name,

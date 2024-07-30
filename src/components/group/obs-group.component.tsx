@@ -2,7 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { type FormFieldInputProps } from '../../types';
 import styles from './obs-group.scss';
-import { FormFieldRenderer } from '../renderer/form-field-renderer.component';
+import { FormFieldRenderer } from '../renderer/field/form-field-renderer.component';
 import { useFormProviderContext } from '../../provider/form-provider';
 
 export const ObsGroup: React.FC<FormFieldInputProps> = ({ field }) => {

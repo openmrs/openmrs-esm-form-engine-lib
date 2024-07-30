@@ -11,6 +11,7 @@ export interface FormContextProps extends FormProcessorContextProps {
   evalExpression?: (expression: string, node: FormNode, value?: any, otherProps?: any) => string;
   getFormField?: (field: string) => FormField;
   addFormField?: (field: FormField) => void;
+  updateFormField?: (field: FormField) => void;
   removeFormField?: (fieldId: string) => void;
   addInvalidField?: (field: FormField) => void;
   removeInvalidField?: (fieldId: string) => void;

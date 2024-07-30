@@ -244,6 +244,8 @@ export type RenderType =
   | 'workspace-launcher'
   | 'fixed-value'
   | 'file'
+  | 'markdown'
+  | 'extension-widget'
   | 'select-concept-answers';
 
 export interface FormReference {

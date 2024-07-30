@@ -6,11 +6,11 @@ import { evaluateAsyncExpression, evaluateExpression } from '../../utils/express
 import { isEmpty } from '../../validators/form-validator';
 import styles from './repeat.scss';
 import { cloneRepeatField } from './helpers';
-import { clearSubmission } from '../../utils/common-utils';
+import { clearSubmission, isViewMode } from '../../utils/common-utils';
 import RepeatControls from './repeat-controls.component';
 import { createErrorHandler } from '@openmrs/esm-framework';
 import { useFormProviderContext } from '../../provider/form-provider';
-import { FormFieldRenderer } from '../renderer/form-field-renderer.component';
+import { FormFieldRenderer } from '../renderer/field/form-field-renderer.component';
 import { useFormFactory } from '../../provider/form-factory-provider';
 
 const renderingByTypeMap: Record<string, RenderType> = {
@@ -142,19 +142,21 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
             </div>
           )}
           {isGrouped ? <div className={styles.obsGroupContainer}>{component}</div> : component}
-          <RepeatControls
-            question={field}
-            rows={rows}
-            questionIndex={index}
-            handleDelete={() => {
-              onClickDeleteQuestion(field);
-            }}
-            handleAdd={() => {
-              const nextCount = counter + 1;
-              handleAdd(nextCount);
-              setCounter(nextCount);
-            }}
-          />
+          {!isViewMode(sessionMode) && (
+            <RepeatControls
+              question={field}
+              rows={rows}
+              questionIndex={index}
+              handleDelete={() => {
+                onClickDeleteQuestion(field);
+              }}
+              handleAdd={() => {
+                const nextCount = counter + 1;
+                handleAdd(nextCount);
+                setCounter(nextCount);
+              }}
+            />
+          )}
         </div>
       );
     });

@@ -8,12 +8,12 @@ export const EncounterRoleAdapter: FormFieldValueAdapter = {
     gracefullySetSubmission(field, value, null);
   },
   getInitialValue: function (field: FormField, sourceObject: OpenmrsResource, context: FormProcessorContextProps) {
-    const encounter = sourceObject ?? context.previousDomainObjectValue;
-    if (encounter['encounterProviders']?.length) {
+    const encounter = sourceObject ?? context.domainObjectValue;
+    if (encounter && encounter['encounterProviders']?.length) {
       const lastProviderIndex = encounter['encounterProviders'].length - 1;
       return encounter['encounterProviders'][lastProviderIndex].encounterRole.uuid;
     }
-    return context.customDependencies.defaultRole.uuid;
+    return context.customDependencies.defaultEncounterRole.uuid;
   },
   getPreviousValue: function (field: FormField, sourceObject: OpenmrsResource, context: FormProcessorContextProps) {
     const encounter = sourceObject ?? context.previousDomainObjectValue;

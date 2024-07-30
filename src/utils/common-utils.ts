@@ -25,21 +25,6 @@ export function hasRendering(field: FormField, rendering: RenderType) {
   return field.questionOptions.rendering === rendering;
 }
 
-export function createAttachment(data: AttachmentResponse): Attachment {
-  const attachmentUrl = `${restBaseUrl}/attachment`;
-  return {
-    id: data.uuid,
-    src: `${window.openmrsBase}${attachmentUrl}/${data.uuid}/bytes`,
-    title: data.comment,
-    description: '',
-    dateTime: formatDate(new Date(data.dateTime), {
-      mode: 'wide',
-    }),
-    bytesMimeType: data.bytesMimeType,
-    bytesContentFamily: data.bytesContentFamily,
-  };
-}
-
 export function clearSubmission(field: FormField) {
   if (!field.meta?.submission) {
     field.meta = { ...(field.meta || {}), submission: {} };
@@ -90,4 +75,8 @@ export function hasMissingConcept(question: FormField) {
   return (
     question.type == 'obs' && !question.questionOptions.concept && question.questionOptions.rendering !== 'fixed-value'
   );
+}
+
+export function isViewMode(sessionMode: string) {
+  return sessionMode === 'view' || sessionMode === 'embedded-view';
 }

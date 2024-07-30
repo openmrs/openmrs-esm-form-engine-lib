@@ -9,6 +9,7 @@ type FormState = {
 type Action =
   | { type: 'SET_FORM_FIELDS'; value: FormField[] }
   | { type: 'ADD_FORM_FIELD'; value: FormField }
+  | { type: 'UPDATE_FORM_FIELD'; value: FormField }
   | { type: 'REMOVE_FORM_FIELD'; value: string }
   | { type: 'SET_INVALID_FIELDS'; value: FormField[] }
   | { type: 'ADD_INVALID_FIELD'; value: FormField }
@@ -28,6 +29,11 @@ const formStateReducer = (state: FormState, action: Action): FormState => {
       return { ...state, formFields: action.value };
     case 'ADD_FORM_FIELD':
       return { ...state, formFields: [...state.formFields, action.value] };
+    case 'UPDATE_FORM_FIELD':
+      return {
+        ...state,
+        formFields: state.formFields.map((field) => (field.id === action.value.id ? action.value : field)),
+      };
     case 'REMOVE_FORM_FIELD':
       return { ...state, formFields: state.formFields.filter((field) => field.id !== action.value) };
     case 'SET_INVALID_FIELDS':

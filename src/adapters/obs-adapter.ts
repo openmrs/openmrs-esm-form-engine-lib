@@ -1,12 +1,19 @@
 import dayjs from 'dayjs';
 import { ConceptTrue, codedTypes } from '../constants';
-import { type OpenmrsObs, type FormField, type OpenmrsEncounter } from '../types';
+import {
+  type OpenmrsObs,
+  type FormField,
+  type OpenmrsEncounter,
+  type AttachmentResponse,
+  type Attachment,
+} from '../types';
 import { hasRendering, gracefullySetSubmission, clearSubmission, flattenObsList } from '../utils/common-utils';
 import { parseToLocalDateTime } from '../utils/form-helper';
 import { type FormContextProps } from '../provider/form-provider';
 import { type FormFieldValueAdapter } from '../types';
 import { isEmpty } from '../validators/form-validator';
 import { getAttachmentByUuid } from '../api/api';
+import { formatDate, restBaseUrl } from '@openmrs/esm-framework';
 
 // Temporarily holds observations that have already been bound with matching fields
 export let assignedObsIds: string[] = [];
@@ -16,7 +23,11 @@ export const ObsAdapter: FormFieldValueAdapter = {
     const encounter = sourceObject ?? (context.domainObjectValue as OpenmrsEncounter);
     if (hasRendering(field, 'file')) {
       const ac = new AbortController();
-      return getAttachmentByUuid(context.patient.id, encounter.uuid, ac);
+      const attachmentsResponse = await getAttachmentByUuid(context.patient.id, encounter.uuid, ac);
+      // TODO: This seems like a violation of the data model.
+      // I think we should instead use something like `formFieldPath` to do the mapping.
+      const rawAttachment = attachmentsResponse.results?.find((attachment) => attachment.comment === field.id);
+      return rawAttachment ? generateAttachment(rawAttachment) : null;
     }
     return extractFieldValue(field, findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field), true);
   },
@@ -122,7 +133,7 @@ export function constructObs(field: FormField, value: any): Partial<OpenmrsObs> 
     field.type === 'obsGroup'
       ? { groupMembers: [] }
       : {
-          value: field.questionOptions.rendering.startsWith('date') ? formatDate(field, value) : value,
+          value: field.questionOptions.rendering.startsWith('date') ? formatDateByPickerType(field, value) : value,
         };
   return {
     ...draftObs,
@@ -136,18 +147,20 @@ export function voidObs(obs: OpenmrsObs) {
   return { uuid: obs.uuid, voided: true };
 }
 
-function editObs(field: FormField, newValue: any) {
+export function editObs(field: FormField, newValue: any) {
   const oldObs = field.meta.previousValue;
-  const formatedValue = field.questionOptions.rendering.startsWith('date') ? formatDate(field, newValue) : newValue;
+  const formattedValue = field.questionOptions.rendering.startsWith('date')
+    ? formatDateByPickerType(field, newValue)
+    : newValue;
   return {
     uuid: oldObs.uuid,
-    value: formatedValue,
+    value: formattedValue,
     formFieldNamespace: 'rfe-forms',
     formFieldPath: `rfe-forms-${field.id}`,
   };
 }
 
-function formatDate(field: FormField, value: Date) {
+function formatDateByPickerType(field: FormField, value: Date) {
   if (field.datePickerFormat) {
     switch (field.datePickerFormat) {
       case 'calendar':
@@ -174,7 +187,7 @@ export function hasPreviousObsValueChanged(field: FormField, newValue: any) {
   if (hasRendering(field, 'date')) {
     return dayjs(newValue).diff(dayjs(previousObs.value), 'D') !== 0;
   }
-  if (hasRendering(field, 'datetime')) {
+  if (hasRendering(field, 'datetime') || field.datePickerFormat === 'both') {
     return dayjs(newValue).diff(dayjs(previousObs.value), 'minute') !== 0;
   }
   if (hasRendering(field, 'toggle')) {
@@ -240,6 +253,17 @@ export function findObsByFormField(
   return obs;
 }
 
-export function teardownObsHandler() {
-  assignedObsIds = [];
+function generateAttachment(rawAttachment: AttachmentResponse): Attachment {
+  const attachmentUrl = `${restBaseUrl}/attachment`;
+  return {
+    id: rawAttachment.uuid,
+    src: `${window.openmrsBase}${attachmentUrl}/${rawAttachment.uuid}/bytes`,
+    title: rawAttachment.comment,
+    description: '',
+    dateTime: formatDate(new Date(rawAttachment.dateTime), {
+      mode: 'wide',
+    }),
+    bytesMimeType: rawAttachment.bytesMimeType,
+    bytesContentFamily: rawAttachment.bytesContentFamily,
+  };
 }

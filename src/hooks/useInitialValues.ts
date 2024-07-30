@@ -15,8 +15,8 @@ const useInitialValues = (
     if (
       formProcessor &&
       !isLoadingContextDependencies &&
-      context.formFieldAdapters &&
       context.formFields?.length &&
+      Object.keys(context.formFieldAdapters).length &&
       !Object.keys(initialValues).length
     ) {
       formProcessor
@@ -26,6 +26,7 @@ const useInitialValues = (
           setIsLoadingInitialValues(false);
         })
         .catch((error) => {
+          console.error(error);
           setError(error);
         });
     }
