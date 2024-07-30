@@ -133,11 +133,23 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                 <TimePicker
                   className={classNames(styles.boldedLabel, styles.timeInput)}
                   id={question.id}
-                  labelText={timePickerLabel}
+                  labelText={
+                    question.isRequired ? (
+                      <RequiredFieldLabel
+                        label={question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')}
+                      />
+                    ) : (
+                      <span>{question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')}</span>
+                    )
+                  }
                   placeholder="HH:MM"
                   pattern="(1[012]|[1-9]):[0-5][0-9])$"
                   type="time"
                   disabled={question.datePickerFormat === 'timer' ? question.isDisabled : !field.value ? true : false}
+                  invalid={errors.length > 0}
+                  invalidText={errors[0]?.message}
+                  warning={warnings.length > 0}
+                  warningText={warnings[0]?.message}
                   value={
                     time
                       ? time

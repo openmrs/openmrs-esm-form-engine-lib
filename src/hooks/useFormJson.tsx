@@ -211,18 +211,15 @@ function getReferencedFormSection(formSection: FormSection, formComponent: FormS
     }
   }
 
-  return filterExcludedQuestions(referencedFormSection);
+  return filterExcludedQuestions(referencedFormSection, formSection.reference);
 }
 
-function filterExcludedQuestions(formSection: FormSection): FormSection {
-  if (formSection.reference.excludeQuestions) {
-    const excludeQuestions = formSection.reference.excludeQuestions;
+function filterExcludedQuestions(formSection: FormSection, reference: any): FormSection {
+  if (reference?.excludeQuestions) {
+    const excludeQuestions = reference.excludeQuestions;
     formSection.questions = formSection.questions.filter((question) => {
       return !excludeQuestions.includes(question.id);
     });
   }
-  // delete reference from section
-  delete formSection.reference;
-
   return formSection;
 }
