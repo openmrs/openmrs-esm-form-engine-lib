@@ -135,9 +135,8 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   id={question.id}
                   labelText={
                     question.isRequired ? (
-                      <RequiredFieldLabel
-                        label={question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')}
-                      />
+                      <FieldLabel
+                        customLabel={question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')} field={undefined}                      />
                     ) : (
                       <span>{question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')}</span>
                     )
