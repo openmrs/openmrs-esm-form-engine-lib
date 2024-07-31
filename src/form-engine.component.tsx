@@ -115,7 +115,7 @@ const FormEngine: React.FC<FormProps> = ({
   const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(sessionMode);
 
   const showSidebar = useMemo(() => {
-    return workspaceLayout !== 'minimized' && scrollablePages.size > 1 && sessionMode !== 'embedded-view';
+    return scrollablePages.size > 1 && sessionMode !== 'embedded-view';
   }, [workspaceLayout, scrollablePages.size, sessionMode]);
 
   const showPatientBanner = useMemo(() => {
@@ -323,26 +323,6 @@ const FormEngine: React.FC<FormProps> = ({
                           <div>{fieldErrors.length > 0 ? <ErrorModal errors={fieldErrors} /> : null}</div>{' '}
                         </div>
                       </div>
-                      {showButtonSet && (
-                        <ButtonSet className={styles.minifiedButtons}>
-                          <Button
-                            kind="secondary"
-                            onClick={() => {
-                              onCancel && onCancel();
-                              handleClose && handleClose();
-                              hideFormCollapseToggle();
-                            }}>
-                            {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
-                          </Button>
-                          <Button type="submit" disabled={isLoadingFormDependencies || mode === 'view' || isSubmitting}>
-                            {isSubmitting ? (
-                              <InlineLoading description={t('submitting', 'Submitting') + '...'} />
-                            ) : (
-                              <span>{`${t('save', 'Save')}`}</span>
-                            )}
-                          </Button>
-                        </ButtonSet>
-                      )}
                     </div>
                   </div>
                 </div>
