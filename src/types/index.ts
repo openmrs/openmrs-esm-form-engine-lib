@@ -24,6 +24,11 @@ export interface FormProcessorContextProps {
   customDependencies?: Record<string, any>;
 }
 
+export interface ValueAndDisplay {
+  value: any;
+  display: string;
+}
+
 /**
  * Interface for adapting form field values between primitive and composite formats.
  */
@@ -49,7 +54,7 @@ export interface FormFieldValueAdapter {
     field: FormField,
     sourceObject: OpenmrsResource,
     context: FormProcessorContextProps,
-  ) => Promise<any> | any;
+  ) => Promise<ValueAndDisplay> | ValueAndDisplay;
   /**
    * Extracts the display value from a composite object.
    */

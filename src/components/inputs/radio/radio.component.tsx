@@ -9,13 +9,12 @@ import styles from './radio.scss';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 
-const Radio: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue, onAfterChange }) => {
+const Radio: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const { layoutType, sessionMode, workspaceLayout, formFieldAdapters } = useFormProviderContext();
 
   const handleChange = (value) => {
     setFieldValue(value);
-    onAfterChange(value);
   };
 
   const isInline = useMemo(() => {

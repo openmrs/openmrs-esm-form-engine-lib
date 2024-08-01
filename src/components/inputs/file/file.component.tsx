@@ -13,7 +13,7 @@ import FieldLabel from '../../field-label/field-label.component';
 
 type DataSourceType = 'filePicker' | 'camera' | null;
 
-const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue, onAfterChange }) => {
+const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) => {
   const { t } = useTranslation();
   const [cameraWidgetVisible, setCameraWidgetVisible] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
@@ -37,9 +37,8 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue, onAf
       const [selectedFile]: File[] = Array.from(event.target.files);
       setImagePreview(null);
       setFieldValue(selectedFile);
-      onAfterChange(selectedFile);
     },
-    [setFieldValue, onAfterChange],
+    [setFieldValue],
   );
 
   const handleCameraImageChange = useCallback(
@@ -47,9 +46,8 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue, onAf
       setImagePreview(newImage);
       setCameraWidgetVisible(false);
       setFieldValue(newImage);
-      onAfterChange(newImage);
     },
-    [setFieldValue, onAfterChange],
+    [setFieldValue],
   );
 
   if (isViewMode(sessionMode) && !value) {

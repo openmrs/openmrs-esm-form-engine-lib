@@ -10,23 +10,15 @@ import styles from './content-switcher.scss';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 
-const ContentSwitcher: React.FC<FormFieldInputProps> = ({
-  field,
-  value,
-  errors,
-  warnings,
-  setFieldValue,
-  onAfterChange,
-}) => {
+const ContentSwitcher: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const { layoutType, sessionMode, workspaceLayout, formFieldAdapters } = useFormProviderContext();
 
   const handleChange = useCallback(
     (value) => {
       setFieldValue(value.name);
-      onAfterChange(value.name);
     },
-    [setFieldValue, onAfterChange],
+    [setFieldValue],
   );
 
   const selectedIndex = useMemo(

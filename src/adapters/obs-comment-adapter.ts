@@ -42,16 +42,9 @@ export const ObsCommentAdapter: FormFieldValueAdapter = {
     return null;
   },
   getPreviousValue: function (field: FormField, sourceObject: OpenmrsResource, context: FormProcessorContextProps) {
-    const encounter = sourceObject ?? context.previousDomainObjectValue;
-    if (encounter) {
-      return this.getInitialValue(field, encounter, context);
-    }
     return null;
   },
-  getDisplayValue: function (field: FormField, value: any) {
-    if (value?.display) {
-      return value.display;
-    }
+  getDisplayValue: function (field: FormField, value: string) {
     return value;
   },
   tearDown: function (): void {

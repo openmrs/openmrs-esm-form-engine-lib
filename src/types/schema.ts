@@ -63,15 +63,14 @@ export interface FormField {
   questionOptions: FormQuestionOptions;
   datePickerFormat?: 'both' | 'calendar' | 'timer';
   id: string;
-  groupId?: string;
   questions?: Array<FormField>;
   value?: any;
   hide?: HideProps;
   isHidden?: boolean;
   isParentHidden?: boolean;
-  fieldDependants?: Set<string>;
-  pageDependants?: Set<string>;
-  sectionDependants?: Set<string>;
+  fieldDependents?: Set<string>;
+  pageDependents?: Set<string>;
+  sectionDependents?: Set<string>;
   isRequired?: boolean;
   required?: string | boolean | RequiredFieldProps;
   unspecified?: boolean;
@@ -118,13 +117,6 @@ export interface FormFieldInputProps {
    * @param value - The new value of the field.
    */
   setFieldValue: (value: any) => void;
-  /**
-   * Callback function to handle changes to the field value after the change has been processed.
-   * This function is used for side effect operations like running business logic.
-   *
-   * @param value - The new value of the field after processing.
-   */
-  onAfterChange: (value: any) => void;
 }
 
 export interface HideProps {
@@ -163,6 +155,7 @@ export interface QuestionMetaProps {
     isClone?: boolean;
     wasDeleted?: boolean;
   };
+  groupId?: string;
   [anythingElse: string]: any;
 }
 

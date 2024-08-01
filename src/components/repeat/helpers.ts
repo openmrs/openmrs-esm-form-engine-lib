@@ -4,9 +4,7 @@ import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { isEmpty } from '../../validators/form-validator';
 import { clearSubmission } from '../../utils/common-utils';
 import { assignedObsIds } from '../../adapters/obs-adapter';
-
-// TODO: placeholder for testOrderHandler
-const assignedOrderIds = [];
+import { assignedOrderIds } from '../../adapters/orders-adapter';
 
 export function cloneRepeatField(srcField: FormField, value: OpenmrsResource, idSuffix: number) {
   const originalGroupMembersIds: string[] = [];
@@ -17,7 +15,7 @@ export function cloneRepeatField(srcField: FormField, value: OpenmrsResource, id
   clonedField.questions?.forEach((childField) => {
     originalGroupMembersIds.push(childField.id);
     childField.id = `${childField.id}_${idSuffix}`;
-    childField['groupId'] = clonedField.id;
+    childField.meta.groupId = clonedField.id;
     childField.meta.previousValue = null;
     clearSubmission(childField);
 

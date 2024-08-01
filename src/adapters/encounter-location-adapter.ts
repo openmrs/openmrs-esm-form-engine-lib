@@ -1,6 +1,11 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormContextProps } from '../provider/form-provider';
-import { type FormField, type FormFieldValueAdapter, type FormProcessorContextProps } from '../types';
+import {
+  type ValueAndDisplay,
+  type FormField,
+  type FormFieldValueAdapter,
+  type FormProcessorContextProps,
+} from '../types';
 import { gracefullySetSubmission } from '../utils/common-utils';
 
 export const EncounterLocationAdapter: FormFieldValueAdapter = {
@@ -18,14 +23,14 @@ export const EncounterLocationAdapter: FormFieldValueAdapter = {
     field: FormField,
     sourceObject: OpenmrsResource,
     context: FormProcessorContextProps,
-  ): any {
+  ): ValueAndDisplay {
     const encounter = sourceObject ?? context.previousDomainObjectValue;
-    return encounter?.location?.uuid;
+    return {
+      value: encounter?.location?.uuid,
+      display: encounter?.location?.name,
+    };
   },
-  getDisplayValue: function (field: FormField, value: any) {
-    if (value?.display) {
-      return value.display;
-    }
+  getDisplayValue: function (field: FormField, value: string) {
     return value;
   },
   tearDown: function (): void {

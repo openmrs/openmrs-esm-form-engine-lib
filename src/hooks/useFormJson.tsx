@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { type FormSchemaTransformer, type FormSchema, type FormSection, type ReferencedForm } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
-import { fetchOpenMRSForm, fetchClobData } from '../api/api';
+import { fetchOpenMRSForm, fetchClobData } from '../api';
 import { getRegisteredFormSchemaTransformers } from '../registry/registry';
 import { moduleName } from '../globals';
 

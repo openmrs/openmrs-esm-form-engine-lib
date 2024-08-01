@@ -9,7 +9,7 @@ import styles from './text-area.scss';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 
-const TextArea: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue, onAfterChange }) => {
+const TextArea: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const [lastBlurredValue, setLastBlurredValue] = useState(value);
   const { layoutType, sessionMode, workspaceLayout } = useFormProviderContext();
@@ -18,7 +18,6 @@ const TextArea: React.FC<FormFieldInputProps> = ({ field, value, errors, warning
     event.preventDefault();
     if (lastBlurredValue !== value) {
       setLastBlurredValue(value);
-      onAfterChange(value);
     }
   };
 

@@ -7,7 +7,7 @@ import {
   type PatientProgramPayload,
   type FormProcessorContextProps,
 } from '../../types';
-import { saveAttachment, savePatientIdentifier, saveProgramEnrollment } from '../../api/api';
+import { saveAttachment, savePatientIdentifier, saveProgramEnrollment } from '../../api';
 import { hasRendering, hasSubmission } from '../../utils/common-utils';
 import dayjs from 'dayjs';
 import { voidObs, constructObs, assignedObsIds } from '../../adapters/obs-adapter';
@@ -248,7 +248,7 @@ function hasSubmittableObs(field: FormField) {
     type,
   } = field;
 
-  if (isTransient || !['obs', 'obsGroup'].includes(type) || hasRendering(field, 'file') || field['groupId']) {
+  if (isTransient || !['obs', 'obsGroup'].includes(type) || hasRendering(field, 'file') || field.meta.groupId) {
     return false;
   }
   if ((field.isHidden || field.isParentHidden) && field.meta.previousValue) {

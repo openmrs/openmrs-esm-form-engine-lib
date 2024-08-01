@@ -6,13 +6,14 @@ import {
   type OpenmrsEncounter,
   type AttachmentResponse,
   type Attachment,
+  type ValueAndDisplay,
 } from '../types';
 import { hasRendering, gracefullySetSubmission, clearSubmission, flattenObsList } from '../utils/common-utils';
 import { parseToLocalDateTime } from '../utils/form-helper';
 import { type FormContextProps } from '../provider/form-provider';
 import { type FormFieldValueAdapter } from '../types';
 import { isEmpty } from '../validators/form-validator';
-import { getAttachmentByUuid } from '../api/api';
+import { getAttachmentByUuid } from '../api';
 import { formatDate, restBaseUrl } from '@openmrs/esm-framework';
 
 // Temporarily holds observations that have already been bound with matching fields
@@ -31,10 +32,20 @@ export const ObsAdapter: FormFieldValueAdapter = {
     }
     return extractFieldValue(field, findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field), true);
   },
-  async getPreviousValue(field: FormField, sourceObject: any, context: FormContextProps) {
+  async getPreviousValue(field: FormField, sourceObject: any, context: FormContextProps): Promise<ValueAndDisplay> {
     const encounter = sourceObject ?? (context.previousDomainObjectValue as OpenmrsEncounter);
     if (encounter) {
-      return extractFieldValue(field, findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field), true);
+      const value = extractFieldValue(
+        field,
+        findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field),
+        true,
+      );
+      if (!isEmpty(value)) {
+        return {
+          value,
+          display: this.getDisplayValue(field, value),
+        };
+      }
     }
     return null;
   },

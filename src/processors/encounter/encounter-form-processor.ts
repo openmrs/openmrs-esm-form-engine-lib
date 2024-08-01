@@ -1,4 +1,10 @@
-import { type FormField, type FormProcessorContextProps } from '../../types';
+import {
+  type ValueAndDisplay,
+  type FormField,
+  type FormProcessorContextProps,
+  type FormPage,
+  type FormSection,
+} from '../../types';
 import { usePatientPrograms } from '../../hooks/usePatientPrograms';
 import { useEffect, useState } from 'react';
 import { useEncounter } from '../../hooks/useEncounter';
@@ -20,7 +26,7 @@ import {
 import { type OpenmrsResource, showSnackbar, translateFrom } from '@openmrs/esm-framework';
 import { moduleName } from '../../globals';
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
-import { saveEncounter } from '../../api/api';
+import { getPreviousEncounter, saveEncounter } from '../../api';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { type FormNode, evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { hasRendering } from '../../utils/common-utils';
@@ -74,6 +80,30 @@ const contextInitializableTypes = [
 ];
 export class EncounterFormProcessor extends FormProcessor {
   prepareFormSchema(schema: FormSchema) {
+    schema.pages.forEach((page) => {
+      page.sections.forEach((section) => {
+        section.questions.forEach((question) => {
+          prepareFormField(question, section, page, schema);
+        });
+      });
+    });
+
+    function prepareFormField(field: FormField, section: FormSection, page: FormPage, schema: FormSchema) {
+      // inherit inlineRendering and readonly from parent section and page if not set
+      field.inlineRendering =
+        field.inlineRendering ?? section.inlineRendering ?? page.inlineRendering ?? schema.inlineRendering;
+      field.readonly = field.readonly ?? section.readonly ?? page.readonly ?? schema.readonly;
+      if (field.questionOptions?.rendering == 'fixed-value' && !field.meta.fixedValue) {
+        field.meta.fixedValue = field.value;
+        delete field.value;
+      }
+      if (field.questionOptions?.rendering == 'group') {
+        field.questions?.forEach((child) => {
+          child.readonly = child.readonly ?? field.readonly;
+          return prepareFormField(child, section, page, schema);
+        });
+      }
+    }
     return schema;
   }
 
@@ -243,7 +273,22 @@ export class EncounterFormProcessor extends FormProcessor {
     return initialValues;
   }
 
-  async getHistoricalValue(field: FormField, context: FormContextProps) {
+  async loadDependencies(
+    context: FormContextProps,
+    setContext: React.Dispatch<React.SetStateAction<FormProcessorContextProps>>,
+  ) {
+    const { patient, formJson } = context;
+    const encounter = await getPreviousEncounter(patient?.id, formJson.encounterType);
+    setContext((context) => {
+      return {
+        ...context,
+        previousDomainObjectValue: encounter,
+      };
+    });
+    return context;
+  }
+
+  async getHistoricalValue(field: FormField, context: FormContextProps): Promise<ValueAndDisplay> {
     const {
       formFields,
       sessionMode,

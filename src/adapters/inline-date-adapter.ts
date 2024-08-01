@@ -1,11 +1,10 @@
-import { parseDate, toOmrsIsoString, type OpenmrsResource } from '@openmrs/esm-framework';
+import { formatDate, parseDate, toOmrsIsoString, type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormContextProps } from '../provider/form-provider';
 import { isNewSubmissionEffective } from './obs-comment-adapter';
 import { isEmpty } from '../validators/form-validator';
 import { type FormField, type FormFieldValueAdapter, type FormProcessorContextProps } from '../types';
 import { hasSubmission } from '../utils/common-utils';
 import { editObs } from './obs-adapter';
-import dayjs from 'dayjs';
 
 export const InlineDateAdapter: FormFieldValueAdapter = {
   transformFieldValue: function (field: FormField, value: any, context: FormContextProps) {
@@ -45,14 +44,13 @@ export const InlineDateAdapter: FormFieldValueAdapter = {
     return null;
   },
   getPreviousValue: function (field: FormField, sourceObject: OpenmrsResource, context: FormProcessorContextProps) {
-    const encounter = sourceObject ?? context.previousDomainObjectValue;
-    if (encounter) {
-      return this.getInitialValue(field, encounter, context);
-    }
     return null;
   },
-  getDisplayValue: function (field: FormField, value: any) {
-    return value;
+  getDisplayValue: function (field: FormField, value: Date) {
+    if (value) {
+      return formatDate(value);
+    }
+    return null;
   },
   tearDown: function (): void {
     return;

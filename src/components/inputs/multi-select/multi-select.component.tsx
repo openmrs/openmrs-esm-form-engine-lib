@@ -10,14 +10,7 @@ import styles from './multi-select.scss';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 
-const MultiSelect: React.FC<FormFieldInputProps> = ({
-  field,
-  value,
-  errors,
-  warnings,
-  setFieldValue,
-  onAfterChange,
-}) => {
+const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const [counter, setCounter] = useState(0);
   const [initiallyCheckedQuestionItems, setInitiallyCheckedQuestionItems] = useState([]);
@@ -47,7 +40,6 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({
       return selectedItem.concept;
     });
     setFieldValue(value);
-    onAfterChange(value);
   };
 
   useEffect(() => {
@@ -70,7 +62,6 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({
     }
     setInitiallyCheckedQuestionItems(updatedItems);
     setFieldValue(updatedItems);
-    onAfterChange(updatedItems);
   };
 
   const isInline = useMemo(() => {

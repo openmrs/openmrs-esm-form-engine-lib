@@ -1,7 +1,5 @@
-import { formatDate, restBaseUrl } from '@openmrs/esm-framework';
-import { type Attachment, type AttachmentResponse, type FormField, type OpenmrsObs, type RenderType } from '../types';
+import { type FormField, type OpenmrsObs, type RenderType } from '../types';
 import { isEmpty } from '../validators/form-validator';
-import { getRegisteredControl } from '../registry/registry';
 
 export function flattenObsList(obsList: OpenmrsObs[]): OpenmrsObs[] {
   const flattenedList: OpenmrsObs[] = [];
@@ -50,31 +48,6 @@ export function gracefullySetSubmission(field: FormField, newValue: any, voidedV
 
 export function hasSubmission(field: FormField) {
   return !!field.meta.submission?.newValue || !!field.meta.submission?.voidedValue;
-}
-
-/**
- * Retrieves the appropriate field control for a question, considering missing concepts.
- * If the question is of type 'obs' and has a missing concept, it falls back to a disabled text input.
- * Otherwise, it retrieves the registered control based on the rendering specified in the question.
- * @param question - The FormField representing the question.
- * @returns The field control to be used for rendering the question.
- */
-export function getFieldControlWithFallback(question: FormField) {
-  // Check if the question has a missing concept
-  if (hasMissingConcept(question)) {
-    // If so, render a disabled text input
-    question.disabled = true;
-    return getRegisteredControl('text');
-  }
-
-  // Retrieve the registered control based on the specified rendering
-  return getRegisteredControl(question.questionOptions.rendering);
-}
-
-export function hasMissingConcept(question: FormField) {
-  return (
-    question.type == 'obs' && !question.questionOptions.concept && question.questionOptions.rendering !== 'fixed-value'
-  );
 }
 
 export function isViewMode(sessionMode: string) {

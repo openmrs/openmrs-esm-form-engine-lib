@@ -10,14 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 
-const NumberField: React.FC<FormFieldInputProps> = ({
-  field,
-  value,
-  errors,
-  warnings,
-  setFieldValue,
-  onAfterChange,
-}) => {
+const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const [lastBlurredValue, setLastBlurredValue] = useState(value);
   const { layoutType, sessionMode, workspaceLayout } = useFormProviderContext();
@@ -26,7 +19,6 @@ const NumberField: React.FC<FormFieldInputProps> = ({
     event.preventDefault();
     if (lastBlurredValue != value) {
       setLastBlurredValue(value);
-      onAfterChange(value);
     }
   };
 

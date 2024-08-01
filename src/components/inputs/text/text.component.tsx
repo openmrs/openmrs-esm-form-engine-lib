@@ -9,7 +9,7 @@ import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import FieldLabel from '../../field-label/field-label.component';
 
-const TextField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue, onAfterChange }) => {
+const TextField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const [lastBlurredValue, setLastBlurredValue] = useState(null);
   const { layoutType, sessionMode, workspaceLayout } = useFormProviderContext();
@@ -18,7 +18,6 @@ const TextField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnin
     event.preventDefault();
     if (lastBlurredValue !== value) {
       setLastBlurredValue(value);
-      onAfterChange(value);
     }
   };
 
@@ -49,7 +48,7 @@ const TextField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnin
               name={field.id}
               value={value}
               disabled={field.isDisabled}
-              readOnly={Boolean(field.readonly)}
+              readOnly={isTrue(field.readonly)}
               invalid={errors.length > 0}
               invalidText={errors[0]?.message}
               warn={warnings.length > 0}

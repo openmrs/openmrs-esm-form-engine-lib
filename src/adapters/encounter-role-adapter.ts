@@ -1,6 +1,11 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormContextProps } from '../provider/form-provider';
-import { type FormField, type FormFieldValueAdapter, type FormProcessorContextProps } from '../types';
+import {
+  type ValueAndDisplay,
+  type FormField,
+  type FormFieldValueAdapter,
+  type FormProcessorContextProps,
+} from '../types';
 import { gracefullySetSubmission } from '../utils/common-utils';
 
 export const EncounterRoleAdapter: FormFieldValueAdapter = {
@@ -9,16 +14,23 @@ export const EncounterRoleAdapter: FormFieldValueAdapter = {
   },
   getInitialValue: function (field: FormField, sourceObject: OpenmrsResource, context: FormProcessorContextProps) {
     const encounter = sourceObject ?? context.domainObjectValue;
-    if (encounter && encounter['encounterProviders']?.length) {
-      const lastProviderIndex = encounter['encounterProviders'].length - 1;
-      return encounter['encounterProviders'][lastProviderIndex].encounterRole.uuid;
+    if (encounter) {
+      return getLatestEncounterRole(encounter)?.uuid;
     }
     return context.customDependencies.defaultEncounterRole.uuid;
   },
-  getPreviousValue: function (field: FormField, sourceObject: OpenmrsResource, context: FormProcessorContextProps) {
+  getPreviousValue: function (
+    field: FormField,
+    sourceObject: OpenmrsResource,
+    context: FormProcessorContextProps,
+  ): ValueAndDisplay {
     const encounter = sourceObject ?? context.previousDomainObjectValue;
     if (encounter) {
-      return this.getInitialValue(field, encounter, context);
+      const role = getLatestEncounterRole(encounter);
+      return {
+        value: role?.uuid,
+        display: role?.name,
+      };
     }
     return null;
   },
@@ -32,3 +44,11 @@ export const EncounterRoleAdapter: FormFieldValueAdapter = {
     return;
   },
 };
+
+function getLatestEncounterRole(encounter: OpenmrsResource) {
+  if (encounter && encounter['encounterProviders']?.length) {
+    const lastProviderIndex = encounter['encounterProviders'].length - 1;
+    return encounter['encounterProviders'][lastProviderIndex].encounterRole;
+  }
+  return null;
+}

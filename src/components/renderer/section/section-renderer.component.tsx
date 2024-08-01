@@ -8,10 +8,6 @@ import classNames from 'classnames';
 import { hasRendering } from '../../../utils/common-utils';
 import Tooltip from '../../inputs/tooltip/tooltip.component';
 
-// TODOs:
-// - Handle unspecified fields
-// - Handle historical values (previous values)
-
 export const SectionRenderer = ({ section }: { section: FormSection }) => {
   const { t } = useTranslation();
   const { formFieldAdapters } = useFormProviderContext();
@@ -40,7 +36,7 @@ export const SectionRenderer = ({ section }: { section: FormSection }) => {
                 <FormFieldRenderer field={question} valueAdapter={formFieldAdapters[question.type]} />
               </div>
               {/** TODO: move tooltip to the form-field renderer; see: https://github.com/openmrs/openmrs-form-engine-lib/pull/351 */}
-              {question.questionInfo && (
+              {!question.isHidden && question.questionInfo && (
                 <div className={styles.questionInfoContainer}>
                   <Tooltip field={question} />
                 </div>

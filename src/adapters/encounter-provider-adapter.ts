@@ -1,6 +1,11 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormContextProps } from '../provider/form-provider';
-import { type FormField, type FormFieldValueAdapter, type FormProcessorContextProps } from '../types';
+import {
+  type ValueAndDisplay,
+  type FormField,
+  type FormFieldValueAdapter,
+  type FormProcessorContextProps,
+} from '../types';
 import { gracefullySetSubmission } from '../utils/common-utils';
 
 export const EncounterProviderAdapter: FormFieldValueAdapter = {
@@ -9,18 +14,19 @@ export const EncounterProviderAdapter: FormFieldValueAdapter = {
   },
   getInitialValue: function (field: FormField, sourceObject: OpenmrsResource, context: FormProcessorContextProps) {
     const encounter = sourceObject ?? context.previousDomainObjectValue;
-    if (encounter && encounter['encounterProviders']?.length) {
-      const lastProviderIndex = encounter['encounterProviders'].length - 1;
-      return encounter['encounterProviders'][lastProviderIndex].provider.uuid;
-    }
-    return context.currentProvider.uuid;
+    return getLatestProvider(encounter)?.uuid;
   },
-  getPreviousValue: function (field: FormField, sourceObject: OpenmrsResource, context: FormProcessorContextProps) {
+  getPreviousValue: function (
+    field: FormField,
+    sourceObject: OpenmrsResource,
+    context: FormProcessorContextProps,
+  ): ValueAndDisplay {
     const encounter = sourceObject ?? context.previousDomainObjectValue;
-    if (encounter) {
-      return this.getInitialValue(field, encounter, context);
-    }
-    return null;
+    const provider = getLatestProvider(encounter);
+    return {
+      value: provider?.uuid,
+      display: provider?.name,
+    };
   },
   getDisplayValue: function (field: FormField, value: any) {
     if (value?.display) {
@@ -32,3 +38,11 @@ export const EncounterProviderAdapter: FormFieldValueAdapter = {
     return;
   },
 };
+
+function getLatestProvider(encounter: OpenmrsResource) {
+  if (encounter && encounter['encounterProviders']?.length) {
+    const lastProviderIndex = encounter['encounterProviders'].length - 1;
+    return encounter['encounterProviders'][lastProviderIndex].provider;
+  }
+  return null;
+}

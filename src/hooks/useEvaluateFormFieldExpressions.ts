@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { type FormProcessorContextProps } from '../types';
 import { type FormNode, evaluateExpression } from '../utils/expression-runner';
-import { evalConditionalRequired, evaluateConditionalAnswered } from '../utils/form-helper';
+import { evalConditionalRequired, evaluateConditionalAnswered, evaluateHide } from '../utils/form-helper';
 import { isTrue } from '../utils/boolean-utils';
 import { isEmpty } from '../validators/form-validator';
-import { type FormField, type QuestionAnswerOption, type FormSection } from '../types/schema';
+import { type QuestionAnswerOption } from '../types/schema';
 
 export const useEvaluateFormFieldExpressions = (
   formValues: Record<string, any>,
@@ -85,8 +85,7 @@ export const useEvaluateFormFieldExpressions = (
         });
       // evaluate readonly
       if (typeof field.readonly == 'string' && isNotBooleanString(field.readonly)) {
-        // TODO: use isReadonly instead for more consistent naming
-        field['readonlyExpression'] = field.readonly;
+        field.meta.readonlyExpression = field.readonly;
         field.readonly = evaluateExpression(field.readonly, fieldNode, formFields, formValues, runnerContext);
       }
       // evaluate repeat limit
@@ -106,36 +105,28 @@ export const useEvaluateFormFieldExpressions = (
 
   useEffect(() => {
     factoryContext.formJson?.pages?.forEach((page) => {
-      // TODO: evaluate page & section hide
-      // if (page.hide) {
-      //   evaluateHide(
-      //     { value: page, type: 'page' },
-      //     flattenedFields,
-      //     tempInitialValues,
-      //     sessionMode,
-      //     patient,
-      //     evaluateExpression,
-      //   );
-      // } else {
-      //   page.isHidden = false;
-      // }
-      // page?.sections?.forEach((section) => {
-      //   if (section.hide) {
-      //     evaluateHide(
-      //       { value: section, type: 'section' },
-      //       flattenedFields,
-      //       tempInitialValues,
-      //       sessionMode,
-      //       patient,
-      //       evaluateExpression,
-      //     );
-      //   } else {
-      //     section.isHidden = false;
-      //   }
-      // });
+      if (page.hide) {
+        evaluateHide({ value: page, type: 'page' }, formFields, formValues, sessionMode, patient, evaluateExpression);
+      } else {
+        page.isHidden = false;
+      }
+      page?.sections?.forEach((section) => {
+        if (section.hide) {
+          evaluateHide(
+            { value: section, type: 'section' },
+            formFields,
+            formValues,
+            sessionMode,
+            patient,
+            evaluateExpression,
+          );
+        } else {
+          section.isHidden = false;
+        }
+      });
     });
     setEvaluatedFormJson(factoryContext.formJson);
-  }, [factoryContext.formJson]);
+  }, [factoryContext.formJson, formFields]);
 
   return { evaluatedFormJson, evaluatedFields };
 };
@@ -144,18 +135,4 @@ export const useEvaluateFormFieldExpressions = (
 
 function isNotBooleanString(str: string) {
   return str !== 'true' && str !== 'false';
-}
-
-function cascadeVisibilityToChildFields(visibility: boolean, section: FormSection, allFields: Array<FormField>) {
-  const candidates = section.questions.map((q) => q.id);
-  allFields
-    .filter((field) => candidates.includes(field.id))
-    .forEach((field) => {
-      field.isParentHidden = visibility;
-      if (field.questionOptions.rendering == 'group') {
-        field.questions.forEach((member) => {
-          member.isParentHidden = visibility;
-        });
-      }
-    });
 }

@@ -13,14 +13,7 @@ import { type CalendarDate, getLocalTimeZone } from '@internationalized/date';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 
-const DateField: React.FC<FormFieldInputProps> = ({
-  field,
-  value: dateValue,
-  errors,
-  warnings,
-  setFieldValue,
-  onAfterChange,
-}) => {
+const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const [time, setTime] = useState('');
   const { layoutType, sessionMode, workspaceLayout } = useFormProviderContext();
@@ -35,7 +28,6 @@ const DateField: React.FC<FormFieldInputProps> = ({
     const refinedDate = date.toDate(getLocalTimeZone());
     setTimeIfPresent(refinedDate, time);
     setFieldValue(refinedDate);
-    onAfterChange(refinedDate);
   };
 
   const setTimeIfPresent = (date: Date, time: string) => {
@@ -53,18 +45,17 @@ const DateField: React.FC<FormFieldInputProps> = ({
     const date = field.datePickerFormat === 'timer' ? new Date() : dateValue;
     setTimeIfPresent(date, time);
     setFieldValue(date);
-    onAfterChange(date);
   };
 
   useEffect(() => {
-    if (!time && dateValue) {
+    if (dateValue) {
       if (dateValue instanceof Date) {
         const hours = dateValue.getHours() < 10 ? `0${dateValue.getHours()}` : `${dateValue.getHours()}`;
         const minutes = dateValue.getMinutes() < 10 ? `0${dateValue.getMinutes()}` : `${dateValue.getMinutes()}`;
         setTime([hours, minutes].join(':'));
       }
     }
-  }, [dateValue, time]);
+  }, [dateValue]);
 
   const timePickerLabel = useMemo(
     () =>

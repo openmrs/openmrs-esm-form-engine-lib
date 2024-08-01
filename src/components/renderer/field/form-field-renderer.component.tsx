@@ -5,13 +5,14 @@ import {
   type ValidationResult,
   type FormFieldValidator,
   type SessionMode,
+  type ValueAndDisplay,
 } from '../../../types';
-import { Controller } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import { ToastNotification } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from 'react-error-boundary';
 import { type FormFieldValueAdapter, type FormFieldInputProps } from '../../../types';
-import { getFieldControlWithFallback, hasRendering } from '../../../utils/common-utils';
+import { hasRendering } from '../../../utils/common-utils';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import { isEmpty } from '../../../validators/form-validator';
 import PreviousValueReview from '../../previous-value-review/previous-value-review.component';
@@ -19,6 +20,8 @@ import { getRegisteredControl } from '../../../registry/registry';
 import styles from './form-field-renderer.scss';
 import { isTrue } from '../../../utils/boolean-utils';
 import UnspecifiedField from '../../inputs/unspecified/unspecified.component';
+import { getFieldControlWithFallback } from '../../../utils/form-helper';
+import { handleFieldLogic } from './fieldLogic';
 
 export interface FormFieldRendererProps {
   field: FormField;
@@ -27,31 +30,28 @@ export interface FormFieldRendererProps {
     targetRendering: RenderType;
   };
 }
+
 // TODO: handle tooltips
-// TODO: handle unspecified
 export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFieldRendererProps) => {
   const [inputComponentWrapper, setInputComponentWrapper] = useState<{
     value: React.ComponentType<FormFieldInputProps>;
   }>(null);
   const [errors, setErrors] = useState<ValidationResult[]>([]);
   const [warnings, setWarnings] = useState<ValidationResult[]>([]);
-  const [historicalValue, setHistoricalValue] = useState<any>(null);
-  const [previousValue, setPreviousValue] = useState<any>(null);
+  const [historicalValue, setHistoricalValue] = useState<ValueAndDisplay>(null);
   const context = useFormProviderContext();
 
   const {
-    methods: { control, getValues },
+    methods: { control, getValues, getFieldState },
     patient,
     sessionMode,
     formFields,
-    previousDomainObjectValue,
     formFieldValidators,
     addInvalidField,
     removeInvalidField,
-    evalExpression,
-    methods: { setValue },
   } = context;
 
+  const fieldValue = useWatch({ control, name: field.id, exact: true });
   const noop = () => {};
 
   useEffect(() => {
@@ -80,34 +80,31 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
   }, []);
 
   useEffect(() => {
-    if (field.meta?.submission?.errors) {
-      setErrors(field.meta.submission.errors);
+    const { isDirty } = getFieldState(field.id);
+    const { submission, unspecified } = field.meta;
+    const { calculate, defaultValue } = field.questionOptions;
+    if (
+      !isEmpty(fieldValue) &&
+      !submission?.newValue &&
+      !isDirty &&
+      !unspecified &&
+      (calculate?.calculateExpression || defaultValue)
+    ) {
+      valueAdapter.transformFieldValue(field, fieldValue, context);
     }
-    if (field.meta?.submission?.warnings) {
-      setWarnings(field.meta.submission.warnings);
+    if (isDirty) {
+      onAfterChange(fieldValue);
     }
-  }, [field.meta?.submission]);
+  }, [fieldValue]);
 
   useEffect(() => {
-    const value = getValues(field.id);
-    const { submission, previousValue, unspecified } = field.meta;
-    const { calculate, defaultValue } = field.questionOptions;
-    if (!isEmpty(value) && !submission?.newValue && !unspecified && (calculate?.calculateExpression || defaultValue)) {
-      valueAdapter.transformFieldValue(field, value, context);
+    if (field.meta.submission?.errors) {
+      setErrors(field.meta.submission.errors);
     }
-    if (previousDomainObjectValue) {
-      if (field.historicalExpression) {
-        const previousValue = evalExpression(field.historicalExpression, {
-          value: field,
-          type: 'field',
-        });
-        setPreviousValue(previousValue);
-      } else {
-        const previousValue = valueAdapter.getPreviousValue(field, previousDomainObjectValue, context);
-        setPreviousValue(previousValue);
-      }
+    if (field.meta.submission?.warnings) {
+      setWarnings(field.meta.submission.warnings);
     }
-  }, []);
+  }, [field.meta.submission]);
 
   const onAfterChange = (value: any) => {
     const { errors: validationErrors, warnings: validationWarnings } = validateFieldValue(
@@ -131,6 +128,7 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
       valueAdapter.transformFieldValue(field, value, context);
     }
     setWarnings(validationWarnings);
+    handleFieldLogic(field, context);
   };
 
   if (!inputComponentWrapper) {
@@ -140,16 +138,7 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
   const InputComponent = inputComponentWrapper.value;
 
   if (!repeatOptions?.targetRendering && isGroupField(field.questionOptions.rendering)) {
-    return (
-      <InputComponent
-        field={field}
-        value={null}
-        errors={errors}
-        warnings={warnings}
-        setFieldValue={null}
-        onAfterChange={onAfterChange}
-      />
-    );
+    return <InputComponent field={field} value={null} errors={errors} warnings={warnings} setFieldValue={null} />;
   }
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} onReset={noop}>
@@ -158,14 +147,7 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
         name={field.id}
         render={({ field: { onChange, value } }) => (
           <div>
-            <InputComponent
-              field={field}
-              value={value}
-              errors={errors}
-              warnings={warnings}
-              setFieldValue={onChange}
-              onAfterChange={onAfterChange}
-            />
+            <InputComponent field={field} value={value} errors={errors} warnings={warnings} setFieldValue={onChange} />
             {isUnspecifiedSupported(field) && (
               <div className={styles.unspecifiedContainer}>
                 {field.unspecified && (
@@ -178,11 +160,11 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
                 )}
               </div>
             )}
-            {historicalValue && (
+            {historicalValue?.value && (
               <div>
                 <PreviousValueReview
-                  previousValue={historicalValue}
-                  displayText={valueAdapter.getDisplayValue(field, historicalValue)}
+                  previousValue={historicalValue.value}
+                  displayText={historicalValue.display}
                   onAfterChange={onAfterChange}
                   field={field}
                 />

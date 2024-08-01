@@ -14,14 +14,7 @@ import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 import useDataSourceDependentValue from '../../../hooks/useDatasourceDependentValue';
 
-const UiSelectExtended: React.FC<FormFieldInputProps> = ({
-  field,
-  value,
-  errors,
-  warnings,
-  setFieldValue,
-  onAfterChange,
-}) => {
+const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,13 +24,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({
   const [config, setConfig] = useState({});
   const [savedSearchableItem, setSavedSearchableItem] = useState({});
   const dataSourceDependentValue = useDataSourceDependentValue(field);
-  const {
-    layoutType,
-    sessionMode,
-    workspaceLayout,
-    formFieldAdapters,
-    methods: { control },
-  } = useFormProviderContext();
+  const { layoutType, sessionMode, workspaceLayout } = useFormProviderContext();
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(sessionMode) || isTrue(field.readonly)) {
@@ -58,14 +45,13 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({
 
   const handleChange = (value) => {
     setFieldValue(value);
-    onAfterChange(value);
   };
 
-  const debouncedSearch = debounce((searchterm, dataSource) => {
+  const debouncedSearch = debounce((searchTerm, dataSource) => {
     setItems([]);
     setIsLoading(true);
     dataSource
-      .fetchData(searchterm, config)
+      .fetchData(searchTerm, config)
       .then((dataItems) => {
         setItems(dataItems.map(dataSource.toUuidAndDisplay));
         setIsLoading(false);
@@ -136,11 +122,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({
   return sessionMode == 'view' || sessionMode == 'embedded-view' || isTrue(field.readonly) ? (
     <FieldValueView
       label={t(field.label)}
-      value={
-        value
-          ? formFieldAdapters[field.type]?.getDisplayValue(field, items.find((item) => item.uuid == value)?.display)
-          : value
-      }
+      value={value ? items.find((item) => item.uuid == value)?.display : value}
       conceptName={field.meta?.concept?.display}
       isInline={isInline}
     />

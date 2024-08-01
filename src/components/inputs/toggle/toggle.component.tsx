@@ -9,13 +9,12 @@ import styles from './toggle.scss';
 import { useTranslation } from 'react-i18next';
 import { useFormProviderContext } from '../../../provider/form-provider';
 
-const Toggle: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue, onAfterChange }) => {
+const Toggle: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const context = useFormProviderContext();
 
   const handleChange = (value) => {
     setFieldValue(value);
-    onAfterChange(value);
   };
 
   useEffect(() => {

@@ -1,14 +1,12 @@
 import React, { type ReactNode } from 'react';
 import { type UseFormReturn } from 'react-hook-form';
-import { type FormNode } from '../utils/expression-runner';
 import { type FormProcessorContextProps } from '../types';
-import { type FormField } from '../types/schema';
+import { type FormSchema, type FormField } from '../types/schema';
 
 export interface FormContextProps extends FormProcessorContextProps {
   methods: UseFormReturn<any>;
   workspaceLayout: 'minimized' | 'maximized';
   isSubmitting?: boolean;
-  evalExpression?: (expression: string, node: FormNode, value?: any, otherProps?: any) => string;
   getFormField?: (field: string) => FormField;
   addFormField?: (field: FormField) => void;
   updateFormField?: (field: FormField) => void;
@@ -16,6 +14,7 @@ export interface FormContextProps extends FormProcessorContextProps {
   addInvalidField?: (field: FormField) => void;
   removeInvalidField?: (fieldId: string) => void;
   setInvalidFields?: (fields: FormField[]) => void;
+  setForm?: (formJson: FormSchema) => void;
 }
 
 export interface FormProviderProps extends FormContextProps {

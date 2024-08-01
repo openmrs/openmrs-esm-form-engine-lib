@@ -100,7 +100,7 @@ describe('Common expression runner - evaluateExpression', () => {
       bodyTemperature: 0,
     };
     allFields.forEach((field) => {
-      field.fieldDependants = undefined;
+      field.fieldDependents = undefined;
     });
   });
 
@@ -115,7 +115,7 @@ describe('Common expression runner - evaluateExpression', () => {
     ).toBeFalsy();
   });
 
-  it('should support two dimession expressions', () => {
+  it('should support two dimension expressions', () => {
     // replay and verify
     expect(
       evaluateExpression(
@@ -217,8 +217,8 @@ describe('Common expression runner - evaluateExpression', () => {
     const referredToPreventionServices = allFields[2];
     const htsProviderRemarks = allFields[3];
     // verify
-    expect(referredToPreventionServices.fieldDependants).toBeFalsy();
-    expect(htsProviderRemarks.fieldDependants).toBeFalsy();
+    expect(referredToPreventionServices.fieldDependents).toBeFalsy();
+    expect(htsProviderRemarks.fieldDependents).toBeFalsy();
     // replay
     expect(
       evaluateExpression(
@@ -229,8 +229,8 @@ describe('Common expression runner - evaluateExpression', () => {
         context,
       ),
     ).toBeTruthy();
-    expect(Array.from(referredToPreventionServices.fieldDependants)).toStrictEqual(['bodyTemperature']);
-    expect(Array.from(htsProviderRemarks.fieldDependants)).toStrictEqual(['bodyTemperature']);
+    expect(Array.from(referredToPreventionServices.fieldDependents)).toStrictEqual(['bodyTemperature']);
+    expect(Array.from(htsProviderRemarks.fieldDependents)).toStrictEqual(['bodyTemperature']);
   });
 
   it('should support registered custom helper functions', () => {
@@ -302,7 +302,7 @@ describe('Common expression runner - validate helper functions', () => {
       bodyTemperature: 0,
     };
     allFields.forEach((field) => {
-      field.fieldDependants = undefined;
+      field.fieldDependents = undefined;
     });
   });
   const helper = new CommonExpressionHelpers(
@@ -362,7 +362,7 @@ describe('Common expression runner - validate helper functions', () => {
 
     result = helper.doesNotMatchExpression(regex, 'REC12345-123456');
     expect(result).toBe(false);
-  })
+  });
 
   it('returns an array of values for a given key', () => {
     const ages = helper.extractRepeatingGroupValues('age', users);

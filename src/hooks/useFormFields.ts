@@ -11,6 +11,7 @@ export function useFormFields(form: FormSchema): { formFields: FormField[]; conc
           flattenedFieldsTemp.push(question);
           if (question.type == 'obsGroup') {
             question.questions.forEach((groupedField) => {
+              groupedField.meta.groupId = question.id;
               flattenedFieldsTemp.push(groupedField);
             });
           }

@@ -1,6 +1,6 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormContextProps } from '../provider/form-provider';
-import { type FormField, type FormSchema } from '../types';
+import { type ValueAndDisplay, type FormField, type FormSchema } from '../types';
 import { type FormProcessorContextProps } from '../types';
 
 export type FormProcessorConstructor = new (...args: ConstructorParameters<typeof FormProcessor>) => FormProcessor;
@@ -28,12 +28,12 @@ export abstract class FormProcessor {
 
   async loadDependencies(
     context: Partial<FormProcessorContextProps>,
-    setContext: (context: FormProcessorContextProps) => void,
+    setContext: React.Dispatch<React.SetStateAction<FormProcessorContextProps>>,
   ): Promise<Record<string, any>> {
     return Promise.resolve({});
   }
 
-  abstract getHistoricalValue(field: FormField, context: FormContextProps): Promise<any>;
+  abstract getHistoricalValue(field: FormField, context: FormContextProps): Promise<ValueAndDisplay>;
   abstract processSubmission(context: FormContextProps, abortController: AbortController): Promise<Record<string, any>>;
   abstract getInitialValues(context: FormProcessorContextProps): Promise<Record<string, any>>;
   abstract getCustomHooks(): GetCustomHooksResponse;
