@@ -110,7 +110,6 @@ const File: React.FC<FileProps> = ({ question, handler }) => {
   ) : (
     <div>
       <div className={styles.label}>
-        {' '}
         <FieldLabel field={question} />
       </div>
       <div className={styles.uploadSelector}>

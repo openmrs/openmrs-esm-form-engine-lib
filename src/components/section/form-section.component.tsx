@@ -88,17 +88,7 @@ const FormSection = ({ fields, onFieldChange }) => {
 
               return (
                 <div key={index} className={styles.parentResizer}>
-                  <div
-                    className={classNames({
-                      [styles.flexBasisOn]: [
-                        'ui-select-extended',
-                        'content-switcher',
-                        'select',
-                        'textarea',
-                        'text',
-                        'checkbox',
-                      ].includes(rendering),
-                    })}>
+                  <div>
                     {qnFragment}
                   </div>
                   <div className={styles.unspecifiedContainer}>

@@ -21,8 +21,7 @@ const FieldLabel: React.FC<FieldLabelProps> = ({ field, customLabel }) => {
       <span>{labelText}</span>
       {field.isRequired && (
         <span title={t('required', 'Required')} className={styles.required}>
-          {' '}
-          *{' '}
+          *
         </span>
       )}
       {field.questionInfo && <Tooltip field={field} />}

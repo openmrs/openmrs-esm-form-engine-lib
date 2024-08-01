@@ -110,11 +110,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                 <OpenmrsDatePicker
                   id={question.id}
                   onChange={onDateChange}
-                  labelText={
-                    <div className={styles.datePickerLabel}>
-                      <FieldLabel field={question} />
-                    </div>
-                  }
+                  labelText={timePickerLabel}
                   isDisabled={question.isDisabled}
                   isReadOnly={isTrue(question.readonly)}
                   isRequired={question.isRequired ?? false}
@@ -136,7 +132,9 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   labelText={
                     question.isRequired ? (
                       <FieldLabel
-                        customLabel={question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')} field={undefined}                      />
+                        customLabel={question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')}
+                        field={undefined}
+                      />
                     ) : (
                       <span>{question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')}</span>
                     )
