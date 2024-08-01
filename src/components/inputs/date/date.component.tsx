@@ -30,12 +30,11 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  const onDateChange = (date: CalendarDate) => {
-    const refinedDate = date.toDate(getLocalTimeZone());
-    setTimeIfPresent(refinedDate, time);
-    setFieldValue(question.id, refinedDate);
-    onChange(question.id, refinedDate, setErrors, setWarnings);
-    handler?.handleFieldSubmission(question, refinedDate, encounterContext);
+  const onDateChange = (date: Date) => {
+    setTimeIfPresent(date, time);
+    setFieldValue(question.id, date);
+    onChange(question.id, date, setErrors, setWarnings);
+    handler?.handleFieldSubmission(question, date, encounterContext);
   };
 
   const setTimeIfPresent = (date: Date, time: string) => {
