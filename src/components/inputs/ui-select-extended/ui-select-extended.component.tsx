@@ -18,7 +18,7 @@ import styles from './ui-select-extended.scss';
 
 const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
   const { t } = useTranslation();
-  const [field] = useField(question.id);
+  const [field, meta, helpers] = useField(question.id);
   const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -63,6 +63,13 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
       handler?.handleFieldSubmission(question, previousValue, encounterContext);
     }
   }, [previousValue]);
+
+  useEffect(() => {
+    if (field.value === null) {
+      helpers.setValue(null, false);
+      setSearchTerm('');
+    }
+  }, [field.value, helpers]);
 
   const debouncedSearch = debounce((searchterm, dataSource) => {
     setItems([]);
@@ -158,7 +165,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
             titleText={question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : t(question.label)}
             items={items}
             itemToString={(item) => item?.display}
-            selectedItem={items.find((item) => item.uuid == field.value)}
+            selectedItem={field.value ? items.find((item) => item.uuid === field.value) : null}
             shouldFilterItem={({ item, inputValue }) => {
               if (!inputValue) {
                 // Carbon's initial call at component mount
