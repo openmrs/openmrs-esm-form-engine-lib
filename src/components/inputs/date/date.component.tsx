@@ -110,7 +110,11 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                 <OpenmrsDatePicker
                   id={question.id}
                   onChange={onDateChange}
-                  labelText={timePickerLabel}
+                  labelText={
+                    <div className={styles.datePickerLabel}>
+                      <FieldLabel field={question} />
+                    </div>
+                  }
                   isDisabled={question.isDisabled}
                   isReadOnly={isTrue(question.readonly)}
                   isRequired={question.isRequired ?? false}
@@ -129,16 +133,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                 <TimePicker
                   className={classNames(styles.boldedLabel, styles.timeInput)}
                   id={question.id}
-                  labelText={
-                    question.isRequired ? (
-                      <FieldLabel
-                        customLabel={question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')}
-                        field={undefined}
-                      />
-                    ) : (
-                      <span>{question.datePickerFormat === 'timer' ? t(question.label) : t('time', 'Time')}</span>
-                    )
-                  }
+                  labelText={timePickerLabel}
                   placeholder="HH:MM"
                   pattern="(1[012]|[1-9]):[0-5][0-9])$"
                   type="time"
@@ -151,8 +146,8 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                     time
                       ? time
                       : field.value instanceof Date
-                      ? field.value.toLocaleDateString(window.navigator.language)
-                      : field.value
+                        ? field.value.toLocaleDateString(window.navigator.language)
+                        : field.value
                   }
                   onChange={onTimeChange}
                 />

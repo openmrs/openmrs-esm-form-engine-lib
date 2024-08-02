@@ -785,7 +785,7 @@ describe('Form engine component', () => {
 
       const addButton = screen.getByRole('button', { name: 'Add' });
       expect(addButton).toBeInTheDocument();
-      expect(screen.getByRole('textbox', { name: /date of birth/i })).toBeInTheDocument();
+      expect(screen.queryByRole('textbox', { name: /date of birth/i })).toBeInTheDocument();
       expect(screen.getByRole('radio', { name: /^male$/i })).toBeInTheDocument();
       expect(screen.getByRole('radio', { name: /female/i })).toBeInTheDocument();
 
