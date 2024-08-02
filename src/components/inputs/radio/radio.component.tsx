@@ -8,9 +8,11 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import FieldValueView from '../../value/view/field-value-view.component';
-import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
-import styles from './radio.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import FieldLabel from '../../field-label/field-label.component';
+
+import styles from './radio.scss';
+
 
 const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -51,9 +53,7 @@ const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previous
   ) : (
     !question.isHidden && (
       <FormGroup
-        legendText={
-          question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
-        }
+        legendText={<FieldLabel field={question} />}
         className={styles.boldedLegend}
         disabled={question.isDisabled}
         invalid={errors.length > 0}>

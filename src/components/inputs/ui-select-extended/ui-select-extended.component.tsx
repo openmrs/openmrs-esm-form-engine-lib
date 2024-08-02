@@ -11,9 +11,10 @@ import { type FormFieldProps } from '../../../types';
 import { isEmpty } from '../../../validators/form-validator';
 import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
-import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import useDatasourceDependentValue from '../../../hooks/useDatasourceDependentValue';
+import FieldLabel from '../../field-label/field-label.component';
+
 import styles from './ui-select-extended.scss';
 
 const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChange, previousValue }) => {
@@ -155,7 +156,7 @@ const UiSelectExtended: React.FC<FormFieldProps> = ({ question, handler, onChang
         <Layer>
           <ComboBox
             id={question.id}
-            titleText={question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : t(question.label)}
+            titleText={<FieldLabel field={question} />}
             items={items}
             itemToString={(item) => item?.display}
             selectedItem={items.find((item) => item.uuid == field.value)}

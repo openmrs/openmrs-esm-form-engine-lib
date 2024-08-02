@@ -6,6 +6,7 @@ import { FormContext } from '../../../form-context';
 import { FieldValidator } from '../../../validators/form-validator';
 import { type FormFieldProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
+
 import styles from './unspecified.scss';
 
 const UnspecifiedField: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
