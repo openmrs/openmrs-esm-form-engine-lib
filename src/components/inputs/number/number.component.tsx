@@ -8,10 +8,12 @@ import { isInlineView } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { type FormFieldProps } from '../../../types';
 import { FormContext } from '../../../form-context';
-import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
-import styles from './number.scss';
 import { useTranslation } from 'react-i18next';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import FieldLabel from '../../field-label/field-label.component';
+
+import styles from './number.scss';
+
 
 const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const [field, meta] = useField(question.id);
@@ -67,9 +69,7 @@ const NumberField: React.FC<FormFieldProps> = ({ question, onChange, handler, pr
         id={question.id}
         invalid={errors.length > 0}
         invalidText={errors[0]?.message}
-        label={
-          question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
-        }
+        label={<FieldLabel field={question} />}
         max={Number(question.questionOptions.max) || undefined}
         min={Number(question.questionOptions.min) || undefined}
         name={question.id}

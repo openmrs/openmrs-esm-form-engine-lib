@@ -2,6 +2,7 @@ import React from 'react';
 import Webcam from 'react-webcam';
 import { Button } from '@carbon/react';
 import { Camera as CameraIcon } from '@carbon/react/icons';
+
 import styles from './camera.scss';
 
 interface CameraProps {

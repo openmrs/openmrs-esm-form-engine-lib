@@ -10,11 +10,12 @@ import { isInlineView } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
-import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
-import styles from './date.scss';
+import FieldLabel from '../../field-label/field-label.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
 import { type CalendarDate, getLocalTimeZone } from '@internationalized/date';
+
+import styles from './date.scss';
 
 const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
@@ -92,6 +93,16 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     }
   }, [unspecifiedField.value]);
 
+  const timePickerLabel = useMemo(
+    () =>
+      question.datePickerFormat === 'timer' ? (
+        <FieldLabel field={question} />
+      ) : (
+        <FieldLabel field={question} customLabel={t('time', 'Time')} />
+      ),
+    [question.datePickerFormat, question.label, t],
+  );
+
   return encounterContext.sessionMode === 'view' || encounterContext.sessionMode === 'embedded-view' ? (
     <FieldValueView
       label={t(question.label)}
@@ -111,13 +122,9 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                   id={question.id}
                   onChange={onDateChange}
                   labelText={
-                    <span className={styles.datePickerLabel}>
-                      {question.isRequired ? (
-                        <RequiredFieldLabel label={t(question.label)} />
-                      ) : (
-                        <span>{t(question.label)}</span>
-                      )}
-                    </span>
+                    <div className={styles.datePickerLabel}>
+                      <FieldLabel field={question} />
+                    </div>
                   }
                   isDisabled={question.isDisabled}
                   isReadOnly={isTrue(question.readonly)}
@@ -137,23 +144,21 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                 <TimePicker
                   className={classNames(styles.boldedLabel, styles.timeInput)}
                   id={question.id}
-                  labelText={
-                    question.isRequired ? (
-                      <RequiredFieldLabel label={t('time', 'Time')} />
-                    ) : (
-                      <span>{t('time', 'Time')}</span>
-                    )
-                  }
+                  labelText={timePickerLabel}
                   placeholder="HH:MM"
                   pattern="(1[012]|[1-9]):[0-5][0-9])$"
                   type="time"
                   disabled={question.datePickerFormat === 'timer' ? question.isDisabled : !field.value}
+                  invalid={errors.length > 0}
+                  invalidText={errors[0]?.message}
+                  warning={warnings.length > 0}
+                  warningText={warnings[0]?.message}
                   value={
                     time
                       ? time
                       : field.value instanceof Date
-                      ? field.value.toLocaleTimeString(window.navigator.language)
-                      : field.value
+                        ? field.value.toLocaleTimeString(window.navigator.language)
+                        : field.value
                   }
                   onChange={onTimeChange}
                 />

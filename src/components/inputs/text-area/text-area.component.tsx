@@ -8,9 +8,11 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { FormContext } from '../../../form-context';
 import { type FormFieldProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
-import RequiredFieldLabel from '../../required-field-label/required-field-label.component';
-import styles from './text-area.scss';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import FieldLabel from '../../field-label/field-label.component';
+
+import styles from './text-area.scss';
+
 
 const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue: previousValueProp }) => {
   const { t } = useTranslation();
@@ -59,9 +61,7 @@ const TextArea: React.FC<FormFieldProps> = ({ question, onChange, handler, previ
           <TextAreaInput
             {...field}
             id={question.id}
-            labelText={
-              question.isRequired ? <RequiredFieldLabel label={t(question.label)} /> : <span>{t(question.label)}</span>
-            }
+            labelText={<FieldLabel field={question} />}
             name={question.id}
             value={field.value || ''}
             onFocus={() => setPreviousValue(field.value)}

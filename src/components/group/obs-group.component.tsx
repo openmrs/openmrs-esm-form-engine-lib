@@ -4,8 +4,8 @@ import { useField } from 'formik';
 import { FormContext } from '../../form-context';
 import { type FormFieldProps } from '../../types';
 import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
-import Tooltip from '../inputs/tooltip/tooltip.component';
 import UnspecifiedField from '../inputs/unspecified/unspecified.component';
+
 import styles from '../section/form-section.scss';
 
 export const ObsGroup: React.FC<FormFieldProps> = ({ question, onChange }) => {
@@ -36,39 +36,28 @@ export const ObsGroup: React.FC<FormFieldProps> = ({ question, onChange }) => {
             <div className={styles.parentResizer}>
               <div
                 className={classNames({
-                  [styles.questionInfoDefault]: field.questionInfo && rendering === 'radio',
-                  [styles.questionInfoCentralized]: field.questionInfo && rendering !== 'radio',
+                  [styles.flexBasisOn]: [
+                    'ui-select-extended',
+                    'content-switcher',
+                    'select',
+                    'textarea',
+                    'text',
+                    'checkbox',
+                  ].includes(rendering),
                 })}>
-                <div
-                  className={classNames({
-                    [styles.flexBasisOn]: [
-                      'ui-select-extended',
-                      'content-switcher',
-                      'select',
-                      'textarea',
-                      'text',
-                      'checkbox',
-                    ].includes(rendering),
-                  })}>
-                  <FieldComponent
-                    key={field.id}
-                    question={field}
-                    onChange={onChange}
-                    handler={formFieldHandlers[field.type]}
-                    useField={useField}
-                  />
-                </div>
-                {field.questionInfo && (
-                  <div className={styles.questionInfoControl}>
-                    <Tooltip field={field} />
-                  </div>
-                )}
+                <FieldComponent
+                  key={field.id}
+                  question={field}
+                  onChange={onChange}
+                  handler={formFieldHandlers[field.type]}
+                  useField={useField}
+                />
               </div>
-              <div>
-                {isUnspecifiedSupported(field) && (
-                  <UnspecifiedField question={field} onChange={onChange} handler={formFieldHandlers[field.type]} />
-                )}
-              </div>
+            </div>
+            <div>
+              {isUnspecifiedSupported(field) && (
+                <UnspecifiedField question={field} onChange={onChange} handler={formFieldHandlers[field.type]} />
+              )}
             </div>
           </div>
         );

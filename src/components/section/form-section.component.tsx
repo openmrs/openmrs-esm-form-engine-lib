@@ -15,10 +15,10 @@ import { getRegisteredFieldSubmissionHandler } from '../../registry/registry';
 import { isTrue } from '../../utils/boolean-utils';
 import { FormContext } from '../../form-context';
 import PreviousValueReview from '../previous-value-review/previous-value-review.component';
-import Tooltip from '../inputs/tooltip/tooltip.component';
 import UnspecifiedField from '../inputs/unspecified/unspecified.component';
-import styles from './form-section.scss';
 import { evaluateExpression } from '../../utils/expression-runner';
+
+import styles from './form-section.scss';
 
 interface FieldComponentMap {
   fieldComponent: React.ComponentType<FormFieldProps>;
@@ -88,31 +88,9 @@ const FormSection = ({ fields, onFieldChange }) => {
 
               return (
                 <div key={index} className={styles.parentResizer}>
-                  <div
-                    className={classNames({
-                      [styles.questionInfoDefault]: fieldDescriptor.questionInfo && rendering === 'radio',
-                      [styles.questionInfoCentralized]: fieldDescriptor.questionInfo && rendering !== 'radio',
-                    })}>
-                    <div
-                      className={classNames({
-                        [styles.flexBasisOn]: [
-                          'ui-select-extended',
-                          'content-switcher',
-                          'select',
-                          'textarea',
-                          'text',
-                          'checkbox',
-                        ].includes(rendering),
-                      })}>
-                      {qnFragment}
-                    </div>
-                    {fieldDescriptor.questionInfo && (
-                      <div className={styles.questionInfoControl}>
-                        <Tooltip field={fieldDescriptor} />
-                      </div>
-                    )}
+                  <div>
+                    {qnFragment}
                   </div>
-
                   <div className={styles.unspecifiedContainer}>
                     {isUnspecifiedSupported(fieldDescriptor) && rendering != 'group' && (
                       <UnspecifiedField question={fieldDescriptor} onChange={onFieldChange} handler={handler} />

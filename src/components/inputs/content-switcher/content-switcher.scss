@@ -14,20 +14,26 @@
   }
 }
 
-.errorLegend legend, .errorLabel label {
+.errorLegend legend,
+.errorLabel label {
   color: colors.$red-60 !important;
+}
+
+.boldedLegend {
+  font-weight: 600;
+  color: black;
 }
 
 .selectedOption {
   border-radius: 4px;
   width: 15rem;
-  
+
   button {
-   background-color: colors.$gray-10;
-   
-   &:before {
-     display: none !important;
-   }
+    background-color: colors.$gray-10;
+
+    &:before {
+      display: none !important;
+    }
   }
 }
 
@@ -36,7 +42,7 @@
   border: 1px solid colors.$blue-60 !important;
   color: colors.$blue-60 !important;
   padding: 0 0 0 1rem;
- 
+
   button:focus {
     border: none !important;
   }

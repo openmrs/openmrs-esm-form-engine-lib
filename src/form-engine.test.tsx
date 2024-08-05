@@ -249,10 +249,15 @@ describe('Form engine component', () => {
 
       await user.click(screen.getByRole('button', { name: /save/i }));
 
-      await assertFormHasAllFields(screen, [{ fieldName: 'Text question *', fieldType: 'text' }]);
+      const labels = screen.getAllByText(/Text question/i);
+      expect(labels).toHaveLength(2);
 
-      const inputFields = await screen.getAllByLabelText(/Text question/i);
+      const requiredAsterisks = screen.getAllByText('*');
+      expect(requiredAsterisks).toHaveLength(2);
+
+      const inputFields = screen.getAllByRole('textbox', { name: /Text question/i });
       expect(inputFields).toHaveLength(2);
+
       inputFields.forEach((inputField) => {
         expect(inputField).toHaveClass('cds--text-input--invalid');
       });
@@ -780,7 +785,7 @@ describe('Form engine component', () => {
 
       const addButton = screen.getByRole('button', { name: 'Add' });
       expect(addButton).toBeInTheDocument();
-      expect(screen.getByRole('textbox', { name: /date of birth/i })).toBeInTheDocument();
+      expect(screen.queryByRole('textbox', { name: /date of birth/i })).toBeInTheDocument();
       expect(screen.getByRole('radio', { name: /^male$/i })).toBeInTheDocument();
       expect(screen.getByRole('radio', { name: /female/i })).toBeInTheDocument();
 

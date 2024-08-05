@@ -4,6 +4,7 @@ import { showSnackbar } from '@openmrs/esm-framework';
 import { useLaunchWorkspaceRequiringVisit } from '@openmrs/esm-patient-common-lib';
 import { Button } from '@carbon/react';
 import { type FormFieldProps } from '../../../types';
+
 import styles from './workspace-launcher.scss';
 
 const WorkspaceLauncher: React.FC<FormFieldProps> = ({ question }) => {
