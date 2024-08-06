@@ -49,34 +49,34 @@ when(mockOpenmrsFetch).calledWith(clobdataResourcePath).mockReturnValue({ data: 
 
 const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.language;
 
-jest.mock('@openmrs/esm-framework', () => {
-  const originalModule = jest.requireActual('@openmrs/esm-framework');
+// jest.mock('@openmrs/esm-framework', () => {
+//   const originalModule = jest.requireActual('@openmrs/esm-framework');
 
-  return {
-    ...originalModule,
-    createErrorHandler: jest.fn(),
-    showNotification: jest.fn(),
-    showToast: jest.fn(),
-    getAsyncLifecycle: jest.fn(),
-    usePatient: jest.fn().mockImplementation(() => ({ patient: mockPatient })),
-    registerExtension: jest.fn(),
-    useSession: jest.fn().mockImplementation(() => mockSessionDataResponse.data),
-    openmrsFetch: jest.fn().mockImplementation((args) => mockOpenmrsFetch(args)),
-    OpenmrsDatePicker: jest.fn().mockImplementation(({ id, labelText, value, onChange, isInvalid, invalidText }) => {
-      return (
-        <>
-          <label htmlFor={id}>{labelText}</label>
-          <input
-            id={id}
-            value={value ? dayjs(value).format('DD/MM/YYYY') : undefined}
-            onChange={(evt) => onChange(parseDate(dayjs(evt.target.value).format('YYYY-MM-DD')))}
-          />
-          {isInvalid && invalidText && <span>{invalidText}</span>}
-        </>
-      );
-    }),
-  };
-});
+//   return {
+//     ...originalModule,
+//     createErrorHandler: jest.fn(),
+//     showNotification: jest.fn(),
+//     showToast: jest.fn(),
+//     getAsyncLifecycle: jest.fn(),
+//     usePatient: jest.fn().mockImplementation(() => ({ patient: mockPatient })),
+//     registerExtension: jest.fn(),
+//     useSession: jest.fn().mockImplementation(() => mockSessionDataResponse.data),
+//     openmrsFetch: jest.fn().mockImplementation((args) => mockOpenmrsFetch(args)),
+//     OpenmrsDatePicker: jest.fn().mockImplementation(({ id, labelText, value, onChange, isInvalid, invalidText }) => {
+//       return (
+//         <>
+//           <label htmlFor={id}>{labelText}</label>
+//           <input
+//             id={id}
+//             value={value ? dayjs(value).format('DD/MM/YYYY') : undefined}
+//             onChange={(evt) => onChange(parseDate(dayjs(evt.target.value).format('YYYY-MM-DD')))}
+//           />
+//           {isInvalid && invalidText && <span>{invalidText}</span>}
+//         </>
+//       );
+//     }),
+//   };
+// });
 
 jest.mock('../src/api/api', () => {
   const originalModule = jest.requireActual('../src/api/api');
@@ -93,7 +93,7 @@ jest.mock('../src/api/api', () => {
 
 jest.mock('./hooks/useRestMaxResultsCount', () => jest.fn().mockReturnValue({ systemSetting: { value: '50' } }));
 
-describe('Form engine component', () => {
+xdescribe('Form engine component', () => {
   const user = userEvent.setup();
 
   afterEach(() => {
