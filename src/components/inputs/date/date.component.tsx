@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
-import { useField } from 'formik';
-import { Layer, TimePicker } from '@carbon/react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
+import dayjs from 'dayjs';
+import { useField } from 'formik';
+import { useTranslation } from 'react-i18next';
+import { Layer, TimePicker } from '@carbon/react';
+import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
 import { type FormFieldProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isInlineView } from '../../../utils/form-helper';
@@ -12,15 +13,12 @@ import { FormContext } from '../../../form-context';
 import FieldValueView from '../../value/view/field-value-view.component';
 import FieldLabel from '../../field-label/field-label.component';
 import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
-import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
-import { type CalendarDate, getLocalTimeZone } from '@internationalized/date';
-
 import styles from './date.scss';
 
 const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
   const { t } = useTranslation();
   const [field] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = React.useContext(FormContext);
+  const { setFieldValue, encounterContext, layoutType, workspaceLayout, fields } = useContext(FormContext);
   const [time, setTime] = useState('');
   const { errors, setErrors, warnings, setWarnings } = useFieldValidationResults(question);
 
@@ -31,12 +29,11 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     return false;
   }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
 
-  const onDateChange = (date: CalendarDate) => {
-    const refinedDate = date.toDate(getLocalTimeZone());
-    setTimeIfPresent(refinedDate, time);
-    setFieldValue(question.id, refinedDate);
-    onChange(question.id, refinedDate, setErrors, setWarnings);
-    handler?.handleFieldSubmission(question, refinedDate, encounterContext);
+  const onDateChange = (date: Date) => {
+    setTimeIfPresent(date, time);
+    setFieldValue(question.id, date);
+    onChange(question.id, date, setErrors, setWarnings);
+    handler?.handleFieldSubmission(question, date, encounterContext);
   };
 
   const setTimeIfPresent = (date: Date, time: string) => {
@@ -65,7 +62,7 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
     } else {
       const time = event.target.value;
       setTime(time);
-      const dateValue = question.datePickerFormat === 'timer' ? new Date() : field.value;
+      const dateValue = question.datePickerFormat === 'timer' ? new Date() : new Date(field.value);
       setTimeIfPresent(dateValue, time);
       setFieldValue(question.id, dateValue);
       onChange(question.id, dateValue, setErrors, setWarnings);
@@ -146,8 +143,8 @@ const DateField: React.FC<FormFieldProps> = ({ question, onChange, handler, prev
                     time
                       ? time
                       : field.value instanceof Date
-                        ? field.value.toLocaleDateString(window.navigator.language)
-                        : field.value
+                      ? field.value.toLocaleDateString(window.navigator.language)
+                      : field.value
                   }
                   onChange={onTimeChange}
                 />
