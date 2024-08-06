@@ -2,7 +2,7 @@
 
 :wave: *New to O3? Be sure to review the [OpenMRS 3 Frontend Developer Documentation](https://o3-docs.openmrs.org/).* :teacher:
 
-# openmrs-form-engine-lib
+# openmrs-esm-form-engine-lib
 
 <img src="readme/form-engine.jpeg" alt="https://raw.githubusercontent.com/openmrs/openmrs-form-engine-lib/main/readme/form-engine.jpeg" >
 
