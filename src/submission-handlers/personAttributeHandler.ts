@@ -45,7 +45,5 @@ export const PersonAttributeHandler: SubmissionHandler = {
   getDisplayValue: (field: FormField, value: any) => {
     return value?.display;
   },
-  getPreviousValue: (field: FormField, encounter: OpenmrsEncounter, allFormFields: Array<FormField>) => {
-    return null;
-  },
+  getPreviousValue: () => null,
 };
