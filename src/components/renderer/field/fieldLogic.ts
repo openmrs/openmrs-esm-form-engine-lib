@@ -51,12 +51,12 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
   // handle fields
   if (field.fieldDependents) {
     field.fieldDependents.forEach((dep) => {
-      const dependant = formFields.find((f) => f.id == dep);
+      const dependent = formFields.find((f) => f.id == dep);
       // evaluate calculated value
-      if (dependant.questionOptions.calculate?.calculateExpression) {
+      if (dependent.questionOptions.calculate?.calculateExpression) {
         evaluateAsyncExpression(
-          dependant.questionOptions.calculate.calculateExpression,
-          { value: dependant, type: 'field' },
+          dependent.questionOptions.calculate.calculateExpression,
+          { value: dependent, type: 'field' },
           formFields,
           values,
           {
@@ -64,17 +64,17 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
             patient,
           },
         ).then((result) => {
-          setValue(dependant.id, result);
+          setValue(dependent.id, result);
         });
       }
       // evaluate hide
-      if (dependant.hide) {
-        evaluateHide({ value: dependant, type: 'field' }, formFields, values, sessionMode, patient, evaluateExpression);
+      if (dependent.hide) {
+        evaluateHide({ value: dependent, type: 'field' }, formFields, values, sessionMode, patient, evaluateExpression);
       }
       // evaluate disabled
-      if (typeof dependant.disabled === 'object' && dependant.disabled.disableWhenExpression) {
-        dependant.isDisabled = evaluateDisabled(
-          { value: dependant, type: 'field' },
+      if (typeof dependent.disabled === 'object' && dependent.disabled.disableWhenExpression) {
+        dependent.isDisabled = evaluateDisabled(
+          { value: dependent, type: 'field' },
           formFields,
           values,
           sessionMode,
@@ -83,18 +83,18 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
         );
       }
       // evaluate conditional required
-      if (typeof dependant.required === 'object' && dependant.required?.type === 'conditionalRequired') {
-        dependant.isRequired = evalConditionalRequired(dependant, formFields, values);
+      if (typeof dependent.required === 'object' && dependent.required?.type === 'conditionalRequired') {
+        dependent.isRequired = evalConditionalRequired(dependent, formFields, values);
       }
       // evaluate conditional answered
-      if (dependant.validators?.some((validator) => validator.type === 'conditionalAnswered')) {
-        const fieldValidatorConfig = dependant.validators?.find(
+      if (dependent.validators?.some((validator) => validator.type === 'conditionalAnswered')) {
+        const fieldValidatorConfig = dependent.validators?.find(
           (validator) => validator.type === 'conditionalAnswered',
         );
 
         const validationResults = formFieldValidators['conditionalAnswered'].validate(
-          dependant,
-          dependant.meta.submission?.newValue,
+          dependent,
+          dependent.meta.submission?.newValue,
           {
             ...fieldValidatorConfig,
             expressionContext: { patient, mode: sessionMode },
@@ -102,15 +102,15 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
             formFields,
           },
         );
-        dependant.meta.submission = { ...dependant.meta.submission, errors: validationResults };
+        dependent.meta.submission = { ...dependent.meta.submission, errors: validationResults };
       }
       // evaluate hide for answers
-      dependant?.questionOptions.answers
+      dependent?.questionOptions.answers
         ?.filter((answer) => !isEmpty(answer.hide?.hideWhenExpression))
         .forEach((answer) => {
           answer.isHidden = evaluateExpression(
             answer.hide?.hideWhenExpression,
-            { value: dependant, type: 'field' },
+            { value: dependent, type: 'field' },
             formFields,
             values,
             {
@@ -120,12 +120,12 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           );
         });
       // evaluate disabled
-      dependant?.questionOptions.answers
+      dependent?.questionOptions.answers
         ?.filter((answer) => !isEmpty(answer.disable?.isDisabled))
         .forEach((answer) => {
           answer.disable.isDisabled = evaluateExpression(
             answer.disable?.disableWhenExpression,
-            { value: dependant, type: 'field' },
+            { value: dependent, type: 'field' },
             formFields,
             values,
             {
@@ -135,10 +135,10 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           );
         });
       // evaluate readonly
-      if (!dependant.isHidden && dependant.meta.readonlyExpression) {
-        dependant.readonly = evaluateExpression(
-          dependant.meta.readonlyExpression,
-          { value: dependant, type: 'field' },
+      if (!dependent.isHidden && dependent.meta.readonlyExpression) {
+        dependent.readonly = evaluateExpression(
+          dependent.meta.readonlyExpression,
+          { value: dependent, type: 'field' },
           formFields,
           values,
           {
@@ -148,10 +148,10 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
         );
       }
       // evaluate repeat limit
-      if (hasRendering(dependant, 'repeating') && !isEmpty(dependant.questionOptions.repeatOptions?.limitExpression)) {
-        dependant.questionOptions.repeatOptions.limit = evaluateExpression(
-          dependant.questionOptions.repeatOptions?.limitExpression,
-          { value: dependant, type: 'field' },
+      if (hasRendering(dependent, 'repeating') && !isEmpty(dependent.questionOptions.repeatOptions?.limitExpression)) {
+        dependent.questionOptions.repeatOptions.limit = evaluateExpression(
+          dependent.questionOptions.repeatOptions?.limitExpression,
+          { value: dependent, type: 'field' },
           formFields,
           values,
           {
@@ -160,11 +160,12 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           },
         );
       }
-      updateFormField(dependant);
+      updateFormField(dependent);
     });
   }
 
   let shouldUpdateForm = false;
+
   // handle sections
   if (field.sectionDependents) {
     field.sectionDependents.forEach((sectionId) => {
@@ -194,10 +195,10 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
   // handle pages
   if (field.pageDependents) {
     field.pageDependents?.forEach((dep) => {
-      const dependant = formJson.pages.find((f) => f.label == dep);
-      evaluateHide({ value: dependant, type: 'page' }, formFields, values, sessionMode, patient, evaluateExpression);
-      if (isTrue(dependant.isHidden)) {
-        dependant.sections.forEach((section) => {
+      const dependent = formJson.pages.find((f) => f.label == dep);
+      evaluateHide({ value: dependent, type: 'page' }, formFields, values, sessionMode, patient, evaluateExpression);
+      if (isTrue(dependent.isHidden)) {
+        dependent.sections.forEach((section) => {
           section.questions.forEach((field) => {
             field.isParentHidden = true;
           });

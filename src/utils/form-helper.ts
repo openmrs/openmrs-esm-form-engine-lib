@@ -182,6 +182,7 @@ export function getFieldControlWithFallback(question: FormField) {
   if (hasMissingConcept(question)) {
     // If so, render a disabled text input
     question.disabled = true;
+    question.isDisabled = true;
     return getRegisteredControl('text');
   }
 

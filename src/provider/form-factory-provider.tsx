@@ -1,10 +1,13 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
 import { type FormField, type FormSchema, type SessionMode } from '../types';
 import { EncounterFormProcessor } from '../processors/encounter/encounter-form-processor';
-import { type LayoutType, useLayoutType, type OpenmrsResource } from '@openmrs/esm-framework';
+import { type LayoutType, useLayoutType, type OpenmrsResource, showSnackbar } from '@openmrs/esm-framework';
 import { type FormProcessorConstructor } from '../processors/form-processor';
 import { type FormContextProps } from './form-provider';
-import { validateForm } from './form-factory-helper';
+import { processPostSubmissionActions, validateForm } from './form-factory-helper';
+import { useTranslation } from 'react-i18next';
+import { usePostSubmissionActions } from '../hooks/usePostSubmissionActions';
+import { reportError } from '../utils/error-utils';
 
 interface FormFactoryProviderContextProps {
   patient: fhir.Patient;
@@ -17,9 +20,7 @@ interface FormFactoryProviderContextProps {
   visit: OpenmrsResource;
   location: OpenmrsResource;
   provider: OpenmrsResource;
-  registerForm: (formId: string, context: FormContextProps, isSubForm: boolean) => void;
-  getSubForms: () => FormContextProps[];
-  getRootForm: () => FormContextProps;
+  registerForm: (formId: string, context: FormContextProps) => void;
   setCurrentPage: (page: string) => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
 }
@@ -61,48 +62,73 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   setCurrentPage,
   handleConfirmQuestionDeletion,
 }) => {
+  const { t } = useTranslation();
   const rootForm = useRef<FormContextProps>();
   const subForms = useRef<Record<string, FormContextProps>>({});
   const layoutType = useLayoutType();
   const { isSubmitting, setIsSubmitting, onSubmit, onError, handleClose } = formSubmissionProps;
-  const registerForm = (formId: string, context: FormContextProps, isSubForm: boolean) => {
-    if (isSubForm) {
-      subForms.current[formId] = context;
-    } else {
+  const postSubmissionHandlers = usePostSubmissionActions(formJson.postSubmissionActions);
+
+  const abortController = new AbortController();
+
+  const registerForm = useCallback((formId: string, context: FormContextProps) => {
+    if (!rootForm.current) {
       rootForm.current = context;
+    } else {
+      subForms.current[formId] = context;
     }
-  };
+  }, []);
+
   // TODO: Manage and load processors from the registry
   const formProcessors = useRef<Record<string, FormProcessorConstructor>>({
     EncounterFormProcessor: EncounterFormProcessor,
   });
-  const getSubForms = () => Object.values(subForms.current);
-  const getRootForm = () => rootForm.current;
 
   useEffect(() => {
     if (isSubmitting) {
-      // TODO: find a dynamic way of managing the forms processing order
-      const forms = [rootForm.current, ...getSubForms()];
+      // TODO: find a dynamic way of managing the form processing order
+      const forms = [rootForm.current, ...Object.values(subForms.current)];
       // validate all forms
       const valid = forms.every((formContext) => validateForm(formContext));
       if (valid) {
-        Promise.all(
-          forms.map((formContext) => formContext.processor.processSubmission(formContext, new AbortController())),
-        )
-          .then((results) => {
-            // TODO: process post submission actions
-            // TODO: handle form submission success
+        Promise.all(forms.map((formContext) => formContext.processor.processSubmission(formContext, abortController)))
+          .then(async (results) => {
             formSubmissionProps.setIsSubmitting(false);
-            formSubmissionProps.handleClose();
+            if (sessionMode === 'edit') {
+              showSnackbar({
+                title: t('updatedRecord', 'Record updated'),
+                subtitle: t('updatedRecordDescription', 'The patient encounter was updated'),
+                kind: 'success',
+                isLowContrast: true,
+              });
+            } else {
+              showSnackbar({
+                title: t('createdRecord', 'Record created'),
+                subtitle: t('createdRecordDescription', 'A new encounter was created'),
+                kind: 'success',
+                isLowContrast: true,
+              });
+            }
+            if (postSubmissionHandlers) {
+              await processPostSubmissionActions(postSubmissionHandlers, results, patient, sessionMode, t);
+            }
+            if (onSubmit) {
+              onSubmit(results);
+            } else {
+              handleClose();
+            }
           })
           .catch((error) => {
-            // TODO: handle form submission errors
-            formSubmissionProps.setIsSubmitting(false);
+            setIsSubmitting(false);
+            reportError(error, t('errorSubmittingForm', 'Error submitting form'));
           });
       } else {
-        formSubmissionProps.setIsSubmitting(false);
+        setIsSubmitting(false);
       }
     }
+    return () => {
+      abortController.abort();
+    };
   }, [isSubmitting]);
 
   return (
@@ -119,8 +145,6 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
         location,
         provider,
         registerForm,
-        getSubForms,
-        getRootForm,
         setCurrentPage,
         handleConfirmQuestionDeletion,
       }}>

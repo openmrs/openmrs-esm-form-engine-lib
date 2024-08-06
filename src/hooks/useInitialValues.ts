@@ -9,7 +9,7 @@ const useInitialValues = (
 ) => {
   const [isLoadingInitialValues, setIsLoadingInitialValues] = useState(true);
   const [initialValues, setInitialValues] = useState({});
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (

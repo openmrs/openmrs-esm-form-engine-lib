@@ -138,7 +138,16 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
   const InputComponent = inputComponentWrapper.value;
 
   if (!repeatOptions?.targetRendering && isGroupField(field.questionOptions.rendering)) {
-    return <InputComponent field={field} value={null} errors={errors} warnings={warnings} setFieldValue={null} />;
+    return (
+      <InputComponent
+        key={field.id}
+        field={field}
+        value={null}
+        errors={errors}
+        warnings={warnings}
+        setFieldValue={null}
+      />
+    );
   }
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} onReset={noop}>
@@ -147,11 +156,19 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
         name={field.id}
         render={({ field: { onChange, value } }) => (
           <div>
-            <InputComponent field={field} value={value} errors={errors} warnings={warnings} setFieldValue={onChange} />
+            <InputComponent
+              key={`${field.id}-input-component`}
+              field={field}
+              value={value}
+              errors={errors}
+              warnings={warnings}
+              setFieldValue={onChange}
+            />
             {isUnspecifiedSupported(field) && (
               <div className={styles.unspecifiedContainer}>
                 {field.unspecified && (
                   <UnspecifiedField
+                    key={`${field.id}-unspecified`}
                     field={field}
                     setFieldValue={onChange}
                     onAfterChange={onAfterChange}
@@ -163,6 +180,7 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
             {historicalValue?.value && (
               <div>
                 <PreviousValueReview
+                  key={`${field.id}-previous-value-review`}
                   previousValue={historicalValue.value}
                   displayText={historicalValue.display}
                   onAfterChange={onAfterChange}

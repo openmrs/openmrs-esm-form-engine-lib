@@ -208,7 +208,6 @@ export class EncounterFormProcessor extends FormProcessor {
   }
 
   async getInitialValues(context: FormProcessorContextProps) {
-    // TODO: Handle context initializable fields eg. encounterProvider, encounterRole etc.
     const { domainObjectValue: encounter, formFields, formFieldAdapters } = context;
     const initialValues = {};
     const repeatableFields = [];
@@ -221,14 +220,14 @@ export class EncounterFormProcessor extends FormProcessor {
             if (hasRendering(field, 'repeating') && !field.meta?.repeat?.isClone) {
               repeatableFields.push(field);
             }
-            if (field.type === 'obsGroup') {
-              return;
-            }
             let value = null;
             try {
               value = await adapter.getInitialValue(field, encounter, context);
             } catch (error) {
               console.error(error);
+            }
+            if (field.type === 'obsGroup') {
+              return;
             }
             if (!isEmpty(value)) {
               initialValues[field.id] = value;

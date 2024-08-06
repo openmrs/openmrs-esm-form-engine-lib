@@ -33,7 +33,7 @@ export const SectionRenderer = ({ section }: { section: FormSection }) => {
                     'checkbox',
                   ].includes(question.questionOptions.rendering),
                 })}>
-                <FormFieldRenderer field={question} valueAdapter={formFieldAdapters[question.type]} />
+                <FormFieldRenderer key={question.id} field={question} valueAdapter={formFieldAdapters[question.type]} />
               </div>
               {/** TODO: move tooltip to the form-field renderer; see: https://github.com/openmrs/openmrs-form-engine-lib/pull/351 */}
               {!question.isHidden && question.questionInfo && (

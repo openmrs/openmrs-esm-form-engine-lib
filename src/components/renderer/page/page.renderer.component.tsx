@@ -12,14 +12,11 @@ interface PageRendererProps {
   page: FormPage;
 }
 
-// TODOs:
-// - Add a way to collapse/expand sections
-// - Support other view modes (e.g. embedded-view)
 function PageRenderer({ page }: PageRendererProps) {
   const { t } = useTranslation();
   const pageId = useMemo(() => page.label.replace(/\s/g, ''), [page.label]);
 
-  const { sessionMode, setCurrentPage } = useFormFactory();
+  const { setCurrentPage } = useFormFactory();
   const visibleSections = page.sections.filter((section) => {
     const hasVisibleQuestions = section.questions.some((question) => !isTrue(question.isHidden));
     return !isTrue(section.isHidden) && hasVisibleQuestions;

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormField, SessionMode, FormSchema } from './types';
 import { useSession, type Visit } from '@openmrs/esm-framework';
 import { useFormJson } from '.';
@@ -14,6 +14,8 @@ import { ButtonSet, Button, InlineLoading } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
+import { init, teardown } from './lifecycle';
+import { reportError } from './utils/error-utils';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -60,6 +62,8 @@ const FormEngine = ({
   const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // TODO: Updating this prop triggers a rerender of the entire form. This means whenever we scroll into a new page, the form is rerendered.
+  // Figure out a way to avoid this. Maybe use a ref with an observer instead of a state?
   const [currentPage, setCurrentPage] = useState('');
   const [showPatientBanner, setShowPatientBanner] = useState(false);
   const {
@@ -73,14 +77,24 @@ const FormEngine = ({
     //   return false;
     // }
     // return workspaceLayout === 'minimized' || (workspaceLayout === 'maximized' && scrollablePages.size <= 1);
-    // Default to true for now
     return true;
   }, [mode, workspaceLayout]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    reportError(formError, t('errorLoadingFormSchema', 'Error loading form schema'));
+  }, [formError]);
+
+  useEffect(() => {
+    init();
+    return () => {
+      teardown();
+    };
+  }, []);
+
+  const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-  };
+  }, []);
 
   return (
     <Form ref={ref} className={classNames('cds--form', styles.form)} onSubmit={handleSubmit}>
@@ -100,7 +114,7 @@ const FormEngine = ({
           formSubmissionProps={{
             isSubmitting,
             setIsSubmitting,
-            onSubmit: handleSubmit,
+            onSubmit,
             onError: () => {},
             handleClose: () => {},
           }}
@@ -121,7 +135,10 @@ const FormEngine = ({
                   </div>
                 )}
                 <div className={styles.formBody}>
-                  <FormProcessorFactory formJson={refinedFormJson} isSubForm={false} />
+                  <FormProcessorFactory
+                    formJson={refinedFormJson}
+                    setIsLoadingFormDependencies={setIsLoadingDependencies}
+                  />
                 </div>
                 {showButtonSet && (
                   <ButtonSet className={styles.minifiedButtons}>

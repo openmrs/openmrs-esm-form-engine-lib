@@ -1,5 +1,8 @@
 .loaderContainer {
   height: var(--desktop-workspace-window-height);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 // tablet

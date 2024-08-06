@@ -13,10 +13,10 @@ import { useFormStateHelpers } from '../../../hooks/useFormStateHelpers';
 export type FormRendererProps = {
   processorContext: FormProcessorContextProps;
   initialValues: Record<string, any>;
-  isSubForm?: boolean;
+  setIsLoadingFormDependencies: (isLoading: boolean) => void;
 };
 
-export const FormRenderer = ({ processorContext, initialValues, isSubForm }: FormRendererProps) => {
+export const FormRenderer = ({ processorContext, initialValues, setIsLoadingFormDependencies }: FormRendererProps) => {
   const { evaluatedFields, evaluatedFormJson } = useEvaluateFormFieldExpressions(initialValues, processorContext);
   const { registerForm, workspaceLayout } = useFormFactory();
   const methods = useForm({
@@ -59,8 +59,8 @@ export const FormRenderer = ({ processorContext, initialValues, isSubForm }: For
   }, [processorContext, workspaceLayout, methods, formFields, formJson, invalidFields]);
 
   useEffect(() => {
-    registerForm(formJson.name, context, isSubForm);
-  }, [formJson.name, isSubForm, context]);
+    registerForm(formJson.name, context);
+  }, [formJson.name, context]);
 
   return (
     <FormProvider {...context}>
@@ -73,7 +73,14 @@ export const FormRenderer = ({ processorContext, initialValues, isSubForm }: For
           return null;
         }
         if (page.isSubform && page.subform?.form) {
-          return <FormProcessorFactory key={page.subform.form.uuid} formJson={page.subform.form} isSubForm={true} />;
+          return (
+            <FormProcessorFactory
+              key={page.subform.form.uuid}
+              formJson={page.subform.form}
+              isSubForm={true}
+              setIsLoadingFormDependencies={setIsLoadingFormDependencies}
+            />
+          );
         }
         return <PageRenderer page={page} />;
       })}

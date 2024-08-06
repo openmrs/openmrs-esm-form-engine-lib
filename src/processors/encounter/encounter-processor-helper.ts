@@ -161,9 +161,9 @@ export function getMutableSessionProps(context: FormContextProps) {
     customDependencies,
     domainObjectValue: encounter,
   } = context;
-  const defaultRole = customDependencies?.encounterRole;
+  const { defaultEncounterRole } = customDependencies;
   const encounterRole =
-    formFields.find((field) => field.type === 'encounterRole')?.meta.submission?.newValue || defaultRole?.uuid;
+    formFields.find((field) => field.type === 'encounterRole')?.meta.submission?.newValue || defaultEncounterRole?.uuid;
   const encounterProvider =
     formFields.find((field) => field.type === 'encounterProvider')?.meta.submission?.newValue || currentProvider.uuid;
   const encounterDate =

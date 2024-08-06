@@ -1,12 +1,12 @@
 import { renderHook, act } from '@testing-library/react';
-import { usePostSubmissionAction } from './usePostSubmissionAction';
+import { usePostSubmissionActions } from './usePostSubmissionActions';
 
 // Mock the getRegisteredPostSubmissionAction function
 jest.mock('../registry/registry', () => ({
   getRegisteredPostSubmissionAction: jest.fn(),
 }));
 
-describe('usePostSubmissionAction', () => {
+describe('usePostSubmissionActions', () => {
   // Mock the actual post-submission action function
   const mockPostAction = jest.fn();
 
@@ -29,7 +29,7 @@ describe('usePostSubmissionAction', () => {
   });
 
   it('should fetch post-submission actions and return them', async () => {
-    const { result } = renderHook(() => usePostSubmissionAction(actionRefs));
+    const { result } = renderHook(() => usePostSubmissionActions(actionRefs));
 
     // Wait for the effect to complete
     await act(async () => {});

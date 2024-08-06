@@ -60,8 +60,7 @@ function handleQuestionsWithDateOptions(sectionQuestions: Array<FormField>): Arr
           isTransient: true,
         },
         validators: question.questionOptions.shownDateOptions?.validators,
-        // TODO: uncomment when skip logic is implemented
-        // disabled: { disableWhenExpression: `isEmpty(${question.id})` },
+        disabled: { disableWhenExpression: `isEmpty(${question.id})` },
         hide: question.questionOptions.shownDateOptions?.hide || question.hide,
         meta: {
           targetField: question.id,
@@ -224,8 +223,7 @@ function handleQuestionsWithObsComments(sectionQuestions: Array<FormField>): Arr
           isTransient: true,
         },
         validators: question.questionOptions.shownCommentOptions?.validators,
-        // TODO: uncomment when skip logic is implemented
-        // disabled: { disableWhenExpression: `isEmpty(${question.id})` },
+        disabled: { disableWhenExpression: `isEmpty(${question.id})` },
         hide: question.questionOptions.shownCommentOptions?.hide || question.hide,
         meta: {
           targetField: question.id,

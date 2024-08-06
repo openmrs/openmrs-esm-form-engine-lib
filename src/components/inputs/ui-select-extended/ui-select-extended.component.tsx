@@ -13,8 +13,9 @@ import styles from './ui-select-extended.scss';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 import useDataSourceDependentValue from '../../../hooks/useDatasourceDependentValue';
+import { useWatch } from 'react-hook-form';
 
-const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
+const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +25,14 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, value, errors,
   const [config, setConfig] = useState({});
   const [savedSearchableItem, setSavedSearchableItem] = useState({});
   const dataSourceDependentValue = useDataSourceDependentValue(field);
-  const { layoutType, sessionMode, workspaceLayout } = useFormProviderContext();
+  const {
+    layoutType,
+    sessionMode,
+    workspaceLayout,
+    methods: { control },
+  } = useFormProviderContext();
+
+  const value = useWatch({ control, name: field.id, exact: true });
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(sessionMode) || isTrue(field.readonly)) {
@@ -43,9 +51,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, value, errors,
     getRegisteredDataSource(dataSource ? dataSource : field.questionOptions.rendering).then((ds) => setDataSource(ds));
   }, [field.questionOptions?.datasource]);
 
-  const handleChange = (value) => {
-    setFieldValue(value);
-  };
+  const selectedItem = useMemo(() => items.find((item) => item.uuid == value), [items, value]);
 
   const debouncedSearch = debounce((searchTerm, dataSource) => {
     setItems([]);
@@ -135,7 +141,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, value, errors,
             titleText={<FieldLabel field={field} />}
             items={items}
             itemToString={(item) => item?.display}
-            selectedItem={items.find((item) => item.uuid == value)}
+            selectedItem={selectedItem}
             shouldFilterItem={({ item, inputValue }) => {
               if (!inputValue) {
                 // Carbon's initial call at component mount
@@ -145,7 +151,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, value, errors,
             }}
             onChange={({ selectedItem }) => {
               isProcessingSelection.current = true;
-              handleChange(selectedItem?.uuid);
+              setFieldValue(selectedItem?.uuid);
             }}
             disabled={field.isDisabled}
             readOnly={field.readonly}
@@ -161,6 +167,14 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, value, errors,
               }
               if (field.questionOptions['isSearchable']) {
                 setSearchTerm(value);
+              }
+            }}
+            onBlur={(event) => {
+              // Notes:
+              // There is an issue with the onBlur event where the value is not persistently set to null when the user clears the input field.
+              // This is a workaround to ensure that the value is set to null when the user clears the input field.
+              if (!event.target.value) {
+                setFieldValue(null);
               }
             }}
           />

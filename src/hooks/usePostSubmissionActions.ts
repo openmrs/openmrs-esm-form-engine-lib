@@ -2,14 +2,20 @@ import { useEffect, useState } from 'react';
 import { getRegisteredPostSubmissionAction } from '../registry/registry';
 import { type PostSubmissionAction } from '../types';
 
-export function usePostSubmissionAction(
+export interface PostSubmissionActionMeta {
+  postAction: PostSubmissionAction;
+  actionId: string;
+  config: Record<string, any>;
+  enabled?: string;
+}
+
+export function usePostSubmissionActions(
   actionRefs: Array<{ actionId: string; enabled?: string; config?: Record<string, any> }>,
-) {
-  const [actions, setActions] = useState<
-    Array<{ postAction: PostSubmissionAction; config: Record<string, any>; actionId: string; enabled?: string }>
-  >([]);
+): Array<PostSubmissionActionMeta> {
+  const [actions, setActions] = useState<Array<PostSubmissionActionMeta>>([]);
+
   useEffect(() => {
-    const actionArray = [];
+    const actionArray: Array<PostSubmissionActionMeta> = [];
     if (actionRefs?.length) {
       actionRefs.map((ref) => {
         const actionId = typeof ref === 'string' ? ref : ref.actionId;
