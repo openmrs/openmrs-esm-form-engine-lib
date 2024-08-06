@@ -36,7 +36,7 @@ export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
   try {
     sanitizeQuestion(question);
     setFieldValidators(question);
-     transformByType(question);
+    await transformByType(question);
     transformByRendering(question);
     if (question?.questions?.length) {
        question.questions.forEach((question) => handleQuestion(question, form));
