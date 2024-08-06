@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layer, TimePicker } from '@carbon/react';
 import classNames from 'classnames';
@@ -9,7 +9,6 @@ import { isEmpty } from '../../../validators/form-validator';
 import FieldValueView from '../../value/view/field-value-view.component';
 import styles from './date.scss';
 import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
-import { type CalendarDate, getLocalTimeZone } from '@internationalized/date';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 
@@ -24,28 +23,33 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
     return false;
   }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
 
-  const onDateChange = (date: CalendarDate) => {
-    const refinedDate = date.toDate(getLocalTimeZone());
-    setTimeIfPresent(refinedDate, time);
-    setFieldValue(refinedDate);
-  };
+  const onDateChange = useCallback(
+    (date: Date) => {
+      setTimeIfPresent(date, time);
+      setFieldValue(date);
+    },
+    [setFieldValue, time],
+  );
 
-  const setTimeIfPresent = (date: Date, time: string) => {
+  const setTimeIfPresent = useCallback((date: Date, time: string) => {
     if (!isEmpty(time)) {
       const [hours, minutes] = time.split(':').map(Number);
       date.setHours(hours ?? 0, minutes ?? 0);
     }
-  };
+  }, []);
 
-  const onTimeChange = (event) => {
-    const time = event.target.value;
-    setTime(time);
-    // TODO: Confirm if a new date should be instantiated when the date picker format is 'timer'
-    // If the underlying concept's datatype is 'Time', then the backend expects a time string
-    const date = field.datePickerFormat === 'timer' ? new Date() : dateValue;
-    setTimeIfPresent(date, time);
-    setFieldValue(date);
-  };
+  const onTimeChange = useCallback(
+    (event) => {
+      const time = event.target.value;
+      setTime(time);
+      // TODO: Confirm if a new date should be instantiated when the date picker format is 'timer'
+      // If the underlying concept's datatype is 'Time', then the backend expects a time string
+      const date = field.datePickerFormat === 'timer' ? new Date() : new Date(dateValue);
+      setTimeIfPresent(date, time);
+      setFieldValue(date);
+    },
+    [setFieldValue, setTimeIfPresent, dateValue],
+  );
 
   useEffect(() => {
     if (dateValue) {
