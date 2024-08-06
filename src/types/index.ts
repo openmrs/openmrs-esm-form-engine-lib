@@ -65,44 +65,6 @@ export interface FormFieldValueAdapter {
   tearDown: () => void;
 }
 
-/**
- * @deprecated
- * TODO: Remove this interface
- */
-export interface SubmissionHandler {
-  /**
-   * Abstraction of the extraction of initial field value from an `encounter`
-   *
-   * @returns the `initialValue`
-   */
-  getInitialValue: (
-    encounter: OpenmrsEncounter,
-    field: FormField,
-    allFormFields?: Array<FormField>,
-    context?: any,
-  ) => {};
-
-  /**
-   * Handles field submission.
-   *
-   * @should Construct a new submission value, edit and handle deletion by voiding.
-   * @returns the `submissionValue`
-   */
-  handleFieldSubmission: (field: FormField, value: any, context: any) => {};
-
-  /**
-   * Extracts value to be displayed while in `view` mode
-   *
-   * @returns the `displayValue`
-   */
-  getDisplayValue: (field: FormField, value: any) => any;
-
-  /**
-   * Fetches the previous value for a form field
-   */
-  getPreviousValue?: (field: FormField, encounter: OpenmrsEncounter, allFormFields: Array<FormField>) => any;
-}
-
 export interface DataSource<T> {
   /**
    * Fetches arbitrary data from a data source

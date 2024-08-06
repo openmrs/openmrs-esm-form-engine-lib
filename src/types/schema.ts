@@ -88,24 +88,6 @@ export interface FormField {
   meta?: QuestionMetaProps;
 }
 
-/**
- * @deprecated
- */
-export interface FormFieldProps {
-  question: FormField;
-  onChange: (
-    fieldName: string,
-    value: any,
-    setErrors: (errors: Array<ValidationResult>) => void,
-    setWarnings: (warnings: Array<ValidationResult>) => void,
-    isUnspecified?: boolean,
-  ) => void;
-  handler: any;
-  // This is of util to components defined out of the engine
-  useField?: (fieldId: string) => any;
-  previousValue?: string | number | Date | boolean | any[];
-}
-
 export interface FormFieldInputProps {
   value: any;
   field: FormField;

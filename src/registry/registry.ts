@@ -2,14 +2,11 @@ import {
   type DataSource,
   type FormFieldValidator,
   type FormSchemaTransformer,
-  type FormFieldProps,
   type PostSubmissionAction,
-  type SubmissionHandler,
 } from '../types';
 import { getGlobalStore } from '@openmrs/esm-framework';
 import { FormsStore } from '../constants';
 import { inbuiltControls } from './inbuilt-components/inbuiltControls';
-import { inbuiltFieldSubmissionHandlers } from './inbuilt-components/inbuiltFieldSubmissionHandlers';
 import { inbuiltValidators } from './inbuilt-components/inbuiltValidators';
 import { inbuiltDataSources } from './inbuilt-components/inbuiltDataSources';
 import { getControlTemplate } from './inbuilt-components/control-templates';
@@ -42,13 +39,6 @@ export interface CustomControlRegistration extends ComponentRegistration<React.C
   alias?: string;
 }
 
-/**
- * @deprecated
- */
-export interface FieldSubmissionHandlerRegistration extends ComponentRegistration<SubmissionHandler> {
-  type: string;
-}
-
 export interface FieldValueAdapterRegistration extends ComponentRegistration<FormFieldValueAdapter> {
   type: string;
 }
@@ -57,7 +47,6 @@ export interface FormsRegistryStoreState {
   controls: CustomControlRegistration[];
   fieldValidators: ComponentRegistration<FormFieldValidator>[];
   fieldValueAdapters: FieldValueAdapterRegistration[];
-  fieldSubmissionHandlers: FieldSubmissionHandlerRegistration[];
   postSubmissionActions: ComponentRegistration<PostSubmissionAction>[];
   dataSources: ComponentRegistration<DataSource<any>>[];
   expressionHelpers: Record<string, Function>;
@@ -67,8 +56,6 @@ export interface FormsRegistryStoreState {
 interface FormRegistryCache {
   validators: Record<string, FormFieldValidator>;
   controls: Record<string, React.ComponentType<FormFieldInputProps>>;
-  // @deprecated
-  fieldSubmissionHandlers: Record<string, SubmissionHandler>;
   fieldValueAdapters: Record<string, FormFieldValueAdapter>;
   postSubmissionActions: Record<string, PostSubmissionAction>;
   dataSources: Record<string, DataSource<any>>;
@@ -79,7 +66,6 @@ const registryCache: FormRegistryCache = {
   validators: {},
   controls: {},
   fieldValueAdapters: {},
-  fieldSubmissionHandlers: {},
   postSubmissionActions: {},
   dataSources: {},
   formSchemaTransformers: {},
@@ -93,13 +79,6 @@ export function registerControl(registration: CustomControlRegistration) {
 
 export function registerPostSubmissionAction(registration: ComponentRegistration<PostSubmissionAction>) {
   getFormsStore().postSubmissionActions.push(registration);
-}
-
-/**
- * @deprecated
- */
-export function registerFieldSubmissionHandler(registration: FieldSubmissionHandlerRegistration) {
-  getFormsStore().fieldSubmissionHandlers.push(registration);
 }
 
 export function registerFieldValueAdapter(registration: FieldValueAdapterRegistration) {
@@ -167,26 +146,6 @@ export async function getRegisteredFieldValueAdapter(type: string): Promise<Form
   }
   registryCache.fieldValueAdapters[type] = adapter;
   return adapter;
-}
-
-/**
- * @deprecated
- * A convinience function that returns the appropriate submission handler for a given type.
- */
-export async function getRegisteredFieldSubmissionHandler(type: string): Promise<SubmissionHandler> {
-  if (registryCache.fieldSubmissionHandlers[type]) {
-    return registryCache.fieldSubmissionHandlers[type];
-  }
-  let handler = inbuiltFieldSubmissionHandlers.find((handler) => handler.type === type)?.component;
-  // if undefined, try serching through the registered custom handlers
-  if (!handler) {
-    const handlerImport = await getFormsStore()
-      .fieldSubmissionHandlers.find((handler) => handler.type === type)
-      ?.load?.();
-    handler = handlerImport?.default;
-  }
-  registryCache.fieldSubmissionHandlers[type] = handler;
-  return handler;
 }
 
 export async function getRegisteredFormSchemaTransformers(): Promise<FormSchemaTransformer[]> {
@@ -296,7 +255,6 @@ function getFormsStore(): FormsRegistryStoreState {
     expressionHelpers: {},
     fieldValidators: [],
     fieldValueAdapters: [],
-    fieldSubmissionHandlers: [],
     dataSources: [],
     formSchemaTransformers: [],
   }).getState();

@@ -6,7 +6,6 @@ import {
   type OpenmrsEncounter,
   type PatientIdentifier,
   type SessionMode,
-  type SubmissionHandler,
 } from './types';
 
 type FormContextProps = {
@@ -19,7 +18,6 @@ type FormContextProps = {
   isSubmitting: boolean;
   layoutType?: LayoutType;
   workspaceLayout?: 'minimized' | 'maximized';
-  formFieldHandlers: Record<string, SubmissionHandler>;
 };
 
 export interface EncounterContext {

@@ -1,10 +1,8 @@
 import { cloneDeep } from 'lodash-es';
-import { type FormField, type OpenmrsEncounter, type SubmissionHandler } from '../../types';
+import { type FormField } from '../../types';
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { isEmpty } from '../../validators/form-validator';
 import { clearSubmission } from '../../utils/common-utils';
-import { assignedObsIds } from '../../adapters/obs-adapter';
-import { assignedOrderIds } from '../../adapters/orders-adapter';
 
 export function cloneRepeatField(srcField: FormField, value: OpenmrsResource, idSuffix: number) {
   const originalGroupMembersIds: string[] = [];
@@ -67,46 +65,4 @@ export function disableRepeatAddButton(limit: string | number, counter: number) 
     return false;
   }
   return counter >= repeatLimit;
-}
-
-export function hydrateRepeatField(
-  field: FormField,
-  formFields: FormField[],
-  encounter: OpenmrsEncounter,
-  initialValues: Record<string, any>,
-  formFieldHandlers: Record<string, SubmissionHandler>,
-) {
-  let counter = 1;
-  const unMappedGroups = encounter.obs.filter(
-    (obs) =>
-      obs.concept.uuid === field.questionOptions.concept &&
-      obs.uuid != field.meta.previousValue?.uuid &&
-      !assignedObsIds.includes(obs.uuid),
-  );
-  const unMappedOrders = encounter.orders.filter((order) => {
-    const availableOrderables = field.questionOptions.answers?.map((answer) => answer.concept) || [];
-    return availableOrderables.includes(order.concept?.uuid) && !assignedOrderIds.includes(order.uuid);
-  });
-  if (field.type === 'testOrder') {
-    return unMappedOrders
-      .filter((order) => !order.voided)
-      .map((order) => {
-        const clone = cloneRepeatField(field, order, counter++);
-        initialValues[clone.id] = formFieldHandlers[field.type].getInitialValue({ orders: [order] }, clone, formFields);
-        return clone;
-      });
-  }
-  // handle obs groups
-  return unMappedGroups.flatMap((group) => {
-    const clone = cloneRepeatField(field, group, counter++);
-    clone.questions.forEach((childField) => {
-      initialValues[childField.id] = formFieldHandlers[field.type].getInitialValue(
-        { obs: [group] },
-        childField,
-        formFields,
-      );
-    });
-    assignedObsIds.push(group.uuid);
-    return [clone, ...clone.questions];
-  });
 }
