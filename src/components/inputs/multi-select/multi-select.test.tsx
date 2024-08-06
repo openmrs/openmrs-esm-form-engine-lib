@@ -1,33 +1,21 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
 import { type FormSchema } from '../../../types';
 import { mockPatient } from '__mocks__/patient.mock';
 import { mockSessionDataResponse } from '__mocks__/session.mock';
 import { mockVisit } from '__mocks__/visit.mock';
 import multiSelectFormSchema from '__mocks__/forms/rfe-forms/multi-select-form.json';
 import FormEngine from '../../../form-engine.component';
-
-const mockOpenmrsFetch = jest.fn();
 global.ResizeObserver = require('resize-observer-polyfill');
+
+const mockOpenmrsFetch = jest.mocked(openmrsFetch);
+const mockUseSession = jest.mocked(useSession);
+const mockUsePatient = jest.mocked(usePatient);
+
 const visit = mockVisit;
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
-
-jest.mock('@openmrs/esm-framework', () => {
-  const originalModule = jest.requireActual('@openmrs/esm-framework');
-
-  return {
-    ...originalModule,
-    createErrorHandler: jest.fn(),
-    showNotification: jest.fn(),
-    showToast: jest.fn(),
-    getAsyncLifecycle: jest.fn(),
-    usePatient: jest.fn().mockImplementation(() => ({ patient: mockPatient })),
-    registerExtension: jest.fn(),
-    useSession: jest.fn().mockImplementation(() => mockSessionDataResponse.data),
-    openmrsFetch: jest.fn().mockImplementation((args) => mockOpenmrsFetch(args)),
-  };
-});
 
 jest.mock('../../../api/api', () => {
   const originalModule = jest.requireActual('../../../api/api');
@@ -56,7 +44,22 @@ const renderForm = async () => {
   );
 };
 
-describe('OHRIMultiSelect Component', () => {
+describe('MultiSelect Component', () => {
+  beforeEach(() => {
+    mockOpenmrsFetch.mockResolvedValue({
+      data: { results: [{ ...multiSelectFormSchema }] },
+    } as unknown as FetchResponse);
+
+    mockUseSession.mockReturnValue(mockSessionDataResponse.data);
+
+    mockUsePatient.mockReturnValue({
+      isLoading: false,
+      patient: mockPatient,
+      patientUuid: mockPatient.id,
+      error: null,
+    });
+  });
+
   it('renders correctly', async () => {
     await renderForm();
     expect(screen.getByRole('combobox', { name: /Patient covered by NHIF/i })).toBeInTheDocument();

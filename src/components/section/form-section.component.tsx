@@ -88,9 +88,7 @@ const FormSection = ({ fields, onFieldChange }) => {
 
               return (
                 <div key={index} className={styles.parentResizer}>
-                  <div>
-                    {qnFragment}
-                  </div>
+                  <div>{qnFragment}</div>
                   <div className={styles.unspecifiedContainer}>
                     {isUnspecifiedSupported(fieldDescriptor) && rendering != 'group' && (
                       <UnspecifiedField question={fieldDescriptor} onChange={onFieldChange} handler={handler} />
@@ -122,7 +120,7 @@ function ErrorFallback({ error }) {
   const { t } = useTranslation();
   return (
     <ToastNotification
-      ariaLabel={t('closesNotification', 'Closes notification')}
+      aria-label={t('closesNotification', 'Closes notification')}
       caption=""
       hideCloseButton
       lowContrast

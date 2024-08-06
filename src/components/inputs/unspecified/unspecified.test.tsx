@@ -1,31 +1,27 @@
 import React from 'react';
 import dayjs from 'dayjs';
-import { parseDate } from '@internationalized/date';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { OpenmrsDatePicker } from '@openmrs/esm-framework';
 import { Formik } from 'formik';
 import { type FormField, type EncounterContext, FormContext } from '../../..';
 import { findTextOrDateInput } from '../../../utils/test-utils';
+import { ObsSubmissionHandler } from '../../../submission-handlers/obsHandler';
 import DateField from '../date/date.component';
 import UnspecifiedField from './unspecified.component';
-import { ObsSubmissionHandler } from '../../../submission-handlers/obsHandler';
 
-jest.mock('@openmrs/esm-framework', () => {
-  const originalModule = jest.requireActual('@openmrs/esm-framework');
-  return {
-    ...originalModule,
-    OpenmrsDatePicker: jest.fn().mockImplementation(({ id, labelText, value, onChange }) => {
-      return (
-        <>
-          <label htmlFor={id}>{labelText}</label>
-          <input
-            id={id}
-            value={value ? dayjs(value).format('DD/MM/YYYY') : undefined}
-            onChange={(evt) => onChange(parseDate(dayjs(evt.target.value).format('YYYY-MM-DD')))}
-          />
-        </>
-      );
-    }),
-  };
+const mockOpenmrsDatePicker = jest.mocked(OpenmrsDatePicker);
+
+mockOpenmrsDatePicker.mockImplementation(({ id, labelText, value, onChange }) => {
+  return (
+    <>
+      <label htmlFor={id}>{labelText}</label>
+      <input
+        id={id}
+        value={value ? dayjs(value.toString()).format('DD/MM/YYYY') : undefined}
+        onChange={(evt) => onChange(new Date(evt.target.value))}
+      />
+    </>
+  );
 });
 
 const question: FormField = {
