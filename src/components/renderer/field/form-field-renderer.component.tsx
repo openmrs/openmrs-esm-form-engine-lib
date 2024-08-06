@@ -199,7 +199,7 @@ function ErrorFallback({ error }) {
   const { t } = useTranslation();
   return (
     <ToastNotification
-      ariaLabel={t('closesNotification', 'Closes notification')}
+      aria-label={t('closesNotification', 'Closes notification')}
       caption=""
       hideCloseButton
       lowContrast

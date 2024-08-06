@@ -141,7 +141,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
               <hr className={styles.divider} />
             </div>
           )}
-          {isGrouped ? <div className={styles.obsGroupContainer}>{component}</div> : component}
+          <div className={styles.nodeContainer}>{component}</div>
           {!isViewMode(sessionMode) && (
             <RepeatControls
               question={field}

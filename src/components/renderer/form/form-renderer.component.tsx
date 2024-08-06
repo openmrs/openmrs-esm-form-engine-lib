@@ -66,8 +66,8 @@ export const FormRenderer = ({ processorContext, initialValues, setIsLoadingForm
     <FormProvider {...context}>
       {formJson.pages.map((page) => {
         const pageHasNoVisibleContent =
-          page.sections.every((section) => section.isHidden) ||
-          page.sections.every((section) => section.questions.every((question) => question.isHidden)) ||
+          page.sections?.every((section) => section.isHidden) ||
+          page.sections?.every((section) => section.questions?.every((question) => question.isHidden)) ||
           isTrue(page.isHidden);
         if (!page.isSubform && pageHasNoVisibleContent) {
           return null;

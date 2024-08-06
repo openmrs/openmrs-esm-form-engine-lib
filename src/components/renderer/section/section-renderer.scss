@@ -14,19 +14,6 @@
   flex-basis: 100%;
 }
 
-.questionInfoContainer {
-  margin: 0 0.25rem;
-}
-
 .questionInfoDefault {
   display: flex;
-}
-
-.questionInfoCentralized {
-  display: flex;
-  align-items: center !important;
-
-  > .questionInfoContainer {
-    padding-top: 1.5rem;
-  }
 }
