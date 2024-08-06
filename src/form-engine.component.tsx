@@ -11,11 +11,12 @@ import { FormFactoryProvider } from './provider/form-factory-provider';
 import classNames from 'classnames';
 import styles from './form-engine.scss';
 import { ButtonSet, Button, InlineLoading } from '@carbon/react';
-import { useTranslation } from 'react-i18next';
+import { I18nextProvider, useTranslation } from 'react-i18next';
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
 import { init, teardown } from './lifecycle';
 import { reportError } from './utils/error-utils';
+import { moduleName } from './globals';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -34,10 +35,7 @@ interface FormEngineProps {
 // TODOs:
 // - Implement sidebar
 // - Conditionally render the button set
-// - Fix the form layout
 // - Patient banner
-// - I18n
-// etc
 const FormEngine = ({
   formJson,
   patientUUID,
@@ -169,4 +167,12 @@ const FormEngine = ({
   );
 };
 
-export default FormEngine;
+function I18FormEngine(props: FormEngineProps) {
+  return (
+    <I18nextProvider i18n={window.i18next} defaultNS={moduleName}>
+      <FormEngine {...props} />
+    </I18nextProvider>
+  );
+}
+
+export default I18FormEngine;
