@@ -5,7 +5,7 @@ import { act, cleanup, render, screen, within, fireEvent, waitFor } from '@testi
 import { restBaseUrl } from '@openmrs/esm-framework';
 import { parseDate } from '@internationalized/date';
 import { when } from 'jest-when';
-import * as api from '../src/api/api';
+import * as api from './api';
 import { assertFormHasAllFields, findMultiSelectInput, findSelectInput } from './utils/test-utils';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import { mockPatient } from '__mocks__/patient.mock';
@@ -78,8 +78,8 @@ const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.langua
 //   };
 // });
 
-jest.mock('../src/api/api', () => {
-  const originalModule = jest.requireActual('../src/api/api');
+jest.mock('../src/api', () => {
+  const originalModule = jest.requireActual('../src/api');
 
   return {
     ...originalModule,

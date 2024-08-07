@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { showSnackbar, translateFrom } from '@openmrs/esm-framework';
-import { getPatientEnrolledPrograms, saveProgramEnrollment } from '../api/api';
+import { getPatientEnrolledPrograms, saveProgramEnrollment } from '../api';
 import { type PostSubmissionAction, type PatientProgramPayload } from '../types';
 import { moduleName } from '../globals';
 import { extractErrorMessagesFromResponse } from '../utils/error-utils';

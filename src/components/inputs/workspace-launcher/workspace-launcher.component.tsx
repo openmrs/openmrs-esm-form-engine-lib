@@ -3,13 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { showSnackbar } from '@openmrs/esm-framework';
 import { useLaunchWorkspaceRequiringVisit } from '@openmrs/esm-patient-common-lib';
 import { Button } from '@carbon/react';
-import { type FormFieldProps } from '../../../types';
-
+import { type FormFieldInputProps } from '../../../types';
 import styles from './workspace-launcher.scss';
 
-const WorkspaceLauncher: React.FC<FormFieldProps> = ({ question }) => {
+const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
   const { t } = useTranslation();
-  const launchWorkspace = useLaunchWorkspaceRequiringVisit(question.questionOptions?.workspaceName);
+  const launchWorkspace = useLaunchWorkspaceRequiringVisit(field.questionOptions?.workspaceName);
 
   const handleLaunchWorkspace = () => {
     if (!launchWorkspace) {
@@ -25,9 +24,9 @@ const WorkspaceLauncher: React.FC<FormFieldProps> = ({ question }) => {
 
   return (
     <div>
-      <div className={styles.label}>{t(question.label)}</div>
+      <div className={styles.label}>{t(field.label)}</div>
       <div className={styles.workspaceButton}>
-        <Button onClick={handleLaunchWorkspace}>{question.questionOptions?.buttonLabel ?? t('launchWorkspace')}</Button>
+        <Button onClick={handleLaunchWorkspace}>{field.questionOptions?.buttonLabel ?? t('launchWorkspace')}</Button>
       </div>
     </div>
   );

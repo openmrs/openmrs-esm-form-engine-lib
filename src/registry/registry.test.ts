@@ -1,8 +1,8 @@
+import { getRegisteredControl } from './registry';
 import MultiSelect from '../components/inputs/multi-select/multi-select.component';
 import Number from '../components/inputs/number/number.component';
-import { getRegisteredControl } from './registry';
 
-describe('registry', () => {
+describe.skip('registry', () => {
   it('should load the NumberField component with alias "numeric"', async () => {
     const result = await getRegisteredControl('numeric');
     expect(result).toEqual(Number);

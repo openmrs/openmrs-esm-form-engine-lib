@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react';
 import { isEmpty } from '../../../validators/form-validator';
-import { FormContext } from '../../../form-context';
-import { type FormFieldProps } from '../../../types';
+import { type FormFieldInputProps } from '../../../types';
+import { useFormProviderContext } from '../../../provider/form-provider';
 
-const FixedValue: React.FC<FormFieldProps> = ({ question, handler }) => {
-  const { encounterContext, isFieldInitializationComplete } = React.useContext(FormContext);
+const FixedValue: React.FC<FormFieldInputProps> = ({ field, setFieldValue }) => {
+  const context = useFormProviderContext();
 
   useEffect(() => {
-    if (isFieldInitializationComplete && !question.meta?.previousValue && !isEmpty(question['fixedValue'])) {
-      handler.handleFieldSubmission(question, question['fixedValue'], encounterContext);
+    if (!field.meta?.previousValue && !isEmpty(field.meta.fixedValue)) {
+      setFieldValue(field.meta.fixedValue);
+      context.formFieldAdapters[field.type].transformFieldValue(field, field.meta.fixedValue, context);
     }
-  }, [isFieldInitializationComplete]);
+  }, []);
 
   return <></>;
 };

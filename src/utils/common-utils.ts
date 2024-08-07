@@ -1,5 +1,4 @@
-import { formatDate, restBaseUrl } from '@openmrs/esm-framework';
-import { type Attachment, type AttachmentResponse, type FormField, type OpenmrsObs, type RenderType } from '../types';
+import { type FormField, type OpenmrsObs, type RenderType } from '../types';
 import { isEmpty } from '../validators/form-validator';
 
 export function flattenObsList(obsList: OpenmrsObs[]): OpenmrsObs[] {
@@ -22,21 +21,6 @@ export function flattenObsList(obsList: OpenmrsObs[]): OpenmrsObs[] {
 
 export function hasRendering(field: FormField, rendering: RenderType) {
   return field.questionOptions.rendering === rendering;
-}
-
-export function createAttachment(data: AttachmentResponse): Attachment {
-  const attachmentUrl = `${restBaseUrl}/attachment`;
-  return {
-    id: data.uuid,
-    src: `${window.openmrsBase}${attachmentUrl}/${data.uuid}/bytes`,
-    title: data.comment,
-    description: '',
-    dateTime: formatDate(new Date(data.dateTime), {
-      mode: 'wide',
-    }),
-    bytesMimeType: data.bytesMimeType,
-    bytesContentFamily: data.bytesContentFamily,
-  };
 }
 
 export function clearSubmission(field: FormField) {
@@ -64,4 +48,8 @@ export function gracefullySetSubmission(field: FormField, newValue: any, voidedV
 
 export function hasSubmission(field: FormField) {
   return !!field.meta.submission?.newValue || !!field.meta.submission?.voidedValue;
+}
+
+export function isViewMode(sessionMode: string) {
+  return sessionMode === 'view' || sessionMode === 'embedded-view';
 }

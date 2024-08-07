@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { type FormSchemaTransformer, type FormSchema, type FormSection, type ReferencedForm } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
-import { fetchOpenMRSForm, fetchClobData } from '../api/api';
+import { fetchOpenMRSForm, fetchClobData } from '../api';
 import { getRegisteredFormSchemaTransformers } from '../registry/registry';
 import { moduleName } from '../globals';
 
@@ -35,14 +35,14 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
 }
 
 /**
- * Fetches a form JSON from OpenMRS and recursively fetches its subforms if they available.
+ * Fetches a form JSON schema from OpenMRS and recursively fetches its subForms if they available.
  *
  * If `rawFormJson` is provided, it will be used as the raw form JSON object. Otherwise, the form JSON will be fetched from OpenMRS using the `formIdentifier` parameter.
  *
  * @param rawFormJson The raw form JSON object to be used if `formIdentifier` is not provided.
  * @param formIdentifier The UUID or name of the form to be fetched from OpenMRS if `rawFormJson` is not provided.
  * @param formSessionIntent An optional parameter that represents the current intent.
- * @returns A well-built form object that might include subforms.
+ * @returns A well-built form object that might include subForms.
  */
 export async function loadFormJson(
   formIdentifier: string,
@@ -57,33 +57,38 @@ export async function loadFormJson(
     : parseFormJson(rawFormJson);
 
   // Sub forms
-  const subformRefs = extractSubformRefs(formJson);
-  const subforms = await loadSubforms(subformRefs, formSessionIntent);
-  updateFormJsonWithSubforms(formJson, subforms);
+  const subFormRefs = extractSubFormRefs(formJson);
+  const subForms = await loadSubForms(subFormRefs, formSessionIntent);
+  updateFormJsonWithSubForms(formJson, subForms);
 
   // Form components
   const formComponentsRefs = getReferencedForms(formJson);
   const resolvedFormComponents = await loadFormComponents(formComponentsRefs);
+  const formNameToAliasMap = formComponentsRefs.reduce((acc, form) => {
+    acc[form.formName] = form.alias;
+    return acc;
+  }, {});
+
   const formComponents = mapFormComponents(resolvedFormComponents);
-  updateFormJsonWithComponents(formJson, formComponents);
+  updateFormJsonWithComponents(formJson, formComponents, formNameToAliasMap);
   return refineFormJson(formJson, transformers, formSessionIntent);
 }
 
-function extractSubformRefs(formJson: FormSchema): string[] {
+function extractSubFormRefs(formJson: FormSchema): string[] {
   return formJson.pages
     .filter((page) => page.isSubform && !page.subform.form && page.subform?.name)
     .map((page) => page.subform?.name);
 }
 
-async function loadSubforms(subformRefs: string[], formSessionIntent?: string): Promise<FormSchema[]> {
-  return Promise.all(subformRefs.map((subform) => loadFormJson(subform, null, formSessionIntent)));
+async function loadSubForms(subFormRefs: string[], formSessionIntent?: string): Promise<FormSchema[]> {
+  return Promise.all(subFormRefs.map((subForm) => loadFormJson(subForm, null, formSessionIntent)));
 }
 
-function updateFormJsonWithSubforms(formJson: FormSchema, subforms: FormSchema[]): void {
-  subforms.forEach((subform) => {
-    const matchingPage = formJson.pages.find((page) => page.subform?.name === subform.name);
+function updateFormJsonWithSubForms(formJson: FormSchema, subForms: FormSchema[]): void {
+  subForms.forEach((subForm) => {
+    const matchingPage = formJson.pages.find((page) => page.subform?.name === subForm.name);
     if (matchingPage) {
-      matchingPage.subform.form = subform;
+      matchingPage.subform.form = subForm;
     }
   });
 }
@@ -98,7 +103,7 @@ function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
 }
 
 /**
- * Refines the input form JSON object by parsing it, removing inline subforms, applying form schema transformers, setting the encounter type, and applying form intents if provided.
+ * Refines the input form JSON object by parsing it, removing inline sub forms, applying form schema transformers, setting the encounter type, and applying form intents if provided.
  * @param {any} formJson - The input form JSON object or string.
  * @param {string} [formSessionIntent] - The optional form session intent.
  * @returns {FormSchema} - The refined form JSON object of type FormSchema.
@@ -108,7 +113,7 @@ function refineFormJson(
   schemaTransformers: FormSchemaTransformer[] = [],
   formSessionIntent?: string,
 ): FormSchema {
-  removeInlineSubforms(formJson, formSessionIntent);
+  removeInlineSubForms(formJson, formSessionIntent);
   // apply form schema transformers
   schemaTransformers.reduce((draftForm, transformer) => transformer.transform(draftForm), formJson);
   setEncounterType(formJson);
@@ -125,11 +130,11 @@ function parseFormJson(formJson: any): FormSchema {
 }
 
 /**
- * Removes inline subforms from the form JSON and replaces them with their pages if the encounter type matches.
+ * Removes inline sub forms from the form JSON and replaces them with their pages if the encounter type matches.
  * @param {FormSchema} formJson - The input form JSON object of type FormSchema.
  * @param {string} formSessionIntent - The form session intent.
  */
-function removeInlineSubforms(formJson: FormSchema, formSessionIntent: string): void {
+function removeInlineSubForms(formJson: FormSchema, formSessionIntent: string): void {
   for (let i = formJson.pages.length - 1; i >= 0; i--) {
     const page = formJson.pages[i];
     if (
@@ -179,13 +184,20 @@ function mapFormComponents(formComponents: Array<FormSchema>): Map<string, FormS
   return formComponentsMap;
 }
 
-function updateFormJsonWithComponents(formJson: FormSchema, formComponents: Map<string, FormSchema>): void {
-  formComponents.forEach((component, alias) => {
+function updateFormJsonWithComponents(
+  formJson: FormSchema,
+  formComponents: Map<string, FormSchema>,
+  formNameToAliasMap: Record<string, string>,
+): void {
+  formComponents.forEach((component, targetFormName) => {
     //loop through pages and search sections for reference key
     formJson.pages.forEach((page) => {
       if (page.sections) {
         page.sections.forEach((section) => {
-          if (section.reference && section.reference.form === alias) {
+          if (
+            section.reference &&
+            (section.reference.form === targetFormName || section.reference.form === formNameToAliasMap[targetFormName])
+          ) {
             // resolve referenced component section
             let resolvedFormSection = getReferencedFormSection(section, component);
             // add resulting referenced component section to section

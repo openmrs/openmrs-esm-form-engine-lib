@@ -1,21 +1,18 @@
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { BehaviorSubject } from 'rxjs';
 import { attach, ExtensionSlot } from '@openmrs/esm-framework';
-import { FormContext } from '../../form-context';
-import { type FormFieldProps } from '../../types';
+import { type FormFieldInputProps } from '../../types';
+import { useFormProviderContext } from '../../provider/form-provider';
 
-const ExtensionParcel: React.FC<FormFieldProps> = ({ question }) => {
-  const { encounterContext, isSubmitting } = useContext(FormContext);
+const ExtensionParcel: React.FC<FormFieldInputProps> = ({ field }) => {
   const submissionNotifier = useMemo(() => new BehaviorSubject<{ isSubmitting: boolean }>({ isSubmitting: false }), []);
+  const { isSubmitting, patient } = useFormProviderContext();
 
-  const state = useMemo(
-    () => ({ patientUuid: encounterContext.patient.id, submissionNotifier }),
-    [encounterContext.patient.id, submissionNotifier],
-  );
+  const state = useMemo(() => ({ patientUuid: patient.id, submissionNotifier }), [patient.id, submissionNotifier]);
 
   useEffect(() => {
-    if (question.questionOptions.extensionSlotName && question.questionOptions.extensionId) {
-      attach(question.questionOptions.extensionSlotName, question.questionOptions.extensionId);
+    if (field.questionOptions.extensionSlotName && field.questionOptions.extensionId) {
+      attach(field.questionOptions.extensionSlotName, field.questionOptions.extensionId);
     }
   }, []);
 
@@ -25,8 +22,8 @@ const ExtensionParcel: React.FC<FormFieldProps> = ({ question }) => {
 
   return (
     <>
-      {question.questionOptions.extensionSlotName && (
-        <ExtensionSlot name={question.questionOptions.extensionSlotName} state={state} />
+      {field.questionOptions.extensionSlotName && (
+        <ExtensionSlot name={field.questionOptions.extensionSlotName} state={state} />
       )}
     </>
   );

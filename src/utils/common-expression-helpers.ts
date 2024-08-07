@@ -9,7 +9,7 @@ import last from 'lodash/last';
 import { type FormField } from '../types';
 import { type FormNode } from './expression-runner';
 import { isEmpty as isValueEmpty } from '../validators/form-validator';
-import * as apiFunctions from '../api/api';
+import * as apiFunctions from '../api';
 import { getZRefByGenderAndAge } from './zscore-service';
 import { ConceptFalse, ConceptTrue } from '../constants';
 
@@ -470,22 +470,22 @@ export function registerDependency(node: FormNode, determinant: FormField) {
   }
   switch (node.type) {
     case 'page':
-      if (!determinant.pageDependants) {
-        determinant.pageDependants = new Set();
+      if (!determinant.pageDependents) {
+        determinant.pageDependents = new Set();
       }
-      determinant.pageDependants.add(node.value.label);
+      determinant.pageDependents.add(node.value.label);
       break;
     case 'section':
-      if (!determinant.sectionDependants) {
-        determinant.sectionDependants = new Set();
+      if (!determinant.sectionDependents) {
+        determinant.sectionDependents = new Set();
       }
-      determinant.sectionDependants.add(node.value.label);
+      determinant.sectionDependents.add(node.value.label);
       break;
     default:
-      if (!determinant.fieldDependants) {
-        determinant.fieldDependants = new Set();
+      if (!determinant.fieldDependents) {
+        determinant.fieldDependents = new Set();
       }
-      determinant.fieldDependants.add(node.value['id']);
+      determinant.fieldDependents.add(node.value['id']);
   }
 }
 

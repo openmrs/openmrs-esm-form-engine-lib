@@ -1,76 +1,59 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import isEmpty from 'lodash-es/isEmpty';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layer, TextInput } from '@carbon/react';
-import { useField } from 'formik';
-import { type FormFieldProps } from '../../../types';
-import { FormContext } from '../../../form-context';
+import styles from './text.scss';
+import { useFormProviderContext } from '../../../provider/form-provider';
+import { type FormFieldInputProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
-import { isInlineView } from '../../../utils/form-helper';
+import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
 import FieldLabel from '../../field-label/field-label.component';
 
-import styles from './text.scss';
-
-const TextField: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
+const TextField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
-  const [field] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
-  const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
-  const [lastBlurredValue, setLastBlurredValue] = useState(field.value);
+  const [lastBlurredValue, setLastBlurredValue] = useState(null);
+  const { layoutType, sessionMode, workspaceLayout } = useFormProviderContext();
 
-  useEffect(() => {
-    if (!isEmpty(previousValue)) {
-      setFieldValue(question.id, previousValue);
-      field['value'] = previousValue;
-      field.onBlur(null);
-    }
-  }, [previousValue]);
-
-  field.onBlur = (event) => {
-    if (field.value && question.unspecified) {
-      setFieldValue(`${question.id}-unspecified`, false);
-    }
-    if (previousValue !== field.value && lastBlurredValue !== field.value) {
-      setLastBlurredValue(field.value);
-      onChange(question.id, field.value, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, field.value, encounterContext);
+  const onBlur = (event) => {
+    event.preventDefault();
+    if (lastBlurredValue !== value) {
+      setLastBlurredValue(value);
     }
   };
 
   const isInline = useMemo(() => {
-    if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
+    if (['view', 'embedded-view'].includes(sessionMode) || isTrue(field.readonly)) {
+      return shouldUseInlineLayout(field.inlineRendering, layoutType, workspaceLayout, sessionMode);
     }
     return false;
-  }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
+  }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' || encounterContext.sessionMode == 'embedded-view' ? (
+  return sessionMode == 'view' || sessionMode == 'embedded-view' ? (
     <FieldValueView
-      label={t(question.label)}
-      value={field.value}
-      conceptName={question.meta?.concept?.display}
+      label={t(field.label)}
+      value={value}
+      conceptName={field.meta?.concept?.display}
       isInline={isInline}
     />
   ) : (
-    !question.isHidden && (
+    !field.isHidden && (
       <>
         <div className={styles.boldedLabel}>
           <Layer>
             <TextInput
-              {...field}
-              id={question.id}
-              labelText={<FieldLabel field={question} />}
-              name={question.id}
-              value={field.value || ''}
-              disabled={question.isDisabled}
-              readOnly={Boolean(question.readonly)}
+              id={field.id}
+              labelText={<FieldLabel field={field} />}
+              onChange={setFieldValue}
+              onBlur={onBlur}
+              name={field.id}
+              value={value}
+              disabled={field.isDisabled}
+              readOnly={isTrue(field.readonly)}
               invalid={errors.length > 0}
               invalidText={errors[0]?.message}
               warn={warnings.length > 0}
               warnText={warnings.length && warnings[0].message}
-              maxLength={question.questionOptions.max || TextInput.maxLength}
+              maxLength={field.questionOptions.max || TextInput.maxLength}
             />
           </Layer>
         </div>

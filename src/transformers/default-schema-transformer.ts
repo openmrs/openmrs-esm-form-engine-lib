@@ -84,9 +84,11 @@ function sanitizeQuestion(question: FormField) {
   parseBooleanTokenIfPresent(question.questionOptions, 'isTransient');
   parseBooleanTokenIfPresent(question.questionOptions, 'enablePreviousValue');
   parseBooleanTokenIfPresent(question.questionOptions, 'allowMultiple');
-  question.meta = {
-    submission: null,
-  };
+  if (!question.meta) {
+    question.meta = {
+      submission: null,
+    };
+  }
 }
 
 function parseBooleanTokenIfPresent(node: any, token: any) {
@@ -152,6 +154,12 @@ function transformByRendering(question: FormField) {
       break;
     case 'datetime':
       question.datePickerFormat = question.datePickerFormat ?? 'both';
+      break;
+    case 'workspace-launcher':
+      question.type = 'control';
+      break;
+    case 'markdown':
+      question.type = 'control';
       break;
   }
   return question;

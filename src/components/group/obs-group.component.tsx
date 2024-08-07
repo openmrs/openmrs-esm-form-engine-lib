@@ -1,63 +1,22 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { useField } from 'formik';
-import { FormContext } from '../../form-context';
-import { type FormFieldProps } from '../../types';
-import { getFieldControlWithFallback, isUnspecifiedSupported } from '../section/helpers';
-import UnspecifiedField from '../inputs/unspecified/unspecified.component';
+import { type FormFieldInputProps } from '../../types';
+import styles from './obs-group.scss';
+import { FormFieldRenderer } from '../renderer/field/form-field-renderer.component';
+import { useFormProviderContext } from '../../provider/form-provider';
 
-import styles from '../section/form-section.scss';
+export const ObsGroup: React.FC<FormFieldInputProps> = ({ field }) => {
+  const { formFieldAdapters } = useFormProviderContext();
 
-export const ObsGroup: React.FC<FormFieldProps> = ({ question, onChange }) => {
-  const [groupMembersControlMap, setGroupMembersControlMap] = useState([]);
-  const { formFieldHandlers } = useContext(FormContext);
-
-  useEffect(() => {
-    if (question.questions) {
-      Promise.all(
-        question.questions.map((field) => {
-          return getFieldControlWithFallback(field)?.then((result) => ({ field, control: result }));
-        }),
-      ).then((results) => {
-        setGroupMembersControlMap(results);
-      });
-    }
-  }, [question.questions]);
-
-  const groupContent = groupMembersControlMap
-    .filter((groupMemberMapItem) => !!groupMemberMapItem && !groupMemberMapItem.field.isHidden)
-    .map((groupMemberMapItem, index) => {
-      const keyId = groupMemberMapItem.field.id + '_' + index;
-      const { control: FieldComponent, field } = groupMemberMapItem;
-      const rendering = field.questionOptions.rendering;
-      if (FieldComponent) {
+  const groupContent = field.questions
+    ?.filter((child) => !child.isHidden)
+    .map((child, index) => {
+      const keyId = child.id + '_' + index;
+      if (formFieldAdapters[child.type]) {
         return (
           <div className={classNames(styles.flexColumn)} key={keyId}>
-            <div className={styles.parentResizer}>
-              <div
-                className={classNames({
-                  [styles.flexBasisOn]: [
-                    'ui-select-extended',
-                    'content-switcher',
-                    'select',
-                    'textarea',
-                    'text',
-                    'checkbox',
-                  ].includes(rendering),
-                })}>
-                <FieldComponent
-                  key={field.id}
-                  question={field}
-                  onChange={onChange}
-                  handler={formFieldHandlers[field.type]}
-                  useField={useField}
-                />
-              </div>
-            </div>
-            <div>
-              {isUnspecifiedSupported(field) && (
-                <UnspecifiedField question={field} onChange={onChange} handler={formFieldHandlers[field.type]} />
-              )}
+            <div className={styles.groupContainer}>
+              <FormFieldRenderer field={child} valueAdapter={formFieldAdapters[child.type]} />
             </div>
           </div>
         );

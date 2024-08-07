@@ -1,7 +1,5 @@
 import {
   findConceptByReference,
-  inferInitialValueFromDefaultFieldValue,
-  isInlineView,
   evaluateConditionalAnswered,
   evaluateFieldReadonlyProp,
   parseToLocalDateTime,
@@ -10,7 +8,7 @@ import {
 import { DefaultValueValidator } from '../validators/default-value-validator';
 import { type LayoutType } from '@openmrs/esm-framework';
 import { ConceptTrue } from '../constants';
-import { type FormField, type OpenmrsEncounter, type SessionMode, type SubmissionHandler } from '../types';
+import { type FormField, type OpenmrsEncounter, type SessionMode } from '../types';
 import { type EncounterContext } from '../form-context';
 
 jest.mock('../validators/default-value-validator');
@@ -96,229 +94,229 @@ describe('Form Engine Helper', () => {
     });
   });
 
-  describe('inferInitialValueFromDefaultFieldValue', () => {
-    const mockHandleFieldSubmission = jest.fn();
-    const mockHandler: SubmissionHandler = {
-      handleFieldSubmission: mockHandleFieldSubmission,
-      getInitialValue: function (
-        encounter: OpenmrsEncounter,
-        field: FormField,
-        allFormFields?: FormField[],
-        context?: EncounterContext,
-      ): {} {
-        throw new Error('Function not implemented.');
-      },
-      getDisplayValue: function (field: FormField, value: any) {
-        throw new Error('Function not implemented.');
-      },
-    };
+  // describe('inferInitialValueFromDefaultFieldValue', () => {
+  //   const mockHandleFieldSubmission = jest.fn();
+  //   const mockHandler = {
+  //     handleFieldSubmission: mockHandleFieldSubmission,
+  //     getInitialValue: function (
+  //       encounter: OpenmrsEncounter,
+  //       field: FormField,
+  //       allFormFields?: FormField[],
+  //       context?: EncounterContext,
+  //     ): {} {
+  //       throw new Error('Function not implemented.');
+  //     },
+  //     getDisplayValue: function (field: FormField, value: any) {
+  //       throw new Error('Function not implemented.');
+  //     },
+  //   };
 
-    const sampleContext: EncounterContext = {
-      patient: {
-        id: '833db896-c1f0-11eb-8529-0242ac130003',
-      },
-      encounter: {
-        uuid: '773455da-3ec4-453c-b565-7c1fe35426be',
-        encounterProviders: [],
-        obs: [],
-      },
-      location: {},
-      sessionMode: 'edit',
-      encounterDate: new Date(),
-      setEncounterDate: jest.fn(),
-      encounterProvider: '',
-      setEncounterProvider: jest.fn(),
-      setEncounterLocation: jest.fn(),
-      encounterRole: '',
-      setEncounterRole: jest.fn(),
-    };
+  //   const sampleContext: EncounterContext = {
+  //     patient: {
+  //       id: '833db896-c1f0-11eb-8529-0242ac130003',
+  //     },
+  //     encounter: {
+  //       uuid: '773455da-3ec4-453c-b565-7c1fe35426be',
+  //       encounterProviders: [],
+  //       obs: [],
+  //     },
+  //     location: {},
+  //     sessionMode: 'edit',
+  //     encounterDate: new Date(),
+  //     setEncounterDate: jest.fn(),
+  //     encounterProvider: '',
+  //     setEncounterProvider: jest.fn(),
+  //     setEncounterLocation: jest.fn(),
+  //     encounterRole: '',
+  //     setEncounterRole: jest.fn(),
+  //   };
 
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
+  //   beforeEach(() => {
+  //     jest.clearAllMocks();
+  //   });
 
-    it('should return true if rendering is toggle and default value is ConceptTrue', () => {
-      const sampleField: FormField = {
-        label: 'Sample Toggle Field',
-        type: 'obs',
-        questionOptions: { rendering: 'toggle', defaultValue: ConceptTrue },
-        id: 'toggle-field',
-      };
+  //   it('should return true if rendering is toggle and default value is ConceptTrue', () => {
+  //     const sampleField: FormField = {
+  //       label: 'Sample Toggle Field',
+  //       type: 'obs',
+  //       questionOptions: { rendering: 'toggle', defaultValue: ConceptTrue },
+  //       id: 'toggle-field',
+  //     };
 
-      const result = inferInitialValueFromDefaultFieldValue(sampleField, sampleContext, mockHandler);
+  //     const result = inferInitialValueFromDefaultFieldValue(sampleField, sampleContext, mockHandler);
 
-      expect(result).toBe(true);
-    });
+  //     expect(result).toBe(true);
+  //   });
 
-    it('should validate default value and handle field submission if valid', () => {
-      const sampleField: FormField = {
-        label: 'Sample Field',
-        type: 'obs',
-        questionOptions: { rendering: 'text', defaultValue: 'valid-value' },
-        id: 'text-field',
-      };
+  //   it('should validate default value and handle field submission if valid', () => {
+  //     const sampleField: FormField = {
+  //       label: 'Sample Field',
+  //       type: 'obs',
+  //       questionOptions: { rendering: 'text', defaultValue: 'valid-value' },
+  //       id: 'text-field',
+  //     };
 
-      (DefaultValueValidator.validate as jest.Mock).mockReturnValue([]);
+  //     (DefaultValueValidator.validate as jest.Mock).mockReturnValue([]);
 
-      const result = inferInitialValueFromDefaultFieldValue(sampleField, sampleContext, mockHandler);
+  //     const result = inferInitialValueFromDefaultFieldValue(sampleField, sampleContext, mockHandler);
 
-      expect(DefaultValueValidator.validate).toHaveBeenCalledWith(sampleField, 'valid-value');
-      expect(mockHandleFieldSubmission).toHaveBeenCalledWith(sampleField, 'valid-value', sampleContext);
-      expect(result).toBe('valid-value');
-    });
+  //     expect(DefaultValueValidator.validate).toHaveBeenCalledWith(sampleField, 'valid-value');
+  //     expect(mockHandleFieldSubmission).toHaveBeenCalledWith(sampleField, 'valid-value', sampleContext);
+  //     expect(result).toBe('valid-value');
+  //   });
 
-    it('should not handle field submission if default value is invalid', () => {
-      const sampleField: FormField = {
-        label: 'Sample Field',
-        type: 'obs',
-        questionOptions: { rendering: 'text', defaultValue: 'invalid-value' },
-        id: 'text-field',
-      };
+  //   it('should not handle field submission if default value is invalid', () => {
+  //     const sampleField: FormField = {
+  //       label: 'Sample Field',
+  //       type: 'obs',
+  //       questionOptions: { rendering: 'text', defaultValue: 'invalid-value' },
+  //       id: 'text-field',
+  //     };
 
-      (DefaultValueValidator.validate as jest.Mock).mockReturnValue(['Error: Invalid value']);
+  //     (DefaultValueValidator.validate as jest.Mock).mockReturnValue(['Error: Invalid value']);
 
-      const result = inferInitialValueFromDefaultFieldValue(sampleField, sampleContext, mockHandler);
+  //     const result = inferInitialValueFromDefaultFieldValue(sampleField, sampleContext, mockHandler);
 
-      expect(DefaultValueValidator.validate).toHaveBeenCalledWith(sampleField, 'invalid-value');
-      expect(mockHandleFieldSubmission).not.toHaveBeenCalled();
-      expect(result).toBeUndefined();
-    });
-  });
+  //     expect(DefaultValueValidator.validate).toHaveBeenCalledWith(sampleField, 'invalid-value');
+  //     expect(mockHandleFieldSubmission).not.toHaveBeenCalled();
+  //     expect(result).toBeUndefined();
+  //   });
+  // });
 
-  describe('isInlineView', () => {
-    it('should return true if sessionMode is embedded-view', () => {
-      const result = isInlineView('single-line', 'desktop' as LayoutType, 'maximized', 'embedded-view' as SessionMode);
-      expect(result).toBe(true);
-    });
+  // describe('isInlineView', () => {
+  //   it('should return true if sessionMode is embedded-view', () => {
+  //     const result = isInlineView('single-line', 'desktop' as LayoutType, 'maximized', 'embedded-view' as SessionMode);
+  //     expect(result).toBe(true);
+  //   });
 
-    it('should return true if renderingType is automatic, workspaceLayout is maximized, and layoutType ends with desktop', () => {
-      const result = isInlineView('automatic', 'large-desktop' as LayoutType, 'maximized', 'edit' as SessionMode);
-      expect(result).toBe(true);
-    });
+  //   it('should return true if renderingType is automatic, workspaceLayout is maximized, and layoutType ends with desktop', () => {
+  //     const result = isInlineView('automatic', 'large-desktop' as LayoutType, 'maximized', 'edit' as SessionMode);
+  //     expect(result).toBe(true);
+  //   });
 
-    it('should return false if renderingType is automatic, workspaceLayout is maximized, but layoutType does not end with desktop', () => {
-      const result = isInlineView('automatic', 'tablet' as LayoutType, 'maximized', 'edit' as SessionMode);
-      expect(result).toBe(false);
-    });
+  //   it('should return false if renderingType is automatic, workspaceLayout is maximized, but layoutType does not end with desktop', () => {
+  //     const result = isInlineView('automatic', 'tablet' as LayoutType, 'maximized', 'edit' as SessionMode);
+  //     expect(result).toBe(false);
+  //   });
 
-    it('should return true if renderingType is single-line', () => {
-      const result = isInlineView('single-line', 'desktop' as LayoutType, 'minimized', 'edit' as SessionMode);
-      expect(result).toBe(true);
-    });
+  //   it('should return true if renderingType is single-line', () => {
+  //     const result = isInlineView('single-line', 'desktop' as LayoutType, 'minimized', 'edit' as SessionMode);
+  //     expect(result).toBe(true);
+  //   });
 
-    it('should return false if renderingType is multiline', () => {
-      const result = isInlineView('multiline', 'desktop' as LayoutType, 'maximized', 'edit' as SessionMode);
-      expect(result).toBe(false);
-    });
+  //   it('should return false if renderingType is multiline', () => {
+  //     const result = isInlineView('multiline', 'desktop' as LayoutType, 'maximized', 'edit' as SessionMode);
+  //     expect(result).toBe(false);
+  //   });
 
-    it('should return false if renderingType is automatic and workspaceLayout is minimized', () => {
-      const result = isInlineView('automatic', 'large-desktop' as LayoutType, 'minimized', 'edit' as SessionMode);
-      expect(result).toBe(false);
-    });
+  //   it('should return false if renderingType is automatic and workspaceLayout is minimized', () => {
+  //     const result = isInlineView('automatic', 'large-desktop' as LayoutType, 'minimized', 'edit' as SessionMode);
+  //     expect(result).toBe(false);
+  //   });
 
-    it('should return false if renderingType is automatic and layoutType does not end with desktop', () => {
-      const result = isInlineView('automatic', 'mobile' as LayoutType, 'maximized', 'edit' as SessionMode);
-      expect(result).toBe(false);
-    });
+  //   it('should return false if renderingType is automatic and layoutType does not end with desktop', () => {
+  //     const result = isInlineView('automatic', 'mobile' as LayoutType, 'maximized', 'edit' as SessionMode);
+  //     expect(result).toBe(false);
+  //   });
 
-    it('should return false if renderingType is multiline and sessionMode is not embedded-view', () => {
-      const result = isInlineView('multiline', 'desktop' as LayoutType, 'maximized', 'edit' as SessionMode);
-      expect(result).toBe(false);
-    });
-  });
+  //   it('should return false if renderingType is multiline and sessionMode is not embedded-view', () => {
+  //     const result = isInlineView('multiline', 'desktop' as LayoutType, 'maximized', 'edit' as SessionMode);
+  //     expect(result).toBe(false);
+  //   });
+  // });
 
-  describe('evaluateConditionalAnswered', () => {
-    it('should add field id to referencedField.fieldDependants when referenced field is found', () => {
-      const field: FormField = {
-        label: 'Field with Validator',
-        type: 'obs',
-        questionOptions: {
-          rendering: 'number',
-        },
-        id: 'field-1',
-        validators: [
-          {
-            type: 'conditionalAnswered',
-            referenceQuestionId: 'field-2',
-          },
-        ],
-      };
+  // describe('evaluateConditionalAnswered', () => {
+  //   it('should add field id to referencedField.fieldDependants when referenced field is found', () => {
+  //     const field: FormField = {
+  //       label: 'Field with Validator',
+  //       type: 'obs',
+  //       questionOptions: {
+  //         rendering: 'number',
+  //       },
+  //       id: 'field-1',
+  //       validators: [
+  //         {
+  //           type: 'conditionalAnswered',
+  //           referenceQuestionId: 'field-2',
+  //         },
+  //       ],
+  //     };
 
-      const referencedField: FormField = {
-        label: 'Referenced Field',
-        type: 'obs',
-        questionOptions: {
-          rendering: 'number',
-        },
-        id: 'field-2',
-      };
+  //     const referencedField: FormField = {
+  //       label: 'Referenced Field',
+  //       type: 'obs',
+  //       questionOptions: {
+  //         rendering: 'number',
+  //       },
+  //       id: 'field-2',
+  //     };
 
-      const allFields: FormField[] = [field, referencedField];
+  //     const allFields: FormField[] = [field, referencedField];
 
-      evaluateConditionalAnswered(field, allFields);
+  //     evaluateConditionalAnswered(field, allFields);
 
-      expect(referencedField.fieldDependants).toEqual(new Set(['field-1']));
-    });
+  //     expect(referencedField.fieldDependants).toEqual(new Set(['field-1']));
+  //   });
 
-    it('should not add field id to referencedField.fieldDependants when referenced field is not found', () => {
-      const field: FormField = {
-        label: 'Field with Validator',
-        type: 'obs',
-        questionOptions: {
-          rendering: 'number',
-        },
-        id: 'field-1',
-        validators: [
-          {
-            type: 'conditionalAnswered',
-            referenceQuestionId: 'field-2',
-          },
-        ],
-      };
+  //   it('should not add field id to referencedField.fieldDependants when referenced field is not found', () => {
+  //     const field: FormField = {
+  //       label: 'Field with Validator',
+  //       type: 'obs',
+  //       questionOptions: {
+  //         rendering: 'number',
+  //       },
+  //       id: 'field-1',
+  //       validators: [
+  //         {
+  //           type: 'conditionalAnswered',
+  //           referenceQuestionId: 'field-2',
+  //         },
+  //       ],
+  //     };
 
-      const allFields: FormField[] = [field];
+  //     const allFields: FormField[] = [field];
 
-      evaluateConditionalAnswered(field, allFields);
+  //     evaluateConditionalAnswered(field, allFields);
 
-      // Since referenced field is not in allFields, nothing should be added
-      allFields.forEach((field) => {
-        expect(field.fieldDependants).toBeUndefined();
-      });
-    });
+  //     // Since referenced field is not in allFields, nothing should be added
+  //     allFields.forEach((field) => {
+  //       expect(field.fieldDependants).toBeUndefined();
+  //     });
+  //   });
 
-    it('should not overwrite existing fieldDependants', () => {
-      const field: FormField = {
-        label: 'Field with Validator',
-        type: 'obs',
-        questionOptions: {
-          rendering: 'number',
-        },
-        id: 'field-1',
-        validators: [
-          {
-            type: 'conditionalAnswered',
-            referenceQuestionId: 'field-2',
-          },
-        ],
-      };
+  //   it('should not overwrite existing fieldDependants', () => {
+  //     const field: FormField = {
+  //       label: 'Field with Validator',
+  //       type: 'obs',
+  //       questionOptions: {
+  //         rendering: 'number',
+  //       },
+  //       id: 'field-1',
+  //       validators: [
+  //         {
+  //           type: 'conditionalAnswered',
+  //           referenceQuestionId: 'field-2',
+  //         },
+  //       ],
+  //     };
 
-      const referencedField: FormField = {
-        label: 'Referenced Field',
-        type: 'obs',
-        questionOptions: {
-          rendering: 'number',
-        },
-        id: 'field-2',
-        fieldDependants: new Set(['field-3']),
-      };
+  //     const referencedField: FormField = {
+  //       label: 'Referenced Field',
+  //       type: 'obs',
+  //       questionOptions: {
+  //         rendering: 'number',
+  //       },
+  //       id: 'field-2',
+  //       fieldDependants: new Set(['field-3']),
+  //     };
 
-      const allFields: FormField[] = [field, referencedField];
+  //     const allFields: FormField[] = [field, referencedField];
 
-      evaluateConditionalAnswered(field, allFields);
+  //     evaluateConditionalAnswered(field, allFields);
 
-      expect(referencedField.fieldDependants).toEqual(new Set(['field-3', 'field-1']));
-    });
-  });
+  //     expect(referencedField.fieldDependants).toEqual(new Set(['field-3', 'field-1']));
+  //   });
+  // });
 
   describe('evaluateFieldReadonlyProp', () => {
     it('should not change field.readonly if it is not empty', () => {

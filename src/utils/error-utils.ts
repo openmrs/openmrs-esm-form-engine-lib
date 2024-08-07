@@ -1,12 +1,12 @@
 import { showToast } from '@openmrs/esm-framework';
-import { type TFunction } from 'react-i18next';
 
-export function reportError(error: Error, t: TFunction): void {
+export function reportError(error: Error, title: string): void {
   if (error) {
+    const errorMessage = extractErrorMessagesFromResponse(error).join(', ');
     console.error(error);
     showToast({
-      description: error.message,
-      title: t('errorDescriptionTitle', 'Error'),
+      description: errorMessage,
+      title: title,
       kind: 'error',
       critical: true,
     });

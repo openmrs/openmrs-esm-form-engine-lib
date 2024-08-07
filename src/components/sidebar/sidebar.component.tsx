@@ -3,9 +3,9 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Button, Toggle } from '@carbon/react';
 import { isEmpty } from '../../validators/form-validator';
-import { scrollIntoView } from '../../utils/scroll-into-view';
 import { type FormPage } from '../../types';
 import styles from './sidebar.scss';
+import { scrollIntoView } from '../../utils/form-helper';
 
 interface SidebarProps {
   allowUnspecifiedAll: boolean;

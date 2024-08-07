@@ -1,77 +1,59 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FormGroup, RadioButtonGroup, RadioButton } from '@carbon/react';
-import { type FormFieldProps } from '../../../types';
-import { useField } from 'formik';
-import { FormContext } from '../../../form-context';
+import { type FormFieldInputProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
-import { isInlineView } from '../../../utils/form-helper';
-import { isEmpty } from '../../../validators/form-validator';
+import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
-import { useFieldValidationResults } from '../../../hooks/useFieldValidationResults';
+import styles from './radio.scss';
+import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 
-import styles from './radio.scss';
-
-
-const Radio: React.FC<FormFieldProps> = ({ question, onChange, handler, previousValue }) => {
-  const [field, meta] = useField(question.id);
-  const { setFieldValue, encounterContext, layoutType, workspaceLayout } = React.useContext(FormContext);
+const Radio: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
-  const { errors, warnings, setErrors, setWarnings } = useFieldValidationResults(question);
+  const { layoutType, sessionMode, workspaceLayout, formFieldAdapters } = useFormProviderContext();
 
   const handleChange = (value) => {
-    setFieldValue(question.id, value);
-    onChange(question.id, value, setErrors, setWarnings);
-    handler?.handleFieldSubmission(question, value, encounterContext);
+    setFieldValue(value);
   };
 
-  useEffect(() => {
-    if (!isEmpty(previousValue)) {
-      setFieldValue(question.id, previousValue);
-      onChange(question.id, previousValue, setErrors, setWarnings);
-      handler?.handleFieldSubmission(question, previousValue, encounterContext);
-    }
-  }, [previousValue]);
-
   const isInline = useMemo(() => {
-    if (['view', 'embedded-view'].includes(encounterContext.sessionMode) || isTrue(question.readonly)) {
-      return isInlineView(question.inlineRendering, layoutType, workspaceLayout, encounterContext.sessionMode);
+    if (['view', 'embedded-view'].includes(sessionMode) || isTrue(field.readonly)) {
+      return shouldUseInlineLayout(field.inlineRendering, layoutType, workspaceLayout, sessionMode);
     }
     return false;
-  }, [encounterContext.sessionMode, question.readonly, question.inlineRendering, layoutType, workspaceLayout]);
+  }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
 
-  return encounterContext.sessionMode == 'view' ||
-    encounterContext.sessionMode == 'embedded-view' ||
-    isTrue(question.readonly) ? (
+  return sessionMode == 'view' || sessionMode == 'embedded-view' || isTrue(field.readonly) ? (
     <FieldValueView
-      label={t(question.label)}
-      value={field.value ? handler?.getDisplayValue(question, field.value) : field.value}
-      conceptName={question.meta?.concept?.display}
+      label={t(field.label)}
+      value={value ? formFieldAdapters[field.type].getDisplayValue(field, value) : value}
+      conceptName={field.meta?.concept?.display}
       isInline={isInline}
     />
   ) : (
-    !question.isHidden && (
+    !field.isHidden && (
       <FormGroup
-        legendText={<FieldLabel field={question} />}
+        legendText={<FieldLabel field={field} />}
         className={styles.boldedLegend}
-        disabled={question.isDisabled}
+        disabled={field.isDisabled}
         invalid={errors.length > 0}>
         <RadioButtonGroup
-          name={question.id}
-          valueSelected={field.value}
-          orientation={question.questionOptions?.orientation || 'vertical'}>
-          {question.questionOptions.answers
+          name={field.id}
+          valueSelected={value}
+          onChange={handleChange}
+          orientation={field.questionOptions?.orientation || 'vertical'}>
+          {field.questionOptions.answers
             .filter((answer) => !answer.isHidden)
             .map((answer, index) => {
               return (
                 <RadioButton
-                  id={`${question.id}-${answer.label}`}
+                  id={`${field.id}-${answer.label}`}
                   labelText={answer.label ?? ''}
                   value={answer.concept}
                   key={index}
                   onClick={(e) => {
-                    if (field.value && e.target.checked) {
+                    if (value && e.target.checked) {
                       e.target.checked = false;
                       handleChange(null);
                     } else {

@@ -1,77 +1,70 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Checkbox } from '@carbon/react';
-import { useField } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { FormContext } from '../../../form-context';
-import { FieldValidator } from '../../../validators/form-validator';
-import { type FormFieldProps } from '../../../types';
+import { isEmpty } from '../../../validators/form-validator';
+import { type FormField } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
 
 import styles from './unspecified.scss';
+import { useFormProviderContext } from '../../../provider/form-provider';
+import { isViewMode } from '../../../utils/common-utils';
 
-const UnspecifiedField: React.FC<FormFieldProps> = ({ question, onChange, handler }) => {
+interface UnspecifiedFieldProps {
+  field: FormField;
+  fieldValue: any;
+  setFieldValue: (value: any) => void;
+  onAfterChange: (value: any) => void;
+}
+
+const UnspecifiedField: React.FC<UnspecifiedFieldProps> = ({ field, fieldValue, setFieldValue, onAfterChange }) => {
   const { t } = useTranslation();
-  const [field, meta] = useField(`${question.id}-unspecified`);
-  const { setFieldValue, encounterContext, fields } = React.useContext(FormContext);
-  const [previouslyUnspecified, setPreviouslyUnspecified] = useState(false);
-  const hideCheckBox = encounterContext.sessionMode == 'view';
+  const [isUnspecified, setIsUnspecified] = useState(false);
+  const { sessionMode, updateFormField } = useFormProviderContext();
 
   useEffect(() => {
-    if (field.value) {
-      setPreviouslyUnspecified(true);
-      question.meta.submission = {
-        unspecified: true,
-      };
-      let emptyValue = null;
-      switch (question.questionOptions.rendering) {
-        case 'date':
-          emptyValue = '';
-          break;
-        case 'checkbox':
-          emptyValue = [];
-      }
-      setFieldValue(question.id, emptyValue);
-    } else if (previouslyUnspecified) {
-      question.meta.submission = {
-        unspecified: false,
-        errors: FieldValidator.validate(question, null, null),
-      };
+    if (isEmpty(fieldValue) && sessionMode === 'edit') {
+      // we assume that the field was previously unspecified
+      setIsUnspecified(true);
     }
-  }, [field.value]);
+  }, []);
 
   useEffect(() => {
-    if (question.meta?.submission?.newValue) {
-      setFieldValue(`${question.id}-unspecified`, false);
+    if (field.meta.submission?.newValue) {
+      setIsUnspecified(false);
+      field.meta.submission.unspecified = false;
+      updateFormField({ ...field });
     }
-  }, [question.meta?.submission]);
+  }, [field.meta?.submission]);
 
   const handleOnChange = useCallback(
     (value) => {
-      setFieldValue(`${question.id}-unspecified`, value.target.checked);
-      onChange(
-        question.id,
-        field.value,
-        () => {},
-        () => {},
-        value.target.checked,
-      );
-      handler?.handleFieldSubmission(question, field.value, encounterContext);
+      const rendering = field.questionOptions.rendering;
+      if (value.target.checked) {
+        const emptyValue = rendering === 'checkbox' ? [] : '';
+        field.meta.submission = { ...field.meta.submission, unspecified: true };
+        updateFormField({ ...field });
+        setIsUnspecified(true);
+        setFieldValue(emptyValue);
+        onAfterChange(emptyValue);
+      } else {
+        setIsUnspecified(false);
+      }
     },
-    [fields],
+    [field.questionOptions.rendering],
   );
 
   return (
-    !question.isHidden &&
-    !isTrue(question.readonly) &&
-    !hideCheckBox && (
+    !field.isHidden &&
+    !isTrue(field.readonly) &&
+    !isViewMode(sessionMode) && (
       <div className={styles.unspecified}>
         <Checkbox
-          id={`${question.id}-unspecified`}
+          id={`${field.id}-unspecified`}
           labelText={t('unspecified', 'Unspecified')}
           value={t('unspecified', 'Unspecified')}
           onChange={handleOnChange}
-          checked={field.value}
-          disabled={question.isDisabled}
+          checked={isUnspecified}
+          disabled={field.isDisabled}
         />
       </div>
     )

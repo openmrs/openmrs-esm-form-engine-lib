@@ -1,28 +1,10 @@
 import dayjs from 'dayjs';
 import { type LayoutType } from '@openmrs/esm-framework';
-import { ConceptTrue } from '../constants';
-import { type EncounterContext } from '../form-context';
-import { type FormField, type FormPage, type FormSection, type SessionMode, type SubmissionHandler } from '../types';
+import { type FormField, type FormPage, type FormSection, type SessionMode } from '../types';
 import { isEmpty } from '../validators/form-validator';
-import { DefaultValueValidator } from '../validators/default-value-validator';
+import { getRegisteredControl } from '../registry/registry';
 
-export function inferInitialValueFromDefaultFieldValue(
-  field: FormField,
-  context: EncounterContext,
-  handler: SubmissionHandler,
-) {
-  if (field.questionOptions.rendering == 'toggle') {
-    return field.questionOptions.defaultValue == ConceptTrue;
-  }
-  // validate default value
-  if (!DefaultValueValidator.validate(field, field.questionOptions.defaultValue).length) {
-    // construct observation
-    handler.handleFieldSubmission(field, field.questionOptions.defaultValue, context);
-    return field.questionOptions.defaultValue;
-  }
-}
-
-export function isInlineView(
+export function shouldUseInlineLayout(
   renderingType: 'single-line' | 'multiline' | 'automatic',
   layoutType: LayoutType,
   workspaceLayout: 'minimized' | 'maximized',
@@ -43,7 +25,7 @@ export function evaluateConditionalAnswered(field: FormField, allFields: FormFie
   ).referenceQuestionId;
   const referencedField = allFields.find((field) => field.id == referencedFieldId);
   if (referencedField) {
-    (referencedField.fieldDependants || (referencedField.fieldDependants = new Set())).add(field.id);
+    (referencedField.fieldDependents || (referencedField.fieldDependents = new Set())).add(field.id);
   }
 }
 
@@ -94,7 +76,7 @@ export function evalConditionalRequired(field: FormField, allFields: FormField[]
   const { referenceQuestionAnswers, referenceQuestionId } = field.required;
   const referencedField = allFields.find((field) => field.id == referenceQuestionId);
   if (referencedField) {
-    (referencedField.fieldDependants || (referencedField.fieldDependants = new Set())).add(field.id);
+    (referencedField.fieldDependents || (referencedField.fieldDependents = new Set())).add(field.id);
     return referenceQuestionAnswers?.includes(formValues[referenceQuestionId]);
   }
   return false;
@@ -185,5 +167,44 @@ export function findConceptByReference(reference: string, concepts) {
     return concepts?.find((concept) => {
       return concept.uuid === reference;
     });
+  }
+}
+
+/**
+ * Retrieves the appropriate field control for a question, considering missing concepts.
+ * If the question is of type 'obs' and has a missing concept, it falls back to a disabled text input.
+ * Otherwise, it retrieves the registered control based on the rendering specified in the question.
+ * @param question - The FormField representing the question.
+ * @returns The field control to be used for rendering the question.
+ */
+export function getFieldControlWithFallback(question: FormField) {
+  // Check if the question has a missing concept
+  if (hasMissingConcept(question)) {
+    // If so, render a disabled text input
+    question.disabled = true;
+    question.isDisabled = true;
+    return getRegisteredControl('text');
+  }
+
+  // Retrieve the registered control based on the specified rendering
+  return getRegisteredControl(question.questionOptions.rendering);
+}
+
+export function hasMissingConcept(question: FormField) {
+  return (
+    question.type == 'obs' && !question.questionOptions.concept && question.questionOptions.rendering !== 'fixed-value'
+  );
+}
+
+export function scrollIntoView(viewId: string, shouldFocus: boolean = false) {
+  const currentElement = document.getElementById(viewId);
+  currentElement?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+    inline: 'center',
+  });
+
+  if (shouldFocus) {
+    currentElement?.focus();
   }
 }

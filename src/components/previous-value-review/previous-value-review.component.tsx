@@ -2,17 +2,34 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ValueDisplay } from '../value/value.component';
 import styles from './previous-value-review.scss';
+import { type FormField } from '../../types';
+import { useFormProviderContext } from '../../provider/form-provider';
 
-type Props = {
+type PreviousValueReviewProps = {
   previousValue: any;
   displayText: string;
-  setValue: (value) => void;
-  field?: string;
+  field: FormField;
   hideHeader?: boolean;
+  onAfterChange: (value) => void;
 };
 
-const PreviousValueReview: React.FC<Props> = ({ previousValue, displayText, setValue, field, hideHeader }) => {
+const PreviousValueReview: React.FC<PreviousValueReviewProps> = ({
+  previousValue,
+  displayText,
+  field,
+  hideHeader,
+  onAfterChange,
+}) => {
   const { t } = useTranslation();
+  const {
+    methods: { setValue },
+  } = useFormProviderContext();
+
+  const onReuseValue = (e) => {
+    e.preventDefault();
+    setValue(field.id, previousValue);
+    onAfterChange(previousValue);
+  };
 
   return (
     <div className={styles.formField}>
@@ -22,20 +39,8 @@ const PreviousValueReview: React.FC<Props> = ({ previousValue, displayText, setV
           <ValueDisplay value={displayText} />
         </div>
       </div>
-      <div
-        className={styles.reuseButton}
-        role="button"
-        tabIndex={0}
-        onClick={(e) => {
-          e.preventDefault();
-          setValue((prevValue) => {
-            return {
-              ...prevValue,
-              [field]: previousValue,
-            };
-          });
-        }}>
-        reuse value
+      <div className={styles.reuseButton} role="button" tabIndex={0} onClick={onReuseValue}>
+        {t('reuseValue', 'Reuse value')}
       </div>
     </div>
   );
