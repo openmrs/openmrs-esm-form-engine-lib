@@ -79,7 +79,7 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
   }, []);
 
   useEffect(() => {
-    const { isDirty } = getFieldState(field.id);
+    const { isDirty, isTouched } = getFieldState(field.id);
     const { submission, unspecified } = field.meta;
     const { calculate, defaultValue } = field.questionOptions;
     if (
@@ -91,7 +91,7 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
     ) {
       valueAdapter.transformFieldValue(field, fieldValue, context);
     }
-    if (isDirty) {
+    if (isDirty || isTouched) {
       onAfterChange(fieldValue);
     }
   }, [fieldValue]);
@@ -153,7 +153,7 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
       <Controller
         control={control}
         name={field.id}
-        render={({ field: { onChange, value } }) => (
+        render={({ field: { value, onChange, onBlur } }) => (
           <div>
             <InputComponent
               key={`${field.id}-input-component`}
@@ -161,7 +161,11 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
               value={value}
               errors={errors}
               warnings={warnings}
-              setFieldValue={onChange}
+              setFieldValue={(val) => {
+                onChange(val);
+                onAfterChange(val);
+                onBlur();
+              }}
             />
             {isUnspecifiedSupported(field) && (
               <div className={styles.unspecifiedContainer}>

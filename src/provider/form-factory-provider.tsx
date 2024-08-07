@@ -1,7 +1,14 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
 import { type FormField, type FormSchema, type SessionMode } from '../types';
 import { EncounterFormProcessor } from '../processors/encounter/encounter-form-processor';
-import { type LayoutType, useLayoutType, type OpenmrsResource, showSnackbar } from '@openmrs/esm-framework';
+import {
+  type LayoutType,
+  useLayoutType,
+  type OpenmrsResource,
+  showSnackbar,
+  showToast,
+  type ToastDescriptor,
+} from '@openmrs/esm-framework';
 import { type FormProcessorConstructor } from '../processors/form-processor';
 import { type FormContextProps } from './form-provider';
 import { processPostSubmissionActions, validateForm } from './form-factory-helper';
@@ -118,9 +125,9 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
               handleClose();
             }
           })
-          .catch((error) => {
+          .catch((toastErrorObject: ToastDescriptor) => {
             setIsSubmitting(false);
-            reportError(error, t('errorSubmittingForm', 'Error submitting form'));
+            showToast(toastErrorObject);
           });
       } else {
         setIsSubmitting(false);

@@ -127,9 +127,9 @@ export class EncounterFormProcessor extends FormProcessor {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: translateFn('errorSavingPatientIdentifiers', 'Error saving patient identifiers'),
-        subtitle: errorMessages.join(', '),
+        description: errorMessages.join(', '),
         kind: 'error',
-        isLowContrast: false,
+        critical: true,
       });
     }
 
@@ -152,9 +152,9 @@ export class EncounterFormProcessor extends FormProcessor {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: translateFn('errorSavingPatientPrograms', 'Error saving patient program(s)'),
-        subtitle: errorMessages.join(', '),
+        description: errorMessages.join(', '),
         kind: 'error',
-        isLowContrast: false,
+        critical: true,
       });
     }
 
@@ -186,9 +186,9 @@ export class EncounterFormProcessor extends FormProcessor {
         const errorMessages = extractErrorMessagesFromResponse(error);
         return Promise.reject({
           title: translateFn('errorSavingAttachments', 'Error saving attachment(s)'),
-          subtitle: errorMessages.join(', '),
+          description: errorMessages.join(', '),
           kind: 'error',
-          isLowContrast: false,
+          critical: true,
         });
       }
       return savedEncounter;
@@ -196,9 +196,9 @@ export class EncounterFormProcessor extends FormProcessor {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: translateFn('errorSavingEncounter', 'Error saving encounter'),
-        subtitle: errorMessages.join(', '),
+        description: errorMessages.join(', '),
         kind: 'error',
-        isLowContrast: false,
+        critical: true,
       });
     }
   }

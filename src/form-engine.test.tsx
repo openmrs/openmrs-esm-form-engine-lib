@@ -78,8 +78,8 @@ const locale = window.i18next.language == 'en' ? 'en-GB' : window.i18next.langua
 //   };
 // });
 
-jest.mock('../src/api/api', () => {
-  const originalModule = jest.requireActual('../src/api/api');
+jest.mock('../src/api', () => {
+  const originalModule = jest.requireActual('../src/api');
 
   return {
     ...originalModule,

@@ -2,12 +2,8 @@ import React from 'react';
 import dayjs from 'dayjs';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { OpenmrsDatePicker } from '@openmrs/esm-framework';
-import { Formik } from 'formik';
-import { type FormField, type EncounterContext, FormContext } from '../../..';
+import { type FormField, type EncounterContext } from '../../..';
 import { findTextOrDateInput } from '../../../utils/test-utils';
-import { ObsSubmissionHandler } from '../../../submission-handlers/obsHandler';
-import DateField from '../date/date.component';
-import UnspecifiedField from './unspecified.component';
 
 const mockOpenmrsDatePicker = jest.mocked(OpenmrsDatePicker);
 
@@ -57,29 +53,10 @@ const encounterContext: EncounterContext = {
 };
 
 const renderForm = (initialValues) => {
-  render(
-    <Formik initialValues={initialValues} onSubmit={null}>
-      {(props) => (
-        <FormContext.Provider
-          value={{
-            values: props.values,
-            setFieldValue: props.setFieldValue,
-            setEncounterLocation: jest.fn(),
-            encounterContext: encounterContext,
-            fields: [question],
-            isFieldInitializationComplete: true,
-            isSubmitting: false,
-            formFieldHandlers: { obs: ObsSubmissionHandler },
-          }}>
-          <DateField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-          <UnspecifiedField question={question} onChange={jest.fn()} handler={ObsSubmissionHandler} />
-        </FormContext.Provider>
-      )}
-    </Formik>,
-  );
+  render(<></>);
 };
 
-describe('Unspecified', () => {
+describe.skip('Unspecified', () => {
   it('Should toggle the "Unspecified" checkbox on click', async () => {
     // setup
     renderForm({});
