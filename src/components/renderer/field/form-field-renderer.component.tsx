@@ -31,7 +31,6 @@ export interface FormFieldRendererProps {
   };
 }
 
-// TODO: handle tooltips
 export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFieldRendererProps) => {
   const [inputComponentWrapper, setInputComponentWrapper] = useState<{
     value: React.ComponentType<FormFieldInputProps>;

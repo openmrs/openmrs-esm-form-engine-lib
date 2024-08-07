@@ -64,8 +64,13 @@ export async function loadFormJson(
   // Form components
   const formComponentsRefs = getReferencedForms(formJson);
   const resolvedFormComponents = await loadFormComponents(formComponentsRefs);
+  const formNameToAliasMap = formComponentsRefs.reduce((acc, form) => {
+    acc[form.formName] = form.alias;
+    return acc;
+  }, {});
+
   const formComponents = mapFormComponents(resolvedFormComponents);
-  updateFormJsonWithComponents(formJson, formComponents);
+  updateFormJsonWithComponents(formJson, formComponents, formNameToAliasMap);
   return refineFormJson(formJson, transformers, formSessionIntent);
 }
 
@@ -179,13 +184,20 @@ function mapFormComponents(formComponents: Array<FormSchema>): Map<string, FormS
   return formComponentsMap;
 }
 
-function updateFormJsonWithComponents(formJson: FormSchema, formComponents: Map<string, FormSchema>): void {
-  formComponents.forEach((component, alias) => {
+function updateFormJsonWithComponents(
+  formJson: FormSchema,
+  formComponents: Map<string, FormSchema>,
+  formNameToAliasMap: Record<string, string>,
+): void {
+  formComponents.forEach((component, targetFormName) => {
     //loop through pages and search sections for reference key
     formJson.pages.forEach((page) => {
       if (page.sections) {
         page.sections.forEach((section) => {
-          if (section.reference && section.reference.form === alias) {
+          if (
+            section.reference &&
+            (section.reference.form === targetFormName || section.reference.form === formNameToAliasMap[targetFormName])
+          ) {
             // resolve referenced component section
             let resolvedFormSection = getReferencedFormSection(section, component);
             // add resulting referenced component section to section

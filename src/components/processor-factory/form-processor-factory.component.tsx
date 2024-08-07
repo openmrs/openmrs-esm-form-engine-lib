@@ -51,6 +51,9 @@ const FormProcessorFactory = ({
     processor,
     sessionDate,
     visit,
+    formFields: [],
+    formFieldAdapters: {},
+    formFieldValidators: {},
   });
   const { t } = useTranslation();
   const { formFields: rawFormFields, conceptReferences } = useFormFields(formJson);
@@ -59,7 +62,6 @@ const FormProcessorFactory = ({
   const formFieldAdapters = useFormFieldValueAdapters(rawFormFields);
   const formFieldValidators = useFormFieldValidators(rawFormFields);
   const { isLoading: isLoadingCustomDeps } = useProcessorDependencies(processor, processorContext, setProcessorContext);
-
   const useCustomHooks = processor.getCustomHooks().useCustomHooks;
   const [isLoadingCustomHooks, setIsLoadingCustomHooks] = useState(!!useCustomHooks);
   const [isLoadingProcessorDependencies, setIsLoadingProcessorDependencies] = useState(true);

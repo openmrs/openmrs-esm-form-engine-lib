@@ -89,8 +89,8 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
       // TODO: find a dynamic way of managing the form processing order
       const forms = [rootForm.current, ...Object.values(subForms.current)];
       // validate all forms
-      const valid = forms.every((formContext) => validateForm(formContext));
-      if (valid) {
+      const isValid = forms.every((formContext) => validateForm(formContext));
+      if (isValid) {
         Promise.all(forms.map((formContext) => formContext.processor.processSubmission(formContext, abortController)))
           .then(async (results) => {
             formSubmissionProps.setIsSubmitting(false);
