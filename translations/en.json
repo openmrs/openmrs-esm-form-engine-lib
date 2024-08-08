@@ -9,8 +9,6 @@
   "close": "Close",
   "closeCamera": "Close camera",
   "closesNotification": "Closes notification",
-  "createdRecord": "Record created",
-  "createdRecordDescription": "A new encounter was created",
   "submittedForm": "Form submitted",
   "submittedFormDescription": "Form submitted successfully",
   "errorDescription": "{{errors}}",
