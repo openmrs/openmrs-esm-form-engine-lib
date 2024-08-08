@@ -30,6 +30,7 @@ interface FormFactoryProviderContextProps {
   registerForm: (formId: string, context: FormContextProps) => void;
   setCurrentPage: (page: string) => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
+  setIsFormDirty: (isFormDirty: boolean) => void;
 }
 
 interface FormFactoryProviderProps {
@@ -51,6 +52,7 @@ interface FormFactoryProviderProps {
   };
   setCurrentPage: (page: string) => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
+  setIsFormDirty: (isFormDirty: boolean) => void;
 }
 
 const FormFactoryProviderContext = createContext<FormFactoryProviderContextProps | undefined>(undefined);
@@ -68,6 +70,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   formSubmissionProps,
   setCurrentPage,
   handleConfirmQuestionDeletion,
+  setIsFormDirty,
 }) => {
   const { t } = useTranslation();
   const rootForm = useRef<FormContextProps>();
@@ -154,6 +157,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
         registerForm,
         setCurrentPage,
         handleConfirmQuestionDeletion,
+        setIsFormDirty,
       }}>
       {formProcessors.current && children}
     </FormFactoryProviderContext.Provider>

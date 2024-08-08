@@ -18,10 +18,15 @@ export type FormRendererProps = {
 
 export const FormRenderer = ({ processorContext, initialValues, setIsLoadingFormDependencies }: FormRendererProps) => {
   const { evaluatedFields, evaluatedFormJson } = useEvaluateFormFieldExpressions(initialValues, processorContext);
-  const { registerForm, workspaceLayout } = useFormFactory();
+  const { registerForm, setIsFormDirty, workspaceLayout } = useFormFactory();
   const methods = useForm({
     defaultValues: initialValues,
   });
+
+  const {
+    formState: { isDirty },
+  } = methods;
+
   const [{ formFields, invalidFields, formJson }, dispatch] = useReducer(formStateReducer, {
     ...initialState,
     formFields: evaluatedFields,
@@ -61,6 +66,10 @@ export const FormRenderer = ({ processorContext, initialValues, setIsLoadingForm
   useEffect(() => {
     registerForm(formJson.name, context);
   }, [formJson.name, context]);
+
+  useEffect(() => {
+    setIsFormDirty(isDirty);
+  }, [isDirty]);
 
   return (
     <FormProvider {...context}>
