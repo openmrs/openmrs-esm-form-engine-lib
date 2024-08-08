@@ -110,8 +110,8 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
               });
             } else {
               showSnackbar({
-                title: t('createdRecord', 'Record created'),
-                subtitle: t('createdRecordDescription', 'A new encounter was created'),
+                title: t('submittedForm', 'Form submitted'),
+                subtitle: t('submittedFormDescription', 'Form submitted successfully'),
                 kind: 'success',
                 isLowContrast: true,
               });
