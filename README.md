@@ -4,7 +4,7 @@
 
 # openmrs-esm-form-engine-lib
 
-<img src="readme/form-engine.jpeg" alt="https://raw.githubusercontent.com/openmrs/openmrs-form-engine-lib/main/readme/form-engine.jpeg" >
+<img src="readme/form-engine.jpeg" alt="https://raw.githubusercontent.com/openmrs/openmrs-esm-form-engine-lib/main/readme/form-engine.jpeg" >
 
 The React Form Engine is a library that allows users to build and render forms for use in O3. These form schemas are written in JSON and conform to the [O3 standard JSON schema spec](https://github.com/openmrs/openmrs-contrib-json-schemas/blob/main/form.schema.json). The [O3 reference application](https://o3.openmrs.org/openmrs/spa) ships an embedded [Form Builder](https://github.com/openmrs/openmrs-esm-form-builder) that users can leverage to build forms interactively, using the interactive schema builder, or by writing JSON code into the embedded schema editor.
 
@@ -43,17 +43,17 @@ Key features include:
 ### Installation
 
 ```bash
-yarn add @openmrs/openmrs-form-engine-lib@latest
+yarn add @openmrs/esm-form-engine-lib@latest
 ```
 
 ### Local development
 
 ```bash
-git clone git@github.com:openmrs/openmrs-form-engine-lib.git
+git clone git@github.com:openmrs/openmrs-esm-form-engine-lib.git
 
 # OR with HTTPS
 
-git clone https://github.com/openmrs/openmrs-form-engine-lib.git
+git clone https://github.com/openmrs/openmrs-esm-form-engine-lib.git
 ```
 
 #### Install Dependencies
@@ -77,7 +77,7 @@ To test your changes locally, you need to link the library to the dependent fron
 To link the library to the dependent frontend module, run the following command from the root of the frontend module:
 
 ```bash
-yarn link `path/to/openmrs-form-engine-lib`
+yarn link `path/to/openmrs-esm-form-engine-lib`
 ```
 
 For example, if you are working on the `openmrs-esm-form-builder` module, you would run the following command:
@@ -123,7 +123,7 @@ To use the form engine as your default in your O3 instance, you will need to add
 
 ### Report an issue
 
-https://github.com/openmrs/openmrs-form-engine-lib/issues
+https://github.com/openmrs/openmrs-esm-form-engine-lib/issues
 
 ## Contributing
 

@@ -1,11 +1,11 @@
 {
-  "name": "@openmrs/openmrs-form-engine-lib",
+  "name": "@openmrs/esm-form-engine-lib",
   "version": "2.1.0",
   "description": "React Form Engine for O3",
-  "browser": "dist/openmrs-form-engine-lib.js",
+  "browser": "dist/openmrs-esm-form-engine-lib.js",
   "main": "src/index.ts",
   "license": "MIT",
-  "homepage": "https://github.com/openmrs/openmrs-form-engine-lib#readme",
+  "homepage": "https://github.com/openmrs/openmrs-esm-form-engine-lib#readme",
   "scripts": {
     "lint": "eslint src --ext .ts,.tsx --fix",
     "verify": "turbo run lint typescript test --concurrency=5",

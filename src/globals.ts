@@ -1,1 +1,1 @@
-export const moduleName = '@openmrs/openmrs-form-engine-lib';
+export const moduleName = '@openmrs/esm-form-engine-lib';
