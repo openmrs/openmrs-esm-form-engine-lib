@@ -30,6 +30,7 @@ interface FormEngineProps {
   onCancel?: () => void;
   handleClose?: () => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
+  markFormAsDirty?: (isDirty: boolean) => void;
 }
 
 // TODOs:
@@ -48,6 +49,7 @@ const FormEngine = ({
   onCancel,
   handleClose,
   handleConfirmQuestionDeletion,
+  markFormAsDirty,
 }: FormEngineProps) => {
   const { t } = useTranslation();
   const session = useSession();
@@ -60,6 +62,7 @@ const FormEngine = ({
   const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFormDirty, setIsFormDirty] = useState(false);
   // TODO: Updating this prop triggers a rerender of the entire form. This means whenever we scroll into a new page, the form is rerendered.
   // Figure out a way to avoid this. Maybe use a ref with an observer instead of a state?
   const [currentPage, setCurrentPage] = useState('');
@@ -89,6 +92,10 @@ const FormEngine = ({
     };
   }, []);
 
+  useEffect(() => {
+    markFormAsDirty?.(isFormDirty);
+  }, [isFormDirty]);
+
   const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -116,6 +123,7 @@ const FormEngine = ({
             onError: () => {},
             handleClose: () => {},
           }}
+          setIsFormDirty={setIsFormDirty}
           setCurrentPage={setCurrentPage}>
           <div className={styles.formContainer}>
             {isLoadingDependencies && (
