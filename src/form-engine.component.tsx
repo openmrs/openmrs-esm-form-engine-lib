@@ -3,7 +3,6 @@ import type { FormField, SessionMode, FormSchema } from './types';
 import { useSession, type Visit } from '@openmrs/esm-framework';
 import { useFormJson } from '.';
 import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
-import { Form } from '@carbon/react';
 import Loader from './components/loaders/loader.component';
 import { usePatientData } from './hooks/usePatientData';
 import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
@@ -66,12 +65,15 @@ const FormEngine = ({
   // TODO: Updating this prop triggers a rerender of the entire form. This means whenever we scroll into a new page, the form is rerendered.
   // Figure out a way to avoid this. Maybe use a ref with an observer instead of a state?
   const [currentPage, setCurrentPage] = useState('');
-  const [showPatientBanner, setShowPatientBanner] = useState(false);
   const {
     formJson: refinedFormJson,
     isLoading: isLoadingFormJson,
     formError,
   } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent);
+
+  const showPatientBanner = useMemo(() => {
+    return patient && workspaceLayout !== 'minimized' && mode !== 'embedded-view';
+  }, [patient, mode, workspaceLayout]);
 
   const showButtonSet = useMemo(() => {
     // if (mode === 'embedded-view') {
@@ -102,7 +104,7 @@ const FormEngine = ({
   }, []);
 
   return (
-    <Form noValidate ref={ref} className={classNames('cds--form', styles.form)} onSubmit={handleSubmit}>
+    <form ref={ref} noValidate className={classNames('cds--form', styles.form)} onSubmit={handleSubmit}>
       {isLoadingPatient || isLoadingFormJson ? (
         <Loader />
       ) : (
@@ -171,7 +173,7 @@ const FormEngine = ({
           </div>
         </FormFactoryProvider>
       )}
-    </Form>
+    </form>
   );
 };
 
