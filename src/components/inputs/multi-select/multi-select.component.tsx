@@ -131,7 +131,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           </Layer>
         </div>
         <div className={styles.selectionDisplay}>
-          {value?.length && field.questionOptions.answers?.length > 5 ? (
+          {value?.length ? (
             <div className={styles.tagContainer}>
               {formFieldAdapters[field.type]?.getDisplayValue(field, value)?.map((displayValue, index) => (
                 <Tag key={index} type="cool-gray">

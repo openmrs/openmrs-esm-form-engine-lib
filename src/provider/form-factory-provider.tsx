@@ -14,7 +14,6 @@ import { type FormContextProps } from './form-provider';
 import { processPostSubmissionActions, validateForm } from './form-factory-helper';
 import { useTranslation } from 'react-i18next';
 import { usePostSubmissionActions } from '../hooks/usePostSubmissionActions';
-import { reportError } from '../utils/error-utils';
 
 interface FormFactoryProviderContextProps {
   patient: fhir.Patient;
