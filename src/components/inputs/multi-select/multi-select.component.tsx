@@ -130,19 +130,21 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
             )}
           </Layer>
         </div>
-        <div className={styles.selectionDisplay}>
-          {value?.length ? (
-            <div className={styles.tagContainer}>
-              {formFieldAdapters[field.type]?.getDisplayValue(field, value)?.map((displayValue, index) => (
-                <Tag key={index} type="cool-gray">
-                  {displayValue}
-                </Tag>
-              ))}
-            </div>
-          ) : (
-            <ValueEmpty />
-          )}
-        </div>
+        {!field.inlineMultiCheckbox && (
+          <div className={styles.selectionDisplay}>
+            {value?.length ? (
+              <div className={styles.tagContainer}>
+                {formFieldAdapters[field.type]?.getDisplayValue(field, value)?.map((displayValue, index) => (
+                  <Tag key={index} type="cool-gray">
+                    {displayValue}
+                  </Tag>
+                ))}
+              </div>
+            ) : (
+              <ValueEmpty />
+            )}
+          </div>
+        )}
       </>
     )
   );
