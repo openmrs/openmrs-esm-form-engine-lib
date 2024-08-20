@@ -22,6 +22,11 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
     }
   };
 
+  const handleChange = (event) => {
+    const parsedValue = parseFloat(event.target.value);
+    setFieldValue(isNaN(parsedValue) ? undefined : parsedValue);
+  };
+
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(sessionMode) || isTrue(field.readonly)) {
       return shouldUseInlineLayout(field.inlineRendering, layoutType, workspaceLayout, sessionMode);
@@ -49,7 +54,7 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
         min={Number(field.questionOptions.min) || undefined}
         name={field.id}
         value={field.value ?? ''}
-        onChange={setFieldValue}
+        onChange={handleChange}
         onBlur={onBlur}
         allowEmpty={true}
         size="lg"
