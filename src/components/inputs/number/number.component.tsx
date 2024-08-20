@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Layer, NumberInput } from '@carbon/react';
 import classNames from 'classnames';
 import { isTrue } from '../../../utils/boolean-utils';
@@ -22,10 +22,10 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
     }
   };
 
-  const handleChange = (event) => {
-    const parsedValue = parseFloat(event.target.value);
+  const handleChange = useCallback((event) => {
+    const parsedValue = Number(event.target.value);
     setFieldValue(isNaN(parsedValue) ? undefined : parsedValue);
-  };
+  }, [setFieldValue]);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(sessionMode) || isTrue(field.readonly)) {
