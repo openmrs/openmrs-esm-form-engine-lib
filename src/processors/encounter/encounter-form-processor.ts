@@ -77,6 +77,7 @@ const contextInitializableTypes = [
   'encounterLocation',
   'patientIdentifier',
   'encounterRole',
+  'programState'
 ];
 export class EncounterFormProcessor extends FormProcessor {
   prepareFormSchema(schema: FormSchema) {

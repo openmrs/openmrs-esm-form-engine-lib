@@ -29,7 +29,7 @@ export const ProgramStateAdapter: FormFieldValueAdapter = {
         .filter((state) => !state.endDate)
         .find((state) => state.state.programWorkflow?.uuid === field.questionOptions.workflowUuid)?.state;
       field.meta = { ...(field.meta || {}), previousValue: currentState };
-      return currentState.uuid;
+      return currentState?.uuid;
     }
     return null;
   },
