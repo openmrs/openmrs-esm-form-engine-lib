@@ -257,7 +257,11 @@ export class EncounterFormProcessor extends FormProcessor {
           const adapter = formFieldAdapters[field.type];
           initialValues[field.id] = emptyValues[field.questionOptions.rendering] ?? null;
           if (field.questionOptions.calculate?.calculateExpression) {
-            await evaluateCalculateExpression(field, initialValues, context);
+            try {
+              await evaluateCalculateExpression(field, initialValues, context);
+            } catch (error) {
+              console.error(error);
+            }
           }
           if (isEmpty(initialValues[field.id]) && contextInitializableTypes.includes(field.type)) {
             try {
