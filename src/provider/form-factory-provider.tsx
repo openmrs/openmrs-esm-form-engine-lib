@@ -83,7 +83,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   const registerForm = useCallback((formId: string, context: FormContextProps) => {
     if (!rootForm.current) {
       rootForm.current = context;
-    } else {
+    } else if (rootForm.current.formJson.name !== formId) {
       subForms.current[formId] = context;
     }
   }, []);
