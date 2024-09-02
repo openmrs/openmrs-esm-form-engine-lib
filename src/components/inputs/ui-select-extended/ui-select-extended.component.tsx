@@ -67,7 +67,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
         setIsLoading(false);
         setItems([]);
       });
-  }, 300);
+  }, 1500);
 
   const processSearchableValues = (value) => {
     dataSource
