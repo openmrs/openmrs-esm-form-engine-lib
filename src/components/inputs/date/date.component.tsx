@@ -80,60 +80,58 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
     />
   ) : (
     !field.isHidden && (
-      <>
-        <div className={styles.datetime}>
-          {(field.datePickerFormat === 'calendar' || field.datePickerFormat === 'both') && (
-            <div className={styles.datePickerSpacing}>
-              <Layer>
-                <OpenmrsDatePicker
-                  id={field.id}
-                  onChange={onDateChange}
-                  labelText={
-                    <span className={styles.datePickerLabel}>
-                      <FieldLabel field={field} />
-                    </span>
-                  }
-                  isDisabled={field.isDisabled}
-                  isReadOnly={isTrue(field.readonly)}
-                  isRequired={field.isRequired ?? false}
-                  isInvalid={errors.length > 0}
-                  invalidText={errors[0]?.message}
-                  value={dateValue}
-                />
-              </Layer>
-              {warnings.length > 0 ? <div className={styles.datePickerWarn}>{warnings[0]?.message}</div> : null}
-            </div>
-          )}
+      <div className={styles.datetime}>
+        {(field.datePickerFormat === 'calendar' || field.datePickerFormat === 'both') && (
+          <div className={styles.datePickerSpacing}>
+            <Layer>
+              <OpenmrsDatePicker
+                id={field.id}
+                onChange={onDateChange}
+                labelText={
+                  <span className={styles.datePickerLabel}>
+                    <FieldLabel field={field} />
+                  </span>
+                }
+                isDisabled={field.isDisabled}
+                isReadOnly={isTrue(field.readonly)}
+                isRequired={field.isRequired ?? false}
+                isInvalid={errors.length > 0}
+                invalidText={errors[0]?.message}
+                value={dateValue}
+              />
+            </Layer>
+            {warnings.length > 0 ? <div className={styles.datePickerWarn}>{warnings[0]?.message}</div> : null}
+          </div>
+        )}
 
-          {field.datePickerFormat === 'both' || field.datePickerFormat === 'timer' ? (
-            <div>
-              <Layer>
-                <TimePicker
-                  className={classNames(styles.boldedLabel, styles.timeInput)}
-                  id={field.id}
-                  labelText={timePickerLabel}
-                  placeholder="HH:MM"
-                  pattern="(1[012]|[1-9]):[0-5][0-9])$"
-                  type="time"
-                  disabled={field.datePickerFormat === 'timer' ? field.isDisabled : !dateValue ? true : false}
-                  invalid={errors.length > 0}
-                  invalidText={errors[0]?.message}
-                  warning={warnings.length > 0}
-                  warningText={warnings[0]?.message}
-                  value={
-                    time
-                      ? time
-                      : dateValue instanceof Date
-                      ? dateValue.toLocaleDateString(window.navigator.language)
-                      : dateValue
-                  }
-                  onChange={onTimeChange}
-                />
-              </Layer>
-            </div>
-          ) : null}
-        </div>
-      </>
+        {field.datePickerFormat === 'both' || field.datePickerFormat === 'timer' ? (
+          <div>
+            <Layer>
+              <TimePicker
+                className={classNames(styles.boldedLabel, styles.timeInput)}
+                id={field.id}
+                labelText={timePickerLabel}
+                placeholder="HH:MM"
+                pattern="(1[012]|[1-9]):[0-5][0-9])$"
+                type="time"
+                disabled={field.datePickerFormat === 'timer' ? field.isDisabled : !dateValue ? true : false}
+                invalid={errors.length > 0}
+                invalidText={errors[0]?.message}
+                warning={warnings.length > 0}
+                warningText={warnings[0]?.message}
+                value={
+                  time
+                    ? time
+                    : dateValue instanceof Date
+                    ? dateValue.toLocaleDateString(window.navigator.language)
+                    : dateValue
+                }
+                onChange={onTimeChange}
+              />
+            </Layer>
+          </div>
+        ) : null}
+      </div>
     )
   );
 };
