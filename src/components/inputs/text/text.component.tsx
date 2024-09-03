@@ -37,27 +37,25 @@ const TextField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnin
     />
   ) : (
     !field.isHidden && (
-      <>
-        <div className={styles.boldedLabel}>
-          <Layer>
-            <TextInput
-              id={field.id}
-              labelText={<FieldLabel field={field} />}
-              onChange={setFieldValue}
-              onBlur={onBlur}
-              name={field.id}
-              value={value}
-              disabled={field.isDisabled}
-              readOnly={isTrue(field.readonly)}
-              invalid={errors.length > 0}
-              invalidText={errors[0]?.message}
-              warn={warnings.length > 0}
-              warnText={warnings.length && warnings[0].message}
-              maxLength={field.questionOptions.max || TextInput.maxLength}
-            />
-          </Layer>
-        </div>
-      </>
+      <div className={styles.boldedLabel}>
+        <Layer>
+          <TextInput
+            id={field.id}
+            labelText={<FieldLabel field={field} />}
+            onChange={setFieldValue}
+            onBlur={onBlur}
+            name={field.id}
+            value={value}
+            disabled={field.isDisabled}
+            readOnly={isTrue(field.readonly)}
+            invalid={errors.length > 0}
+            invalidText={errors[0]?.message}
+            warn={warnings.length > 0}
+            warnText={warnings.length > 0 ? warnings[0].message : undefined}
+            maxLength={field.questionOptions.max || TextInput.maxLength}
+          />
+        </Layer>
+      </div>
     )
   );
 };

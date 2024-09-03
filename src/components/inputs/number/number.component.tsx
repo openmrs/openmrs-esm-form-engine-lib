@@ -44,30 +44,32 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
       />
     </div>
   ) : (
-    <Layer>
-      <NumberInput
-        id={field.id}
-        invalid={errors.length > 0}
-        invalidText={errors[0]?.message}
-        label={<FieldLabel field={field} />}
-        max={Number(field.questionOptions.max) || undefined}
-        min={Number(field.questionOptions.min) || undefined}
-        name={field.id}
-        value={field.value ?? ''}
-        onChange={handleChange}
-        onBlur={onBlur}
-        allowEmpty={true}
-        size="lg"
-        hideSteppers={true}
-        onWheel={(e) => e.target.blur()}
-        disabled={field.isDisabled}
-        readOnly={field.readonly}
-        className={classNames(styles.controlWidthConstrained, styles.boldedLabel)}
-        warn={warnings.length > 0}
-        warnText={warnings[0]?.message}
-        step={0.01}
-      />
-    </Layer>
+    !field.isHidden && (
+      <Layer>
+        <NumberInput
+          id={field.id}
+          invalid={errors.length > 0}
+          invalidText={errors[0]?.message}
+          label={<FieldLabel field={field} />}
+          max={Number(field.questionOptions.max) || undefined}
+          min={Number(field.questionOptions.min) || undefined}
+          name={field.id}
+          value={field.value ?? ''}
+          onChange={handleChange}
+          onBlur={onBlur}
+          allowEmpty={true}
+          size="lg"
+          hideSteppers={true}
+          onWheel={(e) => e.target.blur()}
+          disabled={field.isDisabled}
+          readOnly={field.readonly}
+          className={classNames(styles.controlWidthConstrained, styles.boldedLabel)}
+          warn={warnings.length > 0}
+          warnText={warnings[0]?.message}
+          step={0.01}
+        />
+      </Layer>
+    )
   );
 };
 
