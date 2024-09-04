@@ -22,10 +22,13 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
     }
   };
 
-  const handleChange = useCallback((event) => {
-    const parsedValue = Number(event.target.value);
-    setFieldValue(isNaN(parsedValue) ? undefined : parsedValue);
-  }, [setFieldValue]);
+  const handleChange = useCallback(
+    (event) => {
+      const parsedValue = Number(event.target.value);
+      setFieldValue(isNaN(parsedValue) ? undefined : parsedValue);
+    },
+    [setFieldValue],
+  );
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(sessionMode) || isTrue(field.readonly)) {
@@ -54,7 +57,7 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           max={Number(field.questionOptions.max) || undefined}
           min={Number(field.questionOptions.min) || undefined}
           name={field.id}
-          value={field.value ?? ''}
+          value={value ?? ''}
           onChange={handleChange}
           onBlur={onBlur}
           allowEmpty={true}
