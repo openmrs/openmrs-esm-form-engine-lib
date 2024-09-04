@@ -15,18 +15,19 @@ const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warning
   const { layoutType, sessionMode, workspaceLayout, formFieldAdapters } = useFormProviderContext();
 
   const handleChange = useCallback(
-    (value) => {
-      setFieldValue(value);
+    (selectedItem) => {
+      setFieldValue(selectedItem.value === '' ? null : selectedItem.value);
     },
     [setFieldValue],
   );
 
   const itemToString = useCallback(
     (item) => {
+      if (!item) return t('selectAnOption', 'Select an option');
       const answer = field.questionOptions.answers.find((opt) => (opt.value ? opt.value == item : opt.concept == item));
       return answer?.label;
     },
-    [field.questionOptions.answers],
+    [field.questionOptions.answers, t],
   );
 
   const isInline = useMemo(() => {
@@ -46,16 +47,20 @@ const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warning
   ) : (
     !field.isHidden && (
       <div className={styles.boldedLabel}>
+  
         <Layer>
           <DropdownInput
             id={field.id}
             titleText={<FieldLabel field={field} />}
             label={t('chooseAnOption', 'Choose an option')}
-            items={field.questionOptions.answers
-              .filter((answer) => !answer.isHidden)
-              .map((item) => item.value || item.concept)}
-            itemToString={itemToString}
-            selectedItem={value}
+            items={[
+              { value: '', label: t('selectAnOption', 'Select an option') },
+              ...field.questionOptions.answers
+                .filter((answer) => !answer.isHidden)
+                .map((item) => ({ value: item.value || item.concept, label: item.label })),
+            ]}
+            itemToString={(item) => item.label}
+            selectedItem={value ? { value, label: itemToString(value) } : null}
             onChange={({ selectedItem }) => handleChange(selectedItem)}
             disabled={field.isDisabled}
             readOnly={field.readonly}
