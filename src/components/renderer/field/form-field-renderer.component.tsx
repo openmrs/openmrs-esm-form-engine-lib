@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   type FormField,
   type RenderType,
@@ -24,14 +24,14 @@ import { getFieldControlWithFallback } from '../../../utils/form-helper';
 import { handleFieldLogic } from './fieldLogic';
 
 export interface FormFieldRendererProps {
-  field: FormField;
+  fieldId: string;
   valueAdapter: FormFieldValueAdapter;
   repeatOptions?: {
     targetRendering: RenderType;
   };
 }
 
-export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFieldRendererProps) => {
+export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: FormFieldRendererProps) => {
   const [inputComponentWrapper, setInputComponentWrapper] = useState<{
     value: React.ComponentType<FormFieldInputProps>;
   }>(null);
@@ -50,8 +50,10 @@ export const FormFieldRenderer = ({ field, valueAdapter, repeatOptions }: FormFi
     removeInvalidField,
   } = context;
 
-  const fieldValue = useWatch({ control, name: field.id, exact: true });
+  const fieldValue = useWatch({ control, name: fieldId, exact: true });
   const noop = () => {};
+
+  const field = useMemo(() => formFields.find((field) => field.id === fieldId), [fieldId, formFields]);
 
   useEffect(() => {
     if (hasRendering(field, 'repeating') && repeatOptions?.targetRendering) {

@@ -7,7 +7,7 @@ export function useFormStateHelpers(dispatch: Dispatch<Action>, formFields: Form
     dispatch({ type: 'ADD_FORM_FIELD', value: field });
   }, []);
   const updateFormField = useCallback((field: FormField) => {
-    dispatch({ type: 'UPDATE_FORM_FIELD', value: field });
+    dispatch({ type: 'UPDATE_FORM_FIELD', value: structuredClone(field) });
   }, []);
 
   const getFormField = useCallback(
