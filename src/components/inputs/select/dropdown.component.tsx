@@ -6,27 +6,42 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { type FormFieldInputProps } from '../../../types';
 import FieldValueView from '../../value/view/field-value-view.component';
 import FieldLabel from '../../field-label/field-label.component';
-
-import styles from './dropdown.scss';
 import { useFormProviderContext } from '../../../provider/form-provider';
+import { NullSelectOption } from '../../../constants';
+import { isEmpty } from '../../../validators/form-validator';
+import styles from './dropdown.scss';
 
 const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const { layoutType, sessionMode, workspaceLayout, formFieldAdapters } = useFormProviderContext();
 
   const handleChange = useCallback(
-    (selectedItem) => {
-      setFieldValue(selectedItem ? selectedItem.value || selectedItem.concept : null);
+    ({ selectedItem }) => {
+      setFieldValue(selectedItem === NullSelectOption ? null : selectedItem);
     },
     [setFieldValue],
   );
 
   const itemToString = useCallback(
     (item) => {
-      return item ? item.label : '';
+      let answer = field.questionOptions.answers.find((opt) => {
+        return opt.value ? opt.value == item : opt.concept == item;
+      });
+      return answer?.label;
     },
-    [t],
+    [field.questionOptions.answers],
   );
+
+  const items = useMemo(() => {
+    const options = field.questionOptions.answers;
+    if (!options.some((option) => option.value === NullSelectOption)) {
+      options.unshift({
+        value: NullSelectOption,
+        label: t('chooseAnOption', 'Choose an option'),
+      });
+    }
+    return options.filter((option) => !option.isHidden).map((item) => item.value || item.concept);
+  }, [field.questionOptions.answers]);
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(sessionMode) || isTrue(field.readonly)) {
@@ -49,17 +64,10 @@ const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warning
           <DropdownInput
             id={field.id}
             titleText={<FieldLabel field={field} />}
-            label={t('chooseAnOption', 'Choose an option')}
-            items={field.questionOptions.answers
-              .filter((answer) => !answer.isHidden)
-              .map((item) => ({ value: item.value || item.concept, label: item.label }))}
+            items={items}
             itemToString={itemToString}
-            selectedItem={
-              value
-                ? field.questionOptions.answers.find((item) => (item.value || item.concept) === value)
-                : null
-            }
-            onChange={({ selectedItem }) => handleChange(selectedItem)}
+            selectedItem={isEmpty(value) ? NullSelectOption : value}
+            onChange={handleChange}
             disabled={field.isDisabled}
             readOnly={field.readonly}
             invalid={errors.length > 0}
