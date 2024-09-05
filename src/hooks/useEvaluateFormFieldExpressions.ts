@@ -59,6 +59,15 @@ export const useEvaluateFormFieldExpressions = (
       if (field.validators?.some((validator) => validator.type === 'conditionalAnswered')) {
         evaluateConditionalAnswered(field, formFields);
       }
+      // evaluate conditional hide answers based on valid answer options
+      if (field.questionOptions.hideAnswers) {
+        const hideAnswerExpression = field.questionOptions.hideAnswers?.hideWhenExpression;
+        field.questionOptions.answers
+          ?.filter((answer) => !evaluateExpression(hideAnswerExpression, fieldNode, formFields, formValues, runnerContext).includes(answer.concept))
+          .forEach((answer) => {
+            answer.isHidden = true;
+          });
+      }
       // evaluate conditional hide for answers
       field.questionOptions.answers
         ?.filter((answer) => !isEmpty(answer.hide?.hideWhenExpression))

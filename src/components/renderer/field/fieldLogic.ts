@@ -14,6 +14,7 @@ export function handleFieldLogic(field: FormField, context: FormContextProps) {
   const values = getValues();
   if (codedTypes.includes(field.questionOptions.rendering)) {
     evaluateFieldAnswerDisabled(field, values, context);
+    evaluateFieldAnswerHidden(field, values, context);
   }
   evaluateFieldDependents(field, values, context);
 }
@@ -22,7 +23,7 @@ function evaluateFieldAnswerDisabled(field: FormField, values: Record<string, an
   const { sessionMode, formFields, patient } = context;
   field.questionOptions.answers.forEach((answer) => {
     const disableExpression = answer.disable?.disableWhenExpression;
-    if (disableExpression && disableExpression.includes('myValue')) {
+    if (disableExpression?.includes('myValue')) {
       answer.disable.isDisabled = evaluateExpression(
         answer.disable?.disableWhenExpression,
         { value: field, type: 'field' },
@@ -35,6 +36,25 @@ function evaluateFieldAnswerDisabled(field: FormField, values: Record<string, an
       );
     }
   });
+}
+
+function evaluateFieldAnswerHidden(field: FormField, values: Record<string, any>, context: FormContextProps) {
+  const { sessionMode, formFields, patient } = context;
+  const hideAnswerExpression = field.questionOptions.hideAnswers?.hideWhenExpression;
+  hideAnswerExpression &&
+    field.questionOptions.answers.forEach((answer) => {
+      answer.isHidden = evaluateExpression(
+        hideAnswerExpression,
+        { value: field, type: 'field' },
+        formFields,
+        values,
+        {
+          mode: sessionMode,
+          patient,
+        },
+      ).includes(answer.concept);
+    }
+  );
 }
 
 function evaluateFieldDependents(field: FormField, values: any, context: FormContextProps) {

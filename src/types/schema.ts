@@ -103,6 +103,7 @@ export interface FormFieldInputProps {
 
 export interface HideProps {
   hideWhenExpression: string;
+  isHidden?: boolean;
 }
 
 export interface DisableProps {
@@ -160,6 +161,7 @@ export interface FormQuestionOptions {
   showDate?: string;
   shownDateOptions?: { validators?: Array<Record<string, any>>; hide?: { hideWhenExpression: string } };
   answers?: Array<QuestionAnswerOption>;
+  hideAnswers?: HideProps;
   weeksList?: string;
   locationTag?: string;
   disallowDecimals?: boolean;
@@ -197,6 +199,7 @@ export interface QuestionAnswerOption {
   concept?: string;
   [key: string]: any;
 }
+
 export type RenderType =
   | 'checkbox'
   | 'content-switcher'
