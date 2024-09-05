@@ -161,6 +161,16 @@ function transformByRendering(question: FormField) {
     case 'markdown':
       question.type = 'control';
       break;
+    case 'select':
+    case 'dropdown':
+      if (!question.questionOptions.answers.some((answer) => answer.value === '')) {
+        question.questionOptions.answers.unshift({
+          value: '',
+          label: 'Select an option',
+          isDefaultOption: true,
+        });
+      }
+      break;
   }
   return question;
 }

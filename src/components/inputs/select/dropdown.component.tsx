@@ -16,18 +16,16 @@ const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warning
 
   const handleChange = useCallback(
     (selectedItem) => {
-      setFieldValue(selectedItem.value === '' ? null : selectedItem.value);
+      setFieldValue(selectedItem ? selectedItem.value || selectedItem.concept : null);
     },
     [setFieldValue],
   );
 
   const itemToString = useCallback(
     (item) => {
-      if (!item) return t('selectAnOption', 'Select an option');
-      const answer = field.questionOptions.answers.find((opt) => (opt.value ? opt.value == item : opt.concept == item));
-      return answer?.label;
+      return item ? item.label : '';
     },
-    [field.questionOptions.answers, t],
+    [t],
   );
 
   const isInline = useMemo(() => {
@@ -47,20 +45,20 @@ const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warning
   ) : (
     !field.isHidden && (
       <div className={styles.boldedLabel}>
-  
         <Layer>
           <DropdownInput
             id={field.id}
             titleText={<FieldLabel field={field} />}
             label={t('chooseAnOption', 'Choose an option')}
-            items={[
-              { value: '', label: t('selectAnOption', 'Select an option') },
-              ...field.questionOptions.answers
-                .filter((answer) => !answer.isHidden)
-                .map((item) => ({ value: item.value || item.concept, label: item.label })),
-            ]}
-            itemToString={(item) => item.label}
-            selectedItem={value ? { value, label: itemToString(value) } : null}
+            items={field.questionOptions.answers
+              .filter((answer) => !answer.isHidden)
+              .map((item) => ({ value: item.value || item.concept, label: item.label }))}
+            itemToString={itemToString}
+            selectedItem={
+              value
+                ? field.questionOptions.answers.find((item) => (item.value || item.concept) === value)
+                : null
+            }
             onChange={({ selectedItem }) => handleChange(selectedItem)}
             disabled={field.isDisabled}
             readOnly={field.readonly}
