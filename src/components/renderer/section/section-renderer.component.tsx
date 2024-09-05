@@ -12,7 +12,11 @@ export const SectionRenderer = ({ section }: { section: FormSection }) => {
       {section.questions.map((question) =>
         formFieldAdapters[question.type] ? (
           <div key={`${sectionId}-${question.id}`} className={styles.sectionBody}>
-            <FormFieldRenderer key={question.id} field={question} valueAdapter={formFieldAdapters[question.type]} />
+            <FormFieldRenderer
+              key={question.id}
+              fieldId={question.id}
+              valueAdapter={formFieldAdapters[question.type]}
+            />
           </div>
         ) : null,
       )}

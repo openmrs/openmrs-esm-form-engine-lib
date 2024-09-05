@@ -129,7 +129,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
     return rows.map((field, index) => {
       const component = (
         <FormFieldRenderer
-          field={field}
+          fieldId={field.id}
           valueAdapter={formFieldAdapters[field.type]}
           repeatOptions={{ targetRendering: getQuestionWithSupportedRendering(field).questionOptions.rendering }}
         />

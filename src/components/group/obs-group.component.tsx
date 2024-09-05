@@ -16,7 +16,7 @@ export const ObsGroup: React.FC<FormFieldInputProps> = ({ field }) => {
         return (
           <div className={classNames(styles.flexColumn)} key={keyId}>
             <div className={styles.groupContainer}>
-              <FormFieldRenderer field={child} valueAdapter={formFieldAdapters[child.type]} />
+              <FormFieldRenderer fieldId={child.id} valueAdapter={formFieldAdapters[child.type]} />
             </div>
           </div>
         );
