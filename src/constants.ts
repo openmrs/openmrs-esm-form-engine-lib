@@ -10,3 +10,4 @@ export const encounterRepresentation =
 export const FormsStore = 'forms-engine-store';
 export const PatientChartWorkspaceHeaderSlot = 'patient-chart-workspace-header-slot';
 export const codedTypes = ['radio', 'checkbox', 'select', 'content-switcher'];
+export const NullSelectOption = 'OPTION_NULL';

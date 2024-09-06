@@ -117,4 +117,41 @@ describe.skip('dropdown input field', () => {
       });
     });
   });
+
+  it('should clear selection when empty option is selected', async () => {
+    // setup
+    question.meta.previousValue = {
+      uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+      person: '833db896-c1f0-11eb-8529-0242ac130003',
+      obsDatetime: encounterContext.encounterDate,
+      concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+      order: null,
+      groupMembers: [],
+      voided: false,
+      value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
+    };
+    await renderForm({ 'patient-past-program': question.meta.previousValue.value });
+    const dropdownWidget = screen.getByRole('combobox', { name: /Patient past program./ });
+
+    // select an option first
+    fireEvent.click(dropdownWidget);
+    const oncologyScreeningOption = screen.getByText('Oncology Screening and Diagnosis Program');
+    fireEvent.click(oncologyScreeningOption);
+
+    // clear the selection
+    fireEvent.click(dropdownWidget);
+    const clearOption = screen.getByText('Select an option');
+    fireEvent.click(clearOption);
+
+    // verify
+    await act(async () => {
+      expect(question.meta.submission.newValue).toEqual({
+        uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+        value: null,
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-patient-past-program',
+      });
+    });
+  });
 });
