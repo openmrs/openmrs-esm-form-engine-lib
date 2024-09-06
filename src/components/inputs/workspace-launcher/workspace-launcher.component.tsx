@@ -23,12 +23,14 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
   };
 
   return (
-    <div>
-      <div className={styles.label}>{t(field.label)}</div>
-      <div className={styles.workspaceButton}>
-        <Button onClick={handleLaunchWorkspace}>{field.questionOptions?.buttonLabel ?? t('launchWorkspace')}</Button>
+    !field.isHidden && (
+      <div>
+        <div className={styles.label}>{t(field.label)}</div>
+        <div className={styles.workspaceButton}>
+          <Button onClick={handleLaunchWorkspace}>{field.questionOptions?.buttonLabel ?? t('launchWorkspace')}</Button>
+        </div>
       </div>
-    </div>
+    )
   );
 };
 
