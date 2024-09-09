@@ -31,9 +31,6 @@ const FormProcessorFactory = ({
 
   const processor = useMemo(() => {
     const ProcessorClass = formProcessors[formJson.processor];
-    if (processor) {
-      return processor;
-    }
     if (ProcessorClass) {
       return new ProcessorClass(formJson);
     }
@@ -101,7 +98,6 @@ const FormProcessorFactory = ({
     }
   }, [formFieldAdapters]);
 
-  // console.log(isLoadingProcessorDependencies);
   return (
     <>
       {useCustomHooks && (

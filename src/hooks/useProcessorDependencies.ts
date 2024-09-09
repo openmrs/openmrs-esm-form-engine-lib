@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { type FormProcessorContextProps } from '../types';
 import { type FormProcessor } from '../processors/form-processor';
+import { reportError } from '../utils/error-utils';
 
 const useProcessorDependencies = (
   formProcessor: FormProcessor,
@@ -20,9 +21,10 @@ const useProcessorDependencies = (
         })
         .catch((error) => {
           setError(error);
+          reportError(error, 'Load processor dependencies failed');
         });
     }
-  }, []);
+  }, [loadDependencies]);
 
   return { isLoading, error };
 };
