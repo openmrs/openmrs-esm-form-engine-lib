@@ -122,7 +122,7 @@ export async function getRegisteredControl(renderType: string) {
   let component = inbuiltControls.find(
     (control) => control.name === renderType || control?.alias === renderType,
   )?.component;
-  // if undefined, try serching through the registered custom controls
+  // if undefined, try searching through the registered custom controls
   if (!component) {
     const importedControl = await getFormsStore()
       .controls.find((control) => control.name === renderType || control?.alias === renderType)
