@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import useProcessorDependencies from '../../hooks/useProcessorDependencies';
 import useInitialValues from '../../hooks/useInitialValues';
 import { FormRenderer } from '../renderer/form/form-renderer.component';
-import { type FormSchema, type FormProcessorContextProps } from '../../types';
+import { type FormProcessorContextProps, type FormSchema } from '../../types';
 import { CustomHooksRenderer } from '../renderer/custom-hooks-renderer.component';
 import { useFormFields } from '../../hooks/useFormFields';
 import { useConcepts } from '../../hooks/useConcepts';
@@ -101,6 +101,7 @@ const FormProcessorFactory = ({
     }
   }, [formFieldAdapters]);
 
+  // console.log(isLoadingProcessorDependencies);
   return (
     <>
       {useCustomHooks && (
