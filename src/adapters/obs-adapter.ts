@@ -14,6 +14,7 @@ import {
   clearSubmission,
   flattenObsList,
   parseToLocalDateTime,
+  formatDateAsDisplayString,
 } from '../utils/common-utils';
 import { type FormContextProps } from '../provider/form-provider';
 import { type FormFieldValueAdapter } from '../types';
@@ -58,6 +59,9 @@ export const ObsAdapter: FormFieldValueAdapter = {
     const rendering = field.questionOptions.rendering;
     if (isEmpty(value)) {
       return value;
+    }
+    if (value instanceof Date) {
+      return formatDateAsDisplayString(field, value);
     }
     if (rendering == 'checkbox') {
       return value.map(

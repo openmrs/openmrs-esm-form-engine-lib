@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormField, FormSchema, SessionMode } from './types';
 import { useSession, type Visit } from '@openmrs/esm-framework';
-import { useFormJson } from '.';
+import { isEmpty, useFormJson } from '.';
 import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
 import Loader from './components/loaders/loader.component';
 import { usePatientData } from './hooks/usePatientData';
@@ -62,6 +62,7 @@ const FormEngine = ({
   const [showSidebar, setShowSidebar] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
+  const sessionMode = !isEmpty(mode) ? mode : !isEmpty(encounterUUID) ? 'edit' : 'enter';
   // TODO: Updating this prop triggers a rerender of the entire form. This means whenever we scroll into a new page, the form is rerendered.
   // Figure out a way to avoid this. Maybe use a ref with an observer instead of a state?
   const [currentPage, setCurrentPage] = useState('');
@@ -110,7 +111,7 @@ const FormEngine = ({
       ) : (
         <FormFactoryProvider
           patient={patient}
-          sessionMode={mode}
+          sessionMode={sessionMode}
           sessionDate={sessionDate}
           formJson={refinedFormJson}
           workspaceLayout={workspaceLayout}

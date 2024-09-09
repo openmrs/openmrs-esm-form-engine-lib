@@ -8,9 +8,10 @@ import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import FieldValueView from '../../value/view/field-value-view.component';
 import styles from './date.scss';
-import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framework';
+import { OpenmrsDatePicker } from '@openmrs/esm-framework';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
+import { formatDateAsDisplayString } from '../../../utils/common-utils';
 
 const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
@@ -74,7 +75,7 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
   return sessionMode == 'view' || sessionMode == 'embedded-view' ? (
     <FieldValueView
       label={t(field.label)}
-      value={dateValue instanceof Date ? getDisplay(dateValue, field.datePickerFormat) : dateValue}
+      value={dateValue instanceof Date ? formatDateAsDisplayString(field, dateValue) : dateValue}
       conceptName={field.meta?.concept?.display}
       isInline={isInline}
     />
@@ -135,13 +136,5 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
     )
   );
 };
-
-function getDisplay(date: Date, rendering: string) {
-  const dateString = formatDate(date);
-  if (rendering == 'both') {
-    return `${dateString} ${formatTime(date)}`;
-  }
-  return dateString;
-}
 
 export default DateField;
