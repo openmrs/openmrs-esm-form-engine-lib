@@ -31,7 +31,7 @@ const useInitialValues = (
           setIsLoadingInitialValues(false);
         });
     }
-  }, [formProcessor, isLoadingContextDependencies, context]);
+  }, [formProcessor, isLoadingContextDependencies, context, initialValues]);
 
   return { isLoadingInitialValues, initialValues, error };
 };

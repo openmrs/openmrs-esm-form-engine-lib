@@ -1,15 +1,15 @@
 import {
-  type ValueAndDisplay,
   type FormField,
-  type FormProcessorContextProps,
   type FormPage,
+  type FormProcessorContextProps,
+  type FormSchema,
   type FormSection,
+  type ValueAndDisplay,
 } from '../../types';
 import { usePatientPrograms } from '../../hooks/usePatientPrograms';
 import { useEffect, useState } from 'react';
 import { useEncounter } from '../../hooks/useEncounter';
 import { isEmpty } from '../../validators/form-validator';
-import { type FormSchema } from '../../types';
 import { type FormContextProps } from '../../provider/form-provider';
 import { FormProcessor } from '../form-processor';
 import {
@@ -28,7 +28,7 @@ import { moduleName } from '../../globals';
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
 import { getPreviousEncounter, saveEncounter } from '../../api';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
-import { type FormNode, evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
+import { evaluateAsyncExpression, evaluateExpression, type FormNode } from '../../utils/expression-runner';
 import { hasRendering } from '../../utils/common-utils';
 
 function useCustomHooks(context: Partial<FormProcessorContextProps>) {
@@ -77,8 +77,9 @@ const contextInitializableTypes = [
   'encounterLocation',
   'patientIdentifier',
   'encounterRole',
-  'programState'
+  'programState',
 ];
+
 export class EncounterFormProcessor extends FormProcessor {
   prepareFormSchema(schema: FormSchema) {
     schema.pages.forEach((page) => {
@@ -105,6 +106,7 @@ export class EncounterFormProcessor extends FormProcessor {
         });
       }
     }
+
     return schema;
   }
 

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dropdown as DropdownInput, Layer } from '@carbon/react';
 import { shouldUseInlineLayout } from '../../../utils/form-helper';
@@ -17,6 +17,8 @@ const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warning
 
   const handleChange = useCallback(
     ({ selectedItem }) => {
+      console.log(selectedItem);
+      console.log(selectedItem === NullSelectOption ? null : selectedItem);
       setFieldValue(selectedItem === NullSelectOption ? null : selectedItem);
     },
     [setFieldValue],
