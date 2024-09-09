@@ -23,7 +23,7 @@ describe('conditionalAnsweredValidator', () => {
       referenceQuestionId: 'referenceQuestionId',
       referenceQuestionAnswers: ['answer1', 'answer2'],
       values: { referenceQuestionId: 'answer1' },
-      fields: [{ id: 'referenceQuestionId' }],
+      formFields: [{ id: 'referenceQuestionId' }],
       message: 'Invalid value selected',
     };
   });
