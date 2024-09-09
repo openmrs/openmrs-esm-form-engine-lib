@@ -28,6 +28,7 @@ const useInitialValues = (
         .catch((error) => {
           console.error(error);
           setError(error);
+          setIsLoadingInitialValues(false);
         });
     }
   }, [formProcessor, isLoadingContextDependencies, context]);
