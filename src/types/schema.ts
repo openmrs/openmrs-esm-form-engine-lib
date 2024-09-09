@@ -1,6 +1,5 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { type OpenmrsEncounter } from './domain';
-import { type ValidationResult } from '..';
 
 export interface FormSchema {
   name: string;
@@ -86,19 +85,6 @@ export interface FormField {
   constrainMaxWidth?: boolean;
   inlineMultiCheckbox?: boolean;
   meta?: QuestionMetaProps;
-}
-
-export interface FormFieldInputProps {
-  value: any;
-  field: FormField;
-  errors: ValidationResult[];
-  warnings: ValidationResult[];
-  /**
-   * Callback function to handle changes to the field value in the React Hook Form context.
-   *
-   * @param value - The new value of the field.
-   */
-  setFieldValue: (value: any) => void;
 }
 
 export interface HideProps {

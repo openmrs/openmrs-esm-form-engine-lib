@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import { type LayoutType } from '@openmrs/esm-framework';
 import { type FormField, type FormPage, type FormSection, type SessionMode } from '../types';
 import { isEmpty } from '../validators/form-validator';
@@ -56,17 +55,6 @@ export function findPagesWithErrors(pages: Set<FormPage>, errorFields: FormField
     });
   }
   return pagesWithErrors;
-}
-
-export function parseToLocalDateTime(dateString: string): Date {
-  const dateObj = dayjs(dateString).toDate();
-  try {
-    const localTimeTokens = dateString.split('T')[1].split(':');
-    dateObj.setHours(parseInt(localTimeTokens[0]), parseInt(localTimeTokens[1]), 0);
-  } catch (e) {
-    console.error(e);
-  }
-  return dateObj;
 }
 
 export function evalConditionalRequired(field: FormField, allFields: FormField[], formValues: Record<string, any>) {

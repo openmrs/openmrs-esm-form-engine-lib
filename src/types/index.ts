@@ -110,6 +110,19 @@ export interface PostSubmissionAction {
   ): void;
 }
 
+export interface FormFieldInputProps {
+  value: any;
+  field: FormField;
+  errors: ValidationResult[];
+  warnings: ValidationResult[];
+  /**
+   * Callback function to handle changes to the field value in the React Hook Form context.
+   *
+   * @param value - The new value of the field.
+   */
+  setFieldValue: (value: any) => void;
+}
+
 /**
  * Field validator
  */

@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { type FormField, type OpenmrsObs, type RenderType } from '../types';
 import { isEmpty } from '../validators/form-validator';
 
@@ -52,4 +53,15 @@ export function hasSubmission(field: FormField) {
 
 export function isViewMode(sessionMode: string) {
   return sessionMode === 'view' || sessionMode === 'embedded-view';
+}
+
+export function parseToLocalDateTime(dateString: string): Date {
+  const dateObj = dayjs(dateString).toDate();
+  try {
+    const localTimeTokens = dateString.split('T')[1].split(':');
+    dateObj.setHours(parseInt(localTimeTokens[0]), parseInt(localTimeTokens[1]), 0);
+  } catch (e) {
+    console.error(e);
+  }
+  return dateObj;
 }
