@@ -16,11 +16,10 @@ import { hasRendering } from '../../../utils/common-utils';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import { isEmpty } from '../../../validators/form-validator';
 import PreviousValueReview from '../../previous-value-review/previous-value-review.component';
-import { getRegisteredControl } from '../../../registry/registry';
+import { getFieldControlWithFallback, getRegisteredControl } from '../../../registry/registry';
 import styles from './form-field-renderer.scss';
 import { isTrue } from '../../../utils/boolean-utils';
 import UnspecifiedField from '../../inputs/unspecified/unspecified.component';
-import { getFieldControlWithFallback } from '../../../utils/form-helper';
 import { handleFieldLogic } from './fieldLogic';
 
 export interface FormFieldRendererProps {
