@@ -1,8 +1,19 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
 import { type EncounterContext, FormContext } from '../../../form-context';
-import Dropdown from './dropdown.component';
 import { type FormField } from '../../../types';
+import { mockVisit } from '__mocks__/visit.mock';
+import { mockPatient } from '__mocks__/patient.mock';
+import dropdownFormSchema from '__mocks__/forms/rfe-forms/dropdown-form.json';
+import Dropdown from './dropdown.component';
+import { FormEngine, type FormSchema } from 'src';
+import { mockSessionDataResponse } from '__mocks__/session.mock';
+global.ResizeObserver = require('resize-observer-polyfill');
+
+const mockOpenmrsFetch = jest.mocked(openmrsFetch);
+const mockUseSession = jest.mocked(useSession);
+const mockUsePatient = jest.mocked(usePatient);
 
 const question: FormField = {
   label: 'Patient past program.',
@@ -50,18 +61,42 @@ const encounterContext: EncounterContext = {
   setEncounterRole: jest.fn,
 };
 
-const renderForm = (initialValues) => {
-  render(<></>);
+const renderForm = async () => {
+  await act(() =>
+  render(
+    <FormEngine
+      formJson={dropdownFormSchema as FormSchema}
+      formUUID={null}
+      patientUUID={encounterContext.patient.id}
+      formSessionIntent={undefined}
+      visit={mockVisit}
+    />
+  ));
 };
 
-describe.skip('dropdown input field', () => {
+describe('dropdown input field', () => {
+  beforeEach(() => {
+    mockOpenmrsFetch.mockResolvedValue({
+      data: { results: [{ ...dropdownFormSchema }] },
+    } as unknown as FetchResponse);
+
+    mockUseSession.mockReturnValue(mockSessionDataResponse.data);
+
+    mockUsePatient.mockReturnValue({
+      isLoading: false,
+      patient: mockPatient,
+      patientUuid: mockPatient.id,
+      error: null,
+    });
+  });
+
   afterEach(() => {
     // teardown
     question.meta = {};
   });
 
   it('should record new obs', async () => {
-    await renderForm({});
+    await renderForm();
     // setup
     const dropdownWidget = screen.getByRole('combobox', { name: /Patient past program./ });
 
@@ -99,7 +134,7 @@ describe.skip('dropdown input field', () => {
       voided: false,
       value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
     };
-    await renderForm({ 'patient-past-program': question.meta.previousValue.value });
+    await renderForm();
     const dropdownWidget = screen.getByRole('combobox', { name: /Patient past program./ });
 
     // do some edits
@@ -131,7 +166,7 @@ describe.skip('dropdown input field', () => {
       voided: false,
       value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
     };
-    await renderForm({ 'patient-past-program': question.meta.previousValue.value });
+    await renderForm();
     const dropdownWidget = screen.getByRole('combobox', { name: /Patient past program./ });
 
     // select an option first

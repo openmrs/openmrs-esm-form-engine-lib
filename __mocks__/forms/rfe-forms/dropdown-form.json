@@ -1,0 +1,46 @@
+{
+  "name": "Dropdown Test form",
+  "pages": [
+    {
+      "label": "One",
+      "sections": [
+        {
+          "label": "Section One",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Patient past program.",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "select",
+                "concept": "1c43b05b-b6d8-4eb5-8f37-0b14f5347568",
+                "answers": [
+                  {
+                    "label": "HIV Care and Treatment",
+                    "value": "6ddd933a-e65c-4f35-8884-c555b50c55e1"
+                  },
+                  {
+                    "label": "Oncology Screening and Diagnosis Program",
+                    "value": "12f7be3d-fb5d-47dc-b5e3-56c501be80a6"
+                  },
+                  {
+                    "label": "Fight Malaria Initiative",
+                    "value": "14cd2628-8a33-4b93-9c10-43989950bba0"
+                  }
+                ]
+              },
+              "meta": {},
+              "id": "patient-past-program"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "encounterType": "e22e39fd-7db2-45e7-80f1-60fa0d5a4378",
+  "referencedForms": [],
+  "uuid": "0859d9ad-2ed4-48db-96eb-7b0ce0c9903e",
+  "description": "A form having a select field for testing purposes",
+  "version": "1.0"
+}
