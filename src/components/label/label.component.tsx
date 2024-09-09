@@ -10,7 +10,7 @@ type LabelProps = {
 const LabelField: React.FC<LabelProps> = ({ value, tooltipText }) => {
   return (
     <div className={styles.label}>
-      <DefinitionTooltip direction="bottom" tabIndex={0} tooltipText={tooltipText}>
+      <DefinitionTooltip direction="bottom" tabIndex={0} definition={tooltipText}>
         <span className="cds--label">{`${value}:`}</span>
       </DefinitionTooltip>
     </div>

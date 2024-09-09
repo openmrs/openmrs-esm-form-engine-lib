@@ -37,7 +37,7 @@ const Radio: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, 
         legendText={<FieldLabel field={field} />}
         className={styles.boldedLegend}
         disabled={field.isDisabled}
-        invalid={errors.length > 0}>
+        invalid={errors?.length > 0}>
         <RadioButtonGroup
           name={field.id}
           valueSelected={value}
