@@ -117,7 +117,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
                 items={selectOptions}
                 initialSelectedItems={initiallySelectedQuestionItems}
                 label={''}
-                titleText={label}
+                titleText={<FieldLabel field={field} />}
                 key={counter}
                 itemToString={(item) => (item ? item.label : ' ')}
                 disabled={field.isDisabled}
