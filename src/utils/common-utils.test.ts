@@ -1,4 +1,11 @@
-import { flattenObsList, hasRendering, clearSubmission, gracefullySetSubmission, hasSubmission } from './common-utils';
+import {
+  flattenObsList,
+  hasRendering,
+  clearSubmission,
+  gracefullySetSubmission,
+  hasSubmission,
+  parseToLocalDateTime,
+} from './common-utils';
 import { isEmpty } from '../validators/form-validator';
 import { type FormField, type OpenmrsObs } from '../types';
 import { obsList } from '__mocks__/forms/rfe-forms/obs-list-data';
@@ -132,5 +139,34 @@ describe('utils functions', () => {
 
       expect(hasSubmission(field)).toBe(false);
     });
+  });
+});
+
+describe('parseToLocalDateTime', () => {
+  it('should parse valid date string with time correctly', () => {
+    const dateString = '2023-06-27T14:30:00';
+    const expectedDate = new Date(2023, 5, 27, 14, 30, 0);
+    const parsedDate = parseToLocalDateTime(dateString);
+
+    expect(parsedDate).toEqual(expectedDate);
+  });
+
+  it('should parse valid date string without time correctly', () => {
+    const dateString = '2023-06-27';
+    const expectedDate = new Date(2023, 5, 27);
+    const parsedDate = parseToLocalDateTime(dateString);
+
+    // Set hours, minutes, and seconds to 0 since the input doesn't contain time
+    expectedDate.setHours(0, 0, 0, 0);
+
+    expect(parsedDate).toEqual(expectedDate);
+  });
+
+  it('should handle invalid date string format gracefully', () => {
+    const dateString = 'invalid-date-string';
+    const parsedDate = parseToLocalDateTime(dateString);
+
+    // Check if the parsedDate is an Invalid Date
+    expect(isNaN(parsedDate.getTime())).toBe(true);
   });
 });
