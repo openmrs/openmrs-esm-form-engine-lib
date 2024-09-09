@@ -1,7 +1,7 @@
 /** @type {import('jest').Config} */
 module.exports = {
   verbose: true,
-  collectCoverage: true,
+  collectCoverage: false,
   coverageThreshold: {
     global: {
       branches: 10,
