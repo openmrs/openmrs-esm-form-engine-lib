@@ -1,4 +1,5 @@
 import {
+  type FormField,
   type DataSource,
   type FormFieldValidator,
   type FormSchemaTransformer,
@@ -132,6 +133,26 @@ export async function getRegisteredControl(renderType: string) {
   return component;
 }
 
+/**
+ * Retrieves the appropriate field control for a question, considering missing concepts.
+ * If the question is of type 'obs' and has a missing concept, it falls back to a disabled text input.
+ * Otherwise, it retrieves the registered control based on the rendering specified in the question.
+ * @param question - The FormField representing the question.
+ * @returns The field control to be used for rendering the question.
+ */
+export function getFieldControlWithFallback(question: FormField) {
+  // Check if the question has a missing concept
+  if (hasMissingConcept(question)) {
+    // If so, render a disabled text input
+    question.disabled = true;
+    question.isDisabled = true;
+    return getRegisteredControl('text');
+  }
+
+  // Retrieve the registered control based on the specified rendering
+  return getRegisteredControl(question.questionOptions.rendering);
+}
+
 export async function getRegisteredFieldValueAdapter(type: string): Promise<FormFieldValueAdapter> {
   if (registryCache.fieldValueAdapters[type]) {
     return registryCache.fieldValueAdapters[type];
@@ -258,4 +279,10 @@ function getFormsStore(): FormsRegistryStoreState {
     dataSources: [],
     formSchemaTransformers: [],
   }).getState();
+}
+
+function hasMissingConcept(question: FormField) {
+  return (
+    question.type == 'obs' && !question.questionOptions.concept && question.questionOptions.rendering !== 'fixed-value'
+  );
 }
