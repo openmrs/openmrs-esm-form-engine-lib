@@ -1,104 +1,198 @@
 import React from 'react';
-import { render, fireEvent, screen, act } from '@testing-library/react';
-import { type EncounterContext } from '../../../form-context';
-import { type FormField } from '../../../types';
+import { render, screen, act } from '@testing-library/react';
+import TextField from './text.component';
+import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
+import { mockSessionDataResponse } from '__mocks__/session.mock';
+import { mockPatient } from '__mocks__/patient.mock';
+import { mockVisit } from '__mocks__/visit.mock';
+import textFieldFormJson from '__mocks__/forms/rfe-forms/sample_fields.json';
+import { useFormProviderContext } from 'src/provider/form-provider';
+import userEvent from '@testing-library/user-event';
 
-const question: FormField = {
-  label: 'Patient Name',
-  id: 'patient-name',
-  type: 'obs',
-  questionOptions: {
-    rendering: 'text',
-    concept: 'your_concept_uuid_here',
+const mockOpenmrsFetch = jest.mocked(openmrsFetch);
+const mockUseSession = jest.mocked(useSession);
+const mockUsePatient = jest.mocked(usePatient);
+const mockSetFieldValue = jest.fn();
+
+jest.mock('../../../api', () => {
+  const originalModule = jest.requireActual('../../../api');
+
+  return {
+    ...originalModule,
+    getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(null)),
+  };
+});
+
+jest.mock('src/provider/form-provider', () => ({
+  useFormProviderContext: jest.fn(),
+}));
+
+const mockUseFormProviderContext = useFormProviderContext as jest.Mock;
+
+const textValues = {
+  field: {
+    label: 'Indicate your notes',
+    type: 'obs',
+    required: false,
+    id: 'indicateNotes',
+    questionOptions: {
+      rendering: 'text',
+      concept: '160632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      conceptMappings: [
+        {
+          relationship: 'SAME-AS',
+          type: 'CIEL',
+          value: '160632',
+        },
+        {
+          relationship: 'SAME-AS',
+          type: 'AMPATH',
+          value: '1915',
+        },
+        {
+          relationship: 'BROADER-THAN',
+          type: 'LOINC',
+          value: '48767-8',
+        },
+      ],
+      answers: [],
+    },
+    meta: {
+      submission: {
+        newValue: null,
+      },
+      concept: {
+        uuid: '160632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        display: 'Free text general',
+        conceptClass: {
+          uuid: '8d491e50-c2cc-11de-8d13-0010c6dffd0f',
+          display: 'Question',
+        },
+        answers: [],
+        conceptMappings: [
+          {
+            conceptReferenceTerm: {
+              conceptSource: {
+                name: 'CIEL',
+              },
+              code: '160632',
+            },
+          },
+          {
+            conceptReferenceTerm: {
+              conceptSource: {
+                name: 'AMPATH',
+              },
+              code: '1915',
+            },
+          },
+          {
+            conceptReferenceTerm: {
+              conceptSource: {
+                name: 'LOINC',
+              },
+              code: '48767-8',
+            },
+          },
+        ],
+      },
+    },
+    validators: [
+      {
+        type: 'form_field',
+      },
+      {
+        type: 'default_value',
+      },
+    ],
+    isHidden: false,
+    isRequired: false,
+    isDisabled: false,
   },
-  meta: {},
+  value: null,
+  errors: [],
+  warnings: [],
+  setFieldValue: mockSetFieldValue,
 };
 
-const question2: FormField = {
-  label: 'Patient Name',
-  id: 'patient-name',
-  type: 'obs',
-  questionOptions: {
-    rendering: 'text',
-    concept: 'your_concept_uuid_here',
-  },
-  meta: {},
+const renderForm = async (props) => {
+  await act(() => render(<TextField {...props} />));
 };
 
-const encounterContext: EncounterContext = {
-  patient: {
-    id: '833db896-c1f0-11eb-8529-0242ac130003',
-  },
-  location: {
-    uuid: '41e6e516-c1f0-11eb-8529-0242ac130003',
-  },
-  encounter: {
-    uuid: '873455da-3ec4-453c-b565-7c1fe35426be',
-    obs: [],
-  },
+let formProcessor;
+
+const mockProviderValues = {
+  layoutType: 'small-desktop',
   sessionMode: 'enter',
-  encounterDate: new Date(2020, 11, 29),
-  setEncounterDate: (value) => {},
-  encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
-  setEncounterProvider: jest.fn,
-  setEncounterLocation: jest.fn,
-  encounterRole: '8cb3a399-d18b-4b62-aefb-5a0f948a3809',
-  setEncounterRole: jest.fn,
+  workspaceLayout: 'minimized',
+  formFieldAdapters: {},
+  patient: mockPatient,
+  methods: undefined,
+  formJson: textFieldFormJson as any,
+  visit: mockVisit,
+  sessionDate: new Date(),
+  location: mockVisit.location,
+  currentProvider: mockVisit.encounters[0]?.encounterProvider,
+  processor: formProcessor,
 };
 
-const renderForm = (intialValues) => {
-  render(<></>);
-};
-
-describe.skip('Text field input', () => {
-  afterEach(() => {
-    question.meta = {};
+describe('Text field input', () => {
+  const user = userEvent.setup();
+  beforeEach(() => {
+    formProcessor = {
+      getInitialValues: jest.fn(),
+    };
+    mockOpenmrsFetch.mockResolvedValue({
+      data: { results: [{ ...textFieldFormJson }] },
+    } as unknown as FetchResponse);
+    mockUseSession.mockReturnValue(mockSessionDataResponse.data);
+    mockUsePatient.mockReturnValue({
+      isLoading: false,
+      patient: mockPatient,
+      patientUuid: mockPatient.id,
+      error: null,
+    });
+    mockUseFormProviderContext.mockReturnValue({
+      ...mockProviderValues,
+      setFieldValue: mockSetFieldValue,
+    });
   });
 
   it('should record new obs', async () => {
-    await renderForm({});
-    const inputField = screen.getByLabelText('Patient Name');
+    await renderForm(textValues);
+    const inputField = screen.getByLabelText('Indicate your notes');
 
-    await act(async () => {
-      expect(question.meta.submission).toBe(undefined);
-    });
+    await user.type(inputField, 'Updated patient notese');
 
-    fireEvent.change(inputField, { target: { value: 'John Doe' } });
-    fireEvent.blur(inputField);
-
-    await act(async () => {
-      expect(question.meta.submission.newValue).toEqual({
-        concept: 'your_concept_uuid_here',
-        formFieldNamespace: 'rfe-forms',
-        formFieldPath: 'rfe-forms-patient-name',
-        value: 'John Doe',
-      });
-    });
+    expect(mockSetFieldValue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        target: expect.objectContaining({
+          value: 'Updated patient notese',
+        }),
+      }),
+    );
   });
 
-  it('should edit obs', async () => {
-    question.meta.previousValue = {
-      person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.encounterDate,
-      concept: 'your_concept_uuid_here',
-      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-      order: null,
-      groupMembers: [],
-      voided: false,
-      value: 'Initial Name',
-    };
-    await renderForm({ 'patient-name': question.meta.previousValue });
-    const inputField = screen.getByLabelText('Patient Name');
-
-    fireEvent.change(inputField, { target: { value: 'Updated Name' } });
-    fireEvent.blur(inputField);
-
-    await act(async () => {
-      expect(question.meta.submission.newValue).toEqual({
-        value: 'Updated Name',
-        formFieldNamespace: 'rfe-forms',
-        formFieldPath: 'rfe-forms-patient-name',
-      });
+  it('should have value passed in as prop', async () => {
+    await renderForm({
+      ...textValues,
+      value: 'Initial patient notes',
     });
+    const inputField = screen.getByLabelText('Indicate your notes');
+
+    expect(inputField).toHaveValue('Initial patient notes');
+  });
+
+  it('should disable field', async () => {
+    await renderForm({
+      ...textValues,
+      field: {
+        ...textValues.field,
+        isDisabled: true,
+      },
+    });
+    const inputField = screen.getByLabelText('Indicate your notes');
+
+    expect(inputField).toBeDisabled();
   });
 });
