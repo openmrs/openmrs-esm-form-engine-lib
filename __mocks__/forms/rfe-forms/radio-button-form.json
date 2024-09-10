@@ -1,0 +1,198 @@
+{
+  "name": "A Radio Button Test",
+  "pages": [
+    {
+      "label": "Page 1",
+      "sections": [
+        {
+          "label": "1",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Visit type",
+              "type": "obs",
+              "required": "false",
+              "id": "visitType",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "164181AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "conceptMappings": [
+                  {
+                    "relationship": "SAME-AS",
+                    "type": "CIEL",
+                    "value": "164181"
+                  }
+                ],
+                "answers": [
+                  {
+                    "concept": "164180AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "New visit"
+                  },
+                  {
+                    "concept": "160530AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Return visit type"
+                  },
+                  {
+                    "concept": "5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Other"
+                  }
+                ]
+              },
+              "validators": [
+                {
+                  "type": "form_field"
+                },
+                {
+                  "type": "default_value"
+                }
+              ],
+              "meta": {
+                "submission": null,
+                "concept": {
+                  "uuid": "164181AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "display": "Visit type",
+                  "conceptClass": {
+                    "uuid": "8d491e50-c2cc-11de-8d13-0010c6dffd0f",
+                    "display": "Question"
+                  },
+                  "answers": [
+                    {
+                      "uuid": "164180AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                      "display": "New visit"
+                    },
+                    {
+                      "uuid": "160530AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                      "display": "Return visit type"
+                    },
+                    {
+                      "uuid": "5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                      "display": "Other"
+                    }
+                  ],
+                  "conceptMappings": [
+                    {
+                      "conceptReferenceTerm": {
+                        "conceptSource": {
+                          "name": "CIEL"
+                        },
+                        "code": "164181"
+                      }
+                    }
+                  ]
+                }
+              },
+              "isHidden": false,
+              "isRequired": false,
+              "isDisabled": false
+            },
+            {
+              "label": "Visit punctuality",
+              "type": "obs",
+              "required": false,
+              "id": "visitPunctuality",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "d81d4698-e78c-420d-aac5-cb1f606fb32e",
+                "answers": [
+                  {
+                    "concept": "5c3ce9c9-75bd-4730-8878-08c03ec02e9d",
+                    "label": "Early"
+                  },
+                  {
+                    "concept": "90af4b72-442a-4fcc-84c2-2bb1c0361737",
+                    "label": "Late"
+                  },
+                  {
+                    "concept": "66cdc0a1-aa19-4676-af51-80f66d78d9eb",
+                    "label": "On time"
+                  }
+                ]
+              },
+              "validators": [
+                {
+                  "type": "form_field"
+                },
+                {
+                  "type": "default_value"
+                }
+              ],
+              "meta": {
+                "submission": null,
+                "concept": {
+                  "uuid": "d81d4698-e78c-420d-aac5-cb1f606fb32e",
+                  "display": "Visit Punctuality",
+                  "conceptClass": {
+                    "uuid": "8d491e50-c2cc-11de-8d13-0010c6dffd0f",
+                    "display": "Question"
+                  },
+                  "answers": [
+                    {
+                      "uuid": "66cdc0a1-aa19-4676-af51-80f66d78d9eb",
+                      "display": "On time"
+                    },
+                    {
+                      "uuid": "90af4b72-442a-4fcc-84c2-2bb1c0361737",
+                      "display": "Late"
+                    },
+                    {
+                      "uuid": "5c3ce9c9-75bd-4730-8878-08c03ec02e9d",
+                      "display": "Early"
+                    }
+                  ],
+                  "conceptMappings": []
+                }
+              },
+              "isHidden": false,
+              "isRequired": false,
+              "isDisabled": false
+            }
+          ],
+          "isHidden": false
+        }
+      ],
+      "isHidden": false
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "encounterType": "0e8230ce-bd1d-43f5-a863-cf44344fa4b0",
+  "referencedForms": [],
+  "uuid": "fd067f44-99fd-4b07-b238-cea7b278c2b2",
+  "description": "A Radio Button Test",
+  "version": "1.0",
+  "translations": {},
+  "conceptReferences": {
+    "164181AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA": {
+      "uuid": "164181AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "display": "Visit type"
+    },
+    "164180AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA": {
+      "uuid": "164180AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "display": "New visit"
+    },
+    "160530AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA": {
+      "uuid": "160530AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "display": "Return visit type"
+    },
+    "5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA": {
+      "uuid": "5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "display": "Other"
+    },
+    "d81d4698-e78c-420d-aac5-cb1f606fb32e": {
+      "uuid": "d81d4698-e78c-420d-aac5-cb1f606fb32e",
+      "display": "Visit Punctuality"
+    },
+    "5c3ce9c9-75bd-4730-8878-08c03ec02e9d": {
+      "uuid": "5c3ce9c9-75bd-4730-8878-08c03ec02e9d",
+      "display": "Early"
+    },
+    "90af4b72-442a-4fcc-84c2-2bb1c0361737": {
+      "uuid": "90af4b72-442a-4fcc-84c2-2bb1c0361737",
+      "display": "Late"
+    },
+    "66cdc0a1-aa19-4676-af51-80f66d78d9eb": {
+      "uuid": "66cdc0a1-aa19-4676-af51-80f66d78d9eb",
+      "display": "On time"
+    }
+  },
+  "encounter": ""
+}
