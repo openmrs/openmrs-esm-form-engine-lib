@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import useProcessorDependencies from '../../hooks/useProcessorDependencies';
 import useInitialValues from '../../hooks/useInitialValues';
 import { FormRenderer } from '../renderer/form/form-renderer.component';
-import { type FormSchema, type FormProcessorContextProps } from '../../types';
+import { type FormSchema, type FormProcessorContextProps, type FormPage } from '../../types';
 import { CustomHooksRenderer } from '../renderer/custom-hooks-renderer.component';
 import { useFormFields } from '../../hooks/useFormFields';
 import { useConcepts } from '../../hooks/useConcepts';
@@ -20,12 +20,14 @@ interface FormProcessorFactoryProps {
   formJson: FormSchema;
   isSubForm?: boolean;
   setIsLoadingFormDependencies: (isLoading: boolean) => void;
+  setScrollablePages?: (pages: Set<FormPage>) => void;
 }
 
 const FormProcessorFactory = ({
   formJson,
   isSubForm = false,
   setIsLoadingFormDependencies,
+  setScrollablePages,
 }: FormProcessorFactoryProps) => {
   const { patient, sessionMode, formProcessors, layoutType, location, provider, sessionDate, visit } = useFormFactory();
 
@@ -118,6 +120,7 @@ const FormProcessorFactory = ({
           processorContext={processorContext}
           initialValues={initialValues}
           setIsLoadingFormDependencies={setIsLoadingFormDependencies}
+          setScrollablePages={setScrollablePages}
         />
       )}
     </>

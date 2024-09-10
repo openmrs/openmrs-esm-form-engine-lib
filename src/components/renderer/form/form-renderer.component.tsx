@@ -7,16 +7,17 @@ import { useEvaluateFormFieldExpressions } from '../../../hooks/useEvaluateFormF
 import { useFormFactory } from '../../../provider/form-factory-provider';
 import { FormProvider, type FormContextProps } from '../../../provider/form-provider';
 import { isTrue } from '../../../utils/boolean-utils';
-import { type FormProcessorContextProps } from '../../../types';
+import { type FormPage, type FormProcessorContextProps } from '../../../types';
 import { useFormStateHelpers } from '../../../hooks/useFormStateHelpers';
 
 export type FormRendererProps = {
   processorContext: FormProcessorContextProps;
   initialValues: Record<string, any>;
   setIsLoadingFormDependencies: (isLoading: boolean) => void;
+  setScrollablePages?: (pages: Set<FormPage>) => void;
 };
 
-export const FormRenderer = ({ processorContext, initialValues, setIsLoadingFormDependencies }: FormRendererProps) => {
+export const FormRenderer = ({ processorContext, initialValues, setIsLoadingFormDependencies, setScrollablePages }: FormRendererProps) => {
   const { evaluatedFields, evaluatedFormJson } = useEvaluateFormFieldExpressions(initialValues, processorContext);
   const { registerForm, setIsFormDirty, workspaceLayout } = useFormFactory();
   const methods = useForm({

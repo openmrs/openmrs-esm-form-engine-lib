@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { FormField, SessionMode, FormSchema } from './types';
+import type { FormField, SessionMode, FormSchema, FormPage } from './types';
 import { useSession, type Visit } from '@openmrs/esm-framework';
 import { useFormJson } from '.';
 import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
@@ -16,6 +16,8 @@ import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.compo
 import { init, teardown } from './lifecycle';
 import { reportError } from './utils/error-utils';
 import { moduleName } from './globals';
+import Sidebar from './components/sidebar/sidebar.component';
+import { useFormCollapse } from './hooks/useFormCollapse';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -59,7 +61,6 @@ const FormEngine = ({
   const workspaceLayout = useWorkspaceLayout(ref);
   const { patient, isLoadingPatient } = usePatientData(patientUUID);
   const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
   // TODO: Updating this prop triggers a rerender of the entire form. This means whenever we scroll into a new page, the form is rerendered.
@@ -70,6 +71,16 @@ const FormEngine = ({
     isLoading: isLoadingFormJson,
     formError,
   } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent);
+  const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(mode);
+
+  const [scrollablePages, setScrollablePages] = useState(new Set<FormPage>());
+  const [selectedPage, setSelectedPage] = useState('');
+  const [isLoadingFormDependencies, setIsLoadingFormDependencies] = useState(true);
+  const [pagesWithErrors, setPagesWithErrors] = useState([]);
+
+  const showSidebar = useMemo(() => {
+    return workspaceLayout !== 'minimized' && scrollablePages.size > 1 && mode !== 'embedded-view';
+  }, [workspaceLayout, scrollablePages.size, mode]);
 
   const showPatientBanner = useMemo(() => {
     return patient && workspaceLayout !== 'minimized' && mode !== 'embedded-view';
@@ -134,7 +145,22 @@ const FormEngine = ({
               </div>
             )}
             <div className={styles.formContent}>
-              {showSidebar && <div>{/* Side bar goes here */}</div>}
+              {showSidebar &&
+                <Sidebar
+                  isFormSubmitting={isSubmitting}
+                  pagesWithErrors={pagesWithErrors}
+                  scrollablePages={scrollablePages}
+                  selectedPage={selectedPage}
+                  mode={mode}
+                  onCancel={onCancel}
+                  handleClose={handleClose}
+                  values={formJson} // TBD - why do we need this?
+                  setValues={() => {} } // TBD - why do we need this?
+                  allowUnspecifiedAll={formJson.allowUnspecifiedAll}
+                  defaultPage={formJson.defaultPage}
+                  hideFormCollapseToggle={hideFormCollapseToggle}
+                />
+              }
               <div className={styles.formContentInner}>
                 {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow />}
                 {refinedFormJson.markdown && (
@@ -146,6 +172,7 @@ const FormEngine = ({
                   <FormProcessorFactory
                     formJson={refinedFormJson}
                     setIsLoadingFormDependencies={setIsLoadingDependencies}
+                    setScrollablePages={setScrollablePages}
                   />
                 </div>
                 {showButtonSet && (
@@ -155,7 +182,7 @@ const FormEngine = ({
                       onClick={() => {
                         onCancel && onCancel();
                         handleClose && handleClose();
-                        // TODO: hideFormCollapseToggle();
+                        hideFormCollapseToggle();
                       }}>
                       {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
                     </Button>
