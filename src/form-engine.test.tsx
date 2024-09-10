@@ -1,7 +1,7 @@
 import React from 'react';
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
-import { act, cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import {
   createErrorHandler,
   createGlobalStore,
@@ -26,20 +26,30 @@ import { evaluatePostSubmissionExpression } from './utils/post-submission-action
 import { mockPatient } from '__mocks__/patient.mock';
 import { mockSessionDataResponse } from '__mocks__/session.mock';
 import { mockVisit } from '__mocks__/visit.mock';
+// import ageValidationForm from '__mocks__/forms/rfe-forms/age-validation-form.json';
+// import bmiForm from '__mocks__/forms/rfe-forms/bmi-test-form.json';
+// import bsaForm from '__mocks__/forms/rfe-forms/bsa-test-form.json';
 import demoHtsForm from '__mocks__/forms/rfe-forms/demo_hts-form.json';
 import demoHtsOpenmrsForm from '__mocks__/forms/afe-forms/demo_hts-form.json';
+// import eddForm from '__mocks__/forms/rfe-forms/edd-test-form.json';
+// import externalDataSourceForm from '__mocks__/forms/rfe-forms/external_data_source_form.json';
 import filterAnswerOptionsTestForm from '__mocks__/forms/rfe-forms/filter-answer-options-test-form.json';
 import htsPocForm from '__mocks__/packages/hiv/forms/hts_poc/1.1.json';
 import labourAndDeliveryTestForm from '__mocks__/forms/rfe-forms/labour_and_delivery_test_form.json';
 import mockConceptsForm from '__mocks__/concepts.mock.json';
+// import monthsOnArtForm from '__mocks__/forms/rfe-forms/months-on-art-form.json';
+// import nextVisitForm from '__mocks__/forms/rfe-forms/next-visit-test-form.json';
 import obsGroupTestForm from '__mocks__/forms/rfe-forms/obs-group-test_form.json';
 import postSubmissionTestForm from '__mocks__/forms/rfe-forms/post-submission-test-form.json';
 import referenceByMappingForm from '__mocks__/forms/rfe-forms/reference-by-mapping-form.json';
 import sampleFieldsForm from '__mocks__/forms/rfe-forms/sample_fields.json';
 import testEnrolmentForm from '__mocks__/forms/rfe-forms/test-enrolment-form.json';
+// import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-form.json';
+import historicalExpressionsForm from '__mocks__/forms/rfe-forms/historical-expressions-form.json';
 import mockHxpEncounter from '__mocks__/forms/rfe-forms/mockHistoricalvisitsEncounter.json';
 import requiredTestForm from '__mocks__/forms/rfe-forms/required-form.json';
 import conditionalRequiredTestForm from '__mocks__/forms/rfe-forms/conditional-required-form.json';
+// import conditionalAnsweredForm from '__mocks__/forms/rfe-forms/conditional-answered-form.json';
 import FormEngine from './form-engine.component';
 import { type FormsRegistryStoreState } from './registry/registry';
 
@@ -269,26 +279,23 @@ describe('Form engine component', () => {
   //   });
   // });
 
-  // describe('historical expressions', () => {
-  //   it('should ascertain getPreviousEncounter() returns an encounter and the historical expression displays on the UI', async () => {
-  //     const user = userEvent.setup();
-  //
-  //     renderForm(null, historicalExpressionsForm, 'COVID Assessment');
-  //
-  //     //ascertain form has rendered
-  //     await screen.findByRole('combobox', { name: /Reasons for assessment/i });
-  //
-  //     //ascertain function fetching the encounter has been called
-  //     expect(api.getPreviousEncounter).toHaveBeenCalled();
-  //     expect(api.getPreviousEncounter).toHaveReturnedWith(Promise.resolve(mockHxpEncounter));
-  //
-  //     const reuseValueButton = screen.getByRole('button', { name: /reuse value/i });
-  //     const evaluatedHistoricalValue = screen.getByText(/Entry into a country/i);
-  //
-  //     expect(reuseValueButton).toBeInTheDocument;
-  //     expect(evaluatedHistoricalValue).toBeInTheDocument;
-  //   });
-  // });
+  describe('historical expressions', () => {
+    it('should ascertain getPreviousEncounter() returns an encounter and the historical expression displays on the UI', async () => {
+      const user = userEvent.setup();
+
+      renderForm(null, historicalExpressionsForm, 'COVID Assessment');
+
+      //ascertain form has rendered
+      await screen.findByRole('combobox', { name: /Reasons for assessment/i });
+
+      //ascertain function fetching the encounter has been called
+      expect(api.getPreviousEncounter).toHaveBeenCalled();
+      expect(api.getPreviousEncounter).toHaveReturnedWith(Promise.resolve(mockHxpEncounter));
+
+      expect(screen.getByRole('button', { name: /reuse value/i })).toBeInTheDocument;
+      await waitFor(() => expect(screen.getByText(/Entry into a country/i)));
+    });
+  });
 
   describe('Form submission', () => {
     it('should validate required field on form submission', async () => {
@@ -354,8 +361,8 @@ describe('Form engine component', () => {
     //   // TODO: Temporarily disabling this until the core date picker mock gets fixed
     //   // Issue - https://openmrs.atlassian.net/browse/O3-3479
     //   // Validate date field
-    //   // const dateInputField = await screen.getByLabelText(/If Unscheduled, actual scheduled date/i);
-    //   // expect(dateInputField).toHaveClass('cds--date-picker__input--invalid');
+    //   const dateInputField = screen.getByLabelText(/If Unscheduled, actual scheduled date/i);
+    //   expect(dateInputField).toHaveClass('cds--date-picker__input--invalid');
     //   const errorMessage = await screen.findByText(
     //     'Patient visit marked as unscheduled. Please provide the scheduled date.',
     //   );
