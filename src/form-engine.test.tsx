@@ -117,10 +117,19 @@ jest.mock('./hooks/useEncounterRole', () => ({
 }));
 
 jest.mock('./hooks/useConcepts', () => ({
-  useConcepts: jest.fn().mockReturnValue({
-    isLoading: false,
-    concepts: undefined,
-    error: false,
+  useConcepts: jest.fn().mockImplementation((references: Set<string>) => {
+    if ([...references].join(',').includes('PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH')) {
+      return {
+        isLoading: false,
+        concepts: mockConceptsForm.results,
+        error: undefined,
+      };
+    }
+    return {
+      isLoading: false,
+      concepts: undefined,
+      error: undefined,
+    };
   }),
 }));
 
@@ -247,26 +256,26 @@ describe('Form engine component', () => {
       expect(screen.getByText(/no/i)).toBeInTheDocument();
 
       await user.click(screen.getByRole('option', { name: /no/i }));
-      // await user.click(screen.getByText(/No/i));
-      //
-      // await user.click(hospitalizationReasonDropdown);
-      //
-      // expect(screen.getByText(/Maternal Visit/i)).toBeInTheDocument();
-      // expect(screen.getByText(/Emergency Visit/i)).toBeInTheDocument();
-      // expect(screen.getByText(/Unscheduled visit late/i)).toBeInTheDocument();
-      //
-      // await user.click(screen.getByText(/Maternal Visit/i));
-      //
-      // const errorMessage = screen.getByText(
-      //   /Providing diagnosis but didn't answer that patient was hospitalized in question/i,
-      // );
-      //
-      // expect(errorMessage).toBeInTheDocument();
-      //
-      // await user.click(hospitalizationHistoryDropdown);
-      // await user.click(screen.getByText(/yes/i));
-      //
-      // expect(errorMessage).not.toBeInTheDocument();
+      await user.click(screen.getByText(/No/i));
+
+      await user.click(hospitalizationReasonDropdown);
+
+      expect(screen.getByText(/Maternal Visit/i)).toBeInTheDocument();
+      expect(screen.getByText(/Emergency Visit/i)).toBeInTheDocument();
+      expect(screen.getByText(/Unscheduled visit late/i)).toBeInTheDocument();
+
+      await user.click(screen.getByText(/Maternal Visit/i));
+
+      const errorMessage = screen.getByText(
+        /Providing diagnosis but didn't answer that patient was hospitalized in question/i,
+      );
+
+      expect(errorMessage).toBeInTheDocument();
+
+      await user.click(hospitalizationHistoryDropdown);
+      await user.click(screen.getByText(/yes/i));
+
+      expect(errorMessage).not.toBeInTheDocument();
     });
   });
 
@@ -783,12 +792,6 @@ describe('Form engine component', () => {
   });
 
   describe('Concept references', () => {
-    const conceptResourcePath = when((url: string) =>
-      url.includes(`${restBaseUrl}/concept?references=PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH`),
-    );
-
-    when(mockOpenmrsFetch).calledWith(conceptResourcePath).mockReturnValue({ data: mockConceptsForm });
-
     it('should add default labels based on concept display and substitute mapping references with uuids', async () => {
       await act(async () => renderForm(null, referenceByMappingForm));
 

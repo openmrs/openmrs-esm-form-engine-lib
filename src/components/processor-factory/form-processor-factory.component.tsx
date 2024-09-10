@@ -62,7 +62,6 @@ const FormProcessorFactory = ({
   const useCustomHooks = processor.getCustomHooks().useCustomHooks;
   const [isLoadingCustomHooks, setIsLoadingCustomHooks] = useState(!!useCustomHooks);
   const [isLoadingProcessorDependencies, setIsLoadingProcessorDependencies] = useState(true);
-
   const {
     isLoadingInitialValues,
     initialValues,
