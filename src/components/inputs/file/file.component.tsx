@@ -3,7 +3,7 @@ import { FileUploader, Button } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { isTrue } from '../../../utils/boolean-utils';
 import Camera from './camera/camera.component';
-import { Close, DocumentPdf } from '@carbon/react/icons';
+import { Close, DocumentPdf, TrashCan } from '@carbon/react/icons';
 import styles from './file.scss';
 import { type FormFieldInputProps } from '../../../types';
 import { useFormProviderContext } from '../../../provider/form-provider';
@@ -49,6 +49,12 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
     },
     [setFieldValue],
   );
+
+  const handleDeleteFile = useCallback(() => {
+    setImagePreview(null);
+    setFieldValue(null);
+    setDataSource(null);
+  }, [setFieldValue]);
 
   if (isViewMode(sessionMode) && !value) {
     return (
@@ -99,6 +105,14 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
               <img src={value.src} alt="Preview" width="200px" />
             )}
           </div>
+          <Button
+            kind="danger"
+            renderIcon={TrashCan}
+            iconDescription={t('deleteFile', 'Delete file')}
+            onClick={handleDeleteFile}
+          >
+            {t('deleteFile', 'Delete file')}
+          </Button>
         </div>
       )}
       {dataSource === 'filePicker' && (
