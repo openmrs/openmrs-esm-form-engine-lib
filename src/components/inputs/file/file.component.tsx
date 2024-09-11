@@ -49,12 +49,13 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
     },
     [setFieldValue],
   );
-
-  const handleDeleteFile = useCallback(() => {
-    setImagePreview(null);
+  const [clearedFiles, setClearedFiles] = useState([]);
+  const handleClearFile = (fileId) => {
+    setClearedFiles((prevClearedFiles) => [...prevClearedFiles, fileId]);
     setFieldValue(null);
+    setImagePreview(null);
     setDataSource(null);
-  }, [setFieldValue]);
+  };
 
   if (isViewMode(sessionMode) && !value) {
     return (
@@ -93,6 +94,13 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
             {t('cameraCapture', 'Camera capture')}
           </Button>
         </div>
+        {value && (
+          <div className={`${styles.selectorButton} ${styles.clearFileButton}`}>
+            <Button kind="danger" onClick={handleClearFile} renderIcon={TrashCan}>
+              {t('clearFile', 'Clear file')}
+            </Button>
+          </div>
+        )}
       </div>
       {!dataSource && value && (
         <div className={styles.editModeImage}>
@@ -105,14 +113,6 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
               <img src={value.src} alt="Preview" width="200px" />
             )}
           </div>
-          <Button
-            kind="danger"
-            renderIcon={TrashCan}
-            iconDescription={t('deleteFile', 'Delete file')}
-            onClick={handleDeleteFile}
-          >
-            {t('deleteFile', 'Delete file')}
-          </Button>
         </div>
       )}
       {dataSource === 'filePicker' && (
