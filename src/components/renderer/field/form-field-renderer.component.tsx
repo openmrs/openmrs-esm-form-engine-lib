@@ -112,7 +112,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
       value,
       formFieldValidators,
       {
-        fields: formFields,
+        formFields: formFields,
         values: getValues(),
         expressionContext: { patient, mode: sessionMode },
       },
@@ -217,7 +217,7 @@ function ErrorFallback({ error }) {
 }
 
 export interface ValidatorConfig {
-  fields: FormField[];
+  formFields: FormField[];
   values: Record<string, any>;
   expressionContext: {
     patient: fhir.Patient;
