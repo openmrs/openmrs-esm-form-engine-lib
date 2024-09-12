@@ -131,7 +131,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
             setIsSubmitting(false);
             if (errorObject instanceof Error) {
               showToast({
-                title: 'Error processing form submission',
+                title: t('errorProcessingFormSubmission', 'Error processing form submission'),
                 kind: 'error',
                 description: errorObject.message,
                 critical: true,
