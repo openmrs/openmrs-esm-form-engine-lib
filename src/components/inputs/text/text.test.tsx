@@ -162,15 +162,17 @@ describe('Text field input', () => {
     await renderForm(textValues);
     const inputField = screen.getByLabelText('Indicate your notes');
 
-    await user.type(inputField, 'Updated patient notese');
+    await user.type(inputField, 'Updated patient notes');
 
-    expect(mockSetFieldValue).toHaveBeenCalledWith(
-      expect.objectContaining({
-        target: expect.objectContaining({
-          value: 'Updated patient notese',
+    await act(async () => {
+      expect(mockSetFieldValue).toHaveBeenCalledWith(
+        expect.objectContaining({
+          target: expect.objectContaining({
+            value: 'Updated patient notes',
+          }),
         }),
-      }),
-    );
+      );
+    });
   });
 
   it('should have value passed in as prop', async () => {
