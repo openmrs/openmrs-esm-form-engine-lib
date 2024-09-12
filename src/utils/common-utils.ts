@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { type FormField, type OpenmrsObs, type RenderType } from '../types';
 import { isEmpty } from '../validators/form-validator';
-import { formatDate, formatTime } from '@openmrs/esm-framework';
+import { formatDate, type FormatDateOptions } from '@openmrs/esm-framework';
 
 export function flattenObsList(obsList: OpenmrsObs[]): OpenmrsObs[] {
   const flattenedList: OpenmrsObs[] = [];
@@ -68,9 +68,11 @@ export function parseToLocalDateTime(dateString: string): Date {
 }
 
 export function formatDateAsDisplayString(field: FormField, date: Date) {
-  const dateString = formatDate(date);
-  if (field.datePickerFormat == 'both') {
-    return `${dateString} ${formatTime(date)}`;
+  const options: Partial<FormatDateOptions> = { noToday: true };
+  if (field.datePickerFormat === 'calendar') {
+    options.time = false;
+  } else {
+    options.time = true;
   }
-  return dateString;
+  return formatDate(date, options);
 }
