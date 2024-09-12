@@ -164,13 +164,15 @@ describe('Text field input', () => {
 
     await user.type(inputField, 'Updated patient notes');
 
-    expect(mockSetFieldValue).toHaveBeenCalledWith(
-      expect.objectContaining({
-        target: expect.objectContaining({
-          value: 'Updated patient notes',
+    await act(async () => {
+      expect(mockSetFieldValue).toHaveBeenCalledWith(
+        expect.objectContaining({
+          target: expect.objectContaining({
+            value: 'Updated patient notes',
+          }),
         }),
-      }),
-    );
+      );
+    });
   });
 
   it('should have value passed in as prop', async () => {
