@@ -21,7 +21,7 @@ const useProcessorDependencies = (
         })
         .catch((error) => {
           setError(error);
-          reportError(error, 'Load processor dependencies failed');
+          reportError(error, 'Encountered error while loading dependencies');
         });
     }
   }, [loadDependencies]);

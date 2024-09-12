@@ -30,6 +30,7 @@ import { getPreviousEncounter, saveEncounter } from '../../api';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { evaluateAsyncExpression, evaluateExpression, type FormNode } from '../../utils/expression-runner';
 import { hasRendering } from '../../utils/common-utils';
+import { extractObsValueAndDisplay } from '../../utils/form-helper';
 
 function useCustomHooks(context: Partial<FormProcessorContextProps>) {
   const [isLoading, setIsLoading] = useState(true);
@@ -311,7 +312,7 @@ export class EncounterFormProcessor extends FormProcessor {
         patient: patient,
         previousEncounter: previousDomainObjectValue,
       });
-      return value;
+      return extractObsValueAndDisplay(field, value);
     }
     if (previousDomainObjectValue && field.questionOptions.enablePreviousValue) {
       return await adapter.getPreviousValue(field, previousDomainObjectValue, context);

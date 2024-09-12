@@ -1,21 +1,12 @@
 import React from 'react';
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
-import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, within } from '@testing-library/react';
 import {
-  createErrorHandler,
-  createGlobalStore,
-  createUseStore,
   ExtensionSlot,
-  getAsyncLifecycle,
-  getGlobalStore,
   OpenmrsDatePicker,
   openmrsFetch,
-  registerExtension,
   restBaseUrl,
-  showNotification,
-  showToast,
-  useConnectivity,
   usePatient,
   useSession,
 } from '@openmrs/esm-framework';
@@ -37,6 +28,7 @@ import postSubmissionTestForm from '__mocks__/forms/rfe-forms/post-submission-te
 import referenceByMappingForm from '__mocks__/forms/rfe-forms/reference-by-mapping-form.json';
 import sampleFieldsForm from '__mocks__/forms/rfe-forms/sample_fields.json';
 import testEnrolmentForm from '__mocks__/forms/rfe-forms/test-enrolment-form.json';
+import historicalExpressionsForm from '__mocks__/forms/rfe-forms/historical-expressions-form.json';
 import mockHxpEncounter from '__mocks__/forms/rfe-forms/mockHistoricalvisitsEncounter.json';
 import requiredTestForm from '__mocks__/forms/rfe-forms/required-form.json';
 import conditionalRequiredTestForm from '__mocks__/forms/rfe-forms/conditional-required-form.json';
@@ -51,25 +43,14 @@ import nextVisitForm from '__mocks__/forms/rfe-forms/next-visit-test-form.json';
 import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-form.json';
 
 import FormEngine from './form-engine.component';
-import { type FormsRegistryStoreState } from './registry/registry';
 
-const locale = 'en';
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const formsResourcePath = when((url: string) => url.includes(`${restBaseUrl}/form/`));
-const clobdataResourcePath = when((url: string) => url.includes(`${restBaseUrl}/clobdata/`));
+const clobDataResourcePath = when((url: string) => url.includes(`${restBaseUrl}/clobdata/`));
 global.ResizeObserver = require('resize-observer-polyfill');
 
 const mockOpenmrsFetch = jest.mocked(openmrsFetch);
-const mockUseConnectivity = jest.mocked(useConnectivity);
-const mockCreateErrorHandler = jest.mocked(createErrorHandler);
-const mockShowNotification = jest.mocked(showNotification);
-const mockShowToast = jest.mocked(showToast);
-const mockCreateGlobalStore = jest.mocked(createGlobalStore);
-const mockCreateStore = jest.mocked(createUseStore);
-const mockGetGlobalStore = jest.mocked(getGlobalStore<FormsRegistryStoreState>);
-const mockGetAsyncLifeCycle = jest.mocked(getAsyncLifecycle);
-const mockRegisterExtension = jest.mocked(registerExtension);
 const mockExtensionSlot = jest.mocked(ExtensionSlot);
 const mockUsePatient = jest.mocked(usePatient);
 const mockUseSession = jest.mocked(useSession);
@@ -92,7 +73,7 @@ mockOpenmrsDatePicker.mockImplementation(({ id, labelText, value, onChange, isIn
 });
 
 when(mockOpenmrsFetch).calledWith(formsResourcePath).mockReturnValue({ data: demoHtsOpenmrsForm });
-when(mockOpenmrsFetch).calledWith(clobdataResourcePath).mockReturnValue({ data: demoHtsForm });
+when(mockOpenmrsFetch).calledWith(clobDataResourcePath).mockReturnValue({ data: demoHtsForm });
 
 jest.mock('../src/api', () => {
   const originalModule = jest.requireActual('../src/api');
@@ -279,26 +260,23 @@ describe('Form engine component', () => {
     });
   });
 
-  // describe('historical expressions', () => {
-  //   it('should ascertain getPreviousEncounter() returns an encounter and the historical expression displays on the UI', async () => {
-  //     const user = userEvent.setup();
-  //
-  //     renderForm(null, historicalExpressionsForm, 'COVID Assessment');
-  //
-  //     //ascertain form has rendered
-  //     await screen.findByRole('combobox', { name: /Reasons for assessment/i });
-  //
-  //     //ascertain function fetching the encounter has been called
-  //     expect(api.getPreviousEncounter).toHaveBeenCalled();
-  //     expect(api.getPreviousEncounter).toHaveReturnedWith(Promise.resolve(mockHxpEncounter));
-  //
-  //     const reuseValueButton = screen.getByRole('button', { name: /reuse value/i });
-  //     const evaluatedHistoricalValue = screen.getByText(/Entry into a country/i);
-  //
-  //     expect(reuseValueButton).toBeInTheDocument;
-  //     expect(evaluatedHistoricalValue).toBeInTheDocument;
-  //   });
-  // });
+  describe('historical expressions', () => {
+    it('should ascertain getPreviousEncounter() returns an encounter and the historical expression displays on the UI', async () => {
+      const user = userEvent.setup();
+
+      renderForm(null, historicalExpressionsForm, 'COVID Assessment');
+
+      //ascertain form has rendered
+      await screen.findByRole('combobox', { name: /Reasons for assessment/i });
+
+      //ascertain function fetching the encounter has been called
+      expect(api.getPreviousEncounter).toHaveBeenCalled();
+      expect(api.getPreviousEncounter).toHaveReturnedWith(Promise.resolve(mockHxpEncounter));
+
+      expect(screen.getByRole('button', { name: /reuse value/i })).toBeInTheDocument;
+      expect(screen.getByText(/Entry into a country/i));
+    });
+  });
 
   describe('Form submission', () => {
     it('should validate required field on form submission', async () => {
