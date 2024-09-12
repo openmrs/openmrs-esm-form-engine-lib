@@ -127,9 +127,18 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
               handleClose();
             }
           })
-          .catch((toastErrorObject: ToastDescriptor) => {
+          .catch((errorObject: Error | ToastDescriptor) => {
             setIsSubmitting(false);
-            showToast(toastErrorObject);
+            if (errorObject instanceof Error) {
+              showToast({
+                title: t('errorProcessingFormSubmission', 'Error processing form submission'),
+                kind: 'error',
+                description: errorObject.message,
+                critical: true,
+              });
+            } else {
+              showToast(errorObject);
+            }
           });
       } else {
         setIsSubmitting(false);
