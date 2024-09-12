@@ -151,7 +151,8 @@ describe('ObsAdapter - transformFieldValue', () => {
       },
       id: 'hts-date',
     };
-    const htsDate = new Date(2019, 12, 20);
+    // Dec 20, 2019
+    const htsDate = new Date(2019, 11, 20);
     // replay
     const obs = ObsAdapter.transformFieldValue(field, htsDate, formContext);
     // verify
@@ -159,7 +160,7 @@ describe('ObsAdapter - transformFieldValue', () => {
       concept: 'j8b6705b-b6d8-4eju-8f37-0b14f5347569',
       formFieldNamespace: 'rfe-forms',
       formFieldPath: 'rfe-forms-hts-date',
-      value: '2020-01-20',
+      value: '2019-12-20',
     });
   });
 
