@@ -711,13 +711,12 @@ describe('Form engine component', () => {
         name: /unsuppressed/i,
       });
 
-      // fireEvent.blur(viralLoadCountField, { target: { value: 30 } });
+      await user.type(viralLoadCountField, '30');
+      await user.tab();
 
-      // await waitFor(() => {
-      //   expect(viralLoadCountField).toHaveValue(30);
-      //   expect(suppressedField).toBeChecked();
-      //   expect(unsuppressedField).not.toBeChecked();
-      // });
+      expect(viralLoadCountField).toHaveValue(30);
+      expect(suppressedField).toBeChecked();
+      expect(unsuppressedField).not.toBeChecked();
     });
 
     it('should only show question when age is under 5', async () => {
