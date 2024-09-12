@@ -52,8 +52,7 @@
                 "concept": "dc1942b2-5e50-4adc-949d-ad6c905f054e"
               },
               "validators": [],
-              "hide": {
-              }
+              "hide": {}
             },
             {
               "label": "If Unscheduled, actual text area scheduled date",

@@ -1,13 +1,14 @@
 import { type Dispatch, useCallback } from 'react';
-import { type FormSchema, type FormField } from '../types';
+import { type FormField, type FormSchema } from '../types';
 import { type Action } from '../components/renderer/form/state';
+import cloneDeep from 'lodash/cloneDeep';
 
 export function useFormStateHelpers(dispatch: Dispatch<Action>, formFields: FormField[]) {
   const addFormField = useCallback((field: FormField) => {
     dispatch({ type: 'ADD_FORM_FIELD', value: field });
   }, []);
   const updateFormField = useCallback((field: FormField) => {
-    dispatch({ type: 'UPDATE_FORM_FIELD', value: structuredClone(field) });
+    dispatch({ type: 'UPDATE_FORM_FIELD', value: cloneDeep(field) });
   }, []);
 
   const getFormField = useCallback(

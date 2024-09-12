@@ -9,11 +9,11 @@ export const CustomHooksRenderer = ({
 }: {
   context: FormProcessorContextProps;
   setContext: (context: FormProcessorContextProps) => void;
-  useCustomHooks: (context: FormProcessorContextProps) => {
+  useCustomHooks: (context: Partial<FormProcessorContextProps>) => {
     data: any;
     isLoading: boolean;
     error: any;
-    updateContext: (setContext: (context: FormProcessorContextProps) => void) => void;
+    updateContext: (setContext: React.Dispatch<React.SetStateAction<FormProcessorContextProps>>) => void;
   };
   setIsLoadingCustomHooks: (isLoading: boolean) => void;
 }) => {

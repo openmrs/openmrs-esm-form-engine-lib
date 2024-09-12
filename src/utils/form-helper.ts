@@ -1,7 +1,8 @@
 import { type LayoutType } from '@openmrs/esm-framework';
-import { type FormField, type FormPage, type FormSection, type SessionMode } from '../types';
+import { type OpenmrsObs, type FormField, type FormPage, type FormSection, type SessionMode } from '../types';
 import { isEmpty } from '../validators/form-validator';
-import { getRegisteredControl } from '../registry/registry';
+import { parseToLocalDateTime } from './common-utils';
+import dayjs from 'dayjs';
 
 export function shouldUseInlineLayout(
   renderingType: 'single-line' | 'multiline' | 'automatic',
@@ -170,3 +171,25 @@ export function scrollIntoView(viewId: string, shouldFocus: boolean = false) {
     currentElement?.focus();
   }
 }
+
+export const extractObsValueAndDisplay = (field: FormField, obs: OpenmrsObs) => {
+  const rendering = field.questionOptions.rendering;
+
+  if (typeof obs.value === 'string' || typeof obs.value === 'number') {
+    if (rendering === 'date' || rendering === 'datetime') {
+      const dateObj = parseToLocalDateTime(`${obs.value}`);
+      return { value: dateObj, display: dayjs(dateObj).format('YYYY-MM-DD HH:mm') };
+    }
+    return { value: obs.value, display: obs.value };
+  } else if (['toggle', 'checkbox'].includes(rendering)) {
+    return {
+      value: obs.value?.uuid,
+      display: obs.value?.name?.name,
+    };
+  } else {
+    return {
+      value: obs.value?.uuid,
+      display: field.questionOptions.answers?.find((option) => option.concept === obs.value?.uuid)?.label,
+    };
+  }
+};

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import useProcessorDependencies from '../../hooks/useProcessorDependencies';
 import useInitialValues from '../../hooks/useInitialValues';
 import { FormRenderer } from '../renderer/form/form-renderer.component';
-import { type FormSchema, type FormProcessorContextProps } from '../../types';
+import { type FormProcessorContextProps, type FormSchema } from '../../types';
 import { CustomHooksRenderer } from '../renderer/custom-hooks-renderer.component';
 import { useFormFields } from '../../hooks/useFormFields';
 import { useConcepts } from '../../hooks/useConcepts';
@@ -31,9 +31,6 @@ const FormProcessorFactory = ({
 
   const processor = useMemo(() => {
     const ProcessorClass = formProcessors[formJson.processor];
-    if (processor) {
-      return processor;
-    }
     if (ProcessorClass) {
       return new ProcessorClass(formJson);
     }
@@ -65,7 +62,6 @@ const FormProcessorFactory = ({
   const useCustomHooks = processor.getCustomHooks().useCustomHooks;
   const [isLoadingCustomHooks, setIsLoadingCustomHooks] = useState(!!useCustomHooks);
   const [isLoadingProcessorDependencies, setIsLoadingProcessorDependencies] = useState(true);
-
   const {
     isLoadingInitialValues,
     initialValues,

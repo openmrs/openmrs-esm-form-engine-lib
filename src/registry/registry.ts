@@ -1,7 +1,9 @@
 import {
   type FormField,
   type DataSource,
+  type FormFieldInputProps,
   type FormFieldValidator,
+  type FormFieldValueAdapter,
   type FormSchemaTransformer,
   type PostSubmissionAction,
 } from '../types';
@@ -13,7 +15,6 @@ import { inbuiltDataSources } from './inbuilt-components/inbuiltDataSources';
 import { getControlTemplate } from './inbuilt-components/control-templates';
 import { inbuiltPostSubmissionActions } from './inbuilt-components/InbuiltPostSubmissionActions';
 import { inbuiltFormTransformers } from './inbuilt-components/inbuiltTransformers';
-import { type FormFieldInputProps, type FormFieldValueAdapter } from '../types';
 import { inbuiltFieldValueAdapters } from './inbuilt-components/inbuiltFieldValueAdapters';
 
 /**

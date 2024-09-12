@@ -20,7 +20,7 @@ module.exports = {
     '^dexie$': require.resolve('dexie'),
     '\\.(s?css)$': 'identity-obj-proxy',
     '@openmrs/esm-framework': '@openmrs/esm-framework/mock',
-    'react-i18next': '<rootDir>/__mocks__/react-i18next.js',
+    '^react-i18next$': '<rootDir>/__mocks__/react-i18next.js',
     'lodash-es': 'lodash',
     'react-markdown': '<rootDir>/__mocks__/react-markdown.tsx',
     '^uuid$': '<rootDir>/node_modules/uuid/dist/index.js',

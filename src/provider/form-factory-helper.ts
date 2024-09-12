@@ -13,6 +13,7 @@ export function validateForm(context: FormContextProps) {
     patient,
     sessionMode,
     addInvalidField,
+    updateFormField,
     methods: { getValues, trigger },
   } = context;
   const values = getValues();
@@ -34,7 +35,7 @@ export function validateForm(context: FormContextProps) {
           const errors = validationResults.filter((result) => result.resultType === 'error');
           if (errors.length) {
             field.meta.submission = { ...field.meta.submission, errors };
-            trigger(field.id);
+            updateFormField(field);
             addInvalidField(field);
           }
           return errors;

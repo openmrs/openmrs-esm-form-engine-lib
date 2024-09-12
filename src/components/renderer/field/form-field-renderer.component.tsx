@@ -1,17 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   type FormField,
-  type RenderType,
-  type ValidationResult,
+  type FormFieldInputProps,
   type FormFieldValidator,
+  type FormFieldValueAdapter,
+  type RenderType,
   type SessionMode,
+  type ValidationResult,
   type ValueAndDisplay,
 } from '../../../types';
 import { Controller, useWatch } from 'react-hook-form';
 import { ToastNotification } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from 'react-error-boundary';
-import { type FormFieldValueAdapter, type FormFieldInputProps } from '../../../types';
 import { hasRendering } from '../../../utils/common-utils';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import { isEmpty } from '../../../validators/form-validator';
@@ -112,7 +113,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
       value,
       formFieldValidators,
       {
-        fields: formFields,
+        formFields: formFields,
         values: getValues(),
         expressionContext: { patient, mode: sessionMode },
       },
@@ -217,7 +218,7 @@ function ErrorFallback({ error }) {
 }
 
 export interface ValidatorConfig {
-  fields: FormField[];
+  formFields: FormField[];
   values: Record<string, any>;
   expressionContext: {
     patient: fhir.Patient;

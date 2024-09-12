@@ -29,10 +29,10 @@ const UnspecifiedField: React.FC<UnspecifiedFieldProps> = ({ field, fieldValue, 
   }, []);
 
   useEffect(() => {
-    if (field.meta.submission?.newValue) {
+    if (field.meta.submission?.unspecified && field.meta.submission.newValue) {
       setIsUnspecified(false);
       field.meta.submission.unspecified = false;
-      updateFormField({ ...field });
+      updateFormField(field);
     }
   }, [field.meta?.submission]);
 

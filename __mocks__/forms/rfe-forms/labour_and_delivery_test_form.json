@@ -328,10 +328,7 @@
                   "readonly": "true",
                   "questionOptions": {
                     "concept": "164803AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-                    "rendering": "text",
-                    "calculate": {
-                      "calculateExpression": "!isEmpty('MotherPtracker_id') ? myValue = customGenerateInfantPTrackerId(node.value.id, MotherPtracker_id) : ''"
-                    }
+                    "rendering": "text"
                   },
                   "behaviours": [
                     {
