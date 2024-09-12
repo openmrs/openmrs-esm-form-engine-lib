@@ -745,6 +745,24 @@ describe('ObsAdapter - getInitialValue', () => {
   });
 });
 
+describe('ObsAdapter - getDisplayValue', () => {
+  it('should return the display value for a date', () => {
+    const field: FormField = {
+      label: 'HTS Date',
+      type: 'obs',
+      datePickerFormat: 'calendar',
+      questionOptions: {
+        rendering: 'date',
+        concept: 'j8b6705b-b6d8-4eju-8f37-0b14f5347569',
+      },
+      id: 'hts-date',
+    };
+    const dateValue = new Date('2016-11-19T00:00');
+    const displayValue = ObsAdapter.getDisplayValue(field, dateValue);
+    expect(displayValue).toBe('19-Nov-2016');
+  });
+});
+
 describe('hasPreviousObsValueChanged', () => {
   it('should support coded values', () => {
     const codedField = {
