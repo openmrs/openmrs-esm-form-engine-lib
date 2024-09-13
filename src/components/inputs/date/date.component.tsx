@@ -12,6 +12,9 @@ import { OpenmrsDatePicker, formatDate, formatTime } from '@openmrs/esm-framewor
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 
+// Helper function to validate date
+const isValidDate = (date) => date instanceof Date && !isNaN(date.getTime());
+
 const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const [time, setTime] = useState('');
@@ -25,8 +28,12 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
 
   const onDateChange = useCallback(
     (date: Date) => {
-      setTimeIfPresent(date, time);
-      setFieldValue(date);
+      if (isValidDate(date)) {
+        setTimeIfPresent(date, time);
+        setFieldValue(date);
+      } else {
+        setFieldValue(null);
+      }
     },
     [setFieldValue, time],
   );
@@ -42,9 +49,7 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
     (event) => {
       const time = event.target.value;
       setTime(time);
-      // TODO: Confirm if a new date should be instantiated when the date picker format is 'timer'
-      // If the underlying concept's datatype is 'Time', then the backend expects a time string
-      const date = field.datePickerFormat === 'timer' ? new Date() : new Date(dateValue);
+      const date = field.datePickerFormat === 'timer' ? new Date() : new Date(dateValue ?? Date.now());
       setTimeIfPresent(date, time);
       setFieldValue(date);
     },
@@ -53,7 +58,7 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
 
   useEffect(() => {
     if (dateValue) {
-      if (dateValue instanceof Date) {
+      if (isValidDate(dateValue)) {
         const hours = dateValue.getHours() < 10 ? `0${dateValue.getHours()}` : `${dateValue.getHours()}`;
         const minutes = dateValue.getMinutes() < 10 ? `0${dateValue.getMinutes()}` : `${dateValue.getMinutes()}`;
         setTime([hours, minutes].join(':'));
@@ -71,10 +76,10 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
     [field.datePickerFormat, field.label, t],
   );
 
-  return sessionMode == 'view' || sessionMode == 'embedded-view' ? (
+  return sessionMode === 'view' || sessionMode === 'embedded-view' ? (
     <FieldValueView
       label={t(field.label)}
-      value={dateValue instanceof Date ? getDisplay(dateValue, field.datePickerFormat) : dateValue}
+      value={isValidDate(dateValue) ? getDisplay(dateValue, field.datePickerFormat) : dateValue}
       conceptName={field.meta?.concept?.display}
       isInline={isInline}
     />
@@ -97,14 +102,14 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
                 isRequired={field.isRequired ?? false}
                 isInvalid={errors.length > 0}
                 invalidText={errors[0]?.message}
-                value={dateValue}
+                value={isValidDate(dateValue) ? dateValue : null} // Default to null if invalid date
               />
             </Layer>
             {warnings.length > 0 ? <div className={styles.datePickerWarn}>{warnings[0]?.message}</div> : null}
           </div>
         )}
 
-        {field.datePickerFormat === 'both' || field.datePickerFormat === 'timer' ? (
+        {(field.datePickerFormat === 'both' || field.datePickerFormat === 'timer') && (
           <div>
             <Layer>
               <TimePicker
@@ -114,23 +119,17 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
                 placeholder="HH:MM"
                 pattern="(1[012]|[1-9]):[0-5][0-9])$"
                 type="time"
-                disabled={field.datePickerFormat === 'timer' ? field.isDisabled : !dateValue ? true : false}
+                disabled={field.datePickerFormat === 'timer' ? field.isDisabled : !isValidDate(dateValue)}
                 invalid={errors.length > 0}
                 invalidText={errors[0]?.message}
                 warning={warnings.length > 0}
                 warningText={warnings[0]?.message}
-                value={
-                  time
-                    ? time
-                    : dateValue instanceof Date
-                    ? dateValue.toLocaleDateString(window.navigator.language)
-                    : dateValue
-                }
+                value={time || ''}
                 onChange={onTimeChange}
               />
             </Layer>
           </div>
-        ) : null}
+        )}
       </div>
     )
   );
@@ -138,7 +137,7 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
 
 function getDisplay(date: Date, rendering: string) {
   const dateString = formatDate(date);
-  if (rendering == 'both') {
+  if (rendering === 'both') {
     return `${dateString} ${formatTime(date)}`;
   }
   return dateString;
