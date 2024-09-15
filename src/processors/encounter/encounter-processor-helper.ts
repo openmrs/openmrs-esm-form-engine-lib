@@ -218,8 +218,13 @@ function prepareObs(obsForSubmission: OpenmrsObs[], fields: FormField[]) {
         }
       }
       if (hasSubmission(field)) {
-        addObsToList(obsForSubmission, field.meta.submission.newValue);
-        addObsToList(obsForSubmission, field.meta.submission.voidedValue);
+        if (hasRendering(field, 'file') && field.meta.submission.newValue?.action === 'CLEAR') {
+          //void the existing obs
+          addObsToList(obsForSubmission, voidObs(field.meta.previousValue));
+        } else {
+          addObsToList(obsForSubmission, field.meta.submission.newValue);
+          addObsToList(obsForSubmission, field.meta.submission.voidedValue);
+        }
       }
     });
 }

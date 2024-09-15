@@ -2,6 +2,7 @@ import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
 import { type OpenmrsForm, type PatientIdentifier, type PatientProgramPayload } from '../types';
 import { isUuid } from '../utils/boolean-utils';
+import { voidObs } from '../adapters/obs-adapter';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
   const url = encounterUuid
@@ -20,9 +21,18 @@ export function saveEncounter(abortController: AbortController, payload, encount
 
 export function saveAttachment(patientUuid, field, conceptUuid, date, encounterUUID, abortController) {
   const url = `${restBaseUrl}/attachment`;
-
   const content = field.meta.submission?.newValue?.value;
-  const cameraUploadType = typeof content === 'string' && content?.split(';')[0].split(':')[1].split('/')[1];
+  if (content && content.action === 'CLEAR') {
+    // Handle file removal
+    return voidAttachment(encounterUUID, conceptUuid, abortController).then(() => {
+      // Clear cached data
+      field.meta.submission = { ...field.meta.submission, newValue: voidObs };
+      return Promise.resolve();
+    });
+  }
+  if (!content) {
+    return Promise.resolve();
+  }
 
   const formData = new FormData();
   const fileCaption = field.id;
@@ -30,20 +40,78 @@ export function saveAttachment(patientUuid, field, conceptUuid, date, encounterU
   formData.append('fileCaption', fileCaption);
   formData.append('patient', patientUuid);
 
-  if (typeof content === 'object') {
-    formData.append('file', content);
+  if (content instanceof File) {
+    formData.append('file', content, content.name);
+  } else if (typeof content === 'string' && content.startsWith('data:')) {
+    // Convert base64 to Blob
+    const byteString = atob(content.split(',')[1]);
+    const mimeString = content.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    const blob = new Blob([ab], { type: mimeString });
+    formData.append('file', blob, `camera-upload.${mimeString.split('/')[1]}`);
   } else {
-    formData.append('file', new File([''], `camera-upload.${cameraUploadType}`), `camera-upload.${cameraUploadType}`);
-    formData.append('base64Content', content);
+    console.error('Invalid content type:', typeof content);
+    return Promise.reject(new Error('Invalid content type'));
   }
   formData.append('encounter', encounterUUID);
   formData.append('obsDatetime', date);
+  formData.append('concept', conceptUuid);
 
   return openmrsFetch(url, {
     method: 'POST',
     signal: abortController.signal,
     body: formData,
-  });
+  })
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      console.error('Error saving attachment:', error);
+      console.error('Error response:', error.responseBody);
+      throw error;
+    });
+}
+
+function voidAttachment(encounterUUID, conceptUuid, abortController) {
+  //get the existing observation
+  const getObsUrl = `${restBaseUrl}/obs?encounter=${encounterUUID}&concept=${conceptUuid}&v=full`;
+  
+  return openmrsFetch(getObsUrl, {
+    method: 'GET',
+    signal: abortController.signal,
+  })
+    .then((response) => {
+      if (response.data.results && response.data.results.length > 0) {
+        const obsUuid = response.data.results[0].uuid;
+        const voidUrl = `${restBaseUrl}/obs/${obsUuid}`;
+        
+        //void existing observation
+        return openmrsFetch(voidUrl, {
+          method: 'DELETE',
+          signal: abortController.signal,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            voidReason: 'Voided via form submission'
+          }),
+        });
+      } else {
+        throw new Error('No matching observation found to void');
+      }
+    })
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      console.error('Error removing attachment:', error);
+      console.error('Error response:', error.responseBody);
+      throw error;
+    });
 }
 
 export function getAttachmentByUuid(patientUuid: string, encounterUuid: string, abortController: AbortController) {

@@ -33,29 +33,48 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
 
   const handleFilePickerChange = useCallback(
     (event) => {
-      // TODO: Add multiple file upload support; see: https://openmrs.atlassian.net/browse/O3-3682
       const [selectedFile]: File[] = Array.from(event.target.files);
       setImagePreview(null);
-      setFieldValue(selectedFile);
+      setFieldValue({
+        value: selectedFile,
+        meta: {
+          submission: {
+            newValue: {
+              value: selectedFile
+            }
+          }
+        }
+      });
     },
     [setFieldValue],
   );
-
+  
   const handleCameraImageChange = useCallback(
     (newImage) => {
       setImagePreview(newImage);
       setCameraWidgetVisible(false);
-      setFieldValue(newImage);
+      setFieldValue({
+        value: newImage,
+        meta: {
+          submission: {
+            newValue: {
+              value: newImage
+            }
+          }
+        }
+      });
     },
     [setFieldValue],
   );
-  const [clearedFiles, setClearedFiles] = useState([]);
-  const handleClearFile = (fileId) => {
-    setClearedFiles((prevClearedFiles) => [...prevClearedFiles, fileId]);
-    setFieldValue(null);
+
+  const handleClearFile = useCallback(() => {
+    setFieldValue({
+      action: 'CLEAR',
+      previousValue: value,
+    });
     setImagePreview(null);
     setDataSource(null);
-  };
+  }, [setFieldValue, null]);
 
   if (isViewMode(sessionMode) && !value) {
     return (
@@ -102,7 +121,7 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
           </div>
         )}
       </div>
-      {!dataSource && value && (
+      {!dataSource && value && value.action !== 'CLEAR' && (
         <div className={styles.editModeImage}>
           <div className={styles.imageContent}>
             {value.bytesContentFamily === 'PDF' ? (
