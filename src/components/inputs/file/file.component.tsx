@@ -106,7 +106,6 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
             {t('uploadImage', 'Upload image')}
           </Button>
         </div>
-
         <div className={styles.selectorButton}>
           <Button disabled={isTrue(field.readonly)} onClick={() => setDataSource('camera')}>
             {t('cameraCapture', 'Camera capture')}
