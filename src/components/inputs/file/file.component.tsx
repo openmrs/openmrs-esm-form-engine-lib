@@ -3,13 +3,14 @@ import { FileUploader, Button } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { isTrue } from '../../../utils/boolean-utils';
 import Camera from './camera/camera.component';
-import { Close, DocumentPdf } from '@carbon/react/icons';
+import { Close, DocumentPdf, TrashCan } from '@carbon/react/icons';
 import styles from './file.scss';
 import { type FormFieldInputProps } from '../../../types';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import { isViewMode } from '../../../utils/common-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
 import FieldLabel from '../../field-label/field-label.component';
+import { type Attachment, deleteAttachmentPermanently, showSnackbar } from '@openmrs/esm-framework';
 
 type DataSourceType = 'filePicker' | 'camera' | null;
 
@@ -20,6 +21,29 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
   const [dataSource, setDataSource] = useState<DataSourceType>(null);
   const { sessionMode } = useFormProviderContext();
 
+  const deleteAttachment = useCallback(() => {
+    if (value && value.id) {
+      deleteAttachmentPermanently(value.id, new AbortController())
+        .then(() => {
+          setFieldValue(null);
+          showSnackbar({
+            title: t('fileDeleted', 'File deleted'),
+            subtitle: t('successfullyDeleted', 'File successfully deleted'),
+            kind: 'success',
+            isLowContrast: true,
+          });
+        })
+        .catch(() => {
+          showSnackbar({
+            title: t('error', 'Error'),
+            subtitle: t('failedDeleting', "File couldn't be deleted"),
+            kind: 'error',
+          });
+        });
+    } else {
+      setFieldValue(null);
+    }
+  }, [value, setFieldValue, t]);
   const labelDescription = useMemo(() => {
     return field.questionOptions.allowedFileTypes
       ? t(
@@ -82,11 +106,19 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
             {t('uploadImage', 'Upload image')}
           </Button>
         </div>
+
         <div className={styles.selectorButton}>
           <Button disabled={isTrue(field.readonly)} onClick={() => setDataSource('camera')}>
             {t('cameraCapture', 'Camera capture')}
           </Button>
         </div>
+        {value && (
+          <div className={`${styles.selectorButton} ${styles.clearFileButton}`}>
+            <Button kind="danger" onClick={deleteAttachment} renderIcon={TrashCan}>
+              {t('clearFile', 'Clear file')}
+            </Button>
+          </div>
+        )}
       </div>
       {!dataSource && value && (
         <div className={styles.editModeImage}>
