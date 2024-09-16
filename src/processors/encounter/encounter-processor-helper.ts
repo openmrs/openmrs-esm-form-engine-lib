@@ -17,6 +17,7 @@ import { DefaultValueValidator } from '../../validators/default-value-validator'
 import { cloneRepeatField } from '../../components/repeat/helpers';
 import { assignedOrderIds } from '../../adapters/orders-adapter';
 import { type OpenmrsResource } from '@openmrs/esm-framework';
+import { assignedEncounterDiagnosisIds } from '../../adapters/encounter-diagnosis-adapter';
 
 export function prepareEncounter(
   context: FormContextProps,
@@ -29,6 +30,7 @@ export function prepareEncounter(
   const obsForSubmission = [];
   prepareObs(obsForSubmission, formFields);
   const ordersForSubmission = prepareOrders(formFields);
+  const diagnosisForSubmission = prepareDiagnosis(formFields);
   let encounterForSubmission: OpenmrsEncounter = {};
 
   if (encounter) {
@@ -58,6 +60,7 @@ export function prepareEncounter(
     }
     encounterForSubmission.obs = obsForSubmission;
     encounterForSubmission.orders = ordersForSubmission;
+    encounterForSubmission.diagnoses = diagnosisForSubmission;
   } else {
     encounterForSubmission = {
       patient: patient.id,
@@ -76,6 +79,7 @@ export function prepareEncounter(
       },
       visit: visit?.uuid,
       orders: ordersForSubmission,
+      diagnoses: diagnosisForSubmission,
     };
   }
   return encounterForSubmission;
@@ -313,6 +317,27 @@ export async function hydrateRepeatField(
         }),
     );
   }
+
+  //handle diagnoses
+  const unMappedDiagnosis = encounter.diagnoses.filter((diagnosis) => {
+    return !assignedEncounterDiagnosisIds.includes(diagnosis.diagnosis.coded.uuid);
+  });
+
+  if (field.type === 'diagnosis') {
+    return Promise.all(
+      unMappedDiagnosis
+        .filter((diagnosis) => !diagnosis.voided)
+        .map(async (diagnosis) => {
+          const clone = cloneRepeatField(field, diagnosis, counter++);
+          initialValues[clone.id] = await formFieldAdapters[field.type].getInitialValue(
+            clone,
+            { diagnoses: [diagnosis] } as any,
+            context,
+          );
+          return clone;
+        }),
+    );
+  }
   // handle obs groups
   return Promise.all(
     unMappedGroups.map(async (group) => {
@@ -330,4 +355,10 @@ export async function hydrateRepeatField(
       return [clone, ...clone.questions];
     }),
   ).then((results) => results.flat());
+}
+
+function prepareDiagnosis(fields: FormField[]) {
+  return fields
+    .filter((field) => field.type === 'diagnosis' && hasSubmission(field))
+    .map((field) => field.meta.submission.newValue);
 }

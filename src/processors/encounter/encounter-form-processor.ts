@@ -166,10 +166,20 @@ export class EncounterFormProcessor extends FormProcessor {
     try {
       const { data: savedEncounter } = await saveEncounter(abortController, encounter, encounter.uuid);
       const saveOrders = savedEncounter.orders.map((order) => order.orderNumber);
+      const saveDiagnosis = savedEncounter.diagnoses.map((diagnosis) => diagnosis.display);
       if (saveOrders.length) {
         showSnackbar({
           title: translateFn('ordersSaved', 'Order(s) saved successfully'),
           subtitle: saveOrders.join(', '),
+          kind: 'success',
+          isLowContrast: true,
+        });
+      }
+      // handle diagnoses
+      if (saveDiagnosis.length) {
+        showSnackbar({
+          title: translateFn('diagnosisSaved', 'Diagnosis(s) saved successfully'),
+          subtitle: saveDiagnosis.join(', '),
           kind: 'success',
           isLowContrast: true,
         });

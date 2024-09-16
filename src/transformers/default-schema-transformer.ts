@@ -148,6 +148,9 @@ function transformByType(question: FormField) {
         ? 'date'
         : question.questionOptions.rendering;
       break;
+    case 'diagnosis':
+      handleDiagnosesDataSource(question);
+      break;
   }
 }
 
@@ -275,4 +278,20 @@ function handleQuestionsWithObsComments(sectionQuestions: Array<FormField>): Arr
   });
 
   return augmentedQuestions;
+}
+
+function handleDiagnosesDataSource(question: FormField) {
+  if ('dataSource' in question.questionOptions && question.questionOptions['dataSource'] === 'diagnoses') {
+    question.questionOptions.datasource = {
+      name: 'problem_datasource',
+      config: {
+        class: [
+          '8d4918b0-c2cc-11de-8d13-0010c6dffd0f',
+          '8d492954-c2cc-11de-8d13-0010c6dffd0f',
+          '8d492b2a-c2cc-11de-8d13-0010c6dffd0f',
+        ],
+      },
+    };
+    delete question.questionOptions['dataSource'];
+  }
 }

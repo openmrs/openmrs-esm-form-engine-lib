@@ -1,6 +1,12 @@
 import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
-import type { FHIRObsResource, OpenmrsForm, PatientIdentifier, PatientProgramPayload } from '../types';
+import type {
+  FHIRObsResource,
+  OpenmrsForm,
+  PatientIdentifier,
+  PatientProgramPayload,
+  DiagnosisPayload,
+} from '../types';
 import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
