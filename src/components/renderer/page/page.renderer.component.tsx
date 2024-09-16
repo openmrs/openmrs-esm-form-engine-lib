@@ -7,12 +7,15 @@ import { Waypoint } from 'react-waypoint';
 import styles from './page.renderer.scss';
 import { Accordion, AccordionItem } from '@carbon/react';
 import { useFormFactory } from '../../../provider/form-factory-provider';
+import { ChevronDownIcon, ChevronUpIcon } from '@openmrs/esm-framework';
 
 interface PageRendererProps {
   page: FormPage;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
-function PageRenderer({ page }: PageRendererProps) {
+function PageRenderer({ page, isCollapsed, onToggleCollapse }: PageRendererProps) {
   const { t } = useTranslation();
   const pageId = useMemo(() => page.label.replace(/\s/g, ''), [page.label]);
 
@@ -25,22 +28,31 @@ function PageRenderer({ page }: PageRendererProps) {
     <div>
       <Waypoint onEnter={() => setCurrentPage(pageId)} topOffset="50%" bottomOffset="60%">
         <div className={styles.pageContent}>
-          <div className={styles.pageHeader}>
-            <p className={styles.pageTitle}>{t(page.label)}</p>
+          <div className={styles.pageHeader} onClick={onToggleCollapse}>
+            <p className={styles.pageTitle}>
+              {t(page.label)}
+              {isCollapsed ? (
+                <ChevronDownIcon className={styles.collapseIcon} aria-label="Expand" />
+              ) : (
+                <ChevronUpIcon className={styles.collapseIcon} aria-label="Collapse" />
+              )}
+            </p>
           </div>
-          <Accordion>
-            {visibleSections.map((section) => (
-              <AccordionItem
-                title={t(section.label)}
-                open={true}
-                className={styles.sectionContainer}
-                key={`section-${section.label}`}>
-                <div className={styles.formSection}>
-                  <SectionRenderer section={section} />
-                </div>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          {!isCollapsed && (
+            <Accordion>
+              {visibleSections.map((section) => (
+                <AccordionItem
+                  title={t(section.label)}
+                  open={true}
+                  className={styles.sectionContainer}
+                  key={`section-${section.label}`}>
+                  <div className={styles.formSection}>
+                    <SectionRenderer section={section} />
+                  </div>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          )}
         </div>
       </Waypoint>
     </div>

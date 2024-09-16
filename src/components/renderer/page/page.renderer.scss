@@ -16,6 +16,12 @@
   line-height: 1.4;
   color: colors.$gray-100;
   width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.collapseIcon {
+  margin-left: 0.5rem;
 }
 
 .sectionContainer > div {

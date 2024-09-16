@@ -6,6 +6,7 @@ import { isEmpty } from '../../validators/form-validator';
 import { type FormPage } from '../../types';
 import styles from './sidebar.scss';
 import { scrollIntoView } from '../../utils/form-helper';
+import { ChevronDownIcon, ChevronUpIcon } from '@openmrs/esm-framework';
 
 interface SidebarProps {
   allowUnspecifiedAll: boolean;
@@ -20,6 +21,8 @@ interface SidebarProps {
   selectedPage: string;
   setValues: (values: unknown) => void;
   values: object;
+  collapsedPages: Set<string>;
+  togglePageCollapse: (pageId: string) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -35,6 +38,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   selectedPage,
   setValues,
   values,
+  collapsedPages,
+  togglePageCollapse,
 }) => {
   const { t } = useTranslation();
   const pages: Array<FormPage> = Array.from(scrollablePages);
@@ -56,6 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const handleClick = (selected) => {
     const activeId = joinWord(selected);
     scrollIntoView(activeId);
+    togglePageCollapse(selected);
   };
 
   const markAllAsUnspecified = useCallback(
@@ -76,6 +82,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         const isCurrentlySelected = joinWord(page.label) === selectedPage;
         const hasError = pagesWithErrors.includes(page.label);
+        const isCollapsed = collapsedPages.has(page.label);
 
         return (
           <div
@@ -88,7 +95,14 @@ const Sidebar: React.FC<SidebarProps> = ({
             })}
             key={index}
             onClick={() => handleClick(page.label)}>
-            <div className={styles.sectionLink}>{page.label}</div>
+            <div className={styles.sectionLink}>
+              {page.label}
+              {isCollapsed ? (
+                <ChevronUpIcon className={styles.collapseIcon} aria-label="Expand" />
+              ) : (
+                <ChevronDownIcon className={styles.collapseIcon} aria-label="Collapse" />
+              )}
+            </div>
           </div>
         );
       })}
