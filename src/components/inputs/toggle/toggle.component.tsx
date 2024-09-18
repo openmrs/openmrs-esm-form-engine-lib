@@ -56,7 +56,7 @@ const Toggle: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings,
           onToggle={handleChange}
           toggled={!!value}
           disabled={field.isDisabled}
-          readOnly={field.readonly}
+          readOnly={isTrue(field.readonly)}
         />
       </div>
     )

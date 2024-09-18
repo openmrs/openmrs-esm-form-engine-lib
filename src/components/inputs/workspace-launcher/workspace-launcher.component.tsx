@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { showSnackbar } from '@openmrs/esm-framework';
 import { useLaunchWorkspaceRequiringVisit } from '@openmrs/esm-patient-common-lib';
 import { Button } from '@carbon/react';
+import { isTrue } from 'src/utils/boolean-utils';
 import { type FormFieldInputProps } from '../../../types';
 import styles from './workspace-launcher.scss';
 
@@ -27,7 +28,7 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
       <div>
         <div className={styles.label}>{t(field.label)}</div>
         <div className={styles.workspaceButton}>
-          <Button onClick={handleLaunchWorkspace}>{field.questionOptions?.buttonLabel ?? t('launchWorkspace')}</Button>
+          <Button disabled={isTrue(field.readonly)}  onClick={handleLaunchWorkspace}>{field.questionOptions?.buttonLabel ?? t('launchWorkspace')}</Button>
         </div>
       </div>
     )

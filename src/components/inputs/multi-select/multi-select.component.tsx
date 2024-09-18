@@ -113,7 +113,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
                 readOnly={field.readonly}
               />
             ) : (
-              <CheckboxGroup legendText={label} name={field.id}>
+              <CheckboxGroup legendText={label} name={field.id} readOnly={isTrue(field.readonly)}>
                 {field.questionOptions.answers?.map((value, index) => {
                   return (
                     <Checkbox
