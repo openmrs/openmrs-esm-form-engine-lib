@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { showSnackbar } from '@openmrs/esm-framework';
 import { useLaunchWorkspaceRequiringVisit } from '@openmrs/esm-patient-common-lib';
 import { Button } from '@carbon/react';
-import { isTrue } from 'src/utils/boolean-utils';
 import { type FormFieldInputProps } from '../../../types';
+import { isTrue } from '../../../utils/boolean-utils';
 import styles from './workspace-launcher.scss';
 
 const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
