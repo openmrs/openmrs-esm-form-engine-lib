@@ -91,7 +91,12 @@ export const FormRenderer = ({ processorContext, initialValues, setIsLoadingForm
             />
           );
         }
-        return <PageRenderer page={page} />;
+        return (
+          <PageRenderer
+            key={page.label}
+            page={page}
+          />
+        );
       })}
     </FormProvider>
   );
