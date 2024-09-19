@@ -29,7 +29,6 @@ export function useFormCollapse(sessionMode: SessionMode) {
     };
   }, []);
 
-
   return {
     isFormExpanded,
     hideFormCollapseToggle,
