@@ -6,13 +6,10 @@
 }
 
 .pageHeader {
-  display: flex;
-  flex-direction: row;
-  margin: 0.5rem 1rem;
   cursor: pointer;
   transition: background-color 0.1s;
-  padding: 0.5rem;
-  border-radius: 4px;
+  border-radius: 1px;
+  padding: 0.5rem 1rem;
 
   &:hover {
     background-color: colors.$gray-20;
@@ -28,6 +25,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin: 0;
 }
 
 .collapseIcon {
