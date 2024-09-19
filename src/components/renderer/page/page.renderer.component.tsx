@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { type FormPage } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';
@@ -15,27 +15,33 @@ interface PageRendererProps {
   onToggleCollapse: () => void;
 }
 
-function PageRenderer({ page, isCollapsed, onToggleCollapse }: PageRendererProps) {
+function PageRenderer({ page }: PageRendererProps) {
   const { t } = useTranslation();
   const pageId = useMemo(() => page.label.replace(/\s/g, ''), [page.label]);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const { setCurrentPage } = useFormFactory();
   const visibleSections = page.sections.filter((section) => {
     const hasVisibleQuestions = section.questions.some((question) => !isTrue(question.isHidden));
     return !isTrue(section.isHidden) && hasVisibleQuestions;
   });
+
+  const toggleCollapse = () => setIsCollapsed(!isCollapsed);
+
   return (
     <div>
       <Waypoint onEnter={() => setCurrentPage(pageId)} topOffset="50%" bottomOffset="60%">
         <div className={styles.pageContent}>
-          <div className={styles.pageHeader} onClick={onToggleCollapse}>
+          <div className={styles.pageHeader} onClick={toggleCollapse}>
             <p className={styles.pageTitle}>
               {t(page.label)}
-              {isCollapsed ? (
-                <ChevronDownIcon className={styles.collapseIcon} aria-label="Expand" />
-              ) : (
-                <ChevronUpIcon className={styles.collapseIcon} aria-label="Collapse" />
-              )}
+              <span className={styles.collapseIconWrapper}>
+                {isCollapsed ? (
+                  <ChevronDownIcon className={styles.collapseIcon} aria-label="Expand" />
+                ) : (
+                  <ChevronUpIcon className={styles.collapseIcon} aria-label="Collapse" />
+                )}
+              </span>
             </p>
           </div>
           {!isCollapsed && (

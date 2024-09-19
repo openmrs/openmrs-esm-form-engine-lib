@@ -33,8 +33,6 @@ export const FormRenderer = ({ processorContext, initialValues, setIsLoadingForm
     formJson: evaluatedFormJson,
   });
 
-  const [collapsedPages, setCollapsedPages] = useState<Set<string>>(new Set());
-
   const {
     addFormField,
     updateFormField,
@@ -45,18 +43,6 @@ export const FormRenderer = ({ processorContext, initialValues, setIsLoadingForm
     removeInvalidField,
     setForm,
   } = useFormStateHelpers(dispatch, formFields);
-
-  const togglePageCollapse = (pageId: string) => {
-    setCollapsedPages((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(pageId)) {
-        newSet.delete(pageId);
-      } else {
-        newSet.add(pageId);
-      }
-      return newSet;
-    });
-  };
 
   const context: FormContextProps = useMemo(() => {
     return {
@@ -74,10 +60,8 @@ export const FormRenderer = ({ processorContext, initialValues, setIsLoadingForm
       addInvalidField,
       removeInvalidField,
       setForm,
-      collapsedPages,
-      togglePageCollapse,
     };
-  }, [processorContext, workspaceLayout, methods, formFields, formJson, invalidFields, collapsedPages]);
+  }, [processorContext, workspaceLayout, methods, formFields, formJson, invalidFields]);
 
   useEffect(() => {
     registerForm(formJson.name, context);
@@ -111,8 +95,10 @@ export const FormRenderer = ({ processorContext, initialValues, setIsLoadingForm
           <PageRenderer
             key={page.label}
             page={page}
-            isCollapsed={collapsedPages.has(page.label)}
-            onToggleCollapse={() => togglePageCollapse(page.label)}
+            isCollapsed={false}
+            onToggleCollapse={function (): void {
+              throw new Error('Function not implemented.');
+            }}
           />
         );
       })}
