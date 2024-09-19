@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { FileUploader, Button } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { isTrue } from '../../../utils/boolean-utils';
@@ -20,10 +20,15 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
   const [imagePreview, setImagePreview] = useState(null);
   const [dataSource, setDataSource] = useState<DataSourceType>(null);
   const { sessionMode } = useFormProviderContext();
+  const abortController = React.useRef(new AbortController());
 
-  const deleteAttachment = useCallback(() => {
+  useEffect(() => {
+    return () => abortController.current.abort();
+  }, []);
+
+  const handleDeleteAttachment = useCallback(() => {
     if (value && value.id) {
-      deleteAttachmentPermanently(value.id, new AbortController())
+      deleteAttachmentPermanently(value.id, abortController.current)
         .then(() => {
           setFieldValue(null);
           showSnackbar({
@@ -33,17 +38,20 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
             isLowContrast: true,
           });
         })
-        .catch(() => {
-          showSnackbar({
-            title: t('error', 'Error'),
-            subtitle: t('failedDeleting', "File couldn't be deleted"),
-            kind: 'error',
-          });
+        .catch((error) => {
+          if (error.name !== 'AbortError') {
+            showSnackbar({
+              title: t('error', 'Error'),
+              subtitle: t('failedDeleting', "File couldn't be deleted"),
+              kind: 'error',
+            });
+          }
         });
     } else {
       setFieldValue(null);
     }
   }, [value, setFieldValue, t]);
+
   const labelDescription = useMemo(() => {
     return field.questionOptions.allowedFileTypes
       ? t(
@@ -111,9 +119,9 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
             {t('cameraCapture', 'Camera capture')}
           </Button>
         </div>
-        {value && (
+        {value && !isViewMode(sessionMode) && (
           <div className={`${styles.selectorButton} ${styles.clearFileButton}`}>
-            <Button kind="danger" onClick={deleteAttachment} renderIcon={TrashCan}>
+            <Button kind="danger" onClick={handleDeleteAttachment} renderIcon={TrashCan}>
               {t('clearFile', 'Clear file')}
             </Button>
           </div>

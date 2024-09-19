@@ -30,10 +30,6 @@
   margin-bottom: 1rem;
 }
 
-.selectorButton {
-  margin-right: 1rem;
-}
-
 .caption {
   display: flex;
   margin-top: 5px;
@@ -90,6 +86,28 @@
   padding: 1rem;
 }
 
+.selectorButton {
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.clearFileButton {
+  display: flex;
+  align-items: center;
+
+  button {
+    background-color: #da1e28;
+    color: #ffffff;
+
+    &:hover {
+      background-color: #b81921;
+    }
+    svg {
+      fill: currentColor;
+      margin-left: 0.5rem;
+    }
+  }
+}
 .pdfThumbnail {
   cursor: pointer;
   background-color: gray;
