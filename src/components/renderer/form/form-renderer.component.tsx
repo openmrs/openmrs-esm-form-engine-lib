@@ -95,10 +95,6 @@ export const FormRenderer = ({ processorContext, initialValues, setIsLoadingForm
           <PageRenderer
             key={page.label}
             page={page}
-            isCollapsed={false}
-            onToggleCollapse={function (): void {
-              throw new Error('Function not implemented.');
-            }}
           />
         );
       })}

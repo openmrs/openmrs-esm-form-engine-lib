@@ -11,8 +11,6 @@ import { ChevronDownIcon, ChevronUpIcon } from '@openmrs/esm-framework';
 
 interface PageRendererProps {
   page: FormPage;
-  isCollapsed: boolean;
-  onToggleCollapse: () => void;
 }
 
 function PageRenderer({ page }: PageRendererProps) {
