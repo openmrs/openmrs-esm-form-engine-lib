@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { FileUploader, Button } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { isTrue } from '../../../utils/boolean-utils';
@@ -10,7 +10,7 @@ import { useFormProviderContext } from '../../../provider/form-provider';
 import { isViewMode } from '../../../utils/common-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
 import FieldLabel from '../../field-label/field-label.component';
-import { type Attachment, deleteAttachmentPermanently, showSnackbar } from '@openmrs/esm-framework';
+import { deleteAttachmentPermanently, showSnackbar, useAbortController } from '@openmrs/esm-framework';
 
 type DataSourceType = 'filePicker' | 'camera' | null;
 
@@ -20,15 +20,11 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
   const [imagePreview, setImagePreview] = useState(null);
   const [dataSource, setDataSource] = useState<DataSourceType>(null);
   const { sessionMode } = useFormProviderContext();
-  const abortController = React.useRef(new AbortController());
-
-  useEffect(() => {
-    return () => abortController.current.abort();
-  }, []);
+  const abortController = useAbortController();
 
   const handleDeleteAttachment = useCallback(() => {
     if (value && value.id) {
-      deleteAttachmentPermanently(value.id, abortController.current)
+      deleteAttachmentPermanently(value.id, abortController)
         .then(() => {
           setFieldValue(null);
           showSnackbar({
@@ -50,7 +46,7 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
     } else {
       setFieldValue(null);
     }
-  }, [value, setFieldValue, t]);
+  }, [value, setFieldValue, t, abortController]);
 
   const labelDescription = useMemo(() => {
     return field.questionOptions.allowedFileTypes
