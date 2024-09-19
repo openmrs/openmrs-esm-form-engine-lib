@@ -63,9 +63,6 @@
 .sectionLink {
   @include type.type-style('body-01');
   color: colors.$gray-100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .activeSection {
@@ -121,8 +118,4 @@
 
 .toggleContainer {
   margin-bottom: 0.5rem;
-}
-
-.collapseIcon {
-  margin-left: 0.5rem;
 }
