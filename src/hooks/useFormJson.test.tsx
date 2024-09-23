@@ -169,7 +169,7 @@ describe('useFormJson', () => {
     // verify
     expect(hook.result.current.isLoading).toBe(false);
     expect(hook.result.current.formError.message).toBe(
-      'Error loading form JSON: Form with "non-existent-form" was not found',
+      'Error loading form JSON: Form with ID "non-existent-form" was not found',
     );
     expect(hook.result.current.formJson).toBe(null);
   });

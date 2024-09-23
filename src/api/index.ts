@@ -112,7 +112,7 @@ export async function fetchOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm 
       return form;
     }
   }
-  throw new Error(`Form with "${nameOrUUID}" was not found`);
+  throw new Error(`Form with ID "${nameOrUUID}" was not found`);
 }
 
 /**
