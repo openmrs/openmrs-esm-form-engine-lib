@@ -106,9 +106,13 @@ export async function fetchOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm 
     return openmrsFormResponse;
   }
 
-  return openmrsFormResponse.results?.length
-    ? openmrsFormResponse.results.find((form) => form.retired === false)
-    : new Error(`Form with ${nameOrUUID} was not found`);
+  if (openmrsFormResponse.results?.length) {
+    const form = openmrsFormResponse.results.find((form) => form.retired === false);
+    if (form) {
+      return form;
+    }
+  }
+  throw new Error(`Form with "${nameOrUUID}" was not found`);
 }
 
 /**
@@ -121,7 +125,7 @@ export async function fetchClobData(form: OpenmrsForm): Promise<any | null> {
     return null;
   }
 
-  const jsonSchemaResource = form.resources.find(({ name }) => name === 'JSON schema');
+  const jsonSchemaResource = form.resources?.find(({ name }) => name === 'JSON schema');
   if (!jsonSchemaResource) {
     return null;
   }

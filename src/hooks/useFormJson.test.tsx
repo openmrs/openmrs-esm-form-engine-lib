@@ -36,6 +36,7 @@ const COMPONENT_ART_SCHEMA_VALUE_REF = '74d06044-850f-11ee-b9d1-0242ac120003';
 const COMPONENT_PRECLINIC_REVIEW = 'component_preclinic-review';
 const COMPONENT_PRECLINIC_REVIEW_UUID = '2f063f32-7f8a-11ee-b962-0242ac120004';
 const COMPONENT_PRECLINIC_REVIEW_SCHEMA_VALUE_REF = '74d06044-850f-11ee-b9d1-0242ac120004';
+const NON_EXISTENT_FORM_NAME = 'non-existent-form';
 
 // Base setup
 const mockOpenmrsFetch = openmrsFetch as jest.Mock;
@@ -74,6 +75,7 @@ when(mockOpenmrsFetch)
 when(mockOpenmrsFetch)
   .calledWith(buildPath(COMPONENT_ART))
   .mockResolvedValue({ data: { results: [artComponentSkeleton] } });
+
 when(mockOpenmrsFetch).calledWith(buildPath(COMPONENT_ART_UUID)).mockResolvedValue({ data: artComponentSkeleton });
 when(mockOpenmrsFetch)
   .calledWith(buildPath(COMPONENT_ART_SCHEMA_VALUE_REF))
@@ -82,12 +84,17 @@ when(mockOpenmrsFetch)
 when(mockOpenmrsFetch)
   .calledWith(buildPath(COMPONENT_PRECLINIC_REVIEW))
   .mockResolvedValue({ data: { results: [preclinicReviewComponentSkeleton] } });
+
 when(mockOpenmrsFetch)
   .calledWith(buildPath(COMPONENT_PRECLINIC_REVIEW_UUID))
   .mockResolvedValue({ data: preclinicReviewComponentSkeleton });
 when(mockOpenmrsFetch)
   .calledWith(buildPath(COMPONENT_PRECLINIC_REVIEW_SCHEMA_VALUE_REF))
   .mockResolvedValue({ data: preclinicReviewComponentBody });
+
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(NON_EXISTENT_FORM_NAME))
+  .mockResolvedValue({ data: { results: [] } });
 
 describe('useFormJson', () => {
   it('should fetch basic form by name', async () => {
@@ -97,7 +104,7 @@ describe('useFormJson', () => {
     });
 
     expect(hook.result.current.isLoading).toBe(false);
-    expect(hook.result.current.error).toBe(undefined);
+    expect(hook.result.current.formError).toBe(undefined);
     expect(hook.result.current.formJson.name).toBe(MINI_FORM_NAME);
   });
 
@@ -108,7 +115,7 @@ describe('useFormJson', () => {
     });
 
     expect(hook.result.current.isLoading).toBe(false);
-    expect(hook.result.current.error).toBe(undefined);
+    expect(hook.result.current.formError).toBe(undefined);
     expect(hook.result.current.formJson.name).toBe(MINI_FORM_NAME);
   });
 
@@ -119,7 +126,7 @@ describe('useFormJson', () => {
     });
 
     expect(hook.result.current.isLoading).toBe(false);
-    expect(hook.result.current.error).toBe(undefined);
+    expect(hook.result.current.formError).toBe(undefined);
     expect(hook.result.current.formJson.name).toBe(PARENT_FORM_NAME);
 
     // verify subforms
@@ -133,7 +140,7 @@ describe('useFormJson', () => {
     });
 
     expect(hook.result.current.isLoading).toBe(false);
-    expect(hook.result.current.error).toBe(undefined);
+    expect(hook.result.current.formError).toBe(undefined);
     expect(hook.result.current.formJson.name).toBe(PARENT_FORM_NAME);
 
     // verify subforms
@@ -146,11 +153,25 @@ describe('useFormJson', () => {
       hook = renderHook(() => useFormJson(null, formComponentBody, null, null));
     });
     expect(hook.result.current.isLoading).toBe(false);
-    expect(hook.result.current.error).toBe(undefined);
+    expect(hook.result.current.formError).toBe(undefined);
     expect(hook.result.current.formJson.name).toBe(COMPONENT_FORM_NAME);
 
     // verify form components have been loaded
     verifyFormComponents(hook.result.current.formJson);
+  });
+
+  it('should return an error when the form is not found', async () => {
+    // setup and execute
+    let hook = null;
+    await act(async () => {
+      hook = renderHook(() => useFormJson(NON_EXISTENT_FORM_NAME, null, null, null));
+    });
+    // verify
+    expect(hook.result.current.isLoading).toBe(false);
+    expect(hook.result.current.formError.message).toBe(
+      'Error loading form JSON: Form with "non-existent-form" was not found',
+    );
+    expect(hook.result.current.formJson).toBe(null);
   });
 });
 
