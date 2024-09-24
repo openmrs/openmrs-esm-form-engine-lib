@@ -29,7 +29,7 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
 
   return {
     formJson,
-    isLoading: !formJson,
+    isLoading: !formJson && !error,
     formError: error,
   };
 }
