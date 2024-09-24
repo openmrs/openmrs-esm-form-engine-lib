@@ -83,6 +83,7 @@ export interface FormField {
   questionInfo?: string;
   historicalExpression?: string;
   constrainMaxWidth?: boolean;
+  /** @deprecated */
   inlineMultiCheckbox?: boolean;
   meta?: QuestionMetaProps;
 }
@@ -161,7 +162,14 @@ export interface FormQuestionOptions {
   allowedFileTypes?: Array<string>;
   allowMultiple?: boolean;
   datasource?: { name: string; config?: Record<string, any> };
+  /**
+   * Determines if the ui-select-extended rendering is searchable
+   */
   isSearchable?: boolean;
+  /**
+   * Determines if the checkbox rendering is searchable
+   */
+  isCheckboxSearchable?: boolean;
   workspaceName?: string;
   buttonLabel?: string;
   identifierType?: string;
@@ -183,8 +191,10 @@ export interface QuestionAnswerOption {
   concept?: string;
   [key: string]: any;
 }
+
 export type RenderType =
   | 'checkbox'
+  | 'checkbox-searchable'
   | 'content-switcher'
   | 'date'
   | 'datetime'

@@ -14,7 +14,11 @@ export async function findRadioGroupMember(screen, name: string): Promise<HTMLIn
   return await screen.findByRole('radio', { name });
 }
 
-export async function findMultiSelectInput(screen, nameSubstring: string): Promise<HTMLInputElement> {
+export async function findCheckboxGroup(screen, name: string): Promise<HTMLInputElement> {
+  return await screen.findByRole('group', { name: new RegExp(name, 'i') });
+}
+
+export async function findCheckboxSearchable(screen, nameSubstring: string): Promise<HTMLInputElement> {
   return await screen.findByRole('combobox', { name: new RegExp(nameSubstring, 'i') });
 }
 
@@ -42,7 +46,8 @@ const fieldTypeToGetterMap = {
   'radio-group': findRadioGroupInput,
   'radio-item': findRadioGroupMember,
   textarea: findTextOrDateInput,
-  combobox: findMultiSelectInput,
+  checkbox: findCheckboxGroup,
+  'checkbox-searchable': findCheckboxSearchable,
   select: findSelectInput,
 };
 

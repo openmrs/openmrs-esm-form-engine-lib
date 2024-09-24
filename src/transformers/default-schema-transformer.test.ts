@@ -1,3 +1,4 @@
+import { type FormSchema } from '../types';
 import { DefaultFormSchemaTransformer } from './default-schema-transformer';
 import testForm from '__mocks__/forms/afe-forms/test-schema-transformer-form.json';
 
@@ -20,6 +21,7 @@ const expectedTransformedSchema = {
               id: 'dem_multi_checkbox',
               questionOptions: {
                 rendering: 'checkbox',
+                isCheckboxSearchable: true,
               },
               validators: [
                 {
@@ -151,5 +153,59 @@ const expectedTransformedSchema = {
 describe('Default form schema transformer', () => {
   it('should transform AFE schema to be compatible with RFE', () => {
     expect(DefaultFormSchemaTransformer.transform(testForm as any)).toEqual(expectedTransformedSchema);
+  });
+
+  it('should handle checkbox-searchable rendering', () => {
+    // setup
+    const form = {
+      pages: [
+        {
+          sections: [
+            {
+              questions: [
+                {
+                  label: 'Searchable Checkbox',
+                  type: 'obs',
+                  questionOptions: {
+                    rendering: 'checkbox-searchable',
+                  },
+                  id: 'searchableCheckbox',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    // exercise
+    const transformedForm = DefaultFormSchemaTransformer.transform(form as FormSchema);
+    const transformedQuestion = transformedForm.pages[0].sections[0].questions[0];
+    // verify
+    expect(transformedQuestion.questionOptions.rendering).toEqual('checkbox');
+    expect(transformedQuestion.questionOptions.isCheckboxSearchable).toEqual(true);
+  });
+
+  it('should handle multiCheckbox rendering', () => {
+    // setup
+    const form = {
+      pages: [
+        {
+          sections: [
+            {
+              questions: [
+                {
+                  label: 'Multi Checkbox',
+                  type: 'obs',
+                  questionOptions: {
+                    rendering: 'multiCheckbox',
+                  },
+                  id: 'multiCheckboxField',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
   });
 });

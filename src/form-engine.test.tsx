@@ -12,7 +12,7 @@ import {
 } from '@openmrs/esm-framework';
 import { when } from 'jest-when';
 import * as api from './api';
-import { assertFormHasAllFields, findMultiSelectInput, findSelectInput } from './utils/test-utils';
+import { assertFormHasAllFields, findCheckboxGroup, findSelectInput } from './utils/test-utils';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import { mockPatient } from '__mocks__/patient.mock';
 import { mockSessionDataResponse } from '__mocks__/session.mock';
@@ -155,18 +155,18 @@ describe('Form engine component', () => {
     await assertFormHasAllFields(screen, [
       { fieldName: 'When was the HIV test conducted? *', fieldType: 'date' },
       { fieldName: 'Community service delivery point', fieldType: 'select' },
-      { fieldName: 'TB screening', fieldType: 'combobox' },
+      { fieldName: 'TB screening', fieldType: 'checkbox' },
     ]);
   });
 
-  it('should demonstrate behaviour driven by form intents', async () => {
+  it('should demonstrate behavior driven by form intents', async () => {
     await act(async () => {
       renderForm('955ab92f-f93e-4dc0-9c68-b7b2346def55', null, 'HTS_INTENT_A');
     });
 
     await assertFormHasAllFields(screen, [
       { fieldName: 'When was the HIV test conducted? *', fieldType: 'date' },
-      { fieldName: 'TB screening', fieldType: 'combobox' },
+      { fieldName: 'TB screening', fieldType: 'checkbox' },
     ]);
 
     try {
@@ -188,14 +188,14 @@ describe('Form engine component', () => {
 
     await assertFormHasAllFields(screen, [
       { fieldName: 'When was the HIV test conducted? *', fieldType: 'date' },
-      { fieldName: 'Community service delivery point', fieldType: 'combobox' },
+      { fieldName: 'Community service delivery point *', fieldType: 'select' },
     ]);
 
     try {
-      await findMultiSelectInput(screen, 'TB screening');
+      await findCheckboxGroup(screen, 'TB screening');
       fail("Field with title 'TB screening' should not be found");
     } catch (err) {
-      expect(err.message.includes('Unable to find role="combobox" and name `/TB screening/i`')).toBeTruthy();
+      expect(err.message.includes('Unable to find role="group" and name `/TB screening/i`')).toBeTruthy();
     }
   });
 
@@ -262,19 +262,18 @@ describe('Form engine component', () => {
 
   describe('historical expressions', () => {
     it('should ascertain getPreviousEncounter() returns an encounter and the historical expression displays on the UI', async () => {
-      const user = userEvent.setup();
-
       renderForm(null, historicalExpressionsForm, 'COVID Assessment');
 
       //ascertain form has rendered
-      await screen.findByRole('combobox', { name: /Reasons for assessment/i });
+      const checkboxGroup = await findCheckboxGroup(screen, 'Reasons for assessment');
+      expect(checkboxGroup).toBeInTheDocument();
 
       //ascertain function fetching the encounter has been called
       expect(api.getPreviousEncounter).toHaveBeenCalled();
       expect(api.getPreviousEncounter).toHaveReturnedWith(Promise.resolve(mockHxpEncounter));
 
       expect(screen.getByRole('button', { name: /reuse value/i })).toBeInTheDocument;
-      expect(screen.getByText(/Entry into a country/i));
+      expect(screen.getByText(/Entry into a country/i, { selector: 'div.value' }));
     });
   });
 
@@ -328,14 +327,14 @@ describe('Form engine component', () => {
       await user.click(screen.getByRole('button', { name: /save/i }));
 
       await assertFormHasAllFields(screen, [
-        { fieldName: 'Was this visit scheduled?', fieldType: 'combobox' },
+        { fieldName: 'Was this visit scheduled?', fieldType: 'select' },
         { fieldName: 'If Unscheduled, actual text scheduled date *', fieldType: 'text' },
         { fieldName: 'If Unscheduled, actual scheduled date *', fieldType: 'date' },
         { fieldName: 'If Unscheduled, actual number scheduled date *', fieldType: 'number' },
         { fieldName: 'If Unscheduled, actual text area scheduled date *', fieldType: 'textarea' },
         { fieldName: 'Not required actual text area scheduled date', fieldType: 'textarea' },
         { fieldName: 'If Unscheduled, actual scheduled reason select *', fieldType: 'select' },
-        { fieldName: 'If Unscheduled, actual scheduled reason multi-select *', fieldType: 'combobox' },
+        { fieldName: 'If Unscheduled, actual scheduled reason multi-select *', fieldType: 'checkbox-searchable' },
         { fieldName: 'If Unscheduled, actual scheduled reason radio *', fieldType: 'radio' },
       ]);
 
@@ -544,7 +543,7 @@ describe('Form engine component', () => {
       await act(async () => {
         renderForm(null, conditionalRequiredTestForm);
       });
-      await assertFormHasAllFields(screen, [{ fieldName: 'Was this visit scheduled?', fieldType: 'combobox' }]);
+      await assertFormHasAllFields(screen, [{ fieldName: 'Was this visit scheduled?', fieldType: 'select' }]);
       await user.click(screen.getByRole('button', { name: /save/i }));
       expect(saveEncounterMock).toHaveBeenCalled();
       expect(saveEncounterMock).toHaveBeenCalledWith(expect.any(AbortController), expect.any(Object), undefined);

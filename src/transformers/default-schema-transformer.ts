@@ -1,6 +1,8 @@
-import { type FormField, type FormSchemaTransformer, type FormSchema } from '../types';
+import { type FormField, type FormSchemaTransformer, type FormSchema, type RenderType } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { hasRendering } from '../utils/common-utils';
+
+export type RenderTypeExtended = 'multiCheckbox' | 'numeric' | RenderType;
 
 export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
   transform: (form: FormSchema) => {
@@ -135,9 +137,10 @@ function transformByType(question: FormField) {
 }
 
 function transformByRendering(question: FormField) {
-  switch (question.questionOptions.rendering as any) {
+  switch (question.questionOptions.rendering as RenderTypeExtended) {
+    case 'checkbox-searchable':
     case 'multiCheckbox':
-      question.questionOptions.rendering = 'checkbox';
+      handleCheckbox(question);
       break;
     case 'numeric':
       question.questionOptions.rendering = 'number';
@@ -163,6 +166,20 @@ function transformByRendering(question: FormField) {
       break;
   }
   return question;
+}
+
+function handleCheckbox(question: FormField) {
+  if ((question.questionOptions.rendering as RenderTypeExtended) === 'multiCheckbox') {
+    question.questionOptions.rendering = 'checkbox-searchable';
+    if (isTrue(question.inlineMultiCheckbox)) {
+      question.questionOptions.rendering = 'checkbox';
+    }
+  }
+
+  if (hasRendering(question, 'checkbox-searchable')) {
+    question.questionOptions.rendering = 'checkbox';
+    question.questionOptions.isCheckboxSearchable = true;
+  }
 }
 
 function handleLabOrders(question: FormField) {
