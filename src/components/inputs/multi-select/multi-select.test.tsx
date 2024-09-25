@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
+import userEvent from '@testing-library/user-event'; // Correct import for userEvent
 import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
 import { type FormSchema } from '../../../types';
 import { mockPatient } from '__mocks__/patient.mock';
@@ -31,7 +31,7 @@ jest.mock('../../../api', () => {
 });
 
 const renderForm = async () => {
-  await act(() =>
+  await act(async () => {
     render(
       <FormEngine
         formJson={multiSelectFormSchema as unknown as FormSchema}
@@ -40,11 +40,11 @@ const renderForm = async () => {
         formSessionIntent={undefined}
         visit={visit}
       />,
-    ),
-  );
+    );
+  });
 };
 
-describe.skip('MultiSelect Component', () => {
+describe('MultiSelect Component', () => {
   beforeEach(() => {
     mockOpenmrsFetch.mockResolvedValue({
       data: { results: [{ ...multiSelectFormSchema }] },
@@ -69,22 +69,20 @@ describe.skip('MultiSelect Component', () => {
   it('should disable checkbox option if the field value depends on evaluates the expression to true', async () => {
     const user = userEvent.setup();
     await renderForm();
-
     await user.click(screen.getByRole('combobox', { name: /Patient covered by NHIF/i }));
     await user.click(screen.getByRole('option', { name: /no/i }));
-
     await user.click(screen.getByText('Was this visit scheduled?'));
-    expect(screen.getByRole('option', { name: /Unscheduled visit early/i })).toHaveAttribute('disabled');
+    const unscheduledVisitOption = screen.getByRole('option', { name: /Unscheduled visit early/i });
+    expect(unscheduledVisitOption).toHaveAttribute('disabled');
   });
 
   it('should enable checkbox option if the field value depends on evaluates the expression to false', async () => {
     const user = userEvent.setup();
     await renderForm();
-
     await user.click(screen.getByRole('combobox', { name: /patient covered by nhif/i }));
     await user.click(screen.getByRole('option', { name: /yes/i }));
-
     await user.click(screen.getByText('Was this visit scheduled?'));
-    expect(screen.getByRole('option', { name: /Unscheduled visit early/i })).not.toHaveAttribute('disabled');
+    const unscheduledVisitOption = screen.getByRole('option', { name: /Unscheduled visit early/i });
+    expect(unscheduledVisitOption).not.toBeDisabled();
   });
 });
