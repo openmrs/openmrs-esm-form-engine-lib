@@ -41,6 +41,7 @@ import externalDataSourceForm from '__mocks__/forms/rfe-forms/external_data_sour
 import monthsOnArtForm from '__mocks__/forms/rfe-forms/months-on-art-form.json';
 import nextVisitForm from '__mocks__/forms/rfe-forms/next-visit-test-form.json';
 import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-form.json';
+import readOnlyValidationForm from '__mocks__/forms/rfe-forms/read-only-validation-form.json';
 
 import FormEngine from './form-engine.component';
 
@@ -212,6 +213,33 @@ describe('Form engine component', () => {
 
       await user.hover(textFieldTooltip);
       await screen.findByText(/sample tooltip info for text/i);
+    });
+  });
+
+  describe('Read only mode', () => {
+    it('should ascertain that each field with readonly = true passed will not be editable', async () => {
+      await act(async () => {
+        renderForm(null, readOnlyValidationForm);
+      });
+
+      const visitTypeDropdown = screen.getByRole('combobox', {
+        name: /visit type/i,
+      });
+      const visitPunctualityTextbox = screen.getByLabelText(/visit punctuality/i);
+
+      expect(visitTypeDropdown).toBeInTheDocument();
+      expect(visitTypeDropdown).toHaveClass('cds--list-box__field');
+
+      const visitTypeWrapper = visitTypeDropdown.closest('.cds--dropdown');
+      expect(visitTypeWrapper).toHaveClass('cds--dropdown cds--dropdown--readonly cds--list-box');
+
+      expect(visitPunctualityTextbox).toBeInTheDocument();
+      expect(visitPunctualityTextbox).toHaveClass('cds--text-input');
+
+      const visitPunctualityWrapper = visitPunctualityTextbox.closest('.cds--text-input-wrapper');
+      expect(visitPunctualityWrapper).toHaveClass(
+        'cds--form-item cds--text-input-wrapper cds--text-input-wrapper--readonly',
+      );
     });
   });
 
