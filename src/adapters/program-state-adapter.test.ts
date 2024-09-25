@@ -363,10 +363,53 @@ describe('ProgramStateAdapter - transformFieldValue', () => {
     });
   });
 
-  it('should get initial value for the program state', () => {
-    formContext.customDependencies.patientPrograms.push(...patientPrograms);
+  it('should return null if the new value is the same as the previous value', () => {
+    field.meta.previousValue = { uuid: '7293cb90-c93f-4386-b32f-e8cfc633dc3e' };
+    const value = '7293cb90-c93f-4386-b32f-e8cfc633dc3e';
+    const result = ProgramStateAdapter.transformFieldValue(field, value, formContext);
+    expect(result).toBeNull();
+    expect(field.meta.submission.newValue).toBeNull();
+  });
 
-    const program = ProgramStateAdapter.getInitialValue(field, null, formContext);
+  it('should return null if the new value is empty or null', () => {
+    const value = null;
+    const result = ProgramStateAdapter.transformFieldValue(field, value, formContext);
+    expect(result).toBeNull();
+    expect(field.meta.submission.newValue).toBeNull();
+  });
+
+  it('should get initial value for the program state', async () => {
+    formContext.customDependencies.patientPrograms.push(...patientPrograms);
+    const program = await ProgramStateAdapter.getInitialValue(field, null, formContext);
     expect(program).toEqual('7293cb90-c93f-4386-b32f-e8cfc633dc3e');
+  });
+
+  it('should return null if no active state is found for the patient program', async () => {
+    formContext.customDependencies.patientPrograms = [
+      {
+        ...patientPrograms[0],
+        states: [],
+      },
+    ];
+    const p = await ProgramStateAdapter.getInitialValue(field, null, formContext);
+    expect(p).toBeNull();
+  });
+
+  it('should return null if no patient program matches the programUuid', async () => {
+    const fieldWithDifferentProgramUuid = {
+      ...field,
+      questionOptions: { ...field.questionOptions, programUuid: 'non-existing-uuid' },
+    };
+    const program = await ProgramStateAdapter.getInitialValue(fieldWithDifferentProgramUuid, null, formContext);
+    expect(program).toBeNull();
+  });
+
+  it('should return null for getPreviousValue', async () => {
+    const previousValue = await ProgramStateAdapter.getPreviousValue(field, null, formContext);
+    expect(previousValue).toBeNull();
+  });
+
+  it('should execute tearDown without issues', () => {
+    expect(() => ProgramStateAdapter.tearDown()).not.toThrow();
   });
 });
