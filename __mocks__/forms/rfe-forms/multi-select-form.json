@@ -71,6 +71,26 @@
               },
               "inlineRendering": null,
               "isHidden": false
+            },
+            {
+              "label": "Checkbox searchable",
+              "id": "checkboxSearchable",
+              "questionOptions": {
+                "rendering": "multiCheckbox",
+                "concept": "d49e3e6-55df-5096-93ca-59edadb74b3f",
+                "answers": [
+                  {
+                    "concept": "8b715fed-97f6-4e38-8f6a-c167a42f8923",
+                    "label": "Option 1"
+                  },
+                  {
+                    "concept": "a899e0ac-1350-11df-a1f1-0026b9348838",
+                    "label": "Option 2"
+                  }
+                ]
+              },
+              "type": "obs",
+              "validators": []
             }
           ]
         }

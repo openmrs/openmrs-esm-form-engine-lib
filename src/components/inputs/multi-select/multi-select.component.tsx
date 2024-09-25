@@ -42,6 +42,11 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
     setFieldValue(value);
   };
 
+  const isSearchable = useMemo(
+    () => isTrue(field.questionOptions.isCheckboxSearchable),
+    [field.questionOptions.isCheckboxSearchable],
+  );
+
   useEffect(() => {
     if (isFirstRender.current && counter === 1) {
       setInitiallyCheckedQuestionItems(initiallySelectedQuestionItems.map((item) => item.concept));
@@ -89,7 +94,25 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
       <>
         <div className={styles.boldedLabel}>
           <Layer>
-            {field.inlineMultiCheckbox ? (
+            {isSearchable ? (
+              <FilterableMultiSelect
+                placeholder={t('search', 'Search') + '...'}
+                onChange={handleSelectItemsChange}
+                id={t(field.label)}
+                items={selectOptions}
+                initialSelectedItems={initiallySelectedQuestionItems}
+                label={''}
+                titleText={label}
+                key={counter}
+                itemToString={(item) => (item ? item.label : ' ')}
+                disabled={field.isDisabled}
+                invalid={errors.length > 0}
+                invalidText={errors[0]?.message}
+                warn={warnings.length > 0}
+                warnText={warnings[0]?.message}
+                readOnly={field.readonly}
+              />
+            ) : (
               <CheckboxGroup legendText={label} name={field.id}>
                 {field.questionOptions.answers?.map((value, index) => {
                   return (
@@ -105,32 +128,15 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
                       defaultChecked={initiallyCheckedQuestionItems.some((item) => item === value.concept)}
                       checked={initiallyCheckedQuestionItems.some((item) => item === value.concept)}
                       onBlur={onblur}
+                      disabled={value.disable?.isDisabled}
                     />
                   );
                 })}
               </CheckboxGroup>
-            ) : (
-              <FilterableMultiSelect
-                placeholder={t('search', 'Search') + '...'}
-                onChange={handleSelectItemsChange}
-                id={t(field.label)}
-                items={selectOptions}
-                initialSelectedItems={initiallySelectedQuestionItems}
-                label={''}
-                titleText={<FieldLabel field={field} />}
-                key={counter}
-                itemToString={(item) => (item ? item.label : ' ')}
-                disabled={field.isDisabled}
-                invalid={errors.length > 0}
-                invalidText={errors[0]?.message}
-                warn={warnings.length > 0}
-                warnText={warnings[0]?.message}
-                readOnly={field.readonly}
-              />
             )}
           </Layer>
         </div>
-        {!field.inlineMultiCheckbox && (
+        {isSearchable && (
           <div className={styles.selectionDisplay}>
             {value?.length ? (
               <div className={styles.tagContainer}>
