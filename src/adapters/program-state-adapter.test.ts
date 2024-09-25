@@ -352,7 +352,7 @@ const patientPrograms = [
   },
 ];
 
-describe('ProgramStateAdapter - transformFieldValue', () => {
+describe('ProgramStateAdapter', () => {
   // new submission (enter mode)
   it('should handle submission for a program state', () => {
     const value = '7293cb90-c93f-4386-b32f-e8cfc633dc3e';
