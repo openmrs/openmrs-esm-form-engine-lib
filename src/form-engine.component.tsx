@@ -35,7 +35,6 @@ interface FormEngineProps {
 // TODOs:
 // - Implement sidebar
 // - Conditionally render the button set
-// - Patient banner
 const FormEngine = ({
   formJson,
   patientUUID,

@@ -113,6 +113,7 @@ const FormProcessorFactory = ({
         <FormRenderer
           processorContext={processorContext}
           initialValues={initialValues}
+          isSubForm={isSubForm}
           setIsLoadingFormDependencies={setIsLoadingFormDependencies}
         />
       )}

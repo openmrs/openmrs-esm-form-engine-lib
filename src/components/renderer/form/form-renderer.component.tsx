@@ -13,10 +13,16 @@ import { useFormStateHelpers } from '../../../hooks/useFormStateHelpers';
 export type FormRendererProps = {
   processorContext: FormProcessorContextProps;
   initialValues: Record<string, any>;
+  isSubForm: boolean;
   setIsLoadingFormDependencies: (isLoading: boolean) => void;
 };
 
-export const FormRenderer = ({ processorContext, initialValues, setIsLoadingFormDependencies }: FormRendererProps) => {
+export const FormRenderer = ({
+  processorContext,
+  initialValues,
+  isSubForm,
+  setIsLoadingFormDependencies,
+}: FormRendererProps) => {
   const { evaluatedFields, evaluatedFormJson } = useEvaluateFormFieldExpressions(initialValues, processorContext);
   const { registerForm, setIsFormDirty, workspaceLayout } = useFormFactory();
   const methods = useForm({
@@ -64,8 +70,8 @@ export const FormRenderer = ({ processorContext, initialValues, setIsLoadingForm
   }, [processorContext, workspaceLayout, methods, formFields, formJson, invalidFields]);
 
   useEffect(() => {
-    registerForm(formJson.name, context);
-  }, [formJson.name, context]);
+    registerForm(formJson.name, isSubForm, context);
+  }, [formJson.name, isSubForm, context]);
 
   useEffect(() => {
     setIsFormDirty(isDirty);
@@ -91,12 +97,7 @@ export const FormRenderer = ({ processorContext, initialValues, setIsLoadingForm
             />
           );
         }
-        return (
-          <PageRenderer
-            key={page.label}
-            page={page}
-          />
-        );
+        return <PageRenderer key={page.label} page={page} />;
       })}
     </FormProvider>
   );
