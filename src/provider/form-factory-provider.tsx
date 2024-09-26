@@ -26,7 +26,7 @@ interface FormFactoryProviderContextProps {
   visit: OpenmrsResource;
   location: OpenmrsResource;
   provider: OpenmrsResource;
-  registerForm: (formId: string, context: FormContextProps) => void;
+  registerForm: (formId: string, isSubForm: boolean, context: FormContextProps) => void;
   setCurrentPage: (page: string) => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   setIsFormDirty: (isFormDirty: boolean) => void;
@@ -80,11 +80,11 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
 
   const abortController = new AbortController();
 
-  const registerForm = useCallback((formId: string, context: FormContextProps) => {
-    if (!rootForm.current) {
-      rootForm.current = context;
-    } else if (rootForm.current.formJson.name !== formId) {
+  const registerForm = useCallback((formId: string, isSubForm: boolean, context: FormContextProps) => {
+    if (isSubForm) {
       subForms.current[formId] = context;
+    } else {
+      rootForm.current = context;
     }
   }, []);
 
