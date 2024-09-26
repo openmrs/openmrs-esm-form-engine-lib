@@ -4,9 +4,9 @@ import { type FormContextProps } from '../provider/form-provider';
 import { type OpenmrsEncounter, type FormField } from '../types';
 import { clearSubmission, gracefullySetSubmission } from '../utils/common-utils';
 
-export let assignedEncounterDiagnosisIds: string[] = [];
+export let assignedDiagnosesIds: string[] = [];
 
-export const EncounterDiagnosisAdapter: FormFieldValueAdapter = {
+export const EncounterDiagnosesAdapter: FormFieldValueAdapter = {
   transformFieldValue: function (field: FormField, value: any, context: FormContextProps) {
     if (context.sessionMode == 'edit' && field.meta?.previousValue?.uuid) {
       return editDiagnosis(value, field);
@@ -21,14 +21,16 @@ export const EncounterDiagnosisAdapter: FormFieldValueAdapter = {
     context: FormProcessorContextProps,
   ): Promise<any> {
     const availableDiagnoses = sourceObject ?? (context.domainObjectValue as OpenmrsEncounter);
-    const matchedDiagnosis = availableDiagnoses.diagnoses?.find(
+    const matchedDiagnoses = availableDiagnoses.diagnoses.find(
       (diagnosis) => diagnosis.formFieldPath === `rfe-forms-${field.id}`,
     );
-    if (matchedDiagnosis) {
-      field.meta = { ...(field.meta || {}), previousValue: matchedDiagnosis };
-      assignedEncounterDiagnosisIds.push(matchedDiagnosis.diagnosis?.coded?.uuid);
 
-      return matchedDiagnosis.diagnosis?.coded.uuid;
+    if (matchedDiagnoses) {
+      field.meta = { ...(field.meta || {}), previousValue: matchedDiagnoses };
+      if (!assignedDiagnosesIds.includes(matchedDiagnoses.diagnosis?.coded?.uuid)) {
+        assignedDiagnosesIds.push(matchedDiagnoses.diagnosis?.coded?.uuid);
+      }
+      return matchedDiagnoses.diagnosis?.coded.uuid;
     }
     return null;
   },
@@ -43,7 +45,7 @@ export const EncounterDiagnosisAdapter: FormFieldValueAdapter = {
     return field.questionOptions.answers?.find((option) => option.concept == value)?.label || value;
   },
   tearDown: function (): void {
-    assignedEncounterDiagnosisIds = [];
+    assignedDiagnosesIds = [];
   },
 };
 

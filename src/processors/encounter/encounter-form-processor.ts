@@ -166,7 +166,7 @@ export class EncounterFormProcessor extends FormProcessor {
     try {
       const { data: savedEncounter } = await saveEncounter(abortController, encounter, encounter.uuid);
       const saveOrders = savedEncounter.orders.map((order) => order.orderNumber);
-      const saveDiagnosis = savedEncounter.diagnoses.map((diagnosis) => diagnosis.display);
+      const saveDiagnoses = savedEncounter.diagnoses.map((diagnosis) => diagnosis.display);
       if (saveOrders.length) {
         showSnackbar({
           title: translateFn('ordersSaved', 'Order(s) saved successfully'),
@@ -176,10 +176,10 @@ export class EncounterFormProcessor extends FormProcessor {
         });
       }
       // handle diagnoses
-      if (saveDiagnosis.length) {
+      if (saveDiagnoses.length) {
         showSnackbar({
           title: translateFn('diagnosisSaved', 'Diagnosis(s) saved successfully'),
-          subtitle: saveDiagnosis.join(', '),
+          subtitle: saveDiagnoses.join(', '),
           kind: 'success',
           isLowContrast: true,
         });
