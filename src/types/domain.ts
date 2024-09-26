@@ -138,6 +138,8 @@ export interface DiagnosisPayload {
   };
   certainty: string;
   rank: number;
+  formFieldNamespace?: string;
+  formFieldPath?: string;
 }
 
 export interface Diagnosis {
@@ -153,4 +155,6 @@ export interface Diagnosis {
   display: string;
   voided: boolean;
   uuid: string;
+  formFieldNamespace?: string;
+  formFieldPath?: string;
 }

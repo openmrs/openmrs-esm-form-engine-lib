@@ -134,7 +134,7 @@ function transformByType(question: FormField) {
         : question.questionOptions.rendering;
       break;
     case 'diagnosis':
-      handleDiagnosesDataSource(question);
+      handleDiagnosis(question);
       break;
   }
 }
@@ -258,7 +258,7 @@ function handleQuestionsWithObsComments(sectionQuestions: Array<FormField>): Arr
   return augmentedQuestions;
 }
 
-function handleDiagnosesDataSource(question: FormField) {
+function handleDiagnosis(question: FormField) {
   if ('dataSource' in question.questionOptions && question.questionOptions['dataSource'] === 'diagnoses') {
     question.questionOptions.datasource = {
       name: 'problem_datasource',

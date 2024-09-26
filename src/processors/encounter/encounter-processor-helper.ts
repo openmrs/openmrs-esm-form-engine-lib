@@ -16,7 +16,7 @@ import { ConceptTrue } from '../../constants';
 import { DefaultValueValidator } from '../../validators/default-value-validator';
 import { cloneRepeatField } from '../../components/repeat/helpers';
 import { assignedOrderIds } from '../../adapters/orders-adapter';
-import { assignedEncounterDiagnosisIds } from '../../adapters/encounter-diagnosis-adapter';
+import { assignedDiagnosesIds } from '../../adapters/encounter-diagnoses-adapter';
 
 export function prepareEncounter(
   context: FormContextProps,
@@ -29,7 +29,7 @@ export function prepareEncounter(
   const obsForSubmission = [];
   prepareObs(obsForSubmission, formFields);
   const ordersForSubmission = prepareOrders(formFields);
-  const diagnosisForSubmission = prepareDiagnosis(formFields);
+  const diagnosesForSubmission = prepareDiagnosis(formFields);
   let encounterForSubmission: OpenmrsEncounter = {};
 
   if (encounter) {
@@ -59,7 +59,7 @@ export function prepareEncounter(
     }
     encounterForSubmission.obs = obsForSubmission;
     encounterForSubmission.orders = ordersForSubmission;
-    encounterForSubmission.diagnoses = diagnosisForSubmission;
+    encounterForSubmission.diagnoses = diagnosesForSubmission;
   } else {
     encounterForSubmission = {
       patient: patient.id,
@@ -78,7 +78,7 @@ export function prepareEncounter(
       },
       visit: visit?.uuid,
       orders: ordersForSubmission,
-      diagnoses: diagnosisForSubmission,
+      diagnoses: diagnosesForSubmission,
     };
   }
   return encounterForSubmission;
@@ -305,14 +305,22 @@ export async function hydrateRepeatField(
     );
   }
 
-  //handle diagnoses
-  const unMappedDiagnosis = encounter.diagnoses.filter((diagnosis) => {
-    return !assignedEncounterDiagnosisIds.includes(diagnosis.diagnosis.coded.uuid);
+  const unMappedDiagnoses = encounter.diagnoses.filter((diagnosis) => {
+    return !assignedDiagnosesIds.includes(diagnosis?.diagnosis?.coded.uuid);
   });
+
+  const sortedDiagnoses = unMappedDiagnoses
+    .filter((diagnosis) => !diagnosis.voided)
+    .sort((a, b) => {
+      // Extract numeric part of formFieldPath for sorting
+      const numberA = parseInt(a.formFieldPath.split('_')[1], 10);
+      const numberB = parseInt(b.formFieldPath.split('_')[1], 10);
+      return numberA - numberB; // Sort numerically based on formFieldPath
+    });
 
   if (field.type === 'diagnosis') {
     return Promise.all(
-      unMappedDiagnosis
+      sortedDiagnoses
         .filter((diagnosis) => !diagnosis.voided)
         .map(async (diagnosis) => {
           const clone = cloneRepeatField(field, diagnosis, counter++);
@@ -321,6 +329,11 @@ export async function hydrateRepeatField(
             { diagnoses: [diagnosis] } as any,
             context,
           );
+
+          if (!assignedDiagnosesIds.includes(diagnosis.diagnosis.coded.uuid)) {
+            assignedDiagnosesIds.push(diagnosis.diagnosis.coded.uuid);
+          }
+
           return clone;
         }),
     );
