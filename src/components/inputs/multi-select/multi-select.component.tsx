@@ -80,7 +80,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
     return field.isRequired ? <FieldLabel field={field} /> : <span>{t(field.label)}</span>;
   }, [field.isRequired, field.label, t]);
 
-  return sessionMode == 'view' || sessionMode == 'embedded-view' ? (
+  return sessionMode == 'view' || sessionMode == 'embedded-view' || isTrue(field.readonly) ? (
     <div className={styles.formField}>
       <FieldValueView
         label={t(field.label)}
@@ -110,7 +110,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
                 invalidText={errors[0]?.message}
                 warn={warnings.length > 0}
                 warnText={warnings[0]?.message}
-                readOnly={field.readonly}
+                readOnly={isTrue(field.readonly)}
               />
             ) : (
               <CheckboxGroup legendText={label} name={field.id} readOnly={isTrue(field.readonly)}>
