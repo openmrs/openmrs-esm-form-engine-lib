@@ -25,6 +25,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
       label: answer.label,
       key: index,
       disabled: answer.disable?.isDisabled,
+      readonly: isTrue(field.readonly),
     }));
 
   const initiallySelectedQuestionItems = useMemo(() => {
@@ -80,7 +81,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
     return field.isRequired ? <FieldLabel field={field} /> : <span>{t(field.label)}</span>;
   }, [field.isRequired, field.label, t]);
 
-  return sessionMode == 'view' || sessionMode == 'embedded-view' || isTrue(field.readonly) ? (
+  return sessionMode == 'view' || sessionMode == 'embedded-view' ? (
     <div className={styles.formField}>
       <FieldValueView
         label={t(field.label)}
@@ -129,6 +130,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
                       checked={initiallyCheckedQuestionItems.some((item) => item === value.concept)}
                       onBlur={onblur}
                       disabled={value.disable?.isDisabled}
+                      readOnly={isTrue(field.readonly)}
                     />
                   );
                 })}
