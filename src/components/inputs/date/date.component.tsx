@@ -118,6 +118,7 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
                 disabled={field.datePickerFormat === 'timer' ? field.isDisabled : !dateValue ? true : false}
                 invalid={errors.length > 0}
                 invalidText={errors[0]?.message}
+                readOnly={isTrue(field.readonly)}
                 warning={warnings.length > 0}
                 warningText={warnings[0]?.message}
                 value={

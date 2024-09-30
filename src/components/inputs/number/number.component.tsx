@@ -65,7 +65,7 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           hideSteppers={true}
           onWheel={(e) => e.target.blur()}
           disabled={field.isDisabled}
-          readOnly={field.readonly}
+          readOnly={isTrue(field.readonly)}
           className={classNames(styles.controlWidthConstrained, styles.boldedLabel)}
           warn={warnings.length > 0}
           warnText={warnings[0]?.message}

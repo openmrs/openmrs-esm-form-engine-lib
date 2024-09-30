@@ -25,6 +25,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
       label: answer.label,
       key: index,
       disabled: answer.disable?.isDisabled,
+      readonly: isTrue(field.readonly),
     }));
 
   const initiallySelectedQuestionItems = useMemo(() => {
@@ -110,10 +111,10 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
                 invalidText={errors[0]?.message}
                 warn={warnings.length > 0}
                 warnText={warnings[0]?.message}
-                readOnly={field.readonly}
+                readOnly={isTrue(field.readonly)}
               />
             ) : (
-              <CheckboxGroup legendText={label} name={field.id}>
+              <CheckboxGroup legendText={label} name={field.id} readOnly={isTrue(field.readonly)}>
                 {field.questionOptions.answers?.map((value, index) => {
                   return (
                     <Checkbox
@@ -129,6 +130,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
                       checked={initiallyCheckedQuestionItems.some((item) => item === value.concept)}
                       onBlur={onblur}
                       disabled={value.disable?.isDisabled}
+                      readOnly={isTrue(field.readonly)}
                     />
                   );
                 })}

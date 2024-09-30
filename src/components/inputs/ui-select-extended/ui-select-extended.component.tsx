@@ -154,7 +154,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
               setFieldValue(selectedItem?.uuid);
             }}
             disabled={field.isDisabled}
-            readOnly={field.readonly}
+            readOnly={isTrue(field.readonly)}
             invalid={errors.length > 0}
             invalidText={errors.length && errors[0].message}
             onInputChange={(value) => {

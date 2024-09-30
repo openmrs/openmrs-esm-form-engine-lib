@@ -42,6 +42,7 @@ const Radio: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, 
           name={field.id}
           valueSelected={value}
           onChange={handleChange}
+          readOnly={isTrue(field.readonly)}
           orientation={field.questionOptions?.orientation || 'vertical'}>
           {field.questionOptions.answers
             .filter((answer) => !answer.isHidden)
