@@ -26,4 +26,12 @@ describe('RepeatingFieldComponent - handleExpressionFieldIdUpdate', () => {
       "myValue > today() || myValue <= '1/1/1890' || myValue > useFieldValue('visit_date') || myValue < useFieldValue('visit_date')",
     );
   });
+
+  it('Should update field ID in expressions when adding repeated fields', () => {
+    const expression = "infantStatus !== 'someValue'";
+    const fieldIds = ['birthDate', 'infantStatus', 'deathDate'];
+    const updatedExpression = updateFieldIdInExpression(expression, 2, fieldIds);
+
+    expect(updatedExpression).toEqual("infantStatus_2 !== 'someValue'");
+  });
 });
