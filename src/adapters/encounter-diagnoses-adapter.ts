@@ -20,17 +20,17 @@ export const EncounterDiagnosesAdapter: FormFieldValueAdapter = {
     sourceObject: OpenmrsResource,
     context: FormProcessorContextProps,
   ): Promise<any> {
-    const availableDiagnoses = sourceObject ?? (context.domainObjectValue as OpenmrsEncounter);
-    const matchedDiagnoses = availableDiagnoses.diagnoses.find(
+    const encounter = sourceObject ?? (context.domainObjectValue as OpenmrsEncounter);
+    const matchedDiagnosis = encounter.diagnoses.find(
       (diagnosis) => diagnosis.formFieldPath === `rfe-forms-${field.id}`,
     );
 
-    if (matchedDiagnoses) {
-      field.meta = { ...(field.meta || {}), previousValue: matchedDiagnoses };
-      if (!assignedDiagnosesIds.includes(matchedDiagnoses.diagnosis?.coded?.uuid)) {
-        assignedDiagnosesIds.push(matchedDiagnoses.diagnosis?.coded?.uuid);
+    if (matchedDiagnosis) {
+      field.meta = { ...(field.meta || {}), previousValue: matchedDiagnosis };
+      if (!assignedDiagnosesIds.includes(matchedDiagnosis.diagnosis?.coded?.uuid)) {
+        assignedDiagnosesIds.push(matchedDiagnosis.diagnosis?.coded?.uuid);
       }
-      return matchedDiagnoses.diagnosis?.coded.uuid;
+      return matchedDiagnosis.diagnosis?.coded.uuid;
     }
     return null;
   },
@@ -67,7 +67,7 @@ const constructNewDiagnosis = (value: any, field: FormField, patientUuid: string
 };
 
 function editDiagnosis(newEncounterDiagnosis: any, field: FormField) {
-  if (newEncounterDiagnosis === field.meta.previousValue?.concept?.uuid) {
+  if (newEncounterDiagnosis === field.meta.previousValue?.diagnosis?.coded?.uuid) {
     clearSubmission(field);
     return null;
   }
