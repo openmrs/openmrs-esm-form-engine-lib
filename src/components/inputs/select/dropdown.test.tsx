@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { type EncounterContext, FormContext } from '../../../form-context';
 import Dropdown from './dropdown.component';
 import { type FormField } from '../../../types';
 
@@ -29,7 +28,7 @@ const question: FormField = {
   id: 'patient-past-program',
 };
 
-const encounterContext: EncounterContext = {
+const encounterContext = {
   patient: {
     id: '833db896-c1f0-11eb-8529-0242ac130003',
   },

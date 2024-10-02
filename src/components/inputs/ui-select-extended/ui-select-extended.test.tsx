@@ -1,211 +1,281 @@
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import UiSelectExtended from './ui-select-extended.component';
-import { type EncounterContext, FormContext } from '../../../form-context';
-import { type FormField } from '../../../types';
+import { act, render, screen } from '@testing-library/react';
+import { type FormSchema, type SessionMode, type OpenmrsEncounter } from '../../../types';
+import { usePatient, useSession } from '@openmrs/esm-framework';
+import { mockPatient } from '../../../../__mocks__/patient.mock';
+import { mockSessionDataResponse } from '../../../../__mocks__/session.mock';
+import { FormEngine } from '../../..';
+import uiSelectExtForm from '../../../../__mocks__/forms/rfe-forms/sample_ui-select-ext.json';
+import { assertFormHasAllFields, findSelectInput } from '../../../utils/test-utils';
+import userEvent from '@testing-library/user-event';
+import * as api from '../../../api';
 
-const questions: FormField[] = [
-  {
-    label: 'Transfer Location',
-    type: 'obs',
-    questionOptions: {
-      rendering: 'ui-select-extended',
-      concept: '160540AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-      datasource: {
-        name: 'location_datasource',
-        config: {
-          tag: 'test-tag',
-        },
-      },
-    },
-    meta: {},
-    id: 'patient_transfer_location',
-  },
-  {
-    label: 'Select criteria for new WHO stage:',
-    type: 'obs',
-    questionOptions: {
-      concept: '250e87b6-beb7-44a1-93a1-d3dd74d7e372',
-      rendering: 'select-concept-answers',
-      datasource: {
-        name: 'select_concept_answers_datasource',
-        config: {
-          concept: '250e87b6-beb7-44a1-93a1-d3dd74d7e372',
-        },
-      },
-    },
-    validators: [],
-    id: '__sq5ELJr7p',
-  },
-];
+const mockUsePatient = jest.mocked(usePatient);
+const mockUseSession = jest.mocked(useSession);
+global.ResizeObserver = require('resize-observer-polyfill');
 
-const encounterContext: EncounterContext = {
-  patient: {
-    id: '833db896-c1f0-11eb-8529-0242ac130003',
-  },
-  location: {
-    uuid: '41e6e516-c1f0-11eb-8529-0242ac130003',
-  },
-  encounter: {
-    uuid: '873455da-3ec4-453c-b565-7c1fe35426be',
-    obs: [],
-  },
-  sessionMode: 'enter',
-  encounterDate: new Date(2023, 8, 29),
-  setEncounterDate: (value) => {},
-  encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
-  setEncounterProvider: jest.fn,
-  setEncounterLocation: jest.fn,
-  encounterRole: '8cb3a399-d18b-4b62-aefb-5a0f948a3809',
-  setEncounterRole: jest.fn,
-};
+jest.mock('../../../hooks/useRestMaxResultsCount', () => jest.fn().mockReturnValue({ systemSetting: { value: '50' } }));
+jest.mock('lodash-es/debounce', () => jest.fn((fn) => fn));
 
-const renderForm = (initialValues) => {
-  render(<></>);
-};
+jest.mock('../../../api', () => {
+  const originalModule = jest.requireActual('../../../api');
+  return {
+    ...originalModule,
+    getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(null)),
+    getConcept: jest.fn().mockImplementation(() => Promise.resolve(null)),
+    saveEncounter: jest.fn(),
+  };
+});
 
-// Mock the data source fetch behavior
-jest.mock('../../../registry/registry', () => ({
-  getRegisteredDataSource: jest.fn().mockResolvedValue({
-    fetchData: jest.fn().mockImplementation((...args) => {
-      if (args[1].concept) {
-        return Promise.resolve([
-          {
-            uuid: 'stage-1-uuid',
-            display: 'stage 1',
-          },
-          {
-            uuid: 'stage-2-uuid',
-            display: 'stage 2',
-          },
-        ]);
-      }
-
-      return Promise.resolve([
-        {
-          uuid: 'aaa-1',
-          display: 'Kololo',
-        },
-        {
-          uuid: 'aaa-2',
-          display: 'Naguru',
-        },
-        {
-          uuid: 'aaa-3',
-          display: 'Muyenga',
-        },
-      ]);
-    }),
-    toUuidAndDisplay: (data) => data,
+jest.mock('../../../hooks/useEncounterRole', () => ({
+  useEncounterRole: jest.fn().mockReturnValue({
+    isLoading: false,
+    encounterRole: { name: 'Clinician', uuid: 'clinician-uuid' },
+    error: undefined,
   }),
 }));
 
-describe.skip('UiSelectExtended Component', () => {
-  it('renders with items from the datasource', async () => {
-    await act(async () => {
-      await renderForm({});
+jest.mock('../../../hooks/useEncounter', () => ({
+  useEncounter: jest.fn().mockImplementation((formJson: FormSchema) => {
+    return {
+      encounter: formJson.encounter ? (encounter as OpenmrsEncounter) : null,
+      isLoading: false,
+      error: undefined,
+    };
+  }),
+}));
+
+jest.mock('../../../hooks/useConcepts', () => ({
+  useConcepts: jest.fn().mockImplementation((references: Set<string>) => {
+    return {
+      isLoading: false,
+      concepts: [],
+      error: undefined,
+    };
+  }),
+}));
+
+jest.mock('../../../registry/registry', () => {
+  const originalModule = jest.requireActual('../../../registry/registry');
+  return {
+    ...originalModule,
+    getRegisteredDataSource: jest.fn().mockResolvedValue({
+      fetchData: jest.fn().mockImplementation((...args) => {
+        if (args[1].class?.length) {
+          // concept DS
+          return Promise.resolve([
+            {
+              uuid: 'stage-1-uuid',
+              display: 'stage 1',
+            },
+            {
+              uuid: 'stage-2-uuid',
+              display: 'stage 2',
+            },
+          ]);
+        }
+
+        // location DS
+        return Promise.resolve([
+          {
+            uuid: 'aaa-1',
+            display: 'Kololo',
+          },
+          {
+            uuid: 'aaa-2',
+            display: 'Naguru',
+          },
+          {
+            uuid: 'aaa-3',
+            display: 'Muyenga',
+          },
+        ]);
+      }),
+      fetchSingleItem: jest.fn().mockImplementation((uuid: string) => {
+        return Promise.resolve({
+          uuid,
+          display: 'stage 1',
+        });
+      }),
+      toUuidAndDisplay: (data) => data,
+    }),
+  };
+});
+
+const encounter = {
+  uuid: 'encounter-uuid',
+  obs: [
+    {
+      concept: {
+        uuid: '160540AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      },
+      value: 'aaa-2',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-patient_transfer_location',
+      uuid: 'obs-uuid-1',
+    },
+    {
+      concept: {
+        uuid: '4b59ac07-cf72-4f46-b8c0-4f62b1779f7e',
+      },
+      value: 'stage-1-uuid',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-problem',
+      uuid: 'obs-uuid-2',
+    },
+  ],
+};
+
+const renderForm = (mode: SessionMode = 'enter') => {
+  render(
+    <FormEngine
+      formJson={uiSelectExtForm as FormSchema}
+      patientUUID="8673ee4f-e2ab-4077-ba55-4980f408773e"
+      mode={mode}
+      encounterUUID={mode === 'edit' ? 'encounter-uuid' : null}
+    />,
+  );
+};
+
+describe('UiSelectExtended', () => {
+  const user = userEvent.setup();
+
+  beforeEach(() => {
+    Object.defineProperty(window, 'i18next', {
+      writable: true,
+      configurable: true,
+      value: {
+        language: 'en',
+        t: jest.fn(),
+      },
     });
 
-    // setup
-    const uiSelectExtendedWidget = screen.getByLabelText('Transfer Location');
+    mockUsePatient.mockImplementation(() => ({
+      patient: mockPatient,
+      isLoading: false,
+      error: undefined,
+      patientUuid: mockPatient.id,
+    }));
 
-    // assert initial values
-    expect(questions[0].meta.submission).toBe(undefined);
-
-    //Click on the UiSelectExtendedWidget to open the dropdown
-    fireEvent.click(uiSelectExtendedWidget);
-
-    // Assert that all three items are displayed
-    expect(screen.getByText('Kololo')).toBeInTheDocument();
-    expect(screen.getByText('Naguru')).toBeInTheDocument();
-    expect(screen.getByText('Muyenga')).toBeInTheDocument();
+    mockUseSession.mockImplementation(() => mockSessionDataResponse.data);
   });
 
-  it('renders with items from the datasource of select-concept-answers rendering', async () => {
-    await act(async () => {
-      await renderForm({});
-    });
-
-    const uiSelectExtendedWidget = screen.getByLabelText(/Select criteria for new WHO stage:/i);
-    fireEvent.click(uiSelectExtendedWidget);
-
-    // Assert that all items are displayed
-    expect(screen.getByText('stage 1')).toBeInTheDocument();
-    expect(screen.getByText('stage 2')).toBeInTheDocument();
-  });
-
-  it('Selects a value from the list', async () => {
-    await act(async () => {
-      await renderForm({});
-    });
-
-    // setup
-    const uiSelectExtendedWidget = screen.getByLabelText('Transfer Location');
-
-    //Click on the UiSelectExtendedWidget to open the dropdown
-    fireEvent.click(uiSelectExtendedWidget);
-
-    // Find the list item for 'Naguru' and click it to select
-    const naguruOption = screen.getByText('Naguru');
-    fireEvent.click(naguruOption);
-
-    // verify
-    await act(async () => {
-      expect(questions[0].meta.submission.newValue).toEqual({
-        concept: '160540AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-        formFieldNamespace: 'rfe-forms',
-        formFieldPath: 'rfe-forms-patient_transfer_location',
-        value: 'aaa-2',
+  describe('Enter/New mode', () => {
+    it('should render comboboxes correctly for both "non-searchable" and "searchable" instances', async () => {
+      await act(async () => {
+        renderForm();
       });
-    });
-  });
 
-  it('Filters items based on user input', async () => {
-    await act(async () => {
-      await renderForm({});
-    });
+      await assertFormHasAllFields(screen, [
+        { fieldName: 'Transfer Location', fieldType: 'select' },
+        { fieldName: 'Problem', fieldType: 'select' },
+      ]);
 
-    // setup
-    const uiSelectExtendedWidget = screen.getByLabelText('Transfer Location');
-
-    //Click on the UiSelectExtendedWidget to open the dropdown
-    fireEvent.click(uiSelectExtendedWidget);
-
-    // Type 'Nag' in the input field to filter items
-    fireEvent.change(uiSelectExtendedWidget, { target: { value: 'Nag' } });
-
-    // Wait for the filtered items to appear in the dropdown
-    await waitFor(() => {
-      // Verify that 'Naguru' is in the filtered items
+      // Test for "non-searchable" instance
+      const transferLocationSelect = await findSelectInput(screen, 'Transfer Location');
+      await user.click(transferLocationSelect);
+      expect(screen.getByText('Kololo')).toBeInTheDocument();
       expect(screen.getByText('Naguru')).toBeInTheDocument();
+      expect(screen.getByText('Muyenga')).toBeInTheDocument();
 
-      // Verify that 'Kololo' and 'Muyenga' are not in the filtered items
+      // Test for "searchable" instance
+      const problemSelect = await findSelectInput(screen, 'Problem');
+      expect(problemSelect).toHaveAttribute('placeholder', 'Search...');
+    });
+
+    it('should be possible to select an item from the combobox and submit the form', async () => {
+      const mockSaveEncounter = jest.spyOn(api, 'saveEncounter');
+
+      await act(async () => {
+        renderForm();
+      });
+
+      const transferLocationSelect = await findSelectInput(screen, 'Transfer Location');
+      await user.click(transferLocationSelect);
+      const naguruOption = screen.getByText('Naguru');
+      await user.click(naguruOption);
+
+      // submit the form
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      expect(mockSaveEncounter).toHaveBeenCalledWith(
+        expect.any(AbortController),
+        expect.objectContaining({
+          obs: [
+            {
+              concept: '160540AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+              formFieldNamespace: 'rfe-forms',
+              formFieldPath: 'rfe-forms-patient_transfer_location',
+              value: 'aaa-2',
+            },
+          ],
+        }),
+        undefined,
+      );
+    });
+
+    it('should be possible to search and select an item from the search-box and submit the form', async () => {
+      const mockSaveEncounter = jest.spyOn(api, 'saveEncounter');
+
+      await act(async () => {
+        renderForm();
+      });
+
+      const problemSelect = await findSelectInput(screen, 'Problem');
+      await user.click(problemSelect);
+      await user.type(problemSelect, 'stage');
+      expect(screen.getByText('stage 1')).toBeInTheDocument();
+      expect(screen.getByText('stage 2')).toBeInTheDocument();
+      // select the first option
+      await user.click(screen.getByText('stage 1'));
+
+      // submit the form
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      expect(mockSaveEncounter).toHaveBeenCalledWith(
+        expect.any(AbortController),
+        expect.objectContaining({
+          obs: [
+            {
+              concept: '4b59ac07-cf72-4f46-b8c0-4f62b1779f7e',
+              formFieldNamespace: 'rfe-forms',
+              formFieldPath: 'rfe-forms-problem',
+              value: 'stage-1-uuid',
+            },
+          ],
+        }),
+        undefined,
+      );
+    });
+
+    it('should filter items based on user input', async () => {
+      await act(async () => {
+        renderForm();
+      });
+
+      const transferLocationSelect = await findSelectInput(screen, 'Transfer Location');
+      await user.click(transferLocationSelect);
+      await user.type(transferLocationSelect, 'Nag');
+
+      expect(screen.getByText('Naguru')).toBeInTheDocument();
       expect(screen.queryByText('Kololo')).not.toBeInTheDocument();
       expect(screen.queryByText('Muyenga')).not.toBeInTheDocument();
     });
   });
 
-  it('Should set the correct value for the config parameter', async () => {
-    // Mock the data source fetch behavior
-    const expectedConfigValue = {
-      tag: 'test-tag',
-    };
+  describe('Edit mode', () => {
+    it('should initialize with the current value for both "non-searchable" and "searchable" instances', async () => {
+      await act(async () => {
+        renderForm('edit');
+      });
 
-    // Mock the getRegisteredDataSource function
-    jest.mock('../../../registry/registry', () => ({
-      getRegisteredDataSource: jest.fn().mockResolvedValue({
-        fetchData: jest.fn().mockResolvedValue([]),
-        toUuidAndDisplay: (data) => data,
-        config: expectedConfigValue,
-      }),
-    }));
+      // Non-searchable instance
+      const nonSearchableInstance = await findSelectInput(screen, 'Transfer Location');
+      expect(nonSearchableInstance).toHaveValue('Naguru');
 
-    await act(async () => {
-      await renderForm({});
+      // Searchable instance
+      const searchableInstance = await findSelectInput(screen, 'Problem');
+      expect(searchableInstance).toHaveValue('stage 1');
     });
-    const config = questions[0].questionOptions.datasource.config;
-
-    // Assert that the config is set with the expected configuration value
-    expect(config).toEqual(expectedConfigValue);
   });
 });

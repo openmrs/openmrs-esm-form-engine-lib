@@ -41,7 +41,7 @@ export function useFormFieldsMeta(rawFormFields: FormField[], concepts: OpenmrsR
         return field;
       });
     }
-    return [];
+    return rawFormFields ?? [];
   }, [concepts, rawFormFields]);
 
   return formFields;

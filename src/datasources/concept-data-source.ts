@@ -4,21 +4,21 @@ import { isEmpty } from '../validators/form-validator';
 
 export class ConceptDataSource extends BaseOpenMRSDataSource {
   constructor() {
-    super(`${restBaseUrl}/concept?name=&searchType=fuzzy&v=custom:(uuid,display,conceptClass:(uuid,display))`);
+    super(`${restBaseUrl}/concept?v=custom:(uuid,display,conceptClass:(uuid,display))`);
   }
 
-  fetchData(searchTerm: string, config?: Record<string, any>, uuid?: string): Promise<any[]> {
+  fetchData(searchTerm: string, config?: Record<string, any>): Promise<any[]> {
     if (isEmpty(config?.class) && isEmpty(config?.concept) && !config?.useSetMembersByConcept && isEmpty(searchTerm)) {
       return Promise.resolve([]);
     }
 
-    let apiUrl = this.url;
+    let searchUrl = `${restBaseUrl}/concept?name=&searchType=fuzzy&v=custom:(uuid,display,conceptClass:(uuid,display))`;
     if (config?.class) {
       if (typeof config.class == 'string') {
-        const urlParts = apiUrl.split('searchType=fuzzy');
-        apiUrl = `${urlParts[0]}searchType=fuzzy&class=${config.class}&${urlParts[1]}`;
+        const urlParts = searchUrl.split('searchType=fuzzy');
+        searchUrl = `${urlParts[0]}searchType=fuzzy&class=${config.class}&${urlParts[1]}`;
       } else {
-        return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
+        return openmrsFetch(searchTerm ? `${searchUrl}&q=${searchTerm}` : searchUrl).then(({ data }) => {
           return data.results.filter(
             (concept) => concept.conceptClass && config.class.includes(concept.conceptClass.uuid),
           );
@@ -27,15 +27,15 @@ export class ConceptDataSource extends BaseOpenMRSDataSource {
     }
 
     if (config?.concept && config?.useSetMembersByConcept) {
-      let urlParts = apiUrl.split('?name=&searchType=fuzzy&v=');
-      apiUrl = `${urlParts[0]}/${config.concept}?v=custom:(uuid,setMembers:(uuid,display))`;
-      return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
+      let urlParts = searchUrl.split('?name=&searchType=fuzzy&v=');
+      searchUrl = `${urlParts[0]}/${config.concept}?v=custom:(uuid,setMembers:(uuid,display))`;
+      return openmrsFetch(searchTerm ? `${searchUrl}&q=${searchTerm}` : searchUrl).then(({ data }) => {
         // return the setMembers from the retrieved concept object
         return data['setMembers'];
       });
     }
 
-    return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
+    return openmrsFetch(searchTerm ? `${searchUrl}&q=${searchTerm}` : searchUrl).then(({ data }) => {
       return data.results;
     });
   }

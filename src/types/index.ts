@@ -69,7 +69,14 @@ export interface DataSource<T> {
   /**
    * Fetches arbitrary data from a data source
    */
-  fetchData(searchTerm?: string, config?: Record<string, any>, uuid?: string): Promise<Array<T>>;
+  fetchData(searchTerm?: string, config?: Record<string, any>): Promise<Array<T>>;
+
+  /**
+   * Fetches a single item from the data source based on its UUID.
+   * This is used for value binding with previously selected values.
+   */
+  fetchSingleItem(uuid: string): Promise<T | null>;
+
   /**
    * Maps a data source item to an object with a uuid and display property
    */
