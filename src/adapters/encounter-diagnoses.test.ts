@@ -63,6 +63,7 @@ const field = {
     submission: {
       newValue: null,
     },
+    previousValue: null,
   },
   validators: [
     {
@@ -162,5 +163,40 @@ describe('EncounterDiagnosesAdapter', () => {
 
   it('should execute tearDown without issues', () => {
     expect(() => EncounterDiagnosesAdapter.tearDown()).not.toThrow();
+  });
+
+  it('should edit a diagnosis value', () => {
+    formContext.sessionMode = 'edit';
+
+    const value = '128138AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+    field.meta.previousValue = {
+      uuid: '0e20bb67-5d7f-41e0-96a1-751efc21a96f',
+      certainty: 'CONFIRMED',
+      condition: null,
+      formFieldPath: 'rfe-forms-DiagNosIS_1',
+      formFieldNamespace: 'rfe-forms',
+      display: 'Schistosoma Mansonii Infection',
+      rank: 1,
+      voided: false,
+      diagnosis: {
+        coded: {
+          uuid: '127133AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          display: 'Schistosoma Mansonii Infection',
+        },
+      },
+    };
+    EncounterDiagnosesAdapter.transformFieldValue(field, value, formContext);
+    expect(field.meta.submission.newValue).toEqual({
+      patient: null,
+      condition: null,
+      diagnosis: {
+        coded: '128138AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      },
+      certainty: 'CONFIRMED',
+      rank: 1,
+      formFieldPath: 'rfe-forms-DiagNosIS',
+      formFieldNamespace: 'rfe-forms',
+    });
+    expect(field.meta.submission.voidedValue).toEqual({ uuid: '0e20bb67-5d7f-41e0-96a1-751efc21a96f', voided: true });
   });
 });
