@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import debounce from 'lodash-es/debounce';
-import { ComboBox, DropdownSkeleton, Layer } from '@carbon/react';
+import { ComboBox, DropdownSkeleton, Layer, InlineLoading } from '@carbon/react';
 import { isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
@@ -13,7 +13,6 @@ import styles from './ui-select-extended.scss';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 import { useWatch } from 'react-hook-form';
-import { InlineLoading } from '@carbon/react';
 import useDataSourceDependentValue from '../../../hooks/useDataSourceDependentValue';
 import { isViewMode } from '../../../utils/common-utils';
 
