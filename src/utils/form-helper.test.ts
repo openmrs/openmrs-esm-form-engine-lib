@@ -8,7 +8,6 @@ import { DefaultValueValidator } from '../validators/default-value-validator';
 import { type LayoutType } from '@openmrs/esm-framework';
 import { ConceptTrue } from '../constants';
 import { type FormField, type OpenmrsEncounter, type SessionMode } from '../types';
-import { type EncounterContext } from '../form-context';
 
 jest.mock('../validators/default-value-validator');
 
