@@ -9,35 +9,6 @@
           "isExpanded": "true",
           "questions": [
             {
-              "label": "Visit type",
-              "type": "obs",
-              "required": false,
-              "id": "visitType",
-              "readonly": "true",
-              "questionOptions": {
-                "rendering": "select",
-                "concept": "164181AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-                "conceptMappings": [
-                  {
-                    "relationship": "SAME-AS",
-                    "type": "CIEL",
-                    "value": "164181"
-                  }
-                ],
-                "answers": [
-                  {
-                    "concept": "164180AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-                    "label": "New visit"
-                  },
-                  {
-                    "concept": "160530AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-                    "label": "Return visit type"
-                  }
-                ]
-              },
-              "validators": []
-            },
-            {
               "label": "Visit punctuality",
               "type": "obs",
               "required": false,
@@ -63,6 +34,19 @@
                     "value": "48767-8"
                   }
                 ]
+              },
+              "validators": []
+            },
+            {
+              "label": "Visit notes",
+              "type": "obs",
+              "required": false,
+              "id": "visitNotes",
+              "readonly": "true",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "conceptMappings": []
               },
               "validators": []
             }
