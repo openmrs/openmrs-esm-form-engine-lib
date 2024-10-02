@@ -5,7 +5,7 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
-import { type FormFieldInputProps } from '../../../types';
+import { type DataSource, type FormFieldInputProps } from '../../../types';
 import { isEmpty } from '../../../validators/form-validator';
 import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
@@ -15,6 +15,7 @@ import FieldLabel from '../../field-label/field-label.component';
 import { useWatch } from 'react-hook-form';
 import useDataSourceDependentValue from '../../../hooks/useDataSourceDependentValue';
 import { isViewMode } from '../../../utils/common-utils';
+import { type OpenmrsResource } from '@openmrs/esm-framework';
 
 const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
@@ -44,21 +45,26 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
     return false;
   }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
 
-  const selectedItem = useMemo(() => items.find((item) => item.uuid == value), [items, value]);
+  const selectedItem = useMemo(() => items.find((item) => item.uuid == value) || null, [items, value]);
 
-  const debouncedSearch = debounce((searchTerm, dataSource) => {
-    setItems([]);
+  const debouncedSearch = debounce((searchTerm: string, dataSource: DataSource<OpenmrsResource>) => {
     setIsSearching(true);
     dataSource
       .fetchData(searchTerm, config)
       .then((dataItems) => {
-        setItems(dataItems.map(dataSource.toUuidAndDisplay));
+        if (dataItems.length) {
+          const currentSelectedItem = items.find((item) => item.uuid == value);
+          const newItems = dataItems.map(dataSource.toUuidAndDisplay);
+          if (currentSelectedItem && !newItems.some((item) => item.uuid == currentSelectedItem.uuid)) {
+            newItems.unshift(currentSelectedItem);
+          }
+          setItems(newItems);
+        }
         setIsSearching(false);
       })
       .catch((err) => {
         console.error(err);
         setIsSearching(false);
-        setItems([]);
       });
   }, 300);
 
