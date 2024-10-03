@@ -30,7 +30,7 @@ describe('CommonExpressionHelpers', () => {
   });
 
   describe('today', () => {
-    it('should return today\'s date', () => {
+    it("should return today's date", () => {
       const today = helpers.today();
       expect(today).toBeInstanceOf(Date);
       expect(today.toDateString()).toBe(new Date().toDateString());
@@ -85,7 +85,7 @@ describe('CommonExpressionHelpers', () => {
 
   describe('useFieldValue', () => {
     it('should return the field value if the key exists', () => {
-      helpers.allFieldValues = { 'question1': 'value1' };
+      helpers.allFieldValues = { question1: 'value1' };
       helpers.allFieldsKeys = ['question1'];
       expect(helpers.useFieldValue('question1')).toBe('value1');
     });
@@ -178,12 +178,16 @@ describe('CommonExpressionHelpers', () => {
       const arvDispensedInDays = 30;
       const patientStatus = '160429AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
       const expectedTreatmentEndDate = new Date('2021-03-02');
-      expect(helpers.calcTreatmentEndDate(followupDate, arvDispensedInDays, patientStatus)).toEqual(expectedTreatmentEndDate);
+      expect(helpers.calcTreatmentEndDate(followupDate, arvDispensedInDays, patientStatus)).toEqual(
+        expectedTreatmentEndDate,
+      );
     });
 
     it('should return null if followupDate, arvDispensedInDays, or patientStatus is not provided', () => {
       expect(helpers.calcTreatmentEndDate(null, 30, '160429AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')).toBe(null);
-      expect(helpers.calcTreatmentEndDate(new Date('2021-01-01'), null, '160429AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')).toBe(null);
+      expect(helpers.calcTreatmentEndDate(new Date('2021-01-01'), null, '160429AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')).toBe(
+        null,
+      );
       expect(helpers.calcTreatmentEndDate(new Date('2021-01-01'), 30, null)).toBe(null);
     });
   });
@@ -233,7 +237,7 @@ describe('CommonExpressionHelpers', () => {
 
   describe('parseDate', () => {
     it('returns a Date object', () => {
-      const result = helpers.parseDate('2023-04-13', 'yyyy-MM-dd');
+      const result = helpers.parseDate('2023-04-13');
       expect(result instanceof Date).toBe(true);
     });
 
@@ -325,5 +329,3 @@ describe('CommonExpressionHelpers', () => {
     });
   });
 });
-
-

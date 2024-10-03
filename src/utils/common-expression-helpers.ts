@@ -12,7 +12,7 @@ import { isEmpty as isValueEmpty } from '../validators/form-validator';
 import * as apiFunctions from '../api';
 import { getZRefByGenderAndAge } from './zscore-service';
 import { ConceptFalse, ConceptTrue } from '../constants';
-import { formatDate } from '@openmrs/esm-framework';
+import { formatDate, parseDate } from '@openmrs/esm-framework';
 
 export class CommonExpressionHelpers {
   node: FormNode = null;
@@ -125,7 +125,7 @@ export class CommonExpressionHelpers {
   };
 
   calcMonthsOnART = (artStartDate: Date) => {
-    if (artStartDate == null ) return null;
+    if (artStartDate == null) return null;
 
     if (!(artStartDate instanceof Date)) {
       throw new Error('DateFormatException: value passed is not a valid date');
@@ -244,18 +244,9 @@ export class CommonExpressionHelpers {
     return false;
   };
 
-  parseDate = (value: ConstructorParameters<typeof Date>[0], format?: string | null, offset?: string | null) => {
-    format = format ?? 'yyyy-MM-dd';
-    offset = offset ?? '+0300';
-
-    if (!(value instanceof Date)) {
-      value = new Date(value);
-      if (value === null || value === undefined) {
-        throw new Error('DateFormatException: value passed is not a valid date');
-      }
-    }
-    return value;
-  }
+  parseDate = (dateString: string) => {
+    return parseDate(dateString);
+  };
 
   formatDate = (value: ConstructorParameters<typeof Date>[0], format?: string) => {
     if (!(value instanceof Date)) {
@@ -264,7 +255,7 @@ export class CommonExpressionHelpers {
         throw new Error('DateFormatException: value passed is not a valid date');
       }
     }
-    if(format) {
+    if (format) {
       return dayjs(value).format(format);
     }
     return formatDate(value);
