@@ -127,6 +127,15 @@ describe('Forms loader - getForm', () => {
                   ],
                   id: 'dateTestPerformed',
                 },
+                {
+                  id: 'sampleQuestion',
+                  label: 'Question title',
+                  questionOptions: {
+                    concept: '193e8a03-1581-46e9-b0a4-17c55fa2649f',
+                    rendering: 'text',
+                  },
+                  type: 'obs',
+                },
               ],
             },
           ],
@@ -245,6 +254,15 @@ describe('Forms loader - getForm', () => {
                     },
                   ],
                   id: 'dateTestPerformed',
+                },
+                {
+                  id: 'sampleQuestion',
+                  label: 'Question title',
+                  questionOptions: {
+                    concept: '193e8a03-1581-46e9-b0a4-17c55fa2649f',
+                    rendering: 'text',
+                  },
+                  type: 'obs',
                 },
               ],
             },
