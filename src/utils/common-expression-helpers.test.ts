@@ -12,6 +12,23 @@ describe('CommonExpressionHelpers', () => {
     helpers = new CommonExpressionHelpers(null, mockPatient, mockFields, mockFieldValues, mockFieldKeys);
   });
 
+  describe('isEmpty', () => {
+    it('should return true if value is empty, null or undefined', () => {
+      let val = '';
+
+      expect(helpers.isEmpty(val)).toBe(true);
+
+      val = 'test';
+      expect(helpers.isEmpty(val)).toBe(false);
+
+      val = null;
+      expect(helpers.isEmpty(val)).toBe(true);
+
+      val = undefined;
+      expect(helpers.isEmpty(val)).toBe(true);
+    });
+  });
+
   describe('today', () => {
     it('should return today\'s date', () => {
       const today = helpers.today();
@@ -214,11 +231,28 @@ describe('CommonExpressionHelpers', () => {
     });
   });
 
+  describe('parseDate', () => {
+    it('returns a Date object', () => {
+      const result = helpers.parseDate('2023-04-13', 'yyyy-MM-dd');
+      expect(result instanceof Date).toBe(true);
+    });
+
+    it('uses default format and offset values when passed as null arguments', () => {
+      const result = helpers.parseDate('2023-04-13T01:23:45.678Z');
+      expect(result.toISOString()).toEqual('2023-04-13T01:23:45.678Z');
+    });
+  });
+
   describe('formatDate', () => {
     it('should return a formatted date string', () => {
       const dateValue = '2022-11-21';
       const formattedDate = helpers.formatDate(dateValue, 'DD/MM/YYYY');
       expect(formattedDate).toBe('21/11/2022');
+    });
+
+    it('defaults to openmrs locale format if no format is passed', () => {
+      const formattedDate = helpers.formatDate('2023-04-13T01:23:45.678Z');
+      expect(formattedDate).toEqual('13-Apr-2023');
     });
 
     it('should throw an error if the value is not a valid date', () => {
@@ -234,6 +268,12 @@ describe('CommonExpressionHelpers', () => {
       const array = [{ key1: 'value1' }, { key1: 'value2' }];
       const key = 'key1';
       expect(helpers.extractRepeatingGroupValues(key, array)).toEqual(['value1', 'value2']);
+    });
+
+    it('returns an empty array if the input array is empty', () => {
+      const emptyArray = [];
+      const values = helpers.extractRepeatingGroupValues('someKey', emptyArray);
+      expect(values).toEqual([]);
     });
   });
 

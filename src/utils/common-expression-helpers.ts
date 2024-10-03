@@ -128,7 +128,7 @@ export class CommonExpressionHelpers {
     if (artStartDate == null ) return null;
 
     if (!(artStartDate instanceof Date)) {
-      throw new Error('DateFormatException: value passed ' + 'is not a valid date');
+      throw new Error('DateFormatException: value passed is not a valid date');
     }
 
     let today = new Date();
@@ -243,6 +243,19 @@ export class CommonExpressionHelpers {
 
     return false;
   };
+
+  parseDate = (value: ConstructorParameters<typeof Date>[0], format?: string | null, offset?: string | null) => {
+    format = format ?? 'yyyy-MM-dd';
+    offset = offset ?? '+0300';
+
+    if (!(value instanceof Date)) {
+      value = new Date(value);
+      if (value === null || value === undefined) {
+        throw new Error('DateFormatException: value passed is not a valid date');
+      }
+    }
+    return value;
+  }
 
   formatDate = (value: ConstructorParameters<typeof Date>[0], format?: string) => {
     if (!(value instanceof Date)) {
