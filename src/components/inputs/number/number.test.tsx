@@ -50,6 +50,19 @@ describe('NumberField Component', () => {
     expect(screen.getByLabelText('Weight(kg):')).toBeInTheDocument();
   });
 
+  it('should render with NaN value', async () => {
+    await renderNumberField({
+      field: numberFieldMock,
+      value: NaN,
+      errors: [],
+      warnings: [],
+      setFieldValue: jest.fn(),
+    });
+
+    const inputElement = screen.getByLabelText('Weight(kg):') as HTMLInputElement;
+    expect(inputElement.value).toBe('');
+  });
+
   it('calls setFieldValue on input change', async () => {
     const mockSetFieldValue = jest.fn();
 
