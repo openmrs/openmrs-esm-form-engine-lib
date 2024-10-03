@@ -12,6 +12,7 @@ import { isEmpty as isValueEmpty } from '../validators/form-validator';
 import * as apiFunctions from '../api';
 import { getZRefByGenderAndAge } from './zscore-service';
 import { ConceptFalse, ConceptTrue } from '../constants';
+import { formatDate, parseDate } from '@openmrs/esm-framework';
 
 export class CommonExpressionHelpers {
   node: FormNode = null;
@@ -73,8 +74,7 @@ export class CommonExpressionHelpers {
       default:
         break;
     }
-
-    return selectedDate.getTime() > calculatedDate.getTime();
+    return selectedDate.getTime() >= calculatedDate.getTime();
   };
 
   addWeeksToDate = (date: Date, weeks: number) => {
@@ -125,6 +125,12 @@ export class CommonExpressionHelpers {
   };
 
   calcMonthsOnART = (artStartDate: Date) => {
+    if (artStartDate == null) return null;
+
+    if (!(artStartDate instanceof Date)) {
+      throw new Error('DateFormatException: value passed is not a valid date');
+    }
+
     let today = new Date();
     let resultMonthsOnART: number;
     let artInDays = Math.round((today.getTime() - artStartDate.getTime?.()) / 86400000);
@@ -238,18 +244,21 @@ export class CommonExpressionHelpers {
     return false;
   };
 
-  formatDate = (value: ConstructorParameters<typeof Date>[0], format?: string | null, offset?: string | null) => {
-    format = format ?? 'yyyy-MM-dd';
-    offset = offset ?? '+0300';
+  parseDate = (dateString: string) => {
+    return parseDate(dateString);
+  };
 
+  formatDate = (value: ConstructorParameters<typeof Date>[0], format?: string) => {
     if (!(value instanceof Date)) {
       value = new Date(value);
-      if (value === null || value === undefined) {
-        throw new Error('DateFormatException: value passed ' + 'is not a valid date');
+      if (value === null || value === undefined || isNaN(value.getTime())) {
+        throw new Error('DateFormatException: value passed is not a valid date');
       }
     }
-
-    return value;
+    if (format) {
+      return dayjs(value).format(format);
+    }
+    return formatDate(value);
   };
 
   extractRepeatingGroupValues = (key: string | number | symbol, array: Record<string | number | symbol, unknown>[]) => {
