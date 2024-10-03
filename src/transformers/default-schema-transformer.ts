@@ -164,6 +164,10 @@ function transformByRendering(question: FormField) {
     case 'markdown':
       question.type = 'control';
       break;
+    case 'drug':
+    case 'problem':
+      question.questionOptions.isSearchable = true;
+      break;
   }
   return question;
 }
@@ -193,6 +197,7 @@ function handleLabOrders(question: FormField) {
 }
 
 function handleSelectConceptAnswers(question: FormField) {
+  question.questionOptions.isSearchable = true;
   if (!question.questionOptions.datasource?.config) {
     question.questionOptions.datasource = {
       name: 'select_concept_answers_datasource',

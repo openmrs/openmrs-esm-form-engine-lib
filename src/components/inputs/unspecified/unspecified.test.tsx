@@ -2,7 +2,7 @@ import React from 'react';
 import dayjs from 'dayjs';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { OpenmrsDatePicker } from '@openmrs/esm-framework';
-import { type FormField, type EncounterContext } from '../../..';
+import { type FormField } from '../../../types';
 import { findTextOrDateInput } from '../../../utils/test-utils';
 
 const mockOpenmrsDatePicker = jest.mocked(OpenmrsDatePicker);
@@ -29,27 +29,6 @@ const question: FormField = {
     concept: '163260AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
   },
   id: 'visit-date',
-};
-
-const encounterContext: EncounterContext = {
-  patient: {
-    id: '833db896-c1f0-11eb-8529-0242ac130003',
-  },
-  location: {
-    uuid: '41e6e516-c1f0-11eb-8529-0242ac130003',
-  },
-  encounter: {
-    uuid: '873455da-3ec4-453c-b565-7c1fe35426be',
-    obs: [],
-  },
-  sessionMode: 'enter',
-  encounterDate: new Date(2020, 11, 29),
-  setEncounterDate: (value) => {},
-  encounterProvider: '2c95f6f5-788e-4e73-9079-5626911231fa',
-  setEncounterProvider: jest.fn,
-  setEncounterLocation: jest.fn,
-  encounterRole: '8cb3a399-d18b-4b62-aefb-5a0f948a3809',
-  setEncounterRole: jest.fn,
 };
 
 const renderForm = (initialValues) => {

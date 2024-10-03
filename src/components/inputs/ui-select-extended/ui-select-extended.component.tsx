@@ -1,45 +1,79 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import debounce from 'lodash-es/debounce';
-import { ComboBox, DropdownSkeleton, Layer } from '@carbon/react';
+import { ComboBox, DropdownSkeleton, Layer, InlineLoading } from '@carbon/react';
 import { isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';
 import { getRegisteredDataSource } from '../../../registry/registry';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
-import { type FormFieldInputProps } from '../../../types';
+import { type DataSource, type FormFieldInputProps } from '../../../types';
 import { isEmpty } from '../../../validators/form-validator';
 import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import styles from './ui-select-extended.scss';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
-import useDataSourceDependentValue from '../../../hooks/useDatasourceDependentValue';
 import { useWatch } from 'react-hook-form';
+import useDataSourceDependentValue from '../../../hooks/useDataSourceDependentValue';
+import { isViewMode } from '../../../utils/common-utils';
+import { type OpenmrsResource } from '@openmrs/esm-framework';
 
 const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const isProcessingSelection = useRef(false);
   const [dataSource, setDataSource] = useState(null);
   const [config, setConfig] = useState({});
-  const [savedSearchableItem, setSavedSearchableItem] = useState({});
   const dataSourceDependentValue = useDataSourceDependentValue(field);
+  const isSearchable = isTrue(field.questionOptions.isSearchable);
   const {
     layoutType,
     sessionMode,
     workspaceLayout,
-    methods: { control },
+    methods: { control, getFieldState },
   } = useFormProviderContext();
 
   const value = useWatch({ control, name: field.id, exact: true });
+  const { isDirty } = getFieldState(field.id);
 
   const isInline = useMemo(() => {
-    if (['view', 'embedded-view'].includes(sessionMode) || isTrue(field.readonly)) {
+    if (isViewMode(sessionMode) || isTrue(field.readonly)) {
       return shouldUseInlineLayout(field.inlineRendering, layoutType, workspaceLayout, sessionMode);
     }
     return false;
   }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
+
+  const selectedItem = useMemo(() => items.find((item) => item.uuid == value) || null, [items, value]);
+
+  const debouncedSearch = debounce((searchTerm: string, dataSource: DataSource<OpenmrsResource>) => {
+    setIsSearching(true);
+    dataSource
+      .fetchData(searchTerm, config)
+      .then((dataItems) => {
+        if (dataItems.length) {
+          const currentSelectedItem = items.find((item) => item.uuid == value);
+          const newItems = dataItems.map(dataSource.toUuidAndDisplay);
+          if (currentSelectedItem && !newItems.some((item) => item.uuid == currentSelectedItem.uuid)) {
+            newItems.unshift(currentSelectedItem);
+          }
+          setItems(newItems);
+        }
+        setIsSearching(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsSearching(false);
+      });
+  }, 300);
+
+  const searchTermHasMatchingItem = useCallback(
+    (searchTerm: string) => {
+      return items.some((item) => item.display?.toLowerCase().includes(searchTerm.toLowerCase()));
+    },
+    [items],
+  );
 
   useEffect(() => {
     const dataSource = field.questionOptions?.datasource?.name;
@@ -50,38 +84,6 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
     );
     getRegisteredDataSource(dataSource ? dataSource : field.questionOptions.rendering).then((ds) => setDataSource(ds));
   }, [field.questionOptions?.datasource]);
-
-  const selectedItem = useMemo(() => items.find((item) => item.uuid == value), [items, value]);
-
-  const debouncedSearch = debounce((searchTerm, dataSource) => {
-    setItems([]);
-    setIsLoading(true);
-    dataSource
-      .fetchData(searchTerm, config)
-      .then((dataItems) => {
-        setItems(dataItems.map(dataSource.toUuidAndDisplay));
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setIsLoading(false);
-        setItems([]);
-      });
-  }, 300);
-
-  const processSearchableValues = (value) => {
-    dataSource
-      .fetchData(null, config, value)
-      .then((dataItem) => {
-        setSavedSearchableItem(dataItem);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setIsLoading(false);
-        setItems([]);
-      });
-  };
 
   useEffect(() => {
     // If not searchable, preload the items
@@ -103,29 +105,32 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
   }, [dataSource, config, dataSourceDependentValue]);
 
   useEffect(() => {
-    if (dataSource && isTrue(field.questionOptions.isSearchable) && !isEmpty(searchTerm)) {
+    if (dataSource && isSearchable && !isEmpty(searchTerm) && !searchTermHasMatchingItem(searchTerm)) {
       debouncedSearch(searchTerm, dataSource);
     }
   }, [dataSource, searchTerm, config]);
 
   useEffect(() => {
-    if (
-      dataSource &&
-      isTrue(field.questionOptions.isSearchable) &&
-      isEmpty(searchTerm) &&
-      value &&
-      !Object.keys(savedSearchableItem).length
-    ) {
+    if (value && !isDirty && dataSource && isSearchable && sessionMode !== 'enter' && !items.length) {
+      // While in edit mode, search-based instances should fetch the initial item (previously selected value) to resolve its display property
       setIsLoading(true);
-      processSearchableValues(value);
+      try {
+        dataSource.fetchSingleItem(value).then((item) => {
+          setItems([dataSource.toUuidAndDisplay(item)]);
+          setIsLoading(false);
+        });
+      } catch (error) {
+        console.error(error);
+        setIsLoading(false);
+      }
     }
-  }, [value]);
+  }, [value, isDirty, sessionMode, dataSource, isSearchable, items]);
 
   if (isLoading) {
     return <DropdownSkeleton />;
   }
 
-  return sessionMode == 'view' || sessionMode == 'embedded-view' || isTrue(field.readonly) ? (
+  return isViewMode(sessionMode) || isTrue(field.readonly) ? (
     <FieldValueView
       label={t(field.label)}
       value={value ? items.find((item) => item.uuid == value)?.display : value}
@@ -142,6 +147,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
             items={items}
             itemToString={(item) => item?.display}
             selectedItem={selectedItem}
+            placeholder={isSearchable ? t('search', 'Search') + '...' : null}
             shouldFilterItem={({ item, inputValue }) => {
               if (!inputValue) {
                 // Carbon's initial call at component mount
@@ -165,7 +171,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
                 isProcessingSelection.current = false;
                 return;
               }
-              if (field.questionOptions['isSearchable']) {
+              if (field.questionOptions.isSearchable) {
                 setSearchTerm(value);
               }
             }}
@@ -178,6 +184,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
               }
             }}
           />
+          {isSearching && <InlineLoading className={styles.loader} description={t('searching', 'Searching') + '...'} />}
         </Layer>
       </div>
     )
