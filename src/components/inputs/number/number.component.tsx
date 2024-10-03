@@ -15,6 +15,13 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
   const [lastBlurredValue, setLastBlurredValue] = useState(value);
   const { layoutType, sessionMode, workspaceLayout } = useFormProviderContext();
 
+  const numberValue = useMemo(() => {
+    if (isNaN(value)) {
+      return '';
+    }
+    return value ?? '';
+  }, [value]);
+
   const onBlur = (event) => {
     event.preventDefault();
     if (lastBlurredValue != value) {
@@ -57,7 +64,7 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           max={Number(field.questionOptions.max) || undefined}
           min={Number(field.questionOptions.min) || undefined}
           name={field.id}
-          value={value ?? ''}
+          value={numberValue}
           onChange={handleChange}
           onBlur={onBlur}
           allowEmpty={true}
