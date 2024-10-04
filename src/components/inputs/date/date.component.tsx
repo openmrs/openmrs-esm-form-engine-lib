@@ -54,6 +54,7 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
 
   useEffect(() => {
     if (dateValue) {
+      setFieldValue(dateValue);
       if (dateValue instanceof Date) {
         const hours = dateValue.getHours() < 10 ? `0${dateValue.getHours()}` : `${dateValue.getHours()}`;
         const minutes = dateValue.getMinutes() < 10 ? `0${dateValue.getMinutes()}` : `${dateValue.getMinutes()}`;
