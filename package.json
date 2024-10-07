@@ -31,6 +31,7 @@
   "dependencies": {
     "@carbon/react": ">1.47.0 <1.50.0",
     "classnames": "^2.5.1",
+    "html-react-parser": "^5.1.16",
     "lodash-es": "^4.17.21",
     "react-error-boundary": "^4.0.13",
     "react-hook-form": "^7.52.0",

@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { type FormField } from '../../types';
 import Tooltip from '../inputs/tooltip/tooltip.component';
+import parse from "html-react-parser";
 
 import styles from './field-label.scss';
 
@@ -18,7 +19,7 @@ const FieldLabel: React.FC<FieldLabelProps> = ({ field, customLabel }) => {
   const labelText = customLabel || t(field.label);
   return (
     <div className={styles.questionLabel}>
-      <span>{labelText}</span>
+      <span>{parse(labelText)}</span>
       {field.isRequired && (
         <span title={t('required', 'Required')} className={styles.required}>
           *
