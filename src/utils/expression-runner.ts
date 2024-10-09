@@ -167,17 +167,3 @@ export function trackFieldDependencies(
     }
   }
 }
-
-/**
- * Checks if the given token contains a reference to a resolved fragment
- * and returns the fragment and the remaining chained reference.
- * @param token - The token to check.
- * @returns An array containing the resolved fragment and the remaining chained reference.
- */
-export function checkReferenceToResolvedFragment(token: string) {
-  // Match the substring that starts with the keyword "resolve" and continues until
-  // the closing parenthesis of the inner function call.
-  const match = token.match(/resolve\((.*)\)/) || [];
-  const chainedRef = match.length ? token.substring(token.indexOf(match[0]) + match[0].length) : '';
-  return [match[0] || '', chainedRef];
-}
