@@ -28,7 +28,7 @@ import { moduleName } from '../../globals';
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
 import { getPreviousEncounter, saveEncounter } from '../../api';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
-import { evaluateAsyncExpression, evaluateExpression, type FormNode } from '../../utils/expression-runner';
+import { evaluateAsyncExpression, type FormNode } from '../../utils/expression-runner';
 import { hasRendering } from '../../utils/common-utils';
 import { extractObsValueAndDisplay } from '../../utils/form-helper';
 
@@ -333,12 +333,7 @@ async function evaluateCalculateExpression(
     mode: sessionMode,
     patient: patient,
   };
-  let value = null;
-  if (field.questionOptions.calculate.calculateExpression.includes('resolve(')) {
-    value = await evaluateAsyncExpression(expression, node, formFields, values, context);
-  } else {
-    value = evaluateExpression(expression, node, formFields, values, context);
-  }
+  const value = await evaluateAsyncExpression(expression, node, formFields, values, context);
   if (!isEmpty(value)) {
     values[field.id] = value;
   }

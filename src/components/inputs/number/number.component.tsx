@@ -9,6 +9,7 @@ import styles from './number.scss';
 import { useTranslation } from 'react-i18next';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
+import { isEmpty } from '../../../validators/form-validator';
 
 const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
@@ -31,7 +32,7 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
 
   const handleChange = useCallback(
     (event) => {
-      const parsedValue = Number(event.target.value);
+      const parsedValue = isEmpty(event.target.value) ? undefined : Number(event.target.value);
       setFieldValue(isNaN(parsedValue) ? undefined : parsedValue);
     },
     [setFieldValue],

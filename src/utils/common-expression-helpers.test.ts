@@ -1,15 +1,36 @@
 import dayjs from 'dayjs';
-import { CommonExpressionHelpers } from './common-expression-helpers';
+import { CommonExpressionHelpers, simpleHash } from './common-expression-helpers';
+import { type FormField } from '../types';
 
 describe('CommonExpressionHelpers', () => {
   let helpers: CommonExpressionHelpers;
   const mockPatient = { birthDate: '1990-01-01', sex: 'male' };
-  const mockFields = [];
+  const mockFields: Array<FormField> = [
+    {
+      label: 'Question 1',
+      type: 'obs',
+      questionOptions: {
+        rendering: 'radio',
+        concept: 'question1_concept',
+        answers: [],
+      },
+      id: 'question1',
+    },
+    {
+      label: 'Question 2',
+      type: 'obs',
+      questionOptions: {
+        rendering: 'radio',
+        concept: 'question2_concept',
+        answers: [],
+      },
+      id: 'question2',
+    },
+  ];
   const mockFieldValues = {};
-  const mockFieldKeys = [];
 
   beforeEach(() => {
-    helpers = new CommonExpressionHelpers(null, mockPatient, mockFields, mockFieldValues, mockFieldKeys);
+    helpers = new CommonExpressionHelpers(null, mockPatient, mockFields, mockFieldValues);
   });
 
   describe('isEmpty', () => {
@@ -86,12 +107,24 @@ describe('CommonExpressionHelpers', () => {
   describe('useFieldValue', () => {
     it('should return the field value if the key exists', () => {
       helpers.allFieldValues = { question1: 'value1' };
-      helpers.allFieldsKeys = ['question1'];
       expect(helpers.useFieldValue('question1')).toBe('value1');
     });
 
     it('should return null if the key does not exist', () => {
       expect(helpers.useFieldValue('question2')).toBe(null);
+    });
+
+    it("should register dependency of the current node to it's determinant", () => {
+      // question1 as the current node
+      helpers.node = {
+        value: mockFields[0],
+        type: 'field',
+      };
+      helpers.allFieldValues = { question1: 'value1', question2: 'value2' };
+
+      helpers.useFieldValue('question2');
+      // assert that question2 lists question1 as dependent
+      expect(Array.from(mockFields[1].fieldDependents)).toStrictEqual(['question1']);
     });
   });
 
@@ -327,5 +360,41 @@ describe('CommonExpressionHelpers', () => {
       const result = await helpers.resolve(promise);
       expect(result).toBe('resolved value');
     });
+  });
+});
+
+describe('simpleHash', () => {
+  test('should return the same hash for the same input string', () => {
+    const expression = "linkedToCare == '488b58ff-64f5-4f8a-8979-fa79940b1594'";
+    const hash1 = simpleHash(expression);
+    const hash2 = simpleHash(expression);
+    expect(hash1).toBe(hash2);
+  });
+
+  test('should return different hashes for different input strings', () => {
+    const expression1 = "linkedToCare == '488b58ff-64f5-4f8a-8979-fa79940b1594'";
+    const expression2 = "linkedToCare !== '488b58ff-64f5-4f8a-8979-fa79940b1594'";
+    const hash1 = simpleHash(expression1);
+    const hash2 = simpleHash(expression2);
+    expect(hash1).not.toBe(hash2);
+  });
+
+  test('should handle empty string and return 0', () => {
+    const expression = '';
+    const hash = simpleHash(expression);
+    expect(hash).toBe(0);
+  });
+
+  test('should handle long strings without errors', () => {
+    const longExpression = 'left != right &'.repeat(1000);
+    const hash = simpleHash(longExpression);
+    expect(hash).toBeDefined();
+  });
+
+  test('should return consistent hash for strings with Unicode characters', () => {
+    const str = '😊💻';
+    const hash1 = simpleHash(str);
+    const hash2 = simpleHash(str);
+    expect(hash1).toBe(hash2);
   });
 });
