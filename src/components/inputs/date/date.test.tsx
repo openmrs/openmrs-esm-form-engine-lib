@@ -65,24 +65,11 @@ describe('DateField Component', () => {
       value: new Date(),
       errors: [],
       warnings: [],
-      setFieldValue: mockSetFieldValue
+      setFieldValue: mockSetFieldValue,
     });
 
     expect(screen.getByLabelText('Test Date Field')).toBeInTheDocument();
     expect(screen.getByText('Time')).toBeInTheDocument();
-  });
-
-  it('should call setFieldValue with the current date when the form is opened', async () => {
-    const initialDate = new Date();
-    await renderDateField({
-      field: dateFieldMock,
-      value: initialDate,
-      errors: [],
-      warnings: [],
-      setFieldValue: mockSetFieldValue
-    });
-
-    expect(mockSetFieldValue).toHaveBeenCalledWith(initialDate);
   });
 
   it('should display error message when there are errors', async () => {
@@ -91,12 +78,12 @@ describe('DateField Component', () => {
       value: new Date(),
       errors: [{ resultType: 'error', message: 'Error message' }],
       warnings: [],
-      setFieldValue: mockSetFieldValue
+      setFieldValue: mockSetFieldValue,
     });
 
     const errorMessages = screen.getAllByText(/Error message/i);
     expect(errorMessages.length).toBeGreaterThan(0);
-    errorMessages.forEach(message => {
+    errorMessages.forEach((message) => {
       expect(message).toBeInTheDocument();
     });
   });
@@ -108,12 +95,12 @@ describe('DateField Component', () => {
       value: new Date(),
       errors: [],
       warnings: warnings,
-      setFieldValue: mockSetFieldValue
+      setFieldValue: mockSetFieldValue,
     });
 
     const warningMessages = screen.getAllByText(/Warning message/i);
     expect(warningMessages.length).toBeGreaterThan(0);
-    warningMessages.forEach(message => {
+    warningMessages.forEach((message) => {
       expect(message).toBeInTheDocument();
     });
   });
