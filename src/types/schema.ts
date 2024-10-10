@@ -215,8 +215,6 @@ export type RenderType =
   | 'toggle'
   | 'ui-select-extended'
   | 'workspace-launcher'
-  | 'fixed-value'
-  | 'file'
   | 'markdown'
   | 'extension-widget'
   | 'select-concept-answers';

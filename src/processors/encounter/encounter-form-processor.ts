@@ -256,17 +256,11 @@ export class EncounterFormProcessor extends FormProcessor {
       const filteredFields = formFields.filter(
         (field) => field.questionOptions.rendering !== 'group' && field.type !== 'obsGroup',
       );
+      const fieldsWithCalculateExpressions = [];
       await Promise.all(
         filteredFields.map(async (field) => {
           const adapter = formFieldAdapters[field.type];
           initialValues[field.id] = emptyValues[field.questionOptions.rendering] ?? null;
-          if (field.questionOptions.calculate?.calculateExpression) {
-            try {
-              await evaluateCalculateExpression(field, initialValues, context);
-            } catch (error) {
-              console.error(error);
-            }
-          }
           if (isEmpty(initialValues[field.id]) && contextInitializableTypes.includes(field.type)) {
             try {
               initialValues[field.id] = await adapter.getInitialValue(field, null, context);
@@ -274,8 +268,18 @@ export class EncounterFormProcessor extends FormProcessor {
               console.error(error);
             }
           }
+          if (field.questionOptions.calculate?.calculateExpression) {
+            fieldsWithCalculateExpressions.push(field);
+          }
         }),
       );
+      fieldsWithCalculateExpressions.forEach(async (field) => {
+        try {
+          await evaluateCalculateExpression(field, initialValues, context);
+        } catch (error) {
+          console.error(error);
+        }
+      });
     }
     return initialValues;
   }
