@@ -61,7 +61,7 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
         setTime([hours, minutes].join(':'));
       }
     }
-  }, [dateValue]);
+  }, []);
 
   const timePickerLabel = useMemo(
     () =>
