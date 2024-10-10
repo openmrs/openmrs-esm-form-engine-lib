@@ -1,7 +1,6 @@
 import { registerExpressionHelper } from '..';
 import { type FormField } from '../types';
-import { CommonExpressionHelpers } from './common-expression-helpers';
-import { checkReferenceToResolvedFragment, evaluateExpression, type ExpressionContext } from './expression-runner';
+import { evaluateAsyncExpression, evaluateExpression, type ExpressionContext } from './expression-runner';
 
 export const testFields: Array<FormField> = [
   {
@@ -79,7 +78,100 @@ export const testFields: Array<FormField> = [
   },
 ];
 
-describe('Common expression runner - evaluateExpression', () => {
+export const fields: Array<FormField> = [
+  {
+    label: 'No Interest',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'radio',
+      concept: 'no_interest_concept',
+      answers: [],
+    },
+    id: 'no_interest',
+  },
+  {
+    label: 'Depressed',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'radio',
+      concept: 'depressed_concept',
+      answers: [],
+    },
+    id: 'depressed',
+  },
+  {
+    label: 'Bad Sleep',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'radio',
+      concept: 'bad_sleep_concept',
+      answers: [],
+    },
+    id: 'bad_sleep',
+  },
+  {
+    label: 'Feeling Tired',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'radio',
+      concept: 'feeling_tired_concept',
+      answers: [],
+    },
+    id: 'feeling_tired',
+  },
+  {
+    label: 'Poor Appetite',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'radio',
+      concept: 'poor_appetite_concept',
+      answers: [],
+    },
+    id: 'poor_appetite',
+  },
+  {
+    label: 'Troubled',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'radio',
+      concept: 'troubled_concept',
+      answers: [],
+    },
+    id: 'troubled',
+  },
+  {
+    label: 'Feeling Bad',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'radio',
+      concept: 'feeling_bad_concept',
+      answers: [],
+    },
+    id: 'feeling_bad',
+  },
+  {
+    label: 'Speaking Slowly',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'radio',
+      concept: 'speaking_slowly_concept',
+      answers: [],
+    },
+    id: 'speaking_slowly',
+  },
+  {
+    label: 'Better Off Dead',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'radio',
+      concept: 'better_dead_concept',
+      answers: [],
+    },
+    id: 'better_dead',
+  },
+];
+
+describe('Expression runner', () => {
   const context: ExpressionContext = { mode: 'enter', patient: {} };
   const allFields = JSON.parse(JSON.stringify(testFields));
   let valuesMap = {
@@ -88,6 +180,15 @@ describe('Common expression runner - evaluateExpression', () => {
     htsProviderRemarks: '',
     referredToPreventionServices: [],
     bodyTemperature: 0,
+    no_interest: '',
+    depressed: '',
+    bad_sleep: '',
+    feeling_tired: '',
+    poor_appetite: '',
+    troubled: '',
+    feeling_bad: '',
+    speaking_slowly: '',
+    better_dead: '',
   };
 
   afterEach(() => {
@@ -98,24 +199,37 @@ describe('Common expression runner - evaluateExpression', () => {
       htsProviderRemarks: '',
       referredToPreventionServices: [],
       bodyTemperature: 0,
+      no_interest: '',
+      depressed: '',
+      bad_sleep: '',
+      feeling_tired: '',
+      poor_appetite: '',
+      troubled: '',
+      feeling_bad: '',
+      speaking_slowly: '',
+      better_dead: '',
     };
     allFields.forEach((field) => {
       field.fieldDependents = undefined;
     });
   });
 
-  it('should evaluate basic boolean strings', () => {
+  it('should support unary expressions', () => {
     // replay and verify
     expect(
       evaluateExpression('true', { value: allFields[0], type: 'field' }, allFields, valuesMap, context),
     ).toBeTruthy();
     // replay and verify
     expect(
-      evaluateExpression('false', { value: allFields[0], type: 'field' }, allFields, valuesMap, context),
+      evaluateExpression('!true', { value: allFields[0], type: 'field' }, allFields, valuesMap, context),
     ).toBeFalsy();
+    // replay and verify
+    expect(
+      evaluateExpression('!false', { value: allFields[0], type: 'field' }, allFields, valuesMap, context),
+    ).toBeTruthy();
   });
 
-  it('should support two dimension expressions', () => {
+  it('should support binary expressions', () => {
     // replay and verify
     expect(
       evaluateExpression(
@@ -140,46 +254,42 @@ describe('Common expression runner - evaluateExpression', () => {
     ).toBeTruthy();
   });
 
-  it('should support multiple dimession expressions', () => {
-    // replay and verify
-    expect(
-      evaluateExpression(
-        "linkedToCare == 'cf82933b-3f3f-45e7-a5ab-5d31aaee3da3' && htsProviderRemarks !== '' && bodyTemperature >= 39",
-        { value: allFields[1], type: 'field' },
-        allFields,
-        valuesMap,
-        context,
-      ),
-    ).toBeFalsy();
-    // provide some values
-    valuesMap['linkedToCare'] = 'cf82933b-3f3f-45e7-a5ab-5d31aaee3da3';
-    valuesMap['htsProviderRemarks'] = 'Some test remarks...';
-    valuesMap['bodyTemperature'] = 40;
-    // replay and verify
-    expect(
-      evaluateExpression(
-        "linkedToCare == 'cf82933b-3f3f-45e7-a5ab-5d31aaee3da3' && htsProviderRemarks !== '' && bodyTemperature >= 39",
-        { value: allFields[1], type: 'field' },
-        allFields,
-        valuesMap,
-        context,
-      ),
-    ).toBeTruthy();
+  it('should support complex expressions', () => {
+    // setup
+    valuesMap.bad_sleep = 'a53f32bc-6904-4692-8a4c-fb7403cf0306';
+    valuesMap.better_dead = '296b39ec-06c5-4310-8f30-d2c9f083fb71';
+    valuesMap.depressed = '5eb5852d-3d29-41f9-b2ff-d194e062003d';
+    valuesMap.feeling_bad = '349260db-8e0f-4c06-be92-5120b3708d1e';
+    valuesMap.feeling_tired = '0ea1378d-04eb-4e7e-908b-26d8c27d37e1';
+    valuesMap.troubled = '57766c65-6548-486b-9dad-0fedf531ed7d';
+
+    const expression =
+      "(no_interest === 'b631d160-8d40-4cf7-92cd-67f628c889e8' ? 1 : isEmpty(no_interest) ? 2 : no_interest === '8ff1f85c-4f04-4f5b-936a-5aa9320cb66e' ? 3 : 0) + (depressed === 'b631d160-8d40-4cf7-92cd-67f628c889e8' ? 1 : depressed === '5eb5852d-3d29-41f9-b2ff-d194e062003d' ? 2 :  depressed==='8ff1f85c-4f04-4f5b-936a-5aa9320cb66e' ? 3 : 0) + (bad_sleep === 'a53f32bc-6904-4692-8a4c-fb7403cf0306' ? 1 : bad_sleep === '234259ec-5368-4488-8482-4f261cc76714' ? 2 : bad_sleep === '8ff1f85c-4f04-4f5b-936a-5aa9320cb66e' ? 3 : 0) + (feeling_tired === 'b631d160-8d40-4cf7-92cd-67f628c889e8' ? 1 : feeling_tired === '234259ec-5368-4488-8482-4f261cc76714' ? 2 : feeling_tired === '0ea1378d-04eb-4e7e-908b-26d8c27d37e1' ? 3 : 0) +(poor_appetite === 'b631d160-8d40-4cf7-92cd-67f628c889e8' ? 1 : poor_appetite === '234259ec-5368-4488-8482-4f261cc76714' ? 2 : poor_appetite === '8ff1f85c-4f04-4f5b-936a-5aa9320cb66e' ? 3 : 0) + (troubled === '57766c65-6548-486b-9dad-0fedf531ed7d' ? 1 : troubled === '234259ec-5368-4488-8482-4f261cc76714' ? 2 : troubled === '8ff1f85c-4f04-4f5b-936a-5aa9320cb66e' ? 3 : 0) + (feeling_bad === 'b631d160-8d40-4cf7-92cd-67f628c889e8' ? 1 : feeling_bad === '234259ec-5368-4488-8482-4f261cc76714' ? 2 : feeling_bad === '349260db-8e0f-4c06-be92-5120b3708d1e' ? 3 : 0) + (speaking_slowly === 'b631d160-8d40-4cf7-92cd-67f628c889e8' ? 1 : speaking_slowly === '234259ec-5368-4488-8482-4f261cc76714' ? 2 : speaking_slowly === '8ff1f85c-4f04-4f5b-936a-5aa9320cb66e' ? 3 : 0) + (better_dead === 'b631d160-8d40-4cf7-92cd-67f628c889e8' ? 1 : better_dead === '296b39ec-06c5-4310-8f30-d2c9f083fb71' ? 2 : better_dead === '8ff1f85c-4f04-4f5b-936a-5aa9320cb66e' ? 3 : 0)";
+
+    expect(evaluateExpression(expression, { value: allFields[9], type: 'field' }, allFields, valuesMap, context)).toBe(
+      14,
+    );
   });
 
-  it('should support isEmpty(value) runtime helper function', () => {
+  it('should support async expressions', async () => {
     // setup
-    valuesMap['linkedToCare'] = 'cf82933b-3f3f-45e7-a5ab-5d31aaee3da3';
-    // replay and verify
-    expect(
-      evaluateExpression(
-        "!isEmpty('linkedToCare') && isEmpty('htsProviderRemarks')",
-        { value: allFields[1], type: 'field' },
-        allFields,
-        valuesMap,
-        context,
-      ),
-    ).toBeTruthy();
+    valuesMap.bad_sleep = 'a53f32bc-6904-4692-8a4c-fb7403cf0306';
+    registerExpressionHelper('getAsyncValue', () => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(18);
+        }, 10);
+      });
+    });
+
+    const result = await evaluateAsyncExpression(
+      'getAsyncValue().then(value => !isEmpty(bad_sleep) ? value + 3 : value)',
+      { value: allFields[9], type: 'field' },
+      allFields,
+      valuesMap,
+      context,
+    );
+    expect(result).toBe(21);
   });
 
   it('should support includes(question, value) runtime helper function', () => {
@@ -191,7 +301,7 @@ describe('Common expression runner - evaluateExpression', () => {
     // replay and verify
     expect(
       evaluateExpression(
-        "includes('referredToPreventionServices', '88cdde2b-753b-48ac-a51a-ae5e1ab24846') && !includes('referredToPreventionServices', '1691AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')",
+        "includes(referredToPreventionServices, '88cdde2b-753b-48ac-a51a-ae5e1ab24846') && !includes(referredToPreventionServices, '1691AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')",
         { value: allFields[1], type: 'field' },
         allFields,
         valuesMap,
@@ -203,7 +313,7 @@ describe('Common expression runner - evaluateExpression', () => {
   it('should support session mode as a runtime', () => {
     expect(
       evaluateExpression(
-        "mode == 'enter' && isEmpty('htsProviderRemarks')",
+        "mode == 'enter' && isEmpty(htsProviderRemarks)",
         { value: allFields[2], type: 'field' },
         allFields,
         valuesMap,
@@ -222,7 +332,7 @@ describe('Common expression runner - evaluateExpression', () => {
     // replay
     expect(
       evaluateExpression(
-        "!includes('referredToPreventionServices', '88cdde2b-753b-48ac-a51a-ae5e1ab24846') && isEmpty('htsProviderRemarks')",
+        "!includes(referredToPreventionServices, '88cdde2b-753b-48ac-a51a-ae5e1ab24846') && isEmpty(htsProviderRemarks)",
         { value: allFields[4], type: 'field' },
         allFields,
         valuesMap,
@@ -249,28 +359,5 @@ describe('Common expression runner - evaluateExpression', () => {
       context,
     );
     expect(result).toEqual(5);
-  });
-});
-
-describe('Common expression runner - checkReferenceToResolvedFragment', () => {
-  it('should extract resolved fragment and chained reference when given a valid input', () => {
-    const token = 'resolve(api.fetchSomeValue("arg1", "arg2")).someOtherRef';
-    const expected = ['resolve(api.fetchSomeValue("arg1", "arg2"))', '.someOtherRef'];
-    const result = checkReferenceToResolvedFragment(token);
-    expect(result).toEqual(expected);
-  });
-
-  it('should extract only resolved fragment when there is no chained reference', () => {
-    const token = 'resolve(AnotherFragment)';
-    const expected = ['resolve(AnotherFragment)', ''];
-    const result = checkReferenceToResolvedFragment(token);
-    expect(result).toEqual(expected);
-  });
-
-  it('should return an empty string for the resolved fragment and chained reference when given an invalid input', () => {
-    const token = 'invalidToken';
-    const expected = ['', ''];
-    const result = checkReferenceToResolvedFragment(token);
-    expect(result).toEqual(expected);
   });
 });

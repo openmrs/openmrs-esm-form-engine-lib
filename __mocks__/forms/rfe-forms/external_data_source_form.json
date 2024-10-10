@@ -1,40 +1,39 @@
 {
-	"name": "",
-	"pages": [
-		{
-			"label": "Page 1",
-			"sections": [
-				{
-					"label": "Section 1",
-					"isExpanded": "true",
-					"questions": [
-						{
-							"label": "Body Weight",
-							"type": "obs",
-							"questionOptions": {
-								"rendering": "number",
-								"concept": "560555AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-								"calculate": {
-									"calculateExpression": "resolve(api.getLatestObs('50512033-e047-4855-b2d3-1a6d9e889ff4', '560555AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')).valueNumeric"
-								},
-								"conceptMappings": [
-									{
-										"type": "CIEL",
-										"value": "160555"
-									}
-								]
-
-							},
-							"id": "bodyWeight",
-							"validators": [],
-							"required": "true",
-							"unspecified": "true"
-						}
-					]
-				}
-			]
-		}
-	],
+  "name": "",
+  "pages": [
+    {
+      "label": "Page 1",
+      "sections": [
+        {
+          "label": "Section 1",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Body Weight",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "560555AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "calculate": {
+                  "calculateExpression": "api.getLatestObs('50512033-e047-4855-b2d3-1a6d9e889ff4', '560555AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA').then(obs => obs.valueNumeric)"
+                },
+                "conceptMappings": [
+                  {
+                    "type": "CIEL",
+                    "value": "160555"
+                  }
+                ]
+              },
+              "id": "bodyWeight",
+              "validators": [],
+              "required": "true",
+              "unspecified": "true"
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "availableIntents": [],
   "processor": "EncounterFormProcessor",
   "uuid": "na24c540-cc83-43bc-978f-c1ef180a597f",

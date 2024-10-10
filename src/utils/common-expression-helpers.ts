@@ -11,7 +11,6 @@ import { type FormNode } from './expression-runner';
 import { isEmpty as isValueEmpty } from '../validators/form-validator';
 import * as apiFunctions from '../api';
 import { getZRefByGenderAndAge } from './zscore-service';
-import { ConceptFalse, ConceptTrue } from '../constants';
 import { formatDate, parseDate } from '@openmrs/esm-framework';
 
 export class CommonExpressionHelpers {
@@ -19,20 +18,12 @@ export class CommonExpressionHelpers {
   patient: any = null;
   allFields: FormField[] = [];
   allFieldValues: Record<string, any> = {};
-  allFieldsKeys: string[] = [];
   api = apiFunctions;
   isEmpty = isValueEmpty;
 
-  constructor(
-    node: FormNode,
-    patient: any,
-    allFields: FormField[],
-    allFieldValues: Record<string, any>,
-    allFieldsKeys: string[],
-  ) {
+  constructor(node: FormNode, patient: any, allFields: FormField[], allFieldValues: Record<string, any>) {
     this.allFields = allFields;
     this.allFieldValues = allFieldValues;
-    this.allFieldsKeys = allFieldsKeys;
     this.node = node;
     this.patient = patient;
   }
@@ -88,10 +79,12 @@ export class CommonExpressionHelpers {
   };
 
   useFieldValue = (questionId: string) => {
-    if (this.allFieldsKeys.includes(questionId)) {
-      return this.allFieldValues[questionId];
+    const targetField = this.allFields.find((field) => field.id === questionId);
+    if (targetField) {
+      // track field dependency
+      registerDependency(this.node, targetField);
     }
-    return null;
+    return this.allFieldValues[questionId] ?? null;
   };
 
   doesNotMatchExpression = (regexString: string, val: string | null | undefined): boolean => {
@@ -473,6 +466,21 @@ export class CommonExpressionHelpers {
   };
 }
 
+/**
+ * Simple hash function to generate a unique identifier for a string.
+ * @param str - The string to hash.
+ * @returns A unique identifier for the string.
+ */
+export function simpleHash(str: string) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0;
+  }
+  return hash;
+}
+
 export function registerDependency(node: FormNode, determinant: FormField) {
   if (!node || !determinant) {
     return;
@@ -497,16 +505,3 @@ export function registerDependency(node: FormNode, determinant: FormField) {
       determinant.fieldDependents.add(node.value['id']);
   }
 }
-
-export const booleanConceptToBoolean = (booleanConceptRepresentation): boolean => {
-  const { value } = booleanConceptRepresentation;
-  if (!booleanConceptRepresentation) {
-    throw new Error('booleanConceptRepresentation cannot be a null value');
-  }
-  if (value == ConceptTrue) {
-    return true;
-  }
-  if (value == ConceptFalse) {
-    return false;
-  }
-};
