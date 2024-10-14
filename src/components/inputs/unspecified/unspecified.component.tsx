@@ -7,7 +7,7 @@ import { isTrue } from '../../../utils/boolean-utils';
 
 import styles from './unspecified.scss';
 import { useFormProviderContext } from '../../../provider/form-provider';
-import { isViewMode } from '../../../utils/common-utils';
+import { clearSubmission, isViewMode } from '../../../utils/common-utils';
 
 interface UnspecifiedFieldProps {
   field: FormField;
@@ -40,14 +40,17 @@ const UnspecifiedField: React.FC<UnspecifiedFieldProps> = ({ field, fieldValue, 
     (value) => {
       const rendering = field.questionOptions.rendering;
       if (value.target.checked) {
-        const emptyValue = rendering === 'checkbox' ? [] : '';
-        field.meta.submission = { ...field.meta.submission, unspecified: true };
-        updateFormField({ ...field });
         setIsUnspecified(true);
+        const emptyValue = rendering === 'checkbox' ? [] : '';
+        clearSubmission(field);
+        field.meta.submission.unspecified = true;
+        updateFormField(field);
         setFieldValue(emptyValue);
         onAfterChange(emptyValue);
       } else {
         setIsUnspecified(false);
+        field.meta.submission.unspecified = false;
+        updateFormField(field);
       }
     },
     [field.questionOptions.rendering],
