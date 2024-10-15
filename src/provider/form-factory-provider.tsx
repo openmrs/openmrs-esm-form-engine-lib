@@ -26,6 +26,7 @@ interface FormFactoryProviderContextProps {
   visit: OpenmrsResource;
   location: OpenmrsResource;
   provider: OpenmrsResource;
+  isFormExpanded: boolean;
   registerForm: (formId: string, isSubForm: boolean, context: FormContextProps) => void;
   setCurrentPage: (page: string) => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
@@ -41,6 +42,7 @@ interface FormFactoryProviderProps {
   location: OpenmrsResource;
   provider: OpenmrsResource;
   visit: OpenmrsResource;
+  isFormExpanded: boolean;
   children: React.ReactNode;
   formSubmissionProps: {
     isSubmitting: boolean;
@@ -49,6 +51,7 @@ interface FormFactoryProviderProps {
     onError: (error: any) => void;
     handleClose: () => void;
   };
+  hideFormCollapseToggle: () => void;
   setCurrentPage: (page: string) => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   setIsFormDirty: (isFormDirty: boolean) => void;
@@ -65,8 +68,10 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   location,
   provider,
   visit,
+  isFormExpanded = true,
   children,
   formSubmissionProps,
+  hideFormCollapseToggle,
   setCurrentPage,
   handleConfirmQuestionDeletion,
   setIsFormDirty,
@@ -121,6 +126,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
             if (postSubmissionHandlers) {
               await processPostSubmissionActions(postSubmissionHandlers, results, patient, sessionMode, t);
             }
+            hideFormCollapseToggle();
             if (onSubmit) {
               onSubmit(results);
             } else {
@@ -162,6 +168,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
         visit,
         location,
         provider,
+        isFormExpanded,
         registerForm,
         setCurrentPage,
         handleConfirmQuestionDeletion,

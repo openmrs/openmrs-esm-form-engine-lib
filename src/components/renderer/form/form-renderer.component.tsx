@@ -24,7 +24,7 @@ export const FormRenderer = ({
   setIsLoadingFormDependencies,
 }: FormRendererProps) => {
   const { evaluatedFields, evaluatedFormJson } = useEvaluateFormFieldExpressions(initialValues, processorContext);
-  const { registerForm, setIsFormDirty, workspaceLayout } = useFormFactory();
+  const { registerForm, setIsFormDirty, workspaceLayout, isFormExpanded } = useFormFactory();
   const methods = useForm({
     defaultValues: initialValues,
   });
@@ -97,7 +97,7 @@ export const FormRenderer = ({
             />
           );
         }
-        return <PageRenderer key={page.label} page={page} />;
+        return <PageRenderer key={page.label} page={page} isFormExpanded={isFormExpanded} />;
       })}
     </FormProvider>
   );
