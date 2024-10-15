@@ -91,4 +91,44 @@ describe('Repeat Component Tests', () => {
       );
     });
   });
+
+  it('Should submit origin and cloned instances successfully', async () => {
+    const { methods: { setValue } } = mockContext;
+    setValue.mockImplementation((id, value) => {
+      mockContext.formFields.push({ id, value });
+    });
+
+    render(<Repeat field={mockField} />);
+
+    fireEvent.click(screen.getByText(/add/i));
+    fireEvent.click(screen.getByText(/add/i));
+
+    await waitFor(() => {
+      expect(mockContext.formFields.length).toBe(3);
+    });
+
+    expect(setValue).toHaveBeenCalledTimes(2);
+    expect(mockContext.formFields).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'testField', value: undefined }),
+        expect.objectContaining({ id: 'testField_1', value: undefined }),
+        expect.objectContaining({ id: 'testField_2', value: undefined }),
+      ])
+    );
+  });
+
+  it('Should Initialize repeat field in edit mode with instances', async () => {
+    const prePopulatedFields = [
+      { ...mockField, id: 'testField' },
+      { ...mockField, id: 'testField_1' },
+    ];
+    mockContext.formFields = prePopulatedFields;
+
+    render(<Repeat field={mockField} />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Test Field').length).toBe(2);
+    });
+  });
+  
 });
