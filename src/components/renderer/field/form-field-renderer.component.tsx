@@ -105,6 +105,10 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
     if (field.meta.submission?.warnings) {
       setWarnings(field.meta.submission.warnings);
     }
+    if (field.meta.submission?.unspecified) {
+      setErrors([]);
+      removeInvalidField(field.id);
+    }
   }, [field.meta.submission]);
 
   const onAfterChange = (value: any) => {

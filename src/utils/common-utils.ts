@@ -30,6 +30,7 @@ export function clearSubmission(field: FormField) {
     field.meta = { ...(field.meta || {}), submission: {} };
   }
   field.meta.submission = {
+    ...field.meta.submission,
     voidedValue: null,
     newValue: null,
   };

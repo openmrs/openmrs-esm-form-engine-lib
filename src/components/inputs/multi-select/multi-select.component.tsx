@@ -104,7 +104,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
                 initialSelectedItems={initiallySelectedQuestionItems}
                 label={''}
                 titleText={label}
-                key={counter}
+                key={field.id}
                 itemToString={(item) => (item ? item.label : ' ')}
                 disabled={field.isDisabled}
                 invalid={errors.length > 0}
@@ -118,10 +118,10 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
                 {field.questionOptions.answers?.map((value, index) => {
                   return (
                     <Checkbox
-                      key={value.concept}
+                      key={`${field.id}-${value.concept}`}
                       className={styles.checkbox}
                       labelText={value.label}
-                      id={value.concept}
+                      id={`${field.id}-${value.concept}`}
                       onChange={() => {
                         handleSelectCheckbox(value);
                       }}

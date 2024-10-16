@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import debounce from 'lodash-es/debounce';
+import { debounce } from 'lodash-es';
 import { ComboBox, DropdownSkeleton, Layer, InlineLoading } from '@carbon/react';
 import { isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';

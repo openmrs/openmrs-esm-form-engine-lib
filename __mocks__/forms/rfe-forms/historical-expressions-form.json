@@ -14,7 +14,7 @@
             {
               "label": "Reasons for assessment",
               "type": "obs",
-              "historicalExpression": "HD.getObject('prevEnc').getValue('ae46f4b1-c15d-4bba-ab41-b9157b82b0ce')",
+              "historicalExpression": "HD.getObject('prevEnc')?.getValue('ae46f4b1-c15d-4bba-ab41-b9157b82b0ce')",
               "questionOptions": {
                 "rendering": "checkbox",
                 "concept": "ae46f4b1-c15d-4bba-ab41-b9157b82b0ce",

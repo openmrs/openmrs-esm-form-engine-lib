@@ -121,7 +121,7 @@
                         },
                         {
                           "type": "js_expression",
-                          "failsWhenExpression": "!isDateEqualTo(myValue, useFieldValue('visit_date'))",
+                          "failsWhenExpression": "!isDateEqualTo(myValue, useFieldValue(visit_date))",
                           "message": "Child birth date should be the same as the visit date!"
                         }
                       ]

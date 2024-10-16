@@ -17,6 +17,11 @@ global.ResizeObserver = require('resize-observer-polyfill');
 jest.mock('../../../hooks/useRestMaxResultsCount', () => jest.fn().mockReturnValue({ systemSetting: { value: '50' } }));
 jest.mock('lodash-es/debounce', () => jest.fn((fn) => fn));
 
+jest.mock('lodash-es', () => ({
+  ...jest.requireActual('lodash-es'),
+  debounce: jest.fn((fn) => fn),
+}));
+
 jest.mock('../../../api', () => {
   const originalModule = jest.requireActual('../../../api');
   return {
