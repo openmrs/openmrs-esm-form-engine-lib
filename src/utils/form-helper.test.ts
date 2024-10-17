@@ -129,10 +129,6 @@ describe('Form Engine Helper', () => {
   //     setEncounterRole: jest.fn(),
   //   };
 
-  //   beforeEach(() => {
-  //     jest.clearAllMocks();
-  //   });
-
   //   it('should return true if rendering is toggle and default value is ConceptTrue', () => {
   //     const sampleField: FormField = {
   //       label: 'Sample Toggle Field',

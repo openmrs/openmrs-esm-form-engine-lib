@@ -1,6 +1,7 @@
 /** @type {import('jest').Config} */
 module.exports = {
   verbose: true,
+  clearMocks: true,
   collectCoverage: true,
   coverageThreshold: {
     global: {
