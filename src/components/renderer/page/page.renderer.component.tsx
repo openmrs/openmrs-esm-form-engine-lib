@@ -28,10 +28,14 @@ function PageRenderer({ page, isFormExpanded }: PageRendererProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const { setCurrentPage } = useFormFactory();
-  const visibleSections = page.sections.filter((section) => {
-    const hasVisibleQuestions = section.questions.some((question) => !isTrue(question.isHidden));
-    return !isTrue(section.isHidden) && hasVisibleQuestions;
-  });
+  const visibleSections = useMemo(
+    () =>
+      page.sections.filter((section) => {
+        const hasVisibleQuestions = section.questions.some((question) => !isTrue(question.isHidden));
+        return !isTrue(section.isHidden) && hasVisibleQuestions;
+      }),
+    [page.sections],
+  );
 
   const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
@@ -55,10 +59,15 @@ function PageRenderer({ page, isFormExpanded }: PageRendererProps) {
               </span>
             </p>
           </div>
-          <div className={isCollapsed ? styles.hiddenAccordion : styles.accordionContainer}>
+          <div
+            className={classNames({
+              [styles.hiddenAccordion]: isCollapsed,
+              [styles.accordionContainer]: !isCollapsed,
+            })}>
             <Accordion>
               {visibleSections.map((section, index) => (
                 <CollapsibleSectionContainer
+                  key={`section-${section.label}`}
                   section={section}
                   sectionIndex={index}
                   visibleSections={visibleSections}
@@ -93,8 +102,7 @@ function CollapsibleSectionContainer({
       className={classNames(styles.sectionContainer, {
         [styles.firstSection]: sectionIndex === 0,
         [styles.lastSection]: sectionIndex === visibleSections.length - 1,
-      })}
-      key={`section-${section.label}`}>
+      })}>
       <div className={styles.formSection}>
         <SectionRenderer section={section} />
       </div>
