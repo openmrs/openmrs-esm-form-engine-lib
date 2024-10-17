@@ -10,7 +10,8 @@
   transition: background-color 0.1s;
   border-radius: 1px;
   padding: 0.5rem 1rem;
-
+  border-top: 1px solid colors.$gray-20;
+  border-bottom: 1px solid colors.$gray-20;
   &:hover {
     background-color: colors.$gray-20;
   }
@@ -38,8 +39,24 @@
   background-color: colors.$gray-10;
 }
 
+.accordionContainer {
+  width: 95%;
+}
+
+.firstSection {
+  border-top: none;
+}
+
+.lastSection {
+  border-bottom: none !important;
+}
+
 .formSection {
   flex: 1 1 65%;
+}
+
+.hiddenAccordion {
+  display: none;
 }
 
 .formSection > div > fieldset {

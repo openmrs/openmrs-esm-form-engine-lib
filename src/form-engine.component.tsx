@@ -16,6 +16,7 @@ import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.compo
 import { init, teardown } from './lifecycle';
 import { reportError } from './utils/error-utils';
 import { moduleName } from './globals';
+import { useFormCollapse } from './hooks/useFormCollapse';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -62,6 +63,8 @@ const FormEngine = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
   const sessionMode = !isEmpty(mode) ? mode : !isEmpty(encounterUUID) ? 'edit' : 'enter';
+  const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(sessionMode);
+
   // TODO: Updating this prop triggers a rerender of the entire form. This means whenever we scroll into a new page, the form is rerendered.
   // Figure out a way to avoid this. Maybe use a ref with an observer instead of a state?
   const [currentPage, setCurrentPage] = useState('');
@@ -118,6 +121,7 @@ const FormEngine = ({
           provider={session?.currentProvider}
           visit={visit}
           handleConfirmQuestionDeletion={handleConfirmQuestionDeletion}
+          isFormExpanded={isFormExpanded}
           formSubmissionProps={{
             isSubmitting,
             setIsSubmitting,
@@ -125,6 +129,7 @@ const FormEngine = ({
             onError: () => {},
             handleClose: () => {},
           }}
+          hideFormCollapseToggle={hideFormCollapseToggle}
           setIsFormDirty={setIsFormDirty}
           setCurrentPage={setCurrentPage}>
           <div className={styles.formContainer}>
