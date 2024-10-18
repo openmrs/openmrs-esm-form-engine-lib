@@ -273,13 +273,15 @@ export class EncounterFormProcessor extends FormProcessor {
           }
         }),
       );
-      fieldsWithCalculateExpressions.forEach(async (field) => {
-        try {
-          await evaluateCalculateExpression(field, initialValues, context);
-        } catch (error) {
-          console.error(error);
-        }
-      });
+      await Promise.all(
+        fieldsWithCalculateExpressions.map(async (field) => {
+          try {
+            await evaluateCalculateExpression(field, initialValues, context);
+          } catch (error) {
+            console.error(error);
+          }
+        }),
+      );
     }
     return initialValues;
   }
