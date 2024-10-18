@@ -41,8 +41,10 @@ import externalDataSourceForm from '__mocks__/forms/rfe-forms/external_data_sour
 import monthsOnArtForm from '__mocks__/forms/rfe-forms/months-on-art-form.json';
 import nextVisitForm from '__mocks__/forms/rfe-forms/next-visit-test-form.json';
 import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-form.json';
+import readOnlyValidationForm from '__mocks__/forms/rfe-forms/read-only-validation-form.json';
 
 import FormEngine from './form-engine.component';
+import { type SessionMode } from './types';
 
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
@@ -842,7 +844,48 @@ describe('Form engine component', () => {
     });
   });
 
-  function renderForm(formUUID, formJson, intent?: string) {
+  describe('Read only mode', () => {
+    it('should ensure that each read-only field is not editable', async () => {
+      await act(async () => {
+        renderForm(null, readOnlyValidationForm);
+      });
+
+      const visitPunctualityTextbox = screen.getByLabelText(/visit punctuality/i);
+      expect(visitPunctualityTextbox).toHaveAttribute('readonly');
+
+      const visitNotesTextbox = screen.getByLabelText(/visit notes/i);
+      expect(visitNotesTextbox).toHaveAttribute('readonly');
+    });
+  });
+
+  describe('Form view mode', () => {
+    it('should ensure that the form is not editable in view mode', async () => {
+      await act(async () => {
+        renderForm(null, htsPocForm, null, 'view');
+      });
+      const testingHistoryButton = screen.getByRole('button', { name: /Testing history/i });
+      expect(testingHistoryButton).toBeInTheDocument();
+
+      const hivTestButton = screen.getByRole('button', { name: /When was the HIV test conducted\?:/i });
+      expect(hivTestButton).toBeInTheDocument();
+
+      const blankFields = screen.getAllByText(/\(Blank\)/i);
+      blankFields.forEach((blankField) => {
+        expect(blankField).toBeInTheDocument();
+      });
+
+      const inputs = screen.queryAllByRole('textbox');
+      inputs.forEach((input) => {
+        expect(input).toHaveAttribute('readonly');
+      });
+
+      const interactiveElements = screen.queryAllByRole('textbox', { hidden: false });
+      expect(interactiveElements).toHaveLength(0);
+      expect(screen.queryByRole('button', { name: /save/i })).toBeDisabled();
+    });
+  });
+
+  function renderForm(formUUID, formJson, intent?: string, mode?: SessionMode) {
     render(
       <FormEngine
         formJson={formJson}
@@ -850,7 +893,7 @@ describe('Form engine component', () => {
         patientUUID={patientUUID}
         formSessionIntent={intent}
         visit={visit}
-        mode="enter"
+        mode={mode ? mode : 'enter'}
       />,
     );
   }

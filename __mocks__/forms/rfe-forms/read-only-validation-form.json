@@ -1,0 +1,63 @@
+{
+  "name": "Test read only",
+  "pages": [
+    {
+      "label": "1",
+      "sections": [
+        {
+          "label": "1",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Visit punctuality",
+              "type": "obs",
+              "required": false,
+              "id": "visitPunctuality",
+              "readonly": "true",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "160632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "conceptMappings": [
+                  {
+                    "relationship": "SAME-AS",
+                    "type": "CIEL",
+                    "value": "160632"
+                  },
+                  {
+                    "relationship": "SAME-AS",
+                    "type": "AMPATH",
+                    "value": "1915"
+                  },
+                  {
+                    "relationship": "BROADER-THAN",
+                    "type": "LOINC",
+                    "value": "48767-8"
+                  }
+                ]
+              },
+              "validators": []
+            },
+            {
+              "label": "Visit notes",
+              "type": "obs",
+              "required": false,
+              "id": "visitNotes",
+              "readonly": "true",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "conceptMappings": []
+              },
+              "validators": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "encounterType": "",
+  "referencedForms": [],
+  "uuid": "",
+  "description": "Test read only"
+}
