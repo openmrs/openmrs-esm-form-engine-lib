@@ -1,3 +1,4 @@
+import { pageObserver } from './components/sidebar/page-observer';
 import setupFormEngineLibI18n from './setupI18n';
 import { type FormFieldValueAdapter } from './types';
 
@@ -30,4 +31,5 @@ export function teardown() {
     }
   });
   formFieldAdapters.clear();
+  pageObserver.clear();
 }

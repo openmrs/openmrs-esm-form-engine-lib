@@ -9,6 +9,8 @@ import { FormProvider, type FormContextProps } from '../../../provider/form-prov
 import { isTrue } from '../../../utils/boolean-utils';
 import { type FormProcessorContextProps } from '../../../types';
 import { useFormStateHelpers } from '../../../hooks/useFormStateHelpers';
+import { pageObserver } from '../../sidebar/page-observer';
+import { use } from 'i18next';
 
 export type FormRendererProps = {
   processorContext: FormProcessorContextProps;
@@ -23,7 +25,10 @@ export const FormRenderer = ({
   isSubForm,
   setIsLoadingFormDependencies,
 }: FormRendererProps) => {
-  const { evaluatedFields, evaluatedFormJson } = useEvaluateFormFieldExpressions(initialValues, processorContext);
+  const { evaluatedFields, evaluatedFormJson, evaluatedPagesVisibility } = useEvaluateFormFieldExpressions(
+    initialValues,
+    processorContext,
+  );
   const { registerForm, setIsFormDirty, workspaceLayout, isFormExpanded } = useFormFactory();
   const methods = useForm({
     defaultValues: initialValues,
@@ -49,6 +54,19 @@ export const FormRenderer = ({
     removeInvalidField,
     setForm,
   } = useFormStateHelpers(dispatch, formFields);
+
+  useEffect(() => {
+    const scrollablePages = formJson.pages.filter((page) => !page.isSubform).map((page) => page);
+    pageObserver.updateScrollablePages(scrollablePages);
+  }, [formJson.pages]);
+
+  useEffect(() => {
+    pageObserver.setEvaluatedPagesVisibility(evaluatedPagesVisibility);
+  }, [evaluatedPagesVisibility]);
+
+  useEffect(() => {
+    pageObserver.updatePagesWithErrors(invalidFields.map((field) => field.meta.pageId));
+  }, [invalidFields]);
 
   const context: FormContextProps = useMemo(() => {
     return {
@@ -97,7 +115,14 @@ export const FormRenderer = ({
             />
           );
         }
-        return <PageRenderer key={page.label} page={page} isFormExpanded={isFormExpanded} />;
+        return (
+          <PageRenderer
+            key={page.label}
+            page={page}
+            isFormExpanded={isFormExpanded}
+            evaluatedPagesVisibility={evaluatedPagesVisibility}
+          />
+        );
       })}
     </FormProvider>
   );

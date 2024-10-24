@@ -1,118 +1,125 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
-import { Button, Toggle } from '@carbon/react';
-import { isEmpty } from '../../validators/form-validator';
-import { type FormPage } from '../../types';
+import { Button } from '@carbon/react';
+import { type SessionMode, type FormPage } from '../../types';
 import styles from './sidebar.scss';
 import { scrollIntoView } from '../../utils/form-helper';
+import { pageObserver } from './page-observer';
 
 interface SidebarProps {
-  allowUnspecifiedAll: boolean;
   defaultPage: string;
+  isFormSubmitting: boolean;
+  sessionMode: SessionMode;
+  onCancel: () => void;
   handleClose: () => void;
   hideFormCollapseToggle: () => void;
-  isFormSubmitting: boolean;
-  mode: string;
-  onCancel: () => void;
-  pagesWithErrors: string[];
-  scrollablePages: Set<FormPage>;
-  selectedPage: string;
-  setValues: (values: unknown) => void;
-  values: object;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
-  allowUnspecifiedAll,
   defaultPage,
+  isFormSubmitting,
+  sessionMode,
+  onCancel,
   handleClose,
   hideFormCollapseToggle,
-  isFormSubmitting,
-  mode,
-  onCancel,
-  pagesWithErrors,
-  scrollablePages,
-  selectedPage,
-  setValues,
-  values,
 }) => {
   const { t } = useTranslation();
-  const pages: Array<FormPage> = Array.from(scrollablePages);
+  const [pages, setPages] = useState<Array<FormPage>>([]);
+  const [currentActivePage, setCurrentActivePage] = useState<string | null>(null);
+  const [pagesWithErrors, setPagesWithErrors] = useState<Array<string>>([]);
+  const [requestedPage, setRequestedPage] = useState('');
+  const [visitedInitialPage, setVisitedInitialPage] = useState(false);
+  const [evaluatedPagesVisibility, setEvaluatedPagesVisibility] = useState(false);
 
   useEffect(() => {
-    if (defaultPage && pages.some(({ label, isHidden }) => label === defaultPage && !isHidden)) {
-      scrollIntoView(joinWord(defaultPage));
-    }
-  }, [defaultPage, scrollablePages]);
+    const scrollablePagesSubscription = pageObserver.getScrollablePagesObservable().subscribe((pages) => {
+      setPages(pages);
+    });
 
-  const unspecifiedFields = useMemo(
-    () =>
-      Object.keys(values).filter(
-        (key) => key.endsWith('-unspecified') && isEmpty(values[key.split('-unspecified')[0]]),
-      ),
-    [values],
-  );
+    const pagesWithErrorsSubscription = pageObserver.getPagesWithErrorsObservable().subscribe((errors) => {
+      setPagesWithErrors(Array.from(errors));
+    });
 
-  const handleClick = (selected) => {
-    const activeId = joinWord(selected);
-    scrollIntoView(activeId);
-  };
+    const activePagesSubscription = pageObserver.getActivePagesObservable().subscribe((activePages) => {
+      const activePage = determineHighlightedPage(requestedPage, Array.from(activePages));
+      if (requestedPage && activePage === requestedPage) {
+        // found requested page, clear request
+        console.log('Arrived, clearing page request!');
+        setRequestedPage('');
+      } else if (!requestedPage) {
+        console.log('Setting active page: ', activePage);
+        setCurrentActivePage(activePage);
+      }
+    });
 
-  const markAllAsUnspecified = useCallback(
-    (toggled) => {
-      const updatedValues = { ...values };
-      unspecifiedFields.forEach((field) => {
-        updatedValues[field] = toggled;
+    const evaluatedPagesVisibilitySubscription = pageObserver
+      .getEvaluatedPagesVisibilityObservable()
+      .subscribe((evaluated) => {
+        setEvaluatedPagesVisibility(evaluated);
       });
-      setValues(updatedValues);
-    },
-    [unspecifiedFields, values, setValues],
-  );
+
+    return () => {
+      scrollablePagesSubscription.unsubscribe();
+      pagesWithErrorsSubscription.unsubscribe();
+      evaluatedPagesVisibilitySubscription.unsubscribe();
+      activePagesSubscription.unsubscribe();
+    };
+  }, [requestedPage]);
+
+  useEffect(() => {
+    const defaultPageObject = pages.find(({ label }) => label === defaultPage);
+    if (defaultPageObject && !defaultPageObject.isHidden && !visitedInitialPage) {
+      scrollIntoView(defaultPageObject.id);
+      setVisitedInitialPage(true);
+    } else if (evaluatedPagesVisibility && !visitedInitialPage) {
+      setCurrentActivePage(pages.find((page) => !page.isHidden)?.id);
+      setVisitedInitialPage(true);
+    }
+  }, [defaultPage, pages, visitedInitialPage, evaluatedPagesVisibility]);
+
+  const handlePageRequest = useCallback((requestedPage: string) => {
+    setRequestedPage(requestedPage);
+    scrollIntoView(requestedPage);
+    setCurrentActivePage(requestedPage);
+  }, []);
 
   return (
     <div className={styles.sidebar}>
-      {pages.map((page, index) => {
+      {pages.map((page) => {
         if (page.isHidden) return null;
 
-        const isCurrentlySelected = joinWord(page.label) === selectedPage;
-        const hasError = pagesWithErrors.includes(page.label);
-
+        const isActive = page.id === currentActivePage;
+        const hasError = pagesWithErrors.includes(page.id);
+        console.log({ isActive, theActivePage: page.id });
         return (
           <div
-            aria-hidden="true"
-            className={classNames({
-              [styles.erroredSection]: isCurrentlySelected && hasError,
-              [styles.activeSection]: isCurrentlySelected && !hasError,
-              [styles.activeErroredSection]: !isCurrentlySelected && hasError,
-              [styles.section]: !isCurrentlySelected && !hasError,
-            })}
-            key={index}
-            onClick={() => handleClick(page.label)}>
-            <div className={styles.sectionLink}>{page.label}</div>
+            className={classNames(styles.tab, {
+              [styles.activeTab]: isActive && !hasError,
+              [styles.errorTab]: hasError && !isActive,
+              [styles.activeErrorTab]: hasError && isActive,
+            })}>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                handlePageRequest(page.id);
+              }}>
+              <span>{page.label}</span>
+            </button>
           </div>
         );
       })}
-      {mode !== 'view' && <hr className={styles.divider} />}
+      {sessionMode !== 'view' && <hr className={styles.divider} />}
+
       <div className={styles.sidenavActions}>
-        {allowUnspecifiedAll && mode !== 'view' && (
-          <div className={styles.toggleContainer}>
-            <Toggle
-              id="auto-unspecifier"
-              labelA={t('unspecifyAll', 'Unspecify All')}
-              labelB={t('revert', 'Revert')}
-              labelText=""
-              onToggle={markAllAsUnspecified}
-            />
-          </div>
-        )}
-        {mode !== 'view' && (
+        {sessionMode !== 'view' && (
           <Button className={styles.saveButton} disabled={isFormSubmitting} type="submit">
             {t('save', 'Save')}
           </Button>
         )}
         <Button
           className={classNames(styles.saveButton, {
-            [styles.topMargin]: mode === 'view',
+            [styles.topMargin]: sessionMode === 'view',
           })}
           kind="tertiary"
           onClick={() => {
@@ -120,15 +127,39 @@ const Sidebar: React.FC<SidebarProps> = ({
             handleClose?.();
             hideFormCollapseToggle();
           }}>
-          {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
+          {sessionMode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
         </Button>
       </div>
     </div>
   );
 };
 
-function joinWord(value) {
-  return value.replace(/\s/g, '');
+/**
+ * Determines the current active page based on user request and viewport visibility.
+ *
+ * @param requestedPage - The page ID requested by the user, if any.
+ * @param activePages - An array of page IDs currently visible in the viewport.
+ * @returns The ID of the page to be highlighted as current.
+ *
+ * Priority:
+ * 1. If the requested page is among the active pages, it is returned.
+ * 2. Otherwise, returns the topmost visible page.
+ */
+function determineHighlightedPage(requestedPage: string, activePages: Array<string>): string {
+  if (activePages.includes(requestedPage)) {
+    return requestedPage;
+  }
+  const sorted = activePages.sort((a, b) => extractPageIndexFromId(a) - extractPageIndexFromId(b));
+  return sorted[0];
+}
+
+function extractPageIndexFromId(pageId: string) {
+  // Split the pageId by '-' and get the last element
+  const parts = pageId.split('-');
+  const lastPart = parts[parts.length - 1];
+  const index = parseInt(lastPart, 10);
+
+  return isNaN(index) ? -1 : index;
 }
 
 export default Sidebar;

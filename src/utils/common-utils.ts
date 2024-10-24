@@ -77,3 +77,23 @@ export function formatDateAsDisplayString(field: FormField, date: Date) {
   }
   return formatDate(date, options);
 }
+
+/**
+ * Converts a rem value to a px value
+ * @param rem - The rem value to convert
+ * @param fontSize - The font size to use for the conversion
+ * @returns The px value
+ */
+export function remToPx(rem: number, fontSize: number = 16) {
+  return rem * fontSize;
+}
+
+/**
+ * Converts a px value to a rem value
+ * @param px - The px value to convert
+ * @param fontSize - The font size to use for the conversion
+ * @returns The rem value
+ */
+export function pxToRem(px: number, fontSize: number = 16) {
+  return px / fontSize;
+}
