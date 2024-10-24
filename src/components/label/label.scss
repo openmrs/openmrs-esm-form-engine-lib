@@ -8,4 +8,8 @@
   :global(.cds--label) {
     font-weight: bolder;
   }
+
+  button {
+    border-bottom: none !important;
+  }
 }
