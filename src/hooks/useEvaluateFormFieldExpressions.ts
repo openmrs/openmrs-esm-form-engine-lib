@@ -5,6 +5,7 @@ import { evalConditionalRequired, evaluateConditionalAnswered, evaluateHide } fr
 import { isTrue } from '../utils/boolean-utils';
 import { isEmpty } from '../validators/form-validator';
 import { type QuestionAnswerOption } from '../types/schema';
+import cloneDeep from 'lodash-es/cloneDeep';
 
 export const useEvaluateFormFieldExpressions = (
   formValues: Record<string, any>,
@@ -12,6 +13,8 @@ export const useEvaluateFormFieldExpressions = (
 ) => {
   const { formFields, patient, sessionMode } = factoryContext;
   const [evaluatedFormJson, setEvaluatedFormJson] = useState(factoryContext.formJson);
+  const [evaluatedPagesVisibility, setEvaluatedPagesVisibility] = useState(false);
+
   const evaluatedFields = useMemo(() => {
     return formFields?.map((field) => {
       const fieldNode: FormNode = { value: field, type: 'field' };
@@ -125,10 +128,11 @@ export const useEvaluateFormFieldExpressions = (
         }
       });
     });
-    setEvaluatedFormJson(factoryContext.formJson);
+    setEvaluatedFormJson(cloneDeep(factoryContext.formJson));
+    setEvaluatedPagesVisibility(true);
   }, [factoryContext.formJson, formFields]);
 
-  return { evaluatedFormJson, evaluatedFields };
+  return { evaluatedFormJson, evaluatedFields, evaluatedPagesVisibility };
 };
 
 // helpers

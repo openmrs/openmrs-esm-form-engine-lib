@@ -42,6 +42,7 @@ export interface FormPage {
     behaviours?: Array<any>;
     form: Omit<FormSchema, 'postSubmissionActions'>;
   };
+  id?: string;
 }
 
 export interface FormSection {
@@ -125,6 +126,7 @@ export interface QuestionMetaProps {
     wasDeleted?: boolean;
   };
   groupId?: string;
+  pageId?: string;
   [anythingElse: string]: any;
 }
 
