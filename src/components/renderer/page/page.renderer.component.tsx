@@ -6,13 +6,14 @@ import { SectionRenderer } from '../section/section-renderer.component';
 import { Waypoint } from 'react-waypoint';
 import styles from './page.renderer.scss';
 import { Accordion, AccordionItem } from '@carbon/react';
-import { useFormFactory } from '../../../provider/form-factory-provider';
 import { ChevronDownIcon, ChevronUpIcon } from '@openmrs/esm-framework';
 import classNames from 'classnames';
+import { pageObserver } from '../../sidebar/page-observer';
 
 interface PageRendererProps {
   page: FormPage;
   isFormExpanded: boolean;
+  evaluatedPagesVisibility: boolean;
 }
 
 interface CollapsibleSectionContainerProps {
@@ -22,12 +23,11 @@ interface CollapsibleSectionContainerProps {
   isFormExpanded: boolean;
 }
 
-function PageRenderer({ page, isFormExpanded }: PageRendererProps) {
+function PageRenderer({ page, isFormExpanded, evaluatedPagesVisibility }: PageRendererProps) {
   const { t } = useTranslation();
-  const pageId = useMemo(() => page.label.replace(/\s/g, ''), [page.label]);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [_evaluatedPagesVisibility, setEvaluatedPagesVisibility] = useState(false);
 
-  const { setCurrentPage } = useFormFactory();
   const visibleSections = useMemo(
     () =>
       page.sections.filter((section) => {
@@ -41,12 +41,46 @@ function PageRenderer({ page, isFormExpanded }: PageRendererProps) {
 
   useEffect(() => {
     setIsCollapsed(!isFormExpanded);
+
+    return () => {
+      pageObserver.removeInactivePage(page.id);
+    };
   }, [isFormExpanded]);
 
+  // useEffect(() => {
+  //   const evaluatedPagesVisibilitySubscription = pageObserver
+  //     .getEvaluatedPagesVisibilityObservable()
+  //     .subscribe((evaluated) => {
+  //       setEvaluatedPagesVisibility(evaluated);
+  //     });
+
+  //   return () => {
+  //     evaluatedPagesVisibilitySubscription.unsubscribe();
+  //     pageObserver.removeInactivePage(page.id);
+  //   };
+  // }, []);
+
+  if (page.isHidden) {
+    return null;
+  }
   return (
     <div>
-      <Waypoint onEnter={() => setCurrentPage(pageId)} topOffset="50%" bottomOffset="60%">
-        <div className={styles.pageContent}>
+      <Waypoint
+        key={page.id}
+        onEnter={() => {
+          if (evaluatedPagesVisibility) {
+            pageObserver.setCurrentActivePage(page.id);
+            pageObserver.addActivePage(page.id);
+          }
+        }}
+        onLeave={() => {
+          pageObserver.removeInactivePage(page.id);
+        }}
+        // topOffset="40%"
+        // bottomOffset="-60%"
+        topOffset="40%"
+        bottomOffset="40%">
+        <div id={page.id} className={styles.pageContent}>
           <div className={styles.pageHeader} onClick={toggleCollapse}>
             <p className={styles.pageTitle}>
               {t(page.label)}

@@ -13,6 +13,8 @@ export const useEvaluateFormFieldExpressions = (
 ) => {
   const { formFields, patient, sessionMode } = factoryContext;
   const [evaluatedFormJson, setEvaluatedFormJson] = useState(factoryContext.formJson);
+  const [evaluatedPagesVisibility, setEvaluatedPagesVisibility] = useState(false);
+
   const evaluatedFields = useMemo(() => {
     return formFields?.map((field) => {
       const fieldNode: FormNode = { value: field, type: 'field' };
@@ -127,9 +129,10 @@ export const useEvaluateFormFieldExpressions = (
       });
     });
     setEvaluatedFormJson(updateFormSectionReferences(factoryContext.formJson));
+    setEvaluatedPagesVisibility(true);
   }, [factoryContext.formJson, formFields]);
 
-  return { evaluatedFormJson, evaluatedFields };
+  return { evaluatedFormJson, evaluatedFields, evaluatedPagesVisibility };
 };
 
 // helpers

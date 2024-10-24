@@ -1,15 +1,68 @@
 @use '@carbon/colors';
 @use '@carbon/type';
 
+.tab {
+  border-left: 0.5rem solid colors.$teal-20;
+  display: flex;
+  align-items: center;
+  height: 3rem;
+  padding: 0.25rem 0.5rem;
+  background-color: colors.$white;
+  margin: 0 0 0.063rem;
+}
+
+.tab button {
+  @include type.type-style('body-01');
+  font-family: inherit;
+  display: block;
+  background-color: inherit;
+  width: 100%;
+  border: none;
+  outline: none;
+  text-align: left;
+  min-height: 2rem;
+  white-space: normal;
+  word-wrap: break-word;
+  margin: 0 0 0.063rem;
+  color: colors.$gray-100;
+  :hover {
+    cursor: pointer;
+  }
+}
+
+.activeTab {
+  border-left: 0.5rem solid colors.$teal-50;
+  background-color: #ededed;
+
+  button {
+    font-weight: 600;
+  }
+}
+
+.errorTab {
+  border-left: 0.5rem solid colors.$red-40;
+  background-color: colors.$red-10;
+
+  button {
+    color: colors.$red-60 !important;
+  }
+}
+
+.activeErrorTab {
+  @extend .errorTab;
+  background-color: colors.$red-30;
+  border-left: 0.5rem solid colors.$red-60;
+
+  button {
+    font-weight: 600;
+  }
+}
+
 .sidebar {
   width: 12rem;
   min-height: 8rem;
   overscroll-behavior: contain;
   margin-right: 1rem;
-}
-
-.sidebarList {
-  max-height: 100%;
 }
 
 .sidenavActions {
@@ -22,11 +75,6 @@
     max-height: 500px;
     margin-right: 20px;
     position: fixed;
-  }
-
-  .sidebarList {
-    max-height: 200px;
-    overflow-y: scroll;
   }
 }
 
@@ -96,7 +144,7 @@
 .divider {
   border: 0;
   border-top: 1px solid colors.$gray-40;
-  margin: 2.5rem 0.5rem 1rem;
+  margin: 1rem 0.5rem;
 }
 
 .button {

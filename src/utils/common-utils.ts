@@ -89,3 +89,13 @@ export function updateFormSectionReferences(formJson: FormSchema) {
   });
   return { ...formJson };
 }
+
+/**
+ * Converts a px value to a rem value
+ * @param px - The px value to convert
+ * @param fontSize - The font size to use for the conversion
+ * @returns The rem value
+ */
+export function pxToRem(px: number, fontSize: number = 16) {
+  return px / fontSize;
+}

@@ -1,4 +1,4 @@
-import { type FormField, type FormSchemaTransformer, type FormSchema, type RenderType } from '../types';
+import { type FormField, type FormSchema, type FormSchemaTransformer, type RenderType, type FormPage } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { hasRendering } from '../utils/common-utils';
 
@@ -7,7 +7,8 @@ export type RenderTypeExtended = 'multiCheckbox' | 'numeric' | RenderType;
 export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
   transform: (form: FormSchema) => {
     parseBooleanTokenIfPresent(form, 'readonly');
-    form.pages.forEach((page) => {
+    form.pages.forEach((page, index) => {
+      page.id = `page-${page.label.replace(/\s/g, '')}-${index}`;
       parseBooleanTokenIfPresent(page, 'readonly');
       if (page.sections) {
         page.sections.forEach((section) => {
@@ -15,7 +16,7 @@ export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
           section.questions = handleQuestionsWithObsComments(section.questions);
           parseBooleanTokenIfPresent(section, 'readonly');
           parseBooleanTokenIfPresent(section, 'isExpanded');
-          section?.questions?.forEach((question, index) => handleQuestion(question, form));
+          section?.questions?.forEach((question, index) => handleQuestion(question, page, form));
         });
       }
     });
@@ -26,7 +27,7 @@ export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
   },
 };
 
-function handleQuestion(question: FormField, form: FormSchema) {
+function handleQuestion(question: FormField, page: FormPage, form: FormSchema) {
   if (question.type === 'programState') {
     const formMeta = form.meta ?? {};
     formMeta.programs = formMeta.programs
@@ -40,8 +41,9 @@ function handleQuestion(question: FormField, form: FormSchema) {
     transformByType(question);
     transformByRendering(question);
     if (question?.questions?.length) {
-      question.questions.forEach((question) => handleQuestion(question, form));
+      question.questions.forEach((question) => handleQuestion(question, page, form));
     }
+    question.meta.pageId = page.id;
   } catch (error) {
     console.error(error);
   }
