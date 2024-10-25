@@ -58,7 +58,7 @@ export interface FormSection {
 
 export interface FormField {
   label?: string;
-  type: string;
+  type?: string;
   questionOptions: FormQuestionOptions;
   datePickerFormat?: 'both' | 'calendar' | 'timer';
   id: string;
