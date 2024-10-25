@@ -1,0 +1,54 @@
+{
+  "name": "Js expression validation",
+  "uuid": "xxxx",
+  "EncounterType": "xxxx",
+  "referencedForms": [],
+  "processor": "EncounterFormProcessor",
+  "pages": [
+    {
+      "label": "Page 1",
+      "sections": [
+        {
+          "label": "Section 1",
+          "questions": [
+            {
+              "label": "Question 1",
+              "type": "obs",
+              "required": false,
+              "id": "question1",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "166103AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "conceptMappings": [
+                  {
+                    "relationship": "SAME-AS",
+                    "type": "PIH",
+                    "value": "2724"
+                  },
+                  {
+                    "relationship": "SAME-AS",
+                    "type": "SNOMED CT",
+                    "value": "397678008"
+                  },
+                  {
+                    "relationship": "SAME-AS",
+                    "type": "CIEL",
+                    "value": "166103"
+                  }
+                ],
+                "showDate": true
+              },
+              "validators": [
+                {
+                  "type": "js_expression",
+                  "failsWhenExpression": "isEmpty(myValue)",
+                  "message": "Empty value not allowed!"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

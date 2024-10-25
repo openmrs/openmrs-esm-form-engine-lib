@@ -12,7 +12,7 @@ import {
 } from '@openmrs/esm-framework';
 import { when } from 'jest-when';
 import * as api from './api';
-import { assertFormHasAllFields, findCheckboxGroup, findSelectInput } from './utils/test-utils';
+import { assertFormHasAllFields, findCheckboxGroup, findSelectInput, findTextOrDateInput } from './utils/test-utils';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
 import { mockPatient } from '__mocks__/patient.mock';
 import { mockSessionDataResponse } from '__mocks__/session.mock';
@@ -42,6 +42,7 @@ import monthsOnArtForm from '__mocks__/forms/rfe-forms/months-on-art-form.json';
 import nextVisitForm from '__mocks__/forms/rfe-forms/next-visit-test-form.json';
 import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-form.json';
 import readOnlyValidationForm from '__mocks__/forms/rfe-forms/read-only-validation-form.json';
+import jsExpressionValidationForm from '__mocks__/forms/rfe-forms/js-expression-validation-form.json';
 
 import FormEngine from './form-engine.component';
 import { type SessionMode } from './types';
@@ -259,6 +260,21 @@ describe('Form engine component', () => {
       await user.click(screen.getByText(/yes/i));
 
       expect(errorMessage).not.toBeInTheDocument();
+    });
+  });
+
+  describe('js-expression based validation', () => {
+    it('should invoke validation when field value changes', async () => {
+      await act(async () => {
+        renderForm(null, jsExpressionValidationForm);
+      });
+
+      const textField = await findTextOrDateInput(screen, 'Question 1');
+      await user.type(textField, 'Some value');
+      // clear value
+      await user.clear(textField);
+      const errorMessage = await screen.findByText(/Empty value not allowed!/i);
+      expect(errorMessage).toBeInTheDocument();
     });
   });
 
