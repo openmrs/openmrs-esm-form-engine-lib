@@ -5,7 +5,7 @@ interface ExpressionValidatorConfig {
   failsWhenExpression?: string;
   warnsWhenExpression?: string;
   message: string;
-  fields: FormField[];
+  formFields: FormField[];
   expressionContext: ExpressionContext;
   values: Record<string, any>;
 }
@@ -23,7 +23,7 @@ export const ExpressionValidator: FormFieldValidator = {
         return evaluateExpression(
           config[key],
           { value: field, type: 'field' },
-          config.fields,
+          config.formFields,
           { ...config.values, [field.id]: value },
           config.expressionContext,
         )

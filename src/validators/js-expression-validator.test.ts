@@ -20,22 +20,22 @@ describe('ExpressionValidator - validate', () => {
   it('should evaluate js expressions', () => {
     // setup
     const field = allFields.find((f) => f.id == 'htsProviderRemarks');
-    const failsWhenExpression = '!isEmpty(myValue) && isEmpty(`referredToPreventionServices`)';
+    const failsWhenExpression = '!isEmpty(myValue) && isEmpty(referredToPreventionServices)';
 
     // replay
     let errors = ExpressionValidator.validate(field, 'Remarks..', {
       failsWhenExpression,
       expressionContext,
       values,
-      message: 'Atleast one type of Prevention Services must be selected',
-      fields: allFields,
+      message: 'At least one type of Prevention Services must be selected',
+      formFields: allFields,
     });
 
     // verify
     expect(errors).toEqual([
       {
         errCode: 'value.invalid',
-        message: 'Atleast one type of Prevention Services must be selected',
+        message: 'At least one type of Prevention Services must be selected',
         resultType: 'error',
       },
     ]);
@@ -49,14 +49,14 @@ describe('ExpressionValidator - validate', () => {
       expressionContext,
       values,
       message: 'Atleast one type of Prevention Services must be selected',
-      fields: allFields,
+      formFields: allFields,
     });
 
     // verify
     expect(errors).toEqual([]);
   });
 
-  fit('should fail if date value is not within the configured bounds', () => {
+  it('should fail if date value is not within the configured bounds', () => {
     // setup
     const dateField: FormField = {
       label: 'Test Date',
@@ -81,7 +81,7 @@ describe('ExpressionValidator - validate', () => {
       ...dateField.validators[0],
       expressionContext,
       values,
-      fields: allFields,
+      formFields: allFields,
     });
 
     // verify
@@ -96,7 +96,7 @@ describe('ExpressionValidator - validate', () => {
       ...dateField.validators[0],
       expressionContext,
       values,
-      fields: allFields,
+      formFields: allFields,
     });
 
     // verify
@@ -109,7 +109,7 @@ describe('ExpressionValidator - validate', () => {
       ...dateField.validators[0],
       expressionContext,
       values,
-      fields: allFields,
+      formFields: allFields,
     });
 
     // verify
