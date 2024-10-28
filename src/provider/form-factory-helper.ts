@@ -24,7 +24,7 @@ export function validateForm(context: FormContextProps) {
         const validator = formFieldValidators[validatorConfig.type];
         if (validator) {
           const validationResults = validator.validate(field, values[field.id], {
-            fields: formFields,
+            formFields,
             values,
             expressionContext: {
               patient,
