@@ -43,6 +43,7 @@ import nextVisitForm from '__mocks__/forms/rfe-forms/next-visit-test-form.json';
 import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-form.json';
 import readOnlyValidationForm from '__mocks__/forms/rfe-forms/read-only-validation-form.json';
 import jsExpressionValidationForm from '__mocks__/forms/rfe-forms/js-expression-validation-form.json';
+import hidePagesAndSectionsForm from '__mocks__/forms/rfe-forms/hide-pages-and-sections-form.json';
 
 import FormEngine from './form-engine.component';
 import { type SessionMode } from './types';
@@ -632,6 +633,49 @@ describe('Form engine component', () => {
       expect(screen.queryByRole('option', { name: /Minimal testing/i })).toBeNull();
       expect(screen.queryByRole('option', { name: /Un-decisive/i })).toBeInTheDocument();
       expect(screen.queryByRole('option', { name: /Not ideal/i })).toBeInTheDocument();
+    });
+  });
+
+  describe('Hide pages and sections', () => {
+    it('should hide/show section based on field value', async () => {
+      await act(async () => renderForm(null, hidePagesAndSectionsForm));
+
+      // assert section "Section 1B" is hidden at initial render
+      try {
+        await screen.findByText('Section 1B');
+        fail('The section named "Section 1B" should be hidden');
+      } catch (err) {
+        expect(err.message.includes('Unable to find an element with the text: Section 1B')).toBeTruthy();
+      }
+
+      // user interactions to make section visible
+      const hideSection1bField = await findTextOrDateInput(screen, 'Hide Section 1B');
+      await user.type(hideSection1bField, 'Some value');
+
+      const section1b = await screen.findByText('Section 1B');
+      expect(section1b).toBeInTheDocument();
+    });
+
+    it('should hide/show page based on field value', async () => {
+      await act(async () => renderForm(null, hidePagesAndSectionsForm));
+
+      // assert page "Page 2" is visible at initial render
+      const page2 = await screen.findByText('Page 2');
+      expect(page2).toBeInTheDocument();
+
+      // user interactions to hide page
+      const hideSection1bField = await findTextOrDateInput(screen, 'Hide Section 1B');
+      await user.type(hideSection1bField, 'Some value');
+      const choice2RadioOption = screen.getByRole('radio', { name: /Choice 2/i });
+      await user.click(choice2RadioOption);
+
+      // assert page is hidden
+      try {
+        await screen.findByText('Page 2');
+        fail('The page named "Page 2" should be hidden');
+      } catch (err) {
+        expect(err.message.includes('Unable to find an element with the text: Page 2')).toBeTruthy();
+      }
     });
   });
 
