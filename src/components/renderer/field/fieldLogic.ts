@@ -206,9 +206,9 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
       }
       shouldUpdateForm = true;
     });
+  }
 
-    if (shouldUpdateForm) {
-      setForm({ ...formJson });
-    }
+  if (shouldUpdateForm) {
+    setForm(formJson);
   }
 }

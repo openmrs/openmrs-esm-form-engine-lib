@@ -5,6 +5,7 @@ import { evalConditionalRequired, evaluateConditionalAnswered, evaluateHide } fr
 import { isTrue } from '../utils/boolean-utils';
 import { isEmpty } from '../validators/form-validator';
 import { type QuestionAnswerOption } from '../types/schema';
+import { updateFormSectionReferences } from '../utils/common-utils';
 
 export const useEvaluateFormFieldExpressions = (
   formValues: Record<string, any>,
@@ -125,7 +126,7 @@ export const useEvaluateFormFieldExpressions = (
         }
       });
     });
-    setEvaluatedFormJson(factoryContext.formJson);
+    setEvaluatedFormJson(updateFormSectionReferences(factoryContext.formJson));
   }, [factoryContext.formJson, formFields]);
 
   return { evaluatedFormJson, evaluatedFields };

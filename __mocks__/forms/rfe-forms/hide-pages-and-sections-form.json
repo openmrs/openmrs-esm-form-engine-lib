@@ -1,0 +1,93 @@
+{
+  "encounterType": "e22e39fd-7db2-45e7-80f1-60fa0d5a4378",
+  "name": "Hide Pages and Sections",
+  "processor": "EncounterFormProcessor",
+  "referencedForms": [],
+  "uuid": "7c77485c-7a57-4646-ac21-11d92555a420",
+  "version": "1.0",
+  "pages": [
+    {
+      "label": "Page 1",
+      "sections": [
+        {
+          "label": "Section 1A",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "id": "hideSection1B",
+              "label": "Hide Section 1B",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "7aef2620-76e0-4d88-b9cb-c47ba4f67bce"
+              }
+            }
+          ]
+        },
+        {
+          "label": "Section 1B",
+          "isExpanded": "true",
+          "hide": {
+            "hideWhenExpression": "isEmpty(hideSection1B)"
+          },
+          "questions": [
+            {
+              "id": "hidePage2",
+              "label": "Hide Page 2",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "1255AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "answers": [
+                  {
+                    "concept": "1256AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Choice 1",
+                    "conceptMappings": []
+                  },
+                  {
+                    "concept": "1258AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Choice 2",
+                    "conceptMappings": []
+                  },
+                  {
+                    "concept": "1259AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Choice 3",
+                    "conceptMappings": []
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Page 2",
+      "hide": {
+        "hideWhenExpression": "hidePage2 === '1258AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+      },
+      "sections": [
+        {
+          "label": "Section 2A",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Date",
+              "type": "obs",
+              "required": false,
+              "id": "date",
+              "datePickerFormat": "calendar",
+              "questionOptions": {
+                "rendering": "date",
+                "concept": "159599AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "conceptMappings": []
+              },
+              "validators": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "description": "Hide Pages and Sections"
+}

@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { type FormField, type OpenmrsObs, type RenderType } from '../types';
+import { type FormSchema, type FormField, type OpenmrsObs, type RenderType } from '../types';
 import { isEmpty } from '../validators/form-validator';
 import { formatDate, type FormatDateOptions } from '@openmrs/esm-framework';
 
@@ -76,4 +76,16 @@ export function formatDateAsDisplayString(field: FormField, date: Date) {
     options.time = true;
   }
   return formatDate(date, options);
+}
+
+/**
+ * Creates a new copy of `formJson` with updated references at the page and section levels.
+ * This ensures React re-renders properly by providing new references for nested arrays.
+ */
+export function updateFormSectionReferences(formJson: FormSchema) {
+  formJson.pages = formJson.pages.map((page) => {
+    page.sections = Array.from(page.sections);
+    return page;
+  });
+  return { ...formJson };
 }

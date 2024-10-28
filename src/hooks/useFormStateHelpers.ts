@@ -2,6 +2,7 @@ import { type Dispatch, useCallback } from 'react';
 import { type FormField, type FormSchema } from '../types';
 import { type Action } from '../components/renderer/form/state';
 import cloneDeep from 'lodash/cloneDeep';
+import { updateFormSectionReferences } from '../utils/common-utils';
 
 export function useFormStateHelpers(dispatch: Dispatch<Action>, formFields: FormField[]) {
   const addFormField = useCallback((field: FormField) => {
@@ -35,7 +36,7 @@ export function useFormStateHelpers(dispatch: Dispatch<Action>, formFields: Form
   }, []);
 
   const setForm = useCallback((formJson: FormSchema) => {
-    dispatch({ type: 'SET_FORM_JSON', value: formJson });
+    dispatch({ type: 'SET_FORM_JSON', value: updateFormSectionReferences(formJson) });
   }, []);
 
   return {
