@@ -7,6 +7,7 @@ import styles from './sidebar.scss';
 import { usePageObserver } from './usePageObserver';
 import { useCurrentActivePage } from './useCurrentActivePage';
 import { isPageContentVisible } from '../../utils/form-helper';
+import { InlineLoading } from '@carbon/react';
 
 interface SidebarProps {
   defaultPage: string;
@@ -63,7 +64,11 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className={styles.sideNavActions}>
         {sessionMode !== 'view' && (
           <Button className={styles.saveButton} disabled={isFormSubmitting} type="submit">
-            {t('save', 'Save')}
+            {isFormSubmitting ? (
+              <InlineLoading description={t('submitting', 'Submitting') + '...'} />
+            ) : (
+              <span>{`${t('save', 'Save')}`}</span>
+            )}
           </Button>
         )}
         <Button

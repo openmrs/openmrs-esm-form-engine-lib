@@ -144,7 +144,7 @@ const FormEngine = ({
             <div className={styles.formContent}>
               {showSidebar && (
                 <Sidebar
-                  isFormSubmitting={false}
+                  isFormSubmitting={isSubmitting}
                   sessionMode={mode}
                   defaultPage={formJson.defaultPage}
                   onCancel={onCancel}
