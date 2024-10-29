@@ -13,7 +13,6 @@ import { pageObserver } from '../../sidebar/page-observer';
 interface PageRendererProps {
   page: FormPage;
   isFormExpanded: boolean;
-  evaluatedPagesVisibility: boolean;
 }
 
 interface CollapsibleSectionContainerProps {
@@ -23,10 +22,9 @@ interface CollapsibleSectionContainerProps {
   isFormExpanded: boolean;
 }
 
-function PageRenderer({ page, isFormExpanded, evaluatedPagesVisibility }: PageRendererProps) {
+function PageRenderer({ page, isFormExpanded }: PageRendererProps) {
   const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [_evaluatedPagesVisibility, setEvaluatedPagesVisibility] = useState(false);
 
   const visibleSections = useMemo(
     () =>
@@ -47,37 +45,12 @@ function PageRenderer({ page, isFormExpanded, evaluatedPagesVisibility }: PageRe
     };
   }, [isFormExpanded]);
 
-  // useEffect(() => {
-  //   const evaluatedPagesVisibilitySubscription = pageObserver
-  //     .getEvaluatedPagesVisibilityObservable()
-  //     .subscribe((evaluated) => {
-  //       setEvaluatedPagesVisibility(evaluated);
-  //     });
-
-  //   return () => {
-  //     evaluatedPagesVisibilitySubscription.unsubscribe();
-  //     pageObserver.removeInactivePage(page.id);
-  //   };
-  // }, []);
-
-  if (page.isHidden) {
-    return null;
-  }
   return (
     <div>
       <Waypoint
         key={page.id}
-        onEnter={() => {
-          if (evaluatedPagesVisibility) {
-            pageObserver.setCurrentActivePage(page.id);
-            pageObserver.addActivePage(page.id);
-          }
-        }}
-        onLeave={() => {
-          pageObserver.removeInactivePage(page.id);
-        }}
-        // topOffset="40%"
-        // bottomOffset="-60%"
+        onEnter={() => pageObserver.addActivePage(page.id)}
+        onLeave={() => pageObserver.removeInactivePage(page.id)}
         topOffset="40%"
         bottomOffset="40%">
         <div id={page.id} className={styles.pageContent}>

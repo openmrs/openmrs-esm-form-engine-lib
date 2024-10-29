@@ -65,7 +65,7 @@
   margin-right: 1rem;
 }
 
-.sidenavActions {
+.sideNavActions {
   margin-left: 0.6rem;
 }
 
@@ -76,69 +76,6 @@
     margin-right: 20px;
     position: fixed;
   }
-}
-
-.link {
-  margin: 0.375rem 0 0.375rem 0.5rem;
-  font-size: 1rem;
-  line-height: 1.43;
-  letter-spacing: 0.16px;
-  color: colors.$gray-100;
-  cursor: pointer;
-
-  :hover {
-    outline: none;
-  }
-}
-
-.section {
-  border-left: 0.5rem solid colors.$teal-20;
-  display: flex;
-  align-items: center;
-  height: 2rem;
-  padding: 0.25rem 0.5rem;
-  background-color: colors.$white;
-  cursor: pointer;
-}
-
-/* Tablet */
-:global(.omrs-breakpoint-lt-desktop) {
-  .section {
-    height: 3rem;
-  }
-}
-
-.sectionLink {
-  @include type.type-style('body-01');
-  color: colors.$gray-100;
-}
-
-.activeSection {
-  @extend .section;
-  border-left: 0.5rem solid colors.$teal-50;
-  background-color: #ededed;
-
-  .sectionLink {
-    font-weight: 600;
-  }
-}
-
-.sectionDone {
-  @extend .section;
-  border-left: 0.5rem solid colors.$teal-80;
-  background-color: colors.$green-10;
-}
-
-.erroredSection {
-  @extend .section;
-  border-left: 0.5rem solid colors.$red-60;
-  color: colors.$red-70 !important;
-  background-color: colors.$red-20;
-}
-
-.activeErroredSection {
-  @extend .erroredSection;
-  font-weight: 600;
 }
 
 .divider {
@@ -162,8 +99,7 @@
 
 .closeButton {
   @extend .button;
-}
-
-.toggleContainer {
-  margin-bottom: 0.5rem;
+  &:hover {
+    background-color: colors.$red-60 !important;
+  }
 }

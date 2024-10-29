@@ -8,7 +8,8 @@ export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
   transform: (form: FormSchema) => {
     parseBooleanTokenIfPresent(form, 'readonly');
     form.pages.forEach((page, index) => {
-      page.id = `page-${page.label.replace(/\s/g, '')}-${index}`;
+      const label = page.label ?? '';
+      page.id = `page-${label.replace(/\s/g, '')}-${index}`;
       parseBooleanTokenIfPresent(page, 'readonly');
       if (page.sections) {
         page.sections.forEach((section) => {

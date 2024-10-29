@@ -9,6 +9,7 @@ const expectedTransformedSchema = {
     {
       label: 'Page 1',
       readonly: false,
+      id: 'page-Page1-0',
       sections: [
         {
           label: 'Section 1',
@@ -33,6 +34,7 @@ const expectedTransformedSchema = {
               ],
               meta: {
                 submission: null,
+                pageId: 'page-Page1-0',
               },
             },
             {
@@ -53,6 +55,7 @@ const expectedTransformedSchema = {
               ],
               meta: {
                 submission: null,
+                pageId: 'page-Page1-0',
               },
             },
             {
@@ -73,6 +76,7 @@ const expectedTransformedSchema = {
               ],
               meta: {
                 submission: null,
+                pageId: 'page-Page1-0',
               },
             },
             {
@@ -100,11 +104,13 @@ const expectedTransformedSchema = {
                   ],
                   meta: {
                     submission: null,
+                    pageId: 'page-Page1-0',
                   },
                 },
               ],
               meta: {
                 submission: null,
+                pageId: 'page-Page1-0',
               },
             },
             {
@@ -141,6 +147,7 @@ const expectedTransformedSchema = {
               ],
               meta: {
                 submission: null,
+                pageId: 'page-Page1-0',
               },
             },
           ],

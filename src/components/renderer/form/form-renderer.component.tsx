@@ -10,7 +10,7 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { type FormProcessorContextProps } from '../../../types';
 import { useFormStateHelpers } from '../../../hooks/useFormStateHelpers';
 import { pageObserver } from '../../sidebar/page-observer';
-import { use } from 'i18next';
+import { isPageContentVisible } from '../../../utils/form-helper';
 
 export type FormRendererProps = {
   processorContext: FormProcessorContextProps;
@@ -98,11 +98,7 @@ export const FormRenderer = ({
   return (
     <FormProvider {...context}>
       {formJson.pages.map((page) => {
-        const pageHasNoVisibleContent =
-          page.sections?.every((section) => section.isHidden) ||
-          page.sections?.every((section) => section.questions?.every((question) => question.isHidden)) ||
-          isTrue(page.isHidden);
-        if (!page.isSubform && pageHasNoVisibleContent) {
+        if (!page.isSubform && !isPageContentVisible(page)) {
           return null;
         }
         if (page.isSubform && page.subform?.form) {
@@ -115,14 +111,7 @@ export const FormRenderer = ({
             />
           );
         }
-        return (
-          <PageRenderer
-            key={page.label}
-            page={page}
-            isFormExpanded={isFormExpanded}
-            evaluatedPagesVisibility={evaluatedPagesVisibility}
-          />
-        );
+        return <PageRenderer key={page.label} page={page} isFormExpanded={isFormExpanded} />;
       })}
     </FormProvider>
   );

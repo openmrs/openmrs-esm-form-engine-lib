@@ -5,12 +5,7 @@ class PageObserver {
   private scrollablePagesSubject = new BehaviorSubject<Array<FormPage>>([]);
   private pagesWithErrorsSubject = new BehaviorSubject<Set<string>>(new Set());
   private activePagesSubject = new BehaviorSubject<Set<string>>(new Set());
-  private currentActivePageSubject = new BehaviorSubject<string | null>(null);
   private evaluatedPagesVisibilitySubject = new BehaviorSubject<boolean>(null);
-
-  setCurrentActivePage(page: string) {
-    this.currentActivePageSubject.next(page);
-  }
 
   setEvaluatedPagesVisibility(evaluatedPagesVisibility: boolean) {
     this.evaluatedPagesVisibilitySubject.next(evaluatedPagesVisibility);
@@ -48,10 +43,6 @@ class PageObserver {
     return this.pagesWithErrorsSubject.asObservable();
   }
 
-  getCurrentActivePageObservable() {
-    return this.currentActivePageSubject.asObservable();
-  }
-
   getEvaluatedPagesVisibilityObservable() {
     return this.evaluatedPagesVisibilitySubject.asObservable();
   }
@@ -59,7 +50,7 @@ class PageObserver {
   clear() {
     this.scrollablePagesSubject.next([]);
     this.pagesWithErrorsSubject.next(new Set());
-    this.currentActivePageSubject.next(null);
+    this.activePagesSubject.next(new Set());
     this.evaluatedPagesVisibilitySubject.next(false);
   }
 }

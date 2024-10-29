@@ -18,6 +18,7 @@ import { moduleName } from './globals';
 import { useFormCollapse } from './hooks/useFormCollapse';
 import Sidebar from './components/sidebar/sidebar.component';
 import { useFormWorkspaceSize } from './hooks/useFormWorkspaceSize';
+import { usePageObserver } from './components/sidebar/usePageObserver';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -34,9 +35,6 @@ interface FormEngineProps {
   markFormAsDirty?: (isDirty: boolean) => void;
 }
 
-// TODOs:
-// - Implement sidebar
-// - Conditionally render the button set
 const FormEngine = ({
   formJson,
   patientUUID,
@@ -60,11 +58,11 @@ const FormEngine = ({
   const workspaceSize = useFormWorkspaceSize(ref);
   const { patient, isLoadingPatient } = usePatientData(patientUUID);
   const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
   const sessionMode = !isEmpty(mode) ? mode : !isEmpty(encounterUUID) ? 'edit' : 'enter';
   const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(sessionMode);
+  const { hasMultiplePages } = usePageObserver();
 
   const {
     formJson: refinedFormJson,
@@ -77,12 +75,20 @@ const FormEngine = ({
   }, [patient, mode, workspaceSize]);
 
   const showButtonSet = useMemo(() => {
-    if (mode === 'embedded-view') {
+    if (mode === 'embedded-view' || isLoadingDependencies || hasMultiplePages === null) {
       return false;
     }
 
-    // return ['narrow', 'wider'].includes(workspaceSize) && scrollablePages.size <= 1);
-  }, [mode, workspaceSize]);
+    return ['narrow', 'wider'].includes(workspaceSize) || !hasMultiplePages;
+  }, [mode, workspaceSize, isLoadingDependencies, hasMultiplePages]);
+
+  const showSidebar = useMemo(() => {
+    if (mode === 'embedded-view' || isLoadingDependencies || hasMultiplePages === null) {
+      return false;
+    }
+
+    return ['extra-wide', 'ultra-wide'].includes(workspaceSize) && hasMultiplePages;
+  }, [workspaceSize, isLoadingDependencies, hasMultiplePages]);
 
   useEffect(() => {
     reportError(formError, t('errorLoadingFormSchema', 'Error loading form schema'));
@@ -136,7 +142,7 @@ const FormEngine = ({
               </div>
             )}
             <div className={styles.formContent}>
-              {!isLoadingDependencies && (
+              {showSidebar && (
                 <Sidebar
                   isFormSubmitting={false}
                   sessionMode={mode}
