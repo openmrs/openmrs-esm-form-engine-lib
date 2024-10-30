@@ -207,9 +207,9 @@ function processObsField(obsForSubmission: OpenmrsObs[], field: FormField) {
   }
 }
 
-function processObsGroup(obsList: OpenmrsObs[], groupField: FormField) {
+function processObsGroup(obsForSubmission: OpenmrsObs[], groupField: FormField) {
   if (groupField.meta.submission?.voidedValue) {
-    addObsToList(obsList, groupField.meta.submission.voidedValue);
+    addObsToList(obsForSubmission, groupField.meta.submission.voidedValue);
     return;
   }
 
@@ -220,19 +220,17 @@ function processObsGroup(obsList: OpenmrsObs[], groupField: FormField) {
 
   groupField.questions.forEach((nestedField) => {
     if (nestedField.type === 'obsGroup') {
-      // Recursively process nested obsGroups
       const nestedObsGroup: OpenmrsObs[] = [];
       processObsGroup(nestedObsGroup, nestedField);
-      addObsToList(obsGroup.groupMembers, nestedObsGroup);
+      addObsToList(obsForSubmission, nestedObsGroup);
     } else if (hasSubmission(nestedField)) {
-      // Process individual observations within the group
-      addObsToList(obsGroup.groupMembers, nestedField.meta.submission.newValue);
-      addObsToList(obsGroup.groupMembers, nestedField.meta.submission.voidedValue);
+      addObsToList(obsForSubmission, nestedField.meta.submission.newValue);
+      addObsToList(obsForSubmission, nestedField.meta.submission.voidedValue);
     }
   });
 
-  if (obsGroup.groupMembers.length || obsGroup.voided) {
-    addObsToList(obsList, obsGroup);
+  if (obsGroup.groupMembers?.length || obsGroup.voided) {
+    addObsToList(obsForSubmission, obsGroup);
   }
 }
 

@@ -184,7 +184,7 @@ export function constructObs(field: FormField, value: any): Partial<OpenmrsObs> 
   };
 
   if (field.type === 'obsGroup') {
-    draftObs.groupMembers = value.map((v: any) => constructObs(field, v));
+    draftObs.groupMembers = value?.map((v: any) => constructObs(field, v)) || [];
   } else {
     draftObs.value = field.questionOptions.rendering.startsWith('date') ? formatDateByPickerType(field, value) : value;
   }
@@ -295,41 +295,18 @@ export function findObsByFormField(
   claimedObsIds: string[],
   field: FormField,
 ): OpenmrsObs[] {
-  const matchingObs: OpenmrsObs[] = [];
+  const obs = obsList.filter(
+    (o) => o.formFieldPath == `rfe-forms-${field.id}` && o.concept.uuid == field.questionOptions.concept,
+  );
 
-  const traverseObs = (obs: OpenmrsObs[]) => {
-    for (const o of obs) {
-      if (o.formFieldPath === `rfe-forms-${field.id}` && o.concept.uuid === field.questionOptions.concept) {
-        matchingObs.push(o);
-      }
-      if (o.groupMembers?.length) {
-        traverseObs(o.groupMembers);
-      }
-    }
-  };
-
-  traverseObs(obsList);
-
-  if (!matchingObs.length) {
-    const obsByConcept: OpenmrsObs[] = [];
-
-    const traverseByConcept = (obs: OpenmrsObs[]) => {
-      for (const o of obs) {
-        if (o.concept.uuid === field.questionOptions.concept) {
-          obsByConcept.push(o);
-        }
-        if (o.groupMembers?.length) {
-          traverseByConcept(o.groupMembers);
-        }
-      }
-    };
-
-    traverseByConcept(obsList);
-    return claimedObsIds.length ? obsByConcept.filter((obs) => !claimedObsIds.includes(obs.uuid)) : obsByConcept;
+  // We shall fall back to mapping by the associated concept
+  // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
+  if (!obs?.length) {
+    const obsByConcept = obsList.filter((obs) => obs.concept.uuid == field.questionOptions.concept);
+    return claimedObsIds?.length ? obsByConcept.filter((obs) => !claimedObsIds.includes(obs.uuid)) : obsByConcept;
   }
 
-  // Filter out claimed obs from the primary matching results
-  return claimedObsIds.length ? matchingObs.filter((obs) => !claimedObsIds.includes(obs.uuid)) : matchingObs;
+  return obs;
 }
 
 function generateAttachment(rawAttachment: AttachmentResponse): Attachment {
