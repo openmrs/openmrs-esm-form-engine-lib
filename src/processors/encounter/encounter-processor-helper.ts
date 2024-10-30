@@ -222,10 +222,10 @@ function processObsGroup(obsForSubmission: OpenmrsObs[], groupField: FormField) 
     if (nestedField.type === 'obsGroup') {
       const nestedObsGroup: OpenmrsObs[] = [];
       processObsGroup(nestedObsGroup, nestedField);
-      addObsToList(obsForSubmission, nestedObsGroup);
+      addObsToList(obsGroup.groupMembers, nestedObsGroup);
     } else if (hasSubmission(nestedField)) {
-      addObsToList(obsForSubmission, nestedField.meta.submission.newValue);
-      addObsToList(obsForSubmission, nestedField.meta.submission.voidedValue);
+      addObsToList(obsGroup.groupMembers, nestedField.meta.submission.newValue);
+      addObsToList(obsGroup.groupMembers, nestedField.meta.submission.voidedValue);
     }
   });
 
