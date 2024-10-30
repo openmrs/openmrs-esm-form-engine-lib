@@ -100,7 +100,7 @@ export class EncounterFormProcessor extends FormProcessor {
         field.meta.fixedValue = field.value;
         delete field.value;
       }
-      if (field.questionOptions?.rendering == 'group') {
+      if (field.questionOptions?.rendering == 'group' || field.type === 'obsGroup') {
         field.questions?.forEach((child) => {
           child.readonly = child.readonly ?? field.readonly;
           return prepareFormField(child, section, page, schema);
@@ -231,6 +231,14 @@ export class EncounterFormProcessor extends FormProcessor {
               console.error(error);
             }
             if (field.type === 'obsGroup') {
+              await Promise.all(
+                field.questions.map(async (childField) => {
+                  const childValue = await adapter.getInitialValue(childField, encounter, context);
+                  if (!isEmpty(childValue)) {
+                    initialValues[childField.id] = childValue;
+                  }
+                }),
+              );
               return;
             }
             if (!isEmpty(value)) {
