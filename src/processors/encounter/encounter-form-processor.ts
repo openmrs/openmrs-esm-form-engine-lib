@@ -231,14 +231,6 @@ export class EncounterFormProcessor extends FormProcessor {
               console.error(error);
             }
             if (field.type === 'obsGroup') {
-              await Promise.all(
-                field.questions.map(async (childField) => {
-                  const childValue = await adapter.getInitialValue(childField, encounter, context);
-                  if (!isEmpty(childValue)) {
-                    initialValues[childField.id] = childValue;
-                  }
-                }),
-              );
               return;
             }
             if (!isEmpty(value)) {
