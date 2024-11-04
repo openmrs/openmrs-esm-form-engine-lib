@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { type FormField, type FormFieldInputProps } from '../../types';
+import { type FormFieldInputProps } from '../../types';
 import styles from './obs-group.scss';
 import { FormFieldRenderer, isGroupField } from '../renderer/field/form-field-renderer.component';
 import { useFormProviderContext } from '../../provider/form-provider';
@@ -12,8 +12,8 @@ export const ObsGroup: React.FC<FormFieldInputProps> = ({ field, ...restProps })
   const { formFieldAdapters } = useFormProviderContext();
   const showLabel = useMemo(() => field.questions?.length > 1, [field]);
 
-  const renderGroupContent = useCallback(
-    (field: FormField) =>
+  const content = useMemo(
+    () =>
       field.questions
         ?.filter((child) => !child.isHidden)
         .map((child, index) => {
@@ -42,10 +42,10 @@ export const ObsGroup: React.FC<FormFieldInputProps> = ({ field, ...restProps })
     <div className={styles.groupContainer}>
       {showLabel ? (
         <FormGroup legendText={t(field.label)} className={styles.boldLegend}>
-          {renderGroupContent(field)}
+          {content}
         </FormGroup>
       ) : (
-        renderGroupContent(field)
+        content
       )}
     </div>
   );
