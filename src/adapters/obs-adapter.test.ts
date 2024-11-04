@@ -1,6 +1,6 @@
 import { type FormContextProps } from '../provider/form-provider';
 import { type FormField } from '../types';
-import { hasPreviousObsValueChanged, findObsByFormField, ObsAdapter } from './obs-adapter';
+import { findObsByFormField, hasPreviousObsValueChanged, ObsAdapter } from './obs-adapter';
 
 const formContext = {
   methods: null,
@@ -942,5 +942,282 @@ describe('findObsByFormField', () => {
     // verify
     expect(matchedObs.length).toBe(1);
     expect(matchedObs[0]).toBe(obsList[3]);
+  });
+});
+
+describe('ObsAdapter - handling nested obsGroups', () => {
+  const createNestedFields = (): FormField => ({
+    label: 'Parent obsGroup',
+    type: 'obsGroup',
+    required: false,
+    id: 'parentObsgroup',
+    questionOptions: {
+      rendering: 'group',
+      concept: '163770AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    },
+    questions: [
+      {
+        label: 'Health Center',
+        type: 'obs',
+        required: false,
+        id: 'healthCenter',
+        questionOptions: {
+          rendering: 'select',
+          concept: '1745AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          answers: [
+            {
+              concept: '1560AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+              label: 'Family member',
+            },
+            {
+              concept: '1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+              label: 'Health clinic/post',
+            },
+            {
+              concept: '5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+              label: 'Other',
+            },
+          ],
+        },
+      },
+      {
+        label: 'Nested obsGroup',
+        type: 'obsGroup',
+        required: false,
+        id: 'nestedObsgroup',
+        questionOptions: {
+          rendering: 'group',
+          concept: '3f824eeb-8452-4df0-b346-6ed056cbc5b9',
+        },
+        questions: [
+          {
+            label: 'Comment',
+            type: 'obs',
+            required: false,
+            id: 'comment',
+            questionOptions: {
+              rendering: 'textarea',
+              concept: '161011AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            },
+          },
+          {
+            label: 'Other Diagnoses',
+            type: 'obs',
+            required: false,
+            id: 'otherDiagnoses',
+            questionOptions: {
+              rendering: 'select',
+              concept: '159947AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+              answers: [
+                {
+                  concept: '159394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                  label: 'Diagnosis certainty',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ],
+  });
+
+  const createNestedObs = () => ({
+    uuid: 'encounter-uuid',
+    obs: [
+      {
+        uuid: 'parent-group-uuid',
+        concept: {
+          uuid: '163770AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        },
+        groupMembers: [
+          {
+            uuid: 'health-center-uuid',
+            concept: {
+              uuid: '1745AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            },
+            value: {
+              uuid: '1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            },
+            formFieldPath: 'rfe-forms-healthCenter',
+          },
+          {
+            uuid: 'nested-group-uuid',
+            concept: {
+              uuid: '3f824eeb-8452-4df0-b346-6ed056cbc5b9',
+            },
+            groupMembers: [
+              {
+                uuid: 'comment-uuid',
+                concept: {
+                  uuid: '161011AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                },
+                value: 'Test comment for nested group',
+                formFieldPath: 'rfe-forms-comment',
+              },
+              {
+                uuid: 'diagnosis-uuid',
+                concept: {
+                  uuid: '159947AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                },
+                value: {
+                  uuid: '159394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                },
+                formFieldPath: 'rfe-forms-otherDiagnoses',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+
+  beforeEach(() => {
+    formContext.domainObjectValue = createNestedObs();
+    ObsAdapter.tearDown();
+  });
+
+  it('should get initial values from nested obs groups', async () => {
+    const fields = createNestedFields();
+
+    const healthCenterField = fields.questions[0];
+    const healthCenterValue = await ObsAdapter.getInitialValue(
+      healthCenterField,
+      formContext.domainObjectValue,
+      formContext,
+    );
+    expect(healthCenterValue).toBe('1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+
+    const commentField = fields.questions[1].questions[0];
+    const commentValue = await ObsAdapter.getInitialValue(commentField, formContext.domainObjectValue, formContext);
+    expect(commentValue).toBe('Test comment for nested group');
+
+    const diagnosisField = fields.questions[1].questions[1];
+    const diagnosisValue = await ObsAdapter.getInitialValue(diagnosisField, formContext.domainObjectValue, formContext);
+    expect(diagnosisValue).toBe('159394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+  });
+
+  it('should transform values in nested groups', () => {
+    const fields = createNestedFields();
+
+    const healthCenterField = fields.questions[0];
+    const healthCenterObs = ObsAdapter.transformFieldValue(
+      healthCenterField,
+      '1560AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      formContext,
+    );
+    expect(healthCenterObs).toEqual({
+      concept: '1745AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-healthCenter',
+      value: '1560AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    });
+
+    const commentField = fields.questions[1].questions[0];
+    const commentObs = ObsAdapter.transformFieldValue(commentField, 'New test comment', formContext);
+    expect(commentObs).toEqual({
+      concept: '161011AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-comment',
+      value: 'New test comment',
+    });
+  });
+
+  it('should edit existing values in nested groups', () => {
+    formContext.sessionMode = 'edit';
+    const fields = createNestedFields();
+
+    const healthCenterField = fields.questions[0];
+    healthCenterField.meta = {
+      previousValue: {
+        uuid: 'health-center-uuid',
+        value: {
+          uuid: '1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        },
+      },
+    };
+
+    const healthCenterObs = ObsAdapter.transformFieldValue(
+      healthCenterField,
+      '5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      formContext,
+    );
+
+    expect(healthCenterObs).toEqual({
+      uuid: 'health-center-uuid',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-healthCenter',
+      value: '5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    });
+
+    const commentField = fields.questions[1].questions[0];
+    commentField.meta = {
+      previousValue: {
+        uuid: 'comment-uuid',
+        value: 'Test comment for nested group',
+      },
+    };
+
+    const commentObs = ObsAdapter.transformFieldValue(commentField, 'Updated comment text', formContext);
+
+    expect(commentObs).toEqual({
+      uuid: 'comment-uuid',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-comment',
+      value: 'Updated comment text',
+    });
+  });
+
+  it('should void deleted values in nested groups', () => {
+    formContext.sessionMode = 'edit';
+    const fields = createNestedFields();
+
+    const commentField = fields.questions[1].questions[0];
+    commentField.meta = {
+      previousValue: {
+        uuid: 'comment-uuid',
+        value: 'Test comment for nested group',
+      },
+    };
+
+    ObsAdapter.transformFieldValue(commentField, '', formContext);
+    expect(commentField.meta.submission.voidedValue).toEqual({
+      uuid: 'comment-uuid',
+      voided: true,
+    });
+    expect(commentField.meta.submission.newValue).toBe(null);
+
+    const diagnosisField = fields.questions[1].questions[1];
+    diagnosisField.meta = {
+      previousValue: {
+        uuid: 'diagnosis-uuid',
+        value: {
+          uuid: '159394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        },
+      },
+    };
+
+    ObsAdapter.transformFieldValue(diagnosisField, null, formContext);
+    expect(diagnosisField.meta.submission.voidedValue).toEqual({
+      uuid: 'diagnosis-uuid',
+      voided: true,
+    });
+    expect(diagnosisField.meta.submission.newValue).toBe(null);
+  });
+
+  it('should handle empty nested groups', async () => {
+    const emptyEncounter = {
+      uuid: 'encounter-uuid',
+      obs: [],
+    };
+
+    const fields = createNestedFields();
+
+    const healthCenterField = fields.questions[0];
+    const healthCenterValue = await ObsAdapter.getInitialValue(healthCenterField, emptyEncounter, formContext);
+    expect(healthCenterValue).toBe('');
+
+    const commentField = fields.questions[1].questions[0];
+    const commentValue = await ObsAdapter.getInitialValue(commentField, emptyEncounter, formContext);
+    expect(commentValue).toBe('');
   });
 });

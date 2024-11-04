@@ -100,7 +100,7 @@ export class EncounterFormProcessor extends FormProcessor {
         field.meta.fixedValue = field.value;
         delete field.value;
       }
-      if (field.questionOptions?.rendering == 'group') {
+      if (field.questionOptions?.rendering == 'group' || field.type === 'obsGroup') {
         field.questions?.forEach((child) => {
           child.readonly = child.readonly ?? field.readonly;
           return prepareFormField(child, section, page, schema);

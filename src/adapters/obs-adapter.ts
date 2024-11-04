@@ -1,23 +1,23 @@
 import dayjs from 'dayjs';
-import { ConceptTrue, codedTypes } from '../constants';
+import { codedTypes, ConceptTrue } from '../constants';
 import {
-  type OpenmrsObs,
-  type FormField,
-  type OpenmrsEncounter,
-  type AttachmentResponse,
   type Attachment,
+  type AttachmentResponse,
+  type FormField,
+  type FormFieldValueAdapter,
+  type OpenmrsEncounter,
+  type OpenmrsObs,
   type ValueAndDisplay,
 } from '../types';
 import {
-  hasRendering,
-  gracefullySetSubmission,
   clearSubmission,
   flattenObsList,
-  parseToLocalDateTime,
   formatDateAsDisplayString,
+  gracefullySetSubmission,
+  hasRendering,
+  parseToLocalDateTime,
 } from '../utils/common-utils';
 import { type FormContextProps } from '../provider/form-provider';
-import { type FormFieldValueAdapter } from '../types';
 import { isEmpty } from '../validators/form-validator';
 import { getAttachmentByUuid } from '../api';
 import { formatDate, restBaseUrl } from '@openmrs/esm-framework';
@@ -60,40 +60,45 @@ export const ObsAdapter: FormFieldValueAdapter = {
     if (isEmpty(value)) {
       return value;
     }
-    if (value instanceof Date) {
-      return formatDateAsDisplayString(field, value);
+
+    if (Array.isArray(value)) {
+      return value.map((val) => getDisplayValueForSingleObs(field, val)).join(', ');
     }
-    if (rendering == 'checkbox') {
-      return value.map(
-        (selected) => field.questionOptions.answers?.find((option) => option.concept == selected)?.label,
-      );
-    }
-    if (rendering === 'toggle') {
-      return value ? field.questionOptions.toggleOptions.labelTrue : field.questionOptions.toggleOptions.labelFalse;
-    }
-    if (codedTypes.includes(rendering)) {
-      return field.questionOptions.answers?.find((option) => option.concept == value)?.label;
-    }
-    return value;
+
+    return getDisplayValueForSingleObs(field, value);
   },
   transformFieldValue: (field: FormField, value: any, context: FormContextProps) => {
     // clear previous submission
     clearSubmission(field);
+
     if (!field.meta.previousValue && isEmpty(value)) {
       return null;
     }
+
+    // Handle `obsGroup` recursively
+    if (field.type === 'obsGroup' && Array.isArray(field.questions)) {
+      const groupObs = field.questions.map((nestedField) =>
+        ObsAdapter.transformFieldValue(nestedField, nestedField.value, context),
+      );
+      return gracefullySetSubmission(field, { groupMembers: groupObs }, undefined);
+    }
+
     if (hasRendering(field, 'checkbox')) {
       return handleMultiSelect(field, value);
     }
+
     if (!isEmpty(value) && hasPreviousObsValueChanged(field, value)) {
       return gracefullySetSubmission(field, editObs(field, value), undefined);
     }
+
     if (field.meta.previousValue && isEmpty(value)) {
       return gracefullySetSubmission(field, undefined, voidObs(field.meta.previousValue));
     }
+
     if (!isEmpty(value)) {
       return gracefullySetSubmission(field, constructObs(field, value), undefined);
     }
+
     return null;
   },
   tearDown: function (): void {
@@ -145,22 +150,46 @@ function extractFieldValue(field: FormField, obsList: OpenmrsObs[] = [], makeFie
   return '';
 }
 
+/**
+ * Extracts field's display value
+ */
+
+function getDisplayValueForSingleObs(field: FormField, value: any) {
+  const rendering = field.questionOptions.rendering;
+
+  if (value instanceof Date) {
+    return formatDateAsDisplayString(field, value);
+  }
+  if (rendering == 'checkbox') {
+    return value.map((selected) => field.questionOptions.answers?.find((option) => option.concept == selected)?.label);
+  }
+  if (rendering === 'toggle') {
+    return value ? field.questionOptions.toggleOptions.labelTrue : field.questionOptions.toggleOptions.labelFalse;
+  }
+  if (codedTypes.includes(rendering)) {
+    return field.questionOptions.answers?.find((option) => option.concept == value)?.label;
+  }
+  return value;
+}
+
 export function constructObs(field: FormField, value: any): Partial<OpenmrsObs> {
   if (isEmpty(value) && field.type !== 'obsGroup') {
     return null;
   }
-  const draftObs =
-    field.type === 'obsGroup'
-      ? { groupMembers: [] }
-      : {
-          value: field.questionOptions.rendering.startsWith('date') ? formatDateByPickerType(field, value) : value,
-        };
-  return {
-    ...draftObs,
+
+  const draftObs: Partial<OpenmrsObs> = {
     concept: field.questionOptions.concept,
     formFieldNamespace: 'rfe-forms',
     formFieldPath: `rfe-forms-${field.id}`,
   };
+
+  if (field.type === 'obsGroup') {
+    draftObs.groupMembers = value?.map((v: any) => constructObs(field, v)) || [];
+  } else {
+    draftObs.value = field.questionOptions.rendering.startsWith('date') ? formatDateByPickerType(field, value) : value;
+  }
+
+  return draftObs;
 }
 
 export function voidObs(obs: OpenmrsObs) {
@@ -222,6 +251,11 @@ function handleMultiSelect(field: FormField, values: Array<string> = []) {
   // 2. a mix of both (previous and current)
   // 3. we only have a current value
 
+  // For `obsGroup` types, handle nested groups
+  if (field.type === 'obsGroup' && Array.isArray(field.questions)) {
+    return field.questions.map((nestedField) => handleMultiSelect(nestedField, nestedField.value));
+  }
+
   if (field.meta.previousValue && isEmpty(values)) {
     // we assume the user cleared the existing value(s)
     // so we void all previous values
@@ -231,6 +265,7 @@ function handleMultiSelect(field: FormField, values: Array<string> = []) {
       field.meta.previousValue.map((previousValue) => voidObs(previousValue)),
     );
   }
+
   if (field.meta.previousValue && !isEmpty(values)) {
     const toBeVoided = field.meta.previousValue.filter((obs) => !values.includes(obs.value.uuid));
     const toBeCreated = values.filter((v) => !field.meta.previousValue.some((obs) => obs.value.uuid === v));
@@ -240,6 +275,7 @@ function handleMultiSelect(field: FormField, values: Array<string> = []) {
       toBeVoided.map((obs) => voidObs(obs)),
     );
   }
+
   return gracefullySetSubmission(
     field,
     values.map((value) => constructObs(field, value)),
