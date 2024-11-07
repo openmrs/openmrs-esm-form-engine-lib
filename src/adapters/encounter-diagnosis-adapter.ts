@@ -1,12 +1,12 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
-import { type FormFieldValueAdapter, type FormProcessorContextProps } from '..';
+import { type FormFieldValueAdapter, type FormProcessorContextProps } from '../types';
 import { type FormContextProps } from '../provider/form-provider';
 import { type OpenmrsEncounter, type FormField } from '../types';
 import { clearSubmission, gracefullySetSubmission } from '../utils/common-utils';
 
 export let assignedDiagnosesIds: string[] = [];
 
-export const EncounterDiagnosesAdapter: FormFieldValueAdapter = {
+export const EncounterDiagnosisAdapter: FormFieldValueAdapter = {
   transformFieldValue: function (field: FormField, value: any, context: FormContextProps) {
     if (context.sessionMode == 'edit' && field.meta?.previousValue?.uuid) {
       return editDiagnosis(value, field);
@@ -59,8 +59,8 @@ const constructNewDiagnosis = (value: any, field: FormField, patientUuid: string
     diagnosis: {
       coded: value,
     },
-    certainty: 'CONFIRMED',
-    rank: field.questionOptions.rank, // rank 1 denotes a diagnosis is primary, else secondary
+    certainty: field.questionOptions?.diagnosis?.isConfirmed ? 'CONFIRMED' : 'PROVISIONAL',
+    rank: field.questionOptions.diagnosis?.rank, // rank 1 denotes a diagnosis is primary, else secondary
     formFieldPath: `rfe-forms-${field.id}`,
     formFieldNamespace: 'rfe-forms',
   };
