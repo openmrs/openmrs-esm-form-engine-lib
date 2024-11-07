@@ -11,25 +11,29 @@ export const InlineDateAdapter: FormFieldValueAdapter = {
     const targetField = context.getFormField(field.meta.targetField);
     const targetFieldCurrentValue = context.methods.getValues(targetField.id);
     const dateString = value instanceof Date ? toOmrsIsoString(value) : value;
+
     if (targetField.meta.submission?.newValue) {
       if (isEmpty(dateString) && !isNewSubmissionEffective(targetField, targetFieldCurrentValue)) {
-        // clear submission
+        // Clear submission if the new date is empty and no effective submission exists
         targetField.meta.submission.newValue = null;
-      } else {
+      } else if (targetField.meta.submission.newValue.obsDatetime !== dateString) {
+        // Only update obsDatetime if the new date differs from the current one
         targetField.meta.submission.newValue.obsDatetime = dateString;
       }
     } else if (!hasSubmission(targetField) && targetField.meta.previousValue) {
       if (isEmpty(value) && isEmpty(targetField.meta.previousValue.obsDatetime)) {
-        return null;
+        return null; // Avoid submission if both new and previous dates are empty
       }
-      // generate submission
-      const newSubmission = editObs(targetField, targetFieldCurrentValue);
-      targetField.meta.submission = {
-        newValue: {
-          ...newSubmission,
-          obsDatetime: dateString,
-        },
-      };
+      if (targetField.meta.previousValue.obsDatetime !== dateString) {
+        // Only create a new submission if the previous value is different from the new date
+        const newSubmission = editObs(targetField, targetFieldCurrentValue);
+        targetField.meta.submission = {
+          newValue: {
+            ...newSubmission,
+            obsDatetime: dateString,
+          },
+        };
+      }
     }
   },
   getInitialValue: function (field: FormField, sourceObject: OpenmrsResource, context: FormProcessorContextProps) {
@@ -38,7 +42,7 @@ export const InlineDateAdapter: FormFieldValueAdapter = {
       const targetFieldId = field.id.split('_inline_date')[0];
       const targetField = context.formFields.find((field) => field.id === targetFieldId);
       if (targetField?.meta.previousValue?.obsDatetime) {
-        return parseDate(targetField?.meta.previousValue?.obsDatetime);
+        return parseDate(targetField.meta.previousValue.obsDatetime);
       }
     }
     return null;
