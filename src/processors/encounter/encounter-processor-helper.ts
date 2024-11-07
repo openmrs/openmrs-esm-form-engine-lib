@@ -16,7 +16,7 @@ import { ConceptTrue } from '../../constants';
 import { DefaultValueValidator } from '../../validators/default-value-validator';
 import { cloneRepeatField } from '../../components/repeat/helpers';
 import { assignedOrderIds } from '../../adapters/orders-adapter';
-import { assignedDiagnosesIds } from '../../adapters/encounter-diagnoses-adapter';
+import { assignedDiagnosesIds } from '../../adapters/encounter-diagnosis-adapter';
 
 export function prepareEncounter(
   context: FormContextProps,
@@ -306,7 +306,10 @@ export async function hydrateRepeatField(
   }
 
   const unMappedDiagnoses = encounter.diagnoses.filter((diagnosis) => {
-    return !assignedDiagnosesIds.includes(diagnosis?.diagnosis?.coded.uuid);
+    return (
+      !assignedDiagnosesIds.includes(diagnosis?.diagnosis?.coded.uuid) &&
+      diagnosis.formFieldPath.startsWith(`rfe-forms-${field.id}_`)
+    );
   });
 
   const sortedDiagnoses = unMappedDiagnoses
@@ -360,5 +363,6 @@ export async function hydrateRepeatField(
 function prepareDiagnosis(fields: FormField[]) {
   return fields
     .filter((field) => field.type === 'diagnosis' && hasSubmission(field))
-    .map((field) => field.meta.submission.newValue);
+    .flatMap((field) => [field.meta.submission.newValue, field.meta.submission.voidedValue])
+    .filter((d) => d);
 }

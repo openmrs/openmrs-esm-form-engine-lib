@@ -182,7 +182,10 @@ export interface FormQuestionOptions {
   comment?: string;
   orientation?: 'vertical' | 'horizontal';
   shownCommentOptions?: { validators?: Array<Record<string, any>>; hide?: { hideWhenExpression: string } };
-  rank?: number;
+  diagnosis?: {
+    rank?: number;
+    isConfirmed?: boolean;
+  };
 }
 
 export interface QuestionAnswerOption {

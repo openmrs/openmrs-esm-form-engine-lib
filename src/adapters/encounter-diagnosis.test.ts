@@ -1,6 +1,6 @@
 import { type FormContextProps } from '../provider/form-provider';
 import { type FormField } from '../types';
-import { EncounterDiagnosesAdapter } from './encounter-diagnoses-adapter';
+import { EncounterDiagnosisAdapter } from './encounter-diagnosis-adapter';
 
 const formContext = {
   methods: null,
@@ -47,7 +47,9 @@ const field = {
   type: 'diagnosis',
   questionOptions: {
     rendering: 'repeating',
-    rank: 1,
+    diagnosis: {
+      rank: 1,
+    },
     datasource: {
       name: 'problem_datasource',
       config: {
@@ -92,7 +94,7 @@ const diagnoses = [
     encounter: {
       uuid: '9a4b06bd-d655-414f-b9ce-69e940c337ce',
     },
-    certainty: 'CONFIRMED',
+    certainty: 'PROVISIONAL',
     rank: 1,
     voided: false,
     display: 'Schistosoma Mansonii Infection',
@@ -118,7 +120,7 @@ const diagnoses = [
     encounter: {
       uuid: '9a4b06bd-d655-414f-b9ce-69e940c337ce',
     },
-    certainty: 'CONFIRMED',
+    certainty: 'PROVISIONAL',
     rank: 1,
     voided: false,
     display: 'Infection due to Entamoeba Histolytica',
@@ -133,17 +135,17 @@ const diagnoses = [
   },
 ];
 
-describe('EncounterDiagnosesAdapter', () => {
+describe('EncounterDiagnosisAdapter', () => {
   it('should should handle submission of a diagnosis field', async () => {
     const value = '127133AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
-    EncounterDiagnosesAdapter.transformFieldValue(field, value, formContext);
+    EncounterDiagnosisAdapter.transformFieldValue(field, value, formContext);
     expect(field.meta.submission.newValue).toEqual({
       patient: '833db896-c1f0-11eb-8529-0242ac130003',
       condition: null,
       diagnosis: {
         coded: '127133AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
       },
-      certainty: 'CONFIRMED',
+      certainty: 'PROVISIONAL',
       rank: 1,
       formFieldPath: 'rfe-forms-DiagNosIS',
       formFieldNamespace: 'rfe-forms',
@@ -152,17 +154,17 @@ describe('EncounterDiagnosesAdapter', () => {
 
   it('should get initial value for the diagnosis', async () => {
     formContext.domainObjectValue.diagnoses.push(...diagnoses);
-    const program = await EncounterDiagnosesAdapter.getInitialValue(field, null, formContext);
+    const program = await EncounterDiagnosisAdapter.getInitialValue(field, null, formContext);
     expect(program).toEqual('137329AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
   });
 
   it('should return null for getPreviousValue', async () => {
-    const previousValue = await EncounterDiagnosesAdapter.getPreviousValue(field, null, formContext);
+    const previousValue = await EncounterDiagnosisAdapter.getPreviousValue(field, null, formContext);
     expect(previousValue).toBeNull();
   });
 
   it('should execute tearDown without issues', () => {
-    expect(() => EncounterDiagnosesAdapter.tearDown()).not.toThrow();
+    expect(() => EncounterDiagnosisAdapter.tearDown()).not.toThrow();
   });
 
   it('should edit a diagnosis value', () => {
@@ -171,7 +173,7 @@ describe('EncounterDiagnosesAdapter', () => {
     const value = '128138AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
     field.meta.previousValue = {
       uuid: '0e20bb67-5d7f-41e0-96a1-751efc21a96f',
-      certainty: 'CONFIRMED',
+      certainty: 'PROVISIONAL',
       condition: null,
       formFieldPath: 'rfe-forms-DiagNosIS_1',
       formFieldNamespace: 'rfe-forms',
@@ -185,14 +187,14 @@ describe('EncounterDiagnosesAdapter', () => {
         },
       },
     };
-    EncounterDiagnosesAdapter.transformFieldValue(field, value, formContext);
+    EncounterDiagnosisAdapter.transformFieldValue(field, value, formContext);
     expect(field.meta.submission.newValue).toEqual({
       patient: null,
       condition: null,
       diagnosis: {
         coded: '128138AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
       },
-      certainty: 'CONFIRMED',
+      certainty: 'PROVISIONAL',
       rank: 1,
       formFieldPath: 'rfe-forms-DiagNosIS',
       formFieldNamespace: 'rfe-forms',
