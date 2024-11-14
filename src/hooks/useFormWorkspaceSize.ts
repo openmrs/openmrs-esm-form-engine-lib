@@ -31,14 +31,15 @@ export function useFormWorkspaceSize(rootRef: React.RefObject<HTMLDivElement>): 
   useLayoutEffect(() => {
     const handleResize = () => {
       const containerWidth = rootRef.current?.parentElement?.offsetWidth;
-      containerWidth && setContainerWidth(pxToRem(containerWidth));
+      const rootFontSize = parseInt(getComputedStyle(document.documentElement).fontSize);
+      containerWidth && setContainerWidth(pxToRem(containerWidth, rootFontSize));
     };
     handleResize();
     const resizeObserver = new ResizeObserver((entries) => {
       handleResize();
     });
 
-    if (rootRef.current) {
+    if (rootRef.current?.parentElement) {
       resizeObserver.observe(rootRef.current?.parentElement);
     }
 

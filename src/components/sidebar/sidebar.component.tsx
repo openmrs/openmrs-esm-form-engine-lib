@@ -2,7 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@carbon/react';
-import { type SessionMode } from '../../types';
+import { type FormPage, type SessionMode } from '../../types';
 import styles from './sidebar.scss';
 import { usePageObserver } from './usePageObserver';
 import { useCurrentActivePage } from './useCurrentActivePage';
@@ -39,26 +39,15 @@ const Sidebar: React.FC<SidebarProps> = ({
     <div className={styles.sidebar}>
       {pages
         .filter((page) => isPageContentVisible(page))
-        .map((page) => {
-          const isActive = page.id === currentActivePage;
-          const hasError = pagesWithErrors.includes(page.id);
-          return (
-            <div
-              className={classNames(styles.tab, {
-                [styles.activeTab]: isActive && !hasError,
-                [styles.errorTab]: hasError && !isActive,
-                [styles.activeErrorTab]: hasError && isActive,
-              })}>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  requestPage(page.id);
-                }}>
-                <span>{page.label}</span>
-              </button>
-            </div>
-          );
-        })}
+        .map((page) => (
+          <PageLink
+            key={page.id}
+            page={page}
+            currentActivePage={currentActivePage}
+            pagesWithErrors={pagesWithErrors}
+            requestPage={requestPage}
+          />
+        ))}
       {sessionMode !== 'view' && <hr className={styles.divider} />}
 
       <div className={styles.sideNavActions}>
@@ -87,5 +76,33 @@ const Sidebar: React.FC<SidebarProps> = ({
     </div>
   );
 };
+
+interface PageLinkProps {
+  page: FormPage;
+  currentActivePage: string;
+  pagesWithErrors: string[];
+  requestPage: (page: string) => void;
+}
+
+function PageLink({ page, currentActivePage, pagesWithErrors, requestPage }: PageLinkProps) {
+  const isActive = page.id === currentActivePage;
+  const hasError = pagesWithErrors.includes(page.id);
+  return (
+    <div
+      className={classNames(styles.tab, {
+        [styles.activeTab]: isActive && !hasError,
+        [styles.errorTab]: hasError && !isActive,
+        [styles.activeErrorTab]: hasError && isActive,
+      })}>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          requestPage(page.id);
+        }}>
+        <span>{page.label}</span>
+      </button>
+    </div>
+  );
+}
 
 export default Sidebar;
