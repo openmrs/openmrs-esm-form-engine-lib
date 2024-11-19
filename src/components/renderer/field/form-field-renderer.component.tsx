@@ -21,7 +21,7 @@ import { getFieldControlWithFallback, getRegisteredControl } from '../../../regi
 import styles from './form-field-renderer.scss';
 import { isTrue } from '../../../utils/boolean-utils';
 import UnspecifiedField from '../../inputs/unspecified/unspecified.component';
-import { handleFieldLogic } from './fieldLogic';
+import { handleFieldLogic, validateFieldValue } from './fieldLogic';
 
 export interface FormFieldRendererProps {
   fieldId: string;
@@ -219,51 +219,6 @@ function ErrorFallback({ error }) {
       title={t('errorRenderingField', 'Error rendering field')}
     />
   );
-}
-
-export interface ValidatorConfig {
-  formFields: FormField[];
-  values: Record<string, any>;
-  expressionContext: {
-    patient: fhir.Patient;
-    mode: SessionMode;
-  };
-}
-
-function validateFieldValue(
-  field: FormField,
-  value: any,
-  validators: Record<string, FormFieldValidator>,
-  context: ValidatorConfig,
-): { errors: ValidationResult[]; warnings: ValidationResult[] } {
-  const errors: ValidationResult[] = [];
-  const warnings: ValidationResult[] = [];
-
-  if (field.meta.submission?.unspecified) {
-    return { errors: [], warnings: [] };
-  }
-
-  try {
-    field.validators.forEach((validatorConfig) => {
-      const results = validators[validatorConfig.type]?.validate?.(field, value, {
-        ...validatorConfig,
-        ...context,
-      });
-      if (results) {
-        results.forEach((result) => {
-          if (result.resultType === 'error') {
-            errors.push(result);
-          } else if (result.resultType === 'warning') {
-            warnings.push(result);
-          }
-        });
-      }
-    });
-  } catch (error) {
-    console.error(error);
-  }
-
-  return { errors, warnings };
 }
 
 /**
