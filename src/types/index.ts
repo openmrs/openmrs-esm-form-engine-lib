@@ -102,7 +102,7 @@ export interface FormSchemaTransformer {
   /**
    * Transforms the raw schema to be compatible with the React Form Engine.
    */
-  transform: (form: FormSchema) => FormSchema;
+  transform: (form: FormSchema) => Promise<FormSchema> | FormSchema;
 }
 
 export interface PostSubmissionAction {

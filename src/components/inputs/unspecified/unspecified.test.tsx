@@ -58,6 +58,14 @@ jest.mock('../../../hooks/useEncounter', () => ({
   }),
 }));
 
+jest.mock('../../../hooks/usePersonAttributes', () => ({
+  usePersonAttributes: jest.fn().mockReturnValue({
+    personAttributes: [],
+    error: null,
+    isLoading: false,
+  }),
+}));
+
 const renderForm = async (mode: SessionMode = 'enter') => {
   await act(async () => {
     render(

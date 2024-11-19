@@ -1,4 +1,4 @@
-import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { fhirBaseUrl, openmrsFetch, type PersonAttribute, restBaseUrl } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
 import type { FHIRObsResource, OpenmrsForm, PatientIdentifier, PatientProgramPayload } from '../types';
 import { isUuid } from '../utils/boolean-utils';
@@ -182,4 +182,37 @@ export function savePatientIdentifier(patientIdentifier: PatientIdentifier, pati
     method: 'POST',
     body: JSON.stringify(patientIdentifier),
   });
+}
+
+export function savePersonAttribute(personAttribute: PersonAttribute, personUuid: string) {
+  let url: string;
+
+  if (personAttribute.uuid) {
+    url = `${restBaseUrl}/person/${personUuid}/attribute/${personAttribute.uuid}`;
+  } else {
+    url = `${restBaseUrl}/person/${personUuid}/attribute`;
+  }
+
+  return openmrsFetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+    body: JSON.stringify(personAttribute),
+  });
+}
+
+export async function getPersonAttributeTypeFormat(personAttributeTypeUuid: string) {
+  try {
+    const response = await openmrsFetch(
+      `${restBaseUrl}/personattributetype/${personAttributeTypeUuid}?v=custom:(format)`,
+    );
+    if (response) {
+      const { data } = response;
+      return data?.format;
+    }
+    return null;
+  } catch (error) {
+    return null;
+  }
 }

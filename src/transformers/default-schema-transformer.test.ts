@@ -182,11 +182,11 @@ const expectedTransformedSchema = {
 };
 
 describe('Default form schema transformer', () => {
-  it('should transform AFE schema to be compatible with RFE', () => {
-    expect(DefaultFormSchemaTransformer.transform(testForm as any)).toEqual(expectedTransformedSchema);
+  it('should transform AFE schema to be compatible with RFE', async () => {
+    expect(await DefaultFormSchemaTransformer.transform(testForm as any)).toEqual(expectedTransformedSchema);
   });
 
-  it('should handle checkbox-searchable rendering', () => {
+  it('should handle checkbox-searchable rendering', async () => {
     // setup
     const form = {
       pages: [
@@ -209,7 +209,7 @@ describe('Default form schema transformer', () => {
       ],
     };
     // exercise
-    const transformedForm = DefaultFormSchemaTransformer.transform(form as FormSchema);
+    const transformedForm = await DefaultFormSchemaTransformer.transform(form as FormSchema);
     const transformedQuestion = transformedForm.pages[0].sections[0].questions[0];
     // verify
     expect(transformedQuestion.questionOptions.rendering).toEqual('checkbox');

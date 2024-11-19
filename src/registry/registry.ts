@@ -171,7 +171,7 @@ export async function getRegisteredFieldValueAdapter(type: string): Promise<Form
 }
 
 export async function getRegisteredFormSchemaTransformers(): Promise<FormSchemaTransformer[]> {
-  const transformers = [];
+  const transformers: FormSchemaTransformer[] = [];
 
   const cachedTransformers = registryCache.formSchemaTransformers;
   if (Object.keys(cachedTransformers).length) {
@@ -186,14 +186,21 @@ export async function getRegisteredFormSchemaTransformers(): Promise<FormSchemaT
     }),
   );
   transformers.push(...customTransformers.filter((transformer) => transformer !== undefined));
-
-  transformers.push(...inbuiltFormTransformers.map((inbuiltTransformer) => inbuiltTransformer.component));
-
+  const inbuiltTransformersPromises = inbuiltFormTransformers.map(async (inbuiltTransformer) => {
+    const transformer = inbuiltTransformer.component;
+    if (transformer instanceof Promise) {
+      return await transformer;
+    }
+    return transformer;
+  });
+  const resolvedInbuiltTransformers = await Promise.all(inbuiltTransformersPromises);
+  transformers.push(...resolvedInbuiltTransformers);
   transformers.forEach((transformer) => {
     const inbuiltTransformer = inbuiltFormTransformers.find((t) => t.component === transformer);
-    registryCache.formSchemaTransformers[inbuiltTransformer.name] = transformer;
+    if (inbuiltTransformer) {
+      registryCache.formSchemaTransformers[inbuiltTransformer.name] = transformer;
+    }
   });
-
   return transformers;
 }
 

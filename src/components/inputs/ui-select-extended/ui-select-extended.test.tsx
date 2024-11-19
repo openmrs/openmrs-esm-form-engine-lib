@@ -106,6 +106,14 @@ jest.mock('../../../registry/registry', () => {
   };
 });
 
+jest.mock('../../../hooks/usePersonAttributes', () => ({
+  usePersonAttributes: jest.fn().mockReturnValue({
+    personAttributes: [],
+    error: null,
+    isLoading: false,
+  }),
+}));
+
 const encounter = {
   uuid: 'encounter-uuid',
   obs: [
