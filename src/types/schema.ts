@@ -187,6 +187,7 @@ export interface FormQuestionOptions {
   comment?: string;
   orientation?: 'vertical' | 'horizontal';
   shownCommentOptions?: { validators?: Array<Record<string, any>>; hide?: { hideWhenExpression: string } };
+  attributeType?: string;
 }
 
 export interface QuestionAnswerOption {

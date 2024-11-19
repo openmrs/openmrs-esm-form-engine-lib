@@ -118,14 +118,17 @@ function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
  * @param {string} [formSessionIntent] - The optional form session intent.
  * @returns {FormSchema} - The refined form JSON object of type FormSchema.
  */
-function refineFormJson(
+async function refineFormJson(
   formJson: any,
   schemaTransformers: FormSchemaTransformer[] = [],
   formSessionIntent?: string,
-): FormSchema {
+): Promise<FormSchema> {
   removeInlineSubForms(formJson, formSessionIntent);
   // apply form schema transformers
-  schemaTransformers.reduce((draftForm, transformer) => transformer.transform(draftForm), formJson);
+  for (let transformer of schemaTransformers) {
+    const draftForm = await transformer.transform(formJson);
+    formJson = draftForm;
+  }
   setEncounterType(formJson);
   return applyFormIntent(formSessionIntent, formJson);
 }
@@ -144,7 +147,7 @@ function parseFormJson(formJson: any): FormSchema {
  * @param {FormSchema} formJson - The input form JSON object of type FormSchema.
  * @param {string} formSessionIntent - The form session intent.
  */
-function removeInlineSubForms(formJson: FormSchema, formSessionIntent: string): void {
+async function removeInlineSubForms(formJson: FormSchema, formSessionIntent: string): Promise<void> {
   for (let i = formJson.pages.length - 1; i >= 0; i--) {
     const page = formJson.pages[i];
     if (
@@ -153,7 +156,7 @@ function removeInlineSubForms(formJson: FormSchema, formSessionIntent: string): 
       page.subform?.form?.encounterType === formJson.encounterType
     ) {
       const nonSubformPages = page.subform.form.pages.filter((page) => !isTrue(page.isSubform));
-      formJson.pages.splice(i, 1, ...refineFormJson(page.subform.form, [], formSessionIntent).pages);
+      formJson.pages.splice(i, 1, ...(await refineFormJson(page.subform.form, [], formSessionIntent)).pages);
     }
   }
 }

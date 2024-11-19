@@ -7,7 +7,7 @@ import {
   type PatientProgram,
   type PatientProgramPayload,
 } from '../../types';
-import { saveAttachment, savePatientIdentifier, saveProgramEnrollment } from '../../api';
+import { saveAttachment, savePatientIdentifier, savePersonAttribute, saveProgramEnrollment } from '../../api';
 import { hasRendering, hasSubmission } from '../../utils/common-utils';
 import dayjs from 'dayjs';
 import { assignedObsIds, constructObs, voidObs } from '../../adapters/obs-adapter';
@@ -16,7 +16,7 @@ import { ConceptTrue } from '../../constants';
 import { DefaultValueValidator } from '../../validators/default-value-validator';
 import { cloneRepeatField } from '../../components/repeat/helpers';
 import { assignedOrderIds } from '../../adapters/orders-adapter';
-import { type OpenmrsResource } from '@openmrs/esm-framework';
+import { type OpenmrsResource, type PersonAttribute } from '@openmrs/esm-framework';
 
 export function prepareEncounter(
   context: FormContextProps,
@@ -150,6 +150,12 @@ export function saveAttachments(fields: FormField[], encounter: OpenmrsEncounter
       encounter?.uuid,
       abortController,
     );
+  });
+}
+
+export function savePersonAttributes(patient: fhir.Patient, attributes: PersonAttribute[]) {
+  return attributes.map((personAttribute) => {
+    return savePersonAttribute(personAttribute, patient.id);
   });
 }
 
@@ -330,4 +336,10 @@ export async function hydrateRepeatField(
       return [clone, ...clone.questions];
     }),
   ).then((results) => results.flat());
+}
+
+export function preparePersonAttributes(fields: FormField[], encounterLocation: string): PersonAttribute[] {
+  return fields
+    .filter((field) => field.type === 'personAttribute' && hasSubmission(field))
+    .map((field) => field.meta.submission.newValue);
 }

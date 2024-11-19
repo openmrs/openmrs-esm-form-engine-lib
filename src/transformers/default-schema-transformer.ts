@@ -2,26 +2,36 @@ import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormField, type FormSchema, type FormSchemaTransformer, type RenderType, type FormPage } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { hasRendering } from '../utils/common-utils';
+import { getPersonAttributeTypeFormat } from '../api/';
 
 export type RenderTypeExtended = 'multiCheckbox' | 'numeric' | RenderType;
 
 export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
-  transform: (form: FormSchema) => {
-    parseBooleanTokenIfPresent(form, 'readonly');
-    form.pages.forEach((page, index) => {
-      const label = page.label ?? '';
-      page.id = `page-${label.replace(/\s/g, '')}-${index}`;
-      parseBooleanTokenIfPresent(page, 'readonly');
-      if (page.sections) {
-        page.sections.forEach((section) => {
-          section.questions = handleQuestionsWithDateOptions(section.questions);
-          section.questions = handleQuestionsWithObsComments(section.questions);
-          parseBooleanTokenIfPresent(section, 'readonly');
-          parseBooleanTokenIfPresent(section, 'isExpanded');
-          section?.questions?.forEach((question, index) => handleQuestion(question, page, form));
-        });
+  transform: async (form: FormSchema): Promise<FormSchema> => {
+    try {
+      parseBooleanTokenIfPresent(form, 'readonly');
+      for (const [index, page] of form.pages.entries()) {
+        const label = page.label ?? '';
+        page.id = `page-${label.replace(/\s/g, '')}-${index}`;
+        parseBooleanTokenIfPresent(page, 'readonly');
+        if (page.sections) {
+          for (const section of page.sections) {
+            section.questions = handleQuestionsWithDateOptions(section.questions);
+            section.questions = handleQuestionsWithObsComments(section.questions);
+            parseBooleanTokenIfPresent(section, 'readonly');
+            parseBooleanTokenIfPresent(section, 'isExpanded');
+            if (section.questions) {
+              section.questions = await Promise.all(
+                section.questions.map((question) => handleQuestion(question, page, form)),
+              );
+            }
+          }
+        }
       }
-    });
+    } catch (error) {
+      console.error('Error in form transformation:', error);
+      throw error;
+    }
     if (form.meta?.programs) {
       handleProgramMetaTags(form);
     }
@@ -29,7 +39,7 @@ export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
   },
 };
 
-function handleQuestion(question: FormField, page: FormPage, form: FormSchema) {
+async function handleQuestion(question: FormField, page: FormPage, form: FormSchema): Promise<FormField> {
   if (question.type === 'programState') {
     const formMeta = form.meta ?? {};
     formMeta.programs = formMeta.programs
@@ -40,17 +50,20 @@ function handleQuestion(question: FormField, page: FormPage, form: FormSchema) {
   try {
     sanitizeQuestion(question);
     setFieldValidators(question);
-    transformByType(question);
+    await transformByType(question);
     transformByRendering(question);
 
     if (question.questions?.length) {
       if (question.type === 'obsGroup' && question.questions.length) {
         question.questions.forEach((nestedQuestion) => handleQuestion(nestedQuestion, page, form));
       } else {
-        question.questions.forEach((nestedQuestion) => handleQuestion(nestedQuestion, page, form));
+        question.questions = await Promise.all(
+          question.questions.map((nestedQuestion) => handleQuestion(nestedQuestion, page, form)),
+        );
       }
     }
     question.meta.pageId = page.id;
+    return question;
   } catch (error) {
     console.error(error);
   }
@@ -132,7 +145,7 @@ function setFieldValidators(question: FormField) {
   }
 }
 
-function transformByType(question: FormField) {
+async function transformByType(question: FormField) {
   switch (question.type) {
     case 'encounterProvider':
       question.questionOptions.rendering = 'encounter-provider';
@@ -147,6 +160,9 @@ function transformByType(question: FormField) {
       question.questionOptions.rendering = hasRendering(question, 'ui-select-extended')
         ? 'date'
         : question.questionOptions.rendering;
+      break;
+    case 'personAttribute':
+      await handlePersonAttributeType(question);
       break;
   }
 }
@@ -275,4 +291,26 @@ function handleQuestionsWithObsComments(sectionQuestions: Array<FormField>): Arr
   });
 
   return augmentedQuestions;
+}
+
+async function handlePersonAttributeType(question: FormField) {
+  if (question.questionOptions.rendering !== 'text') {
+    question.questionOptions.rendering === 'ui-select-extended';
+  }
+
+  const attributeTypeFormat = await getPersonAttributeTypeFormat(question.questionOptions.attributeType);
+  if (attributeTypeFormat === 'org.openmrs.Location') {
+    question.questionOptions.datasource = {
+      name: 'person_attribute_location_datasource',
+    };
+  } else if (attributeTypeFormat === 'org.openmrs.Concept') {
+    question.questionOptions.datasource = {
+      name: 'select_concept_answers_datasource',
+      config: {
+        concept: question.questionOptions?.concept,
+      },
+    };
+  } else if (attributeTypeFormat === 'java.lang.String') {
+    question.questionOptions.rendering = 'text';
+  }
 }
