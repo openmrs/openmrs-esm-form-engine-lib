@@ -1,4 +1,4 @@
-import { type FormField, type FormSchema, type FormSchemaTransformer, type RenderType } from '../types';
+import { type FormField, type FormSchemaTransformer, type FormSchema, type RenderType } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { hasRendering } from '../utils/common-utils';
 
@@ -39,13 +39,8 @@ function handleQuestion(question: FormField, form: FormSchema) {
     setFieldValidators(question);
     transformByType(question);
     transformByRendering(question);
-
-    if (question.questions?.length) {
-      if (question.type === 'obsGroup' && question.questions.length) {
-        question.questions.forEach((nestedQuestion) => handleQuestion(nestedQuestion, form));
-      } else {
-        question.questions.forEach((nestedQuestion) => handleQuestion(nestedQuestion, form));
-      }
+    if (question?.questions?.length) {
+      question.questions.forEach((question) => handleQuestion(question, form));
     }
   } catch (error) {
     console.error(error);

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FormGroup } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import type { FormField, FormFieldInputProps, RenderType } from '../../types';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
@@ -77,7 +78,6 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
           });
         }
       }
-
       const clonedField = cloneRepeatField(field, null, counter);
       // run necessary expressions
       if (clonedField.type === 'obsGroup') {
@@ -168,7 +168,15 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
 
   return (
     <React.Fragment>
-      <div>{nodes}</div>
+      {isGrouped ? (
+        <div className={styles.container}>
+          <FormGroup legendText={t(field.label)} className={styles.boldLegend}>
+            {nodes}
+          </FormGroup>
+        </div>
+      ) : (
+        <div>{nodes}</div>
+      )}
     </React.Fragment>
   );
 };
