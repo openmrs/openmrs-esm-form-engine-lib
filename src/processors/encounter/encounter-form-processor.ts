@@ -19,9 +19,11 @@ import {
   prepareEncounter,
   preparePatientIdentifiers,
   preparePatientPrograms,
+  preparePersonAttributes,
   saveAttachments,
   savePatientIdentifiers,
   savePatientPrograms,
+  savePersonAttributes,
 } from './encounter-processor-helper';
 import { type OpenmrsResource, showSnackbar, translateFrom } from '@openmrs/esm-framework';
 import { moduleName } from '../../globals';
@@ -31,6 +33,7 @@ import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { evaluateAsyncExpression, type FormNode } from '../../utils/expression-runner';
 import { hasRendering } from '../../utils/common-utils';
 import { extractObsValueAndDisplay } from '../../utils/form-helper';
+import { usePersonAttributes } from '../../hooks/usePersonAttributes';
 
 function useCustomHooks(context: Partial<FormProcessorContextProps>) {
   const [isLoading, setIsLoading] = useState(true);
@@ -40,13 +43,14 @@ function useCustomHooks(context: Partial<FormProcessorContextProps>) {
     context.patient?.id,
     context.formJson,
   );
+  const { isLoading: isLoadingPersonAttributes, personAttributes } = usePersonAttributes(context.patient?.id);
 
   useEffect(() => {
-    setIsLoading(isLoadingPatientPrograms || isLoadingEncounter || isLoadingEncounterRole);
-  }, [isLoadingPatientPrograms, isLoadingEncounter, isLoadingEncounterRole]);
+    setIsLoading(isLoadingPatientPrograms || isLoadingEncounter || isLoadingEncounterRole || isLoadingPersonAttributes);
+  }, [isLoadingPatientPrograms, isLoadingEncounter, isLoadingEncounterRole, isLoadingPersonAttributes]);
 
   return {
-    data: { encounter, patientPrograms, encounterRole },
+    data: { encounter, patientPrograms, encounterRole, personAttributes },
     isLoading,
     error: null,
     updateContext: (setContext: React.Dispatch<React.SetStateAction<FormProcessorContextProps>>) => {
@@ -59,6 +63,7 @@ function useCustomHooks(context: Partial<FormProcessorContextProps>) {
             ...context.customDependencies,
             patientPrograms: patientPrograms,
             defaultEncounterRole: encounterRole,
+            personAttributes: personAttributes,
           },
         };
       });
@@ -79,6 +84,7 @@ const contextInitializableTypes = [
   'patientIdentifier',
   'encounterRole',
   'programState',
+  'personAttributes',
 ];
 
 export class EncounterFormProcessor extends FormProcessor {
@@ -156,6 +162,27 @@ export class EncounterFormProcessor extends FormProcessor {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: translateFn('errorSavingPatientPrograms', 'Error saving patient program(s)'),
+        description: errorMessages.join(', '),
+        kind: 'error',
+        critical: true,
+      });
+    }
+
+    // save person attributes
+    try {
+      const personattributes = preparePersonAttributes(context.formFields, context.location?.uuid);
+      const savedPrograms = await savePersonAttributes(context.patient, personattributes);
+      if (savedPrograms?.length) {
+        showSnackbar({
+          title: translateFn('personAttributesSaved', 'Person attribute(s) saved successfully'),
+          kind: 'success',
+          isLowContrast: true,
+        });
+      }
+    } catch (error) {
+      const errorMessages = extractErrorMessagesFromResponse(error);
+      return Promise.reject({
+        title: translateFn('errorSavingPersonAttributes', 'Error saving person attributes'),
         description: errorMessages.join(', '),
         kind: 'error',
         critical: true,

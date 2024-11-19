@@ -118,6 +118,14 @@ jest.mock('./hooks/useConcepts', () => ({
   }),
 }));
 
+jest.mock('./hooks/usePersonAttributes', () => ({
+  usePersonAttributes: jest.fn().mockReturnValue({
+    personAttributes: [],
+    error: null,
+    isLoading: false,
+  }),
+}));
+
 describe('Form engine component', () => {
   const user = userEvent.setup();
 
