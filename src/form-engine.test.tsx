@@ -681,6 +681,8 @@ describe('Form engine component', () => {
 
   describe('Calculated values', () => {
     it('should evaluate BMI', async () => {
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+
       await act(async () => renderForm(null, bmiForm));
 
       const bmiField = screen.getByRole('textbox', { name: /bmi/i });
@@ -694,9 +696,17 @@ describe('Form engine component', () => {
       expect(heightField).toHaveValue(150);
       expect(weightField).toHaveValue(50);
       expect(bmiField).toHaveValue('22.2');
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      const encounter = saveEncounterMock.mock.calls[0][1];
+      expect(encounter.obs.length).toEqual(3);
+      expect(encounter.obs.find((obs) => obs.formFieldPath === 'rfe-forms-bmi').value).toBe(22.2);
     });
 
     it('should evaluate BSA', async () => {
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+
       await act(async () => renderForm(null, bsaForm));
 
       const bsaField = screen.getByRole('textbox', { name: /bsa/i });
@@ -710,6 +720,12 @@ describe('Form engine component', () => {
       expect(heightField).toHaveValue(190.5);
       expect(weightField).toHaveValue(95);
       expect(bsaField).toHaveValue('2.24');
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      const encounter = saveEncounterMock.mock.calls[0][1];
+      expect(encounter.obs.length).toEqual(3);
+      expect(encounter.obs.find((obs) => obs.formFieldPath === 'rfe-forms-bsa').value).toBe(2.24);
     });
 
     it('should evaluate EDD', async () => {

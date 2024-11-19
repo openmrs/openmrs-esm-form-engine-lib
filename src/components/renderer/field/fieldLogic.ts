@@ -1,6 +1,6 @@
 import { codedTypes } from '../../../constants';
 import { type FormContextProps } from '../../../provider/form-provider';
-import { type FormField } from '../../../types';
+import { type FormFieldValidator, type SessionMode, type ValidationResult, type FormField } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
 import { hasRendering } from '../../../utils/common-utils';
 import { evaluateAsyncExpression, evaluateExpression } from '../../../utils/expression-runner';
@@ -65,6 +65,21 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           },
         ).then((result) => {
           setValue(dependent.id, result);
+          // validate calculated value
+          const { errors, warnings } = validateFieldValue(dependent, result, context.formFieldValidators, {
+            formFields,
+            values,
+            expressionContext: { patient, mode: sessionMode },
+          });
+          if (!dependent.meta.submission) {
+            dependent.meta.submission = {};
+          }
+          dependent.meta.submission.errors = errors;
+          dependent.meta.submission.warnings = warnings;
+          if (!errors.length) {
+            context.formFieldAdapters[dependent.type].transformFieldValue(dependent, result, context);
+          }
+          updateFormField(dependent);
         });
       }
       // evaluate hide
@@ -211,4 +226,49 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
   if (shouldUpdateForm) {
     setForm(formJson);
   }
+}
+
+export interface ValidatorConfig {
+  formFields: FormField[];
+  values: Record<string, any>;
+  expressionContext: {
+    patient: fhir.Patient;
+    mode: SessionMode;
+  };
+}
+
+export function validateFieldValue(
+  field: FormField,
+  value: any,
+  validators: Record<string, FormFieldValidator>,
+  context: ValidatorConfig,
+): { errors: ValidationResult[]; warnings: ValidationResult[] } {
+  const errors: ValidationResult[] = [];
+  const warnings: ValidationResult[] = [];
+
+  if (field.meta.submission?.unspecified) {
+    return { errors: [], warnings: [] };
+  }
+
+  try {
+    field.validators.forEach((validatorConfig) => {
+      const results = validators[validatorConfig.type]?.validate?.(field, value, {
+        ...validatorConfig,
+        ...context,
+      });
+      if (results) {
+        results.forEach((result) => {
+          if (result.resultType === 'error') {
+            errors.push(result);
+          } else if (result.resultType === 'warning') {
+            warnings.push(result);
+          }
+        });
+      }
+    });
+  } catch (error) {
+    console.error(error);
+  }
+
+  return { errors, warnings };
 }
