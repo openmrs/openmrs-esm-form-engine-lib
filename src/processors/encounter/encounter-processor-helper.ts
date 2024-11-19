@@ -55,7 +55,7 @@ export function prepareEncounter(
     if (visit) {
       encounterForSubmission.visit = visit.uuid;
     }
-    encounterForSubmission.obs = obsForSubmission.map((obsField) => transformNestedObsGroups(obsField, obsField.value));
+    encounterForSubmission.obs = obsForSubmission;
     encounterForSubmission.orders = ordersForSubmission;
   } else {
     encounterForSubmission = {
@@ -327,15 +327,4 @@ export async function hydrateRepeatField(
       return [clone, ...clone.questions];
     }),
   ).then((results) => results.flat());
-}
-
-function transformNestedObsGroups(field: FormField, value: any): any {
-  if (field.type === 'obsGroup' && Array.isArray(field.questions)) {
-    return {
-      groupMembers: field.questions.map((nestedField) => transformNestedObsGroups(nestedField, nestedField.value)),
-    };
-  } else if (Array.isArray(value)) {
-    return value.map((v) => constructObs(field, v));
-  }
-  return constructObs(field, value);
 }
