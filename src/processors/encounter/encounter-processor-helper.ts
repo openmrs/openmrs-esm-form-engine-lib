@@ -1,16 +1,16 @@
 import {
+  type PatientProgram,
   type FormField,
-  type FormProcessorContextProps,
   type OpenmrsEncounter,
   type OpenmrsObs,
   type PatientIdentifier,
-  type PatientProgram,
   type PatientProgramPayload,
+  type FormProcessorContextProps,
 } from '../../types';
 import { saveAttachment, savePatientIdentifier, saveProgramEnrollment } from '../../api';
 import { hasRendering, hasSubmission } from '../../utils/common-utils';
 import dayjs from 'dayjs';
-import { assignedObsIds, constructObs, voidObs } from '../../adapters/obs-adapter';
+import { voidObs, constructObs, assignedObsIds } from '../../adapters/obs-adapter';
 import { type FormContextProps } from '../../provider/form-provider';
 import { ConceptTrue } from '../../constants';
 import { DefaultValueValidator } from '../../validators/default-value-validator';
@@ -185,53 +185,43 @@ export function getMutableSessionProps(context: FormContextProps) {
 // Helpers
 
 function prepareObs(obsForSubmission: OpenmrsObs[], fields: FormField[]) {
-  fields.filter((field) => hasSubmittableObs(field)).forEach((field) => processObsField(obsForSubmission, field));
-}
-
-function processObsField(obsForSubmission: OpenmrsObs[], field: FormField) {
-  if ((field.isHidden || field.isParentHidden) && field.meta.previousValue) {
-    const valuesArray = Array.isArray(field.meta.previousValue) ? field.meta.previousValue : [field.meta.previousValue];
-    addObsToList(
-      obsForSubmission,
-      valuesArray.map((obs) => voidObs(obs)),
-    );
-    return;
-  }
-
-  if (field.type === 'obsGroup') {
-    processObsGroup(obsForSubmission, field);
-  } else if (hasSubmission(field)) {
-    // For non-group obs with a submission
-    addObsToList(obsForSubmission, field.meta.submission.newValue);
-    addObsToList(obsForSubmission, field.meta.submission.voidedValue);
-  }
-}
-
-function processObsGroup(obsForSubmission: OpenmrsObs[], groupField: FormField) {
-  if (groupField.meta.submission?.voidedValue) {
-    addObsToList(obsForSubmission, groupField.meta.submission.voidedValue);
-    return;
-  }
-
-  const obsGroup = constructObs(groupField, null);
-  if (groupField.meta.previousValue) {
-    obsGroup.uuid = groupField.meta.previousValue.uuid;
-  }
-
-  groupField.questions.forEach((nestedField) => {
-    if (nestedField.type === 'obsGroup') {
-      const nestedObsGroup: OpenmrsObs[] = [];
-      processObsGroup(nestedObsGroup, nestedField);
-      addObsToList(obsGroup.groupMembers, nestedObsGroup);
-    } else if (hasSubmission(nestedField)) {
-      addObsToList(obsGroup.groupMembers, nestedField.meta.submission.newValue);
-      addObsToList(obsGroup.groupMembers, nestedField.meta.submission.voidedValue);
-    }
-  });
-
-  if (obsGroup.groupMembers?.length || obsGroup.voided) {
-    addObsToList(obsForSubmission, obsGroup);
-  }
+  fields
+    .filter((field) => hasSubmittableObs(field))
+    .forEach((field) => {
+      if ((field.isHidden || field.isParentHidden) && field.meta.previousValue) {
+        const valuesArray = Array.isArray(field.meta.previousValue)
+          ? field.meta.previousValue
+          : [field.meta.previousValue];
+        addObsToList(
+          obsForSubmission,
+          valuesArray.map((obs) => voidObs(obs)),
+        );
+        return;
+      }
+      if (field.type == 'obsGroup') {
+        if (field.meta.submission?.voidedValue) {
+          addObsToList(obsForSubmission, field.meta.submission.voidedValue);
+          return;
+        }
+        const obsGroup = constructObs(field, null);
+        if (field.meta.previousValue) {
+          obsGroup.uuid = field.meta.previousValue.uuid;
+        }
+        field.questions.forEach((groupedField) => {
+          if (hasSubmission(groupedField)) {
+            addObsToList(obsGroup.groupMembers, groupedField.meta.submission.newValue);
+            addObsToList(obsGroup.groupMembers, groupedField.meta.submission.voidedValue);
+          }
+        });
+        if (obsGroup.groupMembers.length || obsGroup.voided) {
+          addObsToList(obsForSubmission, obsGroup);
+        }
+      }
+      if (hasSubmission(field)) {
+        addObsToList(obsForSubmission, field.meta.submission.newValue);
+        addObsToList(obsForSubmission, field.meta.submission.voidedValue);
+      }
+    });
 }
 
 function prepareOrders(fields: FormField[]) {
