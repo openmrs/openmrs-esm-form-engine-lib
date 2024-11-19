@@ -89,10 +89,10 @@ function PageLink({ page, currentActivePage, pagesWithErrors, requestPage }: Pag
   const hasError = pagesWithErrors.includes(page.id);
   return (
     <div
-      className={classNames(styles.tab, {
-        [styles.activeTab]: isActive && !hasError,
-        [styles.errorTab]: hasError && !isActive,
-        [styles.activeErrorTab]: hasError && isActive,
+      className={classNames(styles.pageLink, {
+        [styles.activePage]: isActive && !hasError,
+        [styles.errorPage]: hasError && !isActive,
+        [styles.activeErrorPage]: hasError && isActive,
       })}>
       <button
         onClick={(e) => {

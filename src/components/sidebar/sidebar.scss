@@ -1,7 +1,7 @@
 @use '@carbon/colors';
 @use '@carbon/type';
 
-.tab {
+.pageLink {
   border-left: 0.5rem solid colors.$teal-20;
   display: flex;
   align-items: center;
@@ -11,7 +11,7 @@
   margin: 0 0 0.063rem;
 }
 
-.tab button {
+.pageLink button {
   @include type.type-style('body-01');
   font-family: inherit;
   display: block;
@@ -30,7 +30,7 @@
   }
 }
 
-.activeTab {
+.activePage {
   border-left: 0.5rem solid colors.$teal-50;
   background-color: #ededed;
 
@@ -39,7 +39,7 @@
   }
 }
 
-.errorTab {
+.errorPage {
   border-left: 0.5rem solid colors.$red-40;
   background-color: colors.$red-10;
 
@@ -48,8 +48,8 @@
   }
 }
 
-.activeErrorTab {
-  @extend .errorTab;
+.activeErrorPage {
+  @extend .errorPage;
   background-color: colors.$red-30;
   border-left: 0.5rem solid colors.$red-60;
 

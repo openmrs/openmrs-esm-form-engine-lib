@@ -43,8 +43,6 @@ export const useCurrentActivePage = ({
   const [currentActivePage, setCurrentActivePage] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [requestedPage, setRequestedPage] = useState<string | null>(null);
-  // Use a ref to track if we're in the initial render phase
-  const initialLockTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInitialPhaseRef = useRef(true);
 
   // Initialize the active page
@@ -72,19 +70,22 @@ export const useCurrentActivePage = ({
   }, [pages, defaultPage, evaluatedPagesVisibility, isInitialized]);
 
   useEffect(() => {
+    let initialLockTimeout = null;
     // Lock out Waypoint updates for 200ms to allow for:
     // 1. Initial render completion
     // 2. Scroll position establishment
     // 3. Waypoint to complete its initial visibility detection
     if (isInitialized) {
-      initialLockTimeoutRef.current = setTimeout(() => {
+      initialLockTimeout = setTimeout(() => {
         isInitialPhaseRef.current = false;
       }, 200);
     }
 
     // Cleanup
     return () => {
-      clearTimeout(initialLockTimeoutRef.current);
+      if (initialLockTimeout) {
+        clearTimeout(initialLockTimeout);
+      }
     };
   }, [isInitialized]);
 
@@ -92,29 +93,33 @@ export const useCurrentActivePage = ({
   useEffect(() => {
     if (isInitialPhaseRef.current) return;
 
-    const updateActivePage = () => {
-      // If there's a requested page and it's visible, keep it active
-      if (requestedPage && activePages.includes(requestedPage)) {
-        setCurrentActivePage(requestedPage);
-        setTimeout(() => {
-          setRequestedPage(null);
-        }, 100);
-        return;
-      }
+    let clearRequestTimeout: NodeJS.Timeout | null = null;
 
-      // If there's no requested page, use the topmost visible page
-      if (!requestedPage && activePages.length > 0) {
-        const topVisiblePage = activePages.reduce((top, current) => {
-          const topIndex = pages.findIndex((page) => page.id === top);
-          const currentIndex = pages.findIndex((page) => page.id === current);
-          return topIndex < currentIndex ? top : current;
-        });
+    // If there's a requested page and it's visible, keep it active
+    if (requestedPage && activePages.includes(requestedPage)) {
+      setCurrentActivePage(requestedPage);
+      clearRequestTimeout = setTimeout(() => {
+        setRequestedPage(null);
+      }, 100);
+      return;
+    }
 
-        setCurrentActivePage(topVisiblePage);
+    // If there's no requested page, use the topmost visible page
+    if (!requestedPage && activePages.length > 0) {
+      const topVisiblePage = activePages.reduce((top, current) => {
+        const topIndex = pages.findIndex((page) => page.id === top);
+        const currentIndex = pages.findIndex((page) => page.id === current);
+        return topIndex < currentIndex ? top : current;
+      });
+
+      setCurrentActivePage(topVisiblePage);
+    }
+
+    return () => {
+      if (clearRequestTimeout) {
+        clearTimeout(clearRequestTimeout);
       }
     };
-
-    updateActivePage();
   }, [activePages, requestedPage, pages]);
 
   // Handle page requests
