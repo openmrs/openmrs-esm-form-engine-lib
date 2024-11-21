@@ -41,8 +41,13 @@ function handleQuestion(question: FormField, page: FormPage, form: FormSchema) {
     setFieldValidators(question);
     transformByType(question);
     transformByRendering(question);
-    if (question?.questions?.length) {
-      question.questions.forEach((question) => handleQuestion(question, page, form));
+
+    if (question.questions?.length) {
+      if (question.type === 'obsGroup' && question.questions.length) {
+        question.questions.forEach((nestedQuestion) => handleQuestion(nestedQuestion, page, form));
+      } else {
+        question.questions.forEach((nestedQuestion) => handleQuestion(nestedQuestion, page, form));
+      }
     }
     question.meta.pageId = page.id;
   } catch (error) {
