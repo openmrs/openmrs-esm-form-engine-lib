@@ -1,118 +1,68 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
-import { Button, Toggle } from '@carbon/react';
-import { isEmpty } from '../../validators/form-validator';
-import { type FormPage } from '../../types';
+import { Button } from '@carbon/react';
+import { type FormPage, type SessionMode } from '../../types';
 import styles from './sidebar.scss';
-import { scrollIntoView } from '../../utils/form-helper';
+import { usePageObserver } from './usePageObserver';
+import { useCurrentActivePage } from './useCurrentActivePage';
+import { isPageContentVisible } from '../../utils/form-helper';
+import { InlineLoading } from '@carbon/react';
 
 interface SidebarProps {
-  allowUnspecifiedAll: boolean;
   defaultPage: string;
+  isFormSubmitting: boolean;
+  sessionMode: SessionMode;
+  onCancel: () => void;
   handleClose: () => void;
   hideFormCollapseToggle: () => void;
-  isFormSubmitting: boolean;
-  mode: string;
-  onCancel: () => void;
-  pagesWithErrors: string[];
-  scrollablePages: Set<FormPage>;
-  selectedPage: string;
-  setValues: (values: unknown) => void;
-  values: object;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
-  allowUnspecifiedAll,
   defaultPage,
+  isFormSubmitting,
+  sessionMode,
+  onCancel,
   handleClose,
   hideFormCollapseToggle,
-  isFormSubmitting,
-  mode,
-  onCancel,
-  pagesWithErrors,
-  scrollablePages,
-  selectedPage,
-  setValues,
-  values,
 }) => {
   const { t } = useTranslation();
-  const pages: Array<FormPage> = Array.from(scrollablePages);
-
-  useEffect(() => {
-    if (defaultPage && pages.some(({ label, isHidden }) => label === defaultPage && !isHidden)) {
-      scrollIntoView(joinWord(defaultPage));
-    }
-  }, [defaultPage, scrollablePages]);
-
-  const unspecifiedFields = useMemo(
-    () =>
-      Object.keys(values).filter(
-        (key) => key.endsWith('-unspecified') && isEmpty(values[key.split('-unspecified')[0]]),
-      ),
-    [values],
-  );
-
-  const handleClick = (selected) => {
-    const activeId = joinWord(selected);
-    scrollIntoView(activeId);
-  };
-
-  const markAllAsUnspecified = useCallback(
-    (toggled) => {
-      const updatedValues = { ...values };
-      unspecifiedFields.forEach((field) => {
-        updatedValues[field] = toggled;
-      });
-      setValues(updatedValues);
-    },
-    [unspecifiedFields, values, setValues],
-  );
+  const { pages, pagesWithErrors, activePages, evaluatedPagesVisibility } = usePageObserver();
+  const { currentActivePage, requestPage } = useCurrentActivePage({
+    pages,
+    defaultPage,
+    activePages,
+    evaluatedPagesVisibility,
+  });
 
   return (
     <div className={styles.sidebar}>
-      {pages.map((page, index) => {
-        if (page.isHidden) return null;
+      {pages
+        .filter((page) => isPageContentVisible(page))
+        .map((page) => (
+          <PageLink
+            key={page.id}
+            page={page}
+            currentActivePage={currentActivePage}
+            pagesWithErrors={pagesWithErrors}
+            requestPage={requestPage}
+          />
+        ))}
+      {sessionMode !== 'view' && <hr className={styles.divider} />}
 
-        const isCurrentlySelected = joinWord(page.label) === selectedPage;
-        const hasError = pagesWithErrors.includes(page.label);
-
-        return (
-          <div
-            aria-hidden="true"
-            className={classNames({
-              [styles.erroredSection]: isCurrentlySelected && hasError,
-              [styles.activeSection]: isCurrentlySelected && !hasError,
-              [styles.activeErroredSection]: !isCurrentlySelected && hasError,
-              [styles.section]: !isCurrentlySelected && !hasError,
-            })}
-            key={index}
-            onClick={() => handleClick(page.label)}>
-            <div className={styles.sectionLink}>{page.label}</div>
-          </div>
-        );
-      })}
-      {mode !== 'view' && <hr className={styles.divider} />}
-      <div className={styles.sidenavActions}>
-        {allowUnspecifiedAll && mode !== 'view' && (
-          <div className={styles.toggleContainer}>
-            <Toggle
-              id="auto-unspecifier"
-              labelA={t('unspecifyAll', 'Unspecify All')}
-              labelB={t('revert', 'Revert')}
-              labelText=""
-              onToggle={markAllAsUnspecified}
-            />
-          </div>
-        )}
-        {mode !== 'view' && (
+      <div className={styles.sideNavActions}>
+        {sessionMode !== 'view' && (
           <Button className={styles.saveButton} disabled={isFormSubmitting} type="submit">
-            {t('save', 'Save')}
+            {isFormSubmitting ? (
+              <InlineLoading description={t('submitting', 'Submitting') + '...'} />
+            ) : (
+              <span>{`${t('save', 'Save')}`}</span>
+            )}
           </Button>
         )}
         <Button
-          className={classNames(styles.saveButton, {
-            [styles.topMargin]: mode === 'view',
+          className={classNames(styles.closeButton, {
+            [styles.topMargin]: sessionMode === 'view',
           })}
           kind="tertiary"
           onClick={() => {
@@ -120,15 +70,39 @@ const Sidebar: React.FC<SidebarProps> = ({
             handleClose?.();
             hideFormCollapseToggle();
           }}>
-          {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
+          {sessionMode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
         </Button>
       </div>
     </div>
   );
 };
 
-function joinWord(value) {
-  return value.replace(/\s/g, '');
+interface PageLinkProps {
+  page: FormPage;
+  currentActivePage: string;
+  pagesWithErrors: string[];
+  requestPage: (page: string) => void;
+}
+
+function PageLink({ page, currentActivePage, pagesWithErrors, requestPage }: PageLinkProps) {
+  const isActive = page.id === currentActivePage;
+  const hasError = pagesWithErrors.includes(page.id);
+  return (
+    <div
+      className={classNames(styles.pageLink, {
+        [styles.activePage]: isActive && !hasError,
+        [styles.errorPage]: hasError && !isActive,
+        [styles.activeErrorPage]: hasError && isActive,
+      })}>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          requestPage(page.id);
+        }}>
+        <span>{page.label}</span>
+      </button>
+    </div>
+  );
 }
 
 export default Sidebar;

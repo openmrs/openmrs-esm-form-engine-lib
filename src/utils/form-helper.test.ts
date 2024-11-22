@@ -3,11 +3,12 @@ import {
   evaluateConditionalAnswered,
   evaluateFieldReadonlyProp,
   evaluateDisabled,
+  isPageContentVisible,
 } from './form-helper';
 import { DefaultValueValidator } from '../validators/default-value-validator';
 import { type LayoutType } from '@openmrs/esm-framework';
 import { ConceptTrue } from '../constants';
-import { type FormField, type OpenmrsEncounter, type SessionMode } from '../types';
+import { type FormPage, type FormField, type OpenmrsEncounter, type SessionMode } from '../types';
 
 jest.mock('../validators/default-value-validator');
 
@@ -442,6 +443,68 @@ describe('Form Engine Helper', () => {
       expect(() => evaluateDisabled(node, allFields, allValues, sessionMode, patient, mockExpressionRunnerFn)).toThrow(
         'Invalid expression',
       );
+    });
+  });
+
+  describe('isPageContentVisible', () => {
+    it('should return false if the page is hidden', () => {
+      const page = { isHidden: true, sections: [] } as FormPage;
+      expect(isPageContentVisible(page)).toBe(false);
+    });
+
+    it('should return false if all sections are hidden', () => {
+      const page = {
+        isHidden: false,
+        sections: [
+          { isHidden: true, questions: [] },
+          { isHidden: true, questions: [] },
+        ],
+      } as FormPage;
+      expect(isPageContentVisible(page)).toBe(false);
+    });
+
+    it('should return false if all questions in all sections are hidden', () => {
+      const page = {
+        isHidden: false,
+        sections: [
+          { isHidden: false, questions: [{ isHidden: true }, { isHidden: true }] },
+          { isHidden: false, questions: [{ isHidden: true }] },
+        ],
+      } as FormPage;
+      expect(isPageContentVisible(page)).toBe(false);
+    });
+
+    it('should return false when there are no form fields', () => {
+      const page = {
+        isHidden: false,
+        sections: [
+          { isHidden: true, questions: [] },
+          { isHidden: false, questions: [] },
+        ],
+      } as FormPage;
+      expect(isPageContentVisible(page)).toBe(false);
+    });
+
+    it('should return true if at least one question in a section is visible', () => {
+      const page = {
+        isHidden: false,
+        sections: [
+          {
+            isHidden: false,
+            questions: [{ isHidden: true }, { isHidden: false }],
+          },
+          {
+            isHidden: true,
+            questions: [{ isHidden: true }],
+          },
+        ],
+      } as FormPage;
+      expect(isPageContentVisible(page)).toBe(true);
+    });
+
+    it('should return false for an empty page with no sections', () => {
+      const page = { isHidden: false, sections: [] } as FormPage;
+      expect(isPageContentVisible(page)).toBe(false);
     });
   });
 });

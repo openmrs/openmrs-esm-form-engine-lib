@@ -163,7 +163,7 @@ export function scrollIntoView(viewId: string, shouldFocus: boolean = false) {
   const currentElement = document.getElementById(viewId);
   currentElement?.scrollIntoView({
     behavior: 'smooth',
-    block: 'center',
+    block: 'start',
     inline: 'center',
   });
 
@@ -193,3 +193,22 @@ export const extractObsValueAndDisplay = (field: FormField, obs: OpenmrsObs) => 
     };
   }
 };
+
+/**
+ * Checks if a given form page has visible content.
+ *
+ * A page is considered to have visible content if:
+ * - The page itself is not hidden.
+ * - At least one section within the page is visible.
+ * - At least one question within each section is visible.
+ */
+export function isPageContentVisible(page: FormPage) {
+  if (page.isHidden) {
+    return false;
+  }
+  return (
+    page.sections?.some((section) => {
+      return !section.isHidden && section.questions?.some((question) => !question.isHidden);
+    }) ?? false
+  );
+}

@@ -28,7 +28,6 @@ interface FormFactoryProviderContextProps {
   provider: OpenmrsResource;
   isFormExpanded: boolean;
   registerForm: (formId: string, isSubForm: boolean, context: FormContextProps) => void;
-  setCurrentPage: (page: string) => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   setIsFormDirty: (isFormDirty: boolean) => void;
 }
@@ -52,7 +51,6 @@ interface FormFactoryProviderProps {
     handleClose: () => void;
   };
   hideFormCollapseToggle: () => void;
-  setCurrentPage: (page: string) => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   setIsFormDirty: (isFormDirty: boolean) => void;
 }
@@ -72,7 +70,6 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   children,
   formSubmissionProps,
   hideFormCollapseToggle,
-  setCurrentPage,
   handleConfirmQuestionDeletion,
   setIsFormDirty,
 }) => {
@@ -170,7 +167,6 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
         provider,
         isFormExpanded,
         registerForm,
-        setCurrentPage,
         handleConfirmQuestionDeletion,
         setIsFormDirty,
       }}>

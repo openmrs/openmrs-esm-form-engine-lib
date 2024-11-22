@@ -1,7 +1,7 @@
 import { type Dispatch, useCallback } from 'react';
 import { type FormField, type FormSchema } from '../types';
 import { type Action } from '../components/renderer/form/state';
-import cloneDeep from 'lodash/cloneDeep';
+import { cloneDeep } from 'lodash-es';
 import { updateFormSectionReferences } from '../utils/common-utils';
 
 export function useFormStateHelpers(dispatch: Dispatch<Action>, formFields: FormField[]) {
