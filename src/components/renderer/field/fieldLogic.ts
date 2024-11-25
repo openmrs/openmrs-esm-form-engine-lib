@@ -1,3 +1,4 @@
+import { reportError } from 'src/utils/error-utils';
 import { codedTypes } from '../../../constants';
 import { type FormContextProps } from '../../../provider/form-provider';
 import { type FormFieldValidator, type SessionMode, type ValidationResult, type FormField } from '../../../types';
@@ -80,6 +81,8 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
             context.formFieldAdapters[dependent.type].transformFieldValue(dependent, result, context);
           }
           updateFormField(dependent);
+        }).catch((error) => {
+          reportError(error, 'Error evaluating calculate expression');
         });
       }
       // evaluate hide
