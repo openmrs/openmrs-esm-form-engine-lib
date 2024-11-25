@@ -48,7 +48,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
 
   const handleAdd = useCallback(
     (counter: number) => {
-      const clonedFieldsBuffer = [];
+      const clonedFieldsBuffer: FormField[] = [];
       function evaluateExpressions(field: FormField) {
         if (field.hide?.hideWhenExpression) {
           field.isHidden = evaluateExpression(
@@ -82,6 +82,8 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
       }
       const clonedField = cloneRepeatField(field, null, counter);
       clonedFieldsBuffer.push(clonedField);
+
+      // Handle nested questions
       if (clonedField.type === 'obsGroup') {
         clonedField.questions?.forEach((childField) => {
           clonedFieldsBuffer.push(childField);
