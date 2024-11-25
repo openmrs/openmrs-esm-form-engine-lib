@@ -1,4 +1,3 @@
-import { reportError } from 'src/utils/error-utils';
 import { codedTypes } from '../../../constants';
 import { type FormContextProps } from '../../../provider/form-provider';
 import { type FormFieldValidator, type SessionMode, type ValidationResult, type FormField } from '../../../types';
@@ -7,6 +6,7 @@ import { hasRendering } from '../../../utils/common-utils';
 import { evaluateAsyncExpression, evaluateExpression } from '../../../utils/expression-runner';
 import { evalConditionalRequired, evaluateDisabled, evaluateHide } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
+import { reportError } from '../../../utils/error-utils';
 
 export function handleFieldLogic(field: FormField, context: FormContextProps) {
   const {
