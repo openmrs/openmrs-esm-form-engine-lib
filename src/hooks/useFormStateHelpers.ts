@@ -8,9 +8,24 @@ export function useFormStateHelpers(dispatch: Dispatch<Action>, formFields: Form
   const addFormField = useCallback((field: FormField) => {
     dispatch({ type: 'ADD_FORM_FIELD', value: field });
   }, []);
-  const updateFormField = useCallback((field: FormField) => {
-    dispatch({ type: 'UPDATE_FORM_FIELD', value: cloneDeep(field) });
-  }, []);
+  const updateFormField = useCallback(
+    (field: FormField) => {
+      if (field.meta.groupId) {
+        const group = formFields.find((f) => f.id === field.meta.groupId);
+        if (group) {
+          group.questions = group.questions.map((child) => {
+            if (child.id === field.id) {
+              return field;
+            }
+            return child;
+          });
+          updateFormField(group);
+        }
+      }
+      dispatch({ type: 'UPDATE_FORM_FIELD', value: cloneDeep(field) });
+    },
+    [formFields],
+  );
 
   const getFormField = useCallback(
     (fieldId: string) => {
