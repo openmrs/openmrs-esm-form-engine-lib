@@ -7,6 +7,7 @@ import {
   type AttachmentResponse,
   type Attachment,
   type ValueAndDisplay,
+  type FormFieldValueAdapter,
 } from '../types';
 import {
   hasRendering,
@@ -17,7 +18,6 @@ import {
   formatDateAsDisplayString,
 } from '../utils/common-utils';
 import { type FormContextProps } from '../provider/form-provider';
-import { type FormFieldValueAdapter } from '../types';
 import { isEmpty } from '../validators/form-validator';
 import { getAttachmentByUuid } from '../api';
 import { formatDate, restBaseUrl } from '@openmrs/esm-framework';

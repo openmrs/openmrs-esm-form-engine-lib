@@ -318,7 +318,7 @@ export class EncounterFormProcessor extends FormProcessor {
         patient: patient,
         previousEncounter: previousDomainObjectValue,
       });
-      return extractObsValueAndDisplay(field, value);
+      return value ? extractObsValueAndDisplay(field, value) : null;
     }
     if (previousDomainObjectValue && field.questionOptions.enablePreviousValue) {
       return await adapter.getPreviousValue(field, previousDomainObjectValue, context);

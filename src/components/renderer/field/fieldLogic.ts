@@ -6,6 +6,7 @@ import { hasRendering } from '../../../utils/common-utils';
 import { evaluateAsyncExpression, evaluateExpression } from '../../../utils/expression-runner';
 import { evalConditionalRequired, evaluateDisabled, evaluateHide } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
+import { reportError } from '../../../utils/error-utils';
 
 export function handleFieldLogic(field: FormField, context: FormContextProps) {
   const {
@@ -80,6 +81,8 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
             context.formFieldAdapters[dependent.type].transformFieldValue(dependent, result, context);
           }
           updateFormField(dependent);
+        }).catch((error) => {
+          reportError(error, 'Error evaluating calculate expression');
         });
       }
       // evaluate hide
