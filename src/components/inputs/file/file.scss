@@ -1,3 +1,5 @@
+@use '@carbon/colors';
+
 .label {
   font-family: IBM Plex Sans;
   font-size: 14px;
@@ -5,7 +7,12 @@
   font-weight: 600;
   line-height: 30px; /* 128.571% */
   letter-spacing: 0.16px;
-  color: #000000;
+  color: colors.$black-100;
+}
+
+.boldedLabel label {
+  font-weight: 600;
+  color: colors.$black-100;
 }
 
 .saveFile {
@@ -44,13 +51,13 @@
 }
 
 .fileUploader {
-  background-color: rgb(255, 255, 255);
+  background-color: color.$white-0;
   padding: 1rem;
 }
 
 .cameraUploader {
   margin: 1rem 0;
-  background-color: white;
+  background-color: color.$white-0;
   padding: 1rem;
 }
 
@@ -68,7 +75,7 @@
 }
 
 .titleStyles {
-  color: #161616;
+  color: color.$gray-100;
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.16px;
@@ -77,7 +84,7 @@
 }
 
 .descriptionStyles {
-  color: #525252;
+  color: color.$gray-70;
   font-size: 0.875rem;
   font-weight: 400;
   letter-spacing: 0.16px;
@@ -86,13 +93,13 @@
 }
 
 .editModeImage {
-  background-color: white;
+  background-color: color.$white-0;
   padding: 1rem;
 }
 
 .pdfThumbnail {
   cursor: pointer;
-  background-color: gray;
+  background-color: color.$cool-gray-50;
   display: flex;
   justify-content: center;
   align-items: center;
