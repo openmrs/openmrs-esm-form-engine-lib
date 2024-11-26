@@ -6,7 +6,6 @@ import { formStateReducer, initialState } from './state';
 import { useEvaluateFormFieldExpressions } from '../../../hooks/useEvaluateFormFieldExpressions';
 import { useFormFactory } from '../../../provider/form-factory-provider';
 import { FormProvider, type FormContextProps } from '../../../provider/form-provider';
-import { isTrue } from '../../../utils/boolean-utils';
 import { type FormProcessorContextProps } from '../../../types';
 import { useFormStateHelpers } from '../../../hooks/useFormStateHelpers';
 import { pageObserver } from '../../sidebar/page-observer';

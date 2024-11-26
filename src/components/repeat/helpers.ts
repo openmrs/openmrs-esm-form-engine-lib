@@ -15,6 +15,7 @@ export function cloneRepeatField(srcField: FormField, value: OpenmrsResource, id
     childField.id = `${childField.id}_${idSuffix}`;
     childField.meta.groupId = clonedField.id;
     childField.meta.previousValue = null;
+    childField.fieldDependents = new Set();
     clearSubmission(childField);
 
     // cleanup expressions

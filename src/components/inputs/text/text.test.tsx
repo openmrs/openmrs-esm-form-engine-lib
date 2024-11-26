@@ -161,17 +161,11 @@ describe('Text field input', () => {
   it('should record new obs', async () => {
     await renderForm(textValues);
     const inputField = screen.getByLabelText('Indicate your notes');
-
-    await user.type(inputField, 'Updated patient notes');
+    await user.click(inputField);
+    await user.paste('Updated patient notes');
 
     await act(async () => {
-      expect(mockSetFieldValue).toHaveBeenCalledWith(
-        expect.objectContaining({
-          target: expect.objectContaining({
-            value: 'Updated patient notes',
-          }),
-        }),
-      );
+      expect(mockSetFieldValue).toHaveBeenCalledWith('Updated patient notes');
     });
   });
 

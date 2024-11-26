@@ -47,12 +47,13 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
 
   const handleAdd = useCallback(
     (counter: number) => {
+      const clonedFieldsBuffer: FormField[] = [];
       function evaluateExpressions(field: FormField) {
         if (field.hide?.hideWhenExpression) {
           field.isHidden = evaluateExpression(
             field.hide.hideWhenExpression,
             { value: field, type: 'field' },
-            formFields,
+            [...formFields, ...clonedFieldsBuffer],
             getValues(),
             {
               mode: sessionMode,
@@ -64,7 +65,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
           evaluateAsyncExpression(
             field.questionOptions.calculate?.calculateExpression,
             { value: field, type: 'field' },
-            formFields,
+            [...formFields, ...clonedFieldsBuffer],
             getValues(),
             {
               mode: sessionMode,
@@ -80,16 +81,19 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
       }
 
       const clonedField = cloneRepeatField(field, null, counter);
-      // run necessary expressions
+      clonedFieldsBuffer.push(clonedField);
+
+      // Handle nested questions
       if (clonedField.type === 'obsGroup') {
         clonedField.questions?.forEach((childField) => {
-          evaluateExpressions(childField);
-          addFormField(childField);
+          clonedFieldsBuffer.push(childField);
         });
-      } else {
-        evaluateExpressions(clonedField);
       }
-      addFormField(clonedField);
+
+      clonedFieldsBuffer.forEach((field) => {
+        evaluateExpressions(field);
+        addFormField(field);
+      });
       setRows([...rows, clonedField]);
     },
     [formFields, field, rows, context],

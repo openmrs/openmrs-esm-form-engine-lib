@@ -42,7 +42,9 @@ const TextField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnin
           <TextInput
             id={field.id}
             labelText={<FieldLabel field={field} />}
-            onChange={setFieldValue}
+            onChange={(event) => {
+              setFieldValue(event.target.value);
+            }}
             onBlur={onBlur}
             name={field.id}
             value={value}
