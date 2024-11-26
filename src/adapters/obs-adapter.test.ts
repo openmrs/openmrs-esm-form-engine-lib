@@ -1021,7 +1021,7 @@ describe('ObsAdapter - handling nested obsGroups', () => {
     ],
   });
 
-  const createNestedObs = () => ({
+  const createEncounterWithNestedObs = () => ({
     uuid: 'encounter-uuid',
     obs: [
       {
@@ -1072,7 +1072,7 @@ describe('ObsAdapter - handling nested obsGroups', () => {
   });
 
   beforeEach(() => {
-    formContext.domainObjectValue = createNestedObs();
+    formContext.domainObjectValue = createEncounterWithNestedObs();
     ObsAdapter.tearDown();
   });
 

@@ -6,36 +6,54 @@ export function useFormFields(form: FormSchema): { formFields: FormField[]; conc
     const flattenedFieldsTemp: FormField[] = [];
     const conceptReferencesTemp = new Set<string>();
 
-    const flattenFields = (fields: FormField[]) => {
-      fields.forEach((field) => {
-        flattenedFieldsTemp.push(field);
+    const processFlattenedFields = (
+      fields: FormField[],
+    ): {
+      flattenedFields: FormField[];
+      conceptReferences: Set<string>;
+    } => {
+      const flattenedFields: FormField[] = [];
+      const conceptReferences = new Set<string>();
 
-        // If the field is an obsGroup, we need to flatten its nested questions
-        if (field.type === 'obsGroup' && field.questions) {
-          field.questions.forEach((groupedField) => {
-            groupedField.meta.groupId = field.id;
-            flattenFields([groupedField]);
-          });
-        }
+      const processField = (field: FormField, parentGroupId?: string) => {
+        // Add group ID to nested fields if applicable
+        const processedField = parentGroupId ? { ...field, meta: { ...field.meta, groupId: parentGroupId } } : field;
+
+        // Add field to flattened list
+        flattenedFields.push(processedField);
 
         // Collect concept references
-        if (field.questionOptions?.concept) {
-          conceptReferencesTemp.add(field.questionOptions.concept);
+        if (processedField.questionOptions?.concept) {
+          conceptReferences.add(processedField.questionOptions.concept);
         }
-        if (field.questionOptions?.answers) {
-          field.questionOptions.answers.forEach((answer) => {
-            if (answer.concept) {
-              conceptReferencesTemp.add(answer.concept);
-            }
+
+        // Collect concept references from answers
+        processedField.questionOptions?.answers?.forEach((answer) => {
+          if (answer.concept) {
+            conceptReferences.add(answer.concept);
+          }
+        });
+
+        // Recursively process nested questions for obsGroup
+        if (processedField.type === 'obsGroup' && processedField.questions) {
+          processedField.questions.forEach((nestedField) => {
+            processField(nestedField, processedField.id);
           });
         }
-      });
+      };
+
+      // Process all input fields
+      fields.forEach((field) => processField(field));
+
+      return { flattenedFields, conceptReferences };
     };
 
     form.pages?.forEach((page) =>
       page.sections?.forEach((section) => {
         if (section.questions) {
-          flattenFields(section.questions);
+          const { flattenedFields, conceptReferences } = processFlattenedFields(section.questions);
+          flattenedFieldsTemp.push(...flattenedFields);
+          conceptReferences.forEach((conceptReference) => conceptReferencesTemp.add(conceptReference));
         }
       }),
     );

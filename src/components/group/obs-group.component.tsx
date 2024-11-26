@@ -17,17 +17,17 @@ export const ObsGroup: React.FC<FormFieldInputProps> = ({ field, ...restProps })
       field.questions
         ?.filter((child) => !child.isHidden)
         .map((child, index) => {
-          const keyId = `${child.id}_${index}`;
+          const key = `${child.id}_${index}`;
 
           if (child.type === 'obsGroup' && isGroupField(child.questionOptions.rendering)) {
             return (
-              <div key={keyId} className={styles.nestedGroupContainer}>
+              <div key={key} className={styles.nestedGroupContainer}>
                 <ObsGroup field={child} {...restProps} />
               </div>
             );
           } else if (formFieldAdapters[child.type]) {
             return (
-              <div className={classNames(styles.flexColumn)} key={keyId}>
+              <div className={classNames(styles.flexColumn)} key={key}>
                 <div className={styles.groupContainer}>
                   <FormFieldRenderer fieldId={child.id} valueAdapter={formFieldAdapters[child.type]} />
                 </div>
