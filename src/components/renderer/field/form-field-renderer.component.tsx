@@ -235,6 +235,6 @@ export function isUnspecifiedSupported(question: FormField) {
   );
 }
 
-function isGroupField(rendering: RenderType) {
+export function isGroupField(rendering: RenderType) {
   return rendering === 'group' || rendering === 'repeating';
 }
