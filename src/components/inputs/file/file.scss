@@ -1,4 +1,5 @@
 @use '@carbon/colors';
+@use '@openmrs/esm-styleguide/src/vars' as *;
 
 .label {
   font-family: IBM Plex Sans;
@@ -37,8 +38,30 @@
   margin-bottom: 1rem;
 }
 
-.selectorButton {
-  margin-right: 1rem;
+.fileInputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .uploadSelector {
+    display: flex;
+    gap: 1rem;
+    
+    .uploadFileButton, .cameraCaptureButton {
+      min-width: 150px;
+      @include brand-03(background-color);
+      color: white;
+      
+      &:hover {
+        @include brand-03(background-color);
+      }
+      
+      &:disabled {
+        background-color: #cccccc;
+        color: #666666;
+      }
+    }
+  }
 }
 
 .caption {
@@ -63,6 +86,14 @@
 
 .camButton {
   margin-bottom: 1rem;
+}
+
+.cameraToggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
 }
 
 .cameraPreview {

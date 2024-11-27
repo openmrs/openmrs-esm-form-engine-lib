@@ -38,9 +38,9 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, errors, setFieldVal
 
   const handleFilePickerChange = useCallback(
     (event) => {
-      const selectedFile: File[] = Array.from(event.target.files);
-      setImagePreview(null);
-      setFieldValue((prevValue) => [...(prevValue || []), ...selectedFile]);
+      const selectedFiles: File[] = Array.from(event.target.files);
+    setImagePreview(null); 
+    setFieldValue((prevValue) => [...(prevValue || []), ...selectedFiles]);
     },
     [setFieldValue]
   );
@@ -98,24 +98,26 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, errors, setFieldVal
   return (
     !field.isHidden && (
       <div className={styles.boldedLabel}>
-        <Layer>
-          <div className={styles.fileInputContainer}>
+         <Layer>
+         <div className={styles.fileInputContainer}>
             <FieldLabel field={field} />
             <div className={styles.uploadSelector}>
               <Button
                 disabled={isTrue(field.readonly)}
                 onClick={() => setDataSource('filePicker')}
                 kind="secondary"
-                size="sm"
-              >
+                size="md"
+                className={`${styles.uploadFileButton}`} 
+                >
                 {t('uploadFile', 'Upload file')}
               </Button>
               <Button
                 disabled={isTrue(field.readonly)}
                 onClick={() => setDataSource('camera')}
                 kind="secondary"
-                size="sm"
+                size="md"
                 renderIcon={Camera}
+                className={`${styles.cameraCaptureButton}`} 
               >
                 {t('cameraCapture', 'Camera capture')}
               </Button>
@@ -127,7 +129,7 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, errors, setFieldVal
               <div className={styles.fileUploader}>
                 <FileUploader
                   accept={field.questionOptions.allowedFileTypes ?? []}
-                  multiple={field.questionOptions.allowMultiple ?? false}
+                  multiple={field.questionOptions.allowMultiple ?? true}
                   buttonKind="primary"
                   buttonLabel={t('addFile', 'Add file')}
                   filenameStatus="edit"
@@ -143,10 +145,11 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, errors, setFieldVal
 
             {dataSource === 'camera' && (
               <div className={styles.cameraUploader}>
+                 <p className={styles.titleStyles}>Camera</p>
+                 <p className={styles.descriptionStyles}>Capture image via camera</p>
                 <Button
                   onClick={() => setCameraWidgetVisible((prev) => !prev)}
-                  size="sm"
-                  kind="ghost"
+                  size="md"
                   className={styles.cameraToggle}
                 >
                   {cameraWidgetVisible ? t('closeCamera', 'Close camera') : t('openCamera', 'Open camera')}
@@ -176,7 +179,7 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, errors, setFieldVal
               </div>
             )}
           </div>
-        </Layer>
+         </Layer>
       </div>
     )
   );

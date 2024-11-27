@@ -20,31 +20,39 @@ export function saveEncounter(abortController: AbortController, payload, encount
 
 export function saveAttachment(patientUuid, field, conceptUuid, date, encounterUUID, abortController) {
   const url = `${restBaseUrl}/attachment`;
+  //enable saving multiple attachments
+  const files = Array.isArray(field.meta.submission?.newValue?.value) 
+    ? field.meta.submission.newValue.value 
+    : [field.meta.submission?.newValue?.value];
 
-  const content = field.meta.submission?.newValue?.value;
-  const cameraUploadType = typeof content === 'string' && content?.split(';')[0].split(':')[1].split('/')[1];
+  const uploadPromises = files.map(content => {
+    const formData = new FormData();
+    const fileCaption = field.id;
+    const cameraUploadType = typeof content === 'string' && content?.split(';')[0].split(':')[1].split('/')[1];
 
-  const formData = new FormData();
-  const fileCaption = field.id;
+    formData.append('fileCaption', fileCaption);
+    formData.append('patient', patientUuid);
 
-  formData.append('fileCaption', fileCaption);
-  formData.append('patient', patientUuid);
+    if (typeof content === 'object') {
+      formData.append('file', content);
+    } else {
+      formData.append('file', new File([''], `camera-upload.${cameraUploadType}`), `camera-upload.${cameraUploadType}`);
+      formData.append('base64Content', content);
+    }
 
-  if (typeof content === 'object') {
-    formData.append('file', content);
-  } else {
-    formData.append('file', new File([''], `camera-upload.${cameraUploadType}`), `camera-upload.${cameraUploadType}`);
-    formData.append('base64Content', content);
-  }
-  formData.append('encounter', encounterUUID);
-  formData.append('obsDatetime', date);
+    formData.append('encounter', encounterUUID);
+    formData.append('obsDatetime', date);
 
-  return openmrsFetch(url, {
-    method: 'POST',
-    signal: abortController.signal,
-    body: formData,
+    return openmrsFetch(url, {
+      method: 'POST',
+      signal: abortController.signal,
+      body: formData,
+    });
   });
+
+  return Promise.all(uploadPromises);
 }
+
 
 export function getAttachmentByUuid(patientUuid: string, encounterUuid: string, abortController: AbortController) {
   const attachmentUrl = `${restBaseUrl}/attachment`;
