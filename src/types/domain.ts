@@ -15,20 +15,80 @@ export interface OpenmrsEncounter {
 }
 
 export interface OpenmrsObs extends OpenmrsResource {
-  concept: any;
-  obsDatetime: string | Date;
-  obsGroup: OpenmrsObs;
-  groupMembers: Array<OpenmrsObs>;
-  comment: string;
-  location: OpenmrsResource;
-  order: OpenmrsResource;
-  encounter: OpenmrsResource;
-  voided: boolean;
-  value: any;
-  formFieldPath: string;
-  formFieldNamespace: string;
-  status: string;
-  interpretation: string;
+  concept?: any;
+  obsDatetime?: string | Date;
+  obsGroup?: OpenmrsObs;
+  groupMembers?: Array<OpenmrsObs>;
+  comment?: string;
+  location?: OpenmrsResource;
+  order?: OpenmrsResource;
+  encounter?: OpenmrsResource;
+  voided?: boolean;
+  value?: any;
+  formFieldPath?: string;
+  formFieldNamespace?: string;
+  status?: string;
+  interpretation?: string;
+}
+
+export interface FHIRObsResource {
+  resourceType: string;
+  id: string;
+  category: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+  }>;
+  code: {
+    coding: Array<{
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  };
+  encounter?: {
+    reference: string;
+    type: string;
+  };
+  effectiveDateTime: string;
+  issued: string;
+  valueBoolean?: boolean;
+  valueString?: string;
+  valueDateTime?: string;
+  valueQuantity?: {
+    value: number;
+    unit: string;
+    system: string;
+    code: string;
+  };
+  valueCodeableConcept?: {
+    coding: [
+      {
+        code: string;
+        display: string;
+      },
+    ];
+    text: string;
+  };
+  referenceRange: Array<{
+    low?: {
+      value: number;
+    };
+    high?: {
+      value: number;
+    };
+    type: {
+      coding: Array<{
+        system: string;
+        code: string;
+      }>;
+    };
+  }>;
+  hasMember?: Array<{
+    reference: string;
+  }>;
 }
 
 export interface OpenmrsForm {

@@ -1,6 +1,6 @@
 import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
-import { type OpenmrsForm, type PatientIdentifier, type PatientProgramPayload } from '../types';
+import { type FHIRObsResource, type OpenmrsForm, type PatientIdentifier, type PatientProgramPayload } from '../types';
 import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
@@ -76,15 +76,18 @@ export async function getPreviousEncounter(patientUuid: string, encounterType: s
   return null;
 }
 
-export function getLatestObs(patientUuid: string, conceptUuid: string, encounterTypeUuid?: string) {
+export async function getLatestObs(
+  patientUuid: string,
+  conceptUuid: string,
+  encounterTypeUuid?: string,
+): Promise<FHIRObsResource> {
   let params = `patient=${patientUuid}&code=${conceptUuid}${
     encounterTypeUuid ? `&encounter.type=${encounterTypeUuid}` : ''
   }`;
   // the latest obs
   params += '&_sort=-date&_count=1';
-  return openmrsFetch(`${fhirBaseUrl}/Observation?${params}`).then(({ data }) => {
-    return data.entry?.length ? data.entry[0].resource : null;
-  });
+  const { data } = await openmrsFetch(`${fhirBaseUrl}/Observation?${params}`);
+  return data.entry?.length ? data.entry[0].resource : null;
 }
 
 /**

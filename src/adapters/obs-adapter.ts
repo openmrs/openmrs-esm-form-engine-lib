@@ -83,7 +83,7 @@ export const ObsAdapter: FormFieldValueAdapter = {
       return null;
     }
     if (hasRendering(field, 'checkbox')) {
-      return handleMultiSelect(field, value);
+      return handleMultiSelect(field, Array.isArray(value) ? value : [value]);
     }
     if (!isEmpty(value) && hasPreviousObsValueChanged(field, value)) {
       return gracefullySetSubmission(field, editObs(field, value), undefined);
