@@ -51,13 +51,13 @@
 }
 
 .fileUploader {
-  background-color: color.$white-0;
+  background-color: colors.$white;
   padding: 1rem;
 }
 
 .cameraUploader {
   margin: 1rem 0;
-  background-color: color.$white-0;
+  background-color: colors.$white;
   padding: 1rem;
 }
 
@@ -75,7 +75,7 @@
 }
 
 .titleStyles {
-  color: color.$gray-100;
+  color: colors.$gray-100;
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.16px;
@@ -84,7 +84,7 @@
 }
 
 .descriptionStyles {
-  color: color.$gray-70;
+  color: colors.$gray-70;
   font-size: 0.875rem;
   font-weight: 400;
   letter-spacing: 0.16px;
@@ -93,13 +93,13 @@
 }
 
 .editModeImage {
-  background-color: color.$white-0;
+  background-color: colors.$white;
   padding: 1rem;
 }
 
 .pdfThumbnail {
   cursor: pointer;
-  background-color: color.$cool-gray-50;
+  background-color: colors.$cool-gray-50;
   display: flex;
   justify-content: center;
   align-items: center;
