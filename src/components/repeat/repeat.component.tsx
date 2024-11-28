@@ -15,6 +15,7 @@ import { useFormFactory } from '../../provider/form-factory-provider';
 const renderingByTypeMap: Record<string, RenderType> = {
   obsGroup: 'group',
   testOrder: 'select',
+  diagnosis: 'ui-select-extended',
 };
 
 const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {

@@ -141,6 +141,9 @@ function transformByType(question: FormField) {
         ? 'date'
         : question.questionOptions.rendering;
       break;
+    case 'diagnosis':
+      handleDiagnosis(question);
+      break;
   }
 }
 
@@ -266,4 +269,16 @@ function handleQuestionsWithObsComments(sectionQuestions: Array<FormField>): Arr
   });
 
   return augmentedQuestions;
+}
+
+function handleDiagnosis(question: FormField) {
+  if ('dataSource' in question.questionOptions && question.questionOptions['dataSource'] === 'diagnoses') {
+    question.questionOptions.datasource = {
+      name: 'problem_datasource',
+      config: {
+        class: '8d4918b0-c2cc-11de-8d13-0010c6dffd0f',
+      },
+    };
+    delete question.questionOptions['dataSource'];
+  }
 }
