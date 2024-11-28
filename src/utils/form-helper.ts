@@ -1,12 +1,5 @@
 import { type LayoutType } from '@openmrs/esm-framework';
-import {
-  type FormField,
-  type FormPage,
-  type FormSection,
-  type SessionMode,
-  type FHIRObsResource,
-  type RenderType,
-} from '../types';
+import type { FormField, FormPage, FormSection, SessionMode, FHIRObsResource, RenderType } from '../types';
 import { isEmpty } from '../validators/form-validator';
 import { parseToLocalDateTime } from './common-utils';
 import dayjs from 'dayjs';

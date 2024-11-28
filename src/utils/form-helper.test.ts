@@ -6,7 +6,7 @@ import {
   extractObsValueAndDisplay,
 } from './form-helper';
 import { ConceptTrue } from '../constants';
-import { type FormPage, type FormField } from '../types';
+import type { FormPage, FormField } from '../types';
 
 jest.mock('../validators/default-value-validator');
 
