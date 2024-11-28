@@ -95,6 +95,7 @@ export function evaluateHide(
   sessionMode: SessionMode,
   patient: fhir.Patient,
   expressionRunnerFn,
+  updateFormFieldFn: (field: FormField) => void | null,
 ) {
   const { value, type } = node;
   const isHidden = expressionRunnerFn(value['hide']?.hideWhenExpression, node, allFields, allValues, {
@@ -111,15 +112,20 @@ export function evaluateHide(
   if (type == 'page') {
     value['sections'].forEach((section) => {
       section.isParentHidden = isHidden;
-      cascadeVisibilityToChildFields(isHidden, section, allFields);
+      cascadeVisibilityToChildFields(isHidden, section, allFields, updateFormFieldFn);
     });
   }
   if (type == 'section') {
-    cascadeVisibilityToChildFields(isHidden, value, allFields);
+    cascadeVisibilityToChildFields(isHidden, value, allFields, updateFormFieldFn);
   }
 }
 
-function cascadeVisibilityToChildFields(visibility: boolean, section: FormSection, allFields: Array<FormField>) {
+function cascadeVisibilityToChildFields(
+  visibility: boolean,
+  section: FormSection,
+  allFields: Array<FormField>,
+  updateFormFieldFn: (field: FormField) => void,
+) {
   const candidateIds = section.questions.map((q) => q.id);
   allFields
     .filter((field) => candidateIds.includes(field.id))
@@ -130,6 +136,7 @@ function cascadeVisibilityToChildFields(visibility: boolean, section: FormSectio
           member.isParentHidden = visibility;
         });
       }
+      updateFormFieldFn?.(field);
     });
 }
 
