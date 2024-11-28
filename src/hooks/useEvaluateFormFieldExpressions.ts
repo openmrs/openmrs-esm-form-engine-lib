@@ -109,7 +109,15 @@ export const useEvaluateFormFieldExpressions = (
   useEffect(() => {
     factoryContext.formJson?.pages?.forEach((page) => {
       if (page.hide) {
-        evaluateHide({ value: page, type: 'page' }, formFields, formValues, sessionMode, patient, evaluateExpression);
+        evaluateHide(
+          { value: page, type: 'page' },
+          formFields,
+          formValues,
+          sessionMode,
+          patient,
+          evaluateExpression,
+          null,
+        );
       } else {
         page.isHidden = false;
       }
@@ -122,6 +130,7 @@ export const useEvaluateFormFieldExpressions = (
             sessionMode,
             patient,
             evaluateExpression,
+            null,
           );
         } else {
           section.isHidden = false;
