@@ -1,8 +1,9 @@
 import { type LayoutType } from '@openmrs/esm-framework';
-import { type OpenmrsObs, type FormField, type FormPage, type FormSection, type SessionMode } from '../types';
+import type { FormField, FormPage, FormSection, SessionMode, FHIRObsResource, RenderType } from '../types';
 import { isEmpty } from '../validators/form-validator';
 import { parseToLocalDateTime } from './common-utils';
 import dayjs from 'dayjs';
+import { ConceptFalse, ConceptTrue } from '../constants';
 
 export function shouldUseInlineLayout(
   renderingType: 'single-line' | 'multiline' | 'automatic',
@@ -172,24 +173,30 @@ export function scrollIntoView(viewId: string, shouldFocus: boolean = false) {
   }
 }
 
-export const extractObsValueAndDisplay = (field: FormField, obs: OpenmrsObs) => {
+export const extractObsValueAndDisplay = (field: FormField, obs: any) => {
   const rendering = field.questionOptions.rendering;
-
-  if (typeof obs.value === 'string' || typeof obs.value === 'number') {
+  if (typeof obs !== 'object') {
+    return { value: obs, display: obs };
+  }
+  const omrsObs = obs.resourceType === 'Observation' ? mapFHIRObsToOpenMRS(obs, rendering) : obs;
+  if (!omrsObs) {
+    return { value: null, display: null };
+  }
+  if (typeof omrsObs.value === 'string' || typeof omrsObs.value === 'number') {
     if (rendering === 'date' || rendering === 'datetime') {
-      const dateObj = parseToLocalDateTime(`${obs.value}`);
+      const dateObj = parseToLocalDateTime(`${omrsObs.value}`);
       return { value: dateObj, display: dayjs(dateObj).format('YYYY-MM-DD HH:mm') };
     }
-    return { value: obs.value, display: obs.value };
+    return { value: omrsObs.value, display: omrsObs.value };
   } else if (['toggle', 'checkbox'].includes(rendering)) {
     return {
-      value: obs.value?.uuid,
-      display: obs.value?.name?.name,
+      value: omrsObs.value?.uuid,
+      display: omrsObs.value?.name?.name,
     };
   } else {
     return {
-      value: obs.value?.uuid,
-      display: field.questionOptions.answers?.find((option) => option.concept === obs.value?.uuid)?.label,
+      value: omrsObs.value?.uuid,
+      display: field.questionOptions.answers?.find((option) => option.concept === omrsObs.value?.uuid)?.label,
     };
   }
 };
@@ -211,4 +218,49 @@ export function isPageContentVisible(page: FormPage) {
       return !section.isHidden && section.questions?.some((question) => !question.isHidden);
     }) ?? false
   );
+}
+
+function mapFHIRObsToOpenMRS(fhirObs: FHIRObsResource, rendering: RenderType) {
+  try {
+    return {
+      obsDatetime: fhirObs.effectiveDateTime,
+      uuid: fhirObs.id,
+      concept: {
+        uuid: fhirObs.code.coding[0]?.code,
+        display: fhirObs.code.coding[0]?.display,
+      },
+      value: extractFHIRObsValue(fhirObs, rendering),
+    };
+  } catch (error) {
+    console.error('Error converting FHIR Obs to OpenMRS modelling', error);
+    return null;
+  }
+}
+
+function extractFHIRObsValue(fhirObs: FHIRObsResource, rendering: RenderType) {
+  switch (rendering) {
+    case 'toggle':
+      return fhirObs.valueBoolean ? { uuid: ConceptTrue } : { uuid: ConceptFalse };
+
+    case 'date':
+    case 'datetime':
+      return fhirObs.valueDateTime;
+
+    case 'number':
+      return fhirObs.valueQuantity?.value ?? null;
+
+    case 'radio':
+    case 'checkbox':
+    case 'select':
+    case 'content-switcher':
+      return fhirObs.valueCodeableConcept?.coding[0]
+        ? {
+            uuid: fhirObs.valueCodeableConcept?.coding[0].code,
+            name: { name: fhirObs.valueCodeableConcept?.coding[0].display },
+          }
+        : null;
+
+    default:
+      return fhirObs.valueString;
+  }
 }

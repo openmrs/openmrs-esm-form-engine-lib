@@ -1,14 +1,12 @@
 import {
   findConceptByReference,
-  evaluateConditionalAnswered,
   evaluateFieldReadonlyProp,
   evaluateDisabled,
   isPageContentVisible,
+  extractObsValueAndDisplay,
 } from './form-helper';
-import { DefaultValueValidator } from '../validators/default-value-validator';
-import { type LayoutType } from '@openmrs/esm-framework';
 import { ConceptTrue } from '../constants';
-import { type FormPage, type FormField, type OpenmrsEncounter, type SessionMode } from '../types';
+import type { FormPage, FormField } from '../types';
 
 jest.mock('../validators/default-value-validator');
 
@@ -505,6 +503,162 @@ describe('Form Engine Helper', () => {
     it('should return false for an empty page with no sections', () => {
       const page = { isHidden: false, sections: [] } as FormPage;
       expect(isPageContentVisible(page)).toBe(false);
+    });
+  });
+
+  describe('extractObsValueAndDisplay', () => {
+    // Mock form field types
+    const mockFormFields = {
+      codedField: {
+        questionOptions: {
+          rendering: 'select',
+          answers: [{ concept: '2395de62-f5a6-49b6-ab0f-57a21a9029c1', label: 'Sneezing Symptom' }],
+        },
+      },
+      toggleField: {
+        questionOptions: {
+          rendering: 'toggle',
+          answers: [],
+        },
+      },
+      dateField: {
+        questionOptions: {
+          rendering: 'date',
+        },
+      },
+      stringField: {
+        questionOptions: {
+          rendering: 'text',
+        },
+      },
+    } as any;
+
+    // Primitive value tests
+    describe('Primitive Value Handling', () => {
+      it('should handle string primitive value', () => {
+        const result = extractObsValueAndDisplay(mockFormFields.stringField, 'Hello World');
+        expect(result).toEqual({
+          value: 'Hello World',
+          display: 'Hello World',
+        });
+      });
+
+      it('should handle number primitive value', () => {
+        const result = extractObsValueAndDisplay(mockFormFields.stringField, 42);
+        expect(result).toEqual({
+          value: 42,
+          display: 42,
+        });
+      });
+    });
+
+    // FHIR Observation tests
+    describe('FHIR Observation Handling', () => {
+      const codedFHIRObs = {
+        resourceType: 'Observation',
+        code: {
+          coding: {
+            code: '1095de62-b5a6-49v6-ab0f-57a21a9029cb',
+          },
+        },
+        valueCodeableConcept: {
+          coding: [
+            {
+              code: '2395de62-f5a6-49b6-ab0f-57a21a9029c1',
+              display: 'Sneezing',
+            },
+          ],
+        },
+      };
+
+      const booleanFHIRObs = {
+        resourceType: 'Observation',
+        code: {
+          coding: {
+            code: 'b095deb2-b5a6-49v6-ab0f-57a21a9029cx',
+          },
+        },
+        valueBoolean: true,
+      };
+
+      const dateFHIRObs = {
+        resourceType: 'Observation',
+        code: {
+          coding: {
+            code: 'e095de62-b5a6-49v6-ab0f-57a21a9029cy',
+          },
+        },
+        valueDateTime: '2024-07-31T01:33:19+00:00',
+      };
+
+      it('should handle coded FHIR observation', () => {
+        const result = extractObsValueAndDisplay(mockFormFields.codedField, codedFHIRObs);
+        expect(result).toEqual({
+          value: '2395de62-f5a6-49b6-ab0f-57a21a9029c1',
+          display: 'Sneezing Symptom',
+        });
+      });
+
+      it('should handle boolean FHIR observation', () => {
+        const result = extractObsValueAndDisplay(mockFormFields.toggleField, booleanFHIRObs);
+        expect(result).toEqual({
+          value: ConceptTrue,
+          display: undefined,
+        });
+      });
+
+      it('should handle date FHIR observation', () => {
+        const result = extractObsValueAndDisplay(mockFormFields.dateField, dateFHIRObs);
+        expect(result).toEqual({
+          value: expect.any(Date),
+          display: expect.stringContaining('2024-07-31'),
+        });
+      });
+    });
+
+    // OpenMRS Observation tests
+    describe('OpenMRS Observation Handling', () => {
+      const codedOpenMRSObs = {
+        value: {
+          uuid: '2395de62-f5a6-49b6-ab0f-57a21a9029c1',
+          name: { name: 'Sneezing' },
+        },
+      };
+
+      const booleanOpenMRSObs = {
+        value: {
+          uuid: 'cf82933b-3f3f-45e7-a5ab-5d31aaee3da3',
+          name: { name: 'True' },
+        },
+      };
+
+      const dateOpenMRSObs = {
+        value: '2024-07-31T01:33:19+00:00',
+      };
+
+      it('should handle coded OpenMRS observation', () => {
+        const result = extractObsValueAndDisplay(mockFormFields.codedField, codedOpenMRSObs);
+        expect(result).toEqual({
+          value: '2395de62-f5a6-49b6-ab0f-57a21a9029c1',
+          display: 'Sneezing Symptom',
+        });
+      });
+
+      it('should handle boolean OpenMRS observation', () => {
+        const result = extractObsValueAndDisplay(mockFormFields.toggleField, booleanOpenMRSObs);
+        expect(result).toEqual({
+          value: 'cf82933b-3f3f-45e7-a5ab-5d31aaee3da3',
+          display: 'True',
+        });
+      });
+
+      it('should handle date OpenMRS observation', () => {
+        const result = extractObsValueAndDisplay(mockFormFields.dateField, dateOpenMRSObs);
+        expect(result).toEqual({
+          value: expect.any(Date),
+          display: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/),
+        });
+      });
     });
   });
 });
