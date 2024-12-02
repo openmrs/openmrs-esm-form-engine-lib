@@ -230,6 +230,7 @@ export class EncounterFormProcessor extends FormProcessor {
             let value = null;
             try {
               value = await adapter.getInitialValue(field, encounter, context);
+              field.meta.initialValue.refinedValue = value;
             } catch (error) {
               console.error(error);
             }
