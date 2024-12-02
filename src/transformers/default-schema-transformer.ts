@@ -1,3 +1,4 @@
+import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormField, type FormSchema, type FormSchemaTransformer, type RenderType, type FormPage } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { hasRendering } from '../utils/common-utils';
@@ -74,7 +75,9 @@ function handleQuestionsWithDateOptions(sectionQuestions: Array<FormField>): Arr
         hide: question.questionOptions.shownDateOptions?.hide || question.hide,
         meta: {
           targetField: question.id,
-          previousValue: question.meta?.previousValue?.obsDatetime,
+          initialValue: {
+            omrsObject: (question.meta?.initialValue?.omrsObject as OpenmrsResource)?.obsDatetime,
+          },
         },
       };
 
@@ -97,6 +100,10 @@ function sanitizeQuestion(question: FormField) {
   if (!question.meta) {
     question.meta = {
       submission: null,
+      initialValue: {
+        omrsObject: null,
+        refinedValue: null,
+      },
     };
   }
 }
@@ -257,7 +264,9 @@ function handleQuestionsWithObsComments(sectionQuestions: Array<FormField>): Arr
         hide: question.questionOptions.shownCommentOptions?.hide || question.hide,
         meta: {
           targetField: question.id,
-          previousValue: question.meta?.previousValue?.comment,
+          initialValue: {
+            omrsObject: (question.meta?.initialValue?.omrsObject as OpenmrsResource)?.comment,
+          },
         },
       };
 

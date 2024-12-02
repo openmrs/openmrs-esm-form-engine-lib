@@ -16,6 +16,7 @@ import { ConceptTrue } from '../../constants';
 import { DefaultValueValidator } from '../../validators/default-value-validator';
 import { cloneRepeatField } from '../../components/repeat/helpers';
 import { assignedOrderIds } from '../../adapters/orders-adapter';
+import { type OpenmrsResource } from '@openmrs/esm-framework';
 
 export function prepareEncounter(
   context: FormContextProps,
@@ -189,8 +190,10 @@ function prepareObs(obsForSubmission: OpenmrsObs[], fields: FormField[]) {
 }
 
 function processObsField(obsForSubmission: OpenmrsObs[], field: FormField) {
-  if ((field.isHidden || field.isParentHidden) && field.meta.previousValue) {
-    const valuesArray = Array.isArray(field.meta.previousValue) ? field.meta.previousValue : [field.meta.previousValue];
+  if ((field.isHidden || field.isParentHidden) && field.meta.initialValue.omrsObject) {
+    const valuesArray = Array.isArray(field.meta.initialValue.omrsObject)
+      ? field.meta.initialValue.omrsObject
+      : [field.meta.initialValue.omrsObject];
     addObsToList(
       obsForSubmission,
       valuesArray.map((obs) => voidObs(obs)),
@@ -214,8 +217,8 @@ function processObsGroup(obsForSubmission: OpenmrsObs[], groupField: FormField) 
   }
 
   const obsGroup = constructObs(groupField, null);
-  if (groupField.meta.previousValue) {
-    obsGroup.uuid = groupField.meta.previousValue.uuid;
+  if (groupField.meta.initialValue?.omrsObject) {
+    obsGroup.uuid = (groupField.meta.initialValue.omrsObject as OpenmrsResource).uuid;
   }
 
   groupField.questions.forEach((nestedField) => {
@@ -261,7 +264,7 @@ function hasSubmittableObs(field: FormField) {
   if (isTransient || !['obs', 'obsGroup'].includes(type) || hasRendering(field, 'file') || field.meta.groupId) {
     return false;
   }
-  if ((field.isHidden || field.isParentHidden) && field.meta.previousValue) {
+  if ((field.isHidden || field.isParentHidden) && field.meta.initialValue?.omrsObject) {
     return true;
   }
   return !field.isHidden && !field.isParentHidden && (type === 'obsGroup' || hasSubmission(field));
@@ -288,7 +291,7 @@ export async function hydrateRepeatField(
   const unMappedGroups = encounter.obs.filter(
     (obs) =>
       obs.concept.uuid === field.questionOptions.concept &&
-      obs.uuid != field.meta.previousValue?.uuid &&
+      obs.uuid != (field.meta.initialValue?.omrsObject as OpenmrsResource)?.uuid &&
       !assignedObsIds.includes(obs.uuid),
   );
   const unMappedOrders = encounter.orders.filter((order) => {

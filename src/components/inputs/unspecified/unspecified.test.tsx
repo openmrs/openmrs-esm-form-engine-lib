@@ -94,7 +94,7 @@ describe('Unspecified', () => {
     mockUseSession.mockImplementation(() => mockSessionDataResponse.data);
   });
 
-  it('Should clear field value when the "Unspecified" checkbox is clicked', async () => {
+  fit('Should clear field value when the "Unspecified" checkbox is clicked', async () => {
     //setup
     await renderForm();
     const unspecifiedCheckbox = screen.getByRole('checkbox', { name: /Unspecified/ });

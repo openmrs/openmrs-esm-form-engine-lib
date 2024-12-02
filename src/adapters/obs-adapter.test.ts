@@ -198,15 +198,17 @@ describe('ObsAdapter - transformFieldValue', () => {
         concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       },
       meta: {
-        previousValue: {
-          uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          value: 'Can be discharged in next visit',
+        initialValue: {
+          omrsObject: {
+            uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+            person: '833db896-c1f0-11eb-8529-0242ac130003',
+            concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+            order: null,
+            groupMembers: [],
+            voided: false,
+            value: 'Can be discharged in next visit',
+          },
         },
       },
       id: 'visit-note',
@@ -236,15 +238,17 @@ describe('ObsAdapter - transformFieldValue', () => {
         concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       },
       meta: {
-        previousValue: {
-          uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          value: '5197ca4f-f0f7-4e63-9a68-8614224dce44',
+        initialValue: {
+          omrsObject: {
+            uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+            person: '833db896-c1f0-11eb-8529-0242ac130003',
+            concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+            order: null,
+            groupMembers: [],
+            voided: false,
+            value: '5197ca4f-f0f7-4e63-9a68-8614224dce44',
+          },
         },
       },
       id: 'hts-result',
@@ -276,22 +280,24 @@ describe('ObsAdapter - transformFieldValue', () => {
         ],
       },
       meta: {
-        previousValue: [
-          {
-            uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
-            person: '833db896-c1f0-11eb-8529-0242ac130003',
-            concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
-            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-            order: null,
-            groupMembers: [],
-            voided: false,
-            formFieldNamespace: 'rfe-forms',
-            formFieldPath: 'rfe-forms-past-patient-programs',
-            value: {
-              uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
+        initialValue: {
+          omrsObject: [
+            {
+              uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
+              person: '833db896-c1f0-11eb-8529-0242ac130003',
+              concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
+              location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+              order: null,
+              groupMembers: [],
+              voided: false,
+              formFieldNamespace: 'rfe-forms',
+              formFieldPath: 'rfe-forms-past-patient-programs',
+              value: {
+                uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
+              },
             },
-          },
-        ],
+          ],
+        },
       },
       id: 'past-patient-programs',
     };
@@ -327,15 +333,17 @@ describe('ObsAdapter - transformFieldValue', () => {
         concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
       },
       meta: {
-        previousValue: {
-          uuid: 'bca7277f-a726-4d3d-9db8-40937228ead5',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          value: new Date(2020, 11, 16),
+        initialValue: {
+          omrsObject: {
+            uuid: 'bca7277f-a726-4d3d-9db8-40937228ead5',
+            person: '833db896-c1f0-11eb-8529-0242ac130003',
+            concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
+            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+            order: null,
+            groupMembers: [],
+            voided: false,
+            value: new Date(2020, 11, 16),
+          },
         },
       },
       id: 'hts-date',
@@ -365,15 +373,17 @@ describe('ObsAdapter - transformFieldValue', () => {
         concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       },
       meta: {
-        previousValue: {
-          uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          value: 'Can be discharged in next visit',
+        initialValue: {
+          omrsObject: {
+            uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+            person: '833db896-c1f0-11eb-8529-0242ac130003',
+            concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+            order: null,
+            groupMembers: [],
+            voided: false,
+            value: 'Can be discharged in next visit',
+          },
         },
       },
       id: 'visit-note',
@@ -401,15 +411,17 @@ describe('ObsAdapter - transformFieldValue', () => {
         concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       },
       meta: {
-        previousValue: {
-          uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          value: '5197ca4f-f0f7-4e63-9a68-8614224dce44',
+        initialValue: {
+          omrsObject: {
+            uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+            person: '833db896-c1f0-11eb-8529-0242ac130003',
+            concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+            order: null,
+            groupMembers: [],
+            voided: false,
+            value: '5197ca4f-f0f7-4e63-9a68-8614224dce44',
+          },
         },
       },
       id: 'hts-result',
@@ -435,20 +447,22 @@ describe('ObsAdapter - transformFieldValue', () => {
         answers: [{ label: 'Option 1', concept: '105e7ad6-c1fd-11eb-8529-0242ac130ju9' }],
       },
       meta: {
-        previousValue: [
-          {
-            uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
-            person: '833db896-c1f0-11eb-8529-0242ac130003',
-            concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
-            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-            order: null,
-            groupMembers: [],
-            voided: false,
-            value: {
-              uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
+        initialValue: {
+          omrsObject: [
+            {
+              uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
+              person: '833db896-c1f0-11eb-8529-0242ac130003',
+              concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
+              location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+              order: null,
+              groupMembers: [],
+              voided: false,
+              value: {
+                uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
+              },
             },
-          },
-        ],
+          ],
+        },
       },
       id: 'past-patient-programs',
     };
@@ -479,15 +493,17 @@ describe('ObsAdapter - transformFieldValue', () => {
         concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
       },
       meta: {
-        previousValue: {
-          uuid: 'bca7277f-a726-4d3d-9db8-40937228ead5',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          value: htsDate,
+        initialValue: {
+          omrsObject: {
+            uuid: 'bca7277f-a726-4d3d-9db8-40937228ead5',
+            person: '833db896-c1f0-11eb-8529-0242ac130003',
+            concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
+            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+            order: null,
+            groupMembers: [],
+            voided: false,
+            value: htsDate,
+          },
         },
       },
       id: 'hts-date',
@@ -790,9 +806,11 @@ describe('hasPreviousObsValueChanged', () => {
         rendering: 'radio',
       },
       meta: {
-        previousValue: {
-          value: {
-            uuid: '1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        initialValue: {
+          omrsObject: {
+            value: {
+              uuid: '1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            },
           },
         },
       },
@@ -808,8 +826,10 @@ describe('hasPreviousObsValueChanged', () => {
         rendering: 'date',
       },
       meta: {
-        previousValue: {
-          value: '2024-05-01T19:49:50.000+0000',
+        initialValue: {
+          omrsObject: {
+            value: '2024-05-01T19:49:50.000+0000',
+          },
         },
       },
     } as any as FormField;
@@ -823,8 +843,10 @@ describe('hasPreviousObsValueChanged', () => {
         rendering: 'datetime',
       },
       meta: {
-        previousValue: {
-          value: '2024-04-01T19:50:00.000+0000',
+        initialValue: {
+          omrsObject: {
+            value: '2024-04-01T19:50:00.000+0000',
+          },
         },
       },
     } as any as FormField;
@@ -837,8 +859,10 @@ describe('hasPreviousObsValueChanged', () => {
         rendering: 'text',
       },
       meta: {
-        previousValue: {
-          value: 'Text value',
+        initialValue: {
+          omrsObject: {
+            value: 'Text value',
+          },
         },
       },
     } as any as FormField;
@@ -1128,10 +1152,12 @@ describe('ObsAdapter - handling nested obsGroups', () => {
 
     const healthCenterField = fields.questions[0];
     healthCenterField.meta = {
-      previousValue: {
-        uuid: 'health-center-uuid',
-        value: {
-          uuid: '1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      initialValue: {
+        omrsObject: {
+          uuid: 'health-center-uuid',
+          value: {
+            uuid: '1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          },
         },
       },
     };
@@ -1151,9 +1177,11 @@ describe('ObsAdapter - handling nested obsGroups', () => {
 
     const commentField = fields.questions[1].questions[0];
     commentField.meta = {
-      previousValue: {
-        uuid: 'comment-uuid',
-        value: 'Test comment for nested group',
+      initialValue: {
+        omrsObject: {
+          uuid: 'comment-uuid',
+          value: 'Test comment for nested group',
+        },
       },
     };
 
@@ -1173,9 +1201,11 @@ describe('ObsAdapter - handling nested obsGroups', () => {
 
     const commentField = fields.questions[1].questions[0];
     commentField.meta = {
-      previousValue: {
-        uuid: 'comment-uuid',
-        value: 'Test comment for nested group',
+      initialValue: {
+        omrsObject: {
+          uuid: 'comment-uuid',
+          value: 'Test comment for nested group',
+        },
       },
     };
 
@@ -1188,10 +1218,12 @@ describe('ObsAdapter - handling nested obsGroups', () => {
 
     const diagnosisField = fields.questions[1].questions[1];
     diagnosisField.meta = {
-      previousValue: {
-        uuid: 'diagnosis-uuid',
-        value: {
-          uuid: '159394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      initialValue: {
+        omrsObject: {
+          uuid: 'diagnosis-uuid',
+          value: {
+            uuid: '159394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          },
         },
       },
     };

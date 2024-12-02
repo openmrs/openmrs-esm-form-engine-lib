@@ -364,7 +364,7 @@ describe('ProgramStateAdapter', () => {
   });
 
   it('should return null if the new value is the same as the previous value', () => {
-    field.meta.previousValue = { uuid: '7293cb90-c93f-4386-b32f-e8cfc633dc3e' };
+    field.meta.initialValue = { omrsObject: { uuid: '7293cb90-c93f-4386-b32f-e8cfc633dc3e' } };
     const value = '7293cb90-c93f-4386-b32f-e8cfc633dc3e';
     const result = ProgramStateAdapter.transformFieldValue(field, value, formContext);
     expect(result).toBeNull();

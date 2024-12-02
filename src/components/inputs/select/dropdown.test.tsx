@@ -2,6 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import Dropdown from './dropdown.component';
 import { type FormField } from '../../../types';
+import { type OpenmrsResource } from '@openmrs/esm-framework';
 
 const question: FormField = {
   label: 'Patient past program.',
@@ -87,18 +88,20 @@ describe.skip('dropdown input field', () => {
 
   it('should edit obs', async () => {
     // setup
-    question.meta.previousValue = {
-      uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
-      person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.encounterDate,
-      concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-      order: null,
-      groupMembers: [],
-      voided: false,
-      value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
+    question.meta.initialValue = {
+      omrsObject: {
+        uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+        person: '833db896-c1f0-11eb-8529-0242ac130003',
+        obsDatetime: encounterContext.encounterDate,
+        concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+        location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+        order: null,
+        groupMembers: [],
+        voided: false,
+        value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
+      },
     };
-    await renderForm({ 'patient-past-program': question.meta.previousValue.value });
+    await renderForm({ 'patient-past-program': (question.meta.initialValue.omrsObject as OpenmrsResource).value });
     const dropdownWidget = screen.getByRole('combobox', { name: /Patient past program./ });
 
     // do some edits
@@ -119,18 +122,20 @@ describe.skip('dropdown input field', () => {
 
   it('should clear selection when empty option is selected', async () => {
     // setup
-    question.meta.previousValue = {
-      uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
-      person: '833db896-c1f0-11eb-8529-0242ac130003',
-      obsDatetime: encounterContext.encounterDate,
-      concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-      location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-      order: null,
-      groupMembers: [],
-      voided: false,
-      value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
+    question.meta.initialValue = {
+      omrsObject: {
+        uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+        person: '833db896-c1f0-11eb-8529-0242ac130003',
+        obsDatetime: encounterContext.encounterDate,
+        concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+        location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+        order: null,
+        groupMembers: [],
+        voided: false,
+        value: '6ddd933a-e65c-4f35-8884-c555b50c55e1',
+      },
     };
-    await renderForm({ 'patient-past-program': question.meta.previousValue.value });
+    await renderForm({ 'patient-past-program': (question.meta.initialValue.omrsObject as OpenmrsResource).value });
     const dropdownWidget = screen.getByRole('combobox', { name: /Patient past program./ });
 
     // select an option first

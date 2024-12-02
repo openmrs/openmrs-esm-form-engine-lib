@@ -35,6 +35,10 @@ const expectedTransformedSchema = {
               meta: {
                 submission: null,
                 pageId: 'page-Page1-0',
+                initialValue: {
+                  omrsObject: null,
+                  refinedValue: null,
+                },
               },
             },
             {
@@ -56,6 +60,10 @@ const expectedTransformedSchema = {
               meta: {
                 submission: null,
                 pageId: 'page-Page1-0',
+                initialValue: {
+                  omrsObject: null,
+                  refinedValue: null,
+                },
               },
             },
             {
@@ -77,6 +85,10 @@ const expectedTransformedSchema = {
               meta: {
                 submission: null,
                 pageId: 'page-Page1-0',
+                initialValue: {
+                  omrsObject: null,
+                  refinedValue: null,
+                },
               },
             },
             {
@@ -105,12 +117,20 @@ const expectedTransformedSchema = {
                   meta: {
                     submission: null,
                     pageId: 'page-Page1-0',
+                    initialValue: {
+                      omrsObject: null,
+                      refinedValue: null,
+                    },
                   },
                 },
               ],
               meta: {
                 submission: null,
                 pageId: 'page-Page1-0',
+                initialValue: {
+                  omrsObject: null,
+                  refinedValue: null,
+                },
               },
             },
             {
@@ -148,6 +168,10 @@ const expectedTransformedSchema = {
               meta: {
                 submission: null,
                 pageId: 'page-Page1-0',
+                initialValue: {
+                  omrsObject: null,
+                  refinedValue: null,
+                },
               },
             },
           ],

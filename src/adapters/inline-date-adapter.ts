@@ -18,8 +18,8 @@ export const InlineDateAdapter: FormFieldValueAdapter = {
       } else {
         targetField.meta.submission.newValue.obsDatetime = dateString;
       }
-    } else if (!hasSubmission(targetField) && targetField.meta.previousValue) {
-      if (isEmpty(value) && isEmpty(targetField.meta.previousValue.obsDatetime)) {
+    } else if (!hasSubmission(targetField) && targetField.meta.initialValue) {
+      if (isEmpty(value) && isEmpty((targetField.meta.initialValue.omrsObject as OpenmrsResource)?.obsDatetime)) {
         return null;
       }
       // generate submission
@@ -37,8 +37,9 @@ export const InlineDateAdapter: FormFieldValueAdapter = {
     if (encounter) {
       const targetFieldId = field.id.split('_inline_date')[0];
       const targetField = context.formFields.find((field) => field.id === targetFieldId);
-      if (targetField?.meta.previousValue?.obsDatetime) {
-        return parseDate(targetField?.meta.previousValue?.obsDatetime);
+      const targetFieldInitialObs = targetField?.meta.initialValue?.omrsObject as OpenmrsResource;
+      if (targetFieldInitialObs?.obsDatetime) {
+        return parseDate(targetFieldInitialObs.obsDatetime);
       }
     }
     return null;
