@@ -113,7 +113,10 @@ export interface RepeatOptions {
 
 export interface QuestionMetaProps {
   concept?: OpenmrsResource;
-  previousValue?: any;
+  initialValue?: {
+    omrsObject: OpenmrsResource | Array<OpenmrsResource>;
+    refinedValue?: string | number | Date | Array<string | number>;
+  };
   submission?: {
     voidedValue?: any;
     newValue?: any;

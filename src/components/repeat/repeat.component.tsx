@@ -100,7 +100,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
   );
 
   const removeNthRow = (field: FormField) => {
-    if (field.meta.previousValue) {
+    if (field.meta.initialValue?.omrsObject) {
       formFieldAdapters[field.type]?.transformFieldValue(field, null, context);
       field.meta.repeat = { ...(field.meta.repeat || {}), wasDeleted: true };
       if (field.type === 'obsGroup') {

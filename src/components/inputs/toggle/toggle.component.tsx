@@ -20,7 +20,7 @@ const Toggle: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings,
   useEffect(() => {
     // The toggle input doesn't support blank values
     // by default, the value should be false
-    if (!field.meta?.previousValue && context.sessionMode == 'enter') {
+    if (!field.meta?.initialValue?.omrsObject && context.sessionMode == 'enter') {
       context.formFieldAdapters[field.type].transformFieldValue(field, value ?? false, context);
     }
   }, []);

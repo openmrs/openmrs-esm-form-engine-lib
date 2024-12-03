@@ -216,10 +216,13 @@ export class EncounterFormProcessor extends FormProcessor {
     const initialValues = {};
     const repeatableFields = [];
     if (encounter) {
-      const filteredFields = formFields.filter((field) => isEmpty(field.meta?.previousValue));
       await Promise.all(
-        filteredFields.map(async (field) => {
+        formFields.map(async (field) => {
           const adapter = formFieldAdapters[field.type];
+          if (field.meta.initialValue?.omrsObject && !isEmpty(field.meta.initialValue.refinedValue)) {
+            initialValues[field.id] = field.meta.initialValue.refinedValue;
+            return;
+          }
           if (adapter) {
             if (hasRendering(field, 'repeating') && !field.meta?.repeat?.isClone) {
               repeatableFields.push(field);
@@ -227,6 +230,7 @@ export class EncounterFormProcessor extends FormProcessor {
             let value = null;
             try {
               value = await adapter.getInitialValue(field, encounter, context);
+              field.meta.initialValue.refinedValue = value;
             } catch (error) {
               console.error(error);
             }
@@ -241,7 +245,11 @@ export class EncounterFormProcessor extends FormProcessor {
               initialValues[field.id] = emptyValues[field.questionOptions.rendering] ?? '';
             }
             if (field.questionOptions.calculate?.calculateExpression) {
-              await evaluateCalculateExpression(field, initialValues, context);
+              try {
+                await evaluateCalculateExpression(field, initialValues, context);
+              } catch (error) {
+                console.error(error);
+              }
             }
           } else {
             console.warn(`No adapter found for field type ${field.type}`);
