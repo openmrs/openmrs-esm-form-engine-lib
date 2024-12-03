@@ -46,6 +46,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
     formFieldValidators,
     addInvalidField,
     removeInvalidField,
+    updateFormField,
   } = context;
 
   const fieldValue = useWatch({ control, name: fieldId, exact: true });
@@ -132,6 +133,18 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
     }
     setWarnings(validationWarnings);
     handleFieldLogic(field, context);
+    if (field.meta.groupId) {
+      const group = formFields.find((f) => f.id === field.meta.groupId);
+      if (group) {
+        group.questions = group.questions.map((child) => {
+          if (child.id === field.id) {
+            return field;
+          }
+          return child;
+        });
+        updateFormField(group);
+      }
+    }
   };
 
   if (!inputComponentWrapper) {

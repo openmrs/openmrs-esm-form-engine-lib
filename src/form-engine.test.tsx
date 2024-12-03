@@ -877,6 +877,49 @@ describe('Form engine component', () => {
   });
 
   describe('Obs group', () => {
+    it('should save obs group on form submission', async () => {
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+      await act(async () => {
+        renderForm(null, obsGroupTestForm);
+      });
+
+      // Fill out the obs group fields
+      const dateOfBirth = screen.getByRole('textbox', { name: /date of birth/i });
+      const maleRadio = screen.getByRole('radio', { name: /^male$/i });
+
+      await user.click(dateOfBirth);
+      await user.paste('2020-09-09T00:00:00.000Z');
+      await user.click(maleRadio);
+
+      // Submit the form
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      // Verify the encounter was saved with the correct structure
+      expect(saveEncounterMock).toHaveBeenCalledTimes(1);
+
+      const [_, encounter] = saveEncounterMock.mock.calls[0];
+      expect(encounter.obs.length).toBe(1);
+      expect(encounter.obs[0]).toEqual({
+        groupMembers: [
+          {
+            value: '1534AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            concept: '1587AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            formFieldNamespace: 'rfe-forms',
+            formFieldPath: 'rfe-forms-childSex',
+          },
+          {
+            value: '2020-09-09',
+            concept: '164802AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            formFieldNamespace: 'rfe-forms',
+            formFieldPath: 'rfe-forms-birthDate',
+          },
+        ],
+        concept: '1c70c490-cafa-4c95-9fdd-a30b62bb78b8',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-myGroup',
+      });
+    });
+
     it('should test addition of a repeating group', async () => {
       await act(async () => {
         renderForm(null, obsGroupTestForm);
