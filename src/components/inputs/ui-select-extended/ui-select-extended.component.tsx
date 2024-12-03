@@ -149,7 +149,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
             selectedItem={selectedItem}
             placeholder={isSearchable ? t('search', 'Search') + '...' : null}
             shouldFilterItem={({ item, inputValue }) => {
-              if (!inputValue) {
+              if (!inputValue || items.find((item) => item.uuid == field.value)) {
                 // Carbon's initial call at component mount
                 return true;
               }
