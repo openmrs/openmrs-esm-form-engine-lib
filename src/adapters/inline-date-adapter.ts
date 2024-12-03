@@ -18,7 +18,7 @@ export const InlineDateAdapter: FormFieldValueAdapter = {
       } else {
         targetField.meta.submission.newValue.obsDatetime = dateString;
       }
-    } else if (!hasSubmission(targetField) && targetField.meta.initialValue) {
+    } else if (!hasSubmission(targetField) && targetField.meta.initialValue?.omrsObject) {
       if (isEmpty(value) && isEmpty((targetField.meta.initialValue.omrsObject as OpenmrsResource)?.obsDatetime)) {
         return null;
       }

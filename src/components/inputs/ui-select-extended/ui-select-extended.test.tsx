@@ -269,7 +269,7 @@ describe('UiSelectExtended', () => {
   });
 
   describe('Edit mode', () => {
-    fit('should initialize with the current value for both "non-searchable" and "searchable" instances', async () => {
+    it('should initialize with the current value for both "non-searchable" and "searchable" instances', async () => {
       await act(async () => {
         renderForm('edit');
       });
