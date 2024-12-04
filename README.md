@@ -99,7 +99,11 @@ pwd | pbcopy # copy the path to form-engine-lib to the clipboard
 Or the equivalent command on Linux:
 
 ```bash
-pwd -W | pbcopy # copy the path to form-engine-lib to the clipboard
+# Copy the path to clipboard
+pwd | xclip
+
+# Link the library using the copied path
+yarn link `xclip -o`
 ```
 
 3. Symlink the library to the consuming frontend module
