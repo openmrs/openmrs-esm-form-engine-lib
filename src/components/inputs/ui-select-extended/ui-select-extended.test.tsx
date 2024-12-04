@@ -253,18 +253,27 @@ describe('UiSelectExtended', () => {
       );
     });
 
-    it('should filter items based on user input', async () => {
+    it('should display all items regardless of user input', async () => {
       await act(async () => {
         renderForm();
       });
 
-      const transferLocationSelect = await findSelectInput(screen, 'Transfer Location');
+      const transferLocationSelect = await findSelectInput(screen, 'Transfer Location');    
+      // Open the dropdown
       await user.click(transferLocationSelect);
-      await user.type(transferLocationSelect, 'Nag');
-
+    
+      // Verify all items are displayed initially
+      expect(screen.getByText('Kololo')).toBeInTheDocument();
       expect(screen.getByText('Naguru')).toBeInTheDocument();
-      expect(screen.queryByText('Kololo')).not.toBeInTheDocument();
-      expect(screen.queryByText('Muyenga')).not.toBeInTheDocument();
+      expect(screen.getByText('Muyenga')).toBeInTheDocument();
+    
+      // Type some input
+      await user.type(transferLocationSelect, 'Nag');
+    
+      // Verify all items are still displayed
+      expect(screen.getByText('Kololo')).toBeInTheDocument();
+      expect(screen.getByText('Naguru')).toBeInTheDocument();
+      expect(screen.getByText('Muyenga')).toBeInTheDocument();
     });
   });
 
