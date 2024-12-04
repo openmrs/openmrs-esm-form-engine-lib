@@ -171,7 +171,7 @@ describe('CommonExpressionHelpers', () => {
     it('should return the correct number of months on ART', () => {
       const artStartDate = new Date('2020-01-01');
       const today = new Date();
-      const monthsOnART = Math.floor((today.getTime() - artStartDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
+      const monthsOnART = dayjs(today).diff(dayjs(artStartDate), 'months');
       expect(helpers.calcMonthsOnART(artStartDate)).toBe(monthsOnART);
     });
 
