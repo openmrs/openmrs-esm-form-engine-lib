@@ -137,7 +137,7 @@ Note that in addition to this library, other form engine alternatives exist with
 - [The HTML Form Entry module](https://github.com/openmrs/openmrs-module-htmlformentry)
 - [The Angular Form Engine](https://github.com/openmrs/openmrs-ngx-formentry)
 
-To use this library as the default form engine in your O3 instance, you will need to add this to your importmap:
+To use this library as the default form engine in your O3 instance, you will need to add this to your [spa-assemble-config.json](https://github.com/openmrs/openmrs-distro-referenceapplication/blob/main/frontend/spa-assemble-config.json) file:
 
 ```json
 {
