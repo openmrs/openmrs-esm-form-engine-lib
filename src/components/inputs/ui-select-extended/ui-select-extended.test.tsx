@@ -267,7 +267,7 @@ describe('UiSelectExtended', () => {
       expect(screen.getByText('Naguru')).toBeInTheDocument();
       expect(screen.getByText('Muyenga')).toBeInTheDocument();
     
-      // Type some input
+      // Type input
       await user.type(transferLocationSelect, 'Nag');
     
       // Verify all items are still displayed
