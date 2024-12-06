@@ -50,7 +50,7 @@ const Radio: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, 
               return (
                 <RadioButton
                   id={`${field.id}-${answer.label}`}
-                  labelText={answer.label ?? ''}
+                  labelText={t(answer.label) ?? ''}
                   value={answer.concept}
                   key={index}
                   onClick={(e) => {

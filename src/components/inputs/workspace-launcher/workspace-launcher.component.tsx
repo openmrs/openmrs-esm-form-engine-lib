@@ -28,7 +28,9 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
       <div>
         <div className={styles.label}>{t(field.label)}</div>
         <div className={styles.workspaceButton}>
-          <Button disabled={isTrue(field.readonly)}  onClick={handleLaunchWorkspace}>{field.questionOptions?.buttonLabel ?? t('launchWorkspace')}</Button>
+          <Button disabled={isTrue(field.readonly)} onClick={handleLaunchWorkspace}>
+            {t(field.questionOptions?.buttonLabel) ?? t('launchWorkspace', 'Launch Workspace')}
+          </Button>
         </div>
       </div>
     )

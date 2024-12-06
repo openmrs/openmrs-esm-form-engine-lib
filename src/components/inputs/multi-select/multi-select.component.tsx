@@ -22,7 +22,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
     .map((answer, index) => ({
       id: `${field.id}-${answer.concept}`,
       concept: answer.concept,
-      label: answer.label,
+      label: t(answer.label),
       key: index,
       disabled: answer.disable?.isDisabled,
       readonly: isTrue(field.readonly),
@@ -97,14 +97,14 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           <Layer>
             {isSearchable ? (
               <FilterableMultiSelect
+                id={field.id}
+                key={field.id}
                 placeholder={t('search', 'Search') + '...'}
                 onChange={handleSelectItemsChange}
-                id={t(field.label)}
                 items={selectOptions}
                 initialSelectedItems={initiallySelectedQuestionItems}
                 label={''}
                 titleText={label}
-                key={field.id}
                 itemToString={(item) => (item ? item.label : ' ')}
                 disabled={field.isDisabled}
                 invalid={errors.length > 0}
@@ -120,7 +120,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
                     <Checkbox
                       key={`${field.id}-${value.concept}`}
                       className={styles.checkbox}
-                      labelText={value.label}
+                      labelText={t(value.label)}
                       id={`${field.id}-${value.concept}`}
                       onChange={() => {
                         handleSelectCheckbox(value);

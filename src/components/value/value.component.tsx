@@ -1,10 +1,13 @@
 import React from 'react';
 import styles from './value.scss';
+import { useTranslation } from 'react-i18next';
 
 export const ValueEmpty = () => {
+  const { t } = useTranslation();
+
   return (
     <div>
-      <span className={styles.empty}>(Blank)</span>
+      <span className={styles.empty}>({t('blank', 'Blank')})</span>
     </div>
   );
 };
