@@ -27,9 +27,9 @@ const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warning
       let answer = field.questionOptions.answers.find((opt) => {
         return opt.value ? opt.value == item : opt.concept == item;
       });
-      return answer?.label;
+      return answer ? t(answer.label) : '';
     },
-    [field.questionOptions.answers],
+    [field.questionOptions.answers, t],
   );
 
   const items = useMemo(() => {
