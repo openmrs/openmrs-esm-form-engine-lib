@@ -148,13 +148,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
             itemToString={(item) => item?.display}
             selectedItem={selectedItem}
             placeholder={isSearchable ? t('search', 'Search') + '...' : null}
-            shouldFilterItem={({ item, inputValue }) => {
-              if (!inputValue) {
-                // Carbon's initial call at component mount
-                return true;
-              }
-              return item.display?.toLowerCase().includes(inputValue.toLowerCase());
-            }}
+            shouldFilterItem={() => true}
             onChange={({ selectedItem }) => {
               isProcessingSelection.current = true;
               setFieldValue(selectedItem?.uuid);
