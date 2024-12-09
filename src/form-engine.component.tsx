@@ -1,24 +1,24 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { FormField, FormSchema, SessionMode } from './types';
-import { useSession, type Visit } from '@openmrs/esm-framework';
-import { isEmpty, useFormJson } from '.';
-import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
-import Loader from './components/loaders/loader.component';
-import { usePatientData } from './hooks/usePatientData';
-import { FormFactoryProvider } from './provider/form-factory-provider';
 import classNames from 'classnames';
-import styles from './form-engine.scss';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
-import PatientBanner from './components/patient-banner/patient-banner.component';
-import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
+import { useSession, type Visit } from '@openmrs/esm-framework';
+import { FormFactoryProvider } from './provider/form-factory-provider';
 import { init, teardown } from './lifecycle';
-import { reportError } from './utils/error-utils';
+import { isEmpty, useFormJson } from '.';
 import { moduleName } from './globals';
+import { reportError } from './utils/error-utils';
 import { useFormCollapse } from './hooks/useFormCollapse';
-import Sidebar from './components/sidebar/sidebar.component';
 import { useFormWorkspaceSize } from './hooks/useFormWorkspaceSize';
 import { usePageObserver } from './components/sidebar/usePageObserver';
+import { usePatientData } from './hooks/usePatientData';
+import type { FormField, FormSchema, SessionMode } from './types';
+import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
+import Loader from './components/loaders/loader.component';
+import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
+import PatientBanner from './components/patient-banner/patient-banner.component';
+import Sidebar from './components/sidebar/sidebar.component';
+import styles from './form-engine.scss';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -176,7 +176,11 @@ const FormEngine = ({
                       }}>
                       {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
                     </Button>
-                    <Button type="submit" disabled={isLoadingDependencies || mode === 'view'}>
+                    <Button
+                      className={styles.saveButton}
+                      disabled={isLoadingDependencies || isSubmitting || mode === 'view'}
+                      kind="primary"
+                      type="submit">
                       {isSubmitting ? (
                         <InlineLoading description={t('submitting', 'Submitting') + '...'} />
                       ) : (

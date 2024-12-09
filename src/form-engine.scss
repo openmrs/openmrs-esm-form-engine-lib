@@ -1,3 +1,5 @@
+@use '@carbon/layout';
+
 // replaces .formEngine
 .form {
   height: 100%;
@@ -136,5 +138,11 @@
   100% {
     left: 100%;
     width: 10%;
+  }
+}
+
+.saveButton {
+  &:global(.cds--inline-loading) {
+    min-height: layout.$spacing-05;
   }
 }

@@ -1,13 +1,12 @@
 import React from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@carbon/react';
-import { type FormPage, type SessionMode } from '../../types';
-import styles from './sidebar.scss';
-import { usePageObserver } from './usePageObserver';
-import { useCurrentActivePage } from './useCurrentActivePage';
+import { Button, InlineLoading } from '@carbon/react';
 import { isPageContentVisible } from '../../utils/form-helper';
-import { InlineLoading } from '@carbon/react';
+import { useCurrentActivePage } from './useCurrentActivePage';
+import { usePageObserver } from './usePageObserver';
+import type { FormPage, SessionMode } from '../../types';
+import styles from './sidebar.scss';
 
 interface SidebarProps {
   defaultPage: string;
