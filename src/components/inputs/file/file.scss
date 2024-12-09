@@ -1,3 +1,6 @@
+@use '@carbon/colors';
+@use '@openmrs/esm-styleguide/src/vars' as *;
+
 .label {
   font-family: IBM Plex Sans;
   font-size: 14px;
@@ -5,7 +8,12 @@
   font-weight: 600;
   line-height: 30px; /* 128.571% */
   letter-spacing: 0.16px;
-  color: #000000;
+  color: colors.$black-100;
+}
+
+.boldedLabel label {
+  font-weight: 600;
+  color: colors.$black-100;
 }
 
 .saveFile {
@@ -30,8 +38,30 @@
   margin-bottom: 1rem;
 }
 
-.selectorButton {
-  margin-right: 1rem;
+.fileInputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .uploadSelector {
+    display: flex;
+    gap: 1rem;
+    
+    .uploadFileButton, .cameraCaptureButton {
+      min-width: 150px;
+      @include brand-03(background-color);
+      color: white;
+      
+      &:hover {
+        @include brand-03(background-color);
+      }
+      
+      &:disabled {
+        background-color: #cccccc;
+        color: #666666;
+      }
+    }
+  }
 }
 
 .caption {
@@ -44,18 +74,26 @@
 }
 
 .fileUploader {
-  background-color: rgb(255, 255, 255);
+  background-color: colors.$white;
   padding: 1rem;
 }
 
 .cameraUploader {
   margin: 1rem 0;
-  background-color: white;
+  background-color: colors.$white;
   padding: 1rem;
 }
 
 .camButton {
   margin-bottom: 1rem;
+}
+
+.cameraToggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
 }
 
 .cameraPreview {
@@ -68,7 +106,7 @@
 }
 
 .titleStyles {
-  color: #161616;
+  color: colors.$gray-100;
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.16px;
@@ -77,7 +115,7 @@
 }
 
 .descriptionStyles {
-  color: #525252;
+  color: colors.$gray-70;
   font-size: 0.875rem;
   font-weight: 400;
   letter-spacing: 0.16px;
@@ -86,13 +124,13 @@
 }
 
 .editModeImage {
-  background-color: white;
+  background-color: colors.$white;
   padding: 1rem;
 }
 
 .pdfThumbnail {
   cursor: pointer;
-  background-color: gray;
+  background-color: colors.$cool-gray-50;
   display: flex;
   justify-content: center;
   align-items: center;
