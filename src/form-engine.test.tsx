@@ -877,6 +877,50 @@ describe('Form engine component', () => {
   });
 
   describe('Obs group', () => {
+    it('should not render empty obs group', async () => {
+      await act(async () => {
+        renderForm(null, obsGroupTestForm);
+      });
+
+      // Check that only one obs group is initially rendered
+      const initialGroups = screen.getAllByRole('group', { name: /My Group|Dependents Group/i });
+      expect(initialGroups.length).toBe(1);
+      const dependentTypeRadios = screen.queryAllByRole('radio', { name: /child|spouse/i });
+      expect(dependentTypeRadios.length).toBe(0);
+
+      // Select "Yes" for having dependents
+      const yesRadio = screen.getByRole('radio', { name: /yes/i });
+      await user.click(yesRadio);
+
+      // Now the dependent type radios should be visible
+      const visibleDependentTypeRadios = screen.getAllByRole('radio', { name: /child|spouse/i });
+      expect(visibleDependentTypeRadios.length).toBe(2);
+
+      // Check that the group label is still hidden since it only has one visible field
+      const dependentsGroupResults = screen.queryAllByRole('group', { name: /Dependents Group/i });
+      expect(dependentsGroupResults.length).toBe(0);
+
+      // Check that dependent name and age are still hidden
+      const hiddenDependentNameInput = screen.queryByRole('textbox', { name: /dependent name/i });
+      const hiddenDependentAgeInput = screen.queryByRole('spinbutton', { name: /dependent age/i });
+      expect(hiddenDependentNameInput).toBeNull();
+      expect(hiddenDependentAgeInput).toBeNull();
+
+      // Select "Child" as dependent type
+      await user.click(visibleDependentTypeRadios[0]);
+
+      // Check the visibility of the group label
+      const dependentsGroup = screen.getAllByRole('group', { name: /Dependents Group/i })[0];
+      expect(dependentsGroup).toBeInTheDocument();
+
+      // Check that dependent name and age are now visible
+      const dependentNameInput = screen.getByRole('textbox', { name: /dependent name/i });
+      const dependentAgeInput = screen.getByRole('spinbutton', { name: /dependent age/i });
+
+      expect(dependentNameInput).toBeInTheDocument();
+      expect(dependentAgeInput).toBeInTheDocument();
+    });
+
     it('should save obs group on form submission', async () => {
       const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
       await act(async () => {
