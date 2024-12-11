@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { type FetchResponse, type OpenmrsResource, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import useSWRInfinite from 'swr/infinite';
+import { type FetchResponse, type OpenmrsResource, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 
 type ConceptFetchResponse = FetchResponse<{ results: Array<OpenmrsResource> }>;
 
@@ -12,7 +12,6 @@ export function useConcepts(references: Set<string>): {
   isLoading: boolean;
   error: Error | undefined;
 } {
-
   const chunkSize = 100;
   const totalCount = references.size;
   const totalPages = Math.ceil(totalCount / chunkSize);

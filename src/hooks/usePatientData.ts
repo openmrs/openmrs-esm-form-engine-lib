@@ -24,7 +24,7 @@ const patientGenderMap = {
 export const usePatientData = (patientUuid) => {
   const { patient, isLoading: isLoadingPatient, error: patientError } = usePatient(patientUuid);
   if (patient && !isLoadingPatient) {
-    // This is to support backward compatibility with the AMPATH JSON format
+    // This is for backward compatibility with the Angular form engine
     patient['age'] = calculateAge(new Date(patient?.birthDate));
     patient['sex'] = patientGenderMap[patient.gender] ?? 'U';
   }
