@@ -11,6 +11,8 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
   const [error, setError] = useState(validateFormsArgs(formUuid, rawFormJson));
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     const setFormJsonWithTranslations = (formJson: FormSchema) => {
       if (formJson?.translations) {
         const language = window.i18next.language;
@@ -24,9 +26,15 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
         setFormJsonWithTranslations({ ...formJson, encounter: encounterUuid });
       })
       .catch((error) => {
-        console.error(error);
-        setError(new Error('Error loading form JSON: ' + error.message));
+        if (error.name !== 'AbortError') {
+          console.error(error);
+          setError(new Error('Error loading form JSON: ' + error.message));
+        }
       });
+
+    return () => {
+      abortController.abort();
+    };
   }, [formSessionIntent, formUuid, rawFormJson, encounterUuid]);
 
   return {

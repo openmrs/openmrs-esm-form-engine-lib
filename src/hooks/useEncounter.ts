@@ -11,8 +11,12 @@ export function useEncounter(formJson: FormSchema) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     if (!isEmpty(formJson.encounter) && isString(formJson.encounter)) {
-      openmrsFetch(`${restBaseUrl}/encounter/${formJson.encounter}?v=${encounterRepresentation}`)
+      openmrsFetch(`${restBaseUrl}/encounter/${formJson.encounter}?v=${encounterRepresentation}`, {
+        signal: abortController.signal,
+      })
         .then((response) => {
           setEncounter(response.data);
           setIsLoading(false);
@@ -26,6 +30,10 @@ export function useEncounter(formJson: FormSchema) {
     } else {
       setIsLoading(false);
     }
+
+    return () => {
+      abortController.abort();
+    };
   }, [formJson.encounter]);
 
   return { encounter: encounter, error, isLoading };
