@@ -15,6 +15,7 @@ export const OrdersAdapter: FormFieldValueAdapter = {
     }
     const newValue = constructNewOrder(value, field, context.currentProvider.uuid);
     gracefullySetSubmission(field, newValue, null);
+
     return newValue;
   },
   getInitialValue: function (
