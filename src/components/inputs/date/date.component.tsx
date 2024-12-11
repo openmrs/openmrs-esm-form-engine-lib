@@ -113,7 +113,7 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
                 id={field.id}
                 labelText={timePickerLabel}
                 placeholder="HH:MM"
-                pattern="(1[012]|[1-9]):[0-5][0-9])$"
+                pattern="(1[012]|[1-9]):[0-5][0-9]$"
                 type="time"
                 disabled={field.datePickerFormat === 'timer' ? field.isDisabled : !dateValue ? true : false}
                 invalid={errors.length > 0}
