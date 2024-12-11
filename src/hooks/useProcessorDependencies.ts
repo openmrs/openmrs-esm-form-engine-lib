@@ -13,17 +13,27 @@ const useProcessorDependencies = (
   const { loadDependencies } = formProcessor;
 
   useEffect(() => {
+    let ignore = false;
+
     if (loadDependencies) {
       setIsLoading(true);
       loadDependencies(context, setContext)
-        .then((results) => {
-          setIsLoading(false);
+        .then(() => {
+          if (!ignore) {
+            setIsLoading(false);
+          }
         })
         .catch((error) => {
-          setError(error);
-          reportError(error, 'Encountered error while loading dependencies');
+          if (!ignore) {
+            setError(error);
+            reportError(error, 'Encountered error while loading dependencies');
+          }
         });
     }
+
+    return () => {
+      ignore = true;
+    };
   }, [loadDependencies]);
 
   return { isLoading, error };

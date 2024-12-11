@@ -9,19 +9,29 @@ export const usePatientPrograms = (patientUuid: string, formJson: FormSchema) =>
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     if (formJson.meta?.programs?.hasProgramFields) {
-      openmrsFetch(`${restBaseUrl}/programenrollment?patient=${patientUuid}&v=${customRepresentation}`)
+      openmrsFetch(`${restBaseUrl}/programenrollment?patient=${patientUuid}&v=${customRepresentation}`, {
+        signal: abortController.signal,
+      })
         .then((response) => {
           setPatientPrograms(response.data.results.filter((enrollment) => enrollment.dateCompleted === null));
           setIsLoading(false);
         })
         .catch((error) => {
-          setError(error);
-          setIsLoading(false);
+          if (error.name !== 'AbortError') {
+            setError(error);
+            setIsLoading(false);
+          }
         });
     } else {
       setIsLoading(false);
     }
+
+    return () => {
+      abortController.abort();
+    };
   }, [formJson]);
 
   return {
