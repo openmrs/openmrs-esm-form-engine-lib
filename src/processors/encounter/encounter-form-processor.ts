@@ -1,17 +1,5 @@
-import {
-  type FormField,
-  type FormPage,
-  type FormProcessorContextProps,
-  type FormSchema,
-  type FormSection,
-  type ValueAndDisplay,
-} from '../../types';
-import { usePatientPrograms } from '../../hooks/usePatientPrograms';
 import { useEffect, useState } from 'react';
-import { useEncounter } from '../../hooks/useEncounter';
-import { isEmpty } from '../../validators/form-validator';
-import { type FormContextProps } from '../../provider/form-provider';
-import { FormProcessor } from '../form-processor';
+import { type OpenmrsResource, showSnackbar, translateFrom } from '@openmrs/esm-framework';
 import {
   getMutableSessionProps,
   hydrateRepeatField,
@@ -23,23 +11,32 @@ import {
   savePatientIdentifiers,
   savePatientPrograms,
 } from './encounter-processor-helper';
-import { type OpenmrsResource, showSnackbar, translateFrom } from '@openmrs/esm-framework';
-import { moduleName } from '../../globals';
-import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
-import { getPreviousEncounter, saveEncounter } from '../../api';
-import { useEncounterRole } from '../../hooks/useEncounterRole';
+import {
+  type FormField,
+  type FormPage,
+  type FormProcessorContextProps,
+  type FormSchema,
+  type FormSection,
+  type ValueAndDisplay,
+} from '../../types';
 import { evaluateAsyncExpression, type FormNode } from '../../utils/expression-runner';
-import { hasRendering } from '../../utils/common-utils';
+import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
 import { extractObsValueAndDisplay } from '../../utils/form-helper';
+import { FormProcessor } from '../form-processor';
+import { getPreviousEncounter, saveEncounter } from '../../api';
+import { hasRendering } from '../../utils/common-utils';
+import { isEmpty } from '../../validators/form-validator';
+import { moduleName } from '../../globals';
+import { type FormContextProps } from '../../provider/form-provider';
+import { useEncounter } from '../../hooks/useEncounter';
+import { useEncounterRole } from '../../hooks/useEncounterRole';
+import { usePatientPrograms } from '../../hooks/usePatientPrograms';
 
 function useCustomHooks(context: Partial<FormProcessorContextProps>) {
   const [isLoading, setIsLoading] = useState(true);
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(context.formJson);
   const { encounterRole, isLoading: isLoadingEncounterRole } = useEncounterRole();
-  const { isLoading: isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(
-    context.patient?.id,
-    context.formJson,
-  );
+  const { isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(context.patient?.id, context.formJson);
 
   useEffect(() => {
     setIsLoading(isLoadingPatientPrograms || isLoadingEncounter || isLoadingEncounterRole);

@@ -165,6 +165,10 @@ export interface PatientProgram extends OpenmrsResource {
   states?: Array<ProgramWorkflowState>;
 }
 
+export interface ProgramsFetchResponse {
+  results: Array<PatientProgram>;
+}
+
 export interface PatientProgramPayload {
   program?: string;
   uuid?: string;
