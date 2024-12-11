@@ -9,6 +9,7 @@ import { moduleName } from '../globals';
 export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: string, formSessionIntent: string) {
   const [formJson, setFormJson] = useState<FormSchema>(null);
   const [error, setError] = useState(validateFormsArgs(formUuid, rawFormJson));
+
   useEffect(() => {
     const setFormJsonWithTranslations = (formJson: FormSchema) => {
       if (formJson?.translations) {
@@ -17,6 +18,7 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
       }
       setFormJson(formJson);
     };
+
     loadFormJson(formUuid, rawFormJson, formSessionIntent)
       .then((formJson) => {
         setFormJsonWithTranslations({ ...formJson, encounter: encounterUuid });

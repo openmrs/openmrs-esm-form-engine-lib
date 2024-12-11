@@ -92,7 +92,6 @@ jest.mock('../src/api', () => {
   };
 });
 
-jest.mock('./hooks/useRestMaxResultsCount', () => jest.fn().mockReturnValue({ systemSetting: { value: '50' } }));
 jest.mock('./hooks/useEncounterRole', () => ({
   useEncounterRole: jest.fn().mockReturnValue({
     isLoading: false,

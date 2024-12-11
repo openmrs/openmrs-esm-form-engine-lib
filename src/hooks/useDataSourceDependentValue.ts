@@ -1,6 +1,6 @@
+import { useWatch } from 'react-hook-form';
 import { type FormField } from '../types';
 import { useFormProviderContext } from '../provider/form-provider';
-import { useWatch } from 'react-hook-form';
 
 const useDataSourceDependentValue = (field: FormField) => {
   const dependentField = field.questionOptions['config']?.referencedField;

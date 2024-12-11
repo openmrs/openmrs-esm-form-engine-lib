@@ -1,5 +1,5 @@
-import type { FormExpanded, SessionMode } from '../types';
 import { useCallback, useEffect, useState } from 'react';
+import type { FormExpanded, SessionMode } from '../types';
 
 export function useFormCollapse(sessionMode: SessionMode) {
   const [isFormExpanded, setIsFormExpanded] = useState<FormExpanded>(undefined);
