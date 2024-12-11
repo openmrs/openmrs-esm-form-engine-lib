@@ -9,13 +9,13 @@ import { useTranslation } from 'react-i18next';
 
 export const ObsGroup: React.FC<FormFieldInputProps> = ({ field, ...restProps }) => {
   const { t } = useTranslation();
-  const { formFieldAdapters } = useFormProviderContext();
-  const showLabel = useMemo(() => field.questions?.length > 1, [field]);
+  const { formFieldAdapters, formFields } = useFormProviderContext();
 
   const content = useMemo(
     () =>
       field.questions
-        ?.filter((child) => !child.isHidden)
+        .map((child) => formFields.find((field) => field.id === child.id))
+        .filter((child) => !child.isHidden)
         .map((child, index) => {
           const key = `${child.id}_${index}`;
 
@@ -35,12 +35,12 @@ export const ObsGroup: React.FC<FormFieldInputProps> = ({ field, ...restProps })
             );
           }
         }),
-    [field],
+    [field, formFields],
   );
 
   return (
     <div className={styles.groupContainer}>
-      {showLabel ? (
+      {content.length > 1 ? (
         <FormGroup legendText={t(field.label)} className={styles.boldLegend}>
           {content}
         </FormGroup>
