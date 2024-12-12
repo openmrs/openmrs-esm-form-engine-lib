@@ -84,6 +84,7 @@ export interface FormField {
   questionInfo?: string;
   historicalExpression?: string;
   constrainMaxWidth?: boolean;
+  hideSteppers?: boolean;
   /** @deprecated */
   inlineMultiCheckbox?: boolean;
   meta?: QuestionMetaProps;
@@ -143,6 +144,10 @@ export interface FormQuestionOptions {
    */
   max?: string;
   min?: string;
+  /**
+   * specifies the increment or decrement step for number field values
+   */
+  step?: number;
   /**
    * maxLength and maxLength are used to validate text field length
    */
