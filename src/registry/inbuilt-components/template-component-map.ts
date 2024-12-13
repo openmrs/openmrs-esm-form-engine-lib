@@ -25,8 +25,4 @@ export const templateToComponentMap = [
     name: 'encounter-role',
     baseControlComponent: UiSelectExtended,
   },
-  {
-    name: 'person_attribute_location_datasource',
-    baseControlComponent: UiSelectExtended,
-  },
 ];

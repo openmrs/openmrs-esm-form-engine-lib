@@ -123,14 +123,21 @@ async function refineFormJson(
   schemaTransformers: FormSchemaTransformer[] = [],
   formSessionIntent?: string,
 ): Promise<FormSchema> {
-  removeInlineSubForms(formJson, formSessionIntent);
-  // apply form schema transformers
-  for (let transformer of schemaTransformers) {
-    const draftForm = await transformer.transform(formJson);
-    formJson = draftForm;
-  }
-  setEncounterType(formJson);
-  return applyFormIntent(formSessionIntent, formJson);
+  await removeInlineSubForms(formJson, formSessionIntent);
+  const transformedFormJson = await schemaTransformers.reduce(async (form, transformer) => {
+    const currentForm = await form;
+    if (isPromise(transformer.transform(currentForm))) {
+      return transformer.transform(currentForm);
+    } else {
+      return transformer.transform(currentForm);
+    }
+  }, Promise.resolve(formJson));
+  setEncounterType(transformedFormJson);
+  return applyFormIntent(formSessionIntent, transformedFormJson);
+}
+
+function isPromise(value: any): value is Promise<any> {
+  return value && typeof value.then === 'function';
 }
 
 /**
