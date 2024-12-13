@@ -171,9 +171,10 @@ export async function getRegisteredFieldValueAdapter(type: string): Promise<Form
 }
 
 export async function getRegisteredFormSchemaTransformers(): Promise<FormSchemaTransformer[]> {
-  const transformers: FormSchemaTransformer[] = [];
+  const transformers: Array<FormSchemaTransformer> = [];
 
   const cachedTransformers = registryCache.formSchemaTransformers;
+
   if (Object.keys(cachedTransformers).length) {
     return Object.values(cachedTransformers);
   }

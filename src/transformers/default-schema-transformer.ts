@@ -2,36 +2,26 @@ import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormField, type FormSchema, type FormSchemaTransformer, type RenderType, type FormPage } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { hasRendering } from '../utils/common-utils';
-import { getPersonAttributeTypeFormat } from '../api/';
 
 export type RenderTypeExtended = 'multiCheckbox' | 'numeric' | RenderType;
 
 export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
-  transform: async (form: FormSchema): Promise<FormSchema> => {
-    try {
-      parseBooleanTokenIfPresent(form, 'readonly');
-      for (const [index, page] of form.pages.entries()) {
-        const label = page.label ?? '';
-        page.id = `page-${label.replace(/\s/g, '')}-${index}`;
-        parseBooleanTokenIfPresent(page, 'readonly');
-        if (page.sections) {
-          for (const section of page.sections) {
-            section.questions = handleQuestionsWithDateOptions(section.questions);
-            section.questions = handleQuestionsWithObsComments(section.questions);
-            parseBooleanTokenIfPresent(section, 'readonly');
-            parseBooleanTokenIfPresent(section, 'isExpanded');
-            if (section.questions) {
-              section.questions = await Promise.all(
-                section.questions.map((question) => handleQuestion(question, page, form)),
-              );
-            }
-          }
-        }
+  transform: (form: FormSchema) => {
+    parseBooleanTokenIfPresent(form, 'readonly');
+    form.pages.forEach((page, index) => {
+      const label = page.label ?? '';
+      page.id = `page-${label.replace(/\s/g, '')}-${index}`;
+      parseBooleanTokenIfPresent(page, 'readonly');
+      if (page.sections) {
+        page.sections.forEach((section) => {
+          section.questions = handleQuestionsWithDateOptions(section.questions);
+          section.questions = handleQuestionsWithObsComments(section.questions);
+          parseBooleanTokenIfPresent(section, 'readonly');
+          parseBooleanTokenIfPresent(section, 'isExpanded');
+          section?.questions?.forEach((question, index) => handleQuestion(question, page, form));
+        });
       }
-    } catch (error) {
-      console.error('Error in form transformation:', error);
-      throw error;
-    }
+    });
     if (form.meta?.programs) {
       handleProgramMetaTags(form);
     }
@@ -39,7 +29,7 @@ export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
   },
 };
 
-async function handleQuestion(question: FormField, page: FormPage, form: FormSchema): Promise<FormField> {
+function handleQuestion(question: FormField, page: FormPage, form: FormSchema) {
   if (question.type === 'programState') {
     const formMeta = form.meta ?? {};
     formMeta.programs = formMeta.programs
@@ -50,20 +40,17 @@ async function handleQuestion(question: FormField, page: FormPage, form: FormSch
   try {
     sanitizeQuestion(question);
     setFieldValidators(question);
-    await transformByType(question);
+    transformByType(question);
     transformByRendering(question);
 
     if (question.questions?.length) {
       if (question.type === 'obsGroup' && question.questions.length) {
         question.questions.forEach((nestedQuestion) => handleQuestion(nestedQuestion, page, form));
       } else {
-        question.questions = await Promise.all(
-          question.questions.map((nestedQuestion) => handleQuestion(nestedQuestion, page, form)),
-        );
+        question.questions.forEach((nestedQuestion) => handleQuestion(nestedQuestion, page, form));
       }
     }
     question.meta.pageId = page.id;
-    return question;
   } catch (error) {
     console.error(error);
   }
@@ -121,7 +108,7 @@ function sanitizeQuestion(question: FormField) {
   }
 }
 
-function parseBooleanTokenIfPresent(node: any, token: any) {
+export function parseBooleanTokenIfPresent(node: any, token: any) {
   if (node && typeof node[token] === 'string') {
     const trimmed = node[token].trim().toLowerCase();
     if (trimmed === 'true' || trimmed === 'false') {
@@ -145,7 +132,7 @@ function setFieldValidators(question: FormField) {
   }
 }
 
-async function transformByType(question: FormField) {
+function transformByType(question: FormField) {
   switch (question.type) {
     case 'encounterProvider':
       question.questionOptions.rendering = 'encounter-provider';
@@ -161,13 +148,8 @@ async function transformByType(question: FormField) {
         ? 'date'
         : question.questionOptions.rendering;
       break;
-<<<<<<< HEAD
     case 'diagnosis':
       handleDiagnosis(question);
-=======
-    case 'personAttribute':
-      await handlePersonAttributeType(question);
->>>>>>> 777dea6 ((feat) O3-3367 Add support for person attributes)
       break;
   }
 }

@@ -25,6 +25,10 @@ export interface FormSchema {
       hasProgramFields?: boolean;
       [anythingElse: string]: any;
     };
+    personAttributes?: {
+      hasPersonAttributeFields?: boolean;
+      [anythingElse: string]: any;
+    };
   };
 }
 

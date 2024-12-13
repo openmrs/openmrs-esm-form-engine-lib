@@ -169,16 +169,6 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
             itemToString={(item) => item?.display}
             selectedItem={selectedItem}
             placeholder={isSearchable ? t('search', 'Search') + '...' : null}
-<<<<<<< HEAD
-=======
-            shouldFilterItem={({ item, inputValue }) => {
-              if (!inputValue || items.find((item) => item.uuid == field.value)) {
-                // Carbon's initial call at component mount
-                return true;
-              }
-              return item.display?.toLowerCase().includes(inputValue.toLowerCase());
-            }}
->>>>>>> 5510d0b ((feat) O3-3367 Add support for person attributes)
             onChange={({ selectedItem }) => {
               isProcessingSelection.current = true;
               setFieldValue(selectedItem?.uuid);

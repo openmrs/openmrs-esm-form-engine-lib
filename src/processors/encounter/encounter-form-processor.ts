@@ -39,11 +39,11 @@ function useCustomHooks(context: Partial<FormProcessorContextProps>) {
   const [isLoading, setIsLoading] = useState(true);
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(context.formJson);
   const { encounterRole, isLoading: isLoadingEncounterRole } = useEncounterRole();
-  const { isLoading: isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(
+  const { isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(context.patient?.id, context.formJson);
+  const { isLoading: isLoadingPersonAttributes, personAttributes } = usePersonAttributes(
     context.patient?.id,
     context.formJson,
   );
-  const { isLoading: isLoadingPersonAttributes, personAttributes } = usePersonAttributes(context.patient?.id);
 
   useEffect(() => {
     setIsLoading(isLoadingPatientPrograms || isLoadingEncounter || isLoadingEncounterRole || isLoadingPersonAttributes);
@@ -170,9 +170,9 @@ export class EncounterFormProcessor extends FormProcessor {
 
     // save person attributes
     try {
-      const personattributes = preparePersonAttributes(context.formFields, context.location?.uuid);
-      const savedPrograms = await savePersonAttributes(context.patient, personattributes);
-      if (savedPrograms?.length) {
+      const personAttributes = preparePersonAttributes(context.formFields, context.location?.uuid);
+      const savedAttributes = await savePersonAttributes(context.patient, personAttributes);
+      if (savedAttributes?.length) {
         showSnackbar({
           title: translateFn('personAttributesSaved', 'Person attribute(s) saved successfully'),
           kind: 'success',
@@ -181,12 +181,12 @@ export class EncounterFormProcessor extends FormProcessor {
       }
     } catch (error) {
       const errorMessages = extractErrorMessagesFromResponse(error);
-      return Promise.reject({
+      throw {
         title: translateFn('errorSavingPersonAttributes', 'Error saving person attributes'),
         description: errorMessages.join(', '),
         kind: 'error',
         critical: true,
-      });
+      };
     }
 
     // save encounter

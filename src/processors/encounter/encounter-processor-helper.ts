@@ -160,9 +160,7 @@ export function saveAttachments(fields: FormField[], encounter: OpenmrsEncounter
 }
 
 export function savePersonAttributes(patient: fhir.Patient, attributes: PersonAttribute[]) {
-  return attributes.map((personAttribute) => {
-    return savePersonAttribute(personAttribute, patient.id);
-  });
+  return attributes.map((personAttribute) => savePersonAttribute(personAttribute, patient.id));
 }
 
 export function getMutableSessionProps(context: FormContextProps) {
