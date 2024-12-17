@@ -70,14 +70,14 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           onBlur={onBlur}
           allowEmpty={true}
           size="lg"
-          hideSteppers={field.hideSteppers || false}
+          hideSteppers={field.hideSteppers ?? false}
           onWheel={(e) => e.target.blur()}
           disabled={field.isDisabled}
           readOnly={isTrue(field.readonly)}
           className={classNames(styles.controlWidthConstrained, styles.boldedLabel)}
           warn={warnings.length > 0}
           warnText={warnings[0]?.message}
-          step={field.questionOptions.step || 0.01}
+          step={field.questionOptions.step ?? 0.01}
         />
       </Layer>
     )
