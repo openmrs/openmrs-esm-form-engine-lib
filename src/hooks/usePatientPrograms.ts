@@ -1,42 +1,38 @@
+import useSWR from 'swr';
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
-import { useEffect, useState } from 'react';
-import { type FormSchema, type PatientProgram } from '../types';
-const customRepresentation = `custom:(uuid,display,program:(uuid,name,allWorkflows),dateEnrolled,dateCompleted,location:(uuid,display),states:(startDate,endDate,state:(uuid,name,retired,concept:(uuid),programWorkflow:(uuid)))`;
+import type { FormSchema, ProgramsFetchResponse } from '../types';
 
-export const usePatientPrograms = (patientUuid: string, formJson: FormSchema) => {
-  const [patientPrograms, setPatientPrograms] = useState<Array<PatientProgram>>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+const useActiveProgramEnrollments = (patientUuid: string) => {
+  const customRepresentation = `custom:(uuid,display,program:(uuid,name,allWorkflows),dateEnrolled,dateCompleted,location:(uuid,display),states:(startDate,endDate,state:(uuid,name,retired,concept:(uuid),programWorkflow:(uuid)))`;
+  const apiUrl = `${restBaseUrl}/programenrollment?patient=${patientUuid}&v=${customRepresentation}`;
 
-  useEffect(() => {
-    const abortController = new AbortController();
+  const { data, error, isLoading } = useSWR<{ data: ProgramsFetchResponse }, Error>(
+    patientUuid ? apiUrl : null,
+    openmrsFetch,
+  );
 
-    if (formJson.meta?.programs?.hasProgramFields) {
-      openmrsFetch(`${restBaseUrl}/programenrollment?patient=${patientUuid}&v=${customRepresentation}`, {
-        signal: abortController.signal,
-      })
-        .then((response) => {
-          setPatientPrograms(response.data.results.filter((enrollment) => enrollment.dateCompleted === null));
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          if (error.name !== 'AbortError') {
-            setError(error);
-            setIsLoading(false);
-          }
-        });
-    } else {
-      setIsLoading(false);
-    }
+  const sortedEnrollments =
+    data?.data?.results.length > 0
+      ? data?.data.results.sort((a, b) => (b.dateEnrolled > a.dateEnrolled ? 1 : -1))
+      : null;
 
-    return () => {
-      abortController.abort();
-    };
-  }, [formJson]);
+  const activePrograms = sortedEnrollments?.filter((enrollment) => !enrollment.dateCompleted);
 
   return {
-    patientPrograms,
+    activePrograms,
     error,
     isLoading,
+  };
+};
+
+export const usePatientPrograms = (patientUuid: string, formJson: FormSchema) => {
+  const { activePrograms, error, isLoading } = useActiveProgramEnrollments(
+    formJson.meta?.programs?.hasProgramFields ? patientUuid : null,
+  );
+
+  return {
+    patientPrograms: activePrograms,
+    errorFetchingPatientPrograms: error,
+    isLoadingPatientPrograms: isLoading,
   };
 };
