@@ -108,7 +108,7 @@ function sanitizeQuestion(question: FormField) {
   }
 }
 
-function parseBooleanTokenIfPresent(node: any, token: any) {
+export function parseBooleanTokenIfPresent(node: any, token: any) {
   if (node && typeof node[token] === 'string') {
     const trimmed = node[token].trim().toLowerCase();
     if (trimmed === 'true' || trimmed === 'false') {

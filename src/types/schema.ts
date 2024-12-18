@@ -25,6 +25,10 @@ export interface FormSchema {
       hasProgramFields?: boolean;
       [anythingElse: string]: any;
     };
+    personAttributes?: {
+      hasPersonAttributeFields?: boolean;
+      [anythingElse: string]: any;
+    };
   };
 }
 
@@ -192,6 +196,7 @@ export interface FormQuestionOptions {
   comment?: string;
   orientation?: 'vertical' | 'horizontal';
   shownCommentOptions?: { validators?: Array<Record<string, any>>; hide?: { hideWhenExpression: string } };
+  attributeType?: string;
 }
 
 export interface QuestionAnswerOption {
