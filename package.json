@@ -1,6 +1,6 @@
 {
   "name": "@openmrs/esm-form-engine-lib",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "React Form Engine for O3",
   "browser": "dist/openmrs-esm-form-engine-lib.js",
   "main": "src/index.ts",
@@ -39,8 +39,8 @@
     "react-webcam": "^7.2.0"
   },
   "peerDependencies": {
-    "@openmrs/esm-framework": "5.x",
-    "@openmrs/esm-patient-common-lib": "8.x",
+    "@openmrs/esm-framework": "6.x",
+    "@openmrs/esm-patient-common-lib": "9.x",
     "dayjs": "1.x",
     "i18next": "23.x",
     "react": "18.x",
