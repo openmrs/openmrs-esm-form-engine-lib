@@ -3,13 +3,14 @@ import { FileUploader, Button } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { isTrue } from '../../../utils/boolean-utils';
 import Camera from './camera/camera.component';
-import { Close, DocumentPdf } from '@carbon/react/icons';
+import { Close, DocumentPdf, TrashCan } from '@carbon/react/icons';
 import styles from './file.scss';
 import { type FormFieldInputProps } from '../../../types';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import { isViewMode } from '../../../utils/common-utils';
 import FieldValueView from '../../value/view/field-value-view.component';
 import FieldLabel from '../../field-label/field-label.component';
+import { deleteAttachmentPermanently, showSnackbar, useAbortController } from '@openmrs/esm-framework';
 
 type DataSourceType = 'filePicker' | 'camera' | null;
 
@@ -19,6 +20,34 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
   const [imagePreview, setImagePreview] = useState(null);
   const [dataSource, setDataSource] = useState<DataSourceType>(null);
   const { sessionMode } = useFormProviderContext();
+
+  const abortController = useAbortController();
+
+  const handleDeleteAttachment = useCallback(() => {
+    if (value && value.id) {
+      deleteAttachmentPermanently(value.id, abortController)
+        .then(() => {
+          setFieldValue(null);
+          showSnackbar({
+            title: t('fileDeleted', 'File deleted'),
+            subtitle: t('successfullyDeleted', 'File successfully deleted'),
+            kind: 'success',
+            isLowContrast: true,
+          });
+        })
+        .catch((error) => {
+          if (error.name !== 'AbortError') {
+            showSnackbar({
+              title: t('error', 'Error'),
+              subtitle: t('failedDeleting', "File couldn't be deleted"),
+              kind: 'error',
+            });
+          }
+        });
+    } else {
+      setFieldValue(null);
+    }
+  }, [value, setFieldValue, t, abortController]);
 
   const labelDescription = useMemo(() => {
     return field.questionOptions.allowedFileTypes
@@ -87,6 +116,25 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
             {t('cameraCapture', 'Camera capture')}
           </Button>
         </div>
+        {value && !isViewMode(sessionMode) && (
+          <div className={styles.attachmentContainer}>
+            {(Array.isArray(value) ? value : [value]).map((file, index) => (
+              <div key={index} className={styles.attachmentPreview}>
+                {file.bytesContentFamily === 'PDF' ? (
+                  <div className={styles.pdfThumbnail}>
+                    <DocumentPdf size={24} />
+                  </div>
+                ) : (
+                  file.src && <img src={file.src} alt="Preview" width="200px" />
+                )}
+                <div className={styles.trashCanContainer}>
+                  <span className={styles.trashTooltip}>{t('clearFile', 'Clear file')}</span>
+                  <TrashCan className={styles.trashIcon} onClick={handleDeleteAttachment} size={20} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       {!dataSource && value && (
         <div className={styles.editModeImage}>
