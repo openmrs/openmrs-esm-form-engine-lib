@@ -5,7 +5,7 @@ import { type FetchResponse, type OpenmrsResource, openmrsFetch, restBaseUrl } f
 type ConceptFetchResponse = FetchResponse<{ results: Array<OpenmrsResource> }>;
 
 const conceptRepresentation =
-  'custom:(uuid,display,conceptClass:(uuid,display),answers:(uuid,display),conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
+  'custom:(units,lowAbsolute,hiAbsolute,uuid,display,conceptClass:(uuid,display),answers:(uuid,display),conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
 
 export function useConcepts(references: Set<string>): {
   concepts: Array<OpenmrsResource> | undefined;

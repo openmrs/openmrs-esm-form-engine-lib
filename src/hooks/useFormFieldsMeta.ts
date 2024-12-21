@@ -11,6 +11,20 @@ export function useFormFieldsMeta(rawFormFields: FormField[], concepts: OpenmrsR
         const matchingConcept = findConceptByReference(field.questionOptions.concept, concepts);
         field.questionOptions.concept = matchingConcept ? matchingConcept.uuid : field.questionOptions.concept;
         field.label = field.label ? field.label : matchingConcept?.display;
+        if(matchingConcept)
+        {
+          if(matchingConcept.units)
+          {
+            field.label = field.label + " (" + matchingConcept.units + ")";
+          }
+          if(matchingConcept.lowAbsolute && matchingConcept.hiAbsolute)
+          {
+            field.label = field.label + " (" + matchingConcept.lowAbsolute + "-" + matchingConcept.hiAbsolute + ")";
+            field.questionOptions.min = matchingConcept.lowAbsolute;
+            field.questionOptions.max = matchingConcept.hiAbsolute;
+          }
+        }
+
         if (
           codedTypes.includes(field.questionOptions.rendering) &&
           !field.questionOptions.answers?.length &&
