@@ -28,6 +28,7 @@ const formContext = {
   formFieldAdapters: null,
   formFieldValidators: null,
   customDependencies: null,
+  deletedFields: [],
   getFormField: jest.fn(),
   addFormField: jest.fn(),
   updateFormField: jest.fn(),
@@ -36,6 +37,7 @@ const formContext = {
   removeInvalidField: jest.fn(),
   setInvalidFields: jest.fn(),
   setForm: jest.fn(),
+  setDeletedFields: jest.fn(),
 } as FormContextProps;
 
 describe('ObsAdapter - transformFieldValue', () => {

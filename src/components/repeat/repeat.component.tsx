@@ -32,6 +32,8 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
     methods: { getValues, setValue },
     addFormField,
     removeFormField,
+    deletedFields,
+    setDeletedFields,
   } = context;
 
   useEffect(() => {
@@ -113,6 +115,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
       clearSubmission(field);
     }
     setRows(rows.filter((q) => q.id !== field.id));
+    setDeletedFields([...deletedFields, field]);
     removeFormField(field.id);
   };
 

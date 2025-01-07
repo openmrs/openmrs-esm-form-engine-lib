@@ -25,10 +25,11 @@ export function prepareEncounter(
   encounterProvider: string,
   location: string,
 ) {
-  const { patient, formJson, domainObjectValue: encounter, formFields, visit } = context;
+  const { patient, formJson, domainObjectValue: encounter, formFields, visit, deletedFields } = context;
+  const allFormFields = [...formFields, ...deletedFields];
   const obsForSubmission = [];
-  prepareObs(obsForSubmission, formFields);
-  const ordersForSubmission = prepareOrders(formFields);
+  prepareObs(obsForSubmission, allFormFields);
+  const ordersForSubmission = prepareOrders(allFormFields);
   let encounterForSubmission: OpenmrsEncounter = {};
 
   if (encounter) {
