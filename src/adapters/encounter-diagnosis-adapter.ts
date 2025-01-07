@@ -1,15 +1,28 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
-import { type DiagnosisPayload, type FormFieldValueAdapter, type FormProcessorContextProps } from '../types';
+import { type OpenmrsObs, type FormFieldValueAdapter, type FormProcessorContextProps } from '../types';
 import { type FormContextProps } from '../provider/form-provider';
 import { type OpenmrsEncounter, type FormField } from '../types';
-import { clearSubmission, gracefullySetSubmission } from '../utils/common-utils';
+import { gracefullySetSubmission } from '../utils/common-utils';
+import { isEmpty } from '../validators/form-validator';
+import { voidObs } from './obs-adapter';
+import { isTrue } from '../utils/boolean-utils';
 
 export let assignedDiagnosesIds: string[] = [];
 
 export const EncounterDiagnosisAdapter: FormFieldValueAdapter = {
   transformFieldValue: function (field: FormField, value: any, context: FormContextProps) {
-    if (context.sessionMode == 'edit' && field.meta?.previousValue?.uuid) {
-      return editDiagnosis(value, field, context.patient.id);
+    if (field.meta.initialValue?.omrsObject && isEmpty(value)) {
+      return gracefullySetSubmission(field, undefined, voidObs(field.meta.initialValue.omrsObject as OpenmrsObs));
+    }
+    if (!isEmpty(value)) {
+      const previousDiagnosis = field.meta.initialValue?.omrsObject as OpenmrsResource;
+      if (hasPreviousDiagnosisValueChanged(previousDiagnosis, value)) {
+        return gracefullySetSubmission(
+          field,
+          editDiagnosis(value, field, previousDiagnosis, context.patient.id),
+          undefined,
+        );
+      }
     }
     const newValue = constructNewDiagnosis(value, field, context.patient.id);
     gracefullySetSubmission(field, newValue, null);
@@ -26,7 +39,13 @@ export const EncounterDiagnosisAdapter: FormFieldValueAdapter = {
     );
 
     if (matchedDiagnosis) {
-      field.meta = { ...(field.meta || {}), previousValue: matchedDiagnosis };
+      field.meta = {
+        ...(field.meta || {}),
+        initialValue: {
+          omrsObject: matchedDiagnosis,
+          refinedValue: matchedDiagnosis.diagnosis?.coded.uuid,
+        },
+      };
       if (!assignedDiagnosesIds.includes(matchedDiagnosis.diagnosis?.coded?.uuid)) {
         assignedDiagnosesIds.push(matchedDiagnosis.diagnosis?.coded?.uuid);
       }
@@ -49,47 +68,46 @@ export const EncounterDiagnosisAdapter: FormFieldValueAdapter = {
   },
 };
 
-const constructNewDiagnosis = (value: any, field: FormField, patientUuid: string, uuid?: string) => {
+const constructNewDiagnosis = (value: any, field: FormField, patientUuid: string) => {
   if (!value) {
     return null;
   }
-  const diagnosis: DiagnosisPayload = {
+  return {
     patient: patientUuid,
     condition: null,
     diagnosis: {
       coded: value,
     },
-    certainty: field.questionOptions?.diagnosis?.isConfirmed ? 'CONFIRMED' : 'PROVISIONAL',
+    certainty: isTrue(field.questionOptions?.diagnosis?.isConfirmed) ? 'CONFIRMED' : 'PROVISIONAL',
     rank: field.questionOptions.diagnosis?.rank ?? 1, // rank 1 denotes a diagnosis is primary, else secondary
     formFieldPath: `rfe-forms-${field.id}`,
     formFieldNamespace: 'rfe-forms',
   };
-
-  if (uuid && uuid.trim() !== '') {
-    diagnosis.uuid = uuid;
-  }
-
-  return diagnosis;
 };
 
-function editDiagnosis(newEncounterDiagnosis: any, field: FormField, patientUuid: string) {
-  if (newEncounterDiagnosis === field.meta.previousValue?.diagnosis?.coded?.uuid && !field.meta.repeat?.wasDeleted) {
-    clearSubmission(field);
-    return null;
-  }
+function editDiagnosis(
+  newEncounterDiagnosis: any,
+  field: FormField,
+  previousDiagnosis: OpenmrsResource,
+  patientUuid: string,
+) {
+  return {
+    patient: patientUuid,
+    condition: null,
+    diagnosis: {
+      coded: newEncounterDiagnosis,
+    },
+    certainty: isTrue(field.questionOptions?.diagnosis?.isConfirmed) ? 'CONFIRMED' : 'PROVISIONAL',
+    rank: field.questionOptions.diagnosis?.rank ?? 1, // rank 1 denotes a diagnosis is primary, else secondary
+    formFieldPath: `rfe-forms-${field.id}`,
+    formFieldNamespace: 'rfe-forms',
+    uuid: previousDiagnosis.uuid,
+  };
+}
 
-  //the field has been deleted
-  if (field.meta.repeat?.wasDeleted) {
-    const voided = {
-      uuid: field.meta.previousValue?.uuid,
-      voided: true,
-    };
-    gracefullySetSubmission(field, constructNewDiagnosis(newEncounterDiagnosis, field, null), voided);
-    return field.meta.submission.newValue || null;
-  } else {
-    const oldDiagnosis = field.meta.initialValue?.omrsObject as OpenmrsResource;
-    const newValue = constructNewDiagnosis(newEncounterDiagnosis, field, patientUuid, oldDiagnosis.uuid);
-    gracefullySetSubmission(field, newValue, null);
-    return newValue;
+export function hasPreviousDiagnosisValueChanged(previousDiagnosis: OpenmrsResource, newValue: any) {
+  if (isEmpty(previousDiagnosis)) {
+    return false;
   }
+  return previousDiagnosis.value !== newValue;
 }

@@ -196,6 +196,7 @@ export interface FormQuestionOptions {
     rank?: number;
     isConfirmed?: boolean;
     conceptClasses?: Array<string>;
+    conceptSet?: string;
   };
 }
 

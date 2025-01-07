@@ -291,6 +291,19 @@ function handleDiagnosis(question: FormField) {
         class: question.questionOptions.diagnosis?.conceptClasses,
       },
     };
+    if (question.questionOptions.diagnosis?.conceptSet) {
+      question.questionOptions = {
+        ...question.questionOptions,
+        concept: question.questionOptions.diagnosis?.conceptSet,
+        datasource: {
+          name: 'problem_datasource',
+          config: {
+            useSetMembersByConcept: true,
+          },
+        },
+      };
+    }
+
     delete question.questionOptions['dataSource'];
   }
 }

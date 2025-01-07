@@ -32,6 +32,7 @@ export function prepareEncounter(
   prepareObs(obsForSubmission, allFormFields);
   const ordersForSubmission = prepareOrders(allFormFields);
   const diagnosesForSubmission = prepareDiagnosis(allFormFields);
+
   let encounterForSubmission: OpenmrsEncounter = {};
 
   if (encounter) {
@@ -321,38 +322,28 @@ export async function hydrateRepeatField(
 
   const unMappedDiagnoses = encounter.diagnoses.filter((diagnosis) => {
     return (
+      !diagnosis.voided &&
       !assignedDiagnosesIds.includes(diagnosis?.diagnosis?.coded.uuid) &&
       diagnosis.formFieldPath.startsWith(`rfe-forms-${field.id}_`)
     );
   });
 
-  const sortedDiagnoses = unMappedDiagnoses
-    .filter((diagnosis) => !diagnosis.voided)
-    .sort((a, b) => {
-      // Extract numeric part of formFieldPath for sorting
-      const numberA = parseInt(a.formFieldPath.split('_')[1], 10);
-      const numberB = parseInt(b.formFieldPath.split('_')[1], 10);
-      return numberA - numberB; // Sort numerically based on formFieldPath
-    });
-
   if (field.type === 'diagnosis') {
     return Promise.all(
-      sortedDiagnoses
-        .filter((diagnosis) => !diagnosis.voided)
-        .map(async (diagnosis) => {
-          const clone = cloneRepeatField(field, diagnosis, counter++);
-          initialValues[clone.id] = await formFieldAdapters[field.type].getInitialValue(
-            clone,
-            { diagnoses: [diagnosis] } as any,
-            context,
-          );
+      unMappedDiagnoses.map(async (diagnosis) => {
+        const idSuffix = parseInt(diagnosis.formFieldPath.split('_')[1]);
+        const clone = cloneRepeatField(field, diagnosis, idSuffix);
+        initialValues[clone.id] = await formFieldAdapters[field.type].getInitialValue(
+          clone,
+          { diagnoses: [diagnosis] } as any,
+          context,
+        );
+        if (!assignedDiagnosesIds.includes(diagnosis.diagnosis.coded.uuid)) {
+          assignedDiagnosesIds.push(diagnosis.diagnosis.coded.uuid);
+        }
 
-          if (!assignedDiagnosesIds.includes(diagnosis.diagnosis.coded.uuid)) {
-            assignedDiagnosesIds.push(diagnosis.diagnosis.coded.uuid);
-          }
-
-          return clone;
-        }),
+        return clone;
+      }),
     );
   }
   // handle obs groups
@@ -375,8 +366,10 @@ export async function hydrateRepeatField(
 }
 
 function prepareDiagnosis(fields: FormField[]) {
-  return fields
+  const diagnoses = fields
     .filter((field) => field.type === 'diagnosis' && hasSubmission(field))
-    .flatMap((field) => [field.meta.submission.newValue, field.meta.submission.voidedValue])
-    .filter((d) => d);
+    .map((field) => field.meta.submission.newValue || field.meta.submission.voidedValue)
+    .filter((o) => o);
+
+  return diagnoses;
 }

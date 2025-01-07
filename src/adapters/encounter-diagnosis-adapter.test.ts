@@ -31,6 +31,7 @@ const formContext = {
   customDependencies: {
     patientPrograms: [],
   },
+  deletedFields: [],
   getFormField: jest.fn(),
   addFormField: jest.fn(),
   updateFormField: jest.fn(),
@@ -39,6 +40,7 @@ const formContext = {
   removeInvalidField: jest.fn(),
   setInvalidFields: jest.fn(),
   setForm: jest.fn(),
+  setDeletedFields: jest.fn(),
 } as FormContextProps;
 
 const field = {
@@ -173,18 +175,6 @@ describe('EncounterDiagnosisAdapter', () => {
 
     const value = '128138AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
     field.meta = {
-      previousValue: {
-        patient: '833db896-c1f0-11eb-8529-0242ac130003',
-        condition: null,
-        diagnosis: {
-          coded: '127133AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-        },
-        certainty: 'PROVISIONAL',
-        rank: 1,
-        formFieldPath: 'rfe-forms-DiagNosIS',
-        formFieldNamespace: 'rfe-forms',
-        uuid: '0e20bb67-5d7f-41e0-96a1-751efc21a96f',
-      },
       initialValue: {
         omrsObject: {
           uuid: '0e20bb67-5d7f-41e0-96a1-751efc21a96f',
@@ -215,23 +205,10 @@ describe('EncounterDiagnosisAdapter', () => {
     expect(field.meta.submission.voidedValue).toBe(undefined);
   });
 
-  it('should handle deleting a diagnosis', () => {
+  it('should void removed diagnosis in edit mode', () => {
     formContext.sessionMode = 'edit';
 
-    const value = null;
     field.meta = {
-      previousValue: {
-        patient: '833db896-c1f0-11eb-8529-0242ac130003',
-        condition: null,
-        diagnosis: {
-          coded: '127133AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-        },
-        certainty: 'PROVISIONAL',
-        rank: 1,
-        formFieldPath: 'rfe-forms-DiagNosIS',
-        formFieldNamespace: 'rfe-forms',
-        uuid: '0e20bb67-5d7f-41e0-96a1-751efc21a96f',
-      },
       initialValue: {
         omrsObject: {
           uuid: '0e20bb67-5d7f-41e0-96a1-751efc21a96f',
@@ -244,11 +221,12 @@ describe('EncounterDiagnosisAdapter', () => {
         },
         refinedValue: null,
       },
-      repeat: {
-        wasDeleted: true,
-      },
     };
-    EncounterDiagnosisAdapter.transformFieldValue(field, value, formContext);
-    expect(field.meta.submission.voidedValue).toEqual({ uuid: '0e20bb67-5d7f-41e0-96a1-751efc21a96f', voided: true });
+
+    EncounterDiagnosisAdapter.transformFieldValue(field, null, formContext);
+    expect(field.meta.submission.voidedValue).toEqual({
+      voided: true,
+      uuid: '0e20bb67-5d7f-41e0-96a1-751efc21a96f',
+    });
   });
 });
