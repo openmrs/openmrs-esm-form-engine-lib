@@ -30,6 +30,7 @@ const formContext = {
   customDependencies: {
     patientPrograms: [],
   },
+  deletedFields: [],
   getFormField: jest.fn(),
   addFormField: jest.fn(),
   updateFormField: jest.fn(),
@@ -38,6 +39,7 @@ const formContext = {
   removeInvalidField: jest.fn(),
   setInvalidFields: jest.fn(),
   setForm: jest.fn(),
+  setDeletedFields: jest.fn(),
 } as FormContextProps;
 
 const field = {

@@ -54,6 +54,10 @@ export function useFormStateHelpers(dispatch: Dispatch<Action>, formFields: Form
     dispatch({ type: 'SET_FORM_JSON', value: updateFormSectionReferences(formJson) });
   }, []);
 
+  const setDeletedFields = useCallback((fields: FormField[]) => {
+    dispatch({ type: 'SET_DELETED_FIELDS', value: fields });
+  }, []);
+
   return {
     addFormField,
     updateFormField,
@@ -63,5 +67,6 @@ export function useFormStateHelpers(dispatch: Dispatch<Action>, formFields: Form
     addInvalidField,
     removeInvalidField,
     setForm,
+    setDeletedFields,
   };
 }
