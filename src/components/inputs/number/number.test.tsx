@@ -22,6 +22,25 @@ const numberFieldMock = {
   readonly: false,
 };
 
+const numberFieldMockWithUnitsAndRange = {
+  label: 'Weight',
+  type: 'obs',
+  id: 'weight',
+  questionOptions: {
+    rendering: 'number',
+  },
+  meta: {
+    concept: {
+      units: 'kg',
+      lowAbsolute: 0,
+      hiAbsolute: 200,
+    }
+  },
+  isHidden: false,
+  isDisabled: false,
+  readonly: false,
+};
+
 const renderNumberField = async (props) => {
   await act(() => render(<NumberField {...props} />));
 };
@@ -103,5 +122,16 @@ describe('NumberField Component', () => {
 
     const inputElement = screen.getByLabelText('Weight(kg):') as HTMLInputElement;
     expect(inputElement).toBeDisabled();
+  });
+
+  it('renders units and range', async () => {    
+    await renderNumberField({
+      field: numberFieldMockWithUnitsAndRange,
+      value: '',
+      errors: [],
+      warnings: [],
+      setFieldValue: jest.fn(),
+    });
+    expect(screen.getByLabelText('Weight (kg) (0-200)')).toBeInTheDocument();
   });
 });
