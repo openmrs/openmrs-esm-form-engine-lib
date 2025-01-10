@@ -11,28 +11,26 @@ import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 import { isEmpty } from '../../../validators/form-validator';
 
+
 const extractFieldUnitsAndRange = (concept) => {
   if (!concept) {
     return '';
   }
 
-  let unitsDisplay = '';
-  if (concept.units) {
-    unitsDisplay = ` (${concept.units})`;
-  }
+  const { hiAbsolute, lowAbsolute, units } = concept;
+  const displayUnit = units ? ` ${units}` : '';
 
-  let rangeDisplay = '';
-  if (concept.lowAbsolute != null && concept.hiAbsolute != null) {
-    rangeDisplay = ` (${concept.lowAbsolute}-${concept.hiAbsolute})`;
+  const hasLowerLimit = lowAbsolute != null;
+  const hasUpperLimit = hiAbsolute != null;
+
+  if (hasLowerLimit && hasUpperLimit) {
+      return ` (${lowAbsolute} - ${hiAbsolute} ${displayUnit})`;
+  } else if (hasUpperLimit) {
+    return ` (<= ${hiAbsolute} ${displayUnit})`;
+  } else if (hasLowerLimit) {
+    return ` (>= ${lowAbsolute} ${displayUnit})`;
   }
-  else if (concept.lowAbsolute != null) {
-    rangeDisplay = ` (Min ${concept.lowAbsolute})`;
-  }
-  else if (concept.hiAbsolute != null) {
-    rangeDisplay = ` (Max ${concept.hiAbsolute})`;
-  }
-  
-  return unitsDisplay + rangeDisplay;
+  return units ? ` (${displayUnit})` : '';
 };
 
 const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {

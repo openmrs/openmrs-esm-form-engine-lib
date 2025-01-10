@@ -132,6 +132,6 @@ describe('NumberField Component', () => {
       warnings: [],
       setFieldValue: jest.fn(),
     });
-    expect(screen.getByLabelText('Weight (kg) (0-200)')).toBeInTheDocument();
+    expect(screen.getByLabelText('Weight (0 - 200 kg)')).toBeInTheDocument();
   });
 });
