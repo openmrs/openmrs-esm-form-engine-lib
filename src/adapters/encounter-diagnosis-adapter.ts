@@ -4,7 +4,6 @@ import { type FormContextProps } from '../provider/form-provider';
 import { type OpenmrsEncounter, type FormField } from '../types';
 import { gracefullySetSubmission } from '../utils/common-utils';
 import { isEmpty } from '../validators/form-validator';
-import { voidObs } from './obs-adapter';
 import { isTrue } from '../utils/boolean-utils';
 
 export let assignedDiagnosesIds: string[] = [];
@@ -12,7 +11,7 @@ export let assignedDiagnosesIds: string[] = [];
 export const EncounterDiagnosisAdapter: FormFieldValueAdapter = {
   transformFieldValue: function (field: FormField, value: any, context: FormContextProps) {
     if (field.meta.initialValue?.omrsObject && isEmpty(value)) {
-      return gracefullySetSubmission(field, undefined, voidObs(field.meta.initialValue.omrsObject as OpenmrsObs));
+      return gracefullySetSubmission(field, undefined, voidDiagnosis(field.meta.initialValue.omrsObject as OpenmrsObs));
     }
     if (!isEmpty(value)) {
       const previousDiagnosis = field.meta.initialValue?.omrsObject as OpenmrsResource;
@@ -68,7 +67,7 @@ export const EncounterDiagnosisAdapter: FormFieldValueAdapter = {
   },
 };
 
-const constructNewDiagnosis = (value: any, field: FormField, patientUuid: string) => {
+const constructNewDiagnosis = (value: string, field: FormField, patientUuid: string) => {
   if (!value) {
     return null;
   }
@@ -86,7 +85,7 @@ const constructNewDiagnosis = (value: any, field: FormField, patientUuid: string
 };
 
 function editDiagnosis(
-  newEncounterDiagnosis: any,
+  newEncounterDiagnosis: string,
   field: FormField,
   previousDiagnosis: OpenmrsResource,
   patientUuid: string,
@@ -105,9 +104,13 @@ function editDiagnosis(
   };
 }
 
-export function hasPreviousDiagnosisValueChanged(previousDiagnosis: OpenmrsResource, newValue: any) {
+export function hasPreviousDiagnosisValueChanged(previousDiagnosis: OpenmrsResource, newValue: string) {
   if (isEmpty(previousDiagnosis)) {
     return false;
   }
   return previousDiagnosis.value !== newValue;
+}
+
+export function voidDiagnosis(obs: OpenmrsObs) {
+  return { uuid: obs.uuid, voided: true };
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
-import { act, cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import {
   ExtensionSlot,
   OpenmrsDatePicker,
@@ -44,14 +44,18 @@ import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-for
 import readOnlyValidationForm from '__mocks__/forms/rfe-forms/read-only-validation-form.json';
 import jsExpressionValidationForm from '__mocks__/forms/rfe-forms/js-expression-validation-form.json';
 import hidePagesAndSectionsForm from '__mocks__/forms/rfe-forms/hide-pages-and-sections-form.json';
+import diagnosisForm from '__mocks__/forms/rfe-forms/diagnosis-test-form.json';
 
 import FormEngine from './form-engine.component';
 import { type SessionMode } from './types';
+import { use } from 'i18next';
 
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const formsResourcePath = when((url: string) => url.includes(`${restBaseUrl}/form/`));
 const clobDataResourcePath = when((url: string) => url.includes(`${restBaseUrl}/clobdata/`));
+const conceptResourcePath = when((url: string) => url.includes(`${restBaseUrl}/concept/`));
+
 global.ResizeObserver = require('resize-observer-polyfill');
 
 const mockOpenmrsFetch = jest.mocked(openmrsFetch);
@@ -78,6 +82,53 @@ mockOpenmrsDatePicker.mockImplementation(({ id, labelText, value, onChange, isIn
 
 when(mockOpenmrsFetch).calledWith(formsResourcePath).mockReturnValue({ data: demoHtsOpenmrsForm });
 when(mockOpenmrsFetch).calledWith(clobDataResourcePath).mockReturnValue({ data: demoHtsForm });
+
+jest.mock('./registry/registry', () => {
+  const originalModule = jest.requireActual('./registry/registry');
+  return {
+    ...originalModule,
+    getRegisteredDataSource: jest.fn().mockResolvedValue({
+      fetchData: jest.fn().mockImplementation((...args) => {
+        if (args[1].class?.length && !args[1].referencedValue.key) {
+          // concept DS
+          return Promise.resolve([
+            {
+              uuid: 'stage-1-uuid',
+              display: 'stage 1',
+            },
+            {
+              uuid: 'stage-2-uuid',
+              display: 'stage 2',
+            },
+          ]);
+        }
+
+        // location DS
+        return Promise.resolve([
+          {
+            uuid: 'aaa-1',
+            display: 'Kololo',
+          },
+          {
+            uuid: 'aaa-2',
+            display: 'Naguru',
+          },
+          {
+            uuid: 'aaa-3',
+            display: 'Muyenga',
+          },
+        ]);
+      }),
+      fetchSingleItem: jest.fn().mockImplementation((uuid: string) => {
+        return Promise.resolve({
+          uuid,
+          display: 'stage 1',
+        });
+      }),
+      toUuidAndDisplay: (data) => data,
+    }),
+  };
+});
 
 jest.mock('../src/api', () => {
   const originalModule = jest.requireActual('../src/api');
@@ -1044,6 +1095,86 @@ describe('Form engine component', () => {
       const interactiveElements = screen.queryAllByRole('textbox', { hidden: false });
       expect(interactiveElements).toHaveLength(0);
       expect(screen.queryByRole('button', { name: /save/i })).toBeDisabled();
+    });
+  });
+
+  describe('Diagnisis field', () => {
+    it('should test addition of a diagnosis', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm);
+      });
+      const addButtons = screen.getAllByRole('button', { name: 'Add' });
+      expect(addButtons.length).toBeGreaterThan(0);
+      screen.debug(addButtons);
+
+      await user.click(addButtons[0]);
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('combobox', { name: /^test diagnosis 1$/i }).length).toEqual(2);
+      });
+
+      expect(screen.getByRole('button', { name: /Remove/i })).toBeInTheDocument();
+    });
+
+    it('should render diagnosis field', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm);
+      });
+      const initialDiagnosis = screen.getAllByRole('combobox', { name: /test diagnosis 1|test diagnosis 2/i });
+      expect(initialDiagnosis.length).toBe(2);
+    });
+
+    it('should save diagnosis field on form submission', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm);
+      });
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+
+      const combobox = await screen.findByRole('combobox', { name: /test diagnosis 1/i });
+      expect(combobox).toBeInTheDocument();
+
+      await userEvent.click(combobox);
+      await waitFor(() => {
+        expect(screen.getByText('stage 1')).toBeInTheDocument();
+        expect(screen.getByText('stage 2')).toBeInTheDocument();
+      });
+      await user.click(screen.getByText('stage 1'));
+      await user.click(screen.getByRole('button', { name: /save/i }));
+      expect(saveEncounterMock).toHaveBeenCalledTimes(1);
+      const [_, encounter] = saveEncounterMock.mock.calls[0];
+      expect(encounter.diagnoses.length).toBe(1);
+      expect(encounter.diagnoses[0]).toEqual({
+        patient: '8673ee4f-e2ab-4077-ba55-4980f408773e',
+        condition: null,
+        diagnosis: {
+          coded: 'stage-1-uuid',
+        },
+        certainty: 'CONFIRMED',
+        rank: 1,
+        formFieldPath: `rfe-forms-diagnosis1`,
+        formFieldNamespace: 'rfe-forms',
+      });
+    });
+
+    it('should test removing of a diagnosis field', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm);
+      });
+
+      const addButtons = screen.getAllByRole('button', { name: 'Add' });
+      expect(addButtons.length).toBeGreaterThan(0);
+      screen.debug(addButtons);
+
+      await user.click(addButtons[0]);
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('combobox', { name: /^test diagnosis 1$/i }).length).toEqual(2);
+      });
+      const removeButton = screen.getByRole('button', { name: /Remove/i });
+
+      await user.click(removeButton);
+
+      expect(removeButton).not.toBeInTheDocument();
     });
   });
 
