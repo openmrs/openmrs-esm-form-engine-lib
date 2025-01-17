@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import useSWRInfinite from 'swr/infinite';
-import { type FetchResponse, type OpenmrsResource, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { type FetchResponse, openmrsFetch, type OpenmrsResource, restBaseUrl } from '@openmrs/esm-framework';
 
 type ConceptFetchResponse = FetchResponse<{ results: Array<OpenmrsResource> }>;
 
@@ -28,7 +28,9 @@ export function useConcepts(references: Set<string>): {
     const start = index * chunkSize;
     const end = start + chunkSize;
     const referenceChunk = Array.from(references).slice(start, end);
-    return `${restBaseUrl}/concept?references=${referenceChunk.join(',')}&v=${conceptRepresentation}`;
+    return `${restBaseUrl}/concept?references=${referenceChunk.join(
+      ',',
+    )}&v=${conceptRepresentation}&limit=${chunkSize}`;
   };
 
   const { data, error, isLoading } = useSWRInfinite<ConceptFetchResponse, Error>(getUrl, openmrsFetch, {
