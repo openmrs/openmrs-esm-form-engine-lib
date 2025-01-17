@@ -6,7 +6,7 @@ import { useSession, type Visit } from '@openmrs/esm-framework';
 import { FormFactoryProvider } from './provider/form-factory-provider';
 import { init, teardown } from './lifecycle';
 import { isEmpty, useFormJson } from '.';
-import { moduleName } from './globals';
+import { formEngineAppName } from './globals';
 import { reportError } from './utils/error-utils';
 import { useFormCollapse } from './hooks/useFormCollapse';
 import { useFormWorkspaceSize } from './hooks/useFormWorkspaceSize';
@@ -200,7 +200,7 @@ const FormEngine = ({
 
 function I18FormEngine(props: FormEngineProps) {
   return (
-    <I18nextProvider i18n={window.i18next} defaultNS={moduleName}>
+    <I18nextProvider i18n={window.i18next} defaultNS={formEngineAppName}>
       <FormEngine {...props} />
     </I18nextProvider>
   );

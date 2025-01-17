@@ -84,6 +84,7 @@ interface PageLinkProps {
 }
 
 function PageLink({ page, currentActivePage, pagesWithErrors, requestPage }: PageLinkProps) {
+  const { t } = useTranslation();
   const isActive = page.id === currentActivePage;
   const hasError = pagesWithErrors.includes(page.id);
   return (
@@ -98,7 +99,7 @@ function PageLink({ page, currentActivePage, pagesWithErrors, requestPage }: Pag
           e.preventDefault();
           requestPage(page.id);
         }}>
-        <span>{page.label}</span>
+        <span>{t(page.label)}</span>
       </button>
     </div>
   );

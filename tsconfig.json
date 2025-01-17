@@ -15,5 +15,9 @@
       "__mocks__": ["./__mocks__"]
     }
   },
-  "include": ["src/**/*", "./setupTests.ts"]
+  "include": [
+    "src/**/*",
+    "./setupTests.ts",
+    "tools/**/*"
+  ]
 }
