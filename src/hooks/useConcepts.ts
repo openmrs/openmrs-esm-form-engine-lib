@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { type FetchResponse, openmrsFetch, type OpenmrsResource, restBaseUrl } from '@openmrs/esm-framework';
+import { useRestApiMaxResults } from './useRestApiMaxResults';
 
 type ConceptFetchResponse = FetchResponse<{ results: Array<OpenmrsResource> }>;
 
@@ -12,25 +13,21 @@ export function useConcepts(references: Set<string>): {
   isLoading: boolean;
   error: Error | undefined;
 } {
-  const chunkSize = 100;
+  const { maxResults } = useRestApiMaxResults();
   const totalCount = references.size;
-  const totalPages = Math.ceil(totalCount / chunkSize);
+  const totalPages = Math.ceil(totalCount / maxResults);
 
-  const getUrl = (index, prevPageData: ConceptFetchResponse) => {
+  const getUrl = (index: number, prevPageData: ConceptFetchResponse) => {
     if (index >= totalPages) {
       return null;
     }
 
-    if (!chunkSize) {
-      return null;
-    }
-
-    const start = index * chunkSize;
-    const end = start + chunkSize;
+    const start = index * maxResults;
+    const end = start + maxResults;
     const referenceChunk = Array.from(references).slice(start, end);
     return `${restBaseUrl}/concept?references=${referenceChunk.join(
       ',',
-    )}&v=${conceptRepresentation}&limit=${chunkSize}`;
+    )}&v=${conceptRepresentation}&limit=${maxResults}`;
   };
 
   const { data, error, isLoading } = useSWRInfinite<ConceptFetchResponse, Error>(getUrl, openmrsFetch, {
