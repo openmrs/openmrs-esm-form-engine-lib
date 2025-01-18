@@ -111,6 +111,6 @@ export function hasPreviousDiagnosisValueChanged(previousDiagnosis: OpenmrsResou
   return previousDiagnosis.value !== newValue;
 }
 
-export function voidDiagnosis(obs: OpenmrsObs) {
+export function voidDiagnosis(obs: OpenmrsResource) {
   return { uuid: obs.uuid, voided: true };
 }

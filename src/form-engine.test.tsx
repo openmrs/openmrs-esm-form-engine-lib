@@ -47,14 +47,13 @@ import hidePagesAndSectionsForm from '__mocks__/forms/rfe-forms/hide-pages-and-s
 import diagnosisForm from '__mocks__/forms/rfe-forms/diagnosis-test-form.json';
 
 import FormEngine from './form-engine.component';
-import { type SessionMode } from './types';
-import { use } from 'i18next';
+import { type FormSchema, type OpenmrsEncounter, type SessionMode } from './types';
+import { useEncounter } from './hooks/useEncounter';
 
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const formsResourcePath = when((url: string) => url.includes(`${restBaseUrl}/form/`));
 const clobDataResourcePath = when((url: string) => url.includes(`${restBaseUrl}/clobdata/`));
-const conceptResourcePath = when((url: string) => url.includes(`${restBaseUrl}/concept/`));
 
 global.ResizeObserver = require('resize-observer-polyfill');
 
@@ -63,6 +62,7 @@ const mockExtensionSlot = jest.mocked(ExtensionSlot);
 const mockUsePatient = jest.mocked(usePatient);
 const mockUseSession = jest.mocked(useSession);
 const mockOpenmrsDatePicker = jest.mocked(OpenmrsDatePicker);
+const mockUseEncounter = jest.mocked(useEncounter);
 
 mockOpenmrsDatePicker.mockImplementation(({ id, labelText, value, onChange, isInvalid, invalidText }) => {
   return (
@@ -100,24 +100,12 @@ jest.mock('./registry/registry', () => {
               uuid: 'stage-2-uuid',
               display: 'stage 2',
             },
+            {
+              uuid: 'stage-3-uuid',
+              display: 'stage 3',
+            },
           ]);
         }
-
-        // location DS
-        return Promise.resolve([
-          {
-            uuid: 'aaa-1',
-            display: 'Kololo',
-          },
-          {
-            uuid: 'aaa-2',
-            display: 'Naguru',
-          },
-          {
-            uuid: 'aaa-3',
-            display: 'Muyenga',
-          },
-        ]);
       }),
       fetchSingleItem: jest.fn().mockImplementation((uuid: string) => {
         return Promise.resolve({
@@ -163,6 +151,16 @@ jest.mock('./hooks/useConcepts', () => ({
     return {
       isLoading: false,
       concepts: undefined,
+      error: undefined,
+    };
+  }),
+}));
+
+jest.mock('./hooks/useEncounter', () => ({
+  useEncounter: jest.fn().mockImplementation((formJson: FormSchema) => {
+    return {
+      encounter: formJson.encounter ? (mockHxpEncounter as OpenmrsEncounter) : null,
+      isLoading: false,
       error: undefined,
     };
   }),
@@ -1098,14 +1096,13 @@ describe('Form engine component', () => {
     });
   });
 
-  describe('Diagnisis field', () => {
+  describe('Encounter diagnisis', () => {
     it('should test addition of a diagnosis', async () => {
       await act(async () => {
         renderForm(null, diagnosisForm);
       });
       const addButtons = screen.getAllByRole('button', { name: 'Add' });
-      expect(addButtons.length).toBeGreaterThan(0);
-      screen.debug(addButtons);
+      expect(addButtons.length).toBe(2);
 
       await user.click(addButtons[0]);
 
@@ -1122,38 +1119,6 @@ describe('Form engine component', () => {
       });
       const initialDiagnosis = screen.getAllByRole('combobox', { name: /test diagnosis 1|test diagnosis 2/i });
       expect(initialDiagnosis.length).toBe(2);
-    });
-
-    it('should save diagnosis field on form submission', async () => {
-      await act(async () => {
-        renderForm(null, diagnosisForm);
-      });
-      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
-
-      const combobox = await screen.findByRole('combobox', { name: /test diagnosis 1/i });
-      expect(combobox).toBeInTheDocument();
-
-      await userEvent.click(combobox);
-      await waitFor(() => {
-        expect(screen.getByText('stage 1')).toBeInTheDocument();
-        expect(screen.getByText('stage 2')).toBeInTheDocument();
-      });
-      await user.click(screen.getByText('stage 1'));
-      await user.click(screen.getByRole('button', { name: /save/i }));
-      expect(saveEncounterMock).toHaveBeenCalledTimes(1);
-      const [_, encounter] = saveEncounterMock.mock.calls[0];
-      expect(encounter.diagnoses.length).toBe(1);
-      expect(encounter.diagnoses[0]).toEqual({
-        patient: '8673ee4f-e2ab-4077-ba55-4980f408773e',
-        condition: null,
-        diagnosis: {
-          coded: 'stage-1-uuid',
-        },
-        certainty: 'CONFIRMED',
-        rank: 1,
-        formFieldPath: `rfe-forms-diagnosis1`,
-        formFieldNamespace: 'rfe-forms',
-      });
     });
 
     it('should test removing of a diagnosis field', async () => {
@@ -1176,9 +1141,84 @@ describe('Form engine component', () => {
 
       expect(removeButton).not.toBeInTheDocument();
     });
+
+    it('should save diagnosis field on form submission', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm);
+      });
+
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+      const combobox = await screen.findByRole('combobox', { name: /test diagnosis 1/i });
+      expect(combobox).toBeInTheDocument();
+
+      await user.click(combobox);
+      await waitFor(() => {
+        expect(screen.getByText('stage 1')).toBeInTheDocument();
+        expect(screen.getByText('stage 2')).toBeInTheDocument();
+        expect(screen.getByText('stage 3')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('stage 1'));
+      await user.click(screen.getByRole('button', { name: /save/i }));
+      expect(saveEncounterMock).toHaveBeenCalledTimes(1);
+      const [_, encounter] = saveEncounterMock.mock.calls[0];
+      expect(encounter.diagnoses.length).toBe(1);
+      expect(encounter.diagnoses[0]).toEqual({
+        patient: '8673ee4f-e2ab-4077-ba55-4980f408773e',
+        condition: null,
+        diagnosis: {
+          coded: 'stage-1-uuid',
+        },
+        certainty: 'CONFIRMED',
+        rank: 1,
+        formFieldPath: `rfe-forms-diagnosis1`,
+        formFieldNamespace: 'rfe-forms',
+      });
+    });
+
+    it('should edit diagnosis field on form submission', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm, null, 'edit', mockHxpEncounter.uuid);
+      });
+      mockUseEncounter.mockImplementation(() => ({ encounter: mockHxpEncounter, error: null, isLoading: false }));
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+
+      const field1 = await screen.findByRole('combobox', { name: /test diagnosis 1/i });
+      expect(field1).toHaveValue('stage 1');
+
+      const field2 = await screen.findByRole('combobox', { name: /test diagnosis 2/i });
+      expect(field2).toHaveValue('stage 2');
+
+      expect(field1).toBeInTheDocument();
+      expect(field2).toBeInTheDocument();
+
+      await user.click(field1);
+      await waitFor(() => {
+        expect(screen.getByText('stage 1')).toBeInTheDocument();
+        expect(screen.getByText('stage 2')).toBeInTheDocument();
+        expect(screen.getByText('stage 3')).toBeInTheDocument();
+      });
+      await user.click(screen.getByText('stage 3'));
+      await user.click(screen.getByRole('button', { name: /save/i }));
+      expect(saveEncounterMock).toHaveBeenCalledTimes(1);
+      const [_, encounter] = saveEncounterMock.mock.calls[0];
+      expect(encounter.diagnoses.length).toBe(1);
+      expect(encounter.diagnoses[0]).toEqual({
+        patient: '8673ee4f-e2ab-4077-ba55-4980f408773e',
+        condition: null,
+        diagnosis: {
+          coded: 'stage-3-uuid',
+        },
+        certainty: 'CONFIRMED',
+        rank: 1,
+        formFieldPath: `rfe-forms-diagnosis1`,
+        formFieldNamespace: 'rfe-forms',
+        uuid: '95690fb4-0398-42d9-9ffc-8a134e6d829d',
+      });
+    });
   });
 
-  function renderForm(formUUID, formJson, intent?: string, mode?: SessionMode) {
+  function renderForm(formUUID, formJson, intent?: string, mode?: SessionMode, encounterUUID?: string) {
     render(
       <FormEngine
         formJson={formJson}
@@ -1186,6 +1226,7 @@ describe('Form engine component', () => {
         patientUUID={patientUUID}
         formSessionIntent={intent}
         visit={visit}
+        encounterUUID={encounterUUID}
         mode={mode ? mode : 'enter'}
       />,
     );
