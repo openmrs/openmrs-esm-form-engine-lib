@@ -18,13 +18,11 @@ export class ConceptDataSource extends BaseOpenMRSDataSource {
         const urlParts = searchUrl.split('searchType=fuzzy');
         searchUrl = `${urlParts[0]}searchType=fuzzy&class=${config.class}&${urlParts[1]}`;
       } else {
-        return openmrsFetch(searchTerm ? `${searchUrl}&q=${searchTerm}` : `${searchUrl}&q=${'Diagnosis'}`).then(
-          ({ data }) => {
-            return data.results.filter(
-              (concept) => concept.conceptClass && config.class.includes(concept.conceptClass.uuid),
-            );
-          },
-        );
+        return openmrsFetch(searchTerm ? `${searchUrl}&q=${searchTerm}` : searchUrl).then(({ data }) => {
+          return data.results.filter(
+            (concept) => concept.conceptClass && config.class.includes(concept.conceptClass.uuid),
+          );
+        });
       }
     }
 

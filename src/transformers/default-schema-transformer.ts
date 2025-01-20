@@ -303,6 +303,7 @@ function handleDiagnosis(question: FormField) {
         },
       };
     }
+    question.questionOptions.isSearchable = true;
 
     delete question.questionOptions['dataSource'];
   }
