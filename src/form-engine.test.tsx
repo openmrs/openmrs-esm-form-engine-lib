@@ -54,7 +54,6 @@ const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const formsResourcePath = when((url: string) => url.includes(`${restBaseUrl}/form/`));
 const clobDataResourcePath = when((url: string) => url.includes(`${restBaseUrl}/clobdata/`));
-
 global.ResizeObserver = require('resize-observer-polyfill');
 
 const mockOpenmrsFetch = jest.mocked(openmrsFetch);
@@ -83,13 +82,20 @@ mockOpenmrsDatePicker.mockImplementation(({ id, labelText, value, onChange, isIn
 when(mockOpenmrsFetch).calledWith(formsResourcePath).mockReturnValue({ data: demoHtsOpenmrsForm });
 when(mockOpenmrsFetch).calledWith(clobDataResourcePath).mockReturnValue({ data: demoHtsForm });
 
+jest.mock('lodash-es/debounce', () => jest.fn((fn) => fn));
+
+jest.mock('lodash-es', () => ({
+  ...jest.requireActual('lodash-es'),
+  debounce: jest.fn((fn) => fn),
+}));
+
 jest.mock('./registry/registry', () => {
   const originalModule = jest.requireActual('./registry/registry');
   return {
     ...originalModule,
     getRegisteredDataSource: jest.fn().mockResolvedValue({
       fetchData: jest.fn().mockImplementation((...args) => {
-        if (args[1].class?.length && !args[1].referencedValue.key) {
+        if (args[1].class?.length && !args[1].referencedValue?.key) {
           // concept DS
           return Promise.resolve([
             {
@@ -1128,8 +1134,6 @@ describe('Form engine component', () => {
 
       const addButtons = screen.getAllByRole('button', { name: 'Add' });
       expect(addButtons.length).toBeGreaterThan(0);
-      screen.debug(addButtons);
-
       await user.click(addButtons[0]);
 
       await waitFor(() => {
@@ -1148,15 +1152,15 @@ describe('Form engine component', () => {
       });
 
       const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
-      const combobox = await screen.findByRole('combobox', { name: /test diagnosis 1/i });
-      expect(combobox).toBeInTheDocument();
+      const combobox = await findSelectInput(screen, 'Test Diagnosis 1');
+      expect(combobox).toHaveAttribute('placeholder', 'Search...');
 
       await user.click(combobox);
-      await waitFor(() => {
-        expect(screen.getByText('stage 1')).toBeInTheDocument();
-        expect(screen.getByText('stage 2')).toBeInTheDocument();
-        expect(screen.getByText('stage 3')).toBeInTheDocument();
-      });
+      await user.type(combobox, 'stage');
+
+      expect(screen.getByText(/stage 1/)).toBeInTheDocument();
+      expect(screen.getByText(/stage 2/)).toBeInTheDocument();
+      expect(screen.getByText(/stage 3/)).toBeInTheDocument();
 
       await user.click(screen.getByText('stage 1'));
       await user.click(screen.getByRole('button', { name: /save/i }));
@@ -1183,22 +1187,15 @@ describe('Form engine component', () => {
       mockUseEncounter.mockImplementation(() => ({ encounter: mockHxpEncounter, error: null, isLoading: false }));
       const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
 
-      const field1 = await screen.findByRole('combobox', { name: /test diagnosis 1/i });
+      const field1 = await findSelectInput(screen, 'Test Diagnosis 1');
       expect(field1).toHaveValue('stage 1');
 
-      const field2 = await screen.findByRole('combobox', { name: /test diagnosis 2/i });
-      expect(field2).toHaveValue('stage 2');
-
-      expect(field1).toBeInTheDocument();
-      expect(field2).toBeInTheDocument();
-
       await user.click(field1);
-      await waitFor(() => {
-        expect(screen.getByText('stage 1')).toBeInTheDocument();
-        expect(screen.getByText('stage 2')).toBeInTheDocument();
-        expect(screen.getByText('stage 3')).toBeInTheDocument();
-      });
-      await user.click(screen.getByText('stage 3'));
+      await user.type(field1, 'stage');
+      expect(screen.getByText(/stage 1/)).toBeInTheDocument();
+      expect(screen.getByText(/stage 2/)).toBeInTheDocument();
+      expect(screen.getByText(/stage 3/)).toBeInTheDocument();
+      await user.click(screen.getByText(/stage 3/));
       await user.click(screen.getByRole('button', { name: /save/i }));
       expect(saveEncounterMock).toHaveBeenCalledTimes(1);
       const [_, encounter] = saveEncounterMock.mock.calls[0];

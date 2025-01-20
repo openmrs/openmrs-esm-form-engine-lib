@@ -100,14 +100,14 @@
       "certainty": "CONFIRMED",
       "rank": 1,
       "voided": false,
-      "display": "Diagnosis or problem, non-coded",
+      "display": "stage 1",
       "patient": "d8b38f21-db01-4ded-93bf-6a9470206461",
       "formFieldNamespace": "rfe-forms",
       "formFieldPath": "rfe-forms-diagnosis1",
       "resourceVersion": "1.8"
     },
     {
-      "uuid": "95690fb4-0398-42d9-9ffc-8a134e6d829d",
+      "uuid": "95690fb3-0398-42d9-9ffc-8a134e6d829d",
       "diagnosis": {
         "coded": {
           "uuid": "stage-2-uuid",
@@ -119,7 +119,7 @@
       "certainty": "CONFIRMED",
       "rank": 1,
       "voided": false,
-      "display": "Diagnosis or problem, non-coded",
+      "display": "stage 2",
       "patient": "d8b38f21-db01-4ded-93bf-6a9470206461",
       "formFieldNamespace": "rfe-forms",
       "formFieldPath": "rfe-forms-diagnosis2",
