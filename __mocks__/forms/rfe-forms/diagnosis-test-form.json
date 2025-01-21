@@ -15,7 +15,7 @@
               "questionOptions": {
                 "rendering": "repeating",
                 "dataSource": "diagnoses",
-                "isSearchable": "false",
+                "isSearchable": "true",
                 "diagnosis": {
                   "isConfirmed": "true",
                   "rank": 1,

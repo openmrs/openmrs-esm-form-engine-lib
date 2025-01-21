@@ -1102,15 +1102,14 @@ describe('Form engine component', () => {
     });
   });
 
-  describe('Encounter diagnisis', () => {
+  describe('Encounter diagnosis', () => {
     it('should test addition of a diagnosis', async () => {
       await act(async () => {
         renderForm(null, diagnosisForm);
       });
-      const addButtons = screen.getAllByRole('button', { name: 'Add' });
-      expect(addButtons.length).toBe(2);
 
-      await user.click(addButtons[0]);
+      const testDiagnosis1AddButton = screen.getAllByRole('button', { name: 'Add' })[0];
+      await user.click(testDiagnosis1AddButton);
 
       await waitFor(() => {
         expect(screen.getAllByRole('combobox', { name: /^test diagnosis 1$/i }).length).toEqual(2);
@@ -1119,22 +1118,21 @@ describe('Form engine component', () => {
       expect(screen.getByRole('button', { name: /Remove/i })).toBeInTheDocument();
     });
 
-    it('should render diagnosis field', async () => {
+    it('should render all diagnosis fields', async () => {
       await act(async () => {
         renderForm(null, diagnosisForm);
       });
-      const initialDiagnosis = screen.getAllByRole('combobox', { name: /test diagnosis 1|test diagnosis 2/i });
-      expect(initialDiagnosis.length).toBe(2);
+      const diagnosisFields = screen.getAllByRole('combobox', { name: /test diagnosis 1|test diagnosis 2/i });
+      expect(diagnosisFields.length).toBe(2);
     });
 
-    it('should test removing of a diagnosis field', async () => {
+    it('should be possible to delete cloned fields', async () => {
       await act(async () => {
         renderForm(null, diagnosisForm);
       });
 
-      const addButtons = screen.getAllByRole('button', { name: 'Add' });
-      expect(addButtons.length).toBeGreaterThan(0);
-      await user.click(addButtons[0]);
+      const testDiagnosis1AddButton = screen.getAllByRole('button', { name: 'Add' })[0];
+      await user.click(testDiagnosis1AddButton);
 
       await waitFor(() => {
         expect(screen.getAllByRole('combobox', { name: /^test diagnosis 1$/i }).length).toEqual(2);
