@@ -1,7 +1,8 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Layer, FileUploader, Button } from '@carbon/react';
-import { DocumentPdf, Camera, Close } from '@carbon/react/icons';
+import { Layer, Button } from '@carbon/react';
+import { Add, CloseFilled } from '@carbon/react/icons';
+import { DocumentPdf } from '@carbon/react/icons';
 import styles from './file.scss';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import { type FormFieldInputProps } from '../../../types';
@@ -9,16 +10,21 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import FieldLabel from '../../field-label/field-label.component';
-import CameraComponent from './camera/camera.component';
-
-type DataSourceType = 'filePicker' | 'camera' | null;
+import {
+  createAttachment,
+  showModal,
+  showSnackbar,
+  type UploadedFile,
+  useLayoutType,
+} from '@openmrs/esm-framework';
+import { useAllowedFileExtensions } from '@openmrs/esm-patient-common-lib';
+import { FormGroup } from '@carbon/react';
 
 const File: React.FC<FormFieldInputProps> = ({ field, value, errors, setFieldValue }) => {
   const { t } = useTranslation();
-  const [dataSource, setDataSource] = useState<DataSourceType>(null);
-  const [cameraWidgetVisible, setCameraWidgetVisible] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
+  const isTablet = useLayoutType() === 'tablet';
   const { layoutType, sessionMode, workspaceLayout } = useFormProviderContext();
+  const {allowedFileExtensions} = useAllowedFileExtensions();
 
   const isInline = useMemo(() => {
     if (['view', 'embedded-view'].includes(sessionMode) || isTrue(field.readonly)) {
@@ -27,64 +33,56 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, errors, setFieldVal
     return false;
   }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
 
-  const labelDescription = useMemo(() => {
-    return field.questionOptions.allowedFileTypes
-      ? t(
-          'fileUploadDescription',
-          `Upload one of the following file types: ${field.questionOptions.allowedFileTypes.join(', ')}`
-        )
-      : t('fileUploadDescriptionAny', 'Upload any file type');
-  }, [field.questionOptions.allowedFileTypes, t]);
+  const showFileCaptureModal = useCallback(() => {
+  const allowedExtensions = Array.isArray(allowedFileExtensions)
+    ? allowedFileExtensions.filter((ext) => !/pdf/i.test(ext))
+    : [];
 
-  const handleFilePickerChange = useCallback(
-    (event) => {
-      const selectedFiles: File[] = Array.from(event.target.files);
-    setImagePreview(null); 
-    setFieldValue((prevValue) => [...(prevValue || []), ...selectedFiles]);
+  const close = showModal('capture-photo-modal', {
+    saveFile: (file: UploadedFile) => {
+      if (file) {
+        // Transform the file to match the previous structure
+        const transformedFile = {
+          value: {
+            ...file,
+            bytesContentFamily: file.fileType?.includes('pdf') ? 'PDF' : 'IMAGE',
+          }
+        };
+
+        setFieldValue((prevValue) => {
+          const updatedValue = Array.isArray(prevValue) 
+            ? [...prevValue, transformedFile.value]
+            : [transformedFile.value];
+          
+          return updatedValue;
+        });
+      }
+      close();
+      return Promise.resolve();
     },
-    [setFieldValue]
-  );
+    closeModal: () => close(),
+    allowedExtensions,
+    collectDescription: true,
+    multipleFiles: true,
+  });
+}, [allowedFileExtensions, setFieldValue]);
+  
 
-  const handleCameraImageChange = useCallback(
-    (newImage) => {
-      setImagePreview(newImage);
-      setCameraWidgetVisible(false);
-      setFieldValue(newImage);
-    },
-    [setFieldValue]
-  );
+  const handleRemoveFile = (index: number) => {
+    setFieldValue((prevValue) => {
+      const updatedFiles = Array.isArray(prevValue) ? [...prevValue] : [];
+      updatedFiles.splice(index, 1);
+      return updatedFiles;
+    });
 
-  const renderFilePreview = () => (
-    <div className={styles.editModeImage}>
-      <div className={styles.imageContent}>
-      {Array.isArray(value) ? (
-        value.map((file, index) => (
-          <div key={index} className={styles.fileThumbnail}>
-            {file.bytesContentFamily === 'PDF' ? (
-              <div className={styles.pdfThumbnail} role="button" tabIndex={0}>
-                <DocumentPdf size={24} />
-              </div>
-            ) : (
-              <img src={file.src} alt={t('preview', 'Preview')} width="200px" />
-            )}
-          </div>
-        ))
-      ) : (
-        <>
-          {value?.bytesContentFamily === 'PDF' ? (
-            <div className={styles.pdfThumbnail} role="button" tabIndex={0}>
-              <DocumentPdf size={24} />
-            </div>
-          ) : (
-            <img src={value?.src} alt={t('preview', 'Preview')} width="200px" />
-          )}
-        </>
-      )}
-    </div>
-  </div>
-);
+    showSnackbar({
+      title: t('fileRemoved', 'File removed'),
+      kind: 'success',
+      isLowContrast: true,
+    });
+  };
 
-  if (sessionMode === 'view' || sessionMode === 'embedded-view') {
+  if (['view', 'embedded-view'].includes(sessionMode)) {
     return (
       <FieldValueView
         label={t(field.label)}
@@ -98,88 +96,63 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, errors, setFieldVal
   return (
     !field.isHidden && (
       <div className={styles.boldedLabel}>
-         <Layer>
-         <div className={styles.fileInputContainer}>
-            <FieldLabel field={field} />
-            <div className={styles.uploadSelector}>
-              <Button
-                disabled={isTrue(field.readonly)}
-                onClick={() => setDataSource('filePicker')}
-                kind="secondary"
-                size="md"
-                className={`${styles.uploadFileButton}`} 
-                >
-                {t('uploadFile', 'Upload file')}
-              </Button>
-              <Button
-                disabled={isTrue(field.readonly)}
-                onClick={() => setDataSource('camera')}
-                kind="secondary"
-                size="md"
-                renderIcon={Camera}
-                className={`${styles.cameraCaptureButton}`} 
-              >
-                {t('cameraCapture', 'Camera capture')}
-              </Button>
-            </div>
+        <Layer>
+          <FormGroup
+            legendText={<FieldLabel field={field} />}
+            className={styles.boldedLegend}
+            disabled={field.isDisabled}
+            invalid={errors?.length > 0}
+          >
+          <div className={styles.fileInputContainer}>
+            <p className={styles.helperText}>
+              {t('imageUploadHelperText', "Upload images or files to add to your form.")}
+            </p>
+            <Button
+              className={styles.uploadButton}
+              kind={isTablet ? 'ghost' : 'tertiary'}
+              onClick={showFileCaptureModal}
+              renderIcon={(props) => <Add size={16} {...props} />}
+              disabled={isTrue(field.readonly)}
+            >
+              {t('uploadFile', 'Upload file')}
+            </Button>
 
-            {!dataSource && value && renderFilePreview()}
-
-            {dataSource === 'filePicker' && (
-              <div className={styles.fileUploader}>
-                <FileUploader
-                  accept={field.questionOptions.allowedFileTypes ?? []}
-                  multiple={field.questionOptions.allowMultiple ?? true}
-                  buttonKind="primary"
-                  buttonLabel={t('addFile', 'Add file')}
-                  filenameStatus="edit"
-                  iconDescription={t('clearFile', 'Clear file')}
-                  labelDescription={labelDescription}
-                  labelTitle={t('upload', 'Upload')}
-                  onChange={handleFilePickerChange}
-                  invalid={errors.length > 0}
-                  invalidText={errors[0]?.message}
-                />
-              </div>
-            )}
-
-            {dataSource === 'camera' && (
-              <div className={styles.cameraUploader}>
-                 <p className={styles.titleStyles}>Camera</p>
-                 <p className={styles.descriptionStyles}>Capture image via camera</p>
-                <Button
-                  onClick={() => setCameraWidgetVisible((prev) => !prev)}
-                  size="md"
-                  className={styles.cameraToggle}
-                >
-                  {cameraWidgetVisible ? t('closeCamera', 'Close camera') : t('openCamera', 'Open camera')}
-                </Button>
-
-                {cameraWidgetVisible && (
-                  <div className={styles.cameraPreview}>
-                    <CameraComponent handleImages={handleCameraImageChange} />
-                  </div>
-                )}
-
-                {imagePreview && (
-                  <div className={styles.capturedImage}>
-                    <div className={styles.imageContent}>
-                      <img src={imagePreview} alt={t('preview', 'Preview')} width="200px" />
-                      <Button
-                        hasIconOnly
-                        renderIcon={Close}
-                        iconDescription={t('clearImage', 'Clear image')}
-                        onClick={() => setImagePreview(null)}
-                        size="sm"
-                        kind="ghost"
+            <div className={styles.fileThumbnailGrid}>
+              {Array.isArray(value) && value.map((file, index) => (
+                <div key={index} className={styles.fileThumbnailItem}>
+                  <div className={styles.fileThumbnailContainer}>
+                    {file.fileType?.includes('pdf') || file.bytesContentFamily === 'PDF' ? (
+                      <div className={styles.pdfThumbnail}>
+                        <DocumentPdf size={24} />
+                      </div>
+                    ) : (
+                      <img
+                        className={styles.fileThumbnail}
+                        src={file.base64Content || file.src}
+                        alt={file.fileDescription ?? file.fileName}
                       />
-                    </div>
+                    )}
                   </div>
-                )}
+                  <Button 
+                    kind="ghost" 
+                    className={styles.removeButton} 
+                    onClick={() => handleRemoveFile(index)}
+                    aria-label={t('removeFile', 'Remove file')}
+                  >
+                    <CloseFilled size={16} className={styles.closeIcon} />
+                  </Button>
+                </div>
+              ))}
+            </div>
+            
+            {errors.length > 0 && (
+              <div className={styles.errorMessage}>
+                {errors[0]?.message}
               </div>
             )}
           </div>
-         </Layer>
+          </FormGroup>
+        </Layer>
       </div>
     )
   );

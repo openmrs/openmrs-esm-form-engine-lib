@@ -1,4 +1,6 @@
 @use '@carbon/colors';
+@use '@carbon/layout';
+@use '@carbon/type';
 @use '@openmrs/esm-styleguide/src/vars' as *;
 
 .label {
@@ -11,6 +13,11 @@
   color: colors.$black-100;
 }
 
+.boldedLegend legend {
+  color: colors.$black-100 !important;
+  font-weight: 600;
+}
+
 .boldedLabel label {
   font-weight: 600;
   color: colors.$black-100;
@@ -20,22 +27,8 @@
   margin: 0;
 }
 
-.capturedImage {
-  width: 100%;
-}
-
-.caption {
-  display: flex;
-}
-
 .closeIcon {
-  margin: 0 1rem;
-}
-
-.uploadSelector {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
+  margin: 0;
 }
 
 .fileInputContainer {
@@ -69,42 +62,6 @@
   margin-top: 5px;
 }
 
-.imageDescription {
-  margin-top: 5px;
-}
-
-.fileUploader {
-  background-color: colors.$white;
-  padding: 1rem;
-}
-
-.cameraUploader {
-  margin: 1rem 0;
-  background-color: colors.$white;
-  padding: 1rem;
-}
-
-.camButton {
-  margin-bottom: 1rem;
-}
-
-.cameraToggle {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-
-}
-
-.cameraPreview {
-  margin-top: 1rem;
-}
-
-.imageContent {
-  padding: 0;
-  margin: 0;
-}
-
 .titleStyles {
   color: colors.$gray-100;
   font-size: 0.875rem;
@@ -112,6 +69,11 @@
   letter-spacing: 0.16px;
   line-height: 1.2857;
   margin-bottom: 0.5rem;
+}
+
+.helperText {
+  @include type.type-style('body-compact-01');
+  color: colors.$gray-70;
 }
 
 .descriptionStyles {
@@ -123,14 +85,50 @@
   margin-bottom: 1rem;
 }
 
-.editModeImage {
-  background-color: colors.$white;
-  padding: 1rem;
+.fileThumbnailContainer {
+  height: 7rem;
+  width: 7rem;
+}
+
+.fileThumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fileThumbnailGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 7rem);
+  gap: layout.$spacing-05;
+  margin-top: layout.$spacing-05;
+}
+
+.fileThumbnailItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.removeButton {
+  position: absolute;
+  top: layout.$spacing-02;
+  right: layout.$spacing-02;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  padding-block-start: 0;
+  --cds-layout-size-height-local: 0;
+}
+
+.closeIcon {
+  fill:colors.$gray-100 !important;
 }
 
 .pdfThumbnail {
   cursor: pointer;
-  background-color: colors.$cool-gray-50;
+  background-color: colors.$gray-50;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -1,4 +1,4 @@
-import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { createAttachment, fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
 import { type OpenmrsForm, type PatientIdentifier, type PatientProgramPayload } from '../types';
 import { isUuid } from '../utils/boolean-utils';
@@ -18,40 +18,39 @@ export function saveEncounter(abortController: AbortController, payload, encount
   });
 }
 
-export function saveAttachment(patientUuid, field, conceptUuid, date, encounterUUID, abortController) {
-  const url = `${restBaseUrl}/attachment`;
-  //enable saving multiple attachments
-  const files = Array.isArray(field.meta.submission?.newValue?.value) 
-    ? field.meta.submission.newValue.value 
-    : [field.meta.submission?.newValue?.value];
+export function saveAttachment(
+  patientUuid: string, 
+  field: any, 
+  conceptUuid: string, 
+  date: string, 
+  encounterUUID: string, 
+  abortController: AbortController
+) {
+  // Normalize files to ensure we always work with an array
+  const files = field.meta.submission?.newValue 
+    ? (Array.isArray(field.meta.submission.newValue) 
+      ? field.meta.submission.newValue 
+      : [field.meta.submission.newValue])
+    : [];
 
-  const uploadPromises = files.map(content => {
-    const formData = new FormData();
-    const fileCaption = field.id;
-    const cameraUploadType = typeof content === 'string' && content?.split(';')[0].split(':')[1].split('/')[1];
+  // If no files, return a resolved promise
+  if (files.length === 0) {
+    return Promise.resolve([]);
+  }
 
-    formData.append('fileCaption', fileCaption);
-    formData.append('patient', patientUuid);
+  const attachmentPromises = files.map(file => 
+    createAttachment(patientUuid, {
+      fileDescription: field.id,
+      fileName: file.fileName || `upload.${file.fileType || 'jpg'}`,
+      file: file.file,
+      base64Content: file.base64Content,
+      fileType: file.fileType || 'image/jpeg'
+    })
+  );
 
-    if (typeof content === 'object') {
-      formData.append('file', content);
-    } else {
-      formData.append('file', new File([''], `camera-upload.${cameraUploadType}`), `camera-upload.${cameraUploadType}`);
-      formData.append('base64Content', content);
-    }
-
-    formData.append('encounter', encounterUUID);
-    formData.append('obsDatetime', date);
-
-    return openmrsFetch(url, {
-      method: 'POST',
-      signal: abortController.signal,
-      body: formData,
-    });
-  });
-
-  return Promise.all(uploadPromises);
+  return Promise.all(attachmentPromises);
 }
+
 
 
 export function getAttachmentByUuid(patientUuid: string, encounterUuid: string, abortController: AbortController) {
