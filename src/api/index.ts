@@ -1,4 +1,4 @@
-import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { createAttachment, fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
 import type { FHIRObsResource, OpenmrsForm, PatientIdentifier, PatientProgramPayload } from '../types';
 import { isUuid } from '../utils/boolean-utils';
@@ -18,33 +18,40 @@ export function saveEncounter(abortController: AbortController, payload, encount
   });
 }
 
-export function saveAttachment(patientUuid, field, conceptUuid, date, encounterUUID, abortController) {
-  const url = `${restBaseUrl}/attachment`;
+export function saveAttachment(
+  patientUuid: string, 
+  field: any, 
+  conceptUuid: string, 
+  date: string, 
+  encounterUUID: string, 
+  abortController: AbortController
+) {
+  // Normalize files to ensure we always work with an array
+  const files = field.meta.submission?.newValue 
+    ? (Array.isArray(field.meta.submission.newValue) 
+      ? field.meta.submission.newValue 
+      : [field.meta.submission.newValue])
+    : [];
 
-  const content = field.meta.submission?.newValue?.value;
-  const cameraUploadType = typeof content === 'string' && content?.split(';')[0].split(':')[1].split('/')[1];
-
-  const formData = new FormData();
-  const fileCaption = field.id;
-
-  formData.append('fileCaption', fileCaption);
-  formData.append('patient', patientUuid);
-
-  if (typeof content === 'object') {
-    formData.append('file', content);
-  } else {
-    formData.append('file', new File([''], `camera-upload.${cameraUploadType}`), `camera-upload.${cameraUploadType}`);
-    formData.append('base64Content', content);
+  // If no files, return a resolved promise
+  if (files.length === 0) {
+    return Promise.resolve([]);
   }
-  formData.append('encounter', encounterUUID);
-  formData.append('obsDatetime', date);
 
-  return openmrsFetch(url, {
-    method: 'POST',
-    signal: abortController.signal,
-    body: formData,
-  });
+  const attachmentPromises = files.map(file => 
+    createAttachment(patientUuid, {
+      fileDescription: field.id,
+      fileName: file.fileName || `upload.${file.fileType || 'jpg'}`,
+      file: file.file,
+      base64Content: file.base64Content,
+      fileType: file.fileType || 'image/jpeg'
+    })
+  );
+
+  return Promise.all(attachmentPromises);
 }
+
+
 
 export function getAttachmentByUuid(patientUuid: string, encounterUuid: string, abortController: AbortController) {
   const attachmentUrl = `${restBaseUrl}/attachment`;
