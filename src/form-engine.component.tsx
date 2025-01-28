@@ -28,7 +28,7 @@ interface FormEngineProps {
   visit?: Visit;
   formSessionIntent?: string;
   mode?: SessionMode;
-  onSubmit?: () => void;
+  onSubmit?: (data: any) => void;
   onCancel?: () => void;
   handleClose?: () => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
