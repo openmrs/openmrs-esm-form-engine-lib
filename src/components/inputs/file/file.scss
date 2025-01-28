@@ -28,10 +28,7 @@
   display: flex;
   align-items: center;
   margin-bottom: 1rem;
-}
-
-.selectorButton {
-  margin-right: 1rem;
+  flex-wrap: wrap;
 }
 
 .caption {
@@ -88,6 +85,66 @@
 .editModeImage {
   background-color: white;
   padding: 1rem;
+}
+
+.selectorButton {
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.attachmentContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.trashCanContainer {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trashIcon {
+  font-size: 20px;
+  color: red;
+  transition: transform 0.3s ease;
+}
+
+.trashIcon:hover {
+  transform: scale(1.2);
+}
+.trashTooltip {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.trashCanContainer:hover .trashTooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.attachmentPreview {
+  position: relative;
+  display: inline-block;
+}
+
+.attachmentPreview img {
+  max-width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }
 
 .pdfThumbnail {
