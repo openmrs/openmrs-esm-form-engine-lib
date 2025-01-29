@@ -72,7 +72,7 @@ jobs:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
       - run: yarn install
-      - run: yarn version --no-git-tag-version "$(node -e "console.log(require('semver').inc(require('./package.json').version, 'patch'))")-pre.${{ github.run_number }}"
+      - run: yarn version "$(node -e "console.log(require('semver').inc(require('./package.json').version, 'patch'))")-pre.${{ github.run_number }}"
       - run: |
           yarn config set npmAlwaysAuth true
           yarn config set npmAuthToken ${{ secrets.NPM_AUTH_TOKEN }}
