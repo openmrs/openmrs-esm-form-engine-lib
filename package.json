@@ -29,7 +29,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@carbon/react": ">1.47.0 <1.50.0",
     "classnames": "^2.5.1",
     "lodash-es": "^4.17.21",
     "react-error-boundary": "^4.0.13",
@@ -48,6 +47,7 @@
     "swr": "2.x"
   },
   "devDependencies": {
+    "@carbon/react": "1.74.0",
     "@openmrs/esm-framework": "next",
     "@openmrs/esm-patient-common-lib": "next",
     "@openmrs/esm-styleguide": "next",
