@@ -2,7 +2,7 @@ name: OpenMRS CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, chore/make-pre-release-versions-incremental]
   pull_request:
     branches: [main]
   release:
@@ -67,17 +67,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v4
-
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
       - run: yarn install
-      - run: sed -i -e "s/\(\"version\":\\s\+\"\([0-9]\+\.\?\)\+\)/\1-pre.${{ github.run_number }}/" 'package.json'
+      - run: yarn version "$(node -e "console.log(require('semver').inc(require('./package.json').version, 'patch'))")-pre.${{ github.run_number }}"
       - run: |
           yarn config set npmAlwaysAuth true
           yarn config set npmAuthToken ${{ secrets.NPM_AUTH_TOKEN }}
