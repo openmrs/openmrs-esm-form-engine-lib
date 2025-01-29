@@ -43,7 +43,7 @@ Read the full docs in the OpenMRS Wiki [here](https://openmrs.atlassian.net/wiki
 
 The Form Engine uses a combination of frontend and backend features to support translations.
 
-- **Frontend translations** - Translations for statis strings within the library are managed using Transifex, a localization platform that allows for the translation of strings. This repository being a library, the language specific translations are managed within the [esm-form-engine-app](https://github.com/openmrs/openmrs-esm-patient-chart/tree/main/packages/esm-form-engine-app) in the [Patient Chart](https://github.com/openmrs/openmrs-esm-patient-chart) repository and are loaded dynamically based on the user's locale.
+- **Frontend translations** - Translations for static strings within the library are managed using Transifex, a localization platform that allows for the translation of strings. This repository being a library, the language specific translations are managed within the [esm-form-engine-app](https://github.com/openmrs/openmrs-esm-patient-chart/tree/main/packages/esm-form-engine-app) in the [Patient Chart](https://github.com/openmrs/openmrs-esm-patient-chart) repository and are loaded dynamically based on the user's locale.
 - **Backend translations** - Translations for pages, sections, and question labels are retrieved from the backend. These are loaded automatically based on the concept translations as well as the form translation files included within the distribution.
 
 You can read more about translations in the [OpenMRS Wiki](https://openmrs.atlassian.net/wiki/spaces/docs/pages/105512985/How+to+Translate+OpenMRS)
