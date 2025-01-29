@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Button, InlineLoading } from '@carbon/react';
+import { useLayoutType } from '@openmrs/esm-framework';
 import { isPageContentVisible } from '../../utils/form-helper';
 import { useCurrentActivePage } from './useCurrentActivePage';
 import { usePageObserver } from './usePageObserver';
@@ -33,6 +34,11 @@ const Sidebar: React.FC<SidebarProps> = ({
     activePages,
     evaluatedPagesVisibility,
   });
+  const layout = useLayoutType();
+  const responsiveSize = useMemo(() => {
+    const isTablet = layout === 'tablet';
+    return isTablet ? 'lg' : 'sm';
+  }, [layout]);
 
   return (
     <div className={styles.sidebar}>
@@ -51,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       <div className={styles.sideNavActions}>
         {sessionMode !== 'view' && (
-          <Button className={styles.saveButton} disabled={isFormSubmitting} type="submit">
+          <Button className={styles.saveButton} disabled={isFormSubmitting} type="submit" size={responsiveSize}>
             {isFormSubmitting ? (
               <InlineLoading description={t('submitting', 'Submitting') + '...'} />
             ) : (
@@ -68,7 +74,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             onCancel?.();
             handleClose?.();
             hideFormCollapseToggle();
-          }}>
+          }}
+          size={responsiveSize}>
           {sessionMode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
         </Button>
       </div>
@@ -87,12 +94,14 @@ function PageLink({ page, currentActivePage, pagesWithErrors, requestPage }: Pag
   const { t } = useTranslation();
   const isActive = page.id === currentActivePage;
   const hasError = pagesWithErrors.includes(page.id);
+  const isTablet = useLayoutType() === 'tablet';
   return (
     <div
       className={classNames(styles.pageLink, {
         [styles.activePage]: isActive && !hasError,
         [styles.errorPage]: hasError && !isActive,
         [styles.activeErrorPage]: hasError && isActive,
+        [styles.pageLinkTablet]: isTablet,
       })}>
       <button
         onClick={(e) => {
