@@ -24,9 +24,12 @@ const File: React.FC<FormFieldInputProps> = ({ field, value, setFieldValue }) =>
     return field.questionOptions.allowedFileTypes
       ? t(
           'fileUploadDescription',
-          `Upload one of the following file types: ${field.questionOptions.allowedFileTypes.map(
-            (eachItem) => ` ${eachItem}`,
-          )}`,
+          'Upload one of the following file types: {{fileTypes}}',
+          {
+            fileTypes: field.questionOptions.allowedFileTypes.map(
+              (eachItem) => ` ${eachItem}`,
+            )
+          }
         )
       : t('fileUploadDescriptionAny', 'Upload any file type');
   }, [field.questionOptions.allowedFileTypes, t]);
