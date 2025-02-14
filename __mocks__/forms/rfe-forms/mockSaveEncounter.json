@@ -1,0 +1,18 @@
+[
+  {
+    "uuid": "47cfe95b-357a-48f8-aa70-63eb5ae51916",
+    "obs": [
+      {
+        "formFieldPath": "rfe-forms-tbProgramType",
+        "value": {
+          "display": "Tuberculosis treatment program",
+          "uuid": "160541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        }
+      },
+      {
+        "formFieldPath": "rfe-forms-tbRegDate",
+        "value": "2023-12-05T00:00:00.000+0000"
+      }
+    ]
+  }
+]
