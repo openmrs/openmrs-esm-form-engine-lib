@@ -30,6 +30,7 @@ import sampleFieldsForm from '__mocks__/forms/rfe-forms/sample_fields.json';
 import testEnrolmentForm from '__mocks__/forms/rfe-forms/test-enrolment-form.json';
 import historicalExpressionsForm from '__mocks__/forms/rfe-forms/historical-expressions-form.json';
 import mockHxpEncounter from '__mocks__/forms/rfe-forms/mockHistoricalvisitsEncounter.json';
+import mockSaveEncounter from '__mocks__/forms/rfe-forms/mockSaveEncounter.json';
 import requiredTestForm from '__mocks__/forms/rfe-forms/required-form.json';
 import conditionalRequiredTestForm from '__mocks__/forms/rfe-forms/conditional-required-form.json';
 import conditionalAnsweredForm from '__mocks__/forms/rfe-forms/conditional-answered-form.json';
@@ -132,7 +133,7 @@ jest.mock('../src/api', () => {
     getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(mockHxpEncounter)),
     getConcept: jest.fn().mockImplementation(() => Promise.resolve(null)),
     getLatestObs: jest.fn().mockImplementation(() => Promise.resolve({ valueNumeric: 60 })),
-    saveEncounter: jest.fn(),
+    saveEncounter: jest.fn().mockImplementation(() => Promise.resolve(mockSaveEncounter)),
     createProgramEnrollment: jest.fn(),
   };
 });
@@ -357,7 +358,7 @@ describe('Form engine component', () => {
       await act(async () => {
         renderForm(null, requiredTestForm);
       });
-
+      
       await user.click(screen.getByRole('button', { name: /save/i }));
 
       const labels = screen.getAllByText(/Text question/i);
@@ -456,7 +457,7 @@ describe('Form engine component', () => {
       expect(selectErrorMessage).toBeInTheDocument();
 
       // Validate multi-select field
-      const multiSelectInputField = screen.getByLabelText(/If Unscheduled, actual scheduled reason multi-select/i);
+      const multiSelectInputField = screen.getByText('If Unscheduled, actual scheduled reason multi-select', { exact: true });
       expect(multiSelectInputField).toBeInTheDocument();
       const multiSelectErrorMessage = screen.getByText(
         'Patient visit marked as unscheduled. Please provide the scheduled multi-select reason.',
@@ -559,41 +560,6 @@ describe('Form engine component', () => {
 
     it('should test post submission actions', async () => {
       const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
-      saveEncounterMock.mockResolvedValue({
-        headers: null,
-        ok: true,
-        redirected: false,
-        status: 200,
-        statusText: 'ok',
-        type: 'default',
-        url: '',
-        clone: null,
-        body: null,
-        bodyUsed: null,
-        arrayBuffer: null,
-        blob: null,
-        formData: null,
-        json: null,
-        text: jest.fn(),
-        data: [
-          {
-            uuid: '47cfe95b-357a-48f8-aa70-63eb5ae51916',
-            obs: [
-              {
-                formFieldPath: 'rfe-forms-tbProgramType',
-                value: {
-                  display: 'Tuberculosis treatment program',
-                  uuid: '160541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                },
-              },
-              {
-                formFieldPath: 'rfe-forms-tbRegDate',
-                value: '2023-12-05T00:00:00.000+0000',
-              },
-            ],
-          },
-        ],
-      });
 
       await act(async () => renderForm(null, postSubmissionTestForm));
 
