@@ -94,6 +94,6 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<FormFieldIn
   },
   ...controlTemplates.map((template) => ({
     name: template.name,
-    component: templateToComponentMap.find((component) => component.name === template.name).baseControlComponent,
+    component: templateToComponentMap.find((component) => component.name === template.name)?.baseControlComponent,
   })),
 ];

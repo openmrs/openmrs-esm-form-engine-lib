@@ -7,7 +7,7 @@ export class SelectConceptAnswersDatasource extends BaseOpenMRSDataSource {
   }
 
   fetchData(searchTerm: string, config?: Record<string, any>): Promise<any[]> {
-    const apiUrl = this.url.replace('conceptUuid', config.referencedValue || config.concept);
+    const apiUrl = this.url.replace('conceptUuid', config.concept || config.referencedValue);
     return openmrsFetch(apiUrl).then(({ data }) => {
       return data['setMembers'].length ? data['setMembers'] : data['answers'];
     });
