@@ -46,6 +46,24 @@ export function validateForm(context: FormContextProps) {
   return errors.length === 0;
 }
 
+export function validateEmptyForm(context: FormContextProps){
+  const {
+    formFields,
+    formFieldValidators,
+    patient,
+    sessionMode,
+    addInvalidField,
+    updateFormField,
+    methods: { getValues, trigger },
+  } = context;
+  const values = getValues();
+  return Object.values(values).every(value => 
+    value === null || 
+    value === undefined || 
+    (Array.isArray(value) && value.length === 0)
+  );
+}
+
 export async function processPostSubmissionActions(
   postSubmissionHandlers: PostSubmissionActionMeta[],
   submissionResults: OpenmrsResource[],
