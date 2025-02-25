@@ -2,14 +2,14 @@ import dayjs from 'dayjs';
 import { showSnackbar, translateFrom } from '@openmrs/esm-framework';
 import { getPatientEnrolledPrograms, saveProgramEnrollment } from '../api';
 import { type PostSubmissionAction, type PatientProgramPayload } from '../types';
-import { moduleName } from '../globals';
+import { formEngineAppName } from '../globals';
 import { extractErrorMessagesFromResponse } from '../utils/error-utils';
 
 export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
   applyAction: async function ({ patient, encounters, sessionMode }, config) {
     const encounter = encounters[0];
     const encounterLocation = encounter.location['uuid'];
-    const translateFn = (key, defaultValue?) => translateFrom(moduleName, key, defaultValue);
+    const translateFn = (key, defaultValue?) => translateFrom(formEngineAppName, key, defaultValue);
     const programUuid = config.programUuid;
 
     if (sessionMode === 'view') {
