@@ -30,6 +30,7 @@
   word-wrap: break-word;
   margin: 0 0 0.063rem;
   color: colors.$gray-100;
+
   :hover {
     cursor: pointer;
   }
@@ -103,12 +104,5 @@
 
   &:global(.cds--inline-loading) {
     min-height: layout.$spacing-05;
-  }
-}
-
-.closeButton {
-  @extend .button;
-  &:hover {
-    background-color: colors.$red-60 !important;
   }
 }
