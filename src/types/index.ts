@@ -2,7 +2,7 @@ import { type LayoutType, type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormProcessor } from '../processors/form-processor';
 import { type FormContextProps } from '../provider/form-provider';
 import { type FormField, type FormSchema } from './schema';
-import { type OpenmrsEncounter } from './domain';
+import { type Appointment, type OpenmrsEncounter } from './domain';
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
 
@@ -10,6 +10,7 @@ export interface FormProcessorContextProps {
   patient: fhir.Patient;
   formJson: FormSchema;
   visit: OpenmrsResource;
+  appointments?: Array<Appointment>
   sessionMode: SessionMode;
   sessionDate: Date;
   location: OpenmrsResource;

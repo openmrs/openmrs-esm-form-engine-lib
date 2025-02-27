@@ -12,13 +12,14 @@ import { useFormCollapse } from './hooks/useFormCollapse';
 import { useFormWorkspaceSize } from './hooks/useFormWorkspaceSize';
 import { usePageObserver } from './components/sidebar/usePageObserver';
 import { usePatientData } from './hooks/usePatientData';
-import type { FormField, FormSchema, SessionMode } from './types';
+import type { Appointment, FormField, FormSchema, SessionMode } from './types';
 import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
 import Loader from './components/loaders/loader.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import Sidebar from './components/sidebar/sidebar.component';
 import styles from './form-engine.scss';
+import { usePatientAppointments } from './hooks/usePatientCheckedInAppointments';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -33,8 +34,7 @@ interface FormEngineProps {
   handleClose?: () => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   markFormAsDirty?: (isDirty: boolean) => void;
-}
-
+} 
 const FormEngine = ({
   formJson,
   patientUUID,
@@ -57,6 +57,8 @@ const FormEngine = ({
   }, []);
   const workspaceSize = useFormWorkspaceSize(ref);
   const { patient, isLoadingPatient } = usePatientData(patientUUID);
+  const { data: initialPatientAppointments, mutate: refetchPatientAppointments } = usePatientAppointments(patientUUID, encounterUUID || null);
+  const [appointments, setAppointments] = useState<Array<Appointment>>(initialPatientAppointments || []);
   const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
@@ -93,6 +95,17 @@ const FormEngine = ({
   }, [isFormWorkspaceTooNarrow, isLoadingDependencies, hasMultiplePages]);
 
   useEffect(() => {
+    if (initialPatientAppointments) {
+      setAppointments(prevAppointments => {
+        const newAppointments = initialPatientAppointments.filter(
+          newAppt => !prevAppointments.some(appt => appt.uuid === newAppt.uuid)
+        );
+        return [...prevAppointments, ...newAppointments];
+      });
+    }
+  }, [initialPatientAppointments]);
+  
+  useEffect(() => {
     reportError(formError, t('errorLoadingFormSchema', 'Error loading form schema'));
   }, [formError]);
 
@@ -126,6 +139,9 @@ const FormEngine = ({
           location={session?.sessionLocation}
           provider={session?.currentProvider}
           visit={visit}
+          appointments={initialPatientAppointments}
+          setAppointments={setAppointments}
+          refetchPatientAppointments={refetchPatientAppointments}
           handleConfirmQuestionDeletion={handleConfirmQuestionDeletion}
           isFormExpanded={isFormExpanded}
           formSubmissionProps={{

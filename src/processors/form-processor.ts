@@ -1,6 +1,6 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormContextProps } from '../provider/form-provider';
-import { type ValueAndDisplay, type FormField, type FormSchema } from '../types';
+import { type ValueAndDisplay, type FormField, type FormSchema, type Appointment } from '../types';
 import { type FormProcessorContextProps } from '../types';
 
 export type FormProcessorConstructor = new (...args: ConstructorParameters<typeof FormProcessor>) => FormProcessor;
@@ -34,7 +34,7 @@ export abstract class FormProcessor {
   }
 
   abstract getHistoricalValue(field: FormField, context: FormContextProps): Promise<ValueAndDisplay>;
-  abstract processSubmission(context: FormContextProps, abortController: AbortController): Promise<OpenmrsResource>;
+  abstract processSubmission(context: FormContextProps, appointments: Array<Appointment>, abortController: AbortController): Promise<OpenmrsResource>;
   abstract getInitialValues(context: FormProcessorContextProps): Promise<Record<string, any>>;
   abstract getCustomHooks(): GetCustomHooksResponse;
   abstract prepareFormSchema(schema: FormSchema): FormSchema;
