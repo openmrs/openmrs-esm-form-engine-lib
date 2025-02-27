@@ -12,15 +12,13 @@ import { DataTable, Table, TableHead, TableRow, TableHeader, TableBody, TableCel
 
 const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
   const { t } = useTranslation();
-  const { appointments, setAppointments, refetchPatientAppointments } = useFormFactory();
+  const { appointments, setAppointments } = useFormFactory();
   const launchWorkspace = useLaunchWorkspaceRequiringVisit(field.questionOptions?.workspaceName);
 
   const handleAfterCreateAppointment = async (appointmentUuid: string) => {
     const appointment: Appointment = await getPatientAppointment(appointmentUuid);
-    // setAppointments((prevAppointments: Array<Appointment>) => [...prevAppointments, appointment]);
-    refetchPatientAppointments();
+    setAppointments((prevAppointments: Array<Appointment>) => [...prevAppointments, appointment]);
   };
-  
   const handleLaunchWorkspace = () => {
     if (!launchWorkspace) {
       showSnackbar({
@@ -42,7 +40,7 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
     ];
   
     const rows = appointments.map((appointment) => ({
-      id: appointment.appointmentNumber,
+      id: `${appointment.uuid}`,
       startDateTime: formatDatetime(parseDate(appointment.startDateTime)),
       location: appointment?.location?.name ? appointment?.location?.name : '——',
       service: appointment.service.name,

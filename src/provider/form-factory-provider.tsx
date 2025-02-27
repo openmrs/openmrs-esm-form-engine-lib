@@ -26,7 +26,6 @@ interface FormFactoryProviderContextProps {
   visit: OpenmrsResource;
   appointments?: Array<Appointment>;
   setAppointments: (appointments: Array<Appointment> | ((prev: Array<Appointment>) => Array<Appointment>)) => void; // Correct typing
-  refetchPatientAppointments?: () => void;
   location: OpenmrsResource;
   provider: OpenmrsResource;
   isFormExpanded: boolean;
@@ -46,7 +45,6 @@ interface FormFactoryProviderProps {
   visit: OpenmrsResource;
   appointments?: Array<Appointment>;
   setAppointments?: (appointments: Array<Appointment> | ((prev: Array<Appointment>) => Array<Appointment>)) => void; // Correct typing
-  refetchPatientAppointments?: () => void;
   isFormExpanded: boolean;
   children: React.ReactNode;
   formSubmissionProps: {
@@ -74,7 +72,6 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   visit,
   appointments: initialAppointments = [],
   setAppointments,
-  refetchPatientAppointments,
   isFormExpanded = true,
   children,
   formSubmissionProps,
@@ -179,7 +176,6 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
         visit,
         appointments: appointments,
         setAppointments,
-        refetchPatientAppointments,
         location,
         provider,
         isFormExpanded,
