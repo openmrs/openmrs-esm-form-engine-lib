@@ -70,6 +70,7 @@
     "css-loader": "^6.11.0",
     "dayjs": "^1.11.11",
     "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "fork-ts-checker-webpack-plugin": "^6.5.3",
