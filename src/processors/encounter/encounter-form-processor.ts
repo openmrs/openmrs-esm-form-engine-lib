@@ -31,6 +31,7 @@ import { type FormContextProps } from '../../provider/form-provider';
 import { useEncounter } from '../../hooks/useEncounter';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { usePatientPrograms } from '../../hooks/usePatientPrograms';
+import { TOptions } from 'i18next';
 
 function useCustomHooks(context: Partial<FormProcessorContextProps>) {
   const [isLoading, setIsLoading] = useState(true);
@@ -110,7 +111,8 @@ export class EncounterFormProcessor extends FormProcessor {
 
   async processSubmission(context: FormContextProps, abortController: AbortController) {
     const { encounterRole, encounterProvider, encounterDate, encounterLocation } = getMutableSessionProps(context);
-    const translateFn = (key, defaultValue?) => translateFrom(formEngineAppName, key, defaultValue);
+    const t = (key: string, defaultValue: string, options?: Omit<TOptions, 'ns' | 'defaultValue'>) =>
+      translateFrom(formEngineAppName, key, defaultValue, options);
     const patientIdentifiers = preparePatientIdentifiers(context.formFields, encounterLocation);
     const encounter = prepareEncounter(context, encounterDate, encounterRole, encounterProvider, encounterLocation);
 
@@ -119,7 +121,7 @@ export class EncounterFormProcessor extends FormProcessor {
       await Promise.all(savePatientIdentifiers(context.patient, patientIdentifiers));
       if (patientIdentifiers?.length) {
         showSnackbar({
-          title: translateFn('patientIdentifiersSaved', 'Patient identifier(s) saved successfully'),
+          title: t('patientIdentifiersSaved', 'Patient identifier(s) saved successfully'),
           kind: 'success',
           isLowContrast: true,
         });
@@ -127,7 +129,7 @@ export class EncounterFormProcessor extends FormProcessor {
     } catch (error) {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
-        title: translateFn('errorSavingPatientIdentifiers', 'Error saving patient identifiers'),
+        title: t('errorSavingPatientIdentifiers', 'Error saving patient identifiers'),
         description: errorMessages.join(', '),
         kind: 'error',
         critical: true,
@@ -144,7 +146,7 @@ export class EncounterFormProcessor extends FormProcessor {
       const savedPrograms = await await savePatientPrograms(programs);
       if (savedPrograms?.length) {
         showSnackbar({
-          title: translateFn('patientProgramsSaved', 'Patient program(s) saved successfully'),
+          title: t('patientProgramsSaved', 'Patient program(s) saved successfully'),
           kind: 'success',
           isLowContrast: true,
         });
@@ -152,7 +154,7 @@ export class EncounterFormProcessor extends FormProcessor {
     } catch (error) {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
-        title: translateFn('errorSavingPatientPrograms', 'Error saving patient program(s)'),
+        title: t('errorSavingPatientPrograms', 'Error saving patient program(s)'),
         description: errorMessages.join(', '),
         kind: 'error',
         critical: true,
@@ -166,7 +168,7 @@ export class EncounterFormProcessor extends FormProcessor {
       const savedDiagnoses = savedEncounter.diagnoses.map((diagnosis) => diagnosis.display);
       if (savedOrders.length) {
         showSnackbar({
-          title: translateFn('ordersSaved', 'Order(s) saved successfully'),
+          title: t('ordersSaved', 'Order(s) saved successfully'),
           subtitle: savedOrders.join(', '),
           kind: 'success',
           isLowContrast: true,
@@ -175,7 +177,7 @@ export class EncounterFormProcessor extends FormProcessor {
       // handle diagnoses
       if (savedDiagnoses.length) {
         showSnackbar({
-          title: translateFn('diagnosisSaved', 'Diagnosis(es) saved successfully'),
+          title: t('diagnosisSaved', 'Diagnosis(es) saved successfully'),
           subtitle: savedDiagnoses.join(', '),
           kind: 'success',
           isLowContrast: true,
@@ -188,7 +190,7 @@ export class EncounterFormProcessor extends FormProcessor {
         );
         if (attachmentsResponse?.length) {
           showSnackbar({
-            title: translateFn('attachmentsSaved', 'Attachment(s) saved successfully'),
+            title: t('attachmentsSaved', 'Attachment(s) saved successfully'),
             kind: 'success',
             isLowContrast: true,
           });
@@ -196,7 +198,7 @@ export class EncounterFormProcessor extends FormProcessor {
       } catch (error) {
         const errorMessages = extractErrorMessagesFromResponse(error);
         return Promise.reject({
-          title: translateFn('errorSavingAttachments', 'Error saving attachment(s)'),
+          title: t('errorSavingAttachments', 'Error saving attachment(s)'),
           description: errorMessages.join(', '),
           kind: 'error',
           critical: true,
@@ -206,7 +208,7 @@ export class EncounterFormProcessor extends FormProcessor {
     } catch (error) {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
-        title: translateFn('errorSavingEncounter', 'Error saving encounter'),
+        title: t('errorSavingEncounter', 'Error saving encounter'),
         description: errorMessages.join(', '),
         kind: 'error',
         critical: true,

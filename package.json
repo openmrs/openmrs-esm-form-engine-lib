@@ -16,7 +16,7 @@
     "coverage": "yarn test --coverage",
     "analyze": "webpack --mode=production --env.analyze=true",
     "prepare": "husky install",
-    "extract-translations": "i18next 'src/**/*.component.tsx' --config './tools/i18next-parser.config.js'"
+    "extract-translations": "i18next 'src/**/*.component.tsx' 'src/**/*.ts' --config './tools/i18next-parser.config.js'"
   },
   "browserslist": [
     "extends browserslist-config-openmrs"
