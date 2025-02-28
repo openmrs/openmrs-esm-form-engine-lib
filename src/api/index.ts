@@ -1,6 +1,13 @@
-import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { fhirBaseUrl, openmrsFetch, restBaseUrl, toOmrsIsoString } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
-import type { Appointment, AppointmentsPayload, FHIRObsResource, OpenmrsForm, PatientIdentifier, PatientProgramPayload } from '../types';
+import type {
+  Appointment,
+  AppointmentsPayload,
+  FHIRObsResource,
+  OpenmrsForm,
+  PatientIdentifier,
+  PatientProgramPayload,
+} from '../types';
 import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
@@ -18,29 +25,26 @@ export function saveEncounter(abortController: AbortController, payload, encount
   });
 }
 
-export function addFulfillingEncounters(
-  abortController: AbortController,
+export function addEncounterToAppointments(
   appointments: Array<Appointment>,
-  encounterUuid?: string,
+  encounterUuid: string,
+  abortController: AbortController,
 ) {
-  const url = `${restBaseUrl}/appointment`;
   const filteredAppointments = appointments.filter((appointment) => {
     return !appointment.fulfillingEncounters.includes(encounterUuid);
   });
-  return filteredAppointments.map((appointment) => {
-    return updateAppointment(url, appointment, encounterUuid, abortController);
-  });
+  return Promise.all(
+    filteredAppointments.map((appointment) => updateAppointment(appointment, encounterUuid, abortController)),
+  );
 }
 
 function updateAppointment(
-  url: string,
   appointment: Appointment,
   encounterUuid: string | undefined,
-  abortController: AbortController
+  abortController: AbortController,
 ) {
-
   const updatedFulfillingEncounters = [...(appointment.fulfillingEncounters ?? []), encounterUuid];
-  
+
   const updatedAppointment: AppointmentsPayload = {
     fulfillingEncounters: updatedFulfillingEncounters,
     serviceUuid: appointment.service.uuid,
@@ -50,32 +54,21 @@ function updateAppointment(
     appointmentKind: appointment.appointmentKind,
     status: appointment.status,
     startDateTime: appointment.startDateTime,
-    endDateTime: appointment.endDateTime.toString(),
+    endDateTime: toOmrsIsoString(appointment.endDateTime),
     providers: [{ uuid: appointment.providers[0]?.uuid }],
     comments: appointment.comments,
-    uuid: appointment.uuid
+    uuid: appointment.uuid,
   };
 
-  return openmrsFetch(`${url}`, {
+  return openmrsFetch(`${restBaseUrl}/appointment`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: updatedAppointment,
     signal: abortController.signal,
-  })
-}
-
-export const getPatientAppointment = (appointmentUuid: string) => {
-  return openmrsFetch(
-    `${restBaseUrl}/appointments/${appointmentUuid}`,
-  ).then(({ data }) => {
-    if (data) {
-      return data;
-    }
-    return null;
   });
-};
+}
 
 export function saveAttachment(patientUuid, field, conceptUuid, date, encounterUUID, abortController) {
   const url = `${restBaseUrl}/attachment`;

@@ -34,7 +34,7 @@ export abstract class FormProcessor {
   }
 
   abstract getHistoricalValue(field: FormField, context: FormContextProps): Promise<ValueAndDisplay>;
-  abstract processSubmission(context: FormContextProps, appointments: Array<Appointment>, abortController: AbortController): Promise<OpenmrsResource>;
+  abstract processSubmission(context: FormContextProps, abortController: AbortController): Promise<OpenmrsResource>;
   abstract getInitialValues(context: FormProcessorContextProps): Promise<Record<string, any>>;
   abstract getCustomHooks(): GetCustomHooksResponse;
   abstract prepareFormSchema(schema: FormSchema): FormSchema;

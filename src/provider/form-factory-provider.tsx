@@ -14,6 +14,7 @@ import { type FormContextProps } from './form-provider';
 import { processPostSubmissionActions, validateForm } from './form-factory-helper';
 import { useTranslation } from 'react-i18next';
 import { usePostSubmissionActions } from '../hooks/usePostSubmissionActions';
+import { type UsePatientAppointmentsResults } from 'src/hooks/usePatientCheckedInAppointments';
 
 interface FormFactoryProviderContextProps {
   patient: fhir.Patient;
@@ -24,8 +25,7 @@ interface FormFactoryProviderContextProps {
   layoutType: LayoutType;
   workspaceLayout: 'minimized' | 'maximized';
   visit: OpenmrsResource;
-  appointments?: Array<Appointment>;
-  addAppointmentForCurrentEncounter: (appointmentUuid: string) => void;
+  patientAppointments: UsePatientAppointmentsResults;
   location: OpenmrsResource;
   provider: OpenmrsResource;
   isFormExpanded: boolean;
@@ -43,8 +43,7 @@ interface FormFactoryProviderProps {
   location: OpenmrsResource;
   provider: OpenmrsResource;
   visit: OpenmrsResource;
-  appointments?: Array<Appointment>;
-  addAppointmentForCurrentEncounter: (appointmentUuid: string) => void;
+  patientAppointments: UsePatientAppointmentsResults;
   isFormExpanded: boolean;
   children: React.ReactNode;
   formSubmissionProps: {
@@ -70,8 +69,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   location,
   provider,
   visit,
-  appointments,
-  addAppointmentForCurrentEncounter,
+  patientAppointments,
   isFormExpanded = true,
   children,
   formSubmissionProps,
@@ -108,11 +106,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
       // validate all forms
       const isValid = forms.every((formContext) => validateForm(formContext));
       if (isValid) {
-        Promise.all(
-          forms.map((formContext) =>
-            formContext.processor.processSubmission(formContext, appointments, abortController),
-          ),
-        )
+        Promise.all(forms.map((formContext) => formContext.processor.processSubmission(formContext, abortController)))
           .then(async (results) => {
             formSubmissionProps.setIsSubmitting(false);
             if (sessionMode === 'edit') {
@@ -173,8 +167,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
         layoutType,
         workspaceLayout,
         visit,
-        appointments,
-        addAppointmentForCurrentEncounter,
+        patientAppointments,
         location,
         provider,
         isFormExpanded,

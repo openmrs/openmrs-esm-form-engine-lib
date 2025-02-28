@@ -24,7 +24,7 @@ import { evaluateAsyncExpression, type FormNode } from '../../utils/expression-r
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
 import { extractObsValueAndDisplay } from '../../utils/form-helper';
 import { FormProcessor } from '../form-processor';
-import { addFulfillingEncounters, getPreviousEncounter, saveEncounter } from '../../api';
+import { addEncounterToAppointments, getPreviousEncounter, saveEncounter } from '../../api';
 import { hasRendering } from '../../utils/common-utils';
 import { isEmpty } from '../../validators/form-validator';
 import { formEngineAppName } from '../../globals';
@@ -109,7 +109,7 @@ export class EncounterFormProcessor extends FormProcessor {
     return schema;
   }
 
-  async processSubmission(context: FormContextProps, appointments: Array<Appointment>, abortController: AbortController) {
+  async processSubmission(context: FormContextProps, abortController: AbortController) {
     const { encounterRole, encounterProvider, encounterDate, encounterLocation } = getMutableSessionProps(context);
     const translateFn = (key, defaultValue?) => translateFrom(formEngineAppName, key, defaultValue);
     const patientIdentifiers = preparePatientIdentifiers(context.formFields, encounterLocation);
@@ -205,8 +205,12 @@ export class EncounterFormProcessor extends FormProcessor {
       }
       // handle appointments
       try {
-        const {appointments: myAppointments} = context
-        const appointmentsResponse = await Promise.all(addFulfillingEncounters(abortController, appointments, savedEncounter.uuid));
+        const { newlyCreatedAppointments } = context;
+        const appointmentsResponse = await addEncounterToAppointments(
+          newlyCreatedAppointments,
+          savedEncounter.uuid,
+          abortController,
+        );
         if (appointmentsResponse?.length) {
           showSnackbar({
             title: translateFn('appointmentsSaved', 'Appointment(s) saved successfully'),

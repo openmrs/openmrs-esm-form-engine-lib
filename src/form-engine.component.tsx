@@ -57,10 +57,7 @@ const FormEngine = ({
   }, []);
   const workspaceSize = useFormWorkspaceSize(ref);
   const { patient, isLoadingPatient } = usePatientData(patientUUID);
-  const { appointments, addAppointmentForCurrentEncounter } = usePatientAppointments(
-    patientUUID,
-    encounterUUID || null,
-  );
+  const patientAppointments = usePatientAppointments(patientUUID, encounterUUID);
   const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
@@ -141,8 +138,7 @@ const FormEngine = ({
           location={session?.sessionLocation}
           provider={session?.currentProvider}
           visit={visit}
-          appointments={appointments}
-          addAppointmentForCurrentEncounter={addAppointmentForCurrentEncounter}
+          patientAppointments={patientAppointments}
           handleConfirmQuestionDeletion={handleConfirmQuestionDeletion}
           isFormExpanded={isFormExpanded}
           formSubmissionProps={{

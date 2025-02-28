@@ -1,19 +1,48 @@
-import { openmrsFetch, restBaseUrl, useOpenmrsSWR } from '@openmrs/esm-framework';
+import { restBaseUrl, useOpenmrsSWR } from '@openmrs/esm-framework';
 import dayjs from 'dayjs';
-import useSWR, { mutate, SWRResponse } from 'swr';
-import { type AppointmentsResponse } from '../types';
+import type { Appointment, AppointmentsResponse } from '../types';
 import { useCallback, useMemo, useState } from 'react';
 
-export function usePatientAppointments(patientUuid: string, encounterUUID: string) {
-  const [appointmentUuids, setAppointmentUuids] = useState<Array<string>>([]);
+export interface UsePatientAppointmentsResults {
+  /**
+   * All the appointments for the patient and encounter, including the newly created appointments
+   */
+  appointments: Array<Appointment>;
+  /**
+   * The newly created appointments that doesn't have fulfilling encounters yet
+   */
+  newlyCreatedAppointments: Array<Appointment>;
+  isLoadingAppointments: boolean;
+  errorFetchingAppointments: Error;
+  isValidatingAppointments: boolean;
+  /**
+   * When new appointments are created, they need to be added to the list of newly created appointments
+   * @param appointmentUuid The UUID of the appointment to add
+   */
+  addAppointmentForCurrentEncounter: (appointmentUuid: string) => void;
+}
+
+/**
+ * Returns the appointments for the specified patient and encounter
+ * @param patientUuid The UUID of the patient
+ * @param encounterUUID The encounter UUID to filter the appointments by their fulfilling encounters
+ */
+export function usePatientAppointments(patientUuid: string, encounterUUID: string): UsePatientAppointmentsResults {
+  const [newlyCreatedAppointmentUuids, setNewlyCreatedAppointmentUuids] = useState<Array<string>>([]);
 
   const startDate = useMemo(() => dayjs().subtract(6, 'month').toISOString(), []);
 
   // We need to fetch the appointments with the specified fulfilling encounter
   const appointmentsSearchUrl =
-    encounterUUID || appointmentUuids.length > 0 ? `${restBaseUrl}/appointments/search` : null;
+    encounterUUID || newlyCreatedAppointmentUuids.length > 0 ? `${restBaseUrl}/appointments/search` : null;
 
-  const swrResult = useOpenmrsSWR<AppointmentsResponse, Error>(appointmentsSearchUrl, {
+  const {
+    data,
+    isLoading: isLoadingAppointments,
+    error: errorFetchingAppointments,
+    isValidating: isValidatingAppointments,
+    mutate: refetchAppointments,
+  } = useOpenmrsSWR<AppointmentsResponse, Error>(appointmentsSearchUrl, {
     fetchInit: {
       method: 'POST',
       headers: {
@@ -28,25 +57,41 @@ export function usePatientAppointments(patientUuid: string, encounterUUID: strin
 
   const addAppointmentForCurrentEncounter = useCallback(
     (appointmentUuid: string) => {
-      setAppointmentUuids((prev) => (!prev.includes(appointmentUuid) ? [...prev, appointmentUuid] : prev));
-      swrResult.mutate();
+      setNewlyCreatedAppointmentUuids((prev) => (!prev.includes(appointmentUuid) ? [...prev, appointmentUuid] : prev));
+      refetchAppointments();
     },
-    [swrResult.mutate, setAppointmentUuids],
+    [refetchAppointments, setNewlyCreatedAppointmentUuids],
   );
 
-  const results = useMemo(
-    () => ({
-      appointments: (swrResult.data?.data ?? [])?.filter(
-        (appointment) =>
-          appointment.fulfillingEncounters?.includes(encounterUUID) || appointmentUuids.includes(appointment.uuid),
-      ),
-      mutateAppointments: swrResult.mutate,
-      isLoading: swrResult.isLoading,
-      error: swrResult.error,
+  const results = useMemo(() => {
+    const appointmentsWithEncounter = [];
+    const newlyCreatedAppointments = [];
+
+    (data?.data ?? [])?.forEach((appointment) => {
+      if (appointment.fulfillingEncounters?.includes(encounterUUID)) {
+        appointmentsWithEncounter.push(appointment);
+      } else if (newlyCreatedAppointmentUuids.includes(appointment.uuid)) {
+        newlyCreatedAppointments.push(appointment);
+      }
+    });
+
+    return {
+      appointments: [...newlyCreatedAppointments, ...appointmentsWithEncounter],
+      newlyCreatedAppointments,
+      isLoadingAppointments,
+      errorFetchingAppointments,
+      isValidatingAppointments,
       addAppointmentForCurrentEncounter,
-    }),
-    [swrResult, addAppointmentForCurrentEncounter, appointmentUuids, encounterUUID],
-  );
+    };
+  }, [
+    addAppointmentForCurrentEncounter,
+    data,
+    encounterUUID,
+    errorFetchingAppointments,
+    isLoadingAppointments,
+    isValidatingAppointments,
+    newlyCreatedAppointmentUuids,
+  ]);
 
   return results;
 }

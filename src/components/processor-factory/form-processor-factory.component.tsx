@@ -27,7 +27,17 @@ const FormProcessorFactory = ({
   isSubForm = false,
   setIsLoadingFormDependencies,
 }: FormProcessorFactoryProps) => {
-  const { patient, sessionMode, formProcessors, layoutType, location, provider, sessionDate, visit, appointments } = useFormFactory();
+  const {
+    patient,
+    sessionMode,
+    formProcessors,
+    layoutType,
+    location,
+    provider,
+    sessionDate,
+    visit,
+    patientAppointments: { newlyCreatedAppointments },
+  } = useFormFactory();
 
   const processor = useMemo(() => {
     const ProcessorClass = formProcessors[formJson.processor];
@@ -48,7 +58,7 @@ const FormProcessorFactory = ({
     processor,
     sessionDate,
     visit,
-    appointments,
+    newlyCreatedAppointments,
     formFields: [],
     formFieldAdapters: {},
     formFieldValidators: {},

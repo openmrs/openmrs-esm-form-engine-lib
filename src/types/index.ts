@@ -10,7 +10,7 @@ export interface FormProcessorContextProps {
   patient: fhir.Patient;
   formJson: FormSchema;
   visit: OpenmrsResource;
-  appointments?: Array<Appointment>
+  newlyCreatedAppointments?: Array<Appointment>;
   sessionMode: SessionMode;
   sessionDate: Date;
   location: OpenmrsResource;
