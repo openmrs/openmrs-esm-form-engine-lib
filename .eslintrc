@@ -8,9 +8,10 @@
     "project": true,
     "tsconfigRootDir": "__dirname"
   },
-  "plugins": ["@typescript-eslint", "react-hooks"],
+  "plugins": ["@typescript-eslint", "import", "react-hooks"],
   "root": true,
   "rules": {
+    "import/no-duplicates": "error",
     "react-hooks/rules-of-hooks": "error",
     "@typescript-eslint/ban-types": "off",
     "@typescript-eslint/no-explicit-any": "off",

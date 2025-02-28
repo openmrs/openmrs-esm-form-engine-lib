@@ -1,7 +1,12 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
-import { type OpenmrsObs, type FormFieldValueAdapter, type FormProcessorContextProps } from '../types';
+import {
+  type OpenmrsObs,
+  type FormFieldValueAdapter,
+  type FormProcessorContextProps,
+  type OpenmrsEncounter,
+  type FormField,
+} from '../types';
 import { type FormContextProps } from '../provider/form-provider';
-import { type OpenmrsEncounter, type FormField } from '../types';
 import { gracefullySetSubmission } from '../utils/common-utils';
 import { isEmpty } from '../validators/form-validator';
 import { isTrue } from '../utils/boolean-utils';

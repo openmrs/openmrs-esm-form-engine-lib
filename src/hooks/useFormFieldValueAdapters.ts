@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { type FormField } from '../types';
-import { type FormFieldValueAdapter } from '../types';
+import { type FormField, type FormFieldValueAdapter } from '../types';
 import { getRegisteredFieldValueAdapter } from '../registry/registry';
 
 export const useFormFieldValueAdapters = (fields: FormField[]) => {
