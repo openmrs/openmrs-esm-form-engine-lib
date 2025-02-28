@@ -12,6 +12,7 @@ import { PatientIdentifierAdapter } from '../../adapters/patient-identifier-adap
 import { ProgramStateAdapter } from '../../adapters/program-state-adapter';
 import { EncounterDiagnosisAdapter } from '../../adapters/encounter-diagnosis-adapter';
 import { type FormFieldValueAdapter } from '../../types';
+import { PersonAttributesAdapter } from '../../adapters/person-attributes-adapter';
 
 export const inbuiltFieldValueAdapters: RegistryItem<FormFieldValueAdapter>[] = [
   {
@@ -65,5 +66,9 @@ export const inbuiltFieldValueAdapters: RegistryItem<FormFieldValueAdapter>[] = 
   {
     type: 'diagnosis',
     component: EncounterDiagnosisAdapter,
+  },
+  {
+    type: 'personAttribute',
+    component: PersonAttributesAdapter,
   },
 ];

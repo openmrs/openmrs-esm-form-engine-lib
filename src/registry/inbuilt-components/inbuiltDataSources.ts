@@ -34,6 +34,10 @@ export const inbuiltDataSources: Array<RegistryItem<DataSource<any>>> = [
     name: 'encounter_role_datasource',
     component: new EncounterRoleDataSource(),
   },
+  {
+    name: 'person-attribute-location',
+    component: new LocationDataSource(),
+  },
 ];
 
 export const validateInbuiltDatasource = (name: string) => {
