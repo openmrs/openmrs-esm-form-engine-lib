@@ -12,6 +12,7 @@ import {
   savePatientPrograms,
 } from './encounter-processor-helper';
 import {
+  type Appointment,
   type FormField,
   type FormPage,
   type FormProcessorContextProps,
@@ -23,7 +24,7 @@ import { evaluateAsyncExpression, type FormNode } from '../../utils/expression-r
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
 import { extractObsValueAndDisplay } from '../../utils/form-helper';
 import { FormProcessor } from '../form-processor';
-import { getPreviousEncounter, saveEncounter } from '../../api';
+import { addEncounterToAppointments, getPreviousEncounter, saveEncounter } from '../../api';
 import { hasRendering } from '../../utils/common-utils';
 import { isEmpty } from '../../validators/form-validator';
 import { formEngineAppName } from '../../globals';
@@ -197,6 +198,30 @@ export class EncounterFormProcessor extends FormProcessor {
         const errorMessages = extractErrorMessagesFromResponse(error);
         return Promise.reject({
           title: translateFn('errorSavingAttachments', 'Error saving attachment(s)'),
+          description: errorMessages.join(', '),
+          kind: 'error',
+          critical: true,
+        });
+      }
+      // handle appointments
+      try {
+        const { newlyCreatedAppointments } = context;
+        const appointmentsResponse = await addEncounterToAppointments(
+          newlyCreatedAppointments,
+          savedEncounter.uuid,
+          abortController,
+        );
+        if (appointmentsResponse?.length) {
+          showSnackbar({
+            title: translateFn('appointmentsSaved', 'Appointment(s) saved successfully'),
+            kind: 'success',
+            isLowContrast: true,
+          });
+        }
+      } catch (error) {
+        const errorMessages = Array.isArray(error) ? error.map((err) => err.message) : [error.message];
+        return Promise.reject({
+          title: translateFn('errorSavingAppointments', 'Error saving appointment(s)'),
           description: errorMessages.join(', '),
           kind: 'error',
           critical: true,

@@ -1,6 +1,13 @@
-import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { fhirBaseUrl, openmrsFetch, restBaseUrl, toOmrsIsoString } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
-import type { FHIRObsResource, OpenmrsForm, PatientIdentifier, PatientProgramPayload } from '../types';
+import type {
+  Appointment,
+  AppointmentsPayload,
+  FHIRObsResource,
+  OpenmrsForm,
+  PatientIdentifier,
+  PatientProgramPayload,
+} from '../types';
 import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
@@ -14,6 +21,51 @@ export function saveEncounter(abortController: AbortController, payload, encount
     },
     method: 'POST',
     body: payload,
+    signal: abortController.signal,
+  });
+}
+
+export function addEncounterToAppointments(
+  appointments: Array<Appointment>,
+  encounterUuid: string,
+  abortController: AbortController,
+) {
+  const filteredAppointments = appointments.filter((appointment) => {
+    return !appointment.fulfillingEncounters.includes(encounterUuid);
+  });
+  return Promise.all(
+    filteredAppointments.map((appointment) => updateAppointment(appointment, encounterUuid, abortController)),
+  );
+}
+
+function updateAppointment(
+  appointment: Appointment,
+  encounterUuid: string | undefined,
+  abortController: AbortController,
+) {
+  const updatedFulfillingEncounters = [...(appointment.fulfillingEncounters ?? []), encounterUuid];
+
+  const updatedAppointment: AppointmentsPayload = {
+    fulfillingEncounters: updatedFulfillingEncounters,
+    serviceUuid: appointment.service.uuid,
+    locationUuid: appointment.location.uuid,
+    patientUuid: appointment.patient.uuid,
+    dateAppointmentScheduled: appointment.startDateTime,
+    appointmentKind: appointment.appointmentKind,
+    status: appointment.status,
+    startDateTime: appointment.startDateTime,
+    endDateTime: toOmrsIsoString(appointment.endDateTime),
+    providers: [{ uuid: appointment.providers[0]?.uuid }],
+    comments: appointment.comments,
+    uuid: appointment.uuid,
+  };
+
+  return openmrsFetch(`${restBaseUrl}/appointment`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: updatedAppointment,
     signal: abortController.signal,
   });
 }

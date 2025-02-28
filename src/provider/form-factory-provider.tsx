@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
-import { type FormField, type FormSchema, type SessionMode } from '../types';
+import type { Appointment, FormField, FormSchema, SessionMode } from '../types';
 import { EncounterFormProcessor } from '../processors/encounter/encounter-form-processor';
 import {
   type LayoutType,
@@ -14,6 +14,7 @@ import { type FormContextProps } from './form-provider';
 import { processPostSubmissionActions, validateForm } from './form-factory-helper';
 import { useTranslation } from 'react-i18next';
 import { usePostSubmissionActions } from '../hooks/usePostSubmissionActions';
+import { type UsePatientAppointmentsResults } from 'src/hooks/usePatientCheckedInAppointments';
 
 interface FormFactoryProviderContextProps {
   patient: fhir.Patient;
@@ -24,6 +25,7 @@ interface FormFactoryProviderContextProps {
   layoutType: LayoutType;
   workspaceLayout: 'minimized' | 'maximized';
   visit: OpenmrsResource;
+  patientAppointments: UsePatientAppointmentsResults;
   location: OpenmrsResource;
   provider: OpenmrsResource;
   isFormExpanded: boolean;
@@ -41,6 +43,7 @@ interface FormFactoryProviderProps {
   location: OpenmrsResource;
   provider: OpenmrsResource;
   visit: OpenmrsResource;
+  patientAppointments: UsePatientAppointmentsResults;
   isFormExpanded: boolean;
   children: React.ReactNode;
   formSubmissionProps: {
@@ -66,6 +69,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   location,
   provider,
   visit,
+  patientAppointments,
   isFormExpanded = true,
   children,
   formSubmissionProps,
@@ -163,6 +167,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
         layoutType,
         workspaceLayout,
         visit,
+        patientAppointments,
         location,
         provider,
         isFormExpanded,
