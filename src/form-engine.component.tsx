@@ -34,7 +34,7 @@ interface FormEngineProps {
   handleClose?: () => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   markFormAsDirty?: (isDirty: boolean) => void;
-} 
+}
 const FormEngine = ({
   formJson,
   patientUUID,
@@ -57,8 +57,10 @@ const FormEngine = ({
   }, []);
   const workspaceSize = useFormWorkspaceSize(ref);
   const { patient, isLoadingPatient } = usePatientData(patientUUID);
-  const { data: initialPatientAppointments } = usePatientAppointments(patientUUID, encounterUUID || null);
-  const [appointments, setAppointments] = useState<Array<Appointment>>(initialPatientAppointments || []);
+  const { appointments, addAppointmentForCurrentEncounter } = usePatientAppointments(
+    patientUUID,
+    encounterUUID || null,
+  );
   const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
@@ -94,17 +96,17 @@ const FormEngine = ({
     return !isFormWorkspaceTooNarrow && hasMultiplePages;
   }, [isFormWorkspaceTooNarrow, isLoadingDependencies, hasMultiplePages]);
 
-  useEffect(() => {
-    if (initialPatientAppointments) {
-      setAppointments(prevAppointments => {
-        const newAppointments = initialPatientAppointments.filter(
-          newAppt => !prevAppointments.some(appt => appt.uuid === newAppt.uuid)
-        );
-        return [...prevAppointments, ...newAppointments];
-      });
-    }
-  }, [initialPatientAppointments]);
-  
+  // useEffect(() => {
+  //   if (initialPatientAppointments) {
+  //     setAppointments((prevAppointments) => {
+  //       const newAppointments = initialPatientAppointments.filter(
+  //         (newAppt) => !prevAppointments.some((appt) => appt.uuid === newAppt.uuid),
+  //       );
+  //       return [...prevAppointments, ...newAppointments];
+  //     });
+  //   }
+  // }, [initialPatientAppointments]);
+
   useEffect(() => {
     reportError(formError, t('errorLoadingFormSchema', 'Error loading form schema'));
   }, [formError]);
@@ -140,7 +142,7 @@ const FormEngine = ({
           provider={session?.currentProvider}
           visit={visit}
           appointments={appointments}
-          setAppointments={setAppointments}
+          addAppointmentForCurrentEncounter={addAppointmentForCurrentEncounter}
           handleConfirmQuestionDeletion={handleConfirmQuestionDeletion}
           isFormExpanded={isFormExpanded}
           formSubmissionProps={{

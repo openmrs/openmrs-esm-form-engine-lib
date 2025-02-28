@@ -224,9 +224,7 @@ export interface Diagnosis {
   formFieldPath?: string;
 }
 
-export interface AppointmentsFetchResponse {
-  data: Array<Appointment>;
-}
+export type AppointmentsResponse = Array<Appointment>;
 
 export interface AppointmentService {
   appointmentServiceId: number;
@@ -276,20 +274,20 @@ export interface Appointment {
 }
 
 export interface AppointmentsPayload {
-  appointmentKind: string,
-  status: string,
-  serviceUuid: string,
-  startDateTime: string,
-  endDateTime: string,
-  locationUuid: string,
+  appointmentKind: string;
+  status: string;
+  serviceUuid: string;
+  startDateTime: string;
+  endDateTime: string;
+  locationUuid: string;
   providers: [
-      {
-        uuid: string
-      }
-  ],
-  patientUuid: string
-  comments: string,
-  uuid: string,
-  dateAppointmentScheduled: string
-  fulfillingEncounters: Array<string>
+    {
+      uuid: string;
+    },
+  ];
+  patientUuid: string;
+  comments: string;
+  uuid: string;
+  dateAppointmentScheduled: string;
+  fulfillingEncounters: Array<string>;
 }

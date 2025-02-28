@@ -1,5 +1,5 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { type Appointment, type AppointmentsFetchResponse, type FormField, type FormSchema, type SessionMode } from '../types';
+import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
+import type { Appointment, FormField, FormSchema, SessionMode } from '../types';
 import { EncounterFormProcessor } from '../processors/encounter/encounter-form-processor';
 import {
   type LayoutType,
@@ -25,7 +25,7 @@ interface FormFactoryProviderContextProps {
   workspaceLayout: 'minimized' | 'maximized';
   visit: OpenmrsResource;
   appointments?: Array<Appointment>;
-  setAppointments: (appointments: Array<Appointment> | ((prev: Array<Appointment>) => Array<Appointment>)) => void; // Correct typing
+  addAppointmentForCurrentEncounter: (appointmentUuid: string) => void;
   location: OpenmrsResource;
   provider: OpenmrsResource;
   isFormExpanded: boolean;
@@ -44,7 +44,7 @@ interface FormFactoryProviderProps {
   provider: OpenmrsResource;
   visit: OpenmrsResource;
   appointments?: Array<Appointment>;
-  setAppointments?: (appointments: Array<Appointment> | ((prev: Array<Appointment>) => Array<Appointment>)) => void; // Correct typing
+  addAppointmentForCurrentEncounter: (appointmentUuid: string) => void;
   isFormExpanded: boolean;
   children: React.ReactNode;
   formSubmissionProps: {
@@ -70,8 +70,8 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   location,
   provider,
   visit,
-  appointments: initialAppointments = [],
-  setAppointments,
+  appointments,
+  addAppointmentForCurrentEncounter,
   isFormExpanded = true,
   children,
   formSubmissionProps,
@@ -85,7 +85,6 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   const layoutType = useLayoutType();
   const { isSubmitting, setIsSubmitting, onSubmit, onError, handleClose } = formSubmissionProps;
   const postSubmissionHandlers = usePostSubmissionActions(formJson.postSubmissionActions);
-  const [appointments, setAppointmentsState] = useState(initialAppointments);
 
   const abortController = new AbortController();
 
@@ -102,10 +101,6 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
     EncounterFormProcessor: EncounterFormProcessor,
   });
 
-    useEffect(() => {
-      setAppointmentsState(initialAppointments);
-    }, [initialAppointments]);
-    
   useEffect(() => {
     if (isSubmitting) {
       // TODO: find a dynamic way of managing the form processing order
@@ -113,7 +108,11 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
       // validate all forms
       const isValid = forms.every((formContext) => validateForm(formContext));
       if (isValid) {
-        Promise.all(forms.map((formContext) => formContext.processor.processSubmission(formContext, appointments, abortController)))
+        Promise.all(
+          forms.map((formContext) =>
+            formContext.processor.processSubmission(formContext, appointments, abortController),
+          ),
+        )
           .then(async (results) => {
             formSubmissionProps.setIsSubmitting(false);
             if (sessionMode === 'edit') {
@@ -174,8 +173,8 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
         layoutType,
         workspaceLayout,
         visit,
-        appointments: appointments,
-        setAppointments,
+        appointments,
+        addAppointmentForCurrentEncounter,
         location,
         provider,
         isFormExpanded,

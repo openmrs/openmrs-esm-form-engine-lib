@@ -12,13 +12,13 @@ import { DataTable, Table, TableHead, TableRow, TableHeader, TableBody, TableCel
 
 const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
   const { t } = useTranslation();
-  const { appointments, setAppointments } = useFormFactory();
+  const { appointments, addAppointmentForCurrentEncounter } = useFormFactory();
   const launchWorkspace = useLaunchWorkspaceRequiringVisit(field.questionOptions?.workspaceName);
 
   const handleAfterCreateAppointment = async (appointmentUuid: string) => {
-    const appointment: Appointment = await getPatientAppointment(appointmentUuid);
-    setAppointments((prevAppointments: Array<Appointment>) => [...prevAppointments, appointment]);
+    addAppointmentForCurrentEncounter(appointmentUuid);
   };
+
   const handleLaunchWorkspace = () => {
     if (!launchWorkspace) {
       showSnackbar({
@@ -28,7 +28,11 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
         isLowContrast: true,
       });
     }
-    field.questionOptions?.workspaceName === 'appointments-form-workspace' ? launchWorkspace({handleAfterCreateAppointment}) : launchWorkspace();
+    if (field.questionOptions?.workspaceName === 'appointments-form-workspace') {
+      launchWorkspace({ handleAfterCreateAppointment });
+    } else {
+      launchWorkspace();
+    }
   };
 
   const AppointmentsTable = ({ appointments }) => {
@@ -38,7 +42,7 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
       { key: 'service', header: 'Service' },
       { key: 'status', header: 'Status' },
     ];
-  
+
     const rows = appointments.map((appointment) => ({
       id: `${appointment.uuid}`,
       startDateTime: formatDatetime(parseDate(appointment.startDateTime)),
@@ -46,7 +50,7 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
       service: appointment.service.name,
       status: appointment.status,
     }));
-  
+
     return (
       <DataTable rows={rows} headers={headers}>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps, getCellProps }) => (
