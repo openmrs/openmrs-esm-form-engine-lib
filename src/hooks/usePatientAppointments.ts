@@ -23,7 +23,10 @@ export interface UsePatientAppointmentsResults {
 }
 
 /**
- * Returns the appointments for the specified patient and encounter
+ * Returns the appointments for the specified patient and encounter.
+ *
+ * This hook filters the appointments either the specified encounter UUID,
+ * or the newly created appointments that doesn't have fulfilling encounters yet
  * @param patientUuid The UUID of the patient
  * @param encounterUUID The encounter UUID to filter the appointments by their fulfilling encounters
  */

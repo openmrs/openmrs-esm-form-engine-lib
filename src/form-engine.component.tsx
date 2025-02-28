@@ -19,7 +19,7 @@ import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.compo
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import Sidebar from './components/sidebar/sidebar.component';
 import styles from './form-engine.scss';
-import { usePatientAppointments } from './hooks/usePatientCheckedInAppointments';
+import { usePatientAppointments } from './hooks/usePatientAppointments';
 
 interface FormEngineProps {
   patientUUID: string;

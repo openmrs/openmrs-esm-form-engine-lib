@@ -14,7 +14,7 @@ import { type FormContextProps } from './form-provider';
 import { processPostSubmissionActions, validateForm } from './form-factory-helper';
 import { useTranslation } from 'react-i18next';
 import { usePostSubmissionActions } from '../hooks/usePostSubmissionActions';
-import { type UsePatientAppointmentsResults } from 'src/hooks/usePatientCheckedInAppointments';
+import { type UsePatientAppointmentsResults } from 'src/hooks/usePatientAppointments';
 
 interface FormFactoryProviderContextProps {
   patient: fhir.Patient;
