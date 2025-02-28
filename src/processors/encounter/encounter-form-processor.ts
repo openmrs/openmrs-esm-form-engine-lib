@@ -213,7 +213,7 @@ export class EncounterFormProcessor extends FormProcessor {
         );
         if (appointmentsResponse?.length) {
           showSnackbar({
-            title: translateFn('appointmentsSaved', 'Appointment(s) saved successfully'),
+            title: translateFn('appointmentsSaved', 'Appointments saved successfully'),
             kind: 'success',
             isLowContrast: true,
           });
@@ -221,7 +221,7 @@ export class EncounterFormProcessor extends FormProcessor {
       } catch (error) {
         const errorMessages = Array.isArray(error) ? error.map((err) => err.message) : [error.message];
         return Promise.reject({
-          title: translateFn('errorSavingAppointments', 'Error saving appointment(s)'),
+          title: translateFn('errorSavingAppointments', 'Error saving appointments'),
           description: errorMessages.join(', '),
           kind: 'error',
           critical: true,
