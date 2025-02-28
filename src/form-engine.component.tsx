@@ -93,17 +93,6 @@ const FormEngine = ({
     return !isFormWorkspaceTooNarrow && hasMultiplePages;
   }, [isFormWorkspaceTooNarrow, isLoadingDependencies, hasMultiplePages]);
 
-  // useEffect(() => {
-  //   if (initialPatientAppointments) {
-  //     setAppointments((prevAppointments) => {
-  //       const newAppointments = initialPatientAppointments.filter(
-  //         (newAppt) => !prevAppointments.some((appt) => appt.uuid === newAppt.uuid),
-  //       );
-  //       return [...prevAppointments, ...newAppointments];
-  //     });
-  //   }
-  // }, [initialPatientAppointments]);
-
   useEffect(() => {
     reportError(formError, t('errorLoadingFormSchema', 'Error loading form schema'));
   }, [formError]);
