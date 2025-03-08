@@ -1,7 +1,7 @@
 import React from 'react';
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
-import { act, cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import {
   ExtensionSlot,
   OpenmrsDatePicker,
@@ -30,6 +30,7 @@ import sampleFieldsForm from '__mocks__/forms/rfe-forms/sample_fields.json';
 import testEnrolmentForm from '__mocks__/forms/rfe-forms/test-enrolment-form.json';
 import historicalExpressionsForm from '__mocks__/forms/rfe-forms/historical-expressions-form.json';
 import mockHxpEncounter from '__mocks__/forms/rfe-forms/mockHistoricalvisitsEncounter.json';
+import mockSaveEncounter from '__mocks__/forms/rfe-forms/mockSaveEncounter.json';
 import requiredTestForm from '__mocks__/forms/rfe-forms/required-form.json';
 import conditionalRequiredTestForm from '__mocks__/forms/rfe-forms/conditional-required-form.json';
 import conditionalAnsweredForm from '__mocks__/forms/rfe-forms/conditional-answered-form.json';
@@ -44,9 +45,11 @@ import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-for
 import readOnlyValidationForm from '__mocks__/forms/rfe-forms/read-only-validation-form.json';
 import jsExpressionValidationForm from '__mocks__/forms/rfe-forms/js-expression-validation-form.json';
 import hidePagesAndSectionsForm from '__mocks__/forms/rfe-forms/hide-pages-and-sections-form.json';
+import diagnosisForm from '__mocks__/forms/rfe-forms/diagnosis-test-form.json';
 
 import FormEngine from './form-engine.component';
-import { type SessionMode } from './types';
+import { type FormSchema, type OpenmrsEncounter, type SessionMode } from './types';
+import { useEncounter } from './hooks/useEncounter';
 
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
@@ -59,6 +62,7 @@ const mockExtensionSlot = jest.mocked(ExtensionSlot);
 const mockUsePatient = jest.mocked(usePatient);
 const mockUseSession = jest.mocked(useSession);
 const mockOpenmrsDatePicker = jest.mocked(OpenmrsDatePicker);
+const mockUseEncounter = jest.mocked(useEncounter);
 
 mockOpenmrsDatePicker.mockImplementation(({ id, labelText, value, onChange, isInvalid, invalidText }) => {
   return (
@@ -79,6 +83,48 @@ mockOpenmrsDatePicker.mockImplementation(({ id, labelText, value, onChange, isIn
 when(mockOpenmrsFetch).calledWith(formsResourcePath).mockReturnValue({ data: demoHtsOpenmrsForm });
 when(mockOpenmrsFetch).calledWith(clobDataResourcePath).mockReturnValue({ data: demoHtsForm });
 
+jest.mock('lodash-es/debounce', () => jest.fn((fn) => fn));
+
+jest.mock('lodash-es', () => ({
+  ...jest.requireActual('lodash-es'),
+  debounce: jest.fn((fn) => fn),
+}));
+
+jest.mock('./registry/registry', () => {
+  const originalModule = jest.requireActual('./registry/registry');
+  return {
+    ...originalModule,
+    getRegisteredDataSource: jest.fn().mockResolvedValue({
+      fetchData: jest.fn().mockImplementation((...args) => {
+        if (args[1].class?.length && !args[1].referencedValue?.key) {
+          // concept DS
+          return Promise.resolve([
+            {
+              uuid: 'stage-1-uuid',
+              display: 'stage 1',
+            },
+            {
+              uuid: 'stage-2-uuid',
+              display: 'stage 2',
+            },
+            {
+              uuid: 'stage-3-uuid',
+              display: 'stage 3',
+            },
+          ]);
+        }
+      }),
+      fetchSingleItem: jest.fn().mockImplementation((uuid: string) => {
+        return Promise.resolve({
+          uuid,
+          display: 'stage 1',
+        });
+      }),
+      toUuidAndDisplay: (data) => data,
+    }),
+  };
+});
+
 jest.mock('../src/api', () => {
   const originalModule = jest.requireActual('../src/api');
 
@@ -87,7 +133,7 @@ jest.mock('../src/api', () => {
     getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(mockHxpEncounter)),
     getConcept: jest.fn().mockImplementation(() => Promise.resolve(null)),
     getLatestObs: jest.fn().mockImplementation(() => Promise.resolve({ valueNumeric: 60 })),
-    saveEncounter: jest.fn(),
+    saveEncounter: jest.fn().mockImplementation(() => Promise.resolve(mockSaveEncounter)),
     createProgramEnrollment: jest.fn(),
   };
 });
@@ -112,6 +158,16 @@ jest.mock('./hooks/useConcepts', () => ({
     return {
       isLoading: false,
       concepts: undefined,
+      error: undefined,
+    };
+  }),
+}));
+
+jest.mock('./hooks/useEncounter', () => ({
+  useEncounter: jest.fn().mockImplementation((formJson: FormSchema) => {
+    return {
+      encounter: formJson.encounter ? (mockHxpEncounter as OpenmrsEncounter) : null,
+      isLoading: false,
       error: undefined,
     };
   }),
@@ -302,7 +358,7 @@ describe('Form engine component', () => {
       await act(async () => {
         renderForm(null, requiredTestForm);
       });
-
+      
       await user.click(screen.getByRole('button', { name: /save/i }));
 
       const labels = screen.getAllByText(/Text question/i);
@@ -401,7 +457,7 @@ describe('Form engine component', () => {
       expect(selectErrorMessage).toBeInTheDocument();
 
       // Validate multi-select field
-      const multiSelectInputField = screen.getByLabelText(/If Unscheduled, actual scheduled reason multi-select/i);
+      const multiSelectInputField = screen.getByText('If Unscheduled, actual scheduled reason multi-select', { exact: true });
       expect(multiSelectInputField).toBeInTheDocument();
       const multiSelectErrorMessage = screen.getByText(
         'Patient visit marked as unscheduled. Please provide the scheduled multi-select reason.',
@@ -504,41 +560,6 @@ describe('Form engine component', () => {
 
     it('should test post submission actions', async () => {
       const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
-      saveEncounterMock.mockResolvedValue({
-        headers: null,
-        ok: true,
-        redirected: false,
-        status: 200,
-        statusText: 'ok',
-        type: 'default',
-        url: '',
-        clone: null,
-        body: null,
-        bodyUsed: null,
-        arrayBuffer: null,
-        blob: null,
-        formData: null,
-        json: null,
-        text: jest.fn(),
-        data: [
-          {
-            uuid: '47cfe95b-357a-48f8-aa70-63eb5ae51916',
-            obs: [
-              {
-                formFieldPath: 'rfe-forms-tbProgramType',
-                value: {
-                  display: 'Tuberculosis treatment program',
-                  uuid: '160541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                },
-              },
-              {
-                formFieldPath: 'rfe-forms-tbRegDate',
-                value: '2023-12-05T00:00:00.000+0000',
-              },
-            ],
-          },
-        ],
-      });
 
       await act(async () => renderForm(null, postSubmissionTestForm));
 
@@ -1047,7 +1068,118 @@ describe('Form engine component', () => {
     });
   });
 
-  function renderForm(formUUID, formJson, intent?: string, mode?: SessionMode) {
+  describe('Encounter diagnosis', () => {
+    it('should test addition of a diagnosis', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm);
+      });
+
+      const testDiagnosis1AddButton = screen.getAllByRole('button', { name: 'Add' })[0];
+      await user.click(testDiagnosis1AddButton);
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('combobox', { name: /^test diagnosis 1$/i }).length).toEqual(2);
+      });
+
+      expect(screen.getByRole('button', { name: /Remove/i })).toBeInTheDocument();
+    });
+
+    it('should render all diagnosis fields', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm);
+      });
+      const diagnosisFields = screen.getAllByRole('combobox', { name: /test diagnosis 1|test diagnosis 2/i });
+      expect(diagnosisFields.length).toBe(2);
+    });
+
+    it('should be possible to delete cloned fields', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm);
+      });
+
+      const testDiagnosis1AddButton = screen.getAllByRole('button', { name: 'Add' })[0];
+      await user.click(testDiagnosis1AddButton);
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('combobox', { name: /^test diagnosis 1$/i }).length).toEqual(2);
+      });
+      const removeButton = screen.getByRole('button', { name: /Remove/i });
+
+      await user.click(removeButton);
+
+      expect(removeButton).not.toBeInTheDocument();
+    });
+
+    it('should save diagnosis field on form submission', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm);
+      });
+
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+      const combobox = await findSelectInput(screen, 'Test Diagnosis 1');
+      expect(combobox).toHaveAttribute('placeholder', 'Search...');
+
+      await user.click(combobox);
+      await user.type(combobox, 'stage');
+
+      expect(screen.getByText(/stage 1/)).toBeInTheDocument();
+      expect(screen.getByText(/stage 2/)).toBeInTheDocument();
+      expect(screen.getByText(/stage 3/)).toBeInTheDocument();
+
+      await user.click(screen.getByText('stage 1'));
+      await user.click(screen.getByRole('button', { name: /save/i }));
+      expect(saveEncounterMock).toHaveBeenCalledTimes(1);
+      const [_, encounter] = saveEncounterMock.mock.calls[0];
+      expect(encounter.diagnoses.length).toBe(1);
+      expect(encounter.diagnoses[0]).toEqual({
+        patient: '8673ee4f-e2ab-4077-ba55-4980f408773e',
+        condition: null,
+        diagnosis: {
+          coded: 'stage-1-uuid',
+        },
+        certainty: 'CONFIRMED',
+        rank: 1,
+        formFieldPath: `rfe-forms-diagnosis1`,
+        formFieldNamespace: 'rfe-forms',
+      });
+    });
+
+    it('should edit diagnosis field on form submission', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm, null, 'edit', mockHxpEncounter.uuid);
+      });
+      mockUseEncounter.mockImplementation(() => ({ encounter: mockHxpEncounter, error: null, isLoading: false }));
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+
+      const field1 = await findSelectInput(screen, 'Test Diagnosis 1');
+      expect(field1).toHaveValue('stage 1');
+
+      await user.click(field1);
+      await user.type(field1, 'stage');
+      expect(screen.getByText(/stage 1/)).toBeInTheDocument();
+      expect(screen.getByText(/stage 2/)).toBeInTheDocument();
+      expect(screen.getByText(/stage 3/)).toBeInTheDocument();
+      await user.click(screen.getByText(/stage 3/));
+      await user.click(screen.getByRole('button', { name: /save/i }));
+      expect(saveEncounterMock).toHaveBeenCalledTimes(1);
+      const [_, encounter] = saveEncounterMock.mock.calls[0];
+      expect(encounter.diagnoses.length).toBe(1);
+      expect(encounter.diagnoses[0]).toEqual({
+        patient: '8673ee4f-e2ab-4077-ba55-4980f408773e',
+        condition: null,
+        diagnosis: {
+          coded: 'stage-3-uuid',
+        },
+        certainty: 'CONFIRMED',
+        rank: 1,
+        formFieldPath: `rfe-forms-diagnosis1`,
+        formFieldNamespace: 'rfe-forms',
+        uuid: '95690fb4-0398-42d9-9ffc-8a134e6d829d',
+      });
+    });
+  });
+
+  function renderForm(formUUID, formJson, intent?: string, mode?: SessionMode, encounterUUID?: string) {
     render(
       <FormEngine
         formJson={formJson}
@@ -1055,6 +1187,7 @@ describe('Form engine component', () => {
         patientUUID={patientUUID}
         formSessionIntent={intent}
         visit={visit}
+        encounterUUID={encounterUUID}
         mode={mode ? mode : 'enter'}
       />,
     );

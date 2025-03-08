@@ -12,6 +12,7 @@ export interface OpenmrsEncounter {
   visit?: OpenmrsResource | string;
   encounterProviders?: Array<Record<string, any>>;
   form?: OpenmrsFormResource;
+  diagnoses?: Array<Diagnosis>;
 }
 
 export interface OpenmrsObs extends OpenmrsResource {
@@ -190,4 +191,35 @@ export interface PatientIdentifier {
   identifierType?: string;
   location?: string;
   preferred?: boolean;
+}
+
+export interface DiagnosisPayload {
+  patient: string;
+  condition: null;
+  diagnosis: {
+    coded: string;
+  };
+  certainty: string;
+  rank: number;
+  formFieldNamespace?: string;
+  formFieldPath?: string;
+  uuid?: string;
+  encounter?: string;
+}
+
+export interface Diagnosis {
+  encounter: string;
+  patient: string;
+  diagnosis: {
+    coded: {
+      uuid: string;
+    };
+  };
+  certainty: string;
+  rank: number;
+  display: string;
+  voided: boolean;
+  uuid: string;
+  formFieldNamespace?: string;
+  formFieldPath?: string;
 }

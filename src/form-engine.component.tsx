@@ -6,7 +6,7 @@ import { useSession, type Visit } from '@openmrs/esm-framework';
 import { FormFactoryProvider } from './provider/form-factory-provider';
 import { init, teardown } from './lifecycle';
 import { isEmpty, useFormJson } from '.';
-import { moduleName } from './globals';
+import { formEngineAppName } from './globals';
 import { reportError } from './utils/error-utils';
 import { useFormCollapse } from './hooks/useFormCollapse';
 import { useFormWorkspaceSize } from './hooks/useFormWorkspaceSize';
@@ -74,21 +74,23 @@ const FormEngine = ({
     return patient && workspaceSize === 'ultra-wide' && mode !== 'embedded-view';
   }, [patient, mode, workspaceSize]);
 
-  const showButtonSet = useMemo(() => {
+  const isFormWorkspaceTooNarrow = useMemo(() => ['narrow'].includes(workspaceSize), [workspaceSize]);
+
+  const showBottomButtonSet = useMemo(() => {
     if (mode === 'embedded-view' || isLoadingDependencies || hasMultiplePages === null) {
       return false;
     }
 
-    return ['narrow', 'wider'].includes(workspaceSize) || !hasMultiplePages;
-  }, [mode, workspaceSize, isLoadingDependencies, hasMultiplePages]);
+    return isFormWorkspaceTooNarrow || !hasMultiplePages;
+  }, [mode, isFormWorkspaceTooNarrow, isLoadingDependencies, hasMultiplePages]);
 
   const showSidebar = useMemo(() => {
     if (mode === 'embedded-view' || isLoadingDependencies || hasMultiplePages === null) {
       return false;
     }
 
-    return ['extra-wide', 'ultra-wide'].includes(workspaceSize) && hasMultiplePages;
-  }, [workspaceSize, isLoadingDependencies, hasMultiplePages]);
+    return !isFormWorkspaceTooNarrow && hasMultiplePages;
+  }, [isFormWorkspaceTooNarrow, isLoadingDependencies, hasMultiplePages]);
 
   useEffect(() => {
     reportError(formError, t('errorLoadingFormSchema', 'Error loading form schema'));
@@ -165,7 +167,7 @@ const FormEngine = ({
                     setIsLoadingFormDependencies={setIsLoadingDependencies}
                   />
                 </div>
-                {showButtonSet && (
+                {showBottomButtonSet && (
                   <ButtonSet className={styles.minifiedButtons}>
                     <Button
                       kind="secondary"
@@ -200,7 +202,7 @@ const FormEngine = ({
 
 function I18FormEngine(props: FormEngineProps) {
   return (
-    <I18nextProvider i18n={window.i18next} defaultNS={moduleName}>
+    <I18nextProvider i18n={window.i18next} defaultNS={formEngineAppName}>
       <FormEngine {...props} />
     </I18nextProvider>
   );

@@ -4,6 +4,7 @@ type FormState = {
   formFields: FormField[];
   invalidFields: FormField[];
   formJson: FormSchema;
+  deletedFields: FormField[];
 };
 
 type Action =
@@ -15,12 +16,14 @@ type Action =
   | { type: 'ADD_INVALID_FIELD'; value: FormField }
   | { type: 'REMOVE_INVALID_FIELD'; value: string }
   | { type: 'CLEAR_INVALID_FIELDS' }
-  | { type: 'SET_FORM_JSON'; value: any };
+  | { type: 'SET_FORM_JSON'; value: any }
+  | { type: 'SET_DELETED_FIELDS'; value: FormField[] };
 
 const initialState: FormState = {
   formFields: [],
   invalidFields: [],
   formJson: null,
+  deletedFields: [],
 };
 
 const formStateReducer = (state: FormState, action: Action): FormState => {
@@ -46,6 +49,8 @@ const formStateReducer = (state: FormState, action: Action): FormState => {
       return { ...state, invalidFields: [] };
     case 'SET_FORM_JSON':
       return { ...state, formJson: action.value };
+    case 'SET_DELETED_FIELDS':
+      return { ...state, deletedFields: action.value };
     default:
       return state;
   }

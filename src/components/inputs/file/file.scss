@@ -1,3 +1,5 @@
+@use '@carbon/layout';
+
 .label {
   font-family: IBM Plex Sans;
   font-size: 14px;
@@ -28,10 +30,8 @@
   display: flex;
   align-items: center;
   margin-bottom: 1rem;
-}
-
-.selectorButton {
-  margin-right: 1rem;
+  flex-wrap: wrap;
+  gap: layout.$spacing-05;
 }
 
 .caption {

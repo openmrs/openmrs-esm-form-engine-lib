@@ -4,7 +4,7 @@ import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
 import { fetchOpenMRSForm, fetchClobData } from '../api';
 import { getRegisteredFormSchemaTransformers } from '../registry/registry';
-import { moduleName } from '../globals';
+import { formEngineAppName } from '../globals';
 
 export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: string, formSessionIntent: string) {
   const [formJson, setFormJson] = useState<FormSchema>(null);
@@ -16,7 +16,7 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
     const setFormJsonWithTranslations = (formJson: FormSchema) => {
       if (formJson?.translations) {
         const language = window.i18next.language;
-        window.i18next.addResourceBundle(language, moduleName, formJson.translations, true, true);
+        window.i18next.addResourceBundle(language, formEngineAppName, formJson.translations, true, true);
       }
       setFormJson(formJson);
     };

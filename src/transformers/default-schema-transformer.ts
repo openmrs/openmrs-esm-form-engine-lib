@@ -148,6 +148,9 @@ function transformByType(question: FormField) {
         ? 'date'
         : question.questionOptions.rendering;
       break;
+    case 'diagnosis':
+      handleDiagnosis(question);
+      break;
   }
 }
 
@@ -275,4 +278,33 @@ function handleQuestionsWithObsComments(sectionQuestions: Array<FormField>): Arr
   });
 
   return augmentedQuestions;
+}
+
+function handleDiagnosis(question: FormField) {
+  if (
+    ('dataSource' in question.questionOptions && question.questionOptions['dataSource'] === 'diagnoses') ||
+    question.type === 'diagnosis'
+  ) {
+    question.questionOptions.datasource = {
+      name: 'problem_datasource',
+      config: {
+        class: question.questionOptions.diagnosis?.conceptClasses,
+      },
+    };
+    if (question.questionOptions.diagnosis?.conceptSet) {
+      question.questionOptions = {
+        ...question.questionOptions,
+        concept: question.questionOptions.diagnosis?.conceptSet,
+        datasource: {
+          name: 'problem_datasource',
+          config: {
+            useSetMembersByConcept: true,
+          },
+        },
+      };
+    }
+    question.questionOptions.isSearchable = true;
+
+    delete question.questionOptions['dataSource'];
+  }
 }

@@ -1,5 +1,4 @@
 import { pageObserver } from './components/sidebar/page-observer';
-import setupFormEngineLibI18n from './setupI18n';
 import { type FormFieldValueAdapter } from './types';
 
 const formFieldAdapters = new Set<FormFieldValueAdapter>();
@@ -15,8 +14,6 @@ export function registerFormFieldAdaptersForCleanUp(formFieldAdaptersMap: Record
  * Invoked on mounting the "FormEngine" component
  */
 export function init() {
-  // Setting up the i18n for the form engine library
-  setupFormEngineLibI18n();
 }
 
 /**

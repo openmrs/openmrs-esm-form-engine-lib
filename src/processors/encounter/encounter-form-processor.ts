@@ -26,7 +26,7 @@ import { FormProcessor } from '../form-processor';
 import { getPreviousEncounter, saveEncounter } from '../../api';
 import { hasRendering } from '../../utils/common-utils';
 import { isEmpty } from '../../validators/form-validator';
-import { moduleName } from '../../globals';
+import { formEngineAppName } from '../../globals';
 import { type FormContextProps } from '../../provider/form-provider';
 import { useEncounter } from '../../hooks/useEncounter';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
@@ -110,7 +110,7 @@ export class EncounterFormProcessor extends FormProcessor {
 
   async processSubmission(context: FormContextProps, abortController: AbortController) {
     const { encounterRole, encounterProvider, encounterDate, encounterLocation } = getMutableSessionProps(context);
-    const translateFn = (key, defaultValue?) => translateFrom(moduleName, key, defaultValue);
+    const translateFn = (key, defaultValue?) => translateFrom(formEngineAppName, key, defaultValue);
     const patientIdentifiers = preparePatientIdentifiers(context.formFields, encounterLocation);
     const encounter = prepareEncounter(context, encounterDate, encounterRole, encounterProvider, encounterLocation);
 
@@ -162,11 +162,21 @@ export class EncounterFormProcessor extends FormProcessor {
     // save encounter
     try {
       const { data: savedEncounter } = await saveEncounter(abortController, encounter, encounter.uuid);
-      const saveOrders = savedEncounter.orders.map((order) => order.orderNumber);
-      if (saveOrders.length) {
+      const savedOrders = savedEncounter.orders.map((order) => order.orderNumber);
+      const savedDiagnoses = savedEncounter.diagnoses.map((diagnosis) => diagnosis.display);
+      if (savedOrders.length) {
         showSnackbar({
           title: translateFn('ordersSaved', 'Order(s) saved successfully'),
-          subtitle: saveOrders.join(', '),
+          subtitle: savedOrders.join(', '),
+          kind: 'success',
+          isLowContrast: true,
+        });
+      }
+      // handle diagnoses
+      if (savedDiagnoses.length) {
+        showSnackbar({
+          title: translateFn('diagnosisSaved', 'Diagnosis(es) saved successfully'),
+          subtitle: savedDiagnoses.join(', '),
           kind: 'success',
           isLowContrast: true,
         });

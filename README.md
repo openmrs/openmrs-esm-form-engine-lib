@@ -2,7 +2,10 @@
 
 :wave: *New to O3? Be sure to review the [OpenMRS 3 Frontend Developer Documentation](https://o3-docs.openmrs.org/).* :teacher:
 
-# openmrs-esm-form-engine-lib
+# OpenMRS ESM Form Engine Library
+
+![GitHub release](https://img.shields.io/github/v/release/openmrs/openmrs-esm-form-engine-lib)
+![OpenMRS CI](https://github.com/openmrs/openmrs-esm-form-engine-lib/actions/workflows/ci.yml/badge.svg)
 
 <img src="readme/form-engine.jpeg" alt="https://raw.githubusercontent.com/openmrs/openmrs-esm-form-engine-lib/main/readme/form-engine.jpeg" >
 
@@ -36,15 +39,24 @@ Key features of the Form Engine include:
 
 Read the full docs in the OpenMRS Wiki [here](https://openmrs.atlassian.net/wiki/spaces/projects/pages/68747273/O3+Form+Docs).
 
+## Adding and Managing Translations
+
+The Form Engine uses a combination of frontend and backend features to support translations.
+
+- **Frontend translations** - Translations for static strings within the library are managed using Transifex, a localization platform that allows for the translation of strings. This repository being a library, the language specific translations are managed within the [esm-form-engine-app](https://github.com/openmrs/openmrs-esm-patient-chart/tree/main/packages/esm-form-engine-app) in the [Patient Chart](https://github.com/openmrs/openmrs-esm-patient-chart) repository and are loaded dynamically based on the user's locale.
+- **Backend translations** - Translations for pages, sections, and question labels are retrieved from the backend. These are loaded automatically based on the concept translations as well as the form translation files included within the distribution.
+
+You can read more about translations in the [OpenMRS Wiki](https://openmrs.atlassian.net/wiki/spaces/docs/pages/105512985/How+to+Translate+OpenMRS)
+
 ## Getting started
 
 *NB: The Form Engine is a React library, not a standalone [O3 frontend module](https://openmrs.atlassian.net/wiki/spaces/docs/pages/151093806/Overview+of+Frontend+Modules). It can only be consumed by bundling it within a frontend module that incorporates it within a UI workflow.*
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/en/about/releases) 18 or later (LTS version recommended)
+- [Node.js](https://nodejs.org/en/about/releases) 20 or later (LTS version recommended)
 - [Yarn](https://yarnpkg.com/) 4.x or later (We use Yarn as our package manager)
-- [Git](https://git-scm.com) (for local development)
+- [Git](https://git-scm.com) (for version control)
 
 ### Installation
 
@@ -146,9 +158,8 @@ To use this library as the default form engine in your O3 instance, you will nee
 ```json
 {
   "frontendModules": {
-    ...
+    // Add this line to the list of frontend modules
     "@openmrs/esm-form-engine-app": "next"
-    ...
   }
 }
 ```

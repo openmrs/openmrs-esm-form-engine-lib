@@ -15,6 +15,7 @@ import { useFormFactory } from '../../provider/form-factory-provider';
 const renderingByTypeMap: Record<string, RenderType> = {
   obsGroup: 'group',
   testOrder: 'select',
+  diagnosis: 'ui-select-extended',
 };
 
 const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
@@ -32,6 +33,8 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
     methods: { getValues, setValue },
     addFormField,
     removeFormField,
+    deletedFields,
+    setDeletedFields,
   } = context;
 
   useEffect(() => {
@@ -113,6 +116,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
       clearSubmission(field);
     }
     setRows(rows.filter((q) => q.id !== field.id));
+    setDeletedFields([...deletedFields, field]);
     removeFormField(field.id);
   };
 

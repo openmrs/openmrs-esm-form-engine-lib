@@ -17,6 +17,7 @@ import { DefaultValueValidator } from '../../validators/default-value-validator'
 import { cloneRepeatField } from '../../components/repeat/helpers';
 import { assignedOrderIds } from '../../adapters/orders-adapter';
 import { type OpenmrsResource } from '@openmrs/esm-framework';
+import { assignedDiagnosesIds } from '../../adapters/encounter-diagnosis-adapter';
 
 export function prepareEncounter(
   context: FormContextProps,
@@ -25,10 +26,13 @@ export function prepareEncounter(
   encounterProvider: string,
   location: string,
 ) {
-  const { patient, formJson, domainObjectValue: encounter, formFields, visit } = context;
+  const { patient, formJson, domainObjectValue: encounter, formFields, visit, deletedFields } = context;
+  const allFormFields = [...formFields, ...deletedFields];
   const obsForSubmission = [];
-  prepareObs(obsForSubmission, formFields);
-  const ordersForSubmission = prepareOrders(formFields);
+  prepareObs(obsForSubmission, allFormFields);
+  const ordersForSubmission = prepareOrders(allFormFields);
+  const diagnosesForSubmission = prepareDiagnosis(allFormFields);
+
   let encounterForSubmission: OpenmrsEncounter = {};
 
   if (encounter) {
@@ -58,6 +62,7 @@ export function prepareEncounter(
     }
     encounterForSubmission.obs = obsForSubmission;
     encounterForSubmission.orders = ordersForSubmission;
+    encounterForSubmission.diagnoses = diagnosesForSubmission;
   } else {
     encounterForSubmission = {
       patient: patient.id,
@@ -76,6 +81,7 @@ export function prepareEncounter(
       },
       visit: visit?.uuid,
       orders: ordersForSubmission,
+      diagnoses: diagnosesForSubmission,
     };
   }
   return encounterForSubmission;
@@ -313,6 +319,33 @@ export async function hydrateRepeatField(
         }),
     );
   }
+
+  const unMappedDiagnoses = encounter.diagnoses.filter((diagnosis) => {
+    return (
+      !diagnosis.voided &&
+      !assignedDiagnosesIds.includes(diagnosis?.diagnosis?.coded.uuid) &&
+      diagnosis.formFieldPath.startsWith(`rfe-forms-${field.id}_`)
+    );
+  });
+
+  if (field.type === 'diagnosis') {
+    return Promise.all(
+      unMappedDiagnoses.map(async (diagnosis) => {
+        const idSuffix = parseInt(diagnosis.formFieldPath.split('_')[1]);
+        const clone = cloneRepeatField(field, diagnosis, idSuffix);
+        initialValues[clone.id] = await formFieldAdapters[field.type].getInitialValue(
+          clone,
+          { diagnoses: [diagnosis] } as any,
+          context,
+        );
+        if (!assignedDiagnosesIds.includes(diagnosis.diagnosis.coded.uuid)) {
+          assignedDiagnosesIds.push(diagnosis.diagnosis.coded.uuid);
+        }
+
+        return clone;
+      }),
+    );
+  }
   // handle obs groups
   return Promise.all(
     unMappedGroups.map(async (group) => {
@@ -330,4 +363,13 @@ export async function hydrateRepeatField(
       return [clone, ...clone.questions];
     }),
   ).then((results) => results.flat());
+}
+
+function prepareDiagnosis(fields: FormField[]) {
+  const diagnoses = fields
+    .filter((field) => field.type === 'diagnosis' && hasSubmission(field))
+    .map((field) => field.meta.submission.newValue || field.meta.submission.voidedValue)
+    .filter((o) => o);
+
+  return diagnoses;
 }

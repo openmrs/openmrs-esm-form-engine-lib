@@ -37,7 +37,7 @@ export const FormRenderer = ({
     formState: { isDirty },
   } = methods;
 
-  const [{ formFields, invalidFields, formJson }, dispatch] = useReducer(formStateReducer, {
+  const [{ formFields, invalidFields, formJson, deletedFields }, dispatch] = useReducer(formStateReducer, {
     ...initialState,
     formFields: evaluatedFields,
     formJson: evaluatedFormJson,
@@ -52,6 +52,7 @@ export const FormRenderer = ({
     addInvalidField,
     removeInvalidField,
     setForm,
+    setDeletedFields,
   } = useFormStateHelpers(dispatch, formFields);
 
   useEffect(() => {
@@ -75,6 +76,7 @@ export const FormRenderer = ({
       formFields,
       formJson,
       invalidFields,
+      deletedFields,
       addFormField,
       updateFormField,
       getFormField,
@@ -83,8 +85,9 @@ export const FormRenderer = ({
       addInvalidField,
       removeInvalidField,
       setForm,
+      setDeletedFields,
     };
-  }, [processorContext, workspaceLayout, methods, formFields, formJson, invalidFields]);
+  }, [processorContext, workspaceLayout, methods, formFields, formJson, invalidFields, deletedFields]);
 
   useEffect(() => {
     registerForm(formJson.name, isSubForm, context);

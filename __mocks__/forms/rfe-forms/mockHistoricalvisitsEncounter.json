@@ -85,5 +85,45 @@
         ]
       }
     }
+  ],
+  "diagnoses": [
+    {
+      "uuid": "95690fb4-0398-42d9-9ffc-8a134e6d829d",
+      "diagnosis": {
+        "coded": {
+          "uuid": "stage-1-uuid",
+          "display": "stage 1"
+        }
+      },
+      "condition": null,
+      "encounter": "d2edc41a-5abf-48f8-bb62-ca5507dd2e4c",
+      "certainty": "CONFIRMED",
+      "rank": 1,
+      "voided": false,
+      "display": "stage 1",
+      "patient": "d8b38f21-db01-4ded-93bf-6a9470206461",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-diagnosis1",
+      "resourceVersion": "1.8"
+    },
+    {
+      "uuid": "95690fb3-0398-42d9-9ffc-8a134e6d829d",
+      "diagnosis": {
+        "coded": {
+          "uuid": "stage-2-uuid",
+          "display": "stage 2"
+        }
+      },
+      "condition": null,
+      "encounter": "d2edc41a-5abf-48f8-bb62-ca5507dd2e4c",
+      "certainty": "CONFIRMED",
+      "rank": 1,
+      "voided": false,
+      "display": "stage 2",
+      "patient": "d8b38f21-db01-4ded-93bf-6a9470206461",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-diagnosis2",
+      "resourceVersion": "1.8"
+    }
   ]
 }
