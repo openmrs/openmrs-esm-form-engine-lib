@@ -12,7 +12,7 @@ interface TooltipProps {
 const Tooltip: React.FC<TooltipProps> = ({ field }) => {
   const { t } = useTranslation();
   return (
-    <CarbonTooltip align="top" label={t(field.questionInfo)} description={t(field.questionInfo)}>
+    <CarbonTooltip align="right" label={t(field.questionInfo)} description={t(field.questionInfo)}>
       <button className={styles.tooltip} type="button" data-testid={field.id}>
         <Information />
       </button>
