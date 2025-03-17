@@ -31,7 +31,7 @@ import { type FormContextProps } from '../../provider/form-provider';
 import { useEncounter } from '../../hooks/useEncounter';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { usePatientPrograms } from '../../hooks/usePatientPrograms';
-import { TOptions } from 'i18next';
+import { type TOptions } from 'i18next';
 
 function useCustomHooks(context: Partial<FormProcessorContextProps>) {
   const [isLoading, setIsLoading] = useState(true);
