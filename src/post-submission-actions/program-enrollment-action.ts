@@ -4,7 +4,7 @@ import { getPatientEnrolledPrograms, saveProgramEnrollment } from '../api';
 import { type PostSubmissionAction, type PatientProgramPayload } from '../types';
 import { formEngineAppName } from '../globals';
 import { extractErrorMessagesFromResponse } from '../utils/error-utils';
-import { TOptions } from 'i18next';
+import { type TOptions } from 'i18next';
 
 export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
   applyAction: async function ({ patient, encounters, sessionMode }, config) {

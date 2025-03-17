@@ -1,4 +1,4 @@
-import { openmrsFetch, OpenmrsResource, restBaseUrl } from '@openmrs/esm-framework';
+import { openmrsFetch, type OpenmrsResource, restBaseUrl } from '@openmrs/esm-framework';
 import { BaseOpenMRSDataSource } from './data-source';
 
 export class SelectConceptAnswersDatasource extends BaseOpenMRSDataSource {
