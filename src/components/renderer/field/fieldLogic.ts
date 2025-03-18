@@ -1,7 +1,6 @@
 import { codedTypes } from '../../../constants';
 import { type FormContextProps } from '../../../provider/form-provider';
 import { type FormFieldValidator, type SessionMode, type ValidationResult, type FormField } from '../../../types';
-import { isTrue } from '../../../utils/boolean-utils';
 import { hasRendering } from '../../../utils/common-utils';
 import { evaluateAsyncExpression, evaluateExpression } from '../../../utils/expression-runner';
 import { evalConditionalRequired, evaluateDisabled, evaluateHide } from '../../../utils/form-helper';
@@ -49,6 +48,8 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
     updateFormField,
     setForm,
   } = context;
+
+  let shouldUpdateForm = false;
   // handle fields
   if (field.fieldDependents) {
     field.fieldDependents.forEach((dep) => {
@@ -188,11 +189,10 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           },
         );
       }
+      shouldUpdateForm = true;
       updateFormField(dependent);
     });
   }
-
-  let shouldUpdateForm = false;
 
   // handle sections
   if (field.sectionDependents) {
