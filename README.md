@@ -146,6 +146,26 @@ You could also optionally proxy to a different backend where your forms are host
 yarn start --sources packages/esm-form-engine-app --backend https://link-to-my-backend.com
 ```
 
+#### Troubleshooting linking issues
+
+You might run into dependency version mismatches when attempting to link the library to the consuming frontend module. `@carbon/react` is a common culprit. If you see an error like this in your terminal after running `yarn link`:
+
+```sh
+@carbon/react@npm:1.74.0 [5ffd1] conflicts with parent dependency @carbon/react@npm:1.60.3 [faad]
+```
+
+That's because the consuming frontend module is using a different version of `@carbon/react` than the Form Engine Lib.
+
+To resolve this, you set a `resolutions` field in your consuming frontend module's root `package.json` file to force the use of the same version of `@carbon/react` in the Form Engine Lib.
+
+```json
+"resolutions": {
+  "@carbon/react": "1.60.3"
+}
+```
+
+Once you've added the `resolutions` field, you'll need to run `yarn` again to install the dependencies. After that, you should be able to link the library to the consuming frontend module and run the consuming frontend module without any issues.
+
 ### Production
 
 Note that in addition to this library, other form engine alternatives exist within the O3 ecosystem, including:
