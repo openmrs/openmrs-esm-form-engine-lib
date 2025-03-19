@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { type FormFieldInputProps } from '../../types';
 import styles from './obs-group.scss';
-import { FormFieldRenderer, isGroupField } from '../renderer/field/form-field-renderer.component';
+import { ErrorFallback, FormFieldRenderer, isGroupField } from '../renderer/field/form-field-renderer.component';
 import { useFormProviderContext } from '../../provider/form-provider';
 import { FormGroup } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +18,11 @@ export const ObsGroup: React.FC<FormFieldInputProps> = ({ field, ...restProps })
         .filter((child) => !child.isHidden)
         .map((child, index) => {
           const key = `${child.id}_${index}`;
+          if (child.id === field.id) {
+            return (
+              <ErrorFallback error={new Error('ObsGroup child has same id as parent question')}/>
+            );
+          }
 
           if (child.type === 'obsGroup' && isGroupField(child.questionOptions.rendering)) {
             return (

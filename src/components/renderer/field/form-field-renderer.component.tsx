@@ -215,7 +215,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
   );
 };
 
-function ErrorFallback({ error }) {
+export function ErrorFallback({ error }) {
   const { t } = useTranslation();
   return (
     <ToastNotification
