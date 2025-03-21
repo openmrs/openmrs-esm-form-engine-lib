@@ -11,6 +11,28 @@ import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 import { isEmpty } from '../../../validators/form-validator';
 
+
+const extractFieldUnitsAndRange = (concept) => {
+  if (!concept) {
+    return '';
+  }
+
+  const { hiAbsolute, lowAbsolute, units } = concept;
+  const displayUnit = units ? ` ${units}` : '';
+
+  const hasLowerLimit = lowAbsolute != null;
+  const hasUpperLimit = hiAbsolute != null;
+
+  if (hasLowerLimit && hasUpperLimit) {
+      return ` (${lowAbsolute} - ${hiAbsolute} ${displayUnit})`;
+  } else if (hasUpperLimit) {
+    return ` (<= ${hiAbsolute} ${displayUnit})`;
+  } else if (hasLowerLimit) {
+    return ` (>= ${lowAbsolute} ${displayUnit})`;
+  }
+  return units ? ` (${displayUnit})` : '';
+};
+
 const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
   const [lastBlurredValue, setLastBlurredValue] = useState(value);
@@ -61,7 +83,7 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           id={field.id}
           invalid={errors.length > 0}
           invalidText={errors[0]?.message}
-          label={<FieldLabel field={field} />}
+          label={<FieldLabel field={field} customLabel={t(field.label) + extractFieldUnitsAndRange(field.meta?.concept)} />}
           max={Number(field.questionOptions.max) || undefined}
           min={Number(field.questionOptions.min) || undefined}
           name={field.id}
