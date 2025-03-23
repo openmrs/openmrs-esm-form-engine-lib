@@ -10,27 +10,27 @@ import { useTranslation } from 'react-i18next';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 import { isEmpty } from '../../../validators/form-validator';
+import { Concept } from '@openmrs/esm-framework';
 
 
-const extractFieldUnitsAndRange = (concept) => {
+const extractFieldUnitsAndRange = (concept?: Concept): string => {
   if (!concept) {
     return '';
   }
 
   const { hiAbsolute, lowAbsolute, units } = concept;
-  const displayUnit = units ? ` ${units}` : '';
-
+  const displayUnits = units ? ` ${units}` : '';  
   const hasLowerLimit = lowAbsolute != null;
   const hasUpperLimit = hiAbsolute != null;
 
   if (hasLowerLimit && hasUpperLimit) {
-      return ` (${lowAbsolute} - ${hiAbsolute} ${displayUnit})`;
+      return `(${lowAbsolute} - ${hiAbsolute}${displayUnits})`;
   } else if (hasUpperLimit) {
-    return ` (<= ${hiAbsolute} ${displayUnit})`;
+    return `(<= ${hiAbsolute}${displayUnits})`;
   } else if (hasLowerLimit) {
-    return ` (>= ${lowAbsolute} ${displayUnit})`;
+    return `(>= ${lowAbsolute}${displayUnits})`;
   }
-  return units ? ` (${displayUnit})` : '';
+  return units ? `(${units})` : '';
 };
 
 const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
@@ -83,7 +83,12 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           id={field.id}
           invalid={errors.length > 0}
           invalidText={errors[0]?.message}
-          label={<FieldLabel field={field} customLabel={t(field.label) + extractFieldUnitsAndRange(field.meta?.concept)} />}
+          label={<FieldLabel field={field} customLabel={t('{{fieldDescription}} {{unitsAndRange}}',
+            {
+              fieldDescription: t(field.label),
+              unitsAndRange: extractFieldUnitsAndRange(field.meta?.concept),
+              interpolation: { escapeValue: false }
+            })}/>}
           max={Number(field.questionOptions.max) || undefined}
           min={Number(field.questionOptions.min) || undefined}
           name={field.id}

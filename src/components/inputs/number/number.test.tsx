@@ -3,6 +3,17 @@ import { act, render, screen, fireEvent } from '@testing-library/react';
 import { useFormProviderContext } from 'src/provider/form-provider';
 import NumberField from './number.component';
 
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key, options) => {
+      if (options && 'fieldDescription' in options) {
+        return `${options.fieldDescription} ${options.unitsAndRange || ''}`.trim();
+      }
+      return key;
+    }
+  })
+}));
+
 jest.mock('src/provider/form-provider', () => ({
   useFormProviderContext: jest.fn(),
 }));
@@ -39,6 +50,34 @@ const numberFieldMockWithUnitsAndRange = {
   isHidden: false,
   isDisabled: false,
   readonly: false,
+};
+
+const numberFieldMockWithUnitsOnly = {
+  ...numberFieldMockWithUnitsAndRange,
+  meta: {
+    concept: {
+      units: 'kg',
+    }
+  },
+};
+
+const numberFieldMockWithRangeOnly = {
+  ...numberFieldMockWithUnitsAndRange,
+  meta: {
+    concept: {
+      lowAbsolute: 0,
+      hiAbsolute: 200,
+    }
+  },
+};
+
+const numberFieldMockWithHiAbsoluteOnly = {
+  ...numberFieldMockWithUnitsAndRange,
+  meta: {
+    concept: {
+      hiAbsolute: 200,
+    }
+  },
 };
 
 const renderNumberField = async (props) => {
@@ -133,5 +172,38 @@ describe('NumberField Component', () => {
       setFieldValue: jest.fn(),
     });
     expect(screen.getByLabelText('Weight (0 - 200 kg)')).toBeInTheDocument();
+  });
+
+  it('renders units only', async () => {    
+    await renderNumberField({
+      field: numberFieldMockWithUnitsOnly,
+      value: '',
+      errors: [],
+      warnings: [],
+      setFieldValue: jest.fn(),
+    });
+    expect(screen.getByLabelText('Weight (kg)')).toBeInTheDocument();
+  });
+
+  it('renders range only', async () => {    
+    await renderNumberField({
+      field: numberFieldMockWithRangeOnly,
+      value: '',
+      errors: [],
+      warnings: [],
+      setFieldValue: jest.fn(),
+    });
+    expect(screen.getByLabelText('Weight (0 - 200)')).toBeInTheDocument();
+  });
+
+  it('renders hiAbsolute only', async () => {    
+    await renderNumberField({
+      field: numberFieldMockWithHiAbsoluteOnly,
+      value: '',
+      errors: [],
+      warnings: [],
+      setFieldValue: jest.fn(),
+    });
+    expect(screen.getByLabelText('Weight (<= 200)')).toBeInTheDocument();
   });
 });
