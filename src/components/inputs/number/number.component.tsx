@@ -1,14 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { isNil } from 'lodash';
+import { useTranslation } from 'react-i18next';
 import { Layer, NumberInput } from '@carbon/react';
 import { type Concept } from '@openmrs/esm-framework';
 import classNames from 'classnames';
-import { isNil } from 'lodash';
 import { isTrue } from '../../../utils/boolean-utils';
 import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { type FormFieldInputProps } from '../../../types';
 import styles from './number.scss';
-import { useTranslation } from 'react-i18next';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 import { isEmpty } from '../../../validators/form-validator';
