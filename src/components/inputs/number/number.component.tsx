@@ -1,15 +1,38 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { isNil } from 'lodash';
+import { useTranslation } from 'react-i18next';
 import { Layer, NumberInput } from '@carbon/react';
+import { type Concept } from '@openmrs/esm-framework';
 import classNames from 'classnames';
 import { isTrue } from '../../../utils/boolean-utils';
 import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import FieldValueView from '../../value/view/field-value-view.component';
 import { type FormFieldInputProps } from '../../../types';
 import styles from './number.scss';
-import { useTranslation } from 'react-i18next';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 import { isEmpty } from '../../../validators/form-validator';
+
+
+const extractFieldUnitsAndRange = (concept?: Concept): string => {
+  if (!concept) {
+    return '';
+  }
+
+  const { hiAbsolute, lowAbsolute, units } = concept;
+  const displayUnits = units ? ` ${units}` : '';  
+  const hasLowerLimit = !isNil(lowAbsolute);
+  const hasUpperLimit = !isNil(hiAbsolute);
+
+  if (hasLowerLimit && hasUpperLimit) {
+      return `(${lowAbsolute} - ${hiAbsolute}${displayUnits})`;
+  } else if (hasUpperLimit) {
+    return `(<= ${hiAbsolute}${displayUnits})`;
+  } else if (hasLowerLimit) {
+    return `(>= ${lowAbsolute}${displayUnits})`;
+  }
+  return units ? `(${units})` : '';
+};
 
 const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
@@ -61,7 +84,13 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           id={field.id}
           invalid={errors.length > 0}
           invalidText={errors[0]?.message}
-          label={<FieldLabel field={field} />}
+          label={<FieldLabel field={field} customLabel={t('fieldLabelWithUnitsAndRange', 
+            '{{fieldDescription}} {{unitsAndRange}}',
+            {
+              fieldDescription: t(field.label),
+              unitsAndRange: extractFieldUnitsAndRange(field.meta?.concept),
+              interpolation: { escapeValue: false }
+            })}/>}
           max={Number(field.questionOptions.max) || undefined}
           min={Number(field.questionOptions.min) || undefined}
           name={field.id}
