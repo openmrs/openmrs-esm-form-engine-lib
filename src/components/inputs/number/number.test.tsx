@@ -7,7 +7,10 @@ jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key, defaultValueOrOptions, options) => {
       
-      if (typeof options === 'object' && 'unitsAndRange' in options) {
+      if (typeof defaultValueOrOptions === 'object' && 'fieldDescription' in defaultValueOrOptions) {
+        return `${defaultValueOrOptions.fieldDescription} ${defaultValueOrOptions.unitsAndRange}`;
+      }
+      else if (typeof options === 'object' && 'unitsAndRange' in options) {
         return `${options.fieldDescription} ${options.unitsAndRange}`;
       }
 
