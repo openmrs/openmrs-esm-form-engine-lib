@@ -5,10 +5,12 @@ import NumberField from './number.component';
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key, options) => {
-      if (options && 'fieldDescription' in options) {
-        return `${options.fieldDescription} ${options.unitsAndRange || ''}`.trim();
+    t: (key, defaultValueOrOptions, options) => {
+      
+      if (typeof options === 'object' && 'unitsAndRange' in options) {
+        return `${options.fieldDescription} ${options.unitsAndRange}`;
       }
+
       return key;
     }
   })
@@ -79,6 +81,16 @@ const numberFieldMockWithHiAbsoluteOnly = {
     }
   },
 };
+
+const numberFieldMockWithLowAbsoluteOnly = {
+  ...numberFieldMockWithUnitsAndRange,
+  meta: {
+    concept: {
+      lowAbsolute: 0,
+    }
+  },
+};
+
 
 const renderNumberField = async (props) => {
   await act(() => render(<NumberField {...props} />));
@@ -205,5 +217,16 @@ describe('NumberField Component', () => {
       setFieldValue: jest.fn(),
     });
     expect(screen.getByLabelText('Weight (<= 200)')).toBeInTheDocument();
+  });
+
+  it('renders lowAbsolute only', async () => {    
+    await renderNumberField({
+      field: numberFieldMockWithLowAbsoluteOnly,
+      value: '',
+      errors: [],
+      warnings: [],
+      setFieldValue: jest.fn(),
+    });
+    expect(screen.getByLabelText('Weight (>= 0)')).toBeInTheDocument();
   });
 });
