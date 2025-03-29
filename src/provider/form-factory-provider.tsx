@@ -11,7 +11,7 @@ import {
 } from '@openmrs/esm-framework';
 import { type FormProcessorConstructor } from '../processors/form-processor';
 import { type FormContextProps } from './form-provider';
-import { processPostSubmissionActions, validateForm } from './form-factory-helper';
+import { processPostSubmissionActions, validateForm, validateEmptyForm } from './form-factory-helper';
 import { useTranslation } from 'react-i18next';
 import { usePostSubmissionActions } from '../hooks/usePostSubmissionActions';
 
@@ -51,7 +51,9 @@ interface FormFactoryProviderProps {
     handleClose: () => void;
   };
   hideFormCollapseToggle: () => void;
+  handleDiscardForm: () => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
+  handleEmptyFormSubmission?: () => Promise<void>;
   setIsFormDirty: (isFormDirty: boolean) => void;
 }
 
@@ -70,6 +72,8 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   children,
   formSubmissionProps,
   hideFormCollapseToggle,
+  handleDiscardForm,
+  handleEmptyFormSubmission,
   handleConfirmQuestionDeletion,
   setIsFormDirty,
 }) => {
@@ -96,14 +100,31 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   });
 
   useEffect(() => {
-    if (isSubmitting) {
-      // TODO: find a dynamic way of managing the form processing order
-      const forms = [rootForm.current, ...Object.values(subForms.current)];
-      // validate all forms
-      const isValid = forms.every((formContext) => validateForm(formContext));
-      if (isValid) {
-        Promise.all(forms.map((formContext) => formContext.processor.processSubmission(formContext, abortController)))
-          .then(async (results) => {
+    const handleFormSubmission = async () => {
+      if (isSubmitting) {
+        const forms = [rootForm.current, ...Object.values(subForms.current)];
+        // Validate all forms
+        const isValid = forms.every((formContext) => validateForm(formContext));
+        // Check if the form is empty
+        const isEmpty = forms.every((formContext) => validateEmptyForm(formContext));
+
+        if (isEmpty && isValid) {
+          if (handleEmptyFormSubmission && typeof handleEmptyFormSubmission === 'function') {
+            try {
+              await handleEmptyFormSubmission();
+              handleDiscardForm()
+              return setIsSubmitting(false)
+            } catch (error) {
+              return setIsSubmitting(false);
+            }
+          }
+        }
+  
+        if (isValid) {
+          try {
+            const results = await Promise.all(
+              forms.map((formContext) => formContext.processor.processSubmission(formContext, abortController))
+            );
             formSubmissionProps.setIsSubmitting(false);
             if (sessionMode === 'edit') {
               showSnackbar({
@@ -129,8 +150,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
             } else {
               handleClose();
             }
-          })
-          .catch((errorObject: Error | ToastDescriptor) => {
+          } catch (errorObject) {
             setIsSubmitting(false);
             if (errorObject instanceof Error) {
               showToast({
@@ -142,11 +162,13 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
             } else {
               showToast(errorObject);
             }
-          });
-      } else {
-        setIsSubmitting(false);
+          }
+        } else {
+          setIsSubmitting(false);
+        }
       }
-    }
+    };
+    handleFormSubmission();
     return () => {
       abortController.abort();
     };
