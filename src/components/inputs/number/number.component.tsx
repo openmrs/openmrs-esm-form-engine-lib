@@ -31,8 +31,8 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
   };
 
   const handleChange = useCallback(
-    (event) => {
-      const parsedValue = isEmpty(event.target.value) ? undefined : Number(event.target.value);
+    (event, { value }) => {
+      const parsedValue = isEmpty(value) ? undefined : Number(value);
       setFieldValue(isNaN(parsedValue) ? undefined : parsedValue);
     },
     [setFieldValue],
