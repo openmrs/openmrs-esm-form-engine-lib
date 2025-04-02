@@ -5,6 +5,8 @@ import { type FormFieldInputProps } from '../../../types';
 
 const Markdown: React.FC<FormFieldInputProps> = ({ field }) => {
   const { t } = useTranslation();
-  return !field.isHidden && <MarkdownWrapper markdown={t(field.value)} />;
+  return !field.isHidden && <MarkdownWrapper
+    markdown={t(field.value, { defaultValue: field.value, interpolation: { escapeValue: false } })}
+  />;
 };
 export default Markdown;
