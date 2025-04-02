@@ -46,6 +46,7 @@ import readOnlyValidationForm from '__mocks__/forms/rfe-forms/read-only-validati
 import jsExpressionValidationForm from '__mocks__/forms/rfe-forms/js-expression-validation-form.json';
 import hidePagesAndSectionsForm from '__mocks__/forms/rfe-forms/hide-pages-and-sections-form.json';
 import diagnosisForm from '__mocks__/forms/rfe-forms/diagnosis-test-form.json';
+import defaultValuesForm from '__mocks__/forms/rfe-forms/default-values-form.json';
 
 import FormEngine from './form-engine.component';
 import { type FormSchema, type OpenmrsEncounter, type SessionMode } from './types';
@@ -358,7 +359,7 @@ describe('Form engine component', () => {
       await act(async () => {
         renderForm(null, requiredTestForm);
       });
-      
+
       await user.click(screen.getByRole('button', { name: /save/i }));
 
       const labels = screen.getAllByText(/Text question/i);
@@ -457,7 +458,9 @@ describe('Form engine component', () => {
       expect(selectErrorMessage).toBeInTheDocument();
 
       // Validate multi-select field
-      const multiSelectInputField = screen.getByText('If Unscheduled, actual scheduled reason multi-select', { exact: true });
+      const multiSelectInputField = screen.getByText('If Unscheduled, actual scheduled reason multi-select', {
+        exact: true,
+      });
       expect(multiSelectInputField).toBeInTheDocument();
       const multiSelectErrorMessage = screen.getByText(
         'Patient visit marked as unscheduled. Please provide the scheduled multi-select reason.',
@@ -696,6 +699,44 @@ describe('Form engine component', () => {
       } catch (err) {
         expect(err.message.includes('Unable to find an element with the text: Page 2')).toBeTruthy();
       }
+    });
+  });
+
+  describe('Default values', () => {
+    it('should initialize fields with default values', async () => {
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+
+      await act(async () => renderForm(null, defaultValuesForm));
+
+      // text field
+      const textField = await findTextOrDateInput(screen, 'Text field with Default Value');
+      expect(textField).toHaveValue('Value text');
+
+      // dropdown field
+      const dropdownField = await findSelectInput(screen, 'Dropdown with Default Value');
+      expect(dropdownField.title).toBe('Choice 2');
+
+      // dropdown with an invalid default value
+      const invalidDropdownField = await findSelectInput(screen, 'Dropdown with an invalid Default Value');
+      expect(invalidDropdownField.title).toBe('Choose an option');
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      const encounter = saveEncounterMock.mock.calls[0][1];
+      expect(encounter.obs).toEqual([
+        {
+          value: 'Value text',
+          concept: 'f82ba2b7-3849-4ad0-b867-36881e59f5c8',
+          formFieldNamespace: 'rfe-forms',
+          formFieldPath: 'rfe-forms-sampleQuestion',
+        },
+        {
+          value: '6b4e859c-86ca-41e5-b1c4-017889653b59',
+          concept: '8cdea80a-d167-431c-8278-246c7a1f913b',
+          formFieldNamespace: 'rfe-forms',
+          formFieldPath: 'rfe-forms-codedQuestion',
+        },
+      ]);
     });
   });
 

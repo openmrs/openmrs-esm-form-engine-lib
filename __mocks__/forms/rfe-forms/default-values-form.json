@@ -1,0 +1,91 @@
+{
+    "encounterType": "",
+    "name": "Sample Default Values Form",
+    "processor": "EncounterFormProcessor",
+    "referencedForms": [],
+    "uuid": "3620c971-58e5-4e70-83ce-98d0dcf4bb7b",
+    "version": "1.0",
+    "pages": [
+      {
+        "label": "First Page",
+        "sections": [
+          {
+            "label": "A Section",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "id": "sampleQuestion",
+                "label": "Text field with Default Value",
+                "type": "obs",
+                "questionOptions": {
+                  "rendering": "text",
+                  "defaultValue": "Value text",
+                  "concept": "f82ba2b7-3849-4ad0-b867-36881e59f5c8"
+                }
+              }
+            ]
+          },
+          {
+            "label": "Another Section",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "id": "codedQuestion",
+                "label": "Dropdown with Default Value",
+                "type": "obs",
+                "questionOptions": {
+                  "rendering": "select",
+                  "concept": "8cdea80a-d167-431c-8278-246c7a1f913b",
+                  "defaultValue": "6b4e859c-86ca-41e5-b1c4-017889653b59",
+                  "answers": [
+                    {
+                      "concept": "2b4e859c-86ca-41e5-b1c4-017889653b50",
+                      "label": "Choice 1",
+                      "conceptMappings": []
+                    },
+                    {
+                      "concept": "6b4e859c-86ca-41e5-b1c4-017889653b59",
+                      "label": "Choice 2",
+                      "conceptMappings": []
+                    },
+                    {
+                      "concept": "5b4e859c-c6ca-41e5-b1c4-017889653b5k",
+                      "label": "Choice 3",
+                      "conceptMappings": []
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "codedQuestionWithInvalidDefaultValue",
+                "label": "Dropdown with an invalid Default Value",
+                "type": "obs",
+                "questionOptions": {
+                  "rendering": "select",
+                  "concept": "8cdea80a-d167-431c-8278-246c7a1f913b",
+                  "defaultValue": "invalid-value",
+                  "answers": [
+                    {
+                      "concept": "2b4e859c-86ca-41e5-b1c4-017889653b50",
+                      "label": "Choice 1",
+                      "conceptMappings": []
+                    },
+                    {
+                      "concept": "6b4e859c-86ca-41e5-b1c4-017889653b59",
+                      "label": "Choice 2",
+                      "conceptMappings": []
+                    },
+                    {
+                      "concept": "5b4e859c-c6ca-41e5-b1c4-017889653b5k",
+                      "label": "Choice 3",
+                      "conceptMappings": []
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
