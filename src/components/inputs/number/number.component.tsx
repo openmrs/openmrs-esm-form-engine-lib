@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Layer, NumberInput } from '@carbon/react';
 import classNames from 'classnames';
 import { isTrue } from '../../../utils/boolean-utils';
@@ -13,7 +13,6 @@ import { isEmpty } from '../../../validators/form-validator';
 
 const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
-  const [lastBlurredValue, setLastBlurredValue] = useState(value);
   const { layoutType, sessionMode, workspaceLayout } = useFormProviderContext();
 
   const numberValue = useMemo(() => {
@@ -23,16 +22,9 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
     return value ?? '';
   }, [value]);
 
-  const onBlur = (event) => {
-    event.preventDefault();
-    if (lastBlurredValue != value) {
-      setLastBlurredValue(value);
-    }
-  };
-
   const handleChange = useCallback(
-    (event) => {
-      const parsedValue = isEmpty(event.target.value) ? undefined : Number(event.target.value);
+    (event, { value }) => {
+      const parsedValue = isEmpty(value) ? undefined : Number(value);
       setFieldValue(isNaN(parsedValue) ? undefined : parsedValue);
     },
     [setFieldValue],
@@ -67,11 +59,9 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           name={field.id}
           value={numberValue}
           onChange={handleChange}
-          onBlur={onBlur}
           allowEmpty={true}
           size="lg"
           hideSteppers={field.hideSteppers ?? false}
-          onWheel={(e) => e.target.blur()}
           disabled={field.isDisabled}
           readOnly={isTrue(field.readonly)}
           className={classNames(styles.controlWidthConstrained, styles.boldedLabel)}
