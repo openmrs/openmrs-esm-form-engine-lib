@@ -280,10 +280,17 @@ export function inferInitialValueFromDefaultFieldValue(field: FormField) {
   if (field.questionOptions.rendering == 'toggle' && typeof field.questionOptions.defaultValue != 'boolean') {
     return field.questionOptions.defaultValue == ConceptTrue;
   }
+
   // validate default value
-  if (!DefaultValueValidator.validate(field, field.questionOptions.defaultValue).length) {
-    return field.questionOptions.defaultValue;
+  const errors = DefaultValueValidator.validate(field, field.questionOptions.defaultValue);
+  if (errors.length) {
+    console.error(
+      `Default value validation errors for field "${field.id}" with value "${field.questionOptions.defaultValue}":`,
+      errors,
+    );
+    return null;
   }
+  return field.questionOptions.defaultValue;
 }
 
 export async function hydrateRepeatField(

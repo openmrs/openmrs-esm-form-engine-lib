@@ -285,6 +285,9 @@ export class EncounterFormProcessor extends FormProcessor {
               console.error(error);
             }
           }
+          if (field.questionOptions.defaultValue) {
+            initialValues[field.id] = inferInitialValueFromDefaultFieldValue(field);
+          }
           if (field.questionOptions.calculate?.calculateExpression) {
             fieldsWithCalculateExpressions.push(field);
           }
