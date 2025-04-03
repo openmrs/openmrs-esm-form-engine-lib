@@ -102,8 +102,6 @@ export function evaluateHide(
     mode: sessionMode,
     patient,
   });
-  // console.log('node', node.value.label);
-  // console.log('isHidden', isHidden);
   node.value.isHidden = isHidden;
   if (type == 'field' && node.value?.questions?.length) {
     node.value?.questions.forEach((question) => {

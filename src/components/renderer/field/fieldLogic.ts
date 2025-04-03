@@ -91,7 +91,7 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
       // evaluate hide
       if (dependent.hide) {
         const targetSection = findFieldSection(formJson, dependent);
-        // console.log('targetSection', targetSection);
+        const isSectionVisible = targetSection?.questions.some((question) => !question.isHidden);
 
         evaluateHide(
           { value: dependent, type: 'field' },
@@ -102,13 +102,23 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           evaluateExpression,
           updateFormField,
         );
-        // console.log('dependent', dependent);
-        let hasVisibleFields = targetSection?.questions.some((question) => !question.isHidden);
-        // console.log('hasVisibleFields', hasVisibleFields);
-        // console.log('dependent.isHidden', dependent.isHidden);
-        if (!hasVisibleFields && !dependent.isHidden) {
-          // console.log('FORCE RE-RENDER');
+        targetSection.questions = targetSection.questions.map((question) => {
+          if (question.id === dependent.id) {
+            return dependent;
+          }
+          return question;
+        });
+
+        const isDependentFieldHidden = dependent.isHidden;
+        const sectionHasVisibleFieldAfterEvaluation = [...targetSection.questions, dependent].some(
+          (field) => !field.isHidden,
+        );
+
+        if (!isSectionVisible && !isDependentFieldHidden) {
           targetSection.isHidden = false;
+          shouldUpdateForm = true;
+        } else if (isSectionVisible && !sectionHasVisibleFieldAfterEvaluation) {
+          targetSection.isHidden = true;
           shouldUpdateForm = true;
         }
       }
@@ -201,8 +211,6 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           },
         );
       }
-      // shouldUpdateForm = true;
-      // console.log('shouldUpdateForm', shouldUpdateForm);
       updateFormField(dependent);
     });
   }
@@ -247,7 +255,6 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
   }
 
   if (shouldUpdateForm) {
-    // console.log('updating form', formJson);
     setForm(formJson);
   }
 }
