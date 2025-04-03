@@ -102,7 +102,7 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           evaluateExpression,
           updateFormField,
         );
-        targetSection.questions = targetSection.questions.map((question) => {
+        targetSection.questions = targetSection?.questions.map((question) => {
           if (question.id === dependent.id) {
             return dependent;
           }
