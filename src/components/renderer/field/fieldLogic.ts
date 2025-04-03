@@ -3,7 +3,7 @@ import { type FormContextProps } from '../../../provider/form-provider';
 import { type FormFieldValidator, type SessionMode, type ValidationResult, type FormField } from '../../../types';
 import { hasRendering } from '../../../utils/common-utils';
 import { evaluateAsyncExpression, evaluateExpression } from '../../../utils/expression-runner';
-import { evalConditionalRequired, evaluateDisabled, evaluateHide } from '../../../utils/form-helper';
+import { evalConditionalRequired, evaluateDisabled, evaluateHide, findFieldSection } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import { reportError } from '../../../utils/error-utils';
 
@@ -90,6 +90,9 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
       }
       // evaluate hide
       if (dependent.hide) {
+        const targetSection = findFieldSection(formJson, dependent);
+        // console.log('targetSection', targetSection);
+
         evaluateHide(
           { value: dependent, type: 'field' },
           formFields,
@@ -99,6 +102,15 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           evaluateExpression,
           updateFormField,
         );
+        // console.log('dependent', dependent);
+        let hasVisibleFields = targetSection?.questions.some((question) => !question.isHidden);
+        // console.log('hasVisibleFields', hasVisibleFields);
+        // console.log('dependent.isHidden', dependent.isHidden);
+        if (!hasVisibleFields && !dependent.isHidden) {
+          // console.log('FORCE RE-RENDER');
+          targetSection.isHidden = false;
+          shouldUpdateForm = true;
+        }
       }
       // evaluate disabled
       if (typeof dependent.disabled === 'object' && dependent.disabled.disableWhenExpression) {
@@ -189,7 +201,8 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           },
         );
       }
-      shouldUpdateForm = true;
+      // shouldUpdateForm = true;
+      // console.log('shouldUpdateForm', shouldUpdateForm);
       updateFormField(dependent);
     });
   }
@@ -234,6 +247,7 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
   }
 
   if (shouldUpdateForm) {
+    // console.log('updating form', formJson);
     setForm(formJson);
   }
 }

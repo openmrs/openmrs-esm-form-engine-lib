@@ -51,6 +51,7 @@ export function useFormStateHelpers(dispatch: Dispatch<Action>, formFields: Form
   }, []);
 
   const setForm = useCallback((formJson: FormSchema) => {
+    // console.log('useFormStateHelpers setForm', formJson);
     dispatch({ type: 'SET_FORM_JSON', value: updateFormSectionReferences(formJson) });
   }, []);
 

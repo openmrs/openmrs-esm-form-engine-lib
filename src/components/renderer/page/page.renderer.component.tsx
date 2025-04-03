@@ -25,6 +25,7 @@ interface CollapsibleSectionContainerProps {
 function PageRenderer({ page, isFormExpanded }: PageRendererProps) {
   const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  // console.log('page.sections', page.sections);
 
   const visibleSections = useMemo(
     () =>

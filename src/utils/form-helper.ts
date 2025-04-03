@@ -1,5 +1,5 @@
 import { type LayoutType } from '@openmrs/esm-framework';
-import type { FormField, FormPage, FormSection, SessionMode, FHIRObsResource, RenderType } from '../types';
+import type { FormField, FormPage, FormSection, SessionMode, FHIRObsResource, RenderType, FormSchema } from '../types';
 import { isEmpty } from '../validators/form-validator';
 import { parseToLocalDateTime } from './common-utils';
 import dayjs from 'dayjs';
@@ -102,6 +102,8 @@ export function evaluateHide(
     mode: sessionMode,
     patient,
   });
+  // console.log('node', node.value.label);
+  // console.log('isHidden', isHidden);
   node.value.isHidden = isHidden;
   if (type == 'field' && node.value?.questions?.length) {
     node.value?.questions.forEach((question) => {
@@ -270,4 +272,14 @@ function extractFHIRObsValue(fhirObs: FHIRObsResource, rendering: RenderType) {
     default:
       return fhirObs.valueString;
   }
+}
+
+/**
+ * Find formField section
+ * @param formJson FormSchema
+ * @param field FormField
+ */
+export function findFieldSection(formJson: FormSchema, field: FormField) {
+  let page = formJson.pages.find((page) => field.meta.pageId === page.id);
+  return page.sections.find((section) => section.questions.find((question) => question.id === field.id));
 }
