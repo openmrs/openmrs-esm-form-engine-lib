@@ -1,9 +1,10 @@
 import React from 'react';
+import { Tooltip as CarbonTooltip } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { type FormField } from '../../types';
-import Tooltip from '../inputs/tooltip/tooltip.component';
 
 import styles from './field-label.scss';
+import { Information } from '@carbon/react/icons';
 
 interface FieldLabelProps {
   field: FormField;
@@ -13,7 +14,18 @@ interface FieldLabelProps {
   customLabel?: string;
 }
 
-const FieldLabel: React.FC<FieldLabelProps> = ({ field, customLabel }) => {
+const Tooltip: React.FC<{ field: FormField; children: React.ReactNode }> = ({ field, children }) => {
+  const { t } = useTranslation();
+  return (
+    <CarbonTooltip align="top-left" label={t(field.questionInfo)} defaultOpen>
+      <span className={styles.tooltip}>
+        {children} <Information className={styles.tooltipIcon} />
+      </span>
+    </CarbonTooltip>
+  );
+};
+
+const FieldLabelContent: React.FC<FieldLabelProps> = ({ field, customLabel }) => {
   const { t } = useTranslation();
   const labelText = customLabel || t(field.label);
   return (
@@ -24,8 +36,17 @@ const FieldLabel: React.FC<FieldLabelProps> = ({ field, customLabel }) => {
           *
         </span>
       )}
-      {field.questionInfo && <Tooltip field={field} />}
     </div>
+  );
+};
+
+const FieldLabel: React.FC<FieldLabelProps> = ({ field, customLabel }) => {
+  return field?.questionInfo ? (
+    <Tooltip field={field}>
+      <FieldLabelContent field={field} customLabel={customLabel} />
+    </Tooltip>
+  ) : (
+    <FieldLabelContent field={field} customLabel={customLabel} />
   );
 };
 
