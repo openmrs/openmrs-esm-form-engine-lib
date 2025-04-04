@@ -18,14 +18,16 @@ const Tooltip: React.FC<{ field: FormField; children: React.ReactNode }> = ({ fi
   const { t } = useTranslation();
   return (
     <CarbonTooltip align="top-left" label={t(field.questionInfo)} defaultOpen>
-      <span className={styles.tooltip}>
-        {children} <Information className={styles.tooltipIcon} />
-      </span>
+      {children}
     </CarbonTooltip>
   );
 };
 
-const FieldLabelContent: React.FC<FieldLabelProps> = ({ field, customLabel }) => {
+interface FieldLabelContentProps extends FieldLabelProps {
+  hasTooltip: boolean;
+}
+
+const FieldLabelContent: React.FC<FieldLabelContentProps> = ({ field, customLabel, hasTooltip }) => {
   const { t } = useTranslation();
   const labelText = customLabel || t(field.label);
   return (
@@ -36,17 +38,19 @@ const FieldLabelContent: React.FC<FieldLabelProps> = ({ field, customLabel }) =>
           *
         </span>
       )}
+      {hasTooltip && <Information size={20} aria-hidden="true" className={styles.tooltipIcon} />}
     </div>
   );
 };
 
 const FieldLabel: React.FC<FieldLabelProps> = ({ field, customLabel }) => {
-  return field?.questionInfo ? (
+  const hasTooltip = Boolean(field.questionInfo);
+  return hasTooltip ? (
     <Tooltip field={field}>
-      <FieldLabelContent field={field} customLabel={customLabel} />
+      <FieldLabelContent field={field} customLabel={customLabel} hasTooltip={hasTooltip} />
     </Tooltip>
   ) : (
-    <FieldLabelContent field={field} customLabel={customLabel} />
+    <FieldLabelContent field={field} customLabel={customLabel} hasTooltip={hasTooltip} />
   );
 };
 
