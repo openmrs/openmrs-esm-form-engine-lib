@@ -102,24 +102,26 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           evaluateExpression,
           updateFormField,
         );
-        targetSection.questions = targetSection?.questions.map((question) => {
-          if (question.id === dependent.id) {
-            return dependent;
+
+        if (targetSection) {
+          targetSection.questions = targetSection?.questions.map((question) => {
+            if (question.id === dependent.id) {
+              return dependent;
+            }
+            return question;
+          });
+          const isDependentFieldHidden = dependent.isHidden;
+          const sectionHasVisibleFieldAfterEvaluation = [...targetSection.questions, dependent].some(
+            (field) => !field.isHidden,
+          );
+
+          if (!isSectionVisible && !isDependentFieldHidden) {
+            targetSection.isHidden = false;
+            shouldUpdateForm = true;
+          } else if (isSectionVisible && !sectionHasVisibleFieldAfterEvaluation) {
+            targetSection.isHidden = true;
+            shouldUpdateForm = true;
           }
-          return question;
-        });
-
-        const isDependentFieldHidden = dependent.isHidden;
-        const sectionHasVisibleFieldAfterEvaluation = [...targetSection.questions, dependent].some(
-          (field) => !field.isHidden,
-        );
-
-        if (!isSectionVisible && !isDependentFieldHidden) {
-          targetSection.isHidden = false;
-          shouldUpdateForm = true;
-        } else if (isSectionVisible && !sectionHasVisibleFieldAfterEvaluation) {
-          targetSection.isHidden = true;
-          shouldUpdateForm = true;
         }
       }
       // evaluate disabled
