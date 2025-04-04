@@ -1,10 +1,9 @@
 import { codedTypes } from '../../../constants';
 import { type FormContextProps } from '../../../provider/form-provider';
 import { type FormFieldValidator, type SessionMode, type ValidationResult, type FormField } from '../../../types';
-import { isTrue } from '../../../utils/boolean-utils';
 import { hasRendering } from '../../../utils/common-utils';
 import { evaluateAsyncExpression, evaluateExpression } from '../../../utils/expression-runner';
-import { evalConditionalRequired, evaluateDisabled, evaluateHide } from '../../../utils/form-helper';
+import { evalConditionalRequired, evaluateDisabled, evaluateHide, findFieldSection } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import { reportError } from '../../../utils/error-utils';
 
@@ -49,6 +48,8 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
     updateFormField,
     setForm,
   } = context;
+
+  let shouldUpdateForm = false;
   // handle fields
   if (field.fieldDependents) {
     field.fieldDependents.forEach((dep) => {
@@ -89,6 +90,9 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
       }
       // evaluate hide
       if (dependent.hide) {
+        const targetSection = findFieldSection(formJson, dependent);
+        const isSectionVisible = targetSection?.questions.some((question) => !question.isHidden);
+
         evaluateHide(
           { value: dependent, type: 'field' },
           formFields,
@@ -98,6 +102,27 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           evaluateExpression,
           updateFormField,
         );
+
+        if (targetSection) {
+          targetSection.questions = targetSection?.questions.map((question) => {
+            if (question.id === dependent.id) {
+              return dependent;
+            }
+            return question;
+          });
+          const isDependentFieldHidden = dependent.isHidden;
+          const sectionHasVisibleFieldAfterEvaluation = [...targetSection.questions, dependent].some(
+            (field) => !field.isHidden,
+          );
+
+          if (!isSectionVisible && !isDependentFieldHidden) {
+            targetSection.isHidden = false;
+            shouldUpdateForm = true;
+          } else if (isSectionVisible && !sectionHasVisibleFieldAfterEvaluation) {
+            targetSection.isHidden = true;
+            shouldUpdateForm = true;
+          }
+        }
       }
       // evaluate disabled
       if (typeof dependent.disabled === 'object' && dependent.disabled.disableWhenExpression) {
@@ -191,8 +216,6 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
       updateFormField(dependent);
     });
   }
-
-  let shouldUpdateForm = false;
 
   // handle sections
   if (field.sectionDependents) {
