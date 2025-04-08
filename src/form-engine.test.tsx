@@ -248,7 +248,7 @@ describe('Form engine component', () => {
 
     await assertFormHasAllFields(screen, [
       { fieldName: 'When was the HIV test conducted? *', fieldType: 'date' },
-      { fieldName: 'Community service delivery point *', fieldType: 'select' },
+      { fieldName: 'Community service delivery point', fieldType: 'select' },
     ]);
 
     try {
@@ -408,7 +408,7 @@ describe('Form engine component', () => {
         { fieldName: 'If Unscheduled, actual number scheduled date *', fieldType: 'number' },
         { fieldName: 'If Unscheduled, actual text area scheduled date *', fieldType: 'textarea' },
         { fieldName: 'Not required actual text area scheduled date', fieldType: 'textarea' },
-        { fieldName: 'If Unscheduled, actual scheduled reason select *', fieldType: 'select' },
+        { fieldName: 'If Unscheduled, actual scheduled reason select', fieldType: 'select' },
         { fieldName: 'If Unscheduled, actual scheduled reason multi-select *', fieldType: 'checkbox-searchable' },
         { fieldName: 'If Unscheduled, actual scheduled reason radio *', fieldType: 'radio' },
       ]);
@@ -703,6 +703,17 @@ describe('Form engine component', () => {
   });
 
   describe('Default values', () => {
+    let originalConsoleError;
+
+    beforeEach(() => {
+      originalConsoleError = console.error;
+      console.error = jest.fn();
+    });
+
+    afterEach(() => {
+      console.error = originalConsoleError;
+    });
+
     it('should initialize fields with default values', async () => {
       const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
 
