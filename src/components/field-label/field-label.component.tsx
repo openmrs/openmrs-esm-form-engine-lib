@@ -1,9 +1,10 @@
 import React from 'react';
+import { Tooltip as CarbonTooltip } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { type FormField } from '../../types';
-import Tooltip from '../inputs/tooltip/tooltip.component';
 
 import styles from './field-label.scss';
+import { Information } from '@carbon/react/icons';
 
 interface FieldLabelProps {
   field: FormField;
@@ -13,19 +14,45 @@ interface FieldLabelProps {
   customLabel?: string;
 }
 
-const FieldLabel: React.FC<FieldLabelProps> = ({ field, customLabel }) => {
+const Tooltip: React.FC<{ field: FormField; children: React.ReactNode }> = ({ field, children }) => {
+  const { t } = useTranslation();
+  return (
+    <CarbonTooltip align="top-left" label={t(field.questionInfo)} defaultOpen>
+      {children}
+    </CarbonTooltip>
+  );
+};
+
+interface FieldLabelContentProps extends FieldLabelProps {
+  hasTooltip: boolean;
+}
+
+const FieldLabelContent: React.FC<FieldLabelContentProps> = ({ field, customLabel, hasTooltip }) => {
   const { t } = useTranslation();
   const labelText = customLabel || t(field.label);
   return (
-    <div className={styles.questionLabel}>
+    <div className={styles.questionLabel} data-testid={`${field.id}-label`}>
       <span>{labelText}</span>
       {field.isRequired && (
         <span title={t('required', 'Required')} className={styles.required}>
           *
         </span>
       )}
-      {field.questionInfo && <Tooltip field={field} />}
+      {hasTooltip && (
+        <Information size={20} aria-hidden="true" className={styles.tooltipIcon} data-testid="information-icon" />
+      )}
     </div>
+  );
+};
+
+const FieldLabel: React.FC<FieldLabelProps> = ({ field, customLabel }) => {
+  const hasTooltip = Boolean(field.questionInfo);
+  return hasTooltip ? (
+    <Tooltip field={field}>
+      <FieldLabelContent field={field} customLabel={customLabel} hasTooltip={hasTooltip} />
+    </Tooltip>
+  ) : (
+    <FieldLabelContent field={field} customLabel={customLabel} hasTooltip={hasTooltip} />
   );
 };
 
