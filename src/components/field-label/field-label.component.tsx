@@ -31,14 +31,16 @@ const FieldLabelContent: React.FC<FieldLabelContentProps> = ({ field, customLabe
   const { t } = useTranslation();
   const labelText = customLabel || t(field.label);
   return (
-    <div className={styles.questionLabel}>
+    <div className={styles.questionLabel} data-testid={`${field.id}-label`}>
       <span>{labelText}</span>
       {field.isRequired && (
         <span title={t('required', 'Required')} className={styles.required}>
           *
         </span>
       )}
-      {hasTooltip && <Information size={20} aria-hidden="true" className={styles.tooltipIcon} />}
+      {hasTooltip && (
+        <Information size={20} aria-hidden="true" className={styles.tooltipIcon} data-testid="information-icon" />
+      )}
     </div>
   );
 };
