@@ -1,4 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { ToastNotification } from '@carbon/react';
+import { Controller, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { ErrorBoundary } from 'react-error-boundary';
 import {
   type FormField,
   type FormFieldInputProps,
@@ -7,19 +11,15 @@ import {
   type ValidationResult,
   type ValueAndDisplay,
 } from '../../../types';
-import { Controller, useWatch } from 'react-hook-form';
-import { ToastNotification } from '@carbon/react';
-import { useTranslation } from 'react-i18next';
-import { ErrorBoundary } from 'react-error-boundary';
-import { hasRendering } from '../../../utils/common-utils';
-import { useFormProviderContext } from '../../../provider/form-provider';
-import { isEmpty } from '../../../validators/form-validator';
-import PreviousValueReview from '../../previous-value-review/previous-value-review.component';
 import { getFieldControlWithFallback, getRegisteredControl } from '../../../registry/registry';
-import styles from './form-field-renderer.scss';
-import { isTrue } from '../../../utils/boolean-utils';
-import UnspecifiedField from '../../inputs/unspecified/unspecified.component';
 import { handleFieldLogic, validateFieldValue } from './fieldLogic';
+import { hasRendering } from '../../../utils/common-utils';
+import { isEmpty } from '../../../validators/form-validator';
+import { isTrue } from '../../../utils/boolean-utils';
+import { useFormProviderContext } from '../../../provider/form-provider';
+import PreviousValueReview from '../../previous-value-review/previous-value-review.component';
+import UnspecifiedField from '../../inputs/unspecified/unspecified.component';
+import styles from './form-field-renderer.scss';
 
 export interface FormFieldRendererProps {
   fieldId: string;

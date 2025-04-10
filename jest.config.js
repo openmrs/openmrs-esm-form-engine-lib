@@ -26,6 +26,6 @@ module.exports = {
     'react-markdown': '<rootDir>/__mocks__/react-markdown.tsx',
     '^uuid$': '<rootDir>/node_modules/uuid/dist/index.js',
   },
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/setup-tests.ts'],
   testEnvironment: 'jsdom',
 };
