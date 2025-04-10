@@ -22,7 +22,6 @@ describe('useCurrentActivePage', () => {
   ] as Array<FormPage>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
     jest.useFakeTimers();
   });
 

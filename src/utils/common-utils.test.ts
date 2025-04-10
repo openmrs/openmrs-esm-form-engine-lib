@@ -1,19 +1,14 @@
 import {
-  flattenObsList,
-  hasRendering,
   clearSubmission,
+  flattenObsList,
   gracefullySetSubmission,
+  hasRendering,
   hasSubmission,
   parseToLocalDateTime,
 } from './common-utils';
 import { isEmpty } from '../validators/form-validator';
-import { type FormField, type OpenmrsObs } from '../types';
-import { obsList } from '__mocks__/forms/rfe-forms/obs-list-data';
-
-jest.mock('@openmrs/esm-framework', () => ({
-  formatDate: jest.fn(),
-  restBaseUrl: 'http://openmrs.com/rest',
-}));
+import { obsList } from '__mocks__/forms';
+import { type FormField } from '../types';
 
 jest.mock('../validators/form-validator', () => ({
   isEmpty: jest.fn(),

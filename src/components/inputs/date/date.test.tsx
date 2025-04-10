@@ -1,10 +1,8 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
-import { useFormProviderContext } from 'src/provider/form-provider';
+import { type FormField } from '../../../types';
+import { useFormProviderContext } from '../../../provider/form-provider';
 import DateField from './date.component';
-import { type FormField } from 'src/types';
-import { OpenmrsDatePicker } from '@openmrs/esm-framework';
-import dayjs from 'dayjs';
 
 jest.mock('src/provider/form-provider', () => ({
   useFormProviderContext: jest.fn(),
@@ -12,24 +10,6 @@ jest.mock('src/provider/form-provider', () => ({
 
 const mockUseFormProviderContext = useFormProviderContext as jest.Mock;
 const mockSetFieldValue = jest.fn();
-
-const mockOpenmrsDatePicker = jest.mocked(OpenmrsDatePicker);
-
-mockOpenmrsDatePicker.mockImplementation(({ id, labelText, value, onChange, isInvalid, invalidText }) => {
-  return (
-    <>
-      <label htmlFor={id}>{labelText}</label>
-      <input
-        id={id}
-        value={value ? dayjs(value as unknown as string).format('DD/MM/YYYY') : ''}
-        onChange={(evt) => {
-          onChange(dayjs(evt.target.value).toDate());
-        }}
-      />
-      {isInvalid && <span>{invalidText}</span>}
-    </>
-  );
-});
 
 const dateFieldMock: FormField = {
   id: 'test-date-field',

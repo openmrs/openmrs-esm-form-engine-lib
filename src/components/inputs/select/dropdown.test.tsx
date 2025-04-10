@@ -1,8 +1,8 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import Dropdown from './dropdown.component';
 import { type FormField } from '../../../types';
 import { type OpenmrsResource } from '@openmrs/esm-framework';
+import Dropdown from './dropdown.component';
 
 const question: FormField = {
   label: 'Patient past program.',

@@ -1,21 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { FilterableMultiSelect, Layer, Tag, CheckboxGroup, Checkbox } from '@carbon/react';
+import { Checkbox, CheckboxGroup, FilterableMultiSelect, Layer, Tag } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { type FormFieldInputProps } from '../../../types';
-import { ValueEmpty } from '../../value/value.component';
-import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
+import { shouldUseInlineLayout } from '../../../utils/form-helper';
+import { type FormFieldInputProps } from '../../../types';
+import { useFormProviderContext } from '../../../provider/form-provider';
+import { ValueEmpty } from '../../value/value.component';
+import FieldLabel from '../../field-label/field-label.component';
 import FieldValueView from '../../value/view/field-value-view.component';
 import styles from './multi-select.scss';
-import { useFormProviderContext } from '../../../provider/form-provider';
-import FieldLabel from '../../field-label/field-label.component';
 
 const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
+  const { layoutType, sessionMode, workspaceLayout, formFieldAdapters } = useFormProviderContext();
   const [counter, setCounter] = useState(0);
   const [initiallyCheckedQuestionItems, setInitiallyCheckedQuestionItems] = useState([]);
   const isFirstRender = useRef(true);
-  const { layoutType, sessionMode, workspaceLayout, formFieldAdapters } = useFormProviderContext();
 
   const selectOptions = field.questionOptions.answers
     .filter((answer) => !answer.isHidden)
@@ -117,18 +117,14 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
                 {field.questionOptions.answers?.map((value, index) => {
                   return (
                     <Checkbox
-                      key={`${field.id}-${value.concept}`}
                       className={styles.checkbox}
-                      labelText={t(value.label)}
-                      id={`${field.id}-${value.concept}`}
-                      onChange={() => {
-                        handleSelectCheckbox(value);
-                      }}
-                      name={value.concept}
-                      defaultChecked={initiallyCheckedQuestionItems.some((item) => item === value.concept)}
                       checked={initiallyCheckedQuestionItems.some((item) => item === value.concept)}
-                      onBlur={onblur}
                       disabled={value.disable?.isDisabled}
+                      id={`${field.id}-${value.concept}`}
+                      key={`${field.id}-${value.concept}-${index}`}
+                      labelText={t(value.label)}
+                      name={value.concept}
+                      onChange={() => handleSelectCheckbox(value)}
                       readOnly={isTrue(field.readonly)}
                     />
                   );

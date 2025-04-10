@@ -18,8 +18,6 @@ describe('usePostSubmissionActions', () => {
 
   // Set up the mock implementation for getRegisteredPostSubmissionAction
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.spyOn(global.console, 'error').mockImplementation(() => {});
     jest.requireMock('../registry/registry').getRegisteredPostSubmissionAction.mockImplementation((actionId) => {
       if (actionId === 'action1') {
         return Promise.resolve(mockPostAction);

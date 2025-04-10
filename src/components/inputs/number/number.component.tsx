@@ -1,15 +1,15 @@
 import React, { useCallback, useMemo } from 'react';
-import { Layer, NumberInput } from '@carbon/react';
 import classNames from 'classnames';
-import { isTrue } from '../../../utils/boolean-utils';
-import { shouldUseInlineLayout } from '../../../utils/form-helper';
-import FieldValueView from '../../value/view/field-value-view.component';
-import { type FormFieldInputProps } from '../../../types';
-import styles from './number.scss';
 import { useTranslation } from 'react-i18next';
+import { Layer, NumberInput } from '@carbon/react';
+import { isEmpty } from '../../../validators/form-validator';
+import { isTrue } from '../../../utils/boolean-utils';
+import { type FormFieldInputProps } from '../../../types';
+import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
-import { isEmpty } from '../../../validators/form-validator';
+import FieldValueView from '../../value/view/field-value-view.component';
+import styles from './number.scss';
 
 const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();

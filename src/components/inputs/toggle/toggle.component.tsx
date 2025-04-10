@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Toggle as ToggleInput } from '@carbon/react';
 import { type FormFieldInputProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
 import { shouldUseInlineLayout } from '../../../utils/form-helper';
-import FieldValueView from '../../value/view/field-value-view.component';
 import { isEmpty } from '../../../validators/form-validator';
-import styles from './toggle.scss';
-import { useTranslation } from 'react-i18next';
 import { useFormProviderContext } from '../../../provider/form-provider';
+import FieldValueView from '../../value/view/field-value-view.component';
+import styles from './toggle.scss';
 
 const Toggle: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();

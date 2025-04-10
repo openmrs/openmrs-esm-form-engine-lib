@@ -2,18 +2,20 @@ import { act, renderHook } from '@testing-library/react';
 import { openmrsFetch } from '@openmrs/esm-framework';
 import { when } from 'jest-when';
 import { useFormJson } from './useFormJson';
-import artComponentBody from '__mocks__/forms/rfe-forms/component_art.json';
-import artComponentSkeleton from '__mocks__/forms/afe-forms/component_art.json';
-import formComponentBody from '__mocks__/forms/rfe-forms/form-component.json';
-import formComponentSkeleton from '__mocks__/forms/afe-forms/form-component.json';
-import miniFormBody from '__mocks__/forms/rfe-forms/mini-form.json';
-import miniFormSkeleton from '__mocks__/forms/afe-forms/mini-form.json';
-import nestedForm1Body from '__mocks__/forms/rfe-forms/nested-form1.json';
-import nestedForm1Skeleton from '__mocks__/forms/afe-forms/nested-form1.json';
-import nestedForm2Body from '__mocks__/forms/rfe-forms/nested-form2.json';
-import nestedForm2Skeleton from '__mocks__/forms/afe-forms/nested-form2.json';
-import preclinicReviewComponentBody from '__mocks__/forms/rfe-forms/component_preclinic-review.json';
-import preclinicReviewComponentSkeleton from '__mocks__/forms/afe-forms/component_preclinic-review.json';
+import {
+  artComponentBody,
+  artComponentSkeleton,
+  formComponentBody,
+  formComponentSkeleton,
+  miniFormBody,
+  miniFormSkeleton,
+  nestedForm1Body,
+  nestedForm1Skeleton,
+  nestedForm2Body,
+  nestedForm2Skeleton,
+  preclinicReviewComponentBody,
+  preclinicReviewComponentSkeleton,
+} from '__mocks__/forms';
 
 const MINI_FORM_NAME = 'Mini Form';
 const MINI_FORM_UUID = '112d73b4-79e5-4be8-b9ae-d0840f00d4cf';
@@ -161,7 +163,7 @@ describe('useFormJson', () => {
   });
 
   it('should return an error when the form is not found', async () => {
-    // setup and execute
+    const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     let hook = null;
     await act(async () => {
       hook = renderHook(() => useFormJson(NON_EXISTENT_FORM_NAME, null, null, null));
@@ -172,6 +174,7 @@ describe('useFormJson', () => {
       'Error loading form JSON: Form with ID "non-existent-form" was not found',
     );
     expect(hook.result.current.formJson).toBe(null);
+    mockConsoleError.mockRestore();
   });
 });
 

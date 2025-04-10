@@ -69,6 +69,7 @@ const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warning
             invalidText={errors[0]?.message}
             items={items}
             itemToString={itemToString}
+            label=""
             onChange={handleChange}
             readOnly={isTrue(field.readonly)}
             selectedItem={isEmpty(value) ? NullSelectOption : value}

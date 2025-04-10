@@ -1,19 +1,17 @@
 import React from 'react';
+import userEvent from '@testing-library/user-event';
 import { act, render, screen } from '@testing-library/react';
 import { usePatient, useSession } from '@openmrs/esm-framework';
+import * as api from '../../../api';
 import { type FormSchema, type SessionMode } from '../../../types';
 import { findNumberInput } from '../../../utils/test-utils';
-import unspecifiedForm from '../../../../__mocks__/forms/rfe-forms/sample_unspecified-form.json';
-import { FormEngine } from '../../..';
-import { mockPatient } from '../../../../__mocks__/patient.mock';
-import { mockSessionDataResponse } from '../../../../__mocks__/session.mock';
-import userEvent from '@testing-library/user-event';
-import * as api from '../../../api';
+import { unspecifiedForm } from '__mocks__/forms';
+import { mockPatient } from '__mocks__/patient.mock';
+import { mockSessionDataResponse } from '__mocks__/session.mock';
+import FormEngine from '../../../form-engine.component';
 
 const mockUsePatient = jest.mocked(usePatient);
 const mockUseSession = jest.mocked(useSession);
-
-global.ResizeObserver = require('resize-observer-polyfill');
 
 jest.mock('../../../api', () => {
   const originalModule = jest.requireActual('../../../api');
@@ -75,15 +73,6 @@ describe('Unspecified', () => {
   const user = userEvent.setup();
 
   beforeEach(() => {
-    Object.defineProperty(window, 'i18next', {
-      writable: true,
-      configurable: true,
-      value: {
-        language: 'en',
-        t: jest.fn(),
-      },
-    });
-
     mockUsePatient.mockImplementation(() => ({
       patient: mockPatient,
       isLoading: false,

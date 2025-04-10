@@ -1,28 +1,17 @@
+import { act } from 'react';
 import { renderHook } from '@testing-library/react';
 import { useFormWorkspaceSize } from './useFormWorkspaceSize';
-import { act } from 'react';
 
 // Mock the pxToRem utility
 jest.mock('../utils/common-utils', () => ({
   pxToRem: (px: number) => px / 16, // Simulate px to rem conversion (1rem = 16px)
 }));
 
-// Mock ResizeObserver with callback ref
-let resizeCallback: (entries: any[]) => void;
-class ResizeObserverMock {
-  constructor(callback: (entries: any[]) => void) {
-    resizeCallback = callback;
-  }
-  observe = jest.fn();
-  unobserve = jest.fn();
-  disconnect = jest.fn();
-}
-
-global.ResizeObserver = ResizeObserverMock as any;
-
 describe('useFormWorkspaceSize', () => {
   let ref: { current: HTMLDivElement | null };
   let parentElement: HTMLDivElement;
+  let resizeCallback: ResizeObserverCallback | null;
+  let originalResizeObserver: typeof global.ResizeObserver;
 
   beforeEach(() => {
     // Create DOM elements
@@ -37,10 +26,26 @@ describe('useFormWorkspaceSize', () => {
       configurable: true,
       value: 400,
     });
+
+    // Store original ResizeObserver
+    originalResizeObserver = global.ResizeObserver;
+    resizeCallback = null;
+
+    // Store the ResizeObserver callback
+    global.ResizeObserver = class MockResizeObserver implements ResizeObserver {
+      constructor(callback: ResizeObserverCallback) {
+        resizeCallback = callback;
+      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    // Restore original ResizeObserver
+    global.ResizeObserver = originalResizeObserver;
+    resizeCallback = null;
   });
 
   const setParentWidth = (width: number) => {
@@ -48,12 +53,28 @@ describe('useFormWorkspaceSize', () => {
       configurable: true,
       value: width,
     });
-    if (typeof resizeCallback !== 'function') {
-      return;
-    }
     // Trigger resize callback
     act(() => {
-      resizeCallback([{ target: parentElement }]);
+      if (resizeCallback) {
+        const entry: ResizeObserverEntry = {
+          target: parentElement,
+          borderBoxSize: [{ blockSize: 0, inlineSize: width }],
+          contentBoxSize: [{ blockSize: 0, inlineSize: width }],
+          contentRect: {
+            width,
+            height: 0,
+            x: 0,
+            y: 0,
+            top: 0,
+            right: width,
+            bottom: 0,
+            left: 0,
+            toJSON: () => ({}),
+          },
+          devicePixelContentBoxSize: [{ blockSize: 0, inlineSize: width }],
+        };
+        resizeCallback([entry], {} as ResizeObserver);
+      }
     });
   };
 

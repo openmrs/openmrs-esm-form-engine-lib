@@ -59,9 +59,16 @@ export function isViewMode(sessionMode: string) {
 
 export function parseToLocalDateTime(dateString: string): Date {
   const dateObj = dayjs(dateString).toDate();
+  if (isNaN(dateObj.getTime())) {
+    return new Date(NaN);
+  }
+
   try {
-    const localTimeTokens = dateString.split('T')[1].split(':');
-    dateObj.setHours(parseInt(localTimeTokens[0]), parseInt(localTimeTokens[1]), 0);
+    const timePart = dateString.split('T')[1];
+    if (timePart) {
+      const localTimeTokens = timePart.split(':');
+      dateObj.setHours(parseInt(localTimeTokens[0]), parseInt(localTimeTokens[1]), 0);
+    }
   } catch (e) {
     console.error(e);
   }
