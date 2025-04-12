@@ -1,18 +1,17 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
-import { type FormSchema, type SessionMode, type OpenmrsEncounter } from '../../../types';
-import { usePatient, useSession } from '@openmrs/esm-framework';
-import { mockPatient } from '../../../../__mocks__/patient.mock';
-import { mockSessionDataResponse } from '../../../../__mocks__/session.mock';
-import { FormEngine } from '../../..';
-import uiSelectExtForm from '../../../../__mocks__/forms/rfe-forms/sample_ui-select-ext.json';
-import { assertFormHasAllFields, findSelectInput } from '../../../utils/test-utils';
 import userEvent from '@testing-library/user-event';
+import { act, render, screen } from '@testing-library/react';
+import { usePatient, useSession } from '@openmrs/esm-framework';
 import * as api from '../../../api';
+import { type FormSchema, type SessionMode, type OpenmrsEncounter } from '../../../types';
+import { assertFormHasAllFields, findSelectInput } from '../../../utils/test-utils';
+import { mockPatient } from '__mocks__/patient.mock';
+import { mockSessionDataResponse } from '__mocks__/session.mock';
+import { uiSelectExtForm } from '__mocks__/forms';
+import FormEngine from '../../../form-engine.component';
 
 const mockUsePatient = jest.mocked(usePatient);
 const mockUseSession = jest.mocked(useSession);
-global.ResizeObserver = require('resize-observer-polyfill');
 
 jest.mock('lodash-es/debounce', () => jest.fn((fn) => fn));
 
@@ -145,15 +144,6 @@ describe('UiSelectExtended', () => {
   const user = userEvent.setup();
 
   beforeEach(() => {
-    Object.defineProperty(window, 'i18next', {
-      writable: true,
-      configurable: true,
-      value: {
-        language: 'en',
-        t: jest.fn(),
-      },
-    });
-
     mockUsePatient.mockImplementation(() => ({
       patient: mockPatient,
       isLoading: false,
@@ -257,18 +247,18 @@ describe('UiSelectExtended', () => {
         renderForm();
       });
 
-      const transferLocationSelect = await findSelectInput(screen, 'Transfer Location');    
+      const transferLocationSelect = await findSelectInput(screen, 'Transfer Location');
       // Open the dropdown
       await user.click(transferLocationSelect);
-    
+
       // Verify all items are displayed initially
       expect(screen.getByText('Kololo')).toBeInTheDocument();
       expect(screen.getByText('Naguru')).toBeInTheDocument();
       expect(screen.getByText('Muyenga')).toBeInTheDocument();
-    
+
       // Type input
       await user.type(transferLocationSelect, 'Nag');
-    
+
       // Verify all items are still displayed
       expect(screen.getByText('Kololo')).toBeInTheDocument();
       expect(screen.getByText('Naguru')).toBeInTheDocument();

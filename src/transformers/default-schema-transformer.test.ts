@@ -1,6 +1,6 @@
 import { type FormSchema } from '../types';
 import { DefaultFormSchemaTransformer } from './default-schema-transformer';
-import testForm from '__mocks__/forms/afe-forms/test-schema-transformer-form.json';
+import { testForm } from '__mocks__/forms';
 
 const expectedTransformedSchema = {
   name: 'AFE form with aliased questions',

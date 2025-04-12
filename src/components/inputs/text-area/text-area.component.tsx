@@ -4,10 +4,10 @@ import { Layer, TextArea as TextAreaInput } from '@carbon/react';
 import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
 import { type FormFieldInputProps } from '../../../types';
-import FieldValueView from '../../value/view/field-value-view.component';
-import styles from './text-area.scss';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
+import FieldValueView from '../../value/view/field-value-view.component';
+import styles from './text-area.scss';
 
 const TextArea: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();

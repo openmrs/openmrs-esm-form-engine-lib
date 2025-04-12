@@ -1,9 +1,10 @@
 import React from 'react';
-import { act, render, screen, fireEvent } from '@testing-library/react';
-import { useFormProviderContext } from 'src/provider/form-provider';
+import userEvent from '@testing-library/user-event';
+import { act, render, screen } from '@testing-library/react';
+import { useFormProviderContext } from '../../../provider/form-provider';
 import NumberField from './number.component';
 
-jest.mock('src/provider/form-provider', () => ({
+jest.mock('../../../provider/form-provider', () => ({
   useFormProviderContext: jest.fn(),
 }));
 
@@ -64,6 +65,7 @@ describe('NumberField Component', () => {
   });
 
   it('calls setFieldValue on input change', async () => {
+    const user = userEvent.setup();
     const mockSetFieldValue = jest.fn();
 
     await renderNumberField({
@@ -75,7 +77,7 @@ describe('NumberField Component', () => {
     });
 
     const inputElement = screen.getByLabelText('Weight(kg):') as HTMLInputElement;
-    fireEvent.change(inputElement, { target: { value: '150' } });
+    await user.type(inputElement, '150');
 
     expect(mockSetFieldValue).toHaveBeenCalledWith(150);
   });

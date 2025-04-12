@@ -14,49 +14,46 @@ import { when } from 'jest-when';
 import * as api from './api';
 import { assertFormHasAllFields, findCheckboxGroup, findSelectInput, findTextOrDateInput } from './utils/test-utils';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
-import { mockPatient } from '__mocks__/patient.mock';
-import { mockSessionDataResponse } from '__mocks__/session.mock';
-import { mockVisit } from '__mocks__/visit.mock';
-import demoHtsForm from '__mocks__/forms/rfe-forms/demo_hts-form.json';
-import demoHtsOpenmrsForm from '__mocks__/forms/afe-forms/demo_hts-form.json';
-import filterAnswerOptionsTestForm from '__mocks__/forms/rfe-forms/filter-answer-options-test-form.json';
-import htsPocForm from '__mocks__/packages/hiv/forms/hts_poc/1.1.json';
-import labourAndDeliveryTestForm from '__mocks__/forms/rfe-forms/labour_and_delivery_test_form.json';
-import mockConceptsForm from '__mocks__/concepts.mock.json';
-import obsGroupTestForm from '__mocks__/forms/rfe-forms/obs-group-test_form.json';
-import postSubmissionTestForm from '__mocks__/forms/rfe-forms/post-submission-test-form.json';
-import referenceByMappingForm from '__mocks__/forms/rfe-forms/reference-by-mapping-form.json';
-import sampleFieldsForm from '__mocks__/forms/rfe-forms/sample_fields.json';
-import testEnrolmentForm from '__mocks__/forms/rfe-forms/test-enrolment-form.json';
-import historicalExpressionsForm from '__mocks__/forms/rfe-forms/historical-expressions-form.json';
-import mockHxpEncounter from '__mocks__/forms/rfe-forms/mockHistoricalvisitsEncounter.json';
-import mockSaveEncounter from '__mocks__/forms/rfe-forms/mockSaveEncounter.json';
-import requiredTestForm from '__mocks__/forms/rfe-forms/required-form.json';
-import conditionalRequiredTestForm from '__mocks__/forms/rfe-forms/conditional-required-form.json';
-import conditionalAnsweredForm from '__mocks__/forms/rfe-forms/conditional-answered-form.json';
-import ageValidationForm from '__mocks__/forms/rfe-forms/age-validation-form.json';
-import bmiForm from '__mocks__/forms/rfe-forms/bmi-test-form.json';
-import bsaForm from '__mocks__/forms/rfe-forms/bsa-test-form.json';
-import eddForm from '__mocks__/forms/rfe-forms/edd-test-form.json';
-import externalDataSourceForm from '__mocks__/forms/rfe-forms/external_data_source_form.json';
-import monthsOnArtForm from '__mocks__/forms/rfe-forms/months-on-art-form.json';
-import nextVisitForm from '__mocks__/forms/rfe-forms/next-visit-test-form.json';
-import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-form.json';
-import readOnlyValidationForm from '__mocks__/forms/rfe-forms/read-only-validation-form.json';
-import jsExpressionValidationForm from '__mocks__/forms/rfe-forms/js-expression-validation-form.json';
-import hidePagesAndSectionsForm from '__mocks__/forms/rfe-forms/hide-pages-and-sections-form.json';
-import diagnosisForm from '__mocks__/forms/rfe-forms/diagnosis-test-form.json';
-import defaultValuesForm from '__mocks__/forms/rfe-forms/default-values-form.json';
-
-import FormEngine from './form-engine.component';
+import { mockConcepts, mockPatient, mockSessionDataResponse, mockVisit } from '__mocks__';
+import {
+  ageValidationForm,
+  bmiForm,
+  bsaForm,
+  conditionalAnsweredForm,
+  conditionalRequiredTestForm,
+  defaultValuesForm,
+  demoHtsForm,
+  demoHtsOpenmrsForm,
+  diagnosisForm,
+  eddForm,
+  externalDataSourceForm,
+  filterAnswerOptionsTestForm,
+  hidePagesAndSectionsForm,
+  historicalExpressionsForm,
+  htsPocForm,
+  jsExpressionValidationForm,
+  labourAndDeliveryTestForm,
+  mockHxpEncounter,
+  mockSaveEncounter,
+  monthsOnArtForm,
+  nextVisitForm,
+  obsGroupTestForm,
+  postSubmissionTestForm,
+  readOnlyValidationForm,
+  referenceByMappingForm,
+  requiredTestForm,
+  sampleFieldsForm,
+  testEnrolmentForm,
+  viralLoadStatusForm,
+} from '__mocks__/forms';
 import { type FormSchema, type OpenmrsEncounter, type SessionMode } from './types';
 import { useEncounter } from './hooks/useEncounter';
+import FormEngine from './form-engine.component';
 
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const formsResourcePath = when((url: string) => url.includes(`${restBaseUrl}/form/`));
 const clobDataResourcePath = when((url: string) => url.includes(`${restBaseUrl}/clobdata/`));
-global.ResizeObserver = require('resize-observer-polyfill');
 
 const mockOpenmrsFetch = jest.mocked(openmrsFetch);
 const mockExtensionSlot = jest.mocked(ExtensionSlot);
@@ -152,7 +149,7 @@ jest.mock('./hooks/useConcepts', () => ({
     if ([...references].join(',').includes('PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH')) {
       return {
         isLoading: false,
-        concepts: mockConceptsForm.results,
+        concepts: mockConcepts.results,
         error: undefined,
       };
     }
@@ -178,15 +175,6 @@ describe('Form engine component', () => {
   const user = userEvent.setup();
 
   beforeEach(() => {
-    Object.defineProperty(window, 'i18next', {
-      writable: true,
-      configurable: true,
-      value: {
-        language: 'en',
-        t: jest.fn(),
-      },
-    });
-
     mockExtensionSlot.mockImplementation((ext) => <>{ext.name}</>);
     mockUsePatient.mockImplementation(() => ({
       patient: mockPatient,

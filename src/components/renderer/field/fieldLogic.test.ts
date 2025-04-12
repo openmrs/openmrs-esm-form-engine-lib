@@ -1,5 +1,5 @@
 import { handleFieldLogic, validateFieldValue } from './fieldLogic';
-import { evaluateAsyncExpression, evaluateExpression } from '../../../utils/expression-runner';
+import { evaluateExpression } from '../../../utils/expression-runner';
 import { type FormField } from '../../../types';
 import { type FormContextProps } from '../../../provider/form-provider';
 
@@ -25,7 +25,7 @@ describe('handleFieldLogic', () => {
       formFieldAdapters: {
         obs: {
           transformFieldValue: jest.fn(),
-        }
+        },
       },
       formJson: { pages: [] },
       updateFormField: jest.fn(),
@@ -112,9 +112,7 @@ describe('validateFieldValue', () => {
 
     mockValidators = {
       required: {
-        validate: jest.fn().mockReturnValue([
-          { resultType: 'error', message: 'Field is required' },
-        ]),
+        validate: jest.fn().mockReturnValue([{ resultType: 'error', message: 'Field is required' }]),
       },
     };
 
@@ -131,11 +129,7 @@ describe('validateFieldValue', () => {
   it('should validate field value and return errors and warnings', () => {
     const result = validateFieldValue(mockField, '', mockValidators, mockContext);
 
-    expect(mockValidators.required.validate).toHaveBeenCalledWith(
-      mockField,
-      '',
-      expect.objectContaining(mockContext),
-    );
+    expect(mockValidators.required.validate).toHaveBeenCalledWith(mockField, '', expect.objectContaining(mockContext));
     expect(result.errors).toEqual([{ resultType: 'error', message: 'Field is required' }]);
     expect(result.warnings).toEqual([]);
   });

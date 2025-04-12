@@ -1,12 +1,10 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
-import { mockPatient } from '__mocks__/patient.mock';
-import { mockSessionDataResponse } from '__mocks__/session.mock';
-import { mockVisit } from '__mocks__/visit.mock';
-import radioButtonFormSchema from '__mocks__/forms/rfe-forms/radio-button-form.json';
-import Radio from './radio.component';
+import { mockPatient, mockSessionDataResponse, mockVisit } from '__mocks__';
+import { radioButtonFormSchema } from '__mocks__/forms';
 import { useFormProviderContext } from 'src/provider/form-provider';
+import Radio from './radio.component';
 
 const mockOpenmrsFetch = jest.mocked(openmrsFetch);
 const mockUseSession = jest.mocked(useSession);
