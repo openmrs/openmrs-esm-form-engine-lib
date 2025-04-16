@@ -14,45 +14,40 @@ interface FieldLabelProps {
   customLabel?: string;
 }
 
-const Tooltip: React.FC<{ field: FormField; children: React.ReactNode }> = ({ field, children }) => {
+const TooltipWrapper: React.FC<{ hasTooltip: boolean; field: FormField; children: React.ReactNode }> = ({
+  field,
+  children,
+  hasTooltip,
+}) => {
   const { t } = useTranslation();
-  return (
-    <CarbonTooltip align="top-left" label={t(field.questionInfo)} defaultOpen>
+  return hasTooltip ? (
+    <CarbonTooltip align="top-left" label={t(field.questionInfo)}>
       {children}
     </CarbonTooltip>
-  );
-};
-
-interface FieldLabelContentProps extends FieldLabelProps {
-  hasTooltip: boolean;
-}
-
-const FieldLabelContent: React.FC<FieldLabelContentProps> = ({ field, customLabel, hasTooltip }) => {
-  const { t } = useTranslation();
-  const labelText = customLabel || t(field.label);
-  return (
-    <div className={styles.questionLabel} data-testid={`${field.id}-label`}>
-      <span>{labelText}</span>
-      {field.isRequired && (
-        <span title={t('required', 'Required')} className={styles.required}>
-          *
-        </span>
-      )}
-      {hasTooltip && (
-        <Information size={20} aria-hidden="true" className={styles.tooltipIcon} data-testid="information-icon" />
-      )}
-    </div>
+  ) : (
+    <>{children}</>
   );
 };
 
 const FieldLabel: React.FC<FieldLabelProps> = ({ field, customLabel }) => {
+  const { t } = useTranslation();
   const hasTooltip = Boolean(field.questionInfo);
-  return hasTooltip ? (
-    <Tooltip field={field}>
-      <FieldLabelContent field={field} customLabel={customLabel} hasTooltip={hasTooltip} />
-    </Tooltip>
-  ) : (
-    <FieldLabelContent field={field} customLabel={customLabel} hasTooltip={hasTooltip} />
+  const labelText = customLabel || t(field.label);
+
+  return (
+    <TooltipWrapper field={field} hasTooltip={hasTooltip}>
+      <div className={styles.questionLabel} data-testid={`${field.id}-label`}>
+        <span>{labelText}</span>
+        {field.isRequired && (
+          <span title={t('required', 'Required')} className={styles.required}>
+            *
+          </span>
+        )}
+        {hasTooltip && (
+          <Information size={20} aria-hidden="true" className={styles.tooltipIcon} data-testid="information-icon" />
+        )}
+      </div>
+    </TooltipWrapper>
   );
 };
 
