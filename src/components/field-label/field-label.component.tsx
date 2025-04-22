@@ -14,14 +14,12 @@ interface FieldLabelProps {
   customLabel?: string;
 }
 
-const TooltipWrapper: React.FC<{ hasTooltip: boolean; field: FormField; children: React.ReactNode }> = ({
-  field,
-  children,
-  hasTooltip,
-}) => {
+const TooltipWrapper: React.FC<{ field: FormField; children: React.ReactNode }> = ({ field, children }) => {
   const { t } = useTranslation();
+  const hasTooltip = Boolean(field.questionInfo);
+
   return hasTooltip ? (
-    <CarbonTooltip align="top-left" label={t(field.questionInfo)}>
+    <CarbonTooltip align="top-start" label={t(field.questionInfo)}>
       {children}
     </CarbonTooltip>
   ) : (
@@ -29,24 +27,34 @@ const TooltipWrapper: React.FC<{ hasTooltip: boolean; field: FormField; children
   );
 };
 
-const FieldLabel: React.FC<FieldLabelProps> = ({ field, customLabel }) => {
+const FieldLabelContent: React.FC<FieldLabelProps> = ({ field, customLabel }) => {
   const { t } = useTranslation();
   const hasTooltip = Boolean(field.questionInfo);
   const labelText = customLabel || t(field.label);
-
   return (
-    <TooltipWrapper field={field} hasTooltip={hasTooltip}>
-      <div className={styles.questionLabel} data-testid={`${field.id}-label`}>
-        <span>{labelText}</span>
-        {field.isRequired && (
-          <span title={t('required', 'Required')} className={styles.required}>
-            *
-          </span>
-        )}
-        {hasTooltip && (
-          <Information size={20} aria-hidden="true" className={styles.tooltipIcon} data-testid="information-icon" />
-        )}
-      </div>
+    <div className={styles.questionLabel} data-testid={`${field.id}-label`}>
+      <span>{labelText}</span>
+      {field.isRequired && (
+        <span title={t('required', 'Required')} className={styles.required}>
+          *
+        </span>
+      )}
+      {hasTooltip && (
+        <Information
+          size={20}
+          aria-hidden="true"
+          className={styles.tooltipIcon}
+          data-testid={`${field.id}-information-icon`}
+        />
+      )}
+    </div>
+  );
+};
+
+const FieldLabel: React.FC<FieldLabelProps> = (props) => {
+  return (
+    <TooltipWrapper field={props.field}>
+      <FieldLabelContent {...props} />
     </TooltipWrapper>
   );
 };

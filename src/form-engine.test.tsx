@@ -258,7 +258,7 @@ describe('Form engine component', () => {
       const textFieldTooltip = screen.getByTestId('id_text-label');
       expect(textFieldTooltip).toBeInTheDocument();
 
-      const informationIcon = screen.getByTestId('information-icon');
+      const informationIcon = screen.getByTestId('id_text-information-icon');
       expect(informationIcon).toBeInTheDocument();
 
       await user.hover(textFieldTooltip);
