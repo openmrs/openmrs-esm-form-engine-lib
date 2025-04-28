@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tooltip as CarbonTooltip } from '@carbon/react';
+import { Tooltip } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { type FormField } from '../../types';
 
@@ -19,9 +19,9 @@ const TooltipWrapper: React.FC<{ field: FormField; children: React.ReactNode }> 
   const hasTooltip = Boolean(field.questionInfo);
 
   return hasTooltip ? (
-    <CarbonTooltip align="top-start" label={t(field.questionInfo)}>
+    <Tooltip align="top-start" label={t(field.questionInfo)}>
       {children}
-    </CarbonTooltip>
+    </Tooltip>
   ) : (
     <>{children}</>
   );
