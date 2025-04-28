@@ -22,12 +22,17 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
     return value ?? '';
   }, [value]);
 
+  const getNumericValue = useCallback(
+    (value: string | number) => (typeof value === 'undefined' || isNaN(Number(value)) ? undefined : Number(value)),
+    [],
+  );
+
   const handleChange = useCallback(
     (event, { value }) => {
-      const parsedValue = isEmpty(value) ? undefined : Number(value);
+      const parsedValue = getNumericValue(value);
       setFieldValue(isNaN(parsedValue) ? undefined : parsedValue);
     },
-    [setFieldValue],
+    [setFieldValue, getNumericValue],
   );
 
   const isInline = useMemo(() => {
@@ -36,6 +41,9 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
     }
     return false;
   }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
+
+  const max = getNumericValue(field.questionOptions.max);
+  const min = getNumericValue(field.questionOptions.min);
 
   return sessionMode == 'view' || sessionMode == 'embedded-view' ? (
     <div className={styles.formField}>
@@ -54,8 +62,8 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           invalid={errors.length > 0}
           invalidText={errors[0]?.message}
           label={<FieldLabel field={field} />}
-          max={Number(field.questionOptions.max) || undefined}
-          min={Number(field.questionOptions.min) || undefined}
+          max={max}
+          min={min}
           name={field.id}
           value={numberValue}
           onChange={handleChange}
