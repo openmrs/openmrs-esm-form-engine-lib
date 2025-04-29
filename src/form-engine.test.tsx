@@ -255,8 +255,11 @@ describe('Form engine component', () => {
 
       screen.findByRole('textbox', { name: /text question/i });
 
-      const textFieldTooltip = screen.getByTestId('id_text');
+      const textFieldTooltip = screen.getByTestId('id_text-label');
       expect(textFieldTooltip).toBeInTheDocument();
+
+      const informationIcon = screen.getByTestId('id_text-information-icon');
+      expect(informationIcon).toBeInTheDocument();
 
       await user.hover(textFieldTooltip);
       await screen.findByText(/sample tooltip info for text/i);
