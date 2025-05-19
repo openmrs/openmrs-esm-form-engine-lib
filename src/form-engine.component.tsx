@@ -19,6 +19,8 @@ import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.compo
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import Sidebar from './components/sidebar/sidebar.component';
 import styles from './form-engine.scss';
+import { useReactToPrint } from 'react-to-print';
+import { Printer } from '@carbon/react/icons';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -60,6 +62,7 @@ const FormEngine = ({
   const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const sessionMode = !isEmpty(mode) ? mode : !isEmpty(encounterUUID) ? 'edit' : 'enter';
   const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(sessionMode);
   const { hasMultiplePages } = usePageObserver();
@@ -107,6 +110,10 @@ const FormEngine = ({
     markFormAsDirty?.(isFormDirty);
   }, [isFormDirty]);
 
+  const handlePrint = useReactToPrint({
+    contentRef,
+  });
+
   const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -152,6 +159,7 @@ const FormEngine = ({
                   onCancel={onCancel}
                   handleClose={handleClose}
                   hideFormCollapseToggle={hideFormCollapseToggle}
+                  handlePrint={handlePrint}
                 />
               )}
               <div className={styles.formContentInner}>
@@ -161,7 +169,7 @@ const FormEngine = ({
                     <MarkdownWrapper markdown={refinedFormJson.markdown} />
                   </div>
                 )}
-                <div className={styles.formBody}>
+                <div className={styles.formBody} ref={contentRef}>
                   <FormProcessorFactory
                     formJson={refinedFormJson}
                     setIsLoadingFormDependencies={setIsLoadingDependencies}
@@ -188,6 +196,15 @@ const FormEngine = ({
                       ) : (
                         <span>{`${t('save', 'Save')}`}</span>
                       )}
+                    </Button>
+                    <Button
+                      className={classNames(styles.printButton, {
+                        [styles.topMargin]: sessionMode === 'view',
+                      })}
+                      kind="tertiary"
+                      onClick={handlePrint}>
+                      Print Form
+                      <Printer />
                     </Button>
                   </ButtonSet>
                 )}

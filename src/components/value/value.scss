@@ -4,14 +4,29 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: colors.$gray-60;
+  @media print {
+      margin-top: 20px !important;
+    }
 }
 
 .empty {
   @extend .value;
   color: colors.$gray-30;
+  @media print {
+    display: none !important;
+  }
 }
 
 .item {
   @extend .value;
   margin-bottom: 0.5rem;
+  @media print {
+      margin-top: 20px !important;
+    }
+}
+
+.emptyContainer {
+  @media print {
+    margin-top: 20px !important;
+  }
 }

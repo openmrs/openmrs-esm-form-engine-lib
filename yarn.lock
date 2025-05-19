@@ -3160,6 +3160,7 @@ __metadata:
     react-hook-form: "npm:^7.52.0"
     react-i18next: "npm:^11.18.6"
     react-markdown: "npm:^9.0.1"
+    react-to-print: "npm:^3.1.0"
     react-waypoint: "npm:^10.3.0"
     react-webcam: "npm:^7.2.0"
     sass: "npm:^1.77.2"
@@ -17051,6 +17052,15 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
   checksum: 10/d3b52db3037b9c191c3c4531b606677c3434b5af661489895672df630b8e4213d22d9eeecc86ca9a6d221be5facad3219d13f7135241ca44f4df8e37ae564e08
+  languageName: node
+  linkType: hard
+
+"react-to-print@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "react-to-print@npm:3.1.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ~19
+  checksum: 10/e2d1c5168d72d0d0aa452c3a4b1d9469474652d0fe9c3a52ba819df93e580808fc97bb7f89a6dca7d3b40969b79e609349adb87c6cb5783928c80e57a18753d1
   languageName: node
   linkType: hard
 
