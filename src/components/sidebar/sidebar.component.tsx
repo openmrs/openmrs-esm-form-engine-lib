@@ -86,9 +86,9 @@ const Sidebar: React.FC<SidebarProps> = ({
             [styles.topMargin]: sessionMode === 'view',
           })}
           kind="tertiary"
-          onClick={handlePrint}
+          onClick={() => handlePrint()}
           size={responsiveSize}>
-          Print Form
+          {t('printForm', 'Print form')}
           <Printer />
         </Button>
       </div>

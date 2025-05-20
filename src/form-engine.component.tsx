@@ -12,12 +12,14 @@ import { useFormCollapse } from './hooks/useFormCollapse';
 import { useFormWorkspaceSize } from './hooks/useFormWorkspaceSize';
 import { usePageObserver } from './components/sidebar/usePageObserver';
 import { usePatientData } from './hooks/usePatientData';
+import { usePrintHeader } from './hooks/usePrintHeader';
 import type { FormField, FormSchema, SessionMode } from './types';
 import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
 import Loader from './components/loaders/loader.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import Sidebar from './components/sidebar/sidebar.component';
+import PrintHeader from './components/print-header/print-header-component';
 import styles from './form-engine.scss';
 import { useReactToPrint } from 'react-to-print';
 import { Printer } from '@carbon/react/icons';
@@ -110,8 +112,19 @@ const FormEngine = ({
     markFormAsDirty?.(isFormDirty);
   }, [isFormDirty]);
 
+  const printHeaderComponent = useMemo(() => {
+    return <PrintHeader formJson={formJson} />;
+  }, [patient]);
+
+  const { handleBeforePrint, handleAfterPrint } = usePrintHeader({
+    contentRef,
+    headerComponent: printHeaderComponent,
+  });
+
   const handlePrint = useReactToPrint({
     contentRef,
+    onBeforePrint: handleBeforePrint,
+    onAfterPrint: handleAfterPrint,
   });
 
   const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
@@ -203,7 +216,7 @@ const FormEngine = ({
                       })}
                       kind="tertiary"
                       onClick={handlePrint}>
-                      Print Form
+                      {t('printForm', 'Print form')}
                       <Printer />
                     </Button>
                   </ButtonSet>

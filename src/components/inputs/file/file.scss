@@ -5,7 +5,8 @@
   font-size: 14px;
   font-style: normal;
   font-weight: 600;
-  line-height: 30px; /* 128.571% */
+  line-height: 30px;
+  /* 128.571% */
   letter-spacing: 0.16px;
   color: #000000;
 }
@@ -98,4 +99,10 @@
   align-items: center;
   width: 5rem;
   height: 5rem;
+}
+
+.selectorButton {
+  @media print {
+    display: none !important;
+  }
 }

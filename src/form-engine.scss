@@ -178,9 +178,18 @@
     overflow: visible !important;
     height: auto !important;
     max-height: none !important;
+    width: 100% !important;
   }
 
   svg {
+    display: none !important;
+  }
+
+  button[title="Choose an option"]>span {
+    display: none !important;
+  }
+
+  [placeholder] {
     display: none !important;
   }
 }

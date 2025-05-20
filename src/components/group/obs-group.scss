@@ -14,3 +14,9 @@
 .boldLegend > legend {
   font-weight: bolder;
 }
+.groupContainer{
+  @media print {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+}

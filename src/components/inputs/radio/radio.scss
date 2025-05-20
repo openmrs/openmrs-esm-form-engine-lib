@@ -34,3 +34,9 @@
   color: colors.$red-60;
   font-size: 0.8rem;
 }
+.boldedLegend {
+  @media print {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
