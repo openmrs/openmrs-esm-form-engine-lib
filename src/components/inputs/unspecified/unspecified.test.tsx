@@ -56,6 +56,30 @@ jest.mock('../../../hooks/useEncounter', () => ({
   }),
 }));
 
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key, defaultValueOrOptions, options) => {
+      if (key === 'fieldLabelWithUnitsAndRange') {
+        return options.fieldDescription + (options.unitsAndRange ? ' ' + options.unitsAndRange : '');
+      }
+      
+      if (typeof defaultValueOrOptions === 'object' && 'fieldDescription' in defaultValueOrOptions) {
+        return `${defaultValueOrOptions.fieldDescription} ${defaultValueOrOptions.unitsAndRange}`;
+      }
+      else if (typeof options === 'object' && 'unitsAndRange' in options) {
+        return `${options.fieldDescription} ${options.unitsAndRange}`;
+      }
+
+      if (typeof defaultValueOrOptions === 'string') {
+        return defaultValueOrOptions;
+      }
+
+      return key;
+    }
+  }),
+  I18nextProvider: ({ children }) => children
+}));
+
 const renderForm = async (mode: SessionMode = 'enter') => {
   await act(async () => {
     render(
