@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { isNil } from 'lodash';
+import isNil from 'lodash/isNil';
 import { useTranslation } from 'react-i18next';
 import { Layer, NumberInput } from '@carbon/react';
 import { type Concept } from '@openmrs/esm-framework';
