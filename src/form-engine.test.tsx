@@ -14,48 +14,46 @@ import { when } from 'jest-when';
 import * as api from './api';
 import { assertFormHasAllFields, findCheckboxGroup, findSelectInput, findTextOrDateInput } from './utils/test-utils';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
-import { mockPatient } from '__mocks__/patient.mock';
-import { mockSessionDataResponse } from '__mocks__/session.mock';
-import { mockVisit } from '__mocks__/visit.mock';
-import demoHtsForm from '__mocks__/forms/rfe-forms/demo_hts-form.json';
-import demoHtsOpenmrsForm from '__mocks__/forms/afe-forms/demo_hts-form.json';
-import filterAnswerOptionsTestForm from '__mocks__/forms/rfe-forms/filter-answer-options-test-form.json';
-import htsPocForm from '__mocks__/packages/hiv/forms/hts_poc/1.1.json';
-import labourAndDeliveryTestForm from '__mocks__/forms/rfe-forms/labour_and_delivery_test_form.json';
-import mockConceptsForm from '__mocks__/concepts.mock.json';
-import obsGroupTestForm from '__mocks__/forms/rfe-forms/obs-group-test_form.json';
-import postSubmissionTestForm from '__mocks__/forms/rfe-forms/post-submission-test-form.json';
-import referenceByMappingForm from '__mocks__/forms/rfe-forms/reference-by-mapping-form.json';
-import sampleFieldsForm from '__mocks__/forms/rfe-forms/sample_fields.json';
-import testEnrolmentForm from '__mocks__/forms/rfe-forms/test-enrolment-form.json';
-import historicalExpressionsForm from '__mocks__/forms/rfe-forms/historical-expressions-form.json';
-import mockHxpEncounter from '__mocks__/forms/rfe-forms/mockHistoricalvisitsEncounter.json';
-import mockSaveEncounter from '__mocks__/forms/rfe-forms/mockSaveEncounter.json';
-import requiredTestForm from '__mocks__/forms/rfe-forms/required-form.json';
-import conditionalRequiredTestForm from '__mocks__/forms/rfe-forms/conditional-required-form.json';
-import conditionalAnsweredForm from '__mocks__/forms/rfe-forms/conditional-answered-form.json';
-import ageValidationForm from '__mocks__/forms/rfe-forms/age-validation-form.json';
-import bmiForm from '__mocks__/forms/rfe-forms/bmi-test-form.json';
-import bsaForm from '__mocks__/forms/rfe-forms/bsa-test-form.json';
-import eddForm from '__mocks__/forms/rfe-forms/edd-test-form.json';
-import externalDataSourceForm from '__mocks__/forms/rfe-forms/external_data_source_form.json';
-import monthsOnArtForm from '__mocks__/forms/rfe-forms/months-on-art-form.json';
-import nextVisitForm from '__mocks__/forms/rfe-forms/next-visit-test-form.json';
-import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-form.json';
-import readOnlyValidationForm from '__mocks__/forms/rfe-forms/read-only-validation-form.json';
-import jsExpressionValidationForm from '__mocks__/forms/rfe-forms/js-expression-validation-form.json';
-import hidePagesAndSectionsForm from '__mocks__/forms/rfe-forms/hide-pages-and-sections-form.json';
-import diagnosisForm from '__mocks__/forms/rfe-forms/diagnosis-test-form.json';
-
-import FormEngine from './form-engine.component';
+import { mockConcepts, mockPatient, mockSessionDataResponse, mockVisit } from '__mocks__';
+import {
+  ageValidationForm,
+  bmiForm,
+  bsaForm,
+  conditionalAnsweredForm,
+  conditionalRequiredTestForm,
+  defaultValuesForm,
+  demoHtsForm,
+  demoHtsOpenmrsForm,
+  diagnosisForm,
+  eddForm,
+  externalDataSourceForm,
+  filterAnswerOptionsTestForm,
+  hidePagesAndSectionsForm,
+  historicalExpressionsForm,
+  htsPocForm,
+  jsExpressionValidationForm,
+  labourAndDeliveryTestForm,
+  mockHxpEncounter,
+  mockSaveEncounter,
+  monthsOnArtForm,
+  nextVisitForm,
+  obsGroupTestForm,
+  postSubmissionTestForm,
+  readOnlyValidationForm,
+  referenceByMappingForm,
+  requiredTestForm,
+  sampleFieldsForm,
+  testEnrolmentForm,
+  viralLoadStatusForm,
+} from '__mocks__/forms';
 import { type FormSchema, type OpenmrsEncounter, type SessionMode } from './types';
 import { useEncounter } from './hooks/useEncounter';
+import FormEngine from './form-engine.component';
 
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const formsResourcePath = when((url: string) => url.includes(`${restBaseUrl}/form/`));
 const clobDataResourcePath = when((url: string) => url.includes(`${restBaseUrl}/clobdata/`));
-global.ResizeObserver = require('resize-observer-polyfill');
 
 const mockOpenmrsFetch = jest.mocked(openmrsFetch);
 const mockExtensionSlot = jest.mocked(ExtensionSlot);
@@ -151,7 +149,7 @@ jest.mock('./hooks/useConcepts', () => ({
     if ([...references].join(',').includes('PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH')) {
       return {
         isLoading: false,
-        concepts: mockConceptsForm.results,
+        concepts: mockConcepts.results,
         error: undefined,
       };
     }
@@ -177,15 +175,6 @@ describe('Form engine component', () => {
   const user = userEvent.setup();
 
   beforeEach(() => {
-    Object.defineProperty(window, 'i18next', {
-      writable: true,
-      configurable: true,
-      value: {
-        language: 'en',
-        t: jest.fn(),
-      },
-    });
-
     mockExtensionSlot.mockImplementation((ext) => <>{ext.name}</>);
     mockUsePatient.mockImplementation(() => ({
       patient: mockPatient,
@@ -247,7 +236,7 @@ describe('Form engine component', () => {
 
     await assertFormHasAllFields(screen, [
       { fieldName: 'When was the HIV test conducted? *', fieldType: 'date' },
-      { fieldName: 'Community service delivery point *', fieldType: 'select' },
+      { fieldName: 'Community service delivery point', fieldType: 'select' },
     ]);
 
     try {
@@ -266,8 +255,11 @@ describe('Form engine component', () => {
 
       screen.findByRole('textbox', { name: /text question/i });
 
-      const textFieldTooltip = screen.getByTestId('id_text');
+      const textFieldTooltip = screen.getByTestId('id_text-label');
       expect(textFieldTooltip).toBeInTheDocument();
+
+      const informationIcon = screen.getByTestId('id_text-information-icon');
+      expect(informationIcon).toBeInTheDocument();
 
       await user.hover(textFieldTooltip);
       await screen.findByText(/sample tooltip info for text/i);
@@ -358,7 +350,7 @@ describe('Form engine component', () => {
       await act(async () => {
         renderForm(null, requiredTestForm);
       });
-      
+
       await user.click(screen.getByRole('button', { name: /save/i }));
 
       const labels = screen.getAllByText(/Text question/i);
@@ -407,7 +399,7 @@ describe('Form engine component', () => {
         { fieldName: 'If Unscheduled, actual number scheduled date *', fieldType: 'number' },
         { fieldName: 'If Unscheduled, actual text area scheduled date *', fieldType: 'textarea' },
         { fieldName: 'Not required actual text area scheduled date', fieldType: 'textarea' },
-        { fieldName: 'If Unscheduled, actual scheduled reason select *', fieldType: 'select' },
+        { fieldName: 'If Unscheduled, actual scheduled reason select', fieldType: 'select' },
         { fieldName: 'If Unscheduled, actual scheduled reason multi-select *', fieldType: 'checkbox-searchable' },
         { fieldName: 'If Unscheduled, actual scheduled reason radio *', fieldType: 'radio' },
       ]);
@@ -457,7 +449,9 @@ describe('Form engine component', () => {
       expect(selectErrorMessage).toBeInTheDocument();
 
       // Validate multi-select field
-      const multiSelectInputField = screen.getByText('If Unscheduled, actual scheduled reason multi-select', { exact: true });
+      const multiSelectInputField = screen.getByText('If Unscheduled, actual scheduled reason multi-select', {
+        exact: true,
+      });
       expect(multiSelectInputField).toBeInTheDocument();
       const multiSelectErrorMessage = screen.getByText(
         'Patient visit marked as unscheduled. Please provide the scheduled multi-select reason.',
@@ -696,6 +690,55 @@ describe('Form engine component', () => {
       } catch (err) {
         expect(err.message.includes('Unable to find an element with the text: Page 2')).toBeTruthy();
       }
+    });
+  });
+
+  describe('Default values', () => {
+    let originalConsoleError;
+
+    beforeEach(() => {
+      originalConsoleError = console.error;
+      console.error = jest.fn();
+    });
+
+    afterEach(() => {
+      console.error = originalConsoleError;
+    });
+
+    it('should initialize fields with default values', async () => {
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+
+      await act(async () => renderForm(null, defaultValuesForm));
+
+      // text field
+      const textField = await findTextOrDateInput(screen, 'Text field with Default Value');
+      expect(textField).toHaveValue('Value text');
+
+      // dropdown field
+      const dropdownField = await findSelectInput(screen, 'Dropdown with Default Value');
+      expect(dropdownField.title).toBe('Choice 2');
+
+      // dropdown with an invalid default value
+      const invalidDropdownField = await findSelectInput(screen, 'Dropdown with an invalid Default Value');
+      expect(invalidDropdownField.title).toBe('Choose an option');
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      const encounter = saveEncounterMock.mock.calls[0][1];
+      expect(encounter.obs).toEqual([
+        {
+          value: 'Value text',
+          concept: 'f82ba2b7-3849-4ad0-b867-36881e59f5c8',
+          formFieldNamespace: 'rfe-forms',
+          formFieldPath: 'rfe-forms-sampleQuestion',
+        },
+        {
+          value: '6b4e859c-86ca-41e5-b1c4-017889653b59',
+          concept: '8cdea80a-d167-431c-8278-246c7a1f913b',
+          formFieldNamespace: 'rfe-forms',
+          formFieldPath: 'rfe-forms-codedQuestion',
+        },
+      ]);
     });
   });
 

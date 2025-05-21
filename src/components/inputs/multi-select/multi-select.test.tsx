@@ -1,14 +1,11 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { act, render, screen } from '@testing-library/react';
 import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
 import { type FormSchema } from '../../../types';
-import { mockPatient } from '__mocks__/patient.mock';
-import { mockSessionDataResponse } from '__mocks__/session.mock';
-import { mockVisit } from '__mocks__/visit.mock';
-import multiSelectFormSchema from '__mocks__/forms/rfe-forms/multi-select-form.json';
+import { mockPatient, mockSessionDataResponse, mockVisit } from '__mocks__';
+import { multiSelectFormSchema } from '__mocks__/forms';
 import FormEngine from '../../../form-engine.component';
-global.ResizeObserver = require('resize-observer-polyfill');
 
 const mockOpenmrsFetch = jest.mocked(openmrsFetch);
 const mockUseSession = jest.mocked(useSession);

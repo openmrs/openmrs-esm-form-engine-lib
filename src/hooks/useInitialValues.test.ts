@@ -1,7 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-
-import useInitialValues from './useInitialValues';
 import { type FormField } from '../types';
+import useInitialValues from './useInitialValues';
 
 export const mockFormFields: FormField[] = [
   {
@@ -51,6 +50,7 @@ describe('useInitialValues', () => {
   });
 
   it('should set error if getInitialValues rejects', async () => {
+    const mockConsole = jest.spyOn(console, 'error').mockImplementation(() => {});
     const mockError = new Error('Failed to fetch initial values');
     formProcessor.getInitialValues.mockRejectedValue(mockError);
 
@@ -58,6 +58,7 @@ describe('useInitialValues', () => {
 
     expect(result.current.error).toEqual(mockError);
     expect(result.current.isLoadingInitialValues).toBe(false);
+    mockConsole.mockRestore();
   });
 
   it('should set initial values when dependencies are loaded', async () => {

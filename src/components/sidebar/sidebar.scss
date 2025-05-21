@@ -106,3 +106,7 @@
     min-height: layout.$spacing-05;
   }
 }
+
+.closeButton {
+  @extend .button;
+}
