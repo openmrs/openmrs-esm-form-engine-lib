@@ -253,7 +253,7 @@ describe('Form engine component', () => {
         renderForm(null, sampleFieldsForm);
       });
 
-      screen.findByRole('textbox', { name: /text question/i });
+      screen.findByLabelText(/text question/i);
 
       const textFieldTooltip = screen.getByTestId('id_text-label');
       expect(textFieldTooltip).toBeInTheDocument();
@@ -359,7 +359,7 @@ describe('Form engine component', () => {
       const requiredAsterisks = screen.getAllByText('*');
       expect(requiredAsterisks).toHaveLength(2);
 
-      const inputFields = screen.getAllByRole('textbox', { name: /Text question/i });
+      const inputFields = screen.getAllByLabelText(/Text question/i);
       expect(inputFields).toHaveLength(2);
 
       inputFields.forEach((inputField) => {
