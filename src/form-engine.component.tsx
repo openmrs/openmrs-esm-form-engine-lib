@@ -19,6 +19,7 @@ import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.compo
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import Sidebar from './components/sidebar/sidebar.component';
 import styles from './form-engine.scss';
+import { useExternalSubmitListener } from './hooks/useExternalSubmitListener';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -33,6 +34,7 @@ interface FormEngineProps {
   handleClose?: () => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   markFormAsDirty?: (isDirty: boolean) => void;
+  isSubmissionTriggeredExternally?: boolean;
 }
 
 const FormEngine = ({
@@ -48,6 +50,7 @@ const FormEngine = ({
   handleClose,
   handleConfirmQuestionDeletion,
   markFormAsDirty,
+  isSubmissionTriggeredExternally = false,
 }: FormEngineProps) => {
   const { t } = useTranslation();
   const session = useSession();
@@ -107,10 +110,12 @@ const FormEngine = ({
     markFormAsDirty?.(isFormDirty);
   }, [isFormDirty]);
 
-  const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = useCallback((e?: React.FormEvent<HTMLFormElement>) => {
+    e?.preventDefault();
     setIsSubmitting(true);
   }, []);
+
+  useExternalSubmitListener(handleSubmit);
 
   return (
     <form ref={ref} noValidate className={classNames('cds--form', styles.form)} onSubmit={handleSubmit}>
@@ -152,6 +157,7 @@ const FormEngine = ({
                   onCancel={onCancel}
                   handleClose={handleClose}
                   hideFormCollapseToggle={hideFormCollapseToggle}
+                  isSubmissionTriggeredExternally={isSubmissionTriggeredExternally}
                 />
               )}
               <div className={styles.formContentInner}>
@@ -167,7 +173,7 @@ const FormEngine = ({
                     setIsLoadingFormDependencies={setIsLoadingDependencies}
                   />
                 </div>
-                {showBottomButtonSet && (
+                {showBottomButtonSet && !isSubmissionTriggeredExternally && (
                   <ButtonSet className={styles.minifiedButtons}>
                     <Button
                       kind="secondary"
