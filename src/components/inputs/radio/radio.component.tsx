@@ -53,9 +53,10 @@ const Radio: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, 
                   labelText={t(answer.label) ?? ''}
                   value={answer.concept}
                   key={index}
-                  onClick={(e) => {
-                    if (value && e.target.checked) {
-                      e.target.checked = false;
+                  onClick={(e: React.MouseEvent<HTMLInputElement>) => {
+                    if (value && (e.target as HTMLInputElement).checked) {
+                      (e.target as HTMLInputElement).checked = false;
+                      e.preventDefault();
                       handleChange(null);
                     } else {
                       handleChange(answer.concept);

@@ -19,7 +19,7 @@ const ErrorModal: React.FC<{ errors: ValidationResult[] }> = ({ errors }) => {
       }
     });
 
-    return Object.values(errorMessages).map((error: string, index) => <span key={index}>{error}</span>);
+    return Object.values(errorMessages).join(', ');
   }, [errors, t]);
 
   return (

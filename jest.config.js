@@ -13,9 +13,9 @@ module.exports = {
   coverageReporters: ['json-summary', 'lcov'],
   collectCoverageFrom: ['./src/**', '!./src/components/**/*.snap'],
   transform: {
-    '^.+\\.(t|j)sx?$': '@swc/jest',
+    '^.+\\.[jt]sx?$': ['@swc/jest'],
   },
-  transformIgnorePatterns: ['/node_modules/(?!@openmrs)'],
+  transformIgnorePatterns: ['/node_modules/(?!@openmrs|.+\\.pnp\\.[^\\/]+$)'],
   moduleDirectories: ['node_modules', '__mocks__', __dirname],
   moduleNameMapper: {
     '^dexie$': require.resolve('dexie'),

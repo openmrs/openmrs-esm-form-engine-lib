@@ -45,7 +45,7 @@ const TextField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnin
             invalid={errors.length > 0}
             invalidText={errors[0]?.message}
             labelText={<FieldLabel field={field} />}
-            maxLength={field.questionOptions.max || TextInput.maxLength}
+            maxLength={field.questionOptions.max ? Number(field.questionOptions.max) : field.maxLength}
             name={field.id}
             onBlur={onBlur}
             onChange={(event) => {

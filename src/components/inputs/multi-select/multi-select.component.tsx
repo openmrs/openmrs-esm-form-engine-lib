@@ -93,27 +93,23 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           <Layer>
             {isSearchable ? (
               <FilterableMultiSelect
-                id={field.id}
-                key={field.id}
-                placeholder={t('search', 'Search') + '...'}
-                onChange={handleSelectItemsChange}
-                items={selectOptions}
-                initialSelectedItems={initiallySelectedQuestionItems}
-                label={''}
-                titleText={<FieldLabel field={field} />}
-                itemToString={(item) => (item ? t(item.label) : ' ')}
                 disabled={field.isDisabled}
+                id={field.id}
+                initialSelectedItems={initiallySelectedQuestionItems}
                 invalid={errors.length > 0}
                 invalidText={errors[0]?.message}
+                items={selectOptions}
+                itemToString={(item) => (item ? t(item.label) : ' ')}
+                key={field.id}
+                onChange={handleSelectItemsChange}
+                placeholder={t('search', 'Search') + '...'}
+                readOnly={isTrue(field.readonly)}
+                titleText={<FieldLabel field={field} />}
                 warn={warnings.length > 0}
                 warnText={warnings[0]?.message}
-                readOnly={isTrue(field.readonly)}
               />
             ) : (
-              <CheckboxGroup
-                name={field.id}
-                legendText={<FieldLabel field={field} />}
-                readOnly={isTrue(field.readonly)}>
+              <CheckboxGroup legendText={<FieldLabel field={field} />} readOnly={isTrue(field.readonly)}>
                 {field.questionOptions.answers?.map((value, index) => {
                   return (
                     <Checkbox
