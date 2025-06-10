@@ -14,6 +14,7 @@ import { type FormContextProps } from './form-provider';
 import { processPostSubmissionActions, validateForm } from './form-factory-helper';
 import { useTranslation } from 'react-i18next';
 import { usePostSubmissionActions } from '../hooks/usePostSubmissionActions';
+import { usePostSubmissionCallback } from '../hooks/usePostSubmissionCallback';
 
 interface FormFactoryProviderContextProps {
   patient: fhir.Patient;
@@ -95,6 +96,8 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
     EncounterFormProcessor: EncounterFormProcessor,
   });
 
+  const { setIsFormSubmitted } = usePostSubmissionCallback();
+
   useEffect(() => {
     if (isSubmitting) {
       // TODO: find a dynamic way of managing the form processing order
@@ -123,6 +126,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
             if (postSubmissionHandlers) {
               await processPostSubmissionActions(postSubmissionHandlers, results, patient, sessionMode, t);
             }
+            setIsFormSubmitted(true);
             hideFormCollapseToggle();
             if (onSubmit) {
               onSubmit(results);

@@ -16,6 +16,7 @@ interface SidebarProps {
   onCancel: () => void;
   handleClose: () => void;
   hideFormCollapseToggle: () => void;
+  isSubmissionTriggeredExternally?: boolean;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -25,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onCancel,
   handleClose,
   hideFormCollapseToggle,
+  isSubmissionTriggeredExternally,
 }) => {
   const { t } = useTranslation();
   const { pages, pagesWithErrors, activePages, evaluatedPagesVisibility } = usePageObserver();
@@ -53,32 +55,34 @@ const Sidebar: React.FC<SidebarProps> = ({
             requestPage={requestPage}
           />
         ))}
-      {sessionMode !== 'view' && <hr className={styles.divider} />}
+      {sessionMode !== 'view' && !isSubmissionTriggeredExternally && <hr className={styles.divider} />}
 
-      <div className={styles.sideNavActions}>
-        {sessionMode !== 'view' && (
-          <Button className={styles.saveButton} disabled={isFormSubmitting} type="submit" size={responsiveSize}>
-            {isFormSubmitting ? (
-              <InlineLoading description={t('submitting', 'Submitting') + '...'} />
-            ) : (
-              <span>{`${t('save', 'Save')}`}</span>
-            )}
+      {!isSubmissionTriggeredExternally && (
+        <div className={styles.sideNavActions}>
+          {sessionMode !== 'view' && (
+            <Button className={styles.saveButton} disabled={isFormSubmitting} type="submit" size={responsiveSize}>
+              {isFormSubmitting ? (
+                <InlineLoading description={t('submitting', 'Submitting') + '...'} />
+              ) : (
+                <span>{`${t('save', 'Save')}`}</span>
+              )}
+            </Button>
+          )}
+          <Button
+            className={classNames(styles.closeButton, {
+              [styles.topMargin]: sessionMode === 'view',
+            })}
+            kind="tertiary"
+            onClick={() => {
+              onCancel?.();
+              handleClose?.();
+              hideFormCollapseToggle();
+            }}
+            size={responsiveSize}>
+            {sessionMode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
           </Button>
-        )}
-        <Button
-          className={classNames(styles.closeButton, {
-            [styles.topMargin]: sessionMode === 'view',
-          })}
-          kind="tertiary"
-          onClick={() => {
-            onCancel?.();
-            handleClose?.();
-            hideFormCollapseToggle();
-          }}
-          size={responsiveSize}>
-          {sessionMode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
-        </Button>
-      </div>
+        </div>
+      )}
     </div>
   );
 };
