@@ -12,13 +12,17 @@ import { useFormCollapse } from './hooks/useFormCollapse';
 import { useFormWorkspaceSize } from './hooks/useFormWorkspaceSize';
 import { usePageObserver } from './components/sidebar/usePageObserver';
 import { usePatientData } from './hooks/usePatientData';
+import { usePrintHeader } from './hooks/usePrintHeader';
 import type { FormField, FormSchema, SessionMode } from './types';
 import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
 import Loader from './components/loaders/loader.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import Sidebar from './components/sidebar/sidebar.component';
+import PrintHeader from './components/print-header/print-header-component';
 import styles from './form-engine.scss';
+import { useReactToPrint } from 'react-to-print';
+import { Printer } from '@carbon/react/icons';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -60,6 +64,7 @@ const FormEngine = ({
   const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const sessionMode = !isEmpty(mode) ? mode : !isEmpty(encounterUUID) ? 'edit' : 'enter';
   const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(sessionMode);
   const { hasMultiplePages } = usePageObserver();
@@ -107,6 +112,21 @@ const FormEngine = ({
     markFormAsDirty?.(isFormDirty);
   }, [isFormDirty]);
 
+  const printHeaderComponent = useMemo(() => {
+    return <PrintHeader formJson={formJson} />;
+  }, [patient]);
+
+  const { handleBeforePrint, handleAfterPrint } = usePrintHeader({
+    contentRef,
+    headerComponent: printHeaderComponent,
+  });
+
+  const handlePrint = useReactToPrint({
+    contentRef,
+    onBeforePrint: handleBeforePrint,
+    onAfterPrint: handleAfterPrint,
+  });
+
   const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -152,6 +172,7 @@ const FormEngine = ({
                   onCancel={onCancel}
                   handleClose={handleClose}
                   hideFormCollapseToggle={hideFormCollapseToggle}
+                  handlePrint={handlePrint}
                 />
               )}
               <div className={styles.formContentInner}>
@@ -161,7 +182,7 @@ const FormEngine = ({
                     <MarkdownWrapper markdown={refinedFormJson.markdown} />
                   </div>
                 )}
-                <div className={styles.formBody}>
+                <div className={styles.formBody} ref={contentRef}>
                   <FormProcessorFactory
                     formJson={refinedFormJson}
                     setIsLoadingFormDependencies={setIsLoadingDependencies}
@@ -188,6 +209,15 @@ const FormEngine = ({
                       ) : (
                         <span>{`${t('save', 'Save')}`}</span>
                       )}
+                    </Button>
+                    <Button
+                      className={classNames(styles.printButton, {
+                        [styles.topMargin]: sessionMode === 'view',
+                      })}
+                      kind="tertiary"
+                      onClick={handlePrint}>
+                      {t('printForm', 'Print form')}
+                      <Printer />
                     </Button>
                   </ButtonSet>
                 )}

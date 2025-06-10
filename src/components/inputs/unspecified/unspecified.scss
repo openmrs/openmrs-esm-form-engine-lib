@@ -5,3 +5,9 @@
   font-size: 12px;
   color: colors.$gray-70;
 }
+.unspecified{
+  @media print {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
