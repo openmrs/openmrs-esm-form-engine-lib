@@ -3470,6 +3470,7 @@ __metadata:
     react-markdown: "npm:^9.0.1"
     react-waypoint: "npm:^10.3.0"
     react-webcam: "npm:^7.2.0"
+    resize-observer-polyfill: "npm:^1.5.1"
     sass: "npm:^1.77.2"
     swc-loader: "npm:^0.2.6"
     swr: "npm:^2.2.5"
