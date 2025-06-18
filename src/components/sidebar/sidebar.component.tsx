@@ -16,7 +16,7 @@ interface SidebarProps {
   onCancel: () => void;
   handleClose: () => void;
   hideFormCollapseToggle: () => void;
-  isSubmissionTriggeredExternally?: boolean;
+  hideControls?: boolean;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -26,7 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onCancel,
   handleClose,
   hideFormCollapseToggle,
-  isSubmissionTriggeredExternally,
+  hideControls,
 }) => {
   const { t } = useTranslation();
   const { pages, pagesWithErrors, activePages, evaluatedPagesVisibility } = usePageObserver();
@@ -55,9 +55,9 @@ const Sidebar: React.FC<SidebarProps> = ({
             requestPage={requestPage}
           />
         ))}
-      {sessionMode !== 'view' && !isSubmissionTriggeredExternally && <hr className={styles.divider} />}
+      {sessionMode !== 'view' && !hideControls && <hr className={styles.divider} />}
 
-      {!isSubmissionTriggeredExternally && (
+      {!hideControls && (
         <div className={styles.sideNavActions}>
           {sessionMode !== 'view' && (
             <Button className={styles.saveButton} disabled={isFormSubmitting} type="submit" size={responsiveSize}>

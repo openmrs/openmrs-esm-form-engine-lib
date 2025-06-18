@@ -34,7 +34,7 @@ interface FormEngineProps {
   handleClose?: () => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   markFormAsDirty?: (isDirty: boolean) => void;
-  isSubmissionTriggeredExternally?: boolean;
+  hideControls?: boolean;
 }
 
 const FormEngine = ({
@@ -50,7 +50,7 @@ const FormEngine = ({
   handleClose,
   handleConfirmQuestionDeletion,
   markFormAsDirty,
-  isSubmissionTriggeredExternally = false,
+  hideControls = false,
 }: FormEngineProps) => {
   const { t } = useTranslation();
   const session = useSession();
@@ -157,7 +157,7 @@ const FormEngine = ({
                   onCancel={onCancel}
                   handleClose={handleClose}
                   hideFormCollapseToggle={hideFormCollapseToggle}
-                  isSubmissionTriggeredExternally={isSubmissionTriggeredExternally}
+                  hideControls={hideControls}
                 />
               )}
               <div className={styles.formContentInner}>
@@ -173,7 +173,7 @@ const FormEngine = ({
                     setIsLoadingFormDependencies={setIsLoadingDependencies}
                   />
                 </div>
-                {showBottomButtonSet && !isSubmissionTriggeredExternally && (
+                {showBottomButtonSet && !hideControls && (
                   <ButtonSet className={styles.minifiedButtons}>
                     <Button
                       kind="secondary"
