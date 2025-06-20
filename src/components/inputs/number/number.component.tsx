@@ -1,7 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
-import classNames from 'classnames';
+import isNil from 'lodash/isNil';
 import { useTranslation } from 'react-i18next';
 import { Layer, NumberInput } from '@carbon/react';
+import { type Concept } from '@openmrs/esm-framework';
+import classNames from 'classnames';
 import { isEmpty } from '../../../validators/form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 import { type FormFieldInputProps } from '../../../types';
@@ -10,6 +12,27 @@ import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldLabel from '../../field-label/field-label.component';
 import FieldValueView from '../../value/view/field-value-view.component';
 import styles from './number.scss';
+
+
+const extractFieldUnitsAndRange = (concept?: Concept): string => {
+  if (!concept) {
+    return '';
+  }
+
+  const { hiAbsolute, lowAbsolute, units } = concept;
+  const displayUnits = units ? ` ${units}` : '';  
+  const hasLowerLimit = !isNil(lowAbsolute);
+  const hasUpperLimit = !isNil(hiAbsolute);
+
+  if (hasLowerLimit && hasUpperLimit) {
+      return `(${lowAbsolute} - ${hiAbsolute}${displayUnits})`;
+  } else if (hasUpperLimit) {
+    return `(<= ${hiAbsolute}${displayUnits})`;
+  } else if (hasLowerLimit) {
+    return `(>= ${lowAbsolute}${displayUnits})`;
+  }
+  return units ? `(${units})` : '';
+};
 
 const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
@@ -61,7 +84,13 @@ const NumberField: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           id={field.id}
           invalid={errors.length > 0}
           invalidText={errors[0]?.message}
-          label={<FieldLabel field={field} />}
+          label={<FieldLabel field={field} customLabel={t('fieldLabelWithUnitsAndRange', 
+            '{{fieldDescription}} {{unitsAndRange}}',
+            {
+              fieldDescription: t(field.label),
+              unitsAndRange: extractFieldUnitsAndRange(field.meta?.concept),
+              interpolation: { escapeValue: false }
+            })}/>}
           max={max}
           min={min}
           name={field.id}
