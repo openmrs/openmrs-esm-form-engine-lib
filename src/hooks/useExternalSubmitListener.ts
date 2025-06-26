@@ -1,57 +1,61 @@
 import { useEffect } from 'react';
-import { createGlobalStore, getGlobalStore, useStore } from '@openmrs/esm-framework';
 
 interface SubmitEventDetail {
   formUuid: string;
   patientUuid: string;
-  action: string;
 }
 
-type FormSession = 'formUuid' | 'patientUuid';
-
-type InternalSubmitHandler = () => void;
-
-//State that holds the current formUuid and patientUuid.
-createGlobalStore<Record<FormSession, string>>('rfe-FormSession', {
-  formUuid: '',
-  patientUuid: '',
-});
-
-const formSessionStore = getGlobalStore('rfe-FormSession');
+interface UseExternalSubmitListenerProps {
+  formRef: React.RefObject<HTMLFormElement>;
+  patientUuid: string;
+  formUuid: string;
+}
 
 /**
  * useExternalSubmitListener
  *
- * A custom React hook that enables triggering form submission externally via a global custom event.
+ * A custom React hook that listens for a global `CustomEvent` (`rfe-form-submit-action`) and triggers
+ * programmatic form submission via a passed-in form reference.
  *
- * This is particularly useful in environments where the FormEngine
- * is embedded inside another application or UI shell, and you need to trigger submission from outside
- * the form (e.g., from a toolbar button, modal footer, or iframe parent).
+ * This is particularly useful in environments where the FormEngine is embedded inside
+ * another application or UI shell, and submission needs to be initiated externally (e.g. from a toolbar,
+ * modal footer, or parent iframe).
  *
- * The supplied `internalSubmitHandler` fires **only** when the event's `formUuid` and
- * `patientUuid` match the values held in the global FormSession store.
+ * The hook ensures the submission is triggered **only** when the `formUuid` and `patientUuid`
+ * in the event match the provided values.
  *
- * @param internalSubmitHandler - A function that triggers the form submission. This will be called when the event is received. *
+ * @param formRef - A `ref` to the HTML form element that should be submitted when the event is received.
+ * @param patientUuid - The UUID of the current patient, used for validating the event source.
+ * @param formUuid - The UUID of the current form, used for validating the event source.
+ *
  * @example
- * useExternalSubmitListener(() => handleSubmit());
+ * const formRef = useRef<HTMLFormElement>(null);
+ *
+ * useExternalSubmitListener({
+ *   formRef,
+ *   patientUuid: '9ee7a509-d639-4d91-979a-cd605b4d0ad1/chart',
+ *   formUuid: '289417aa-31d5-3a06-bae8-a22d870bcf1d',
+ * });
+ *
+ * return (
+ *   <form ref={formRef} onSubmit={handleSubmit}>
+ *     ...
+ *   </form>
+ * );
  */
 
-export function useExternalSubmitListener(internalSubmitHandler: InternalSubmitHandler) {
-  const { formUuid, patientUuid } = useStore(formSessionStore) as { formUuid: string; patientUuid: string };
-
+export function useExternalSubmitListener({ formRef, patientUuid, formUuid }: UseExternalSubmitListenerProps) {
   useEffect(() => {
     const handleSubmitWrapper = (event: Event) => {
       const customEvent = event as CustomEvent<SubmitEventDetail>;
-      const detail = customEvent.detail;
-
-      if (detail?.formUuid === formUuid && detail?.patientUuid === patientUuid) {
-        internalSubmitHandler();
+      const { formUuid: evntFormUuid, patientUuid: evntPatientUuid } = customEvent.detail;
+      if (evntFormUuid === formUuid && evntPatientUuid === patientUuid) {
+        formRef.current?.requestSubmit?.();
       }
     };
-
     window.addEventListener('rfe-form-submit-action', handleSubmitWrapper);
     return () => {
       window.removeEventListener('rfe-form-submit-action', handleSubmitWrapper);
     };
-  }, [internalSubmitHandler]);
+  }, [formRef, formUuid, patientUuid]);
 }

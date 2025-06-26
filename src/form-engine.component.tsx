@@ -35,6 +35,7 @@ interface FormEngineProps {
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   markFormAsDirty?: (isDirty: boolean) => void;
   hideControls?: boolean;
+  preFilledQuestions?: Record<string, string>;
 }
 
 const FormEngine = ({
@@ -51,6 +52,7 @@ const FormEngine = ({
   handleConfirmQuestionDeletion,
   markFormAsDirty,
   hideControls = false,
+  preFilledQuestions,
 }: FormEngineProps) => {
   const { t } = useTranslation();
   const session = useSession();
@@ -72,6 +74,26 @@ const FormEngine = ({
     isLoading: isLoadingFormJson,
     formError,
   } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent);
+
+  if (preFilledQuestions && typeof preFilledQuestions === 'object') {
+    Object.entries(preFilledQuestions).forEach(([prefilledQnId, prefilledValue]) => {
+      refinedFormJson?.pages.forEach((page) => {
+        page.sections.forEach((section) => {
+          section.questions.forEach((question) => {
+            if (question.id === prefilledQnId) {
+              question.questionOptions.defaultValue = prefilledValue;
+            } else if (Array.isArray(question?.questions) && question.questions.length > 0) {
+              question.questions.forEach((question) => {
+                if (question.id === prefilledQnId) {
+                  question.questionOptions.defaultValue = prefilledValue;
+                }
+              });
+            }
+          });
+        });
+      });
+    });
+  }
 
   const showPatientBanner = useMemo(() => {
     return patient && workspaceSize === 'ultra-wide' && mode !== 'embedded-view';
@@ -110,12 +132,16 @@ const FormEngine = ({
     markFormAsDirty?.(isFormDirty);
   }, [isFormDirty]);
 
-  const handleSubmit = useCallback((e?: React.FormEvent<HTMLFormElement>) => {
-    e?.preventDefault();
+  const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsSubmitting(true);
   }, []);
 
-  useExternalSubmitListener(handleSubmit);
+  useExternalSubmitListener({
+    formRef: ref,
+    patientUuid: patientUUID,
+    formUuid: formUUID || refinedFormJson?.uuid,
+  });
 
   return (
     <form ref={ref} noValidate className={classNames('cds--form', styles.form)} onSubmit={handleSubmit}>
