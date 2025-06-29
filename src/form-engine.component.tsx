@@ -19,6 +19,7 @@ import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.compo
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import Sidebar from './components/sidebar/sidebar.component';
 import styles from './form-engine.scss';
+import { useExternalSubmitListener } from './hooks/useExternalSubmitListener';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -33,6 +34,8 @@ interface FormEngineProps {
   handleClose?: () => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   markFormAsDirty?: (isDirty: boolean) => void;
+  hideControls?: boolean;
+  preFilledQuestions?: Record<string, string>;
 }
 
 const FormEngine = ({
@@ -48,6 +51,8 @@ const FormEngine = ({
   handleClose,
   handleConfirmQuestionDeletion,
   markFormAsDirty,
+  hideControls = false,
+  preFilledQuestions,
 }: FormEngineProps) => {
   const { t } = useTranslation();
   const session = useSession();
@@ -69,6 +74,26 @@ const FormEngine = ({
     isLoading: isLoadingFormJson,
     formError,
   } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent);
+
+  if (preFilledQuestions && typeof preFilledQuestions === 'object') {
+    Object.entries(preFilledQuestions).forEach(([prefilledQnId, prefilledValue]) => {
+      refinedFormJson?.pages.forEach((page) => {
+        page.sections.forEach((section) => {
+          section.questions.forEach((question) => {
+            if (question.id === prefilledQnId) {
+              question.questionOptions.defaultValue = prefilledValue;
+            } else if (Array.isArray(question?.questions) && question.questions.length > 0) {
+              question.questions.forEach((question) => {
+                if (question.id === prefilledQnId) {
+                  question.questionOptions.defaultValue = prefilledValue;
+                }
+              });
+            }
+          });
+        });
+      });
+    });
+  }
 
   const showPatientBanner = useMemo(() => {
     return patient && workspaceSize === 'ultra-wide' && mode !== 'embedded-view';
@@ -112,6 +137,12 @@ const FormEngine = ({
     setIsSubmitting(true);
   }, []);
 
+  useExternalSubmitListener({
+    formRef: ref,
+    patientUuid: patientUUID,
+    formUuid: formUUID || refinedFormJson?.uuid,
+  });
+
   return (
     <form ref={ref} noValidate className={classNames('cds--form', styles.form)} onSubmit={handleSubmit}>
       {isLoadingPatient || isLoadingFormJson ? (
@@ -152,6 +183,7 @@ const FormEngine = ({
                   onCancel={onCancel}
                   handleClose={handleClose}
                   hideFormCollapseToggle={hideFormCollapseToggle}
+                  hideControls={hideControls}
                 />
               )}
               <div className={styles.formContentInner}>
@@ -167,7 +199,7 @@ const FormEngine = ({
                     setIsLoadingFormDependencies={setIsLoadingDependencies}
                   />
                 </div>
-                {showBottomButtonSet && (
+                {showBottomButtonSet && !hideControls && (
                   <ButtonSet className={styles.minifiedButtons}>
                     <Button
                       kind="secondary"
