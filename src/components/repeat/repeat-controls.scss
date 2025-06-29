@@ -2,6 +2,10 @@
   margin: 0.5rem 0;
 }
 
-.actionButtons > button {
+.actionButtons>button {
   margin-right: 0.5rem;
+
+  @media print {
+    display: none !important;
+  }
 }

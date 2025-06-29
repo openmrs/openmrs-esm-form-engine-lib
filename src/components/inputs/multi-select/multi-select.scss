@@ -23,3 +23,9 @@ legend > span {
   color: colors.$black-100 !important;
   font-weight: 500 !important;
 }
+.boldedLabel {
+  @media print {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
