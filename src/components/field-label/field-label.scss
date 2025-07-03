@@ -8,6 +8,10 @@
 .questionLabel {
   display: flex;
   align-items: center;
+  @media print {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
 }
 
 .tooltipIcon {
