@@ -12,7 +12,7 @@ import { useFormCollapse } from './hooks/useFormCollapse';
 import { useFormWorkspaceSize } from './hooks/useFormWorkspaceSize';
 import { usePageObserver } from './components/sidebar/usePageObserver';
 import { usePatientData } from './hooks/usePatientData';
-import type { FormField, FormSchema, SessionMode } from './types';
+import type { FormField, FormSchema, SessionMode , type PreFilledQuestions } from './types';
 import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
 import Loader from './components/loaders/loader.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
@@ -35,7 +35,7 @@ interface FormEngineProps {
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   markFormAsDirty?: (isDirty: boolean) => void;
   hideControls?: boolean;
-  preFilledQuestions?: Record<string, string>;
+  preFilledQuestions?: PreFilledQuestions;
 }
 
 const FormEngine = ({
@@ -73,27 +73,7 @@ const FormEngine = ({
     formJson: refinedFormJson,
     isLoading: isLoadingFormJson,
     formError,
-  } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent);
-
-  if (preFilledQuestions && typeof preFilledQuestions === 'object') {
-    Object.entries(preFilledQuestions).forEach(([prefilledQnId, prefilledValue]) => {
-      refinedFormJson?.pages.forEach((page) => {
-        page.sections.forEach((section) => {
-          section.questions.forEach((question) => {
-            if (question.id === prefilledQnId) {
-              question.questionOptions.defaultValue = prefilledValue;
-            } else if (Array.isArray(question?.questions) && question.questions.length > 0) {
-              question.questions.forEach((question) => {
-                if (question.id === prefilledQnId) {
-                  question.questionOptions.defaultValue = prefilledValue;
-                }
-              });
-            }
-          });
-        });
-      });
-    });
-  }
+  } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent, preFilledQuestions);
 
   const showPatientBanner = useMemo(() => {
     return patient && workspaceSize === 'ultra-wide' && mode !== 'embedded-view';

@@ -46,16 +46,16 @@ interface UseExternalSubmitListenerProps {
 
 export function useExternalSubmitListener({ formRef, patientUuid, formUuid }: UseExternalSubmitListenerProps) {
   useEffect(() => {
-    const handleSubmitWrapper = (event: Event) => {
+    const handleSubmit = (event: Event) => {
       const customEvent = event as CustomEvent<SubmitEventDetail>;
-      const { formUuid: evntFormUuid, patientUuid: evntPatientUuid } = customEvent.detail;
-      if (evntFormUuid === formUuid && evntPatientUuid === patientUuid) {
+      const { formUuid: targetFormUuid, patientUuid: targetPatientUuid } = customEvent.detail;
+      if (formRef.current && targetFormUuid === formUuid && targetPatientUuid === patientUuid) {
         formRef.current?.requestSubmit?.();
       }
     };
-    window.addEventListener('rfe-form-submit-action', handleSubmitWrapper);
+    window.addEventListener('rfe-form-submit-action', handleSubmit);
     return () => {
-      window.removeEventListener('rfe-form-submit-action', handleSubmitWrapper);
+      window.removeEventListener('rfe-form-submit-action', handleSubmit);
     };
   }, [formRef, formUuid, patientUuid]);
 }
