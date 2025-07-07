@@ -12,7 +12,7 @@ import { useFormCollapse } from './hooks/useFormCollapse';
 import { useFormWorkspaceSize } from './hooks/useFormWorkspaceSize';
 import { usePageObserver } from './components/sidebar/usePageObserver';
 import { usePatientData } from './hooks/usePatientData';
-import type { FormField, FormSchema, SessionMode , type PreFilledQuestions } from './types';
+import type { FormField, FormSchema, SessionMode, PreFilledQuestions } from './types';
 import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
 import Loader from './components/loaders/loader.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
