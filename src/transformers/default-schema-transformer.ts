@@ -1,5 +1,12 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
-import { type FormField, type FormSchema, type FormSchemaTransformer, type RenderType, type FormPage , type PreFilledQuestions } from '../types';
+import {
+  type FormField,
+  type FormSchema,
+  type FormSchemaTransformer,
+  type RenderType,
+  type FormPage,
+  type PreFilledQuestions,
+} from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { hasRendering } from '../utils/common-utils';
 
@@ -313,16 +320,16 @@ function handleDiagnosis(question: FormField) {
 }
 
 function handlePreFilledQuestions(form: FormSchema, preFilledQuestions: PreFilledQuestions) {
-  Object.entries(preFilledQuestions).forEach(([prefilledQnId, prefilledValue]) => {
+  Object.entries(preFilledQuestions).forEach(([preFilledQnId, preFilledValue]) => {
     form?.pages.forEach((page) => {
       page.sections.forEach((section) => {
         section.questions.forEach((question) => {
-          if (question.id === prefilledQnId) {
-            question.questionOptions.defaultValue = prefilledValue;
+          if (question.id === preFilledQnId) {
+            question.questionOptions.defaultValue = preFilledValue;
           } else if (Array.isArray(question?.questions) && question.questions.length > 0) {
             question.questions.forEach((question) => {
-              if (question.id === prefilledQnId) {
-                question.questionOptions.defaultValue = prefilledValue;
+              if (question.id === preFilledQnId) {
+                question.questionOptions.defaultValue = preFilledValue;
               }
             });
           }
