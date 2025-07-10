@@ -101,8 +101,9 @@ export interface DataSourceParameters {
 export interface FormSchemaTransformer {
   /**
    * Transforms the raw schema to be compatible with the React Form Engine.
+   * Adds default values to questions based on the preFilledQuestions object.
    */
-  transform: (form: FormSchema) => FormSchema;
+  transform: (form: FormSchema, preFilledQuestions?: PreFilledQuestions) => FormSchema;
 }
 
 export interface PostSubmissionAction {
@@ -145,6 +146,8 @@ export interface ValidationResult {
   errCode?: string;
   message: string;
 }
+
+export type PreFilledQuestions = Record<string, string>;
 
 export * from './schema';
 export * from './domain';
