@@ -47,12 +47,30 @@ interface UseExternalSubmitListenerProps {
 export function useExternalSubmitListener({ formRef, patientUuid, formUuid }: UseExternalSubmitListenerProps) {
   useEffect(() => {
     const handleSubmit = (event: Event) => {
+      if (!formRef?.current) {
+        throw new Error(
+          "Form reference is missing or not attached. Ensure the 'formRef' is correctly passed and the form element is mounted.",
+        );
+      }
+
       const customEvent = event as CustomEvent<SubmitEventDetail>;
       const { formUuid: targetFormUuid, patientUuid: targetPatientUuid } = customEvent.detail;
-      if (formRef.current && targetFormUuid === formUuid && targetPatientUuid === patientUuid) {
+
+      if (!targetFormUuid || !targetPatientUuid) {
+        throw new Error(
+          "Event detail is missing 'formUuid' or 'patientUuid'. Both are required to identify and submit the correct form instance.",
+        );
+      }
+
+      if (targetFormUuid === formUuid && targetPatientUuid === patientUuid) {
         formRef.current?.requestSubmit?.();
+      } else {
+        throw new Error(
+          "The provided 'formUuid' or 'patientUuid' in the event detail does not match the expected values for the current form instance.",
+        );
       }
     };
+
     window.addEventListener('rfe-form-submit-action', handleSubmit);
     return () => {
       window.removeEventListener('rfe-form-submit-action', handleSubmit);
