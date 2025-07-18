@@ -48,8 +48,8 @@ export function useExternalSubmitListener({ formRef, patientUuid, formUuid }: Us
   useEffect(() => {
     const handleSubmit = (event: Event) => {
       if (!formRef?.current) {
-        throw new Error(
-          "Form reference is missing or not attached. Ensure the 'formRef' is correctly passed and the form element is mounted.",
+        console.error(
+          "Something went wrong: form reference is missing or not attached. Ensure 'formRef' is correctly passed and the form element is mounted.",
         );
       }
 
@@ -64,10 +64,6 @@ export function useExternalSubmitListener({ formRef, patientUuid, formUuid }: Us
 
       if (targetFormUuid === formUuid && targetPatientUuid === patientUuid) {
         formRef.current?.requestSubmit?.();
-      } else {
-        throw new Error(
-          "The provided 'formUuid' or 'patientUuid' in the event detail does not match the expected values for the current form instance.",
-        );
       }
     };
 
