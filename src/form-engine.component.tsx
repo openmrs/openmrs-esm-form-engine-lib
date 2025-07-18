@@ -12,13 +12,14 @@ import { useFormCollapse } from './hooks/useFormCollapse';
 import { useFormWorkspaceSize } from './hooks/useFormWorkspaceSize';
 import { usePageObserver } from './components/sidebar/usePageObserver';
 import { usePatientData } from './hooks/usePatientData';
-import type { FormField, FormSchema, SessionMode } from './types';
+import type { FormField, FormSchema, SessionMode, PreFilledQuestions } from './types';
 import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
 import Loader from './components/loaders/loader.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
 import PatientBanner from './components/patient-banner/patient-banner.component';
 import Sidebar from './components/sidebar/sidebar.component';
 import styles from './form-engine.scss';
+import { useExternalSubmitListener } from './hooks/useExternalSubmitListener';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -33,6 +34,8 @@ interface FormEngineProps {
   handleClose?: () => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   markFormAsDirty?: (isDirty: boolean) => void;
+  hideControls?: boolean;
+  preFilledQuestions?: PreFilledQuestions;
 }
 
 const FormEngine = ({
@@ -48,6 +51,8 @@ const FormEngine = ({
   handleClose,
   handleConfirmQuestionDeletion,
   markFormAsDirty,
+  hideControls = false,
+  preFilledQuestions,
 }: FormEngineProps) => {
   const { t } = useTranslation();
   const session = useSession();
@@ -68,7 +73,7 @@ const FormEngine = ({
     formJson: refinedFormJson,
     isLoading: isLoadingFormJson,
     formError,
-  } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent);
+  } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent, preFilledQuestions);
 
   const showPatientBanner = useMemo(() => {
     return patient && workspaceSize === 'ultra-wide' && mode !== 'embedded-view';
@@ -112,6 +117,12 @@ const FormEngine = ({
     setIsSubmitting(true);
   }, []);
 
+  useExternalSubmitListener({
+    formRef: ref,
+    patientUuid: patientUUID,
+    formUuid: formUUID || refinedFormJson?.uuid,
+  });
+
   return (
     <form ref={ref} noValidate className={classNames('cds--form', styles.form)} onSubmit={handleSubmit}>
       {isLoadingPatient || isLoadingFormJson ? (
@@ -152,6 +163,7 @@ const FormEngine = ({
                   onCancel={onCancel}
                   handleClose={handleClose}
                   hideFormCollapseToggle={hideFormCollapseToggle}
+                  hideControls={hideControls}
                 />
               )}
               <div className={styles.formContentInner}>
@@ -167,7 +179,7 @@ const FormEngine = ({
                     setIsLoadingFormDependencies={setIsLoadingDependencies}
                   />
                 </div>
-                {showBottomButtonSet && (
+                {showBottomButtonSet && !hideControls && (
                   <ButtonSet className={styles.minifiedButtons}>
                     <Button
                       kind="secondary"
