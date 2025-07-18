@@ -148,7 +148,7 @@ const FormEngine = ({
                 <Sidebar
                   isFormSubmitting={isSubmitting}
                   sessionMode={mode}
-                  defaultPage={formJson.defaultPage}
+                  defaultPage={refinedFormJson.defaultPage}
                   onCancel={onCancel}
                   handleClose={handleClose}
                   hideFormCollapseToggle={hideFormCollapseToggle}
