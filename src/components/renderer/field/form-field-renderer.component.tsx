@@ -121,6 +121,13 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
         expressionContext: { patient, mode: sessionMode },
       },
     );
+
+    if (field.meta.submission) {
+      // clear stale submission validation results
+      field.meta.submission.errors = undefined;
+      field.meta.submission.warnings = undefined;
+    }
+
     if (errors.length && !validationErrors.length) {
       removeInvalidField(field.id);
       setErrors([]);
