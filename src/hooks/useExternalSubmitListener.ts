@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { reportError } from '../utils/error-utils';
+import { useTranslation } from 'react-i18next';
 
 interface SubmitEventDetail {
   formUuid: string;
@@ -45,25 +47,40 @@ interface UseExternalSubmitListenerProps {
  */
 
 export function useExternalSubmitListener({ formRef, patientUuid, formUuid }: UseExternalSubmitListenerProps) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     const handleSubmit = (event: Event) => {
       if (!formRef?.current) {
-        console.error(
-          "Something went wrong: form reference is missing or not attached. Ensure 'formRef' is correctly passed and the form element is mounted.",
+        reportError(
+          new Error(
+            'The form required for submission could not be found. Please refresh the page or contact support if the issue persists.',
+          ),
+          t('Error submittiong the form'),
         );
+        return;
       }
 
       const customEvent = event as CustomEvent<SubmitEventDetail>;
       const { formUuid: targetFormUuid, patientUuid: targetPatientUuid } = customEvent.detail;
 
       if (!targetFormUuid || !targetPatientUuid) {
-        throw new Error(
-          "Event detail is missing 'formUuid' or 'patientUuid'. Both are required to identify and submit the correct form instance.",
+        reportError(
+          new Error('The submission request is missing either a patient UUID or a form UUID.'),
+          t('Form submission failed'),
         );
+        return;
       }
 
       if (targetFormUuid === formUuid && targetPatientUuid === patientUuid) {
         formRef.current?.requestSubmit?.();
+      } else {
+        reportError(
+          new Error(
+            'The form or patient UUID in this submission request does not match that of the current form instance',
+          ),
+          t('Form submission failed'),
+        );
       }
     };
 
