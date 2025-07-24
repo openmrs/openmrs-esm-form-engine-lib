@@ -18,7 +18,9 @@ export function validateForm(context: FormContextProps) {
   } = context;
   const values = getValues();
   const errors = formFields
-    .filter((field) => !field.isHidden && !field.isParentHidden && !field.isDisabled)
+    .filter(
+      (field) => !field.isHidden && !field.isParentHidden && !field.isDisabled && !field.meta.submission?.unspecified,
+    )
     .flatMap((field) =>
       field.validators?.flatMap((validatorConfig) => {
         const validator = formFieldValidators[validatorConfig.type];

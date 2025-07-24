@@ -496,6 +496,42 @@ describe('Form engine component', () => {
       expect(saveEncounterMock).toHaveReturned();
     });
 
+    it('should clear stale submission validation errors', async () => {
+      await act(async () => {
+        renderForm(null, requiredTestForm);
+      });
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      const inputFields = screen.getAllByLabelText(/Text question/i);
+      expect(inputFields).toHaveLength(2);
+
+      inputFields.forEach((inputField) => {
+        expect(inputField).toHaveClass('cds--text-input--invalid');
+      });
+
+      let errorMessages = screen.getAllByText('Field is mandatory');
+      expect(errorMessages).toHaveLength(2);
+
+      // interact with first input
+      const textInput1 = inputFields[0];
+      await user.type(textInput1, 'Some value');
+
+      // assert validation errors were cleared for the first input
+      expect(textInput1).not.toHaveClass('cds--text-input--invalid');
+      errorMessages = screen.getAllByText('Field is mandatory');
+      expect(errorMessages).toHaveLength(1);
+
+      // interact with last input
+      const textInput2 = inputFields[1];
+      await user.type(textInput2, 'Some other value');
+
+      // assert validation errors were cleared
+      expect(textInput2).not.toHaveClass('cds--text-input--invalid');
+      errorMessages = screen.queryAllByText('Field is mandatory');
+      expect(errorMessages).toHaveLength(0);
+    });
+
     it('should validate transient fields', async () => {
       const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
 
