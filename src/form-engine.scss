@@ -5,6 +5,12 @@
   height: 100%;
   overflow: hidden;
   flex-grow: 1;
+
+  @media print {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
 }
 
 // replaces .container
@@ -13,6 +19,12 @@
   height: 100%;
   overflow-y: hidden;
   flex-direction: column;
+
+  @media print {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
 }
 
 // replaces .body
@@ -20,6 +32,12 @@
   display: flex;
   flex-direction: row;
   height: 100%;
+
+  @media print {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
 }
 
 // replaces .content
@@ -34,6 +52,12 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  @media print {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
 }
 
 // replaces .contentBody
@@ -45,6 +69,21 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+
+  @media print {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    // For Firefox
+    scrollbar-width: none;
+    // For IE and Edge
+    -ms-overflow-style: none;
+  }
 }
 
 .minifiedButtons {
@@ -54,6 +93,10 @@
     align-content: flex-start;
     align-items: baseline;
     min-width: 50%;
+  }
+
+  @media print {
+    display: none !important;
   }
 }
 
@@ -69,6 +112,12 @@
 :global(.omrs-breakpoint-lt-desktop) {
   .formContentInner {
     height: var(--tablet-workspace-window-height);
+
+    @media print {
+      overflow: visible !important;
+      height: auto !important;
+      max-height: none !important;
+    }
   }
 
   .minifiedButtons {
@@ -119,11 +168,38 @@
   animation: indeterminate_second 2.5s infinite ease-in;
 }
 
+@media print {
+  @page {
+    margin: 0.2in;
+  }
+
+  body {
+    background-color: transparent !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    width: 100% !important;
+  }
+
+  svg {
+    display: none !important;
+  }
+
+  button[title="Choose an option"]>span {
+    display: none !important;
+  }
+
+  [placeholder] {
+    display: none !important;
+  }
+}
+
 @keyframes indeterminate_first {
   0% {
     left: -100%;
     width: 100%;
   }
+
   100% {
     left: 100%;
     width: 10%;
@@ -135,6 +211,7 @@
     left: -150%;
     width: 100%;
   }
+
   100% {
     left: 100%;
     width: 10%;
