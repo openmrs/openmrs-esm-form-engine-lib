@@ -172,6 +172,18 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
       />
     );
   }
+
+  // If the field is transient and has no value, we do not render it in embedded view mode.
+  // This is to prevent transient fields from being displayed in the form when they are not necessarily needed.
+  if (
+    sessionMode === 'embedded-view' &&
+    field.questionOptions.isTransient &&
+    isEmpty(fieldValue) &&
+    !field.meta.submission?.unspecified
+  ) {
+    return null;
+  }
+
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} onReset={noop}>
       <Controller
