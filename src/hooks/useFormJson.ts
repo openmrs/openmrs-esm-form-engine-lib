@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
-import { type FormSchemaTransformer, type FormSchema, type FormSection, type ReferencedForm } from '../types';
+import { type FormSchemaTransformer, type FormSchema, type FormSection, type ReferencedForm , type PreFilledQuestions } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
 import { fetchOpenMRSForm, fetchClobData } from '../api';
 import { getRegisteredFormSchemaTransformers } from '../registry/registry';
 import { formEngineAppName } from '../globals';
 
-export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: string, formSessionIntent: string) {
+export function useFormJson(
+  formUuid: string,
+  rawFormJson: any,
+  encounterUuid: string,
+  formSessionIntent: string,
+  preFilledQuestions?: PreFilledQuestions,
+) {
   const [formJson, setFormJson] = useState<FormSchema>(null);
   const [error, setError] = useState(validateFormsArgs(formUuid, rawFormJson));
 
@@ -21,7 +27,7 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
       setFormJson(formJson);
     };
 
-    loadFormJson(formUuid, rawFormJson, formSessionIntent)
+    loadFormJson(formUuid, rawFormJson, formSessionIntent, preFilledQuestions)
       .then((formJson) => {
         setFormJsonWithTranslations({ ...formJson, encounter: encounterUuid });
       })
@@ -52,12 +58,14 @@ export function useFormJson(formUuid: string, rawFormJson: any, encounterUuid: s
  * @param rawFormJson The raw form JSON object to be used if `formIdentifier` is not provided.
  * @param formIdentifier The UUID or name of the form to be fetched from OpenMRS if `rawFormJson` is not provided.
  * @param formSessionIntent An optional parameter that represents the current intent.
+ * @param preFilledQuestions An optional parameter that represents the pre-filled questions.
  * @returns A well-built form object that might include subForms.
  */
 export async function loadFormJson(
   formIdentifier: string,
   rawFormJson?: FormSchema,
   formSessionIntent?: string,
+  preFilledQuestions?: PreFilledQuestions,
 ): Promise<FormSchema> {
   const openmrsFormResponse = await fetchOpenMRSForm(formIdentifier);
   const clobDataResponse = await fetchClobData(openmrsFormResponse);
@@ -81,7 +89,7 @@ export async function loadFormJson(
 
   const formComponents = mapFormComponents(resolvedFormComponents);
   updateFormJsonWithComponents(formJson, formComponents, formNameToAliasMap);
-  return refineFormJson(formJson, transformers, formSessionIntent);
+  return refineFormJson(formJson, transformers, formSessionIntent, preFilledQuestions);
 }
 
 function extractSubFormRefs(formJson: FormSchema): string[] {
@@ -116,16 +124,18 @@ function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
  * Refines the input form JSON object by parsing it, removing inline sub forms, applying form schema transformers, setting the encounter type, and applying form intents if provided.
  * @param {any} formJson - The input form JSON object or string.
  * @param {string} [formSessionIntent] - The optional form session intent.
+ * @param {PreFilledQuestions} [preFilledQuestions] - The optional pre-filled questions.
  * @returns {FormSchema} - The refined form JSON object of type FormSchema.
  */
 function refineFormJson(
   formJson: any,
   schemaTransformers: FormSchemaTransformer[] = [],
   formSessionIntent?: string,
+  preFilledQuestions?: PreFilledQuestions,
 ): FormSchema {
   removeInlineSubForms(formJson, formSessionIntent);
   // apply form schema transformers
-  schemaTransformers.reduce((draftForm, transformer) => transformer.transform(draftForm), formJson);
+  schemaTransformers.reduce((draftForm, transformer) => transformer.transform(draftForm, preFilledQuestions), formJson);
   setEncounterType(formJson);
   return applyFormIntent(formSessionIntent, formJson);
 }
