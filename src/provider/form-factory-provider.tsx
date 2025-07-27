@@ -99,14 +99,14 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
     EncounterFormProcessor: EncounterFormProcessor,
   });
 
-  const vidateAllForms = () => {
+  const validateAllForms = useCallback(() => {
     const forms = [rootForm.current, ...Object.values(subForms.current)];
     const isValid = forms.every((formContext) => validateForm(formContext));
     return {
       forms: forms,
       isValid: isValid,
     };
-  };
+  }, [rootForm, subForms, validateForm]);
 
   useExternalFormAction({
     patientUuid: patientUUID,
@@ -116,15 +116,17 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   });
 
   useEffect(() => {
-    if (isValidating) vidateAllForms();
-    setIsValidating(false);
-  }, [isValidating, setIsValidating, vidateAllForms]);
+    if (isValidating) {
+      validateAllForms();
+      setIsValidating(false);
+    }
+  }, [isValidating, validateAllForms]);
 
   useEffect(() => {
     if (isSubmitting) {
       // TODO: find a dynamic way of managing the form processing order
       // validate all forms
-      const { forms, isValid } = vidateAllForms();
+      const { forms, isValid } = validateAllForms();
       if (isValid) {
         Promise.all(forms.map((formContext) => formContext.processor.processSubmission(formContext, abortController)))
           .then(async (results) => {
@@ -174,7 +176,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
     return () => {
       abortController.abort();
     };
-  }, [isSubmitting]);
+  }, [isSubmitting, validateAllForms]);
 
   return (
     <FormFactoryProviderContext.Provider
