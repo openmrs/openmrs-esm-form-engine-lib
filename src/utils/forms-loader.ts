@@ -18,7 +18,7 @@ interface BehaviourProperty {
 }
 
 /**
- * Convinience function for loading form(s) associated to a given package or form version.
+ * Convenience function for loading form(s) associated to a given package or form version.
  *
  * @param packageName The package associated with the form
  * @param formNamespace The form namespace
@@ -213,7 +213,7 @@ export function applyFormIntent(intent, originalJson, parentOverrides?: Array<Be
 function updateQuestionRequiredBehaviour(question, intent: string) {
   const requiredIntentBehaviour = question.behaviours?.find((behaviour) => behaviour.intent === intent);
 
-  const defaultIntentBehaviour = question.behaviours?.find((bevahiour) => bevahiour.intent === '*');
+  const defaultIntentBehaviour = question.behaviours?.find((behaviour) => behaviour.intent === '*');
   // If both required and default intents exist, combine them and update to question
   if (requiredIntentBehaviour || defaultIntentBehaviour) {
     // Remove the intent name props from each object
