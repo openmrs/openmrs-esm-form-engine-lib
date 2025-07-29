@@ -1,4 +1,4 @@
-import { type SessionMode } from 'src/types';
+import { type SessionMode } from '../../../types';
 
 /**
  * @name shouldRenderField
