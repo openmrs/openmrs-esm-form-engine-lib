@@ -13,3 +13,10 @@
 :global(.cds--text-input__readonly-icon) {
   display: none;
 }
+
+.boldedLabel {
+  @media print {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

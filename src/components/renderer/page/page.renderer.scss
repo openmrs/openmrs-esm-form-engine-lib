@@ -2,7 +2,7 @@
 @use '@carbon/type';
 @use '@carbon/layout';
 
-.pageContent:last-child > hr {
+.pageContent:last-child>hr {
   display: none;
 }
 
@@ -13,8 +13,14 @@
   padding: 0.5rem 1rem;
   border-top: 1px solid colors.$gray-20;
   border-bottom: 1px solid colors.$gray-20;
+
   &:hover {
     background-color: colors.$gray-20;
+  }
+
+  @media print {
+    page-break-after: avoid;
+    break-after: avoid;
   }
 }
 
@@ -36,7 +42,7 @@
   height: 1rem;
 }
 
-.sectionContainer > div {
+.sectionContainer>div {
   background-color: colors.$gray-10;
 }
 
@@ -64,7 +70,7 @@
   display: none;
 }
 
-.formSection > div > fieldset {
+.formSection>div>fieldset {
   margin-bottom: 0 !important;
 }
 

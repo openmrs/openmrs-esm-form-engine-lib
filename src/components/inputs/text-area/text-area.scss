@@ -9,3 +9,9 @@
   color: colors.$red-60;
   font-weight: 600;
 }
+.boldedLabel{
+  @media print {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

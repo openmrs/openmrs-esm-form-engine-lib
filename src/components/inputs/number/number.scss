@@ -13,3 +13,9 @@
 .controlWidthConstrained {
   max-width: 18rem;
 }
+.boldedLabel {
+  @media print {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

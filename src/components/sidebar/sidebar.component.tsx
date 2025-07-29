@@ -8,6 +8,7 @@ import { useCurrentActivePage } from './useCurrentActivePage';
 import { usePageObserver } from './usePageObserver';
 import type { FormPage, SessionMode } from '../../types';
 import styles from './sidebar.scss';
+import { Printer } from '@carbon/react/icons';
 
 interface SidebarProps {
   defaultPage: string;
@@ -16,6 +17,7 @@ interface SidebarProps {
   onCancel: () => void;
   handleClose: () => void;
   hideFormCollapseToggle: () => void;
+  handlePrint: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -25,6 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onCancel,
   handleClose,
   hideFormCollapseToggle,
+  handlePrint,
 }) => {
   const { t } = useTranslation();
   const { pages, pagesWithErrors, activePages, evaluatedPagesVisibility } = usePageObserver();
@@ -77,6 +80,16 @@ const Sidebar: React.FC<SidebarProps> = ({
           }}
           size={responsiveSize}>
           {sessionMode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
+        </Button>
+        <Button
+          className={classNames(styles.printButton, {
+            [styles.topMargin]: sessionMode === 'view',
+          })}
+          kind="tertiary"
+          onClick={() => handlePrint()}
+          size={responsiveSize}>
+          {t('printForm', 'Print form')}
+          <Printer />
         </Button>
       </div>
     </div>

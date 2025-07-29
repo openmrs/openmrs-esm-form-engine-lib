@@ -3,6 +3,13 @@
 .section {
   margin-top: 1rem;
   width: 100%;
+
+  @media print {
+    page-break-inside: verso;
+    break-inside: verso;
+    page-break-before: avoid;
+    break-before: avoid;
+  }
 }
 
 .sectionBody {

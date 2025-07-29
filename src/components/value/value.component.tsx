@@ -6,7 +6,7 @@ export const ValueEmpty = () => {
   const { t } = useTranslation();
 
   return (
-    <div>
+    <div className={styles.emptyContainer}>
       <span className={styles.empty}>({t('blank', 'Blank')})</span>
     </div>
   );
