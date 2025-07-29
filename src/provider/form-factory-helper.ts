@@ -48,6 +48,19 @@ export function validateForm(context: FormContextProps) {
   return errors.length === 0;
 }
 
+export function validateEmptyForm(context: FormContextProps) {
+  const { formFields, deletedFields } = context;
+  const allFormFields = [...formFields, ...deletedFields];
+  const transientFields = allFormFields
+    .filter((field) => field.questionOptions.isTransient)
+    .map((field) => field.id);
+  const { methods: { formState: { dirtyFields } } } = context;
+  const nonTransientDirtyFields = Object.keys(dirtyFields).filter(
+    (fieldName) => !transientFields.includes(fieldName)
+  );
+  return nonTransientDirtyFields.length === 0;
+}
+
 export async function processPostSubmissionActions(
   postSubmissionHandlers: PostSubmissionActionMeta[],
   submissionResults: OpenmrsResource[],
