@@ -149,9 +149,16 @@ export interface FormQuestionOptions {
    */
   step?: number;
   /**
-   * maxLength and maxLength are used to validate text field length
+   * @description
+   * Indicates whether the field is transient.
+   * - Transient fields are ignored on form submission.
+   * - If set to __true__, the field is omitted from the O3 Form in `embedded-view` mode.
+   * @default false
    */
   isTransient?: boolean;
+  /**
+   * maxLength and maxLength are used to validate text field length
+   */
   maxLength?: string;
   minLength?: string;
   showDate?: string;
