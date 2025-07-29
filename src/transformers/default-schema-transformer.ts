@@ -1,12 +1,19 @@
 import { type OpenmrsResource } from '@openmrs/esm-framework';
-import { type FormField, type FormSchema, type FormSchemaTransformer, type RenderType, type FormPage } from '../types';
+import {
+  type FormField,
+  type FormSchema,
+  type FormSchemaTransformer,
+  type RenderType,
+  type FormPage,
+  type PreFilledQuestions,
+} from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { hasRendering } from '../utils/common-utils';
 
 export type RenderTypeExtended = 'multiCheckbox' | 'numeric' | RenderType;
 
 export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
-  transform: (form: FormSchema) => {
+  transform: (form: FormSchema, preFilledQuestions?: PreFilledQuestions) => {
     parseBooleanTokenIfPresent(form, 'readonly');
     form.pages.forEach((page, index) => {
       const label = page.label ?? '';
@@ -22,6 +29,9 @@ export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
         });
       }
     });
+    if (preFilledQuestions && typeof preFilledQuestions === 'object') {
+      handlePreFilledQuestions(form, preFilledQuestions);
+    }
     if (form.meta?.programs) {
       handleProgramMetaTags(form);
     }
@@ -307,4 +317,24 @@ function handleDiagnosis(question: FormField) {
 
     delete question.questionOptions['dataSource'];
   }
+}
+
+function handlePreFilledQuestions(form: FormSchema, preFilledQuestions: PreFilledQuestions) {
+  Object.entries(preFilledQuestions).forEach(([preFilledQnId, preFilledValue]) => {
+    form?.pages.forEach((page) => {
+      page.sections.forEach((section) => {
+        section.questions.forEach((question) => {
+          if (question.id === preFilledQnId) {
+            question.questionOptions.defaultValue = preFilledValue;
+          } else if (Array.isArray(question?.questions) && question.questions.length > 0) {
+            question.questions.forEach((question) => {
+              if (question.id === preFilledQnId) {
+                question.questionOptions.defaultValue = preFilledValue;
+              }
+            });
+          }
+        });
+      });
+    });
+  });
 }
