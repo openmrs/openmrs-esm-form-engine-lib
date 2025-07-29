@@ -147,7 +147,7 @@ export interface ValidationResult {
   message: string;
 }
 
-export type PreFilledQuestions = Record<string, string | number | Date | Array<string | number>>;
+export type PreFilledQuestions = Record<string, string | number | Date | boolean | Array<string>>;
 
 export * from './schema';
 export * from './domain';

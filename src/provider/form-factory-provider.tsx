@@ -106,7 +106,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
       forms: forms,
       isValid: isValid,
     };
-  }, [rootForm, subForms, validateForm]);
+  }, []);
 
   useExternalFormAction({
     patientUuid: patientUUID,
