@@ -150,7 +150,9 @@ export interface FormQuestionOptions {
   step?: number;
   /**
    * @description
-   * Indicates whether the field is transient — if true, __the field will be omitted from the O3 Form__ in `embedded-view` mode.
+   * Indicates whether the field is transient.
+   * - Transient fields are ignored on form submission.
+   * - If set to __true__, the field is omitted from the O3 Form in `embedded-view` mode.
    * @default false
    */
   isTransient?: boolean;

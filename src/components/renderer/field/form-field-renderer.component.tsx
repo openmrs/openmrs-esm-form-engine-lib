@@ -19,6 +19,7 @@ import { isTrue } from '../../../utils/boolean-utils';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import PreviousValueReview from '../../previous-value-review/previous-value-review.component';
 import UnspecifiedField from '../../inputs/unspecified/unspecified.component';
+import { shouldRenderField } from './fieldRenderUtils';
 import styles from './form-field-renderer.scss';
 
 export interface FormFieldRendererProps {
@@ -175,12 +176,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
 
   // If the field is transient and has no value, we do not render it in embedded view mode.
   // This is to prevent transient fields from being displayed in the form when they are not necessarily needed.
-  if (
-    sessionMode === 'embedded-view' &&
-    field.questionOptions.isTransient &&
-    isEmpty(fieldValue) &&
-    !field.meta.submission?.unspecified
-  ) {
+  if (!shouldRenderField(sessionMode, !!field.questionOptions.isTransient, isEmpty(fieldValue))) {
     return null;
   }
 
