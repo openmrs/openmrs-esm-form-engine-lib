@@ -28,8 +28,8 @@ interface UseExternalFormActionProps {
  * The hook ensures that the received event matches the current `formUuid` and `patientUuid` before executing any action.
  *
  * ### Supported Actions
- * - `"onSubmit"` — Triggers `setIsSubmitting(true)`
- * - `"validateForm"` — Triggers `setIsValidating(true)`
+ * - `"onSubmit"` — Triggers form submission
+ * - `"validateForm"` — Triggers form validation
  *
  * @param patientUuid - The UUID of the current patient, used to verify that the action is intended for this instance.
  * @param formUuid - The UUID of the current form, used to validate the target of the action.
@@ -63,10 +63,10 @@ export function useExternalFormAction({
       const customEvent = event as CustomEvent<SubmitEventDetail>;
       const { formUuid: targetFormUuid, patientUuid: targetPatientUuid, action } = customEvent.detail;
 
-      if (!targetFormUuid || !targetPatientUuid) {
+      if (!action || !targetFormUuid || !targetPatientUuid) {
         reportError(
-          new Error('The submission request is missing either the patient UUID or the form UUID.'),
-          t('Form submission failed'),
+          new Error('The form action event is missing required details (formUuid, patientUuid, or action).'),
+          t('formActionFailed', 'Form action failed'),
         );
         return;
       }
@@ -80,6 +80,7 @@ export function useExternalFormAction({
             setIsValidating(true);
             break;
           default:
+            reportError(new Error(`Unsupported form action: "${action}"`), t('formActionFailed', 'Form action failed'));
             break;
         }
       }
