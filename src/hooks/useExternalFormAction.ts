@@ -37,15 +37,6 @@ interface UseExternalFormActionProps {
  * @param setIsValidating - A `setState` handler that initiates form validation when set to `true`.
  *
  * @example
- * const [isSubmitting, setIsSubmitting] = useState(false);
- * const [isValidating, setIsValidating] = useState(false);
- *
- * useExternalFormAction({
- *   patientUuid: '9ee7a509-d639-4d91-979a-cd605b4d0ad1/chart',
- *   formUuid: '289417aa-31d5-3a06-bae8-a22d870bcf1d',
- *   setIsSubmitting,
- *   setIsValidating,
- * });
  *
  * // Elsewhere in the app, dispatching the event:
  * window.dispatchEvent(
