@@ -3,9 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { showSnackbar } from '@openmrs/esm-framework';
 import { useLaunchWorkspaceRequiringVisit } from '@openmrs/esm-patient-common-lib';
 import { Button } from '@carbon/react';
+
 import { useFormProviderContext } from '../../../provider/form-provider';
 import { type FormFieldInputProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
+import { isViewMode } from '../../../utils/common-utils';
 import styles from './workspace-launcher.scss';
 
 const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
@@ -25,7 +27,7 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
     launchWorkspace();
   };
 
-  if (field.isHidden || sessionMode === 'embedded-view') {
+  if (field.isHidden || isViewMode(sessionMode)) {
     return null;
   }
 
