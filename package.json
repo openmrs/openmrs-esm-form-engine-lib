@@ -39,7 +39,7 @@
     "react-webcam": "^7.2.0"
   },
   "peerDependencies": {
-    "@openmrs/esm-framework": "6.x",
+    "@openmrs/esm-framework": "7.x",
     "@openmrs/esm-patient-common-lib": "10.x",
     "dayjs": "1.x",
     "i18next": "23.x",
