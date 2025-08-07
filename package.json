@@ -48,9 +48,9 @@
     "swr": "2.x"
   },
   "devDependencies": {
-    "@openmrs/esm-framework": "next",
+    "@openmrs/esm-framework": "7.0.0",
     "@openmrs/esm-patient-common-lib": "next",
-    "@openmrs/esm-styleguide": "next",
+    "@openmrs/esm-styleguide": "7.0.0",
     "@swc/cli": "^0.1.65",
     "@swc/core": "^1.5.7",
     "@swc/jest": "^0.2.36",
