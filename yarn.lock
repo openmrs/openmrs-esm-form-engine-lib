@@ -3366,8 +3366,8 @@ __metadata:
   linkType: hard
 
 "@openmrs/esm-patient-common-lib@npm:next":
-  version: 11.0.1-pre.8497
-  resolution: "@openmrs/esm-patient-common-lib@npm:11.0.1-pre.8497"
+  version: 11.1.1-pre.8502
+  resolution: "@openmrs/esm-patient-common-lib@npm:11.1.1-pre.8502"
   dependencies:
     "@carbon/react": "npm:^1.83.0"
     lodash-es: "npm:^4.17.21"
@@ -3376,7 +3376,7 @@ __metadata:
     "@openmrs/esm-framework": 6.x
     react: 18.x
     single-spa: 6.x
-  checksum: 10/e2a318d274040f3cbb6ee1974f625d19be7f9ea922e48358402277d92e357f8c64f2abbded4822b873b92ef43e767e7b55e3c8b1f8d271edfe42ab75ceb126eb
+  checksum: 10/26d8df22b36737b81e286ea1d5504580e82cc5c4fad0eec35804db76eba0168614856f95af8ebb836e373e816a90dd4734426f1151c8b977f4cc42c184b425bd
   languageName: node
   linkType: hard
 
