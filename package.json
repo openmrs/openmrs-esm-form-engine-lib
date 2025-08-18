@@ -40,7 +40,6 @@
   },
   "peerDependencies": {
     "@openmrs/esm-framework": "7.x",
-    "@openmrs/esm-patient-common-lib": "10.x",
     "dayjs": "1.x",
     "i18next": "23.x",
     "react": "18.x",
@@ -49,7 +48,6 @@
   },
   "devDependencies": {
     "@openmrs/esm-framework": "next",
-    "@openmrs/esm-patient-common-lib": "next",
     "@openmrs/esm-styleguide": "next",
     "@swc/cli": "^0.1.65",
     "@swc/core": "^1.5.7",
