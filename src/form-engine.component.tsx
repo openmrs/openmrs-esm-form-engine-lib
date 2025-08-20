@@ -77,7 +77,9 @@ const FormEngine = ({
   } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent, preFilledQuestions);
 
   const showPatientBanner = useMemo(() => {
-    if (hidePatientBanner) return false;
+    if (hidePatientBanner) {
+      return false;
+    }
     return patient && workspaceSize === 'ultra-wide' && mode !== 'embedded-view';
   }, [patient, mode, workspaceSize, hidePatientBanner]);
 
