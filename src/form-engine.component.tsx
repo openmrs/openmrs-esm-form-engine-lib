@@ -34,6 +34,7 @@ interface FormEngineProps {
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   markFormAsDirty?: (isDirty: boolean) => void;
   hideControls?: boolean;
+  hidePatientBanner?: boolean;
   preFilledQuestions?: PreFilledQuestions;
 }
 
@@ -51,6 +52,7 @@ const FormEngine = ({
   handleConfirmQuestionDeletion,
   markFormAsDirty,
   hideControls = false,
+  hidePatientBanner = false,
   preFilledQuestions,
 }: FormEngineProps) => {
   const { t } = useTranslation();
@@ -75,8 +77,11 @@ const FormEngine = ({
   } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent, preFilledQuestions);
 
   const showPatientBanner = useMemo(() => {
+    if (hidePatientBanner) {
+      return false;
+    }
     return patient && workspaceSize === 'ultra-wide' && mode !== 'embedded-view';
-  }, [patient, mode, workspaceSize]);
+  }, [patient, mode, workspaceSize, hidePatientBanner]);
 
   const isFormWorkspaceTooNarrow = useMemo(() => ['narrow'].includes(workspaceSize), [workspaceSize]);
 
