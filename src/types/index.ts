@@ -118,8 +118,8 @@ export interface PostSubmissionAction {
   ): void;
 }
 
-export interface FormFieldInputProps {
-  value: any;
+export interface FormFieldInputProps<TValue = any> {
+  value: TValue;
   field: FormField;
   errors: ValidationResult[];
   warnings: ValidationResult[];
@@ -128,7 +128,7 @@ export interface FormFieldInputProps {
    *
    * @param value - The new value of the field.
    */
-  setFieldValue: (value: any) => void;
+  setFieldValue: (value: TValue) => void;
 }
 
 /**
