@@ -15,7 +15,7 @@ export const useEvaluateFormFieldExpressions = (
   const { formFields, patient, sessionMode } = factoryContext;
   const [evaluatedFormJson, setEvaluatedFormJson] = useState(factoryContext.formJson);
   const [evaluatedPagesVisibility, setEvaluatedPagesVisibility] = useState(false);
-  const { hideUnansweredQuestionsInReadonlyForms } = useConfig();
+  const { hideUnansweredQuestionsInReadonlyForms } = useConfig({ externalModuleName: '@openmrs/esm-form-engine-app' });
 
   const evaluatedFields = useMemo(() => {
     return formFields?.map((field) => {
