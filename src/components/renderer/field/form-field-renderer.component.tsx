@@ -3,6 +3,7 @@ import { ToastNotification } from '@carbon/react';
 import { Controller, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from 'react-error-boundary';
+import { useConfig } from '@openmrs/esm-framework';
 import {
   type FormField,
   type FormFieldInputProps,
@@ -38,6 +39,9 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
   const [warnings, setWarnings] = useState<ValidationResult[]>([]);
   const [historicalValue, setHistoricalValue] = useState<ValueAndDisplay>(null);
   const context = useFormProviderContext();
+  const { hideUnansweredQuestionsInReadonlyForms } = useConfig({
+    externalModuleName: '@openmrs/esm-form-engine-app',
+  });
 
   const {
     methods: { control, getValues, getFieldState },
@@ -174,9 +178,16 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
     );
   }
 
-  // If the field is transient and has no value, we do not render it in embedded view mode.
-  // This is to prevent transient fields from being displayed in the form when they are not necessarily needed.
-  if (!shouldRenderField(sessionMode, !!field.questionOptions.isTransient, isEmpty(fieldValue))) {
+  // In 'embedded-view' mode, empty fields are hidden if they are transient
+  // or if the config flag `hideUnansweredQuestionsInReadonlyForms` is enabled.
+  if (
+    !shouldRenderField(
+      sessionMode,
+      !!field.questionOptions.isTransient,
+      isEmpty(fieldValue),
+      hideUnansweredQuestionsInReadonlyForms,
+    )
+  ) {
     return null;
   }
 

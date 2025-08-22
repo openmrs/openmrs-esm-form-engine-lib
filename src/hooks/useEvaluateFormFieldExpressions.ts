@@ -6,7 +6,6 @@ import { isTrue } from '../utils/boolean-utils';
 import { isEmpty } from '../validators/form-validator';
 import { type QuestionAnswerOption } from '../types/schema';
 import { updateFormSectionReferences } from '../utils/common-utils';
-import { useConfig } from '@openmrs/esm-framework';
 
 export const useEvaluateFormFieldExpressions = (
   formValues: Record<string, any>,
@@ -15,7 +14,6 @@ export const useEvaluateFormFieldExpressions = (
   const { formFields, patient, sessionMode } = factoryContext;
   const [evaluatedFormJson, setEvaluatedFormJson] = useState(factoryContext.formJson);
   const [evaluatedPagesVisibility, setEvaluatedPagesVisibility] = useState(false);
-  const { hideUnansweredQuestionsInReadonlyForms } = useConfig({ externalModuleName: '@openmrs/esm-form-engine-app' });
 
   const evaluatedFields = useMemo(() => {
     return formFields?.map((field) => {
@@ -40,8 +38,7 @@ export const useEvaluateFormFieldExpressions = (
           });
         }
       } else {
-        field.isHidden =
-          hideUnansweredQuestionsInReadonlyForms && sessionMode === 'embedded-view' && !hasAnswer(field, formValues);
+        field.isHidden = false;
       }
       // evaluate required
       if (typeof field.required === 'object' && field.required.type === 'conditionalRequired') {
@@ -151,9 +148,4 @@ export const useEvaluateFormFieldExpressions = (
 
 function isNotBooleanString(str: string) {
   return str !== 'true' && str !== 'false';
-}
-
-function hasAnswer(field: any, formValues: Record<string, any>): boolean {
-  const value = formValues[field.id];
-  return !isEmpty(value);
 }
