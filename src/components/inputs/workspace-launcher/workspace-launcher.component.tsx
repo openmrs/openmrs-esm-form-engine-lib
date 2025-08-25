@@ -15,7 +15,7 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
 
   const handleLaunchWorkspace = () => {
     const workspaceName = field.questionOptions?.workspaceName;
-    // TODO: properly check if workspace name is valid 
+    // TODO: properly check if workspace name is valid
     // https://openmrs.atlassian.net/browse/O3-4976
     const isWorkspaceNameValid = true;
     if (!isWorkspaceNameValid) {
@@ -38,7 +38,9 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
       <div className={styles.label}>{t(field.label)}</div>
       <div className={styles.workspaceButton}>
         <Button disabled={isTrue(field.readonly)} onClick={handleLaunchWorkspace}>
-          {t(field.questionOptions?.buttonLabel) ?? t('launchWorkspace', 'Launch Workspace')}
+          {field.questionOptions.buttonLabel
+            ? t(field.questionOptions.buttonLabel)
+            : t('launchWorkspace', 'Launch Workspace')}
         </Button>
       </div>
     </div>

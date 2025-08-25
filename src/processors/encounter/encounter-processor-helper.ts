@@ -1,4 +1,5 @@
 import {
+  type AttachmentFieldValue,
   type FormField,
   type FormProcessorContextProps,
   type OpenmrsEncounter,
@@ -7,7 +8,7 @@ import {
   type PatientProgram,
   type PatientProgramPayload,
 } from '../../types';
-import { saveAttachment, savePatientIdentifier, saveProgramEnrollment } from '../../api';
+import { createAttachment, savePatientIdentifier, saveProgramEnrollment } from '../../api';
 import { hasRendering, hasSubmission } from '../../utils/common-utils';
 import dayjs from 'dayjs';
 import { assignedObsIds, constructObs, voidObs } from '../../adapters/obs-adapter';
@@ -144,19 +145,17 @@ export function savePatientPrograms(patientPrograms: PatientProgramPayload[]) {
 export function saveAttachments(fields: FormField[], encounter: OpenmrsEncounter, abortController: AbortController) {
   const complexFields = fields?.filter((field) => field?.questionOptions.rendering === 'file' && hasSubmission(field));
 
-  if (!complexFields?.length) return [];
+  if (!complexFields?.length) {
+    return [];
+  }
 
-  return complexFields.map((field) => {
+  const allPromises = complexFields.flatMap((field) => {
     const patientUuid = typeof encounter?.patient === 'string' ? encounter?.patient : encounter?.patient?.uuid;
-    return saveAttachment(
-      patientUuid,
-      field,
-      field?.questionOptions.concept,
-      new Date().toISOString(),
-      encounter?.uuid,
-      abortController,
-    );
+    const attachments = (field.meta.submission.newValue as AttachmentFieldValue[]) ?? [];
+    return attachments.map((attachment) => createAttachment(patientUuid, encounter.uuid, attachment));
   });
+
+  return Promise.all(allPromises);
 }
 
 export function getMutableSessionProps(context: FormContextProps) {
@@ -199,11 +198,14 @@ function processObsField(obsForSubmission: OpenmrsObs[], field: FormField) {
 
   if (field.type === 'obsGroup') {
     processObsGroup(obsForSubmission, field);
-  } else if (hasSubmission(field)) {
-    // For non-group obs with a submission
-    addObsToList(obsForSubmission, field.meta.submission.newValue);
-    addObsToList(obsForSubmission, field.meta.submission.voidedValue);
+    return;
   }
+
+  // new attachments will be processed later
+  if (!hasRendering(field, 'file')) {
+    addObsToList(obsForSubmission, field.meta.submission.newValue);
+  }
+  addObsToList(obsForSubmission, field.meta.submission.voidedValue);
 }
 
 function processObsGroup(obsForSubmission: OpenmrsObs[], groupField: FormField) {
@@ -257,7 +259,7 @@ function hasSubmittableObs(field: FormField) {
     type,
   } = field;
 
-  if (isTransient || !['obs', 'obsGroup'].includes(type) || hasRendering(field, 'file') || field.meta.groupId) {
+  if (isTransient || !['obs', 'obsGroup'].includes(type) || field.meta.groupId) {
     return false;
   }
   if ((field.isHidden || field.isParentHidden) && field.meta.initialValue?.omrsObject) {
