@@ -33,6 +33,9 @@ import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { usePatientPrograms } from '../../hooks/usePatientPrograms';
 import { type TOptions } from 'i18next';
 
+export { useCustomHooks };
+export { FormSchema };
+
 function useCustomHooks(context: Partial<FormProcessorContextProps>) {
   const [isLoading, setIsLoading] = useState(true);
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(context.formJson);
