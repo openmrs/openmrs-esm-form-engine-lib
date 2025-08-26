@@ -1,11 +1,10 @@
 import dayjs from 'dayjs';
 import { ConceptTrue, codedTypes } from '../constants';
 import {
+  type Attachment,
   type OpenmrsObs,
   type FormField,
   type OpenmrsEncounter,
-  type AttachmentResponse,
-  type Attachment,
   type ValueAndDisplay,
   type FormFieldValueAdapter,
 } from '../types';
@@ -19,8 +18,7 @@ import {
 } from '../utils/common-utils';
 import { type FormContextProps } from '../provider/form-provider';
 import { isEmpty } from '../validators/form-validator';
-import { getAttachmentByUuid } from '../api';
-import { formatDate, type OpenmrsResource, restBaseUrl } from '@openmrs/esm-framework';
+import { attachmentUrl, getAttachmentByUuid, type OpenmrsResource } from '@openmrs/esm-framework';
 
 // Temporarily holds observations that have already been bound with matching fields
 export let assignedObsIds: string[] = [];
@@ -28,15 +26,11 @@ export let assignedObsIds: string[] = [];
 export const ObsAdapter: FormFieldValueAdapter = {
   async getInitialValue(field: FormField, sourceObject: any, context: FormContextProps) {
     const encounter = sourceObject ?? (context.domainObjectValue as OpenmrsEncounter);
-    if (hasRendering(field, 'file')) {
-      const ac = new AbortController();
-      const attachmentsResponse = await getAttachmentByUuid(context.patient.id, encounter.uuid, ac);
-      // TODO: This seems like a violation of the data model.
-      // I think we should instead use something like `formFieldPath` to do the mapping.
-      const rawAttachment = attachmentsResponse.results?.find((attachment) => attachment.comment === field.id);
-      return rawAttachment ? generateAttachment(rawAttachment) : null;
+    const matchingObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field);
+    if (hasRendering(field, 'file') && matchingObs?.length) {
+      return resolveAttachmentsFromObs(field, matchingObs);
     }
-    return extractFieldValue(field, findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field), true);
+    return extractFieldValue(field, matchingObs, true);
   },
   async getPreviousValue(field: FormField, sourceObject: any, context: FormContextProps): Promise<ValueAndDisplay> {
     const encounter = sourceObject ?? (context.previousDomainObjectValue as OpenmrsEncounter);
@@ -84,6 +78,9 @@ export const ObsAdapter: FormFieldValueAdapter = {
     }
     if (hasRendering(field, 'checkbox')) {
       return handleMultiSelect(field, Array.isArray(value) ? value : [value]);
+    }
+    if (hasRendering(field, 'file')) {
+      return handleAttachments(field, value);
     }
     if (!isEmpty(value) && hasPreviousObsValueChanged(field, value)) {
       return gracefullySetSubmission(field, editObs(field, value), undefined);
@@ -251,6 +248,20 @@ function handleMultiSelect(field: FormField, values: Array<string> = []) {
   );
 }
 
+function handleAttachments(field: FormField, attachments: Attachment[] = []) {
+  const voided = attachments
+    .filter((attachment) => attachment.uuid && attachment.voided)
+    .map((voided) => ({ uuid: voided.uuid, voided: true }));
+  const newAttachments = (field.meta.submission.newValue = attachments
+    .filter((attachment) => !attachment.uuid)
+    .map((newAttachment) => ({
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: `rfe-forms-${field.id}`,
+      ...newAttachment,
+    })));
+  return gracefullySetSubmission(field, newAttachments, voided);
+}
+
 /**
  * Retrieves a list of observations from a given `obsList` that correspond to the specified field.
  *
@@ -263,9 +274,15 @@ export function findObsByFormField(
   claimedObsIds: string[],
   field: FormField,
 ): OpenmrsObs[] {
-  const obs = obsList.filter(
-    (o) => o.formFieldPath == `rfe-forms-${field.id}` && o.concept.uuid == field.questionOptions.concept,
-  );
+  const obs = obsList.filter((candidate) => {
+    // we ignore the concept for attachments because they're managed from the backend
+    if (hasRendering(field, 'file') && candidate.formFieldPath == `rfe-forms-${field.id}`) {
+      return true;
+    }
+    return (
+      candidate.formFieldPath == `rfe-forms-${field.id}` && candidate.concept.uuid == field.questionOptions.concept
+    );
+  });
 
   // We shall fall back to mapping by the associated concept
   // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
@@ -277,17 +294,27 @@ export function findObsByFormField(
   return obs;
 }
 
-function generateAttachment(rawAttachment: AttachmentResponse): Attachment {
-  const attachmentUrl = `${restBaseUrl}/attachment`;
-  return {
-    id: rawAttachment.uuid,
-    src: `${window.openmrsBase}${attachmentUrl}/${rawAttachment.uuid}/bytes`,
-    title: rawAttachment.comment,
-    description: '',
-    dateTime: formatDate(new Date(rawAttachment.dateTime), {
-      mode: 'wide',
-    }),
-    bytesMimeType: rawAttachment.bytesMimeType,
-    bytesContentFamily: rawAttachment.bytesContentFamily,
+async function resolveAttachmentsFromObs(field: FormField, obs: OpenmrsObs[]) {
+  const abortController = new AbortController();
+  const attachments = await Promise.all(
+    obs.map((obs) =>
+      getAttachmentByUuid(obs.uuid, abortController)
+        .then((response) => response.data)
+        .catch((error) => {
+          console.error(`Failed to fetch attachment ${obs.uuid}:`, error);
+          return null;
+        }),
+    ),
+  );
+
+  field.meta.initialValue = {
+    omrsObject: obs,
   };
+  return attachments.filter(Boolean).map((attachment) => ({
+    uuid: attachment.uuid,
+    base64Content: `${window.openmrsBase}${attachmentUrl}/${attachment.uuid}/bytes`,
+    fileName: attachment.filename,
+    fileDescription: attachment.comment,
+    fileType: attachment.bytesContentFamily?.toLowerCase(),
+  })) as Attachment[];
 }

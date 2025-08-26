@@ -185,9 +185,8 @@ export class EncounterFormProcessor extends FormProcessor {
       }
       // handle attachments
       try {
-        const attachmentsResponse = await Promise.all(
-          saveAttachments(context.formFields, savedEncounter, abortController),
-        );
+        const attachmentsResponse = await saveAttachments(context.formFields, savedEncounter, abortController);
+
         if (attachmentsResponse?.length) {
           showSnackbar({
             title: t('attachmentsSaved', 'Attachment(s) saved successfully'),
@@ -196,6 +195,7 @@ export class EncounterFormProcessor extends FormProcessor {
           });
         }
       } catch (error) {
+        console.error('Error saving attachments', error);
         const errorMessages = extractErrorMessagesFromResponse(error);
         return Promise.reject({
           title: t('errorSavingAttachments', 'Error saving attachment(s)'),
@@ -206,6 +206,7 @@ export class EncounterFormProcessor extends FormProcessor {
       }
       return savedEncounter;
     } catch (error) {
+      console.error('Error saving encounter', error);
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: t('errorSavingEncounter', 'Error saving encounter'),

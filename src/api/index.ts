@@ -1,6 +1,12 @@
-import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { attachmentUrl, fhirBaseUrl, openmrsFetch, restBaseUrl, type UploadedFile } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
-import type { FHIRObsResource, OpenmrsForm, PatientIdentifier, PatientProgramPayload } from '../types';
+import type {
+  AttachmentFieldValue,
+  FHIRObsResource,
+  OpenmrsForm,
+  PatientIdentifier,
+  PatientProgramPayload,
+} from '../types';
 import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
@@ -18,39 +24,26 @@ export function saveEncounter(abortController: AbortController, payload, encount
   });
 }
 
-export function saveAttachment(patientUuid, field, conceptUuid, date, encounterUUID, abortController) {
-  const url = `${restBaseUrl}/attachment`;
-
-  const content = field.meta.submission?.newValue?.value;
-  const cameraUploadType = typeof content === 'string' && content?.split(';')[0].split(':')[1].split('/')[1];
-
+export async function createAttachment(patientUuid: string, encounterUUID: string, attachment: AttachmentFieldValue) {
   const formData = new FormData();
-  const fileCaption = field.id;
 
-  formData.append('fileCaption', fileCaption);
+  formData.append('fileCaption', attachment.fileDescription);
   formData.append('patient', patientUuid);
 
-  if (typeof content === 'object') {
-    formData.append('file', content);
+  if (attachment.file) {
+    formData.append('file', attachment.file, attachment.fileName);
   } else {
-    formData.append('file', new File([''], `camera-upload.${cameraUploadType}`), `camera-upload.${cameraUploadType}`);
-    formData.append('base64Content', content);
+    formData.append('file', new File([''], attachment.fileName), attachment.fileName);
+    formData.append('base64Content', attachment.base64Content);
   }
   formData.append('encounter', encounterUUID);
-  formData.append('obsDatetime', date);
+  formData.append('formFieldNamespace', attachment.formFieldNamespace);
+  formData.append('formFieldPath', attachment.formFieldPath);
 
-  return openmrsFetch(url, {
+  return openmrsFetch(`${attachmentUrl}`, {
     method: 'POST',
-    signal: abortController.signal,
     body: formData,
   });
-}
-
-export function getAttachmentByUuid(patientUuid: string, encounterUuid: string, abortController: AbortController) {
-  const attachmentUrl = `${restBaseUrl}/attachment`;
-  return openmrsFetch(`${attachmentUrl}?patient=${patientUuid}&encounter=${encounterUuid}`, {
-    signal: abortController.signal,
-  }).then((response) => response.data);
 }
 
 export function getConcept(conceptUuid: string, v: string) {

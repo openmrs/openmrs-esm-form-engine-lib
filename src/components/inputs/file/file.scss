@@ -1,101 +1,21 @@
 @use '@carbon/layout';
 
 .label {
-  font-family: IBM Plex Sans;
-  font-size: 14px;
-  font-style: normal;
   font-weight: 600;
-  line-height: 30px; /* 128.571% */
-  letter-spacing: 0.16px;
+  line-height: 30px;
   color: #000000;
 }
 
-.saveFile {
-  margin: 0;
-}
-
-.capturedImage {
-  width: 100%;
-}
-
-.caption {
-  display: flex;
-}
-
-.closeIcon {
-  margin: 0 1rem;
-}
-
-.uploadSelector {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
+.thumbnailGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 7rem);
   gap: layout.$spacing-05;
+  margin-top: layout.$spacing-05;
 }
 
-.caption {
+.thumbnailContainer {
   display: flex;
-  margin-top: 5px;
-}
-
-.imageDescription {
-  margin-top: 5px;
-}
-
-.fileUploader {
-  background-color: rgb(255, 255, 255);
-  padding: 1rem;
-}
-
-.cameraUploader {
-  margin: 1rem 0;
-  background-color: white;
-  padding: 1rem;
-}
-
-.camButton {
-  margin-bottom: 1rem;
-}
-
-.cameraPreview {
-  margin-top: 1rem;
-}
-
-.imageContent {
-  padding: 0;
-  margin: 0;
-}
-
-.titleStyles {
-  color: #161616;
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.16px;
-  line-height: 1.2857;
-  margin-bottom: 0.5rem;
-}
-
-.descriptionStyles {
-  color: #525252;
-  font-size: 0.875rem;
-  font-weight: 400;
-  letter-spacing: 0.16px;
-  line-height: 1.28572;
-  margin-bottom: 1rem;
-}
-
-.editModeImage {
-  background-color: white;
-  padding: 1rem;
-}
-
-.pdfThumbnail {
-  cursor: pointer;
-  background-color: gray;
-  display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  width: 5rem;
-  height: 5rem;
+  position: relative;
 }

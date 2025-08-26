@@ -1076,9 +1076,12 @@ describe('Form engine component', () => {
       await user.click(addButton);
 
       expect(screen.getByRole('button', { name: /Remove/i })).toBeInTheDocument();
-      expect(screen.getAllByRole('radio', { name: /^male$/i }).length).toEqual(2);
-      expect(screen.getAllByRole('radio', { name: /^female$/i }).length).toEqual(2);
-      expect(screen.getAllByRole('textbox', { name: /date of birth/i }).length).toEqual(2);
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('radio', { name: /^male$/i })).toHaveLength(2);
+        expect(screen.getAllByRole('radio', { name: /female/i })).toHaveLength(2);
+        expect(screen.getAllByRole('textbox', { name: /date of birth/i })).toHaveLength(2);
+      });
     });
 
     it('should test deletion of a group', async () => {

@@ -1,3 +1,4 @@
+import { getAttachmentByUuid } from '@openmrs/esm-framework';
 import { type FormContextProps } from '../provider/form-provider';
 import { type FormField } from '../types';
 import { findObsByFormField, hasPreviousObsValueChanged, ObsAdapter } from './obs-adapter';
@@ -39,6 +40,9 @@ const formContext = {
   setForm: jest.fn(),
   setDeletedFields: jest.fn(),
 } as FormContextProps;
+
+window.openmrsBase = 'openmrs';
+const mockGetAttachmentByUuid = jest.mocked(getAttachmentByUuid);
 
 describe('ObsAdapter - transformFieldValue', () => {
   // new submission (enter mode)
@@ -186,6 +190,42 @@ describe('ObsAdapter - transformFieldValue', () => {
       formFieldPath: 'rfe-forms-hts-result',
       value: 'n8hynk0j-c1fd-117g-8529-0242ac1hgc9j',
     });
+  });
+
+  it('should handle value transformation for file input', () => {
+    // setup
+    const field: FormField = {
+      label: "Upload an image or use this device's camera to capture an image",
+      type: 'obs',
+      questionOptions: {
+        rendering: 'file',
+      },
+      meta: {},
+      id: 'demoFile',
+    };
+    // value
+    const image = {
+      base64Content: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAoA',
+      capturedFromWebcam: true,
+      fileDescription: '',
+      fileName: 'Image taken from camera.png',
+      fileType: 'image',
+    };
+
+    // replay
+    const obs = ObsAdapter.transformFieldValue(field, [image], formContext);
+    // verify
+    expect(obs).toEqual([
+      {
+        base64Content: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAoA',
+        capturedFromWebcam: true,
+        fileDescription: '',
+        fileName: 'Image taken from camera.png',
+        fileType: 'image',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-demoFile',
+      },
+    ]);
   });
 
   // editing existing values (edit mode)
@@ -519,6 +559,39 @@ describe('ObsAdapter - transformFieldValue', () => {
     });
     expect(field.meta.submission.newValue).toBe(null);
   });
+
+  it('should void deleted files', () => {
+    // setup
+    const field: FormField = {
+      label: "Upload an image or use this device's camera to capture an image",
+      type: 'obs',
+      questionOptions: {
+        rendering: 'file',
+      },
+      meta: {
+        initialValue: {
+          omrsObject: {
+            uuid: '6ff51289-b334-4050-8a0e-28cb2034bfc3',
+            formFieldPath: 'rfe-forms-demoFile',
+          },
+        },
+      },
+      id: 'demoFile',
+    };
+    // replay
+    ObsAdapter.transformFieldValue(
+      field,
+      [{ uuid: '6ff51289-b334-4050-8a0e-28cb2034bfc3', voided: true }],
+      formContext,
+    );
+    // verify
+    expect(field.meta.submission.voidedValue).toEqual([
+      {
+        uuid: '6ff51289-b334-4050-8a0e-28cb2034bfc3',
+        voided: true,
+      },
+    ]);
+  });
 });
 
 describe('ObsAdapter - getInitialValue', () => {
@@ -661,6 +734,49 @@ describe('ObsAdapter - getInitialValue', () => {
     const initialValue = await ObsAdapter.getInitialValue(field, formContext.domainObjectValue, formContext);
     // verify
     expect(initialValue).toEqual('12f7be3d-fb5d-47dc-b5e3-56c501be80a6');
+  });
+
+  it('should get initial value for file rendering', async () => {
+    // setup
+    const field: FormField = {
+      label: "Upload an image or use this device's camera to capture an image",
+      type: 'obs',
+      questionOptions: {
+        rendering: 'file',
+      },
+      meta: {},
+      id: 'demoFile',
+    };
+
+    const obs = {
+      uuid: '6ff51289-b334-4050-8a0e-28cb2034bfc3',
+      formFieldPath: 'rfe-forms-demoFile',
+    };
+    formContext.domainObjectValue['obs'].push(obs);
+    mockGetAttachmentByUuid.mockReturnValue(
+      Promise.resolve({
+        data: {
+          uuid: '6ff51289-b334-4050-8a0e-28cb2034bfc3',
+          dateTime: '2025-08-21T19:31:39.000+0000',
+          filename: 'image.png',
+          comment: 'An image captured for test purposes',
+          bytesMimeType: 'image/png',
+          bytesContentFamily: 'IMAGE',
+        },
+      } as any),
+    );
+
+    // replay
+    const initialValue = await ObsAdapter.getInitialValue(field, formContext.domainObjectValue, formContext);
+    expect(initialValue).toEqual([
+      {
+        uuid: '6ff51289-b334-4050-8a0e-28cb2034bfc3',
+        base64Content: 'openmrs/ws/rest/v1/attachment/6ff51289-b334-4050-8a0e-28cb2034bfc3/bytes',
+        fileName: 'image.png',
+        fileDescription: 'An image captured for test purposes',
+        fileType: 'image',
+      },
+    ]);
   });
 
   it('should get initial values for obs-group members', async () => {
@@ -952,6 +1068,7 @@ describe('findObsByFormField', () => {
   it('Should find observation by field path', () => {
     // do find
     let matchedObs = findObsByFormField(obsList, [], fields[0]);
+
     // verify
     expect(matchedObs.length).toBe(1);
     expect(matchedObs[0]).toBe(obsList[0]);
