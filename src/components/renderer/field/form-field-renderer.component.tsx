@@ -39,9 +39,22 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
   const [warnings, setWarnings] = useState<ValidationResult[]>([]);
   const [historicalValue, setHistoricalValue] = useState<ValueAndDisplay>(null);
   const context = useFormProviderContext();
-  const { hideUnansweredQuestionsInReadonlyForms } = useConfig({
-    externalModuleName: '@openmrs/esm-form-engine-app',
-  });
+
+  // Try to get config from external module, fallback to default if not available
+  let hideUnansweredQuestionsInReadonlyForms = false;
+  try {
+    const config = useConfig({
+      externalModuleName: '@openmrs/esm-form-engine-app',
+    });
+    hideUnansweredQuestionsInReadonlyForms = config?.hideUnansweredQuestionsInReadonlyForms ?? false;
+  } catch (error) {
+    // If external module config is not available, use default value
+    console.warn(
+      'Could not load external module config, using default value for hideUnansweredQuestionsInReadonlyForms:',
+      error,
+    );
+    hideUnansweredQuestionsInReadonlyForms = false;
+  }
 
   const {
     methods: { control, getValues, getFieldState },
