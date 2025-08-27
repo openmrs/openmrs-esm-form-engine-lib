@@ -50,7 +50,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
   } catch (error) {
     // If external module config is not available, use default value
     console.warn(
-      'Could not load external module config, using default value for hideUnansweredQuestionsInReadonlyForms:',
+      'Failed to load @openmrs/esm-form engine-app config - using hideUnansweredQuestionsInReadonlyForms=false (empty fields will be visible in readonly mode): '
       error,
     );
   }
