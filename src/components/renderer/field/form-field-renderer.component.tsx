@@ -53,7 +53,6 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
       'Could not load external module config, using default value for hideUnansweredQuestionsInReadonlyForms:',
       error,
     );
-    hideUnansweredQuestionsInReadonlyForms = false;
   }
 
   const {
