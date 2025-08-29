@@ -3280,7 +3280,7 @@ __metadata:
     webpack-cli: "npm:^6.0.1"
     webpack-dev-server: "npm:^5.2.1"
   peerDependencies:
-    "@openmrs/esm-framework": 7.x
+    "@openmrs/esm-framework": 8.x
     dayjs: 1.x
     i18next: 23.x
     react: 18.x
