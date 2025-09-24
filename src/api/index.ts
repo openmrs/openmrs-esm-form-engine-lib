@@ -4,6 +4,7 @@ import type {
   AttachmentFieldValue,
   FHIRObsResource,
   OpenmrsForm,
+  PatientDeathPayload,
   PatientIdentifier,
   PatientProgramPayload,
 } from '../types';
@@ -174,5 +175,24 @@ export function savePatientIdentifier(patientIdentifier: PatientIdentifier, pati
     },
     method: 'POST',
     body: JSON.stringify(patientIdentifier),
+  });
+}
+
+export function markPatientAsDeceased(
+  patientUUID: string,
+  payload: PatientDeathPayload,
+  abortController: AbortController,
+) {
+  if (!payload) {
+    throw new Error('Patient cannot be marked as deceased because no payload is supplied');
+  }
+  const url = `${restBaseUrl}/person/${patientUUID}`;
+  return openmrsFetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+    signal: abortController.signal,
   });
 }
