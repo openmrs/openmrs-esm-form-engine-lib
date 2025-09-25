@@ -1,3 +1,4 @@
+import type { TFunction } from 'react-i18next';
 import { attachmentUrl, fhirBaseUrl, openmrsFetch, restBaseUrl, type UploadedFile } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
 import type {
@@ -155,7 +156,7 @@ export function saveProgramEnrollment(payload: PatientProgramPayload, abortContr
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(payload),
+    body: payload,
     signal: abortController.signal,
   });
 }
@@ -179,12 +180,18 @@ export function savePatientIdentifier(patientIdentifier: PatientIdentifier, pati
 }
 
 export function markPatientAsDeceased(
+  t: TFunction,
   patientUUID: string,
   payload: PatientDeathPayload,
   abortController: AbortController,
 ) {
   if (!payload) {
-    throw new Error('Patient cannot be marked as deceased because no payload is supplied');
+    throw new Error(
+      t(
+        'patientCannotBeMarkedAsDeceasedBecauseNoPayloadSupplied',
+        'Patient cannot be marked as deceased because no payload is supplied',
+      ),
+    );
   }
   const url = `${restBaseUrl}/person/${patientUUID}`;
   return openmrsFetch(url, {
@@ -192,7 +199,7 @@ export function markPatientAsDeceased(
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(payload),
+    body: payload,
     signal: abortController.signal,
   });
 }

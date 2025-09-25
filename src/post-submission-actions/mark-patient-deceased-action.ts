@@ -2,14 +2,12 @@ import dayjs from 'dayjs';
 import { showSnackbar, translateFrom } from '@openmrs/esm-framework';
 import { markPatientAsDeceased } from '../api';
 import { extractErrorMessagesFromResponse } from '../utils/error-utils';
-import { type TOptions } from 'i18next';
 import type { PostSubmissionAction, PatientDeathPayload } from '../types';
 import { formEngineAppName } from '../globals';
 
 export const MarkPatientAsDeceasedAction: PostSubmissionAction = {
   applyAction: async function ({ patient, encounters, sessionMode }, config) {
-    const t = (key: string, defaultValue: string, options?: Omit<TOptions, 'ns' | 'defaultValue'>) =>
-      translateFrom(formEngineAppName, key, defaultValue, options);
+    const t = translateFrom.bind(null, formEngineAppName);
     const encounter = encounters[0];
 
     if (sessionMode === 'view') {
@@ -17,16 +15,16 @@ export const MarkPatientAsDeceasedAction: PostSubmissionAction = {
     }
 
     if (patient._deceasedBoolean || patient.deceasedDateTime) {
-      throw new Error('Patient is already marked as deceased');
+      throw new Error(t('patientIsAlreadyMarkedAsDeceased', 'Patient is already marked as deceased'));
     }
 
     const causeOfDeathQuestionId = config.causeOfDeathQuestionId;
     const dateOfDeathQuestionId = config.dateOfDeathQuestionId;
     if (!causeOfDeathQuestionId) {
-      throw new Error('Cause of death question ID is not configured');
+      throw new Error(t('causeOfDeathQuestionIdIsNotConfigured', 'Cause of death question ID is not configured'));
     }
     if (!dateOfDeathQuestionId) {
-      throw new Error('Date of death question ID is not configured');
+      throw new Error(t('dateOfDeathQuestionIdIsNotConfigured', 'Date of death question ID is not configured'));
     }
     const causeOfDeath: string = encounter.obs?.find((item) => {
       return item.formFieldPath.includes(causeOfDeathQuestionId);
@@ -42,7 +40,7 @@ export const MarkPatientAsDeceasedAction: PostSubmissionAction = {
     };
     const abortController = new AbortController();
 
-    markPatientAsDeceased(patient.id, deathPayload, abortController).then(
+    markPatientAsDeceased(t, patient.id, deathPayload, abortController).then(
       (response) => {
         showSnackbar({
           kind: 'success',
