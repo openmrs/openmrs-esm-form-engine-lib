@@ -26,12 +26,17 @@ export const MarkPatientAsDeceasedAction: PostSubmissionAction = {
     if (!dateOfDeathQuestionId) {
       throw new Error(t('dateOfDeathQuestionIdIsNotConfigured', 'Date of death question ID is not configured'));
     }
+
     const causeOfDeath: string = encounter.obs?.find((item) => {
       return item.formFieldPath.includes(causeOfDeathQuestionId);
     })?.value.uuid;
     const dateOfDeath: string = encounter.obs?.find((item) =>
       item.formFieldPath.includes(dateOfDeathQuestionId),
     )?.value;
+
+    if (!causeOfDeath) {
+      return;
+    }
 
     const deathPayload: PatientDeathPayload = {
       dead: true,
