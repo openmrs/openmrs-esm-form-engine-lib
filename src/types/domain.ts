@@ -185,6 +185,12 @@ export interface PatientProgramPayload {
   }>;
 }
 
+export interface PatientDeathPayload {
+  dead: boolean;
+  causeOfDeath: string;
+  deathDate: string;
+}
+
 export interface PatientIdentifier {
   uuid?: string;
   identifier: string;
