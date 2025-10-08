@@ -361,6 +361,154 @@ describe('CommonExpressionHelpers', () => {
       expect(result).toBe('resolved value');
     });
   });
+
+  describe('calcPHQ9Score', () => {
+    // PHQ-9 concept UUIDs
+    const NOT_AT_ALL = '160215AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+    const SEVERAL_DAYS = '167000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+    const MORE_THAN_HALF = '167001AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+    const NEARLY_EVERY_DAY = '167002AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+
+    it('should return 0 for PHQ-2 negative screen (both "Not at all")', () => {
+      const score = helpers.calcPHQ9Score(NOT_AT_ALL, NOT_AT_ALL);
+      expect(score).toBe(0);
+    });
+
+    it('should return correct score for PHQ-2 screening', () => {
+      const score = helpers.calcPHQ9Score(SEVERAL_DAYS, MORE_THAN_HALF);
+      expect(score).toBe(3); // 1 + 2
+    });
+
+    it('should return correct score for full PHQ-9', () => {
+      const responses = [
+        NOT_AT_ALL, // 0
+        SEVERAL_DAYS, // 1
+        MORE_THAN_HALF, // 2
+        NEARLY_EVERY_DAY, // 3
+        NOT_AT_ALL, // 0
+        SEVERAL_DAYS, // 1
+        MORE_THAN_HALF, // 2
+        NEARLY_EVERY_DAY, // 3
+        NOT_AT_ALL, // 0
+      ];
+      const score = helpers.calcPHQ9Score(...responses);
+      expect(score).toBe(12); // 0+1+2+3+0+1+2+3+0
+    });
+
+    it('should return maximum score (27) for all "Nearly every day" responses', () => {
+      const responses = Array(9).fill(NEARLY_EVERY_DAY);
+      const score = helpers.calcPHQ9Score(...responses);
+      expect(score).toBe(27); // 9 * 3
+    });
+
+    it('should handle null/undefined responses as 0 points', () => {
+      const responses = [NOT_AT_ALL, null, undefined, SEVERAL_DAYS, null];
+      const score = helpers.calcPHQ9Score(...responses);
+      expect(score).toBe(1); // 0 + 0 + 0 + 1 + 0
+    });
+
+    it('should handle mixed null/undefined responses in full PHQ-9', () => {
+      const responses = [
+        NOT_AT_ALL, // 0
+        null, // 0
+        SEVERAL_DAYS, // 1
+        undefined, // 0
+        MORE_THAN_HALF, // 2
+        NEARLY_EVERY_DAY, // 3
+        null, // 0
+        SEVERAL_DAYS, // 1
+        undefined, // 0
+      ];
+      const score = helpers.calcPHQ9Score(...responses);
+      expect(score).toBe(7); // 0+0+1+0+2+3+0+1+0
+    });
+
+    it('should handle empty responses array', () => {
+      const score = helpers.calcPHQ9Score();
+      expect(score).toBe(0);
+    });
+
+    it('should handle single response', () => {
+      const score = helpers.calcPHQ9Score(SEVERAL_DAYS);
+      expect(score).toBe(1);
+    });
+
+    it('should handle unknown concept UUIDs with warning', () => {
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const unknownConcept = 'unknown-concept-uuid';
+
+      const score = helpers.calcPHQ9Score(NOT_AT_ALL, unknownConcept, SEVERAL_DAYS);
+
+      expect(score).toBe(1); // 0 + 0 + 1
+      expect(consoleSpy).toHaveBeenCalledWith(`Unknown PHQ-9 response concept: ${unknownConcept}`);
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle all unknown concept UUIDs', () => {
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const unknownConcept = 'unknown-concept-uuid';
+
+      const score = helpers.calcPHQ9Score(unknownConcept, unknownConcept);
+
+      expect(score).toBe(0);
+      expect(consoleSpy).toHaveBeenCalledTimes(2);
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle PHQ-2 with hidden questions (nulls)', () => {
+      // Simulates PHQ-2 negative screen where questions 3-9 are hidden
+      const responses = [
+        NOT_AT_ALL, // phq2_1: 0
+        NOT_AT_ALL, // phq2_2: 0
+        null, // phq9_3: hidden
+        null, // phq9_4: hidden
+        null, // phq9_5: hidden
+        null, // phq9_6: hidden
+        null, // phq9_7: hidden
+        null, // phq9_8: hidden
+        null, // phq9_9: hidden
+      ];
+      const score = helpers.calcPHQ9Score(...responses);
+      expect(score).toBe(0);
+    });
+
+    it('should handle PHQ-2 positive screen with full PHQ-9', () => {
+      // Simulates PHQ-2 positive screen where all questions are answered
+      const responses = [
+        SEVERAL_DAYS, // phq2_1: 1
+        MORE_THAN_HALF, // phq2_2: 2
+        NOT_AT_ALL, // phq9_3: 0
+        SEVERAL_DAYS, // phq9_4: 1
+        MORE_THAN_HALF, // phq9_5: 2
+        NEARLY_EVERY_DAY, // phq9_6: 3
+        NOT_AT_ALL, // phq9_7: 0
+        SEVERAL_DAYS, // phq9_8: 1
+        MORE_THAN_HALF, // phq9_9: 2
+      ];
+      const score = helpers.calcPHQ9Score(...responses);
+      expect(score).toBe(12); // 1+2+0+1+2+3+0+1+2
+    });
+
+    it('should handle edge case with all "Not at all" responses', () => {
+      const responses = Array(9).fill(NOT_AT_ALL);
+      const score = helpers.calcPHQ9Score(...responses);
+      expect(score).toBe(0);
+    });
+
+    it('should handle edge case with all "Several days" responses', () => {
+      const responses = Array(9).fill(SEVERAL_DAYS);
+      const score = helpers.calcPHQ9Score(...responses);
+      expect(score).toBe(9); // 9 * 1
+    });
+
+    it('should handle edge case with all "More than half the days" responses', () => {
+      const responses = Array(9).fill(MORE_THAN_HALF);
+      const score = helpers.calcPHQ9Score(...responses);
+      expect(score).toBe(18); // 9 * 2
+    });
+  });
 });
 
 describe('simpleHash', () => {
