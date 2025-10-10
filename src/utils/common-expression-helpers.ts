@@ -467,6 +467,45 @@ export class CommonExpressionHelpers {
   resolve = (lazy: Promise<unknown>) => {
     return Promise.resolve(lazy);
   };
+
+  /**
+   * Calculates PHQ-9 (Patient Health Questionnaire-9) depression screening score
+   * Supports both PHQ-2 (questions 1-2) and full PHQ-9 (questions 1-9)
+   * Handles hidden/conditional questions by treating undefined/null values as 0
+   *
+   * @param responses - Variable number of PHQ question responses (concept UUIDs)
+   * @returns Total score (0-27 for full PHQ-9, 0-6 for PHQ-2 only)
+   *
+   * @example
+   * // PHQ-2 negative screen (questions 3-9 hidden)
+   * calcPHQ9Score(phq2_1, phq2_2, phq9_3, phq9_4, phq9_5, phq9_6, phq9_7, phq9_8, phq9_9)
+   * // Returns: 0 if both answered "Not at all"
+   *
+   * @example
+   * // Full PHQ-9
+   * calcPHQ9Score(phq2_1, phq2_2, phq9_3, phq9_4, phq9_5, phq9_6, phq9_7, phq9_8, phq9_9)
+   * // Returns: Sum of all 9 responses (0-27)
+   */
+  calcPHQ9Score = (...responses: (string | null | undefined)[]): number => {
+    const scoreMap: Record<string, number> = {
+      '160215AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA': 0, // Not at all
+      '167000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA': 1, // Several days
+      '167001AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA': 2, // More than half the days
+      '167002AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA': 3, // Nearly every day
+    };
+
+    return responses.reduce((sum, answer) => {
+      if (!answer) return sum;
+
+      const score = scoreMap[answer];
+      if (score === undefined) {
+        console.warn(`Unknown PHQ-9 response concept: ${answer}`);
+        return sum;
+      }
+
+      return sum + score;
+    }, 0);
+  };
 }
 
 /**
