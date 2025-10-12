@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { type OpenmrsResource, showSnackbar, translateFrom } from '@openmrs/esm-framework';
+import { type OpenmrsResource, showSnackbar, translateFrom, compile, extractVariableNames } from '@openmrs/esm-framework';
 import {
   getMutableSessionProps,
   hydrateRepeatField,
@@ -19,9 +19,10 @@ import {
   type FormSection,
   type ValueAndDisplay,
 } from '../../types';
-import { evaluateAsyncExpression, type FormNode } from '../../utils/expression-runner';
+import { evaluateAsyncExpression, type FormNode, trackFieldDependenciesFromString } from '../../utils/expression-runner';
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
 import { extractObsValueAndDisplay } from '../../utils/form-helper';
+import { extractVariableNamesFromExpression } from '../../utils/variable-extractor';
 import { FormProcessor } from '../form-processor';
 import { getPreviousEncounter, saveEncounter } from '../../api';
 import { hasRendering } from '../../utils/common-utils';
@@ -274,7 +275,8 @@ export class EncounterFormProcessor extends FormProcessor {
       const filteredFields = formFields.filter(
         (field) => field.questionOptions.rendering !== 'group' && field.type !== 'obsGroup',
       );
-      const fieldsWithCalculateExpressions = [];
+
+      // Initialize basic values first
       await Promise.all(
         filteredFields.map(async (field) => {
           const adapter = formFieldAdapters[field.type];
@@ -289,20 +291,31 @@ export class EncounterFormProcessor extends FormProcessor {
           if (field.questionOptions.defaultValue) {
             initialValues[field.id] = inferInitialValueFromDefaultFieldValue(field);
           }
-          if (field.questionOptions.calculate?.calculateExpression) {
-            fieldsWithCalculateExpressions.push(field);
-          }
         }),
       );
-      await Promise.all(
-        fieldsWithCalculateExpressions.map(async (field) => {
-          try {
-            await evaluateCalculateExpression(field, initialValues, context);
-          } catch (error) {
-            console.error(error);
-          }
-        }),
+
+      // Evaluate calculate expressions in dependency order
+      const fieldsWithCalculateExpressions = filteredFields.filter(
+        (field) => field.questionOptions.calculate?.calculateExpression
       );
+
+      if (fieldsWithCalculateExpressions.length > 0) {
+        // Build dependency graph and get evaluation order
+        const dependencyGraph = buildDependencyGraph(fieldsWithCalculateExpressions);
+        const evaluationOrder = topologicalSort(dependencyGraph);
+
+        // Evaluate fields in dependency order
+        for (const fieldId of evaluationOrder) {
+          const field = fieldsWithCalculateExpressions.find(f => f.id === fieldId);
+          if (field) {
+            try {
+              await evaluateCalculateExpression(field, initialValues, context);
+            } catch (error) {
+              console.error(`Error evaluating calculate expression for field ${field.id}:`, error);
+            }
+          }
+        }
+      }
     }
     return initialValues;
   }
@@ -364,4 +377,93 @@ async function evaluateCalculateExpression(
   if (!isEmpty(value)) {
     values[field.id] = value;
   }
+}
+
+/**
+ * Extracts dependencies from a calculate expression by parsing the JavaScript code
+ */
+export function extractDependencies(expression: string): string[] {
+  try {
+    // First try using the framework's extractVariableNames function if available
+    if (typeof extractVariableNames === 'function') {
+      return extractVariableNames(expression);
+    }
+
+    // Fallback to our AST-based extraction for more accurate parsing
+    return extractVariableNamesFromExpression(expression);
+  } catch (error) {
+    console.warn('Failed to extract dependencies from expression:', expression, error);
+    return [];
+  }
+}
+
+/**
+ * Builds a dependency graph for calculate expressions
+ */
+export function buildDependencyGraph(fields: FormField[]): Map<string, string[]> {
+  const graph = new Map<string, string[]>();
+
+  for (const field of fields) {
+    if (field.questionOptions?.calculate?.calculateExpression) {
+      const dependencies = extractDependencies(field.questionOptions.calculate.calculateExpression);
+      // Filter dependencies to only include other field IDs
+      const fieldDependencies = dependencies.filter(dep =>
+        fields.some(f => f.id === dep)
+      );
+      graph.set(field.id, fieldDependencies);
+    } else {
+      graph.set(field.id, []);
+    }
+  }
+
+  return graph;
+}
+
+/**
+ * Performs topological sort on the dependency graph
+ */
+export function topologicalSort(graph: Map<string, string[]>): string[] {
+  const visited = new Set<string>();
+  const visiting = new Set<string>();
+  const result: string[] = [];
+  const cycleDetected = new Set<string>();
+
+  function visit(node: string): void {
+    if (visiting.has(node)) {
+      // Cycle detected - mark it but continue processing
+      console.warn(`Circular dependency detected involving field: ${node}`);
+      cycleDetected.add(node);
+      return;
+    }
+    if (visited.has(node)) {
+      return;
+    }
+
+    visiting.add(node);
+
+    const dependencies = graph.get(node) || [];
+    for (const dep of dependencies) {
+      visit(dep);
+    }
+
+    visiting.delete(node);
+    visited.add(node);
+    result.push(node);
+  }
+
+  for (const node of graph.keys()) {
+    if (!visited.has(node)) {
+      visit(node);
+    }
+  }
+
+  // If we detected cycles, add the cycle nodes to the result anyway
+  // This ensures we don't lose any fields even with circular dependencies
+  for (const node of cycleDetected) {
+    if (!result.includes(node)) {
+      result.push(node);
+    }
+  }
+
+  return result;
 }

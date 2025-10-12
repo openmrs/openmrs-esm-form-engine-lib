@@ -1,0 +1,3 @@
+// ... existing exports ...
+
+export { extractVariableNamesFromExpression } from './variable-extractor';

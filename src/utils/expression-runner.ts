@@ -12,6 +12,7 @@ import {
   type VariablesMap,
   type Visit,
 } from '@openmrs/esm-framework';
+import { extractVariableNamesFromExpression } from './variable-extractor';
 
 export interface FormNode {
   value: FormPage | FormSection | FormField;
@@ -164,6 +165,45 @@ export function trackFieldDependencies(
     const field = allFields.find((field) => field.id === variable);
     if (field) {
       registerDependency(fieldNode, field);
+    }
+  }
+}
+
+/**
+ * Extracts dependencies from a raw expression string and registers them as dependencies.
+ * This is useful for dynamic expression changes during form entry.
+ * @param expression - The raw expression string to track dependencies for.
+ * @param fieldNode - The node representing the field.
+ * @param allFields - The list of all fields in the form.
+ */
+export function trackFieldDependenciesFromString(
+  expression: string,
+  fieldNode: FormNode,
+  allFields: FormField[],
+) {
+  if (!expression?.trim()) {
+    return;
+  }
+
+  // First try using the framework's compiled AST extraction
+  try {
+    const compiledExpression = getExpressionAst(expression);
+    const variables = extractVariableNames(compiledExpression);
+    for (const variable of variables) {
+      const field = allFields.find((field) => field.id === variable);
+      if (field) {
+        registerDependency(fieldNode, field);
+      }
+    }
+  } catch (error) {
+    // Fallback to our custom AST-based extraction for raw strings
+    console.warn(`Failed to compile expression for dependency tracking: ${expression}`, error);
+    const variables = extractVariableNamesFromExpression(expression);
+    for (const variable of variables) {
+      const field = allFields.find((field) => field.id === variable);
+      if (field) {
+        registerDependency(fieldNode, field);
+      }
     }
   }
 }

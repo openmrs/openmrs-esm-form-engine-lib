@@ -2,7 +2,7 @@ import { codedTypes } from '../../../constants';
 import { type FormContextProps } from '../../../provider/form-provider';
 import { type FormFieldValidator, type SessionMode, type ValidationResult, type FormField } from '../../../types';
 import { hasRendering } from '../../../utils/common-utils';
-import { evaluateAsyncExpression, evaluateExpression } from '../../../utils/expression-runner';
+import { evaluateAsyncExpression, evaluateExpression, trackFieldDependenciesFromString } from '../../../utils/expression-runner';
 import { evalConditionalRequired, evaluateDisabled, evaluateHide, findFieldSection } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import { reportError } from '../../../utils/error-utils';
@@ -171,6 +171,12 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
               patient,
             },
           );
+          // Track dependencies for answer hide expressions
+          trackFieldDependenciesFromString(
+            answer.hide?.hideWhenExpression,
+            { value: dependent, type: 'field' },
+            formFields,
+          );
         });
       // evaluate disabled
       dependent?.questionOptions.answers
@@ -185,6 +191,12 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
               mode: sessionMode,
               patient,
             },
+          );
+          // Track dependencies for answer disable expressions
+          trackFieldDependenciesFromString(
+            answer.disable?.disableWhenExpression,
+            { value: dependent, type: 'field' },
+            formFields,
           );
         });
       // evaluate readonly

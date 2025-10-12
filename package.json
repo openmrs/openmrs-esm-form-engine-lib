@@ -30,6 +30,8 @@
   },
   "dependencies": {
     "@carbon/react": "^1.83.0",
+    "acorn": "^8.15.0",
+    "acorn-walk": "^8.3.4",
     "classnames": "^2.5.1",
     "lodash-es": "^4.17.21",
     "react-error-boundary": "^4.0.13",
