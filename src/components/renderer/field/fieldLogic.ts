@@ -83,6 +83,8 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
               context.formFieldAdapters[dependent.type].transformFieldValue(dependent, result, context);
             }
             updateFormField(dependent);
+            // Recursively evaluate dependents of calculate fields
+            evaluateFieldDependents(dependent, values, context);
           })
           .catch((error) => {
             reportError(error, 'Error evaluating calculate expression');
