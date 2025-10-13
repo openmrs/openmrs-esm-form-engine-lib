@@ -37,7 +37,7 @@ export const FormRenderer = ({
   });
 
   const {
-    formState: { isDirty, errors },
+    formState: { isDirty },
   } = methods;
 
   const [{ formFields, invalidFields, formJson, deletedFields }, dispatch] = useReducer(formStateReducer, {
