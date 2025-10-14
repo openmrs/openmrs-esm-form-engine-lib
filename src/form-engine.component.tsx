@@ -25,7 +25,7 @@ interface FormEngineProps {
   formUUID?: string;
   formJson?: FormSchema;
   encounterUUID?: string;
-  visit: Visit;
+  visit?: Visit;
   formSessionIntent?: string;
   mode?: SessionMode;
   onSubmit?: (data: any) => void;

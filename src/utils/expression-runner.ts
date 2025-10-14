@@ -23,7 +23,7 @@ export interface ExpressionContext {
   myValue?: any;
   patient: any;
   previousEncounter?: OpenmrsEncounter;
-  visit: Visit;
+  visit?: Visit;
 }
 
 export type EvaluateReturnType = DefaultEvaluateReturnType | Record<string, any>;
