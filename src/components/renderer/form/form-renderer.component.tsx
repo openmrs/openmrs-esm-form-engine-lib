@@ -31,6 +31,9 @@ export const FormRenderer = ({
   const { registerForm, setIsFormDirty, workspaceLayout, isFormExpanded } = useFormFactory();
   const methods = useForm({
     defaultValues: initialValues,
+    mode: 'onChange',
+    reValidateMode: 'onChange',
+    criteriaMode: 'all',
   });
 
   const {
