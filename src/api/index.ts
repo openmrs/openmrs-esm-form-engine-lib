@@ -1,5 +1,5 @@
-import type { TFunction } from 'react-i18next';
-import { attachmentUrl, fhirBaseUrl, openmrsFetch, restBaseUrl, type UploadedFile } from '@openmrs/esm-framework';
+import type { TFunction } from 'i18next';
+import { attachmentUrl, fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
 import type {
   AttachmentFieldValue,
