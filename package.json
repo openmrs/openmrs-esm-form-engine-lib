@@ -1,6 +1,6 @@
 {
   "name": "@openmrs/esm-form-engine-lib",
-  "version": "2.1.0",
+  "version": "3.3.0",
   "description": "React Form Engine for O3",
   "browser": "dist/openmrs-esm-form-engine-lib.js",
   "main": "src/index.ts",
@@ -16,7 +16,7 @@
     "coverage": "yarn test --coverage",
     "analyze": "webpack --mode=production --env.analyze=true",
     "prepare": "husky install",
-    "extract-translations": "i18next 'src/**/*.component.tsx' --config './tools/i18next-parser.config.js'"
+    "extract-translations": "i18next 'src/**/*.component.tsx' 'src/**/*.ts' --config './tools/i18next-parser.config.js'"
   },
   "browserslist": [
     "extends browserslist-config-openmrs"
@@ -29,7 +29,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@carbon/react": ">1.47.0 <1.50.0",
+    "@carbon/react": "^1.83.0",
     "classnames": "^2.5.1",
     "lodash-es": "^4.17.21",
     "react-error-boundary": "^4.0.13",
@@ -39,17 +39,16 @@
     "react-webcam": "^7.2.0"
   },
   "peerDependencies": {
-    "@openmrs/esm-framework": "5.x",
-    "@openmrs/esm-patient-common-lib": "8.x",
+    "@openmrs/esm-framework": "8.x",
     "dayjs": "1.x",
-    "i18next": "23.x",
+    "i18next": "25.x",
     "react": "18.x",
-    "react-i18next": "11.x",
+    "react-i18next": "16.x",
     "swr": "2.x"
   },
   "devDependencies": {
     "@openmrs/esm-framework": "next",
-    "@openmrs/esm-patient-common-lib": "next",
+    "@openmrs/esm-styleguide": "next",
     "@swc/cli": "^0.1.65",
     "@swc/core": "^1.5.7",
     "@swc/jest": "^0.2.36",
@@ -69,12 +68,13 @@
     "css-loader": "^6.11.0",
     "dayjs": "^1.11.11",
     "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "fork-ts-checker-webpack-plugin": "^6.5.3",
     "husky": "^8.0.3",
-    "i18next": "^23.11.4",
-    "i18next-parser": "^8.13.0",
+    "i18next": "^25.0.0",
+    "i18next-parser": "^9.3.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-cli": "^29.7.0",
@@ -85,20 +85,21 @@
     "prettier": "^2.8.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-i18next": "^11.18.6",
+    "react-i18next": "^16.0.0",
+    "resize-observer-polyfill": "^1.5.1",
     "sass": "^1.77.2",
     "swc-loader": "^0.2.6",
     "swr": "^2.2.5",
-    "turbo": "^2.2.3",
-    "typescript": "^4.9.5",
-    "webpack": "^5.91.0",
+    "turbo": "^2.5.2",
+    "typescript": "^5.0.0",
+    "webpack": "^5.99.9",
     "webpack-bundle-analyzer": "^4.10.2",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.2"
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.1"
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --cache --fix --max-warnings 0",
     "*.{css,scss,ts,tsx}": "prettier --write --list-different"
   },
-  "packageManager": "yarn@4.5.0"
+  "packageManager": "yarn@4.10.3"
 }

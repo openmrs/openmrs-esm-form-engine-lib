@@ -1,0 +1,47 @@
+{
+  "encounterType": "e22e39fd-7db2-45e7-80f1-60fa0d5a4378",
+  "name": "Sample UI Select",
+  "processor": "EncounterFormProcessor",
+  "referencedForms": [],
+  "uuid": "f7768d34-8e41-4f6b-a276-12c12e023165",
+  "version": "1.0",
+  "pages": [
+    {
+      "label": "First Page",
+      "sections": [
+        {
+          "label": "A Section",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Transfer Location",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "ui-select-extended",
+                "concept": "160540AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "datasource": {
+                  "name": "location_datasource",
+                  "config": {
+                    "tag": "test-tag"
+                  }
+                }
+              },
+              "id": "patient_transfer_location"
+            },
+            {
+              "label": "Problem",
+              "type": "obs",
+              "questionOptions": {
+                "isSearchable": true,
+                "rendering": "problem",
+                "concept": "4b59ac07-cf72-4f46-b8c0-4f62b1779f7e"
+              },
+              "id": "problem"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "description": "Sample UI Select"
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
-import { act, cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import {
   ExtensionSlot,
   OpenmrsDatePicker,
@@ -14,51 +14,53 @@ import { when } from 'jest-when';
 import * as api from './api';
 import { assertFormHasAllFields, findCheckboxGroup, findSelectInput, findTextOrDateInput } from './utils/test-utils';
 import { evaluatePostSubmissionExpression } from './utils/post-submission-action-helper';
-import { mockPatient } from '__mocks__/patient.mock';
-import { mockSessionDataResponse } from '__mocks__/session.mock';
-import { mockVisit } from '__mocks__/visit.mock';
-import demoHtsForm from '__mocks__/forms/rfe-forms/demo_hts-form.json';
-import demoHtsOpenmrsForm from '__mocks__/forms/afe-forms/demo_hts-form.json';
-import filterAnswerOptionsTestForm from '__mocks__/forms/rfe-forms/filter-answer-options-test-form.json';
-import htsPocForm from '__mocks__/packages/hiv/forms/hts_poc/1.1.json';
-import labourAndDeliveryTestForm from '__mocks__/forms/rfe-forms/labour_and_delivery_test_form.json';
-import mockConceptsForm from '__mocks__/concepts.mock.json';
-import obsGroupTestForm from '__mocks__/forms/rfe-forms/obs-group-test_form.json';
-import postSubmissionTestForm from '__mocks__/forms/rfe-forms/post-submission-test-form.json';
-import referenceByMappingForm from '__mocks__/forms/rfe-forms/reference-by-mapping-form.json';
-import sampleFieldsForm from '__mocks__/forms/rfe-forms/sample_fields.json';
-import testEnrolmentForm from '__mocks__/forms/rfe-forms/test-enrolment-form.json';
-import historicalExpressionsForm from '__mocks__/forms/rfe-forms/historical-expressions-form.json';
-import mockHxpEncounter from '__mocks__/forms/rfe-forms/mockHistoricalvisitsEncounter.json';
-import requiredTestForm from '__mocks__/forms/rfe-forms/required-form.json';
-import conditionalRequiredTestForm from '__mocks__/forms/rfe-forms/conditional-required-form.json';
-import conditionalAnsweredForm from '__mocks__/forms/rfe-forms/conditional-answered-form.json';
-import ageValidationForm from '__mocks__/forms/rfe-forms/age-validation-form.json';
-import bmiForm from '__mocks__/forms/rfe-forms/bmi-test-form.json';
-import bsaForm from '__mocks__/forms/rfe-forms/bsa-test-form.json';
-import eddForm from '__mocks__/forms/rfe-forms/edd-test-form.json';
-import externalDataSourceForm from '__mocks__/forms/rfe-forms/external_data_source_form.json';
-import monthsOnArtForm from '__mocks__/forms/rfe-forms/months-on-art-form.json';
-import nextVisitForm from '__mocks__/forms/rfe-forms/next-visit-test-form.json';
-import viralLoadStatusForm from '__mocks__/forms/rfe-forms/viral-load-status-form.json';
-import readOnlyValidationForm from '__mocks__/forms/rfe-forms/read-only-validation-form.json';
-import jsExpressionValidationForm from '__mocks__/forms/rfe-forms/js-expression-validation-form.json';
-import hidePagesAndSectionsForm from '__mocks__/forms/rfe-forms/hide-pages-and-sections-form.json';
-
+import { mockConcepts, mockPatient, mockSessionDataResponse, mockVisit } from '__mocks__';
+import {
+  ageValidationForm,
+  bmiForm,
+  bsaForm,
+  conditionalAnsweredForm,
+  conditionalRequiredTestForm,
+  defaultValuesForm,
+  demoHtsForm,
+  demoHtsOpenmrsForm,
+  diagnosisForm,
+  eddForm,
+  externalDataSourceForm,
+  filterAnswerOptionsTestForm,
+  hidePagesAndSectionsForm,
+  historicalExpressionsForm,
+  htsPocForm,
+  jsExpressionValidationForm,
+  labourAndDeliveryTestForm,
+  mockHxpEncounter,
+  mockSaveEncounter,
+  monthsOnArtForm,
+  nextVisitForm,
+  obsGroupTestForm,
+  postSubmissionTestForm,
+  readOnlyValidationForm,
+  referenceByMappingForm,
+  requiredTestForm,
+  sampleFieldsForm,
+  testEnrolmentForm,
+  viralLoadStatusForm,
+} from '__mocks__/forms';
+import { type FormSchema, type OpenmrsEncounter, type SessionMode } from './types';
+import { useEncounter } from './hooks/useEncounter';
 import FormEngine from './form-engine.component';
-import { type SessionMode } from './types';
 
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const formsResourcePath = when((url: string) => url.includes(`${restBaseUrl}/form/`));
 const clobDataResourcePath = when((url: string) => url.includes(`${restBaseUrl}/clobdata/`));
-global.ResizeObserver = require('resize-observer-polyfill');
 
 const mockOpenmrsFetch = jest.mocked(openmrsFetch);
 const mockExtensionSlot = jest.mocked(ExtensionSlot);
 const mockUsePatient = jest.mocked(usePatient);
 const mockUseSession = jest.mocked(useSession);
 const mockOpenmrsDatePicker = jest.mocked(OpenmrsDatePicker);
+const mockUseEncounter = jest.mocked(useEncounter);
 
 mockOpenmrsDatePicker.mockImplementation(({ id, labelText, value, onChange, isInvalid, invalidText }) => {
   return (
@@ -79,6 +81,48 @@ mockOpenmrsDatePicker.mockImplementation(({ id, labelText, value, onChange, isIn
 when(mockOpenmrsFetch).calledWith(formsResourcePath).mockReturnValue({ data: demoHtsOpenmrsForm });
 when(mockOpenmrsFetch).calledWith(clobDataResourcePath).mockReturnValue({ data: demoHtsForm });
 
+jest.mock('lodash-es/debounce', () => jest.fn((fn) => fn));
+
+jest.mock('lodash-es', () => ({
+  ...jest.requireActual('lodash-es'),
+  debounce: jest.fn((fn) => fn),
+}));
+
+jest.mock('./registry/registry', () => {
+  const originalModule = jest.requireActual('./registry/registry');
+  return {
+    ...originalModule,
+    getRegisteredDataSource: jest.fn().mockResolvedValue({
+      fetchData: jest.fn().mockImplementation((...args) => {
+        if (args[1].class?.length && !args[1].referencedValue?.key) {
+          // concept DS
+          return Promise.resolve([
+            {
+              uuid: 'stage-1-uuid',
+              display: 'stage 1',
+            },
+            {
+              uuid: 'stage-2-uuid',
+              display: 'stage 2',
+            },
+            {
+              uuid: 'stage-3-uuid',
+              display: 'stage 3',
+            },
+          ]);
+        }
+      }),
+      fetchSingleItem: jest.fn().mockImplementation((uuid: string) => {
+        return Promise.resolve({
+          uuid,
+          display: 'stage 1',
+        });
+      }),
+      toUuidAndDisplay: (data) => data,
+    }),
+  };
+});
+
 jest.mock('../src/api', () => {
   const originalModule = jest.requireActual('../src/api');
 
@@ -87,12 +131,11 @@ jest.mock('../src/api', () => {
     getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(mockHxpEncounter)),
     getConcept: jest.fn().mockImplementation(() => Promise.resolve(null)),
     getLatestObs: jest.fn().mockImplementation(() => Promise.resolve({ valueNumeric: 60 })),
-    saveEncounter: jest.fn(),
+    saveEncounter: jest.fn().mockImplementation(() => Promise.resolve(mockSaveEncounter)),
     createProgramEnrollment: jest.fn(),
   };
 });
 
-jest.mock('./hooks/useRestMaxResultsCount', () => jest.fn().mockReturnValue({ systemSetting: { value: '50' } }));
 jest.mock('./hooks/useEncounterRole', () => ({
   useEncounterRole: jest.fn().mockReturnValue({
     isLoading: false,
@@ -106,7 +149,7 @@ jest.mock('./hooks/useConcepts', () => ({
     if ([...references].join(',').includes('PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH')) {
       return {
         isLoading: false,
-        concepts: mockConceptsForm.results,
+        concepts: mockConcepts.results,
         error: undefined,
       };
     }
@@ -118,19 +161,20 @@ jest.mock('./hooks/useConcepts', () => ({
   }),
 }));
 
+jest.mock('./hooks/useEncounter', () => ({
+  useEncounter: jest.fn().mockImplementation((formJson: FormSchema) => {
+    return {
+      encounter: formJson.encounter ? (mockHxpEncounter as OpenmrsEncounter) : null,
+      isLoading: false,
+      error: undefined,
+    };
+  }),
+}));
+
 describe('Form engine component', () => {
   const user = userEvent.setup();
 
   beforeEach(() => {
-    Object.defineProperty(window, 'i18next', {
-      writable: true,
-      configurable: true,
-      value: {
-        language: 'en',
-        t: jest.fn(),
-      },
-    });
-
     mockExtensionSlot.mockImplementation((ext) => <>{ext.name}</>);
     mockUsePatient.mockImplementation(() => ({
       patient: mockPatient,
@@ -192,7 +236,7 @@ describe('Form engine component', () => {
 
     await assertFormHasAllFields(screen, [
       { fieldName: 'When was the HIV test conducted? *', fieldType: 'date' },
-      { fieldName: 'Community service delivery point *', fieldType: 'select' },
+      { fieldName: 'Community service delivery point', fieldType: 'select' },
     ]);
 
     try {
@@ -209,10 +253,13 @@ describe('Form engine component', () => {
         renderForm(null, sampleFieldsForm);
       });
 
-      screen.findByRole('textbox', { name: /text question/i });
+      screen.findByLabelText(/text question/i);
 
-      const textFieldTooltip = screen.getByTestId('id_text');
+      const textFieldTooltip = screen.getByTestId('id_text-label');
       expect(textFieldTooltip).toBeInTheDocument();
+
+      const informationIcon = screen.getByTestId('id_text-information-icon');
+      expect(informationIcon).toBeInTheDocument();
 
       await user.hover(textFieldTooltip);
       await screen.findByText(/sample tooltip info for text/i);
@@ -312,7 +359,7 @@ describe('Form engine component', () => {
       const requiredAsterisks = screen.getAllByText('*');
       expect(requiredAsterisks).toHaveLength(2);
 
-      const inputFields = screen.getAllByRole('textbox', { name: /Text question/i });
+      const inputFields = screen.getAllByLabelText(/Text question/i);
       expect(inputFields).toHaveLength(2);
 
       inputFields.forEach((inputField) => {
@@ -352,7 +399,7 @@ describe('Form engine component', () => {
         { fieldName: 'If Unscheduled, actual number scheduled date *', fieldType: 'number' },
         { fieldName: 'If Unscheduled, actual text area scheduled date *', fieldType: 'textarea' },
         { fieldName: 'Not required actual text area scheduled date', fieldType: 'textarea' },
-        { fieldName: 'If Unscheduled, actual scheduled reason select *', fieldType: 'select' },
+        { fieldName: 'If Unscheduled, actual scheduled reason select', fieldType: 'select' },
         { fieldName: 'If Unscheduled, actual scheduled reason multi-select *', fieldType: 'checkbox-searchable' },
         { fieldName: 'If Unscheduled, actual scheduled reason radio *', fieldType: 'radio' },
       ]);
@@ -402,7 +449,9 @@ describe('Form engine component', () => {
       expect(selectErrorMessage).toBeInTheDocument();
 
       // Validate multi-select field
-      const multiSelectInputField = screen.getByLabelText(/If Unscheduled, actual scheduled reason multi-select/i);
+      const multiSelectInputField = screen.getByText('If Unscheduled, actual scheduled reason multi-select', {
+        exact: true,
+      });
       expect(multiSelectInputField).toBeInTheDocument();
       const multiSelectErrorMessage = screen.getByText(
         'Patient visit marked as unscheduled. Please provide the scheduled multi-select reason.',
@@ -445,6 +494,42 @@ describe('Form engine component', () => {
       expect(saveEncounterMock).toHaveBeenCalledTimes(1);
       expect(saveEncounterMock).toHaveBeenCalledWith(expect.any(AbortController), expect.any(Object), undefined);
       expect(saveEncounterMock).toHaveReturned();
+    });
+
+    it('should clear stale submission validation errors', async () => {
+      await act(async () => {
+        renderForm(null, requiredTestForm);
+      });
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      const inputFields = screen.getAllByLabelText(/Text question/i);
+      expect(inputFields).toHaveLength(2);
+
+      inputFields.forEach((inputField) => {
+        expect(inputField).toHaveClass('cds--text-input--invalid');
+      });
+
+      let errorMessages = screen.getAllByText('Field is mandatory');
+      expect(errorMessages).toHaveLength(2);
+
+      // interact with first input
+      const textInput1 = inputFields[0];
+      await user.type(textInput1, 'Some value');
+
+      // assert validation errors were cleared for the first input
+      expect(textInput1).not.toHaveClass('cds--text-input--invalid');
+      errorMessages = screen.getAllByText('Field is mandatory');
+      expect(errorMessages).toHaveLength(1);
+
+      // interact with last input
+      const textInput2 = inputFields[1];
+      await user.type(textInput2, 'Some other value');
+
+      // assert validation errors were cleared
+      expect(textInput2).not.toHaveClass('cds--text-input--invalid');
+      errorMessages = screen.queryAllByText('Field is mandatory');
+      expect(errorMessages).toHaveLength(0);
     });
 
     it('should validate transient fields', async () => {
@@ -505,41 +590,6 @@ describe('Form engine component', () => {
 
     it('should test post submission actions', async () => {
       const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
-      saveEncounterMock.mockResolvedValue({
-        headers: null,
-        ok: true,
-        redirected: false,
-        status: 200,
-        statusText: 'ok',
-        type: 'default',
-        url: '',
-        clone: null,
-        body: null,
-        bodyUsed: null,
-        arrayBuffer: null,
-        blob: null,
-        formData: null,
-        json: null,
-        text: jest.fn(),
-        data: [
-          {
-            uuid: '47cfe95b-357a-48f8-aa70-63eb5ae51916',
-            obs: [
-              {
-                formFieldPath: 'rfe-forms-tbProgramType',
-                value: {
-                  display: 'Tuberculosis treatment program',
-                  uuid: '160541AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                },
-              },
-              {
-                formFieldPath: 'rfe-forms-tbRegDate',
-                value: '2023-12-05T00:00:00.000+0000',
-              },
-            ],
-          },
-        ],
-      });
 
       await act(async () => renderForm(null, postSubmissionTestForm));
 
@@ -676,6 +726,55 @@ describe('Form engine component', () => {
       } catch (err) {
         expect(err.message.includes('Unable to find an element with the text: Page 2')).toBeTruthy();
       }
+    });
+  });
+
+  describe('Default values', () => {
+    let originalConsoleError;
+
+    beforeEach(() => {
+      originalConsoleError = console.error;
+      console.error = jest.fn();
+    });
+
+    afterEach(() => {
+      console.error = originalConsoleError;
+    });
+
+    it('should initialize fields with default values', async () => {
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+
+      await act(async () => renderForm(null, defaultValuesForm));
+
+      // text field
+      const textField = await findTextOrDateInput(screen, 'Text field with Default Value');
+      expect(textField).toHaveValue('Value text');
+
+      // dropdown field
+      const dropdownField = await findSelectInput(screen, 'Dropdown with Default Value');
+      expect(dropdownField.title).toBe('Choice 2');
+
+      // dropdown with an invalid default value
+      const invalidDropdownField = await findSelectInput(screen, 'Dropdown with an invalid Default Value');
+      expect(invalidDropdownField.title).toBe('Choose an option');
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      const encounter = saveEncounterMock.mock.calls[0][1];
+      expect(encounter.obs).toEqual([
+        {
+          value: 'Value text',
+          concept: 'f82ba2b7-3849-4ad0-b867-36881e59f5c8',
+          formFieldNamespace: 'rfe-forms',
+          formFieldPath: 'rfe-forms-sampleQuestion',
+        },
+        {
+          value: '6b4e859c-86ca-41e5-b1c4-017889653b59',
+          concept: '8cdea80a-d167-431c-8278-246c7a1f913b',
+          formFieldNamespace: 'rfe-forms',
+          formFieldPath: 'rfe-forms-codedQuestion',
+        },
+      ]);
     });
   });
 
@@ -877,6 +976,93 @@ describe('Form engine component', () => {
   });
 
   describe('Obs group', () => {
+    it('should not render empty obs group', async () => {
+      await act(async () => {
+        renderForm(null, obsGroupTestForm);
+      });
+
+      // Check that only one obs group is initially rendered
+      const initialGroups = screen.getAllByRole('group', { name: /My Group|Dependents Group/i });
+      expect(initialGroups.length).toBe(1);
+      const dependentTypeRadios = screen.queryAllByRole('radio', { name: /child|spouse/i });
+      expect(dependentTypeRadios.length).toBe(0);
+
+      // Select "Yes" for having dependents
+      const yesRadio = screen.getByRole('radio', { name: /yes/i });
+      await user.click(yesRadio);
+
+      // Now the dependent type radios should be visible
+      const visibleDependentTypeRadios = screen.getAllByRole('radio', { name: /child|spouse/i });
+      expect(visibleDependentTypeRadios.length).toBe(2);
+
+      // Check that the group label is still hidden since it only has one visible field
+      const dependentsGroupResults = screen.queryAllByRole('group', { name: /Dependents Group/i });
+      expect(dependentsGroupResults.length).toBe(0);
+
+      // Check that dependent name and age are still hidden
+      const hiddenDependentNameInput = screen.queryByRole('textbox', { name: /dependent name/i });
+      const hiddenDependentAgeInput = screen.queryByRole('spinbutton', { name: /dependent age/i });
+      expect(hiddenDependentNameInput).toBeNull();
+      expect(hiddenDependentAgeInput).toBeNull();
+
+      // Select "Child" as dependent type
+      await user.click(visibleDependentTypeRadios[0]);
+
+      // Check the visibility of the group label
+      const dependentsGroup = screen.getAllByRole('group', { name: /Dependents Group/i })[0];
+      expect(dependentsGroup).toBeInTheDocument();
+
+      // Check that dependent name and age are now visible
+      const dependentNameInput = screen.getByRole('textbox', { name: /dependent name/i });
+      const dependentAgeInput = screen.getByRole('spinbutton', { name: /dependent age/i });
+
+      expect(dependentNameInput).toBeInTheDocument();
+      expect(dependentAgeInput).toBeInTheDocument();
+    });
+
+    it('should save obs group on form submission', async () => {
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+      await act(async () => {
+        renderForm(null, obsGroupTestForm);
+      });
+
+      // Fill out the obs group fields
+      const dateOfBirth = screen.getByRole('textbox', { name: /date of birth/i });
+      const maleRadio = screen.getByRole('radio', { name: /^male$/i });
+
+      await user.click(dateOfBirth);
+      await user.paste('2020-09-09T00:00:00.000Z');
+      await user.click(maleRadio);
+
+      // Submit the form
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      // Verify the encounter was saved with the correct structure
+      expect(saveEncounterMock).toHaveBeenCalledTimes(1);
+
+      const [_, encounter] = saveEncounterMock.mock.calls[0];
+      expect(encounter.obs.length).toBe(1);
+      expect(encounter.obs[0]).toEqual({
+        groupMembers: [
+          {
+            value: '1534AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            concept: '1587AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            formFieldNamespace: 'rfe-forms',
+            formFieldPath: 'rfe-forms-childSex',
+          },
+          {
+            value: '2020-09-09',
+            concept: '164802AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            formFieldNamespace: 'rfe-forms',
+            formFieldPath: 'rfe-forms-birthDate',
+          },
+        ],
+        concept: '1c70c490-cafa-4c95-9fdd-a30b62bb78b8',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-myGroup',
+      });
+    });
+
     it('should test addition of a repeating group', async () => {
       await act(async () => {
         renderForm(null, obsGroupTestForm);
@@ -890,9 +1076,12 @@ describe('Form engine component', () => {
       await user.click(addButton);
 
       expect(screen.getByRole('button', { name: /Remove/i })).toBeInTheDocument();
-      expect(screen.getAllByRole('radio', { name: /^male$/i }).length).toEqual(2);
-      expect(screen.getAllByRole('radio', { name: /^female$/i }).length).toEqual(2);
-      expect(screen.getAllByRole('textbox', { name: /date of birth/i }).length).toEqual(2);
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('radio', { name: /^male$/i })).toHaveLength(2);
+        expect(screen.getAllByRole('radio', { name: /female/i })).toHaveLength(2);
+        expect(screen.getAllByRole('textbox', { name: /date of birth/i })).toHaveLength(2);
+      });
     });
 
     it('should test deletion of a group', async () => {
@@ -961,7 +1150,118 @@ describe('Form engine component', () => {
     });
   });
 
-  function renderForm(formUUID, formJson, intent?: string, mode?: SessionMode) {
+  describe('Encounter diagnosis', () => {
+    it('should test addition of a diagnosis', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm);
+      });
+
+      const testDiagnosis1AddButton = screen.getAllByRole('button', { name: 'Add' })[0];
+      await user.click(testDiagnosis1AddButton);
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('combobox', { name: /^test diagnosis 1$/i }).length).toEqual(2);
+      });
+
+      expect(screen.getByRole('button', { name: /Remove/i })).toBeInTheDocument();
+    });
+
+    it('should render all diagnosis fields', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm);
+      });
+      const diagnosisFields = screen.getAllByRole('combobox', { name: /test diagnosis 1|test diagnosis 2/i });
+      expect(diagnosisFields.length).toBe(2);
+    });
+
+    it('should be possible to delete cloned fields', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm);
+      });
+
+      const testDiagnosis1AddButton = screen.getAllByRole('button', { name: 'Add' })[0];
+      await user.click(testDiagnosis1AddButton);
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('combobox', { name: /^test diagnosis 1$/i }).length).toEqual(2);
+      });
+      const removeButton = screen.getByRole('button', { name: /Remove/i });
+
+      await user.click(removeButton);
+
+      expect(removeButton).not.toBeInTheDocument();
+    });
+
+    it('should save diagnosis field on form submission', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm);
+      });
+
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+      const combobox = await findSelectInput(screen, 'Test Diagnosis 1');
+      expect(combobox).toHaveAttribute('placeholder', 'Search...');
+
+      await user.click(combobox);
+      await user.type(combobox, 'stage');
+
+      expect(screen.getByText(/stage 1/)).toBeInTheDocument();
+      expect(screen.getByText(/stage 2/)).toBeInTheDocument();
+      expect(screen.getByText(/stage 3/)).toBeInTheDocument();
+
+      await user.click(screen.getByText('stage 1'));
+      await user.click(screen.getByRole('button', { name: /save/i }));
+      expect(saveEncounterMock).toHaveBeenCalledTimes(1);
+      const [_, encounter] = saveEncounterMock.mock.calls[0];
+      expect(encounter.diagnoses.length).toBe(1);
+      expect(encounter.diagnoses[0]).toEqual({
+        patient: '8673ee4f-e2ab-4077-ba55-4980f408773e',
+        condition: null,
+        diagnosis: {
+          coded: 'stage-1-uuid',
+        },
+        certainty: 'CONFIRMED',
+        rank: 1,
+        formFieldPath: `rfe-forms-diagnosis1`,
+        formFieldNamespace: 'rfe-forms',
+      });
+    });
+
+    it('should edit diagnosis field on form submission', async () => {
+      await act(async () => {
+        renderForm(null, diagnosisForm, null, 'edit', mockHxpEncounter.uuid);
+      });
+      mockUseEncounter.mockImplementation(() => ({ encounter: mockHxpEncounter, error: null, isLoading: false }));
+      const saveEncounterMock = jest.spyOn(api, 'saveEncounter');
+
+      const field1 = await findSelectInput(screen, 'Test Diagnosis 1');
+      expect(field1).toHaveValue('stage 1');
+
+      await user.click(field1);
+      await user.type(field1, 'stage');
+      expect(screen.getByText(/stage 1/)).toBeInTheDocument();
+      expect(screen.getByText(/stage 2/)).toBeInTheDocument();
+      expect(screen.getByText(/stage 3/)).toBeInTheDocument();
+      await user.click(screen.getByText(/stage 3/));
+      await user.click(screen.getByRole('button', { name: /save/i }));
+      expect(saveEncounterMock).toHaveBeenCalledTimes(1);
+      const [_, encounter] = saveEncounterMock.mock.calls[0];
+      expect(encounter.diagnoses.length).toBe(1);
+      expect(encounter.diagnoses[0]).toEqual({
+        patient: '8673ee4f-e2ab-4077-ba55-4980f408773e',
+        condition: null,
+        diagnosis: {
+          coded: 'stage-3-uuid',
+        },
+        certainty: 'CONFIRMED',
+        rank: 1,
+        formFieldPath: `rfe-forms-diagnosis1`,
+        formFieldNamespace: 'rfe-forms',
+        uuid: '95690fb4-0398-42d9-9ffc-8a134e6d829d',
+      });
+    });
+  });
+
+  function renderForm(formUUID, formJson, intent?: string, mode?: SessionMode, encounterUUID?: string) {
     render(
       <FormEngine
         formJson={formJson}
@@ -969,6 +1269,7 @@ describe('Form engine component', () => {
         patientUUID={patientUUID}
         formSessionIntent={intent}
         visit={visit}
+        encounterUUID={encounterUUID}
         mode={mode ? mode : 'enter'}
       />,
     );

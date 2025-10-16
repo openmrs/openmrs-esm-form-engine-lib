@@ -1,21 +1,21 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { debounce } from 'lodash-es';
 import { ComboBox, DropdownSkeleton, Layer, InlineLoading } from '@carbon/react';
-import { isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';
-import { getRegisteredDataSource } from '../../../registry/registry';
+import { useWatch } from 'react-hook-form';
+import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { getControlTemplate } from '../../../registry/inbuilt-components/control-templates';
-import { type DataSource, type FormFieldInputProps } from '../../../types';
+import { getRegisteredDataSource } from '../../../registry/registry';
 import { isEmpty } from '../../../validators/form-validator';
+import { isTrue } from '../../../utils/boolean-utils';
+import { isViewMode } from '../../../utils/common-utils';
 import { shouldUseInlineLayout } from '../../../utils/form-helper';
+import { type DataSource, type FormFieldInputProps } from '../../../types';
+import { useFormProviderContext } from '../../../provider/form-provider';
+import useDataSourceDependentValue from '../../../hooks/useDataSourceDependentValue';
+import FieldLabel from '../../field-label/field-label.component';
 import FieldValueView from '../../value/view/field-value-view.component';
 import styles from './ui-select-extended.scss';
-import { useFormProviderContext } from '../../../provider/form-provider';
-import FieldLabel from '../../field-label/field-label.component';
-import { useWatch } from 'react-hook-form';
-import useDataSourceDependentValue from '../../../hooks/useDataSourceDependentValue';
-import { isViewMode } from '../../../utils/common-utils';
-import { type OpenmrsResource } from '@openmrs/esm-framework';
 
 const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
@@ -49,6 +49,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
 
   const debouncedSearch = debounce((searchTerm: string, dataSource: DataSource<OpenmrsResource>) => {
     setIsSearching(true);
+
     dataSource
       .fetchData(searchTerm, config)
       .then((dataItems) => {
@@ -86,22 +87,33 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
   }, [field.questionOptions?.datasource]);
 
   useEffect(() => {
+    let ignore = false;
+
     // If not searchable, preload the items
     if (dataSource && !isTrue(field.questionOptions.isSearchable)) {
       setItems([]);
       setIsLoading(true);
+
       dataSource
         .fetchData(null, { ...config, referencedValue: dataSourceDependentValue })
         .then((dataItems) => {
-          setItems(dataItems.map(dataSource.toUuidAndDisplay));
-          setIsLoading(false);
+          if (!ignore) {
+            setItems(dataItems.map(dataSource.toUuidAndDisplay));
+            setIsLoading(false);
+          }
         })
         .catch((err) => {
-          console.error(err);
-          setIsLoading(false);
-          setItems([]);
+          if (!ignore) {
+            console.error(err);
+            setIsLoading(false);
+            setItems([]);
+          }
         });
     }
+
+    return () => {
+      ignore = true;
+    };
   }, [dataSource, config, dataSourceDependentValue]);
 
   useEffect(() => {
@@ -111,19 +123,28 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
   }, [dataSource, searchTerm, config]);
 
   useEffect(() => {
+    let ignore = false;
     if (value && !isDirty && dataSource && isSearchable && sessionMode !== 'enter' && !items.length) {
       // While in edit mode, search-based instances should fetch the initial item (previously selected value) to resolve its display property
       setIsLoading(true);
       try {
         dataSource.fetchSingleItem(value).then((item) => {
-          setItems([dataSource.toUuidAndDisplay(item)]);
-          setIsLoading(false);
+          if (!ignore) {
+            setItems([dataSource.toUuidAndDisplay(item)]);
+            setIsLoading(false);
+          }
         });
       } catch (error) {
-        console.error(error);
-        setIsLoading(false);
+        if (!ignore) {
+          console.error(error);
+          setIsLoading(false);
+        }
       }
     }
+
+    return () => {
+      ignore = true;
+    };
   }, [value, isDirty, sessionMode, dataSource, isSearchable, items]);
 
   if (isLoading) {
@@ -148,13 +169,6 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
             itemToString={(item) => item?.display}
             selectedItem={selectedItem}
             placeholder={isSearchable ? t('search', 'Search') + '...' : null}
-            shouldFilterItem={({ item, inputValue }) => {
-              if (!inputValue) {
-                // Carbon's initial call at component mount
-                return true;
-              }
-              return item.display?.toLowerCase().includes(inputValue.toLowerCase());
-            }}
             onChange={({ selectedItem }) => {
               isProcessingSelection.current = true;
               setFieldValue(selectedItem?.uuid);

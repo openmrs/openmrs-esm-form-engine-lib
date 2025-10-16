@@ -6,9 +6,10 @@ import { formStateReducer, initialState } from './state';
 import { useEvaluateFormFieldExpressions } from '../../../hooks/useEvaluateFormFieldExpressions';
 import { useFormFactory } from '../../../provider/form-factory-provider';
 import { FormProvider, type FormContextProps } from '../../../provider/form-provider';
-import { isTrue } from '../../../utils/boolean-utils';
 import { type FormProcessorContextProps } from '../../../types';
 import { useFormStateHelpers } from '../../../hooks/useFormStateHelpers';
+import { pageObserver } from '../../sidebar/page-observer';
+import { isPageContentVisible } from '../../../utils/form-helper';
 
 export type FormRendererProps = {
   processorContext: FormProcessorContextProps;
@@ -23,17 +24,23 @@ export const FormRenderer = ({
   isSubForm,
   setIsLoadingFormDependencies,
 }: FormRendererProps) => {
-  const { evaluatedFields, evaluatedFormJson } = useEvaluateFormFieldExpressions(initialValues, processorContext);
+  const { evaluatedFields, evaluatedFormJson, evaluatedPagesVisibility } = useEvaluateFormFieldExpressions(
+    initialValues,
+    processorContext,
+  );
   const { registerForm, setIsFormDirty, workspaceLayout, isFormExpanded } = useFormFactory();
   const methods = useForm({
     defaultValues: initialValues,
+    mode: 'onChange',
+    reValidateMode: 'onChange',
+    criteriaMode: 'all',
   });
 
   const {
     formState: { isDirty },
   } = methods;
 
-  const [{ formFields, invalidFields, formJson }, dispatch] = useReducer(formStateReducer, {
+  const [{ formFields, invalidFields, formJson, deletedFields }, dispatch] = useReducer(formStateReducer, {
     ...initialState,
     formFields: evaluatedFields,
     formJson: evaluatedFormJson,
@@ -48,7 +55,21 @@ export const FormRenderer = ({
     addInvalidField,
     removeInvalidField,
     setForm,
+    setDeletedFields,
   } = useFormStateHelpers(dispatch, formFields);
+
+  useEffect(() => {
+    const scrollablePages = formJson.pages.filter((page) => !page.isSubform).map((page) => page);
+    pageObserver.updateScrollablePages(scrollablePages);
+  }, [formJson.pages]);
+
+  useEffect(() => {
+    pageObserver.setEvaluatedPagesVisibility(evaluatedPagesVisibility);
+  }, [evaluatedPagesVisibility]);
+
+  useEffect(() => {
+    pageObserver.updatePagesWithErrors(invalidFields.map((field) => field.meta.pageId));
+  }, [invalidFields]);
 
   const context: FormContextProps = useMemo(() => {
     return {
@@ -58,6 +79,7 @@ export const FormRenderer = ({
       formFields,
       formJson,
       invalidFields,
+      deletedFields,
       addFormField,
       updateFormField,
       getFormField,
@@ -66,8 +88,9 @@ export const FormRenderer = ({
       addInvalidField,
       removeInvalidField,
       setForm,
+      setDeletedFields,
     };
-  }, [processorContext, workspaceLayout, methods, formFields, formJson, invalidFields]);
+  }, [processorContext, workspaceLayout, methods, formFields, formJson, invalidFields, deletedFields]);
 
   useEffect(() => {
     registerForm(formJson.name, isSubForm, context);
@@ -80,11 +103,7 @@ export const FormRenderer = ({
   return (
     <FormProvider {...context}>
       {formJson.pages.map((page) => {
-        const pageHasNoVisibleContent =
-          page.sections?.every((section) => section.isHidden) ||
-          page.sections?.every((section) => section.questions?.every((question) => question.isHidden)) ||
-          isTrue(page.isHidden);
-        if (!page.isSubform && pageHasNoVisibleContent) {
+        if (!page.isSubform && !isPageContentVisible(page)) {
           return null;
         }
         if (page.isSubform && page.subform?.form) {

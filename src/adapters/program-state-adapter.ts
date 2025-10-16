@@ -8,7 +8,7 @@ import { isEmpty } from '../validators/form-validator';
 export const ProgramStateAdapter: FormFieldValueAdapter = {
   transformFieldValue: function (field: FormField, value: any, context: FormContextProps) {
     clearSubmission(field);
-    if (field.meta?.previousValue?.uuid === value || isEmpty(value)) {
+    if ((field.meta?.initialValue?.omrsObject as OpenmrsResource)?.uuid === value || isEmpty(value)) {
       return null;
     }
     field.meta.submission.newValue = {
@@ -28,7 +28,12 @@ export const ProgramStateAdapter: FormFieldValueAdapter = {
       const currentState = program.states
         .filter((state) => !state.endDate)
         .find((state) => state.state.programWorkflow?.uuid === field.questionOptions.workflowUuid)?.state;
-      field.meta = { ...(field.meta || {}), previousValue: currentState };
+      field.meta = {
+        ...(field.meta || {}),
+        initialValue: {
+          omrsObject: currentState,
+        },
+      };
       return currentState?.uuid;
     }
     return null;

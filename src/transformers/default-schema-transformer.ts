@@ -1,13 +1,23 @@
-import { type FormField, type FormSchemaTransformer, type FormSchema, type RenderType } from '../types';
+import { type OpenmrsResource } from '@openmrs/esm-framework';
+import {
+  type FormField,
+  type FormSchema,
+  type FormSchemaTransformer,
+  type RenderType,
+  type FormPage,
+  type PreFilledQuestions,
+} from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { hasRendering } from '../utils/common-utils';
 
 export type RenderTypeExtended = 'multiCheckbox' | 'numeric' | RenderType;
 
 export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
-  transform: (form: FormSchema) => {
+  transform: (form: FormSchema, preFilledQuestions?: PreFilledQuestions) => {
     parseBooleanTokenIfPresent(form, 'readonly');
-    form.pages.forEach((page) => {
+    form.pages.forEach((page, index) => {
+      const label = page.label ?? '';
+      page.id = `page-${label.replace(/\s/g, '')}-${index}`;
       parseBooleanTokenIfPresent(page, 'readonly');
       if (page.sections) {
         page.sections.forEach((section) => {
@@ -15,10 +25,13 @@ export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
           section.questions = handleQuestionsWithObsComments(section.questions);
           parseBooleanTokenIfPresent(section, 'readonly');
           parseBooleanTokenIfPresent(section, 'isExpanded');
-          section?.questions?.forEach((question, index) => handleQuestion(question, form));
+          section?.questions?.forEach((question, index) => handleQuestion(question, page, form));
         });
       }
     });
+    if (preFilledQuestions && typeof preFilledQuestions === 'object') {
+      handlePreFilledQuestions(form, preFilledQuestions);
+    }
     if (form.meta?.programs) {
       handleProgramMetaTags(form);
     }
@@ -26,7 +39,7 @@ export const DefaultFormSchemaTransformer: FormSchemaTransformer = {
   },
 };
 
-function handleQuestion(question: FormField, form: FormSchema) {
+function handleQuestion(question: FormField, page: FormPage, form: FormSchema) {
   if (question.type === 'programState') {
     const formMeta = form.meta ?? {};
     formMeta.programs = formMeta.programs
@@ -39,9 +52,15 @@ function handleQuestion(question: FormField, form: FormSchema) {
     setFieldValidators(question);
     transformByType(question);
     transformByRendering(question);
-    if (question?.questions?.length) {
-      question.questions.forEach((question) => handleQuestion(question, form));
+
+    if (question.questions?.length) {
+      if (question.type === 'obsGroup' && question.questions.length) {
+        question.questions.forEach((nestedQuestion) => handleQuestion(nestedQuestion, page, form));
+      } else {
+        question.questions.forEach((nestedQuestion) => handleQuestion(nestedQuestion, page, form));
+      }
     }
+    question.meta.pageId = page.id;
   } catch (error) {
     console.error(error);
   }
@@ -66,7 +85,9 @@ function handleQuestionsWithDateOptions(sectionQuestions: Array<FormField>): Arr
         hide: question.questionOptions.shownDateOptions?.hide || question.hide,
         meta: {
           targetField: question.id,
-          previousValue: question.meta?.previousValue?.obsDatetime,
+          initialValue: {
+            omrsObject: (question.meta?.initialValue?.omrsObject as OpenmrsResource)?.obsDatetime,
+          },
         },
       };
 
@@ -89,6 +110,10 @@ function sanitizeQuestion(question: FormField) {
   if (!question.meta) {
     question.meta = {
       submission: null,
+      initialValue: {
+        omrsObject: null,
+        refinedValue: null,
+      },
     };
   }
 }
@@ -132,6 +157,9 @@ function transformByType(question: FormField) {
       question.questionOptions.rendering = hasRendering(question, 'ui-select-extended')
         ? 'date'
         : question.questionOptions.rendering;
+      break;
+    case 'diagnosis':
+      handleDiagnosis(question);
       break;
   }
 }
@@ -249,7 +277,9 @@ function handleQuestionsWithObsComments(sectionQuestions: Array<FormField>): Arr
         hide: question.questionOptions.shownCommentOptions?.hide || question.hide,
         meta: {
           targetField: question.id,
-          previousValue: question.meta?.previousValue?.comment,
+          initialValue: {
+            omrsObject: (question.meta?.initialValue?.omrsObject as OpenmrsResource)?.comment,
+          },
         },
       };
 
@@ -258,4 +288,53 @@ function handleQuestionsWithObsComments(sectionQuestions: Array<FormField>): Arr
   });
 
   return augmentedQuestions;
+}
+
+function handleDiagnosis(question: FormField) {
+  if (
+    ('dataSource' in question.questionOptions && question.questionOptions['dataSource'] === 'diagnoses') ||
+    question.type === 'diagnosis'
+  ) {
+    question.questionOptions.datasource = {
+      name: 'problem_datasource',
+      config: {
+        class: question.questionOptions.diagnosis?.conceptClasses,
+      },
+    };
+    if (question.questionOptions.diagnosis?.conceptSet) {
+      question.questionOptions = {
+        ...question.questionOptions,
+        concept: question.questionOptions.diagnosis?.conceptSet,
+        datasource: {
+          name: 'problem_datasource',
+          config: {
+            useSetMembersByConcept: true,
+          },
+        },
+      };
+    }
+    question.questionOptions.isSearchable = true;
+
+    delete question.questionOptions['dataSource'];
+  }
+}
+
+function handlePreFilledQuestions(form: FormSchema, preFilledQuestions: PreFilledQuestions) {
+  Object.entries(preFilledQuestions).forEach(([preFilledQnId, preFilledValue]) => {
+    form?.pages.forEach((page) => {
+      page.sections.forEach((section) => {
+        section.questions.forEach((question) => {
+          if (question.id === preFilledQnId) {
+            question.questionOptions.defaultValue = preFilledValue;
+          } else if (Array.isArray(question?.questions) && question.questions.length > 0) {
+            question.questions.forEach((question) => {
+              if (question.id === preFilledQnId) {
+                question.questionOptions.defaultValue = preFilledValue;
+              }
+            });
+          }
+        });
+      });
+    });
+  });
 }

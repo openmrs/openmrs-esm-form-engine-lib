@@ -1,11 +1,11 @@
 import { codedTypes } from '../../../constants';
 import { type FormContextProps } from '../../../provider/form-provider';
 import { type FormFieldValidator, type SessionMode, type ValidationResult, type FormField } from '../../../types';
-import { isTrue } from '../../../utils/boolean-utils';
 import { hasRendering } from '../../../utils/common-utils';
 import { evaluateAsyncExpression, evaluateExpression } from '../../../utils/expression-runner';
-import { evalConditionalRequired, evaluateDisabled, evaluateHide } from '../../../utils/form-helper';
+import { evalConditionalRequired, evaluateDisabled, evaluateHide, findFieldSection } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
+import { reportError } from '../../../utils/error-utils';
 
 export function handleFieldLogic(field: FormField, context: FormContextProps) {
   const {
@@ -48,6 +48,8 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
     updateFormField,
     setForm,
   } = context;
+
+  let shouldUpdateForm = false;
   // handle fields
   if (field.fieldDependents) {
     field.fieldDependents.forEach((dep) => {
@@ -63,28 +65,64 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
             mode: sessionMode,
             patient,
           },
-        ).then((result) => {
-          setValue(dependent.id, result);
-          // validate calculated value
-          const { errors, warnings } = validateFieldValue(dependent, result, context.formFieldValidators, {
-            formFields,
-            values,
-            expressionContext: { patient, mode: sessionMode },
+        )
+          .then((result) => {
+            setValue(dependent.id, result);
+            // validate calculated value
+            const { errors, warnings } = validateFieldValue(dependent, result, context.formFieldValidators, {
+              formFields,
+              values,
+              expressionContext: { patient, mode: sessionMode },
+            });
+            if (!dependent.meta.submission) {
+              dependent.meta.submission = {};
+            }
+            dependent.meta.submission.errors = errors;
+            dependent.meta.submission.warnings = warnings;
+            if (!errors.length) {
+              context.formFieldAdapters[dependent.type].transformFieldValue(dependent, result, context);
+            }
+            updateFormField(dependent);
+          })
+          .catch((error) => {
+            reportError(error, 'Error evaluating calculate expression');
           });
-          if (!dependent.meta.submission) {
-            dependent.meta.submission = {};
-          }
-          dependent.meta.submission.errors = errors;
-          dependent.meta.submission.warnings = warnings;
-          if (!errors.length) {
-            context.formFieldAdapters[dependent.type].transformFieldValue(dependent, result, context);
-          }
-          updateFormField(dependent);
-        });
       }
       // evaluate hide
       if (dependent.hide) {
-        evaluateHide({ value: dependent, type: 'field' }, formFields, values, sessionMode, patient, evaluateExpression);
+        const targetSection = findFieldSection(formJson, dependent);
+        const isSectionVisible = targetSection?.questions.some((question) => !question.isHidden);
+
+        evaluateHide(
+          { value: dependent, type: 'field' },
+          formFields,
+          values,
+          sessionMode,
+          patient,
+          evaluateExpression,
+          updateFormField,
+        );
+
+        if (targetSection) {
+          targetSection.questions = targetSection?.questions.map((question) => {
+            if (question.id === dependent.id) {
+              return dependent;
+            }
+            return question;
+          });
+          const isDependentFieldHidden = dependent.isHidden;
+          const sectionHasVisibleFieldAfterEvaluation = [...targetSection.questions, dependent].some(
+            (field) => !field.isHidden,
+          );
+
+          if (!isSectionVisible && !isDependentFieldHidden) {
+            targetSection.isHidden = false;
+            shouldUpdateForm = true;
+          } else if (isSectionVisible && !sectionHasVisibleFieldAfterEvaluation) {
+            targetSection.isHidden = true;
+            shouldUpdateForm = true;
+          }
+        }
       }
       // evaluate disabled
       if (typeof dependent.disabled === 'object' && dependent.disabled.disableWhenExpression) {
@@ -179,8 +217,6 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
     });
   }
 
-  let shouldUpdateForm = false;
-
   // handle sections
   if (field.sectionDependents) {
     field.sectionDependents.forEach((sectionId) => {
@@ -194,12 +230,8 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
             sessionMode,
             patient,
             evaluateExpression,
+            updateFormField,
           );
-          if (isTrue(section.isHidden)) {
-            section.questions.forEach((field) => {
-              field.isParentHidden = true;
-            });
-          }
           shouldUpdateForm = true;
           break;
         }
@@ -211,14 +243,15 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
   if (field.pageDependents) {
     field.pageDependents?.forEach((dep) => {
       const dependent = formJson.pages.find((f) => f.label == dep);
-      evaluateHide({ value: dependent, type: 'page' }, formFields, values, sessionMode, patient, evaluateExpression);
-      if (isTrue(dependent.isHidden)) {
-        dependent.sections.forEach((section) => {
-          section.questions.forEach((field) => {
-            field.isParentHidden = true;
-          });
-        });
-      }
+      evaluateHide(
+        { value: dependent, type: 'page' },
+        formFields,
+        values,
+        sessionMode,
+        patient,
+        evaluateExpression,
+        updateFormField,
+      );
       shouldUpdateForm = true;
     });
   }

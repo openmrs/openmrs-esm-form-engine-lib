@@ -1,12 +1,12 @@
 import dayjs from 'dayjs';
 import { ConceptTrue, codedTypes } from '../constants';
 import {
+  type Attachment,
   type OpenmrsObs,
   type FormField,
   type OpenmrsEncounter,
-  type AttachmentResponse,
-  type Attachment,
   type ValueAndDisplay,
+  type FormFieldValueAdapter,
 } from '../types';
 import {
   hasRendering,
@@ -17,10 +17,8 @@ import {
   formatDateAsDisplayString,
 } from '../utils/common-utils';
 import { type FormContextProps } from '../provider/form-provider';
-import { type FormFieldValueAdapter } from '../types';
 import { isEmpty } from '../validators/form-validator';
-import { getAttachmentByUuid } from '../api';
-import { formatDate, restBaseUrl } from '@openmrs/esm-framework';
+import { attachmentUrl, getAttachmentByUuid, type OpenmrsResource } from '@openmrs/esm-framework';
 
 // Temporarily holds observations that have already been bound with matching fields
 export let assignedObsIds: string[] = [];
@@ -28,15 +26,11 @@ export let assignedObsIds: string[] = [];
 export const ObsAdapter: FormFieldValueAdapter = {
   async getInitialValue(field: FormField, sourceObject: any, context: FormContextProps) {
     const encounter = sourceObject ?? (context.domainObjectValue as OpenmrsEncounter);
-    if (hasRendering(field, 'file')) {
-      const ac = new AbortController();
-      const attachmentsResponse = await getAttachmentByUuid(context.patient.id, encounter.uuid, ac);
-      // TODO: This seems like a violation of the data model.
-      // I think we should instead use something like `formFieldPath` to do the mapping.
-      const rawAttachment = attachmentsResponse.results?.find((attachment) => attachment.comment === field.id);
-      return rawAttachment ? generateAttachment(rawAttachment) : null;
+    const matchingObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field);
+    if (hasRendering(field, 'file') && matchingObs?.length) {
+      return resolveAttachmentsFromObs(field, matchingObs);
     }
-    return extractFieldValue(field, findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field), true);
+    return extractFieldValue(field, matchingObs, true);
   },
   async getPreviousValue(field: FormField, sourceObject: any, context: FormContextProps): Promise<ValueAndDisplay> {
     const encounter = sourceObject ?? (context.previousDomainObjectValue as OpenmrsEncounter);
@@ -63,7 +57,7 @@ export const ObsAdapter: FormFieldValueAdapter = {
     if (value instanceof Date) {
       return formatDateAsDisplayString(field, value);
     }
-    if (rendering == 'checkbox') {
+    if (rendering === 'checkbox') {
       return value.map(
         (selected) => field.questionOptions.answers?.find((option) => option.concept == selected)?.label,
       );
@@ -79,17 +73,20 @@ export const ObsAdapter: FormFieldValueAdapter = {
   transformFieldValue: (field: FormField, value: any, context: FormContextProps) => {
     // clear previous submission
     clearSubmission(field);
-    if (!field.meta.previousValue && isEmpty(value)) {
+    if (!field.meta.initialValue?.omrsObject && isEmpty(value)) {
       return null;
     }
     if (hasRendering(field, 'checkbox')) {
-      return handleMultiSelect(field, value);
+      return handleMultiSelect(field, Array.isArray(value) ? value : [value]);
+    }
+    if (hasRendering(field, 'file')) {
+      return handleAttachments(field, value);
     }
     if (!isEmpty(value) && hasPreviousObsValueChanged(field, value)) {
       return gracefullySetSubmission(field, editObs(field, value), undefined);
     }
-    if (field.meta.previousValue && isEmpty(value)) {
-      return gracefullySetSubmission(field, undefined, voidObs(field.meta.previousValue));
+    if (field.meta.initialValue?.omrsObject && isEmpty(value)) {
+      return gracefullySetSubmission(field, undefined, voidObs(field.meta.initialValue.omrsObject as OpenmrsObs));
     }
     if (!isEmpty(value)) {
       return gracefullySetSubmission(field, constructObs(field, value), undefined);
@@ -110,25 +107,29 @@ function extractFieldValue(field: FormField, obsList: OpenmrsObs[] = [], makeFie
   const rendering = field.questionOptions.rendering;
   if (!field.meta) {
     field.meta = {
-      previousValue: null,
+      initialValue: {
+        omrsObject: null,
+        refinedValue: null,
+      },
     };
   }
   if (obsList.length) {
     if (rendering == 'checkbox') {
       assignedObsIds.push(...obsList.map((obs) => obs.uuid));
-      field.meta.previousValue = makeFieldDirty ? obsList : null;
+      field.meta.initialValue.omrsObject = makeFieldDirty ? obsList : null;
       return obsList.map((o) => o.value.uuid);
     }
     const obs = obsList[0];
     if (makeFieldDirty) {
-      field.meta.previousValue = { ...obs };
+      field.meta.initialValue.omrsObject = { ...obs };
     }
     assignedObsIds.push(obs.uuid);
     if (typeof obs.value === 'string' || typeof obs.value === 'number') {
       if (rendering.startsWith('date')) {
         const dateObject = parseToLocalDateTime(obs.value as string);
         if (makeFieldDirty) {
-          field.meta.previousValue.value = dayjs(dateObject).format('YYYY-MM-DD HH:mm');
+          const obsObject = field.meta.initialValue.omrsObject as OpenmrsObs;
+          obsObject.value = dayjs(dateObject).format('YYYY-MM-DD HH:mm');
         }
         return dateObject;
       }
@@ -168,7 +169,7 @@ export function voidObs(obs: OpenmrsObs) {
 }
 
 export function editObs(field: FormField, newValue: any) {
-  const oldObs = field.meta.previousValue;
+  const oldObs = field.meta.initialValue?.omrsObject as OpenmrsResource;
   const formattedValue = field.questionOptions.rendering.startsWith('date')
     ? formatDateByPickerType(field, newValue)
     : newValue;
@@ -197,7 +198,7 @@ function formatDateByPickerType(field: FormField, value: Date) {
 }
 
 export function hasPreviousObsValueChanged(field: FormField, newValue: any) {
-  const previousObs = field.meta.previousValue;
+  const previousObs = field.meta.initialValue?.omrsObject as OpenmrsResource;
   if (isEmpty(previousObs)) {
     return false;
   }
@@ -221,19 +222,19 @@ function handleMultiSelect(field: FormField, values: Array<string> = []) {
   // 1. we have a previous value and an empty current value
   // 2. a mix of both (previous and current)
   // 3. we only have a current value
-
-  if (field.meta.previousValue && isEmpty(values)) {
+  const obsArray = field.meta.initialValue?.omrsObject as Array<OpenmrsResource>;
+  if (obsArray?.length && isEmpty(values)) {
     // we assume the user cleared the existing value(s)
     // so we void all previous values
     return gracefullySetSubmission(
       field,
       null,
-      field.meta.previousValue.map((previousValue) => voidObs(previousValue)),
+      obsArray.map((previousValue) => voidObs(previousValue)),
     );
   }
-  if (field.meta.previousValue && !isEmpty(values)) {
-    const toBeVoided = field.meta.previousValue.filter((obs) => !values.includes(obs.value.uuid));
-    const toBeCreated = values.filter((v) => !field.meta.previousValue.some((obs) => obs.value.uuid === v));
+  if (obsArray?.length && !isEmpty(values)) {
+    const toBeVoided = obsArray.filter((obs) => !values.includes(obs.value.uuid));
+    const toBeCreated = values.filter((v) => !obsArray.some((obs) => obs.value.uuid === v));
     return gracefullySetSubmission(
       field,
       toBeCreated.map((value) => constructObs(field, value)),
@@ -245,6 +246,20 @@ function handleMultiSelect(field: FormField, values: Array<string> = []) {
     values.map((value) => constructObs(field, value)),
     undefined,
   );
+}
+
+function handleAttachments(field: FormField, attachments: Attachment[] = []) {
+  const voided = attachments
+    .filter((attachment) => attachment.uuid && attachment.voided)
+    .map((voided) => ({ uuid: voided.uuid, voided: true }));
+  const newAttachments = (field.meta.submission.newValue = attachments
+    .filter((attachment) => !attachment.uuid)
+    .map((newAttachment) => ({
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: `rfe-forms-${field.id}`,
+      ...newAttachment,
+    })));
+  return gracefullySetSubmission(field, newAttachments, voided);
 }
 
 /**
@@ -259,9 +274,15 @@ export function findObsByFormField(
   claimedObsIds: string[],
   field: FormField,
 ): OpenmrsObs[] {
-  const obs = obsList.filter(
-    (o) => o.formFieldPath == `rfe-forms-${field.id}` && o.concept.uuid == field.questionOptions.concept,
-  );
+  const obs = obsList.filter((candidate) => {
+    // we ignore the concept for attachments because they're managed from the backend
+    if (hasRendering(field, 'file') && candidate.formFieldPath == `rfe-forms-${field.id}`) {
+      return true;
+    }
+    return (
+      candidate.formFieldPath == `rfe-forms-${field.id}` && candidate.concept.uuid == field.questionOptions.concept
+    );
+  });
 
   // We shall fall back to mapping by the associated concept
   // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
@@ -273,17 +294,27 @@ export function findObsByFormField(
   return obs;
 }
 
-function generateAttachment(rawAttachment: AttachmentResponse): Attachment {
-  const attachmentUrl = `${restBaseUrl}/attachment`;
-  return {
-    id: rawAttachment.uuid,
-    src: `${window.openmrsBase}${attachmentUrl}/${rawAttachment.uuid}/bytes`,
-    title: rawAttachment.comment,
-    description: '',
-    dateTime: formatDate(new Date(rawAttachment.dateTime), {
-      mode: 'wide',
-    }),
-    bytesMimeType: rawAttachment.bytesMimeType,
-    bytesContentFamily: rawAttachment.bytesContentFamily,
+async function resolveAttachmentsFromObs(field: FormField, obs: OpenmrsObs[]) {
+  const abortController = new AbortController();
+  const attachments = await Promise.all(
+    obs.map((obs) =>
+      getAttachmentByUuid(obs.uuid, abortController)
+        .then((response) => response.data)
+        .catch((error) => {
+          console.error(`Failed to fetch attachment ${obs.uuid}:`, error);
+          return null;
+        }),
+    ),
+  );
+
+  field.meta.initialValue = {
+    omrsObject: obs,
   };
+  return attachments.filter(Boolean).map((attachment) => ({
+    uuid: attachment.uuid,
+    base64Content: `${window.openmrsBase}${attachmentUrl}/${attachment.uuid}/bytes`,
+    fileName: attachment.filename,
+    fileDescription: attachment.comment,
+    fileType: attachment.bytesContentFamily?.toLowerCase(),
+  })) as Attachment[];
 }

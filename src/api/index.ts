@@ -1,6 +1,13 @@
 import { createAttachment, fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
-import { type OpenmrsForm, type PatientIdentifier, type PatientProgramPayload } from '../types';
+import type {
+  AttachmentFieldValue,
+  FHIRObsResource,
+  OpenmrsForm,
+  PatientDeathPayload,
+  PatientIdentifier,
+  PatientProgramPayload,
+} from '../types';
 import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
@@ -83,15 +90,18 @@ export async function getPreviousEncounter(patientUuid: string, encounterType: s
   return null;
 }
 
-export function getLatestObs(patientUuid: string, conceptUuid: string, encounterTypeUuid?: string) {
+export async function getLatestObs(
+  patientUuid: string,
+  conceptUuid: string,
+  encounterTypeUuid?: string,
+): Promise<FHIRObsResource> {
   let params = `patient=${patientUuid}&code=${conceptUuid}${
     encounterTypeUuid ? `&encounter.type=${encounterTypeUuid}` : ''
   }`;
   // the latest obs
   params += '&_sort=-date&_count=1';
-  return openmrsFetch(`${fhirBaseUrl}/Observation?${params}`).then(({ data }) => {
-    return data.entry?.length ? data.entry[0].resource : null;
-  });
+  const { data } = await openmrsFetch(`${fhirBaseUrl}/Observation?${params}`);
+  return data.entry?.length ? data.entry[0].resource : null;
 }
 
 /**
@@ -165,7 +175,7 @@ export function saveProgramEnrollment(payload: PatientProgramPayload, abortContr
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(payload),
+    body: payload,
     signal: abortController.signal,
   });
 }
@@ -185,5 +195,30 @@ export function savePatientIdentifier(patientIdentifier: PatientIdentifier, pati
     },
     method: 'POST',
     body: JSON.stringify(patientIdentifier),
+  });
+}
+
+export function markPatientAsDeceased(
+  t: TFunction,
+  patientUUID: string,
+  payload: PatientDeathPayload,
+  abortController: AbortController,
+) {
+  if (!payload) {
+    throw new Error(
+      t(
+        'patientCannotBeMarkedAsDeceasedBecauseNoPayloadSupplied',
+        'Patient cannot be marked as deceased because no payload is supplied',
+      ),
+    );
+  }
+  const url = `${restBaseUrl}/person/${patientUUID}`;
+  return openmrsFetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: payload,
+    signal: abortController.signal,
   });
 }

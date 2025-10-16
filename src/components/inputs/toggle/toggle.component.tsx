@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Toggle as ToggleInput } from '@carbon/react';
 import { type FormFieldInputProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
 import { shouldUseInlineLayout } from '../../../utils/form-helper';
-import FieldValueView from '../../value/view/field-value-view.component';
 import { isEmpty } from '../../../validators/form-validator';
-import styles from './toggle.scss';
-import { useTranslation } from 'react-i18next';
 import { useFormProviderContext } from '../../../provider/form-provider';
+import FieldValueView from '../../value/view/field-value-view.component';
+import styles from './toggle.scss';
 
 const Toggle: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
@@ -20,7 +20,7 @@ const Toggle: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings,
   useEffect(() => {
     // The toggle input doesn't support blank values
     // by default, the value should be false
-    if (!field.meta?.previousValue && context.sessionMode == 'enter') {
+    if (!field.meta?.initialValue?.omrsObject && context.sessionMode == 'enter') {
       context.formFieldAdapters[field.type].transformFieldValue(field, value ?? false, context);
     }
   }, []);

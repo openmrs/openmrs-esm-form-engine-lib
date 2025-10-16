@@ -1,22 +1,24 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { FormField, FormSchema, SessionMode } from './types';
-import { useSession, type Visit } from '@openmrs/esm-framework';
-import { isEmpty, useFormJson } from '.';
-import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
-import Loader from './components/loaders/loader.component';
-import { usePatientData } from './hooks/usePatientData';
-import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
-import { FormFactoryProvider } from './provider/form-factory-provider';
 import classNames from 'classnames';
-import styles from './form-engine.scss';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
-import PatientBanner from './components/patient-banner/patient-banner.component';
-import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
+import { useSession, type Visit } from '@openmrs/esm-framework';
+import { FormFactoryProvider } from './provider/form-factory-provider';
 import { init, teardown } from './lifecycle';
+import { isEmpty, useFormJson } from '.';
+import { formEngineAppName } from './globals';
 import { reportError } from './utils/error-utils';
-import { moduleName } from './globals';
 import { useFormCollapse } from './hooks/useFormCollapse';
+import { useFormWorkspaceSize } from './hooks/useFormWorkspaceSize';
+import { usePageObserver } from './components/sidebar/usePageObserver';
+import { usePatientData } from './hooks/usePatientData';
+import type { FormField, FormSchema, SessionMode, PreFilledQuestions } from './types';
+import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
+import Loader from './components/loaders/loader.component';
+import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
+import PatientBanner from './components/patient-banner/patient-banner.component';
+import Sidebar from './components/sidebar/sidebar.component';
+import styles from './form-engine.scss';
 
 interface FormEngineProps {
   patientUUID: string;
@@ -26,16 +28,16 @@ interface FormEngineProps {
   visit?: Visit;
   formSessionIntent?: string;
   mode?: SessionMode;
-  onSubmit?: () => void;
+  onSubmit?: (data: any) => void;
   onCancel?: () => void;
   handleClose?: () => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   markFormAsDirty?: (isDirty: boolean) => void;
+  hideControls?: boolean;
+  hidePatientBanner?: boolean;
+  preFilledQuestions?: PreFilledQuestions;
 }
 
-// TODOs:
-// - Implement sidebar
-// - Conditionally render the button set
 const FormEngine = ({
   formJson,
   patientUUID,
@@ -49,6 +51,9 @@ const FormEngine = ({
   handleClose,
   handleConfirmQuestionDeletion,
   markFormAsDirty,
+  hideControls = false,
+  hidePatientBanner = false,
+  preFilledQuestions,
 }: FormEngineProps) => {
   const { t } = useTranslation();
   const session = useSession();
@@ -56,35 +61,45 @@ const FormEngine = ({
   const sessionDate = useMemo(() => {
     return new Date();
   }, []);
-  const workspaceLayout = useWorkspaceLayout(ref);
+  const workspaceSize = useFormWorkspaceSize(ref);
   const { patient, isLoadingPatient } = usePatientData(patientUUID);
   const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
   const sessionMode = !isEmpty(mode) ? mode : !isEmpty(encounterUUID) ? 'edit' : 'enter';
   const { isFormExpanded, hideFormCollapseToggle } = useFormCollapse(sessionMode);
+  const { hasMultiplePages } = usePageObserver();
 
-  // TODO: Updating this prop triggers a rerender of the entire form. This means whenever we scroll into a new page, the form is rerendered.
-  // Figure out a way to avoid this. Maybe use a ref with an observer instead of a state?
-  const [currentPage, setCurrentPage] = useState('');
   const {
     formJson: refinedFormJson,
     isLoading: isLoadingFormJson,
     formError,
-  } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent);
+  } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent, preFilledQuestions);
 
   const showPatientBanner = useMemo(() => {
-    return patient && workspaceLayout !== 'minimized' && mode !== 'embedded-view';
-  }, [patient, mode, workspaceLayout]);
+    if (hidePatientBanner) {
+      return false;
+    }
+    return patient && workspaceSize === 'ultra-wide' && mode !== 'embedded-view';
+  }, [patient, mode, workspaceSize, hidePatientBanner]);
 
-  const showButtonSet = useMemo(() => {
-    // if (mode === 'embedded-view') {
-    //   return false;
-    // }
-    // return workspaceLayout === 'minimized' || (workspaceLayout === 'maximized' && scrollablePages.size <= 1);
-    return true;
-  }, [mode, workspaceLayout]);
+  const isFormWorkspaceTooNarrow = useMemo(() => ['narrow'].includes(workspaceSize), [workspaceSize]);
+
+  const showBottomButtonSet = useMemo(() => {
+    if (mode === 'embedded-view' || isLoadingDependencies || hasMultiplePages === null) {
+      return false;
+    }
+
+    return isFormWorkspaceTooNarrow || !hasMultiplePages;
+  }, [mode, isFormWorkspaceTooNarrow, isLoadingDependencies, hasMultiplePages]);
+
+  const showSidebar = useMemo(() => {
+    if (mode === 'embedded-view' || isLoadingDependencies || hasMultiplePages === null) {
+      return false;
+    }
+
+    return !isFormWorkspaceTooNarrow && hasMultiplePages;
+  }, [isFormWorkspaceTooNarrow, isLoadingDependencies, hasMultiplePages]);
 
   useEffect(() => {
     reportError(formError, t('errorLoadingFormSchema', 'Error loading form schema'));
@@ -113,10 +128,11 @@ const FormEngine = ({
       ) : (
         <FormFactoryProvider
           patient={patient}
+          patientUUID={patientUUID}
           sessionMode={sessionMode}
           sessionDate={sessionDate}
           formJson={refinedFormJson}
-          workspaceLayout={workspaceLayout}
+          workspaceLayout={workspaceSize === 'ultra-wide' ? 'maximized' : 'minimized'}
           location={session?.sessionLocation}
           provider={session?.currentProvider}
           visit={visit}
@@ -130,8 +146,7 @@ const FormEngine = ({
             handleClose: () => {},
           }}
           hideFormCollapseToggle={hideFormCollapseToggle}
-          setIsFormDirty={setIsFormDirty}
-          setCurrentPage={setCurrentPage}>
+          setIsFormDirty={setIsFormDirty}>
           <div className={styles.formContainer}>
             {isLoadingDependencies && (
               <div className={styles.linearActivity}>
@@ -139,7 +154,17 @@ const FormEngine = ({
               </div>
             )}
             <div className={styles.formContent}>
-              {showSidebar && <div>{/* Side bar goes here */}</div>}
+              {showSidebar && (
+                <Sidebar
+                  isFormSubmitting={isSubmitting}
+                  sessionMode={mode}
+                  defaultPage={refinedFormJson.defaultPage}
+                  onCancel={onCancel}
+                  handleClose={handleClose}
+                  hideFormCollapseToggle={hideFormCollapseToggle}
+                  hideControls={hideControls}
+                />
+              )}
               <div className={styles.formContentInner}>
                 {showPatientBanner && <PatientBanner patient={patient} hideActionsOverflow />}
                 {refinedFormJson.markdown && (
@@ -153,18 +178,22 @@ const FormEngine = ({
                     setIsLoadingFormDependencies={setIsLoadingDependencies}
                   />
                 </div>
-                {showButtonSet && (
+                {showBottomButtonSet && !hideControls && (
                   <ButtonSet className={styles.minifiedButtons}>
                     <Button
                       kind="secondary"
                       onClick={() => {
                         onCancel && onCancel();
                         handleClose && handleClose();
-                        // TODO: hideFormCollapseToggle();
+                        hideFormCollapseToggle();
                       }}>
                       {mode === 'view' ? t('close', 'Close') : t('cancel', 'Cancel')}
                     </Button>
-                    <Button type="submit" disabled={isLoadingDependencies || mode === 'view'}>
+                    <Button
+                      className={styles.saveButton}
+                      disabled={isLoadingDependencies || isSubmitting || mode === 'view'}
+                      kind="primary"
+                      type="submit">
                       {isSubmitting ? (
                         <InlineLoading description={t('submitting', 'Submitting') + '...'} />
                       ) : (
@@ -184,7 +213,7 @@ const FormEngine = ({
 
 function I18FormEngine(props: FormEngineProps) {
   return (
-    <I18nextProvider i18n={window.i18next} defaultNS={moduleName}>
+    <I18nextProvider i18n={window.i18next} defaultNS={formEngineAppName}>
       <FormEngine {...props} />
     </I18nextProvider>
   );

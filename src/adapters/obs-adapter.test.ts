@@ -1,6 +1,7 @@
+import { getAttachmentByUuid } from '@openmrs/esm-framework';
 import { type FormContextProps } from '../provider/form-provider';
 import { type FormField } from '../types';
-import { hasPreviousObsValueChanged, findObsByFormField, ObsAdapter } from './obs-adapter';
+import { findObsByFormField, hasPreviousObsValueChanged, ObsAdapter } from './obs-adapter';
 
 const formContext = {
   methods: null,
@@ -28,6 +29,7 @@ const formContext = {
   formFieldAdapters: null,
   formFieldValidators: null,
   customDependencies: null,
+  deletedFields: [],
   getFormField: jest.fn(),
   addFormField: jest.fn(),
   updateFormField: jest.fn(),
@@ -36,7 +38,11 @@ const formContext = {
   removeInvalidField: jest.fn(),
   setInvalidFields: jest.fn(),
   setForm: jest.fn(),
+  setDeletedFields: jest.fn(),
 } as FormContextProps;
+
+window.openmrsBase = 'openmrs';
+const mockGetAttachmentByUuid = jest.mocked(getAttachmentByUuid);
 
 describe('ObsAdapter - transformFieldValue', () => {
   // new submission (enter mode)
@@ -186,6 +192,42 @@ describe('ObsAdapter - transformFieldValue', () => {
     });
   });
 
+  it('should handle value transformation for file input', () => {
+    // setup
+    const field: FormField = {
+      label: "Upload an image or use this device's camera to capture an image",
+      type: 'obs',
+      questionOptions: {
+        rendering: 'file',
+      },
+      meta: {},
+      id: 'demoFile',
+    };
+    // value
+    const image = {
+      base64Content: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAoA',
+      capturedFromWebcam: true,
+      fileDescription: '',
+      fileName: 'Image taken from camera.png',
+      fileType: 'image',
+    };
+
+    // replay
+    const obs = ObsAdapter.transformFieldValue(field, [image], formContext);
+    // verify
+    expect(obs).toEqual([
+      {
+        base64Content: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAoA',
+        capturedFromWebcam: true,
+        fileDescription: '',
+        fileName: 'Image taken from camera.png',
+        fileType: 'image',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-demoFile',
+      },
+    ]);
+  });
+
   // editing existing values (edit mode)
   it('should edit obs text/number value in edit mode', () => {
     // setup
@@ -198,15 +240,17 @@ describe('ObsAdapter - transformFieldValue', () => {
         concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       },
       meta: {
-        previousValue: {
-          uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          value: 'Can be discharged in next visit',
+        initialValue: {
+          omrsObject: {
+            uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+            person: '833db896-c1f0-11eb-8529-0242ac130003',
+            concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+            order: null,
+            groupMembers: [],
+            voided: false,
+            value: 'Can be discharged in next visit',
+          },
         },
       },
       id: 'visit-note',
@@ -236,15 +280,17 @@ describe('ObsAdapter - transformFieldValue', () => {
         concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       },
       meta: {
-        previousValue: {
-          uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          value: '5197ca4f-f0f7-4e63-9a68-8614224dce44',
+        initialValue: {
+          omrsObject: {
+            uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+            person: '833db896-c1f0-11eb-8529-0242ac130003',
+            concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+            order: null,
+            groupMembers: [],
+            voided: false,
+            value: '5197ca4f-f0f7-4e63-9a68-8614224dce44',
+          },
         },
       },
       id: 'hts-result',
@@ -276,22 +322,24 @@ describe('ObsAdapter - transformFieldValue', () => {
         ],
       },
       meta: {
-        previousValue: [
-          {
-            uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
-            person: '833db896-c1f0-11eb-8529-0242ac130003',
-            concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
-            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-            order: null,
-            groupMembers: [],
-            voided: false,
-            formFieldNamespace: 'rfe-forms',
-            formFieldPath: 'rfe-forms-past-patient-programs',
-            value: {
-              uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
+        initialValue: {
+          omrsObject: [
+            {
+              uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
+              person: '833db896-c1f0-11eb-8529-0242ac130003',
+              concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
+              location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+              order: null,
+              groupMembers: [],
+              voided: false,
+              formFieldNamespace: 'rfe-forms',
+              formFieldPath: 'rfe-forms-past-patient-programs',
+              value: {
+                uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
+              },
             },
-          },
-        ],
+          ],
+        },
       },
       id: 'past-patient-programs',
     };
@@ -327,15 +375,17 @@ describe('ObsAdapter - transformFieldValue', () => {
         concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
       },
       meta: {
-        previousValue: {
-          uuid: 'bca7277f-a726-4d3d-9db8-40937228ead5',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          value: new Date(2020, 11, 16),
+        initialValue: {
+          omrsObject: {
+            uuid: 'bca7277f-a726-4d3d-9db8-40937228ead5',
+            person: '833db896-c1f0-11eb-8529-0242ac130003',
+            concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
+            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+            order: null,
+            groupMembers: [],
+            voided: false,
+            value: new Date(2020, 11, 16),
+          },
         },
       },
       id: 'hts-date',
@@ -365,15 +415,17 @@ describe('ObsAdapter - transformFieldValue', () => {
         concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       },
       meta: {
-        previousValue: {
-          uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          value: 'Can be discharged in next visit',
+        initialValue: {
+          omrsObject: {
+            uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+            person: '833db896-c1f0-11eb-8529-0242ac130003',
+            concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+            order: null,
+            groupMembers: [],
+            voided: false,
+            value: 'Can be discharged in next visit',
+          },
         },
       },
       id: 'visit-note',
@@ -401,15 +453,17 @@ describe('ObsAdapter - transformFieldValue', () => {
         concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
       },
       meta: {
-        previousValue: {
-          uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          value: '5197ca4f-f0f7-4e63-9a68-8614224dce44',
+        initialValue: {
+          omrsObject: {
+            uuid: '305ed1fc-c1fd-11eb-8529-0242ac130003',
+            person: '833db896-c1f0-11eb-8529-0242ac130003',
+            concept: '1c43b05b-b6d8-4eb5-8f37-0b14f5347568',
+            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+            order: null,
+            groupMembers: [],
+            voided: false,
+            value: '5197ca4f-f0f7-4e63-9a68-8614224dce44',
+          },
         },
       },
       id: 'hts-result',
@@ -435,20 +489,22 @@ describe('ObsAdapter - transformFieldValue', () => {
         answers: [{ label: 'Option 1', concept: '105e7ad6-c1fd-11eb-8529-0242ac130ju9' }],
       },
       meta: {
-        previousValue: [
-          {
-            uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
-            person: '833db896-c1f0-11eb-8529-0242ac130003',
-            concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
-            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-            order: null,
-            groupMembers: [],
-            voided: false,
-            value: {
-              uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
+        initialValue: {
+          omrsObject: [
+            {
+              uuid: 'f2487de5-e55f-4689-8791-0c919179818b',
+              person: '833db896-c1f0-11eb-8529-0242ac130003',
+              concept: '3hbkj9-b6d8-4eju-8f37-0b14f5347jv9',
+              location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+              order: null,
+              groupMembers: [],
+              voided: false,
+              value: {
+                uuid: '105e7ad6-c1fd-11eb-8529-0242ac130ju9',
+              },
             },
-          },
-        ],
+          ],
+        },
       },
       id: 'past-patient-programs',
     };
@@ -479,15 +535,17 @@ describe('ObsAdapter - transformFieldValue', () => {
         concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
       },
       meta: {
-        previousValue: {
-          uuid: 'bca7277f-a726-4d3d-9db8-40937228ead5',
-          person: '833db896-c1f0-11eb-8529-0242ac130003',
-          concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
-          location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
-          order: null,
-          groupMembers: [],
-          voided: false,
-          value: htsDate,
+        initialValue: {
+          omrsObject: {
+            uuid: 'bca7277f-a726-4d3d-9db8-40937228ead5',
+            person: '833db896-c1f0-11eb-8529-0242ac130003',
+            concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
+            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+            order: null,
+            groupMembers: [],
+            voided: false,
+            value: htsDate,
+          },
         },
       },
       id: 'hts-date',
@@ -500,6 +558,39 @@ describe('ObsAdapter - transformFieldValue', () => {
       voided: true,
     });
     expect(field.meta.submission.newValue).toBe(null);
+  });
+
+  it('should void deleted files', () => {
+    // setup
+    const field: FormField = {
+      label: "Upload an image or use this device's camera to capture an image",
+      type: 'obs',
+      questionOptions: {
+        rendering: 'file',
+      },
+      meta: {
+        initialValue: {
+          omrsObject: {
+            uuid: '6ff51289-b334-4050-8a0e-28cb2034bfc3',
+            formFieldPath: 'rfe-forms-demoFile',
+          },
+        },
+      },
+      id: 'demoFile',
+    };
+    // replay
+    ObsAdapter.transformFieldValue(
+      field,
+      [{ uuid: '6ff51289-b334-4050-8a0e-28cb2034bfc3', voided: true }],
+      formContext,
+    );
+    // verify
+    expect(field.meta.submission.voidedValue).toEqual([
+      {
+        uuid: '6ff51289-b334-4050-8a0e-28cb2034bfc3',
+        voided: true,
+      },
+    ]);
   });
 });
 
@@ -643,6 +734,49 @@ describe('ObsAdapter - getInitialValue', () => {
     const initialValue = await ObsAdapter.getInitialValue(field, formContext.domainObjectValue, formContext);
     // verify
     expect(initialValue).toEqual('12f7be3d-fb5d-47dc-b5e3-56c501be80a6');
+  });
+
+  it('should get initial value for file rendering', async () => {
+    // setup
+    const field: FormField = {
+      label: "Upload an image or use this device's camera to capture an image",
+      type: 'obs',
+      questionOptions: {
+        rendering: 'file',
+      },
+      meta: {},
+      id: 'demoFile',
+    };
+
+    const obs = {
+      uuid: '6ff51289-b334-4050-8a0e-28cb2034bfc3',
+      formFieldPath: 'rfe-forms-demoFile',
+    };
+    formContext.domainObjectValue['obs'].push(obs);
+    mockGetAttachmentByUuid.mockReturnValue(
+      Promise.resolve({
+        data: {
+          uuid: '6ff51289-b334-4050-8a0e-28cb2034bfc3',
+          dateTime: '2025-08-21T19:31:39.000+0000',
+          filename: 'image.png',
+          comment: 'An image captured for test purposes',
+          bytesMimeType: 'image/png',
+          bytesContentFamily: 'IMAGE',
+        },
+      } as any),
+    );
+
+    // replay
+    const initialValue = await ObsAdapter.getInitialValue(field, formContext.domainObjectValue, formContext);
+    expect(initialValue).toEqual([
+      {
+        uuid: '6ff51289-b334-4050-8a0e-28cb2034bfc3',
+        base64Content: 'openmrs/ws/rest/v1/attachment/6ff51289-b334-4050-8a0e-28cb2034bfc3/bytes',
+        fileName: 'image.png',
+        fileDescription: 'An image captured for test purposes',
+        fileType: 'image',
+      },
+    ]);
   });
 
   it('should get initial values for obs-group members', async () => {
@@ -790,9 +924,11 @@ describe('hasPreviousObsValueChanged', () => {
         rendering: 'radio',
       },
       meta: {
-        previousValue: {
-          value: {
-            uuid: '1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        initialValue: {
+          omrsObject: {
+            value: {
+              uuid: '1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            },
           },
         },
       },
@@ -808,8 +944,10 @@ describe('hasPreviousObsValueChanged', () => {
         rendering: 'date',
       },
       meta: {
-        previousValue: {
-          value: '2024-05-01T19:49:50.000+0000',
+        initialValue: {
+          omrsObject: {
+            value: '2024-05-01T19:49:50.000+0000',
+          },
         },
       },
     } as any as FormField;
@@ -823,8 +961,10 @@ describe('hasPreviousObsValueChanged', () => {
         rendering: 'datetime',
       },
       meta: {
-        previousValue: {
-          value: '2024-04-01T19:50:00.000+0000',
+        initialValue: {
+          omrsObject: {
+            value: '2024-04-01T19:50:00.000+0000',
+          },
         },
       },
     } as any as FormField;
@@ -837,8 +977,10 @@ describe('hasPreviousObsValueChanged', () => {
         rendering: 'text',
       },
       meta: {
-        previousValue: {
-          value: 'Text value',
+        initialValue: {
+          omrsObject: {
+            value: 'Text value',
+          },
         },
       },
     } as any as FormField;
@@ -926,6 +1068,7 @@ describe('findObsByFormField', () => {
   it('Should find observation by field path', () => {
     // do find
     let matchedObs = findObsByFormField(obsList, [], fields[0]);
+
     // verify
     expect(matchedObs.length).toBe(1);
     expect(matchedObs[0]).toBe(obsList[0]);
@@ -942,5 +1085,290 @@ describe('findObsByFormField', () => {
     // verify
     expect(matchedObs.length).toBe(1);
     expect(matchedObs[0]).toBe(obsList[3]);
+  });
+});
+
+describe('ObsAdapter - handling nested obsGroups', () => {
+  const createNestedFields = (): FormField => ({
+    label: 'Parent obsGroup',
+    type: 'obsGroup',
+    required: false,
+    id: 'parentObsgroup',
+    questionOptions: {
+      rendering: 'group',
+      concept: '163770AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    },
+    questions: [
+      {
+        label: 'Health Center',
+        type: 'obs',
+        required: false,
+        id: 'healthCenter',
+        questionOptions: {
+          rendering: 'select',
+          concept: '1745AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          answers: [
+            {
+              concept: '1560AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+              label: 'Family member',
+            },
+            {
+              concept: '1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+              label: 'Health clinic/post',
+            },
+            {
+              concept: '5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+              label: 'Other',
+            },
+          ],
+        },
+      },
+      {
+        label: 'Nested obsGroup',
+        type: 'obsGroup',
+        required: false,
+        id: 'nestedObsgroup',
+        questionOptions: {
+          rendering: 'group',
+          concept: '3f824eeb-8452-4df0-b346-6ed056cbc5b9',
+        },
+        questions: [
+          {
+            label: 'Comment',
+            type: 'obs',
+            required: false,
+            id: 'comment',
+            questionOptions: {
+              rendering: 'textarea',
+              concept: '161011AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            },
+          },
+          {
+            label: 'Other Diagnoses',
+            type: 'obs',
+            required: false,
+            id: 'otherDiagnoses',
+            questionOptions: {
+              rendering: 'select',
+              concept: '159947AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+              answers: [
+                {
+                  concept: '159394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                  label: 'Diagnosis certainty',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ],
+  });
+
+  const createEncounterWithNestedObs = () => ({
+    uuid: 'encounter-uuid',
+    obs: [
+      {
+        uuid: 'parent-group-uuid',
+        concept: {
+          uuid: '163770AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        },
+        groupMembers: [
+          {
+            uuid: 'health-center-uuid',
+            concept: {
+              uuid: '1745AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            },
+            value: {
+              uuid: '1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            },
+            formFieldPath: 'rfe-forms-healthCenter',
+          },
+          {
+            uuid: 'nested-group-uuid',
+            concept: {
+              uuid: '3f824eeb-8452-4df0-b346-6ed056cbc5b9',
+            },
+            groupMembers: [
+              {
+                uuid: 'comment-uuid',
+                concept: {
+                  uuid: '161011AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                },
+                value: 'Test comment for nested group',
+                formFieldPath: 'rfe-forms-comment',
+              },
+              {
+                uuid: 'diagnosis-uuid',
+                concept: {
+                  uuid: '159947AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                },
+                value: {
+                  uuid: '159394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                },
+                formFieldPath: 'rfe-forms-otherDiagnoses',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+
+  beforeEach(() => {
+    formContext.domainObjectValue = createEncounterWithNestedObs();
+    ObsAdapter.tearDown();
+  });
+
+  it('should get initial values from nested obs groups', async () => {
+    const fields = createNestedFields();
+
+    const healthCenterField = fields.questions[0];
+    const healthCenterValue = await ObsAdapter.getInitialValue(
+      healthCenterField,
+      formContext.domainObjectValue,
+      formContext,
+    );
+    expect(healthCenterValue).toBe('1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+
+    const commentField = fields.questions[1].questions[0];
+    const commentValue = await ObsAdapter.getInitialValue(commentField, formContext.domainObjectValue, formContext);
+    expect(commentValue).toBe('Test comment for nested group');
+
+    const diagnosisField = fields.questions[1].questions[1];
+    const diagnosisValue = await ObsAdapter.getInitialValue(diagnosisField, formContext.domainObjectValue, formContext);
+    expect(diagnosisValue).toBe('159394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+  });
+
+  it('should transform values in nested groups', () => {
+    const fields = createNestedFields();
+
+    const healthCenterField = fields.questions[0];
+    const healthCenterObs = ObsAdapter.transformFieldValue(
+      healthCenterField,
+      '1560AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      formContext,
+    );
+    expect(healthCenterObs).toEqual({
+      concept: '1745AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-healthCenter',
+      value: '1560AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    });
+
+    const commentField = fields.questions[1].questions[0];
+    const commentObs = ObsAdapter.transformFieldValue(commentField, 'New test comment', formContext);
+    expect(commentObs).toEqual({
+      concept: '161011AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-comment',
+      value: 'New test comment',
+    });
+  });
+
+  it('should edit existing values in nested groups', () => {
+    formContext.sessionMode = 'edit';
+    const fields = createNestedFields();
+
+    const healthCenterField = fields.questions[0];
+    healthCenterField.meta = {
+      initialValue: {
+        omrsObject: {
+          uuid: 'health-center-uuid',
+          value: {
+            uuid: '1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          },
+        },
+      },
+    };
+
+    const healthCenterObs = ObsAdapter.transformFieldValue(
+      healthCenterField,
+      '5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      formContext,
+    );
+
+    expect(healthCenterObs).toEqual({
+      uuid: 'health-center-uuid',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-healthCenter',
+      value: '5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    });
+
+    const commentField = fields.questions[1].questions[0];
+    commentField.meta = {
+      initialValue: {
+        omrsObject: {
+          uuid: 'comment-uuid',
+          value: 'Test comment for nested group',
+        },
+      },
+    };
+
+    const commentObs = ObsAdapter.transformFieldValue(commentField, 'Updated comment text', formContext);
+
+    expect(commentObs).toEqual({
+      uuid: 'comment-uuid',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-comment',
+      value: 'Updated comment text',
+    });
+  });
+
+  it('should void deleted values in nested groups', () => {
+    formContext.sessionMode = 'edit';
+    const fields = createNestedFields();
+
+    const commentField = fields.questions[1].questions[0];
+    commentField.meta = {
+      initialValue: {
+        omrsObject: {
+          uuid: 'comment-uuid',
+          value: 'Test comment for nested group',
+        },
+      },
+    };
+
+    ObsAdapter.transformFieldValue(commentField, '', formContext);
+    expect(commentField.meta.submission.voidedValue).toEqual({
+      uuid: 'comment-uuid',
+      voided: true,
+    });
+    expect(commentField.meta.submission.newValue).toBe(null);
+
+    const diagnosisField = fields.questions[1].questions[1];
+    diagnosisField.meta = {
+      initialValue: {
+        omrsObject: {
+          uuid: 'diagnosis-uuid',
+          value: {
+            uuid: '159394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          },
+        },
+      },
+    };
+
+    ObsAdapter.transformFieldValue(diagnosisField, null, formContext);
+    expect(diagnosisField.meta.submission.voidedValue).toEqual({
+      uuid: 'diagnosis-uuid',
+      voided: true,
+    });
+    expect(diagnosisField.meta.submission.newValue).toBe(null);
+  });
+
+  it('should handle empty nested groups', async () => {
+    const emptyEncounter = {
+      uuid: 'encounter-uuid',
+      obs: [],
+    };
+
+    const fields = createNestedFields();
+
+    const healthCenterField = fields.questions[0];
+    const healthCenterValue = await ObsAdapter.getInitialValue(healthCenterField, emptyEncounter, formContext);
+    expect(healthCenterValue).toBe('');
+
+    const commentField = fields.questions[1].questions[0];
+    const commentValue = await ObsAdapter.getInitialValue(commentField, emptyEncounter, formContext);
+    expect(commentValue).toBe('');
   });
 });

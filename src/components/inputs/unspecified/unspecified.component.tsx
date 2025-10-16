@@ -25,6 +25,10 @@ const UnspecifiedField: React.FC<UnspecifiedFieldProps> = ({ field, fieldValue, 
     if (isEmpty(fieldValue) && sessionMode === 'edit') {
       // we assume that the field was previously unspecified
       setIsUnspecified(true);
+      if (!field.meta.submission) {
+        field.meta.submission = {};
+      }
+      field.meta.submission.unspecified = true;
     }
   }, []);
 
@@ -44,6 +48,9 @@ const UnspecifiedField: React.FC<UnspecifiedFieldProps> = ({ field, fieldValue, 
         const emptyValue = rendering === 'checkbox' ? [] : '';
         clearSubmission(field);
         field.meta.submission.unspecified = true;
+        // clear stale validation results
+        field.meta.submission.errors = [];
+        field.meta.submission.warnings = [];
         updateFormField(field);
         setFieldValue(emptyValue);
         onAfterChange(emptyValue);

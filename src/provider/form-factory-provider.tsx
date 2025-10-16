@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { type FormField, type FormSchema, type SessionMode } from '../types';
 import { EncounterFormProcessor } from '../processors/encounter/encounter-form-processor';
 import {
@@ -14,6 +14,7 @@ import { type FormContextProps } from './form-provider';
 import { processPostSubmissionActions, validateForm } from './form-factory-helper';
 import { useTranslation } from 'react-i18next';
 import { usePostSubmissionActions } from '../hooks/usePostSubmissionActions';
+import { useExternalFormAction } from '../hooks/useExternalFormAction';
 
 interface FormFactoryProviderContextProps {
   patient: fhir.Patient;
@@ -28,13 +29,13 @@ interface FormFactoryProviderContextProps {
   provider: OpenmrsResource;
   isFormExpanded: boolean;
   registerForm: (formId: string, isSubForm: boolean, context: FormContextProps) => void;
-  setCurrentPage: (page: string) => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   setIsFormDirty: (isFormDirty: boolean) => void;
 }
 
 interface FormFactoryProviderProps {
   patient: fhir.Patient;
+  patientUUID: string;
   sessionMode: SessionMode;
   sessionDate: Date;
   formJson: FormSchema;
@@ -52,7 +53,6 @@ interface FormFactoryProviderProps {
     handleClose: () => void;
   };
   hideFormCollapseToggle: () => void;
-  setCurrentPage: (page: string) => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   setIsFormDirty: (isFormDirty: boolean) => void;
 }
@@ -61,6 +61,7 @@ const FormFactoryProviderContext = createContext<FormFactoryProviderContextProps
 
 export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   patient,
+  patientUUID,
   sessionMode,
   sessionDate,
   formJson,
@@ -72,7 +73,6 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   children,
   formSubmissionProps,
   hideFormCollapseToggle,
-  setCurrentPage,
   handleConfirmQuestionDeletion,
   setIsFormDirty,
 }) => {
@@ -81,6 +81,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   const subForms = useRef<Record<string, FormContextProps>>({});
   const layoutType = useLayoutType();
   const { isSubmitting, setIsSubmitting, onSubmit, onError, handleClose } = formSubmissionProps;
+  const [isValidating, setIsValidating] = useState(false);
   const postSubmissionHandlers = usePostSubmissionActions(formJson.postSubmissionActions);
 
   const abortController = new AbortController();
@@ -98,12 +99,34 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
     EncounterFormProcessor: EncounterFormProcessor,
   });
 
+  const validateAllForms = useCallback(() => {
+    const forms = [rootForm.current, ...Object.values(subForms.current)];
+    const isValid = forms.every((formContext) => validateForm(formContext));
+    return {
+      forms: forms,
+      isValid: isValid,
+    };
+  }, []);
+
+  useExternalFormAction({
+    patientUuid: patientUUID,
+    formUuid: formJson?.uuid,
+    setIsSubmitting: setIsSubmitting,
+    setIsValidating: setIsValidating,
+  });
+
+  useEffect(() => {
+    if (isValidating) {
+      validateAllForms();
+      setIsValidating(false);
+    }
+  }, [isValidating, validateAllForms]);
+
   useEffect(() => {
     if (isSubmitting) {
       // TODO: find a dynamic way of managing the form processing order
-      const forms = [rootForm.current, ...Object.values(subForms.current)];
       // validate all forms
-      const isValid = forms.every((formContext) => validateForm(formContext));
+      const { forms, isValid } = validateAllForms();
       if (isValid) {
         Promise.all(forms.map((formContext) => formContext.processor.processSubmission(formContext, abortController)))
           .then(async (results) => {
@@ -153,7 +176,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
     return () => {
       abortController.abort();
     };
-  }, [isSubmitting]);
+  }, [isSubmitting, validateAllForms]);
 
   return (
     <FormFactoryProviderContext.Provider
@@ -170,7 +193,6 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
         provider,
         isFormExpanded,
         registerForm,
-        setCurrentPage,
         handleConfirmQuestionDeletion,
         setIsFormDirty,
       }}>

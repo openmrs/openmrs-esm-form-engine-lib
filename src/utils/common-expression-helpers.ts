@@ -118,19 +118,22 @@ export class CommonExpressionHelpers {
   };
 
   calcMonthsOnART = (artStartDate: Date) => {
-    if (artStartDate == null) return null;
+    if (artStartDate == null) {
+      return null;
+    }
 
     if (!(artStartDate instanceof Date)) {
       throw new Error('DateFormatException: value passed is not a valid date');
     }
 
-    let today = new Date();
-    let resultMonthsOnART: number;
-    let artInDays = Math.round((today.getTime() - artStartDate.getTime?.()) / 86400000);
-    if (artStartDate && artInDays >= 30) {
-      resultMonthsOnART = Math.floor(artInDays / 30);
+    const today = new Date();
+    const artInDays = Math.round((today.getTime() - artStartDate.getTime()) / 86400000);
+
+    if (artInDays < 30) {
+      return 0;
     }
-    return artStartDate ? resultMonthsOnART : null;
+
+    return dayjs(today).diff(artStartDate, 'month');
   };
 
   calcViralLoadStatus = (viralLoadCount: number) => {

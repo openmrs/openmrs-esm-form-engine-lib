@@ -1,4 +1,4 @@
-import { type OpenmrsResource } from '@openmrs/esm-framework';
+import { type UploadedFile, type OpenmrsResource } from '@openmrs/esm-framework';
 
 export interface OpenmrsEncounter {
   uuid?: string;
@@ -12,23 +12,84 @@ export interface OpenmrsEncounter {
   visit?: OpenmrsResource | string;
   encounterProviders?: Array<Record<string, any>>;
   form?: OpenmrsFormResource;
+  diagnoses?: Array<Diagnosis>;
 }
 
 export interface OpenmrsObs extends OpenmrsResource {
-  concept: any;
-  obsDatetime: string | Date;
-  obsGroup: OpenmrsObs;
-  groupMembers: Array<OpenmrsObs>;
-  comment: string;
-  location: OpenmrsResource;
-  order: OpenmrsResource;
-  encounter: OpenmrsResource;
-  voided: boolean;
-  value: any;
-  formFieldPath: string;
-  formFieldNamespace: string;
-  status: string;
-  interpretation: string;
+  concept?: any;
+  obsDatetime?: string | Date;
+  obsGroup?: OpenmrsObs;
+  groupMembers?: Array<OpenmrsObs>;
+  comment?: string;
+  location?: OpenmrsResource;
+  order?: OpenmrsResource;
+  encounter?: OpenmrsResource;
+  voided?: boolean;
+  value?: any;
+  formFieldPath?: string;
+  formFieldNamespace?: string;
+  status?: string;
+  interpretation?: string;
+}
+
+export interface FHIRObsResource {
+  resourceType: string;
+  id: string;
+  category: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+  }>;
+  code: {
+    coding: Array<{
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  };
+  encounter?: {
+    reference: string;
+    type: string;
+  };
+  effectiveDateTime: string;
+  issued: string;
+  valueBoolean?: boolean;
+  valueString?: string;
+  valueDateTime?: string;
+  valueQuantity?: {
+    value: number;
+    unit: string;
+    system: string;
+    code: string;
+  };
+  valueCodeableConcept?: {
+    coding: [
+      {
+        code: string;
+        display: string;
+      },
+    ];
+    text: string;
+  };
+  referenceRange: Array<{
+    low?: {
+      value: number;
+    };
+    high?: {
+      value: number;
+    };
+    type: {
+      coding: Array<{
+        system: string;
+        code: string;
+      }>;
+    };
+  }>;
+  hasMember?: Array<{
+    reference: string;
+  }>;
 }
 
 export interface OpenmrsForm {
@@ -47,14 +108,14 @@ export interface OpenmrsFormResource extends OpenmrsResource {
   valueReference?: string;
 }
 
-export interface Attachment {
-  id: string;
-  src: string;
-  title: string;
-  description: string;
-  dateTime: string;
-  bytesMimeType: string;
-  bytesContentFamily: string;
+export interface Attachment extends UploadedFile {
+  uuid?: string;
+  voided?: boolean;
+}
+
+export interface AttachmentFieldValue extends Attachment {
+  formFieldNamespace: string;
+  formFieldPath: string;
 }
 
 export interface AttachmentResponse {
@@ -105,6 +166,10 @@ export interface PatientProgram extends OpenmrsResource {
   states?: Array<ProgramWorkflowState>;
 }
 
+export interface ProgramsFetchResponse {
+  results: Array<PatientProgram>;
+}
+
 export interface PatientProgramPayload {
   program?: string;
   uuid?: string;
@@ -120,10 +185,47 @@ export interface PatientProgramPayload {
   }>;
 }
 
+export interface PatientDeathPayload {
+  dead: boolean;
+  causeOfDeath: string;
+  deathDate: string;
+}
+
 export interface PatientIdentifier {
   uuid?: string;
   identifier: string;
   identifierType?: string;
   location?: string;
   preferred?: boolean;
+}
+
+export interface DiagnosisPayload {
+  patient: string;
+  condition: null;
+  diagnosis: {
+    coded: string;
+  };
+  certainty: string;
+  rank: number;
+  formFieldNamespace?: string;
+  formFieldPath?: string;
+  uuid?: string;
+  encounter?: string;
+}
+
+export interface Diagnosis {
+  encounter: string;
+  patient: string;
+  diagnosis: {
+    coded: {
+      uuid: string;
+    };
+  };
+  certainty: string;
+  rank: number;
+  display: string;
+  voided: boolean;
+  uuid: string;
+  formFieldNamespace?: string;
+  formFieldPath?: string;
 }

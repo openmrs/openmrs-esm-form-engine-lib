@@ -7,13 +7,13 @@ import { isEmpty } from '../validators/form-validator';
 export const PatientIdentifierAdapter: FormFieldValueAdapter = {
   transformFieldValue: function (field: FormField, value: any, context: FormContextProps) {
     clearSubmission(field);
-    if (field.meta?.previousValue?.value === value || isEmpty(value)) {
+    if (field.meta.initialValue?.refinedValue === value || isEmpty(value)) {
       return null;
     }
     field.meta.submission.newValue = {
       identifier: value,
       identifierType: field.questionOptions.identifierType,
-      uuid: field.meta.previousValue?.id,
+      uuid: (field.meta.initialValue?.omrsObject as OpenmrsResource)?.id,
       location: context.location,
     };
     return field.meta.submission.newValue;
@@ -22,7 +22,13 @@ export const PatientIdentifierAdapter: FormFieldValueAdapter = {
     const latestIdentifier = context.patient?.identifier?.find(
       (identifier) => identifier.type?.coding[0]?.code === field.questionOptions.identifierType,
     );
-    field.meta = { ...(field.meta || {}), previousValue: latestIdentifier };
+    field.meta = {
+      ...(field.meta || {}),
+      initialValue: {
+        omrsObject: latestIdentifier as any,
+        refinedValue: latestIdentifier?.value,
+      },
+    };
     return latestIdentifier?.value;
   },
   getPreviousValue: function (field: FormField, sourceObject: OpenmrsResource, context: FormProcessorContextProps) {

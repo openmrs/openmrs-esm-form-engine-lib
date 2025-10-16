@@ -9,6 +9,7 @@ export const ObsCommentAdapter: FormFieldValueAdapter = {
   transformFieldValue: function (field: FormField, value: any, context: FormContextProps) {
     const targetField = context.getFormField(field.meta.targetField);
     const targetFieldCurrentValue = context.methods.getValues(targetField.id);
+    const targetFieldInitialObs = targetField.meta.initialValue?.omrsObject as OpenmrsResource;
 
     if (targetField.meta.submission?.newValue) {
       if (isEmpty(value) && !isNewSubmissionEffective(targetField, targetFieldCurrentValue)) {
@@ -17,8 +18,8 @@ export const ObsCommentAdapter: FormFieldValueAdapter = {
       } else {
         targetField.meta.submission.newValue.comment = value;
       }
-    } else if (!hasSubmission(targetField) && targetField.meta.previousValue) {
-      if (isEmpty(value) && isEmpty(targetField.meta.previousValue.comment)) {
+    } else if (!hasSubmission(targetField) && targetFieldInitialObs) {
+      if (isEmpty(value) && isEmpty(targetFieldInitialObs.comment)) {
         return null;
       }
       // generate submission
@@ -37,7 +38,7 @@ export const ObsCommentAdapter: FormFieldValueAdapter = {
     if (encounter) {
       const targetFieldId = field.id.split('_obs_comment')[0];
       const targetField = context.formFields.find((field) => field.id === targetFieldId);
-      return targetField?.meta.previousValue?.comment;
+      return (targetField?.meta.initialValue.omrsObject as OpenmrsResource)?.comment;
     }
     return null;
   },

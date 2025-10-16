@@ -1,17 +1,5 @@
-import {
-  type FormField,
-  type FormPage,
-  type FormProcessorContextProps,
-  type FormSchema,
-  type FormSection,
-  type ValueAndDisplay,
-} from '../../types';
-import { usePatientPrograms } from '../../hooks/usePatientPrograms';
 import { useEffect, useState } from 'react';
-import { useEncounter } from '../../hooks/useEncounter';
-import { isEmpty } from '../../validators/form-validator';
-import { type FormContextProps } from '../../provider/form-provider';
-import { FormProcessor } from '../form-processor';
+import { type OpenmrsResource, showSnackbar, translateFrom } from '@openmrs/esm-framework';
 import {
   getMutableSessionProps,
   hydrateRepeatField,
@@ -23,23 +11,33 @@ import {
   savePatientIdentifiers,
   savePatientPrograms,
 } from './encounter-processor-helper';
-import { type OpenmrsResource, showSnackbar, translateFrom } from '@openmrs/esm-framework';
-import { moduleName } from '../../globals';
-import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
-import { getPreviousEncounter, saveEncounter } from '../../api';
-import { useEncounterRole } from '../../hooks/useEncounterRole';
+import {
+  type FormField,
+  type FormPage,
+  type FormProcessorContextProps,
+  type FormSchema,
+  type FormSection,
+  type ValueAndDisplay,
+} from '../../types';
 import { evaluateAsyncExpression, type FormNode } from '../../utils/expression-runner';
-import { hasRendering } from '../../utils/common-utils';
+import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
 import { extractObsValueAndDisplay } from '../../utils/form-helper';
+import { FormProcessor } from '../form-processor';
+import { getPreviousEncounter, saveEncounter } from '../../api';
+import { hasRendering } from '../../utils/common-utils';
+import { isEmpty } from '../../validators/form-validator';
+import { formEngineAppName } from '../../globals';
+import { type FormContextProps } from '../../provider/form-provider';
+import { useEncounter } from '../../hooks/useEncounter';
+import { useEncounterRole } from '../../hooks/useEncounterRole';
+import { usePatientPrograms } from '../../hooks/usePatientPrograms';
+import { type TOptions } from 'i18next';
 
 function useCustomHooks(context: Partial<FormProcessorContextProps>) {
   const [isLoading, setIsLoading] = useState(true);
   const { encounter, isLoading: isLoadingEncounter } = useEncounter(context.formJson);
   const { encounterRole, isLoading: isLoadingEncounterRole } = useEncounterRole();
-  const { isLoading: isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(
-    context.patient?.id,
-    context.formJson,
-  );
+  const { isLoadingPatientPrograms, patientPrograms } = usePatientPrograms(context.patient?.id, context.formJson);
 
   useEffect(() => {
     setIsLoading(isLoadingPatientPrograms || isLoadingEncounter || isLoadingEncounterRole);
@@ -100,7 +98,7 @@ export class EncounterFormProcessor extends FormProcessor {
         field.meta.fixedValue = field.value;
         delete field.value;
       }
-      if (field.questionOptions?.rendering == 'group') {
+      if (field.questionOptions?.rendering == 'group' || field.type === 'obsGroup') {
         field.questions?.forEach((child) => {
           child.readonly = child.readonly ?? field.readonly;
           return prepareFormField(child, section, page, schema);
@@ -113,7 +111,8 @@ export class EncounterFormProcessor extends FormProcessor {
 
   async processSubmission(context: FormContextProps, abortController: AbortController) {
     const { encounterRole, encounterProvider, encounterDate, encounterLocation } = getMutableSessionProps(context);
-    const translateFn = (key, defaultValue?) => translateFrom(moduleName, key, defaultValue);
+    const t = (key: string, defaultValue: string, options?: Omit<TOptions, 'ns' | 'defaultValue'>) =>
+      translateFrom(formEngineAppName, key, defaultValue, options);
     const patientIdentifiers = preparePatientIdentifiers(context.formFields, encounterLocation);
     const encounter = prepareEncounter(context, encounterDate, encounterRole, encounterProvider, encounterLocation);
 
@@ -122,7 +121,7 @@ export class EncounterFormProcessor extends FormProcessor {
       await Promise.all(savePatientIdentifiers(context.patient, patientIdentifiers));
       if (patientIdentifiers?.length) {
         showSnackbar({
-          title: translateFn('patientIdentifiersSaved', 'Patient identifier(s) saved successfully'),
+          title: t('patientIdentifiersSaved', 'Patient identifier(s) saved successfully'),
           kind: 'success',
           isLowContrast: true,
         });
@@ -130,7 +129,7 @@ export class EncounterFormProcessor extends FormProcessor {
     } catch (error) {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
-        title: translateFn('errorSavingPatientIdentifiers', 'Error saving patient identifiers'),
+        title: t('errorSavingPatientIdentifiers', 'Error saving patient identifiers'),
         description: errorMessages.join(', '),
         kind: 'error',
         critical: true,
@@ -147,7 +146,7 @@ export class EncounterFormProcessor extends FormProcessor {
       const savedPrograms = await await savePatientPrograms(programs);
       if (savedPrograms?.length) {
         showSnackbar({
-          title: translateFn('patientProgramsSaved', 'Patient program(s) saved successfully'),
+          title: t('patientProgramsSaved', 'Patient program(s) saved successfully'),
           kind: 'success',
           isLowContrast: true,
         });
@@ -155,7 +154,7 @@ export class EncounterFormProcessor extends FormProcessor {
     } catch (error) {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
-        title: translateFn('errorSavingPatientPrograms', 'Error saving patient program(s)'),
+        title: t('errorSavingPatientPrograms', 'Error saving patient program(s)'),
         description: errorMessages.join(', '),
         kind: 'error',
         critical: true,
@@ -165,31 +164,41 @@ export class EncounterFormProcessor extends FormProcessor {
     // save encounter
     try {
       const { data: savedEncounter } = await saveEncounter(abortController, encounter, encounter.uuid);
-      const saveOrders = savedEncounter.orders.map((order) => order.orderNumber);
-      if (saveOrders.length) {
+      const savedOrders = savedEncounter.orders.map((order) => order.orderNumber);
+      const savedDiagnoses = savedEncounter.diagnoses.map((diagnosis) => diagnosis.display);
+      if (savedOrders.length) {
         showSnackbar({
-          title: translateFn('ordersSaved', 'Order(s) saved successfully'),
-          subtitle: saveOrders.join(', '),
+          title: t('ordersSaved', 'Order(s) saved successfully'),
+          subtitle: savedOrders.join(', '),
+          kind: 'success',
+          isLowContrast: true,
+        });
+      }
+      // handle diagnoses
+      if (savedDiagnoses.length) {
+        showSnackbar({
+          title: t('diagnosisSaved', 'Diagnosis(es) saved successfully'),
+          subtitle: savedDiagnoses.join(', '),
           kind: 'success',
           isLowContrast: true,
         });
       }
       // handle attachments
       try {
-        const attachmentsResponse = await Promise.all(
-          saveAttachments(context.formFields, savedEncounter, abortController),
-        );
+        const attachmentsResponse = await saveAttachments(context.formFields, savedEncounter, abortController);
+
         if (attachmentsResponse?.length) {
           showSnackbar({
-            title: translateFn('attachmentsSaved', 'Attachment(s) saved successfully'),
+            title: t('attachmentsSaved', 'Attachment(s) saved successfully'),
             kind: 'success',
             isLowContrast: true,
           });
         }
       } catch (error) {
+        console.error('Error saving attachments', error);
         const errorMessages = extractErrorMessagesFromResponse(error);
         return Promise.reject({
-          title: translateFn('errorSavingAttachments', 'Error saving attachment(s)'),
+          title: t('errorSavingAttachments', 'Error saving attachment(s)'),
           description: errorMessages.join(', '),
           kind: 'error',
           critical: true,
@@ -197,9 +206,10 @@ export class EncounterFormProcessor extends FormProcessor {
       }
       return savedEncounter;
     } catch (error) {
+      console.error('Error saving encounter', error);
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
-        title: translateFn('errorSavingEncounter', 'Error saving encounter'),
+        title: t('errorSavingEncounter', 'Error saving encounter'),
         description: errorMessages.join(', '),
         kind: 'error',
         critical: true,
@@ -216,10 +226,13 @@ export class EncounterFormProcessor extends FormProcessor {
     const initialValues = {};
     const repeatableFields = [];
     if (encounter) {
-      const filteredFields = formFields.filter((field) => isEmpty(field.meta?.previousValue));
       await Promise.all(
-        filteredFields.map(async (field) => {
+        formFields.map(async (field) => {
           const adapter = formFieldAdapters[field.type];
+          if (field.meta.initialValue?.omrsObject && !isEmpty(field.meta.initialValue.refinedValue)) {
+            initialValues[field.id] = field.meta.initialValue.refinedValue;
+            return;
+          }
           if (adapter) {
             if (hasRendering(field, 'repeating') && !field.meta?.repeat?.isClone) {
               repeatableFields.push(field);
@@ -227,6 +240,7 @@ export class EncounterFormProcessor extends FormProcessor {
             let value = null;
             try {
               value = await adapter.getInitialValue(field, encounter, context);
+              field.meta.initialValue.refinedValue = value;
             } catch (error) {
               console.error(error);
             }
@@ -241,7 +255,11 @@ export class EncounterFormProcessor extends FormProcessor {
               initialValues[field.id] = emptyValues[field.questionOptions.rendering] ?? '';
             }
             if (field.questionOptions.calculate?.calculateExpression) {
-              await evaluateCalculateExpression(field, initialValues, context);
+              try {
+                await evaluateCalculateExpression(field, initialValues, context);
+              } catch (error) {
+                console.error(error);
+              }
             }
           } else {
             console.warn(`No adapter found for field type ${field.type}`);
@@ -267,6 +285,9 @@ export class EncounterFormProcessor extends FormProcessor {
             } catch (error) {
               console.error(error);
             }
+          }
+          if (field.questionOptions.defaultValue) {
+            initialValues[field.id] = inferInitialValueFromDefaultFieldValue(field);
           }
           if (field.questionOptions.calculate?.calculateExpression) {
             fieldsWithCalculateExpressions.push(field);
@@ -318,7 +339,7 @@ export class EncounterFormProcessor extends FormProcessor {
         patient: patient,
         previousEncounter: previousDomainObjectValue,
       });
-      return extractObsValueAndDisplay(field, value);
+      return value ? extractObsValueAndDisplay(field, value) : null;
     }
     if (previousDomainObjectValue && field.questionOptions.enablePreviousValue) {
       return await adapter.getPreviousValue(field, previousDomainObjectValue, context);

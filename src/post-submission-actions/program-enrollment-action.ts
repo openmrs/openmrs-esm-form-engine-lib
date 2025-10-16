@@ -2,14 +2,16 @@ import dayjs from 'dayjs';
 import { showSnackbar, translateFrom } from '@openmrs/esm-framework';
 import { getPatientEnrolledPrograms, saveProgramEnrollment } from '../api';
 import { type PostSubmissionAction, type PatientProgramPayload } from '../types';
-import { moduleName } from '../globals';
+import { formEngineAppName } from '../globals';
 import { extractErrorMessagesFromResponse } from '../utils/error-utils';
+import { type TOptions } from 'i18next';
 
 export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
   applyAction: async function ({ patient, encounters, sessionMode }, config) {
     const encounter = encounters[0];
     const encounterLocation = encounter.location['uuid'];
-    const translateFn = (key, defaultValue?) => translateFrom(moduleName, key, defaultValue);
+    const t = (key: string, defaultValue: string, options?: Omit<TOptions, 'ns' | 'defaultValue'>) =>
+      translateFrom(formEngineAppName, key, defaultValue, options);
     const programUuid = config.programUuid;
 
     if (sessionMode === 'view') {
@@ -49,8 +51,8 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
         };
       } else {
         showSnackbar({
-          title: translateFn('enrollmentDiscontinuationNotAllowed', 'Enrollment discontinuation not allowed'),
-          subtitle: translateFn('cannotDiscontinueEnrollment', 'Cannot discontinue an enrollment that does not exist'),
+          title: t('enrollmentDiscontinuationNotAllowed', 'Enrollment discontinuation not allowed'),
+          subtitle: t('cannotDiscontinueEnrollment', 'Cannot discontinue an enrollment that does not exist'),
           kind: 'error',
           isLowContrast: false,
         });
@@ -63,8 +65,8 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
         // The patient is already enrolled in the program and there is no completion date provided.
         if (sessionMode === 'enter') {
           showSnackbar({
-            title: translateFn('enrollmentNotAllowed', 'Enrollment not allowed'),
-            subtitle: translateFn(
+            title: t('enrollmentNotAllowed', 'Enrollment not allowed'),
+            subtitle: t(
               'alreadyEnrolledDescription',
               'This patient is already enrolled in the selected program and cannot be enrolled again.',
             ),
@@ -77,8 +79,8 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
         // The enrollment has already been completed
         if (sessionMode === 'enter') {
           showSnackbar({
-            title: translateFn('enrollmentAlreadyDiscontinued', 'Enrollment already discontinued'),
-            subtitle: translateFn(
+            title: t('enrollmentAlreadyDiscontinued', 'Enrollment already discontinued'),
+            subtitle: t(
               'alreadyDiscontinuedDescription',
               'This patient is already enrolled in the selected program and has already been discontinued.',
             ),
@@ -93,13 +95,13 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
       (response) => {
         showSnackbar({
           kind: 'success',
-          title: getSnackTitle(translateFn, response),
+          title: getSnackTitle(t, response),
           isLowContrast: true,
         });
       },
       (err) => {
         showSnackbar({
-          title: translateFn('errorSavingEnrollment', 'Error saving enrollment'),
+          title: t('errorSavingEnrollment', 'Error saving enrollment'),
           subtitle: extractErrorMessagesFromResponse(err).join(', '),
           kind: 'error',
           isLowContrast: false,
@@ -109,14 +111,11 @@ export const ProgramEnrollmentSubmissionAction: PostSubmissionAction = {
   },
 };
 
-function getSnackTitle(translateFn, response) {
+function getSnackTitle(t, response) {
   if (response.data.dateCompleted) {
-    return translateFn(
-      'enrollmentDiscontinued',
-      "The patient's program enrollment has been successfully discontinued.",
-    );
+    return t('enrollmentDiscontinued', "The patient's program enrollment has been successfully discontinued.");
   }
-  return translateFn('enrolledToProgram', 'The patient has been successfully enrolled in the program.');
+  return t('enrolledToProgram', 'The patient has been successfully enrolled in the program.');
 }
 
 function updateTimeToNow(dateString) {

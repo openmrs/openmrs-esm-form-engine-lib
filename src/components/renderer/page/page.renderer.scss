@@ -1,5 +1,6 @@
 @use '@carbon/colors';
 @use '@carbon/type';
+@use '@carbon/layout';
 
 .pageContent:last-child > hr {
   display: none;
@@ -37,6 +38,10 @@
 
 .sectionContainer > div {
   background-color: colors.$gray-10;
+}
+
+.sectionContainer :global(.cds--accordion__content) {
+  padding-right: layout.$spacing-05;
 }
 
 .accordionContainer {

@@ -1,21 +1,24 @@
 import {
-  type PatientProgram,
+  type AttachmentFieldValue,
   type FormField,
+  type FormProcessorContextProps,
   type OpenmrsEncounter,
   type OpenmrsObs,
   type PatientIdentifier,
+  type PatientProgram,
   type PatientProgramPayload,
-  type FormProcessorContextProps,
 } from '../../types';
-import { saveAttachment, savePatientIdentifier, saveProgramEnrollment } from '../../api';
+import { createAttachment, savePatientIdentifier, saveProgramEnrollment } from '../../api';
 import { hasRendering, hasSubmission } from '../../utils/common-utils';
 import dayjs from 'dayjs';
-import { voidObs, constructObs, assignedObsIds } from '../../adapters/obs-adapter';
+import { assignedObsIds, constructObs, voidObs } from '../../adapters/obs-adapter';
 import { type FormContextProps } from '../../provider/form-provider';
 import { ConceptTrue } from '../../constants';
 import { DefaultValueValidator } from '../../validators/default-value-validator';
 import { cloneRepeatField } from '../../components/repeat/helpers';
 import { assignedOrderIds } from '../../adapters/orders-adapter';
+import { type OpenmrsResource } from '@openmrs/esm-framework';
+import { assignedDiagnosesIds } from '../../adapters/encounter-diagnosis-adapter';
 
 export function prepareEncounter(
   context: FormContextProps,
@@ -24,10 +27,13 @@ export function prepareEncounter(
   encounterProvider: string,
   location: string,
 ) {
-  const { patient, formJson, domainObjectValue: encounter, formFields, visit } = context;
+  const { patient, formJson, domainObjectValue: encounter, formFields, visit, deletedFields } = context;
+  const allFormFields = [...formFields, ...deletedFields];
   const obsForSubmission = [];
-  prepareObs(obsForSubmission, formFields);
-  const ordersForSubmission = prepareOrders(formFields);
+  prepareObs(obsForSubmission, allFormFields);
+  const ordersForSubmission = prepareOrders(allFormFields);
+  const diagnosesForSubmission = prepareDiagnosis(allFormFields);
+
   let encounterForSubmission: OpenmrsEncounter = {};
 
   if (encounter) {
@@ -57,6 +63,7 @@ export function prepareEncounter(
     }
     encounterForSubmission.obs = obsForSubmission;
     encounterForSubmission.orders = ordersForSubmission;
+    encounterForSubmission.diagnoses = diagnosesForSubmission;
   } else {
     encounterForSubmission = {
       patient: patient.id,
@@ -75,6 +82,7 @@ export function prepareEncounter(
       },
       visit: visit?.uuid,
       orders: ordersForSubmission,
+      diagnoses: diagnosesForSubmission,
     };
   }
   return encounterForSubmission;
@@ -137,39 +145,27 @@ export function savePatientPrograms(patientPrograms: PatientProgramPayload[]) {
 export function saveAttachments(fields: FormField[], encounter: OpenmrsEncounter, abortController: AbortController) {
   const complexFields = fields?.filter((field) => field?.questionOptions.rendering === 'file' && hasSubmission(field));
 
-  if (!complexFields?.length) return [];
+  if (!complexFields?.length) {
+    return [];
+  }
 
-  return complexFields.map((field) => {
+  const allPromises = complexFields.flatMap((field) => {
     const patientUuid = typeof encounter?.patient === 'string' ? encounter?.patient : encounter?.patient?.uuid;
-    return saveAttachment(
-      patientUuid,
-      field,
-      field?.questionOptions.concept,
-      new Date().toISOString(),
-      encounter?.uuid,
-      abortController,
-    );
+    const attachments = (field.meta.submission.newValue as AttachmentFieldValue[]) ?? [];
+    return attachments.map((attachment) => createAttachment(patientUuid, encounter.uuid, attachment));
   });
+
+  return Promise.all(allPromises);
 }
 
 export function getMutableSessionProps(context: FormContextProps) {
-  const {
-    formFields,
-    location,
-    currentProvider,
-    sessionDate,
-    customDependencies,
-    domainObjectValue: encounter,
-  } = context;
+  const { formFields, location, currentProvider, customDependencies, domainObjectValue: encounter } = context;
   const { defaultEncounterRole } = customDependencies;
   const encounterRole =
     formFields.find((field) => field.type === 'encounterRole')?.meta.submission?.newValue || defaultEncounterRole?.uuid;
   const encounterProvider =
     formFields.find((field) => field.type === 'encounterProvider')?.meta.submission?.newValue || currentProvider.uuid;
-  const encounterDate =
-    formFields.find((field) => field.type === 'encounterDatetime')?.meta.submission?.newValue ||
-    encounter?.encounterDatetime ||
-    sessionDate;
+  const encounterDate = formFields.find((field) => field.type === 'encounterDatetime')?.meta.submission?.newValue;
   const encounterLocation =
     formFields.find((field) => field.type === 'encounterLocation')?.meta.submission?.newValue ||
     encounter?.location?.uuid ||
@@ -185,43 +181,58 @@ export function getMutableSessionProps(context: FormContextProps) {
 // Helpers
 
 function prepareObs(obsForSubmission: OpenmrsObs[], fields: FormField[]) {
-  fields
-    .filter((field) => hasSubmittableObs(field))
-    .forEach((field) => {
-      if ((field.isHidden || field.isParentHidden) && field.meta.previousValue) {
-        const valuesArray = Array.isArray(field.meta.previousValue)
-          ? field.meta.previousValue
-          : [field.meta.previousValue];
-        addObsToList(
-          obsForSubmission,
-          valuesArray.map((obs) => voidObs(obs)),
-        );
-        return;
-      }
-      if (field.type == 'obsGroup') {
-        if (field.meta.submission?.voidedValue) {
-          addObsToList(obsForSubmission, field.meta.submission.voidedValue);
-          return;
-        }
-        const obsGroup = constructObs(field, null);
-        if (field.meta.previousValue) {
-          obsGroup.uuid = field.meta.previousValue.uuid;
-        }
-        field.questions.forEach((groupedField) => {
-          if (hasSubmission(groupedField)) {
-            addObsToList(obsGroup.groupMembers, groupedField.meta.submission.newValue);
-            addObsToList(obsGroup.groupMembers, groupedField.meta.submission.voidedValue);
-          }
-        });
-        if (obsGroup.groupMembers.length || obsGroup.voided) {
-          addObsToList(obsForSubmission, obsGroup);
-        }
-      }
-      if (hasSubmission(field)) {
-        addObsToList(obsForSubmission, field.meta.submission.newValue);
-        addObsToList(obsForSubmission, field.meta.submission.voidedValue);
-      }
-    });
+  fields.filter((field) => hasSubmittableObs(field)).forEach((field) => processObsField(obsForSubmission, field));
+}
+
+function processObsField(obsForSubmission: OpenmrsObs[], field: FormField) {
+  if ((field.isHidden || field.isParentHidden) && field.meta.initialValue.omrsObject) {
+    const valuesArray = Array.isArray(field.meta.initialValue.omrsObject)
+      ? field.meta.initialValue.omrsObject
+      : [field.meta.initialValue.omrsObject];
+    addObsToList(
+      obsForSubmission,
+      valuesArray.map((obs) => voidObs(obs)),
+    );
+    return;
+  }
+
+  if (field.type === 'obsGroup') {
+    processObsGroup(obsForSubmission, field);
+    return;
+  }
+
+  // new attachments will be processed later
+  if (!hasRendering(field, 'file')) {
+    addObsToList(obsForSubmission, field.meta.submission.newValue);
+  }
+  addObsToList(obsForSubmission, field.meta.submission.voidedValue);
+}
+
+function processObsGroup(obsForSubmission: OpenmrsObs[], groupField: FormField) {
+  if (groupField.meta.submission?.voidedValue) {
+    addObsToList(obsForSubmission, groupField.meta.submission.voidedValue);
+    return;
+  }
+
+  const obsGroup = constructObs(groupField, null);
+  if (groupField.meta.initialValue?.omrsObject) {
+    obsGroup.uuid = (groupField.meta.initialValue.omrsObject as OpenmrsResource).uuid;
+  }
+
+  groupField.questions.forEach((nestedField) => {
+    if (nestedField.type === 'obsGroup') {
+      const nestedObsGroup: OpenmrsObs[] = [];
+      processObsGroup(nestedObsGroup, nestedField);
+      addObsToList(obsGroup.groupMembers, nestedObsGroup);
+    } else if (hasSubmission(nestedField)) {
+      addObsToList(obsGroup.groupMembers, nestedField.meta.submission.newValue);
+      addObsToList(obsGroup.groupMembers, nestedField.meta.submission.voidedValue);
+    }
+  });
+
+  if (obsGroup.groupMembers?.length || obsGroup.voided) {
+    addObsToList(obsForSubmission, obsGroup);
+  }
 }
 
 function prepareOrders(fields: FormField[]) {
@@ -248,10 +259,10 @@ function hasSubmittableObs(field: FormField) {
     type,
   } = field;
 
-  if (isTransient || !['obs', 'obsGroup'].includes(type) || hasRendering(field, 'file') || field.meta.groupId) {
+  if (isTransient || !['obs', 'obsGroup'].includes(type) || field.meta.groupId) {
     return false;
   }
-  if ((field.isHidden || field.isParentHidden) && field.meta.previousValue) {
+  if ((field.isHidden || field.isParentHidden) && field.meta.initialValue?.omrsObject) {
     return true;
   }
   return !field.isHidden && !field.isParentHidden && (type === 'obsGroup' || hasSubmission(field));
@@ -261,10 +272,17 @@ export function inferInitialValueFromDefaultFieldValue(field: FormField) {
   if (field.questionOptions.rendering == 'toggle' && typeof field.questionOptions.defaultValue != 'boolean') {
     return field.questionOptions.defaultValue == ConceptTrue;
   }
+
   // validate default value
-  if (!DefaultValueValidator.validate(field, field.questionOptions.defaultValue).length) {
-    return field.questionOptions.defaultValue;
+  const errors = DefaultValueValidator.validate(field, field.questionOptions.defaultValue);
+  if (errors.length) {
+    console.error(
+      `Default value validation errors for field "${field.id}" with value "${field.questionOptions.defaultValue}":`,
+      errors,
+    );
+    return null;
   }
+  return field.questionOptions.defaultValue;
 }
 
 export async function hydrateRepeatField(
@@ -278,7 +296,7 @@ export async function hydrateRepeatField(
   const unMappedGroups = encounter.obs.filter(
     (obs) =>
       obs.concept.uuid === field.questionOptions.concept &&
-      obs.uuid != field.meta.previousValue?.uuid &&
+      obs.uuid != (field.meta.initialValue?.omrsObject as OpenmrsResource)?.uuid &&
       !assignedObsIds.includes(obs.uuid),
   );
   const unMappedOrders = encounter.orders.filter((order) => {
@@ -300,6 +318,33 @@ export async function hydrateRepeatField(
         }),
     );
   }
+
+  const unMappedDiagnoses = encounter.diagnoses.filter((diagnosis) => {
+    return (
+      !diagnosis.voided &&
+      !assignedDiagnosesIds.includes(diagnosis?.diagnosis?.coded.uuid) &&
+      diagnosis.formFieldPath.startsWith(`rfe-forms-${field.id}_`)
+    );
+  });
+
+  if (field.type === 'diagnosis') {
+    return Promise.all(
+      unMappedDiagnoses.map(async (diagnosis) => {
+        const idSuffix = parseInt(diagnosis.formFieldPath.split('_')[1]);
+        const clone = cloneRepeatField(field, diagnosis, idSuffix);
+        initialValues[clone.id] = await formFieldAdapters[field.type].getInitialValue(
+          clone,
+          { diagnoses: [diagnosis] } as any,
+          context,
+        );
+        if (!assignedDiagnosesIds.includes(diagnosis.diagnosis.coded.uuid)) {
+          assignedDiagnosesIds.push(diagnosis.diagnosis.coded.uuid);
+        }
+
+        return clone;
+      }),
+    );
+  }
   // handle obs groups
   return Promise.all(
     unMappedGroups.map(async (group) => {
@@ -317,4 +362,13 @@ export async function hydrateRepeatField(
       return [clone, ...clone.questions];
     }),
   ).then((results) => results.flat());
+}
+
+function prepareDiagnosis(fields: FormField[]) {
+  const diagnoses = fields
+    .filter((field) => field.type === 'diagnosis' && hasSubmission(field))
+    .map((field) => field.meta.submission.newValue || field.meta.submission.voidedValue)
+    .filter((o) => o);
+
+  return diagnoses;
 }

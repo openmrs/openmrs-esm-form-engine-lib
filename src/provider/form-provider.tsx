@@ -7,6 +7,7 @@ export interface FormContextProps extends FormProcessorContextProps {
   methods: UseFormReturn<any>;
   workspaceLayout: 'minimized' | 'maximized';
   isSubmitting?: boolean;
+  deletedFields: FormField[];
   getFormField?: (field: string) => FormField;
   addFormField?: (field: FormField) => void;
   updateFormField?: (field: FormField) => void;
@@ -15,6 +16,7 @@ export interface FormContextProps extends FormProcessorContextProps {
   removeInvalidField?: (fieldId: string) => void;
   setInvalidFields?: (fields: FormField[]) => void;
   setForm?: (formJson: FormSchema) => void;
+  setDeletedFields?: (fields: FormField[]) => void;
 }
 
 export interface FormProviderProps extends FormContextProps {

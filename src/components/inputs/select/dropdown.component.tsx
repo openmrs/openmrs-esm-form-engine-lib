@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Dropdown as DropdownInput, Layer } from '@carbon/react';
 import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
+import { isEmpty } from '../../../validators/form-validator';
+import { NullSelectOption } from '../../../constants';
 import { type FormFieldInputProps } from '../../../types';
+import { useFormProviderContext } from '../../../provider/form-provider';
 import FieldValueView from '../../value/view/field-value-view.component';
 import FieldLabel from '../../field-label/field-label.component';
-import { useFormProviderContext } from '../../../provider/form-provider';
-import { NullSelectOption } from '../../../constants';
-import { isEmpty } from '../../../validators/form-validator';
 import styles from './dropdown.scss';
 
 const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
@@ -27,9 +27,9 @@ const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warning
       let answer = field.questionOptions.answers.find((opt) => {
         return opt.value ? opt.value == item : opt.concept == item;
       });
-      return answer?.label;
+      return answer ? t(answer.label) : '';
     },
-    [field.questionOptions.answers],
+    [field.questionOptions.answers, t],
   );
 
   const items = useMemo(() => {
@@ -62,16 +62,18 @@ const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warning
       <div className={styles.boldedLabel}>
         <Layer>
           <DropdownInput
-            id={field.id}
-            titleText={<FieldLabel field={field} />}
-            items={items}
-            itemToString={itemToString}
-            selectedItem={isEmpty(value) ? NullSelectOption : value}
-            onChange={handleChange}
+            aria-label={t(field.label)}
             disabled={field.isDisabled}
-            readOnly={isTrue(field.readonly)}
+            id={field.id}
             invalid={errors.length > 0}
             invalidText={errors[0]?.message}
+            items={items}
+            itemToString={itemToString}
+            label=""
+            onChange={handleChange}
+            readOnly={isTrue(field.readonly)}
+            selectedItem={isEmpty(value) ? NullSelectOption : value}
+            titleText={<FieldLabel field={field} />}
             warn={warnings.length > 0}
             warnText={warnings[0]?.message}
           />

@@ -1,8 +1,9 @@
 import { type LayoutType } from '@openmrs/esm-framework';
-import { type OpenmrsObs, type FormField, type FormPage, type FormSection, type SessionMode } from '../types';
+import type { FormField, FormPage, FormSection, SessionMode, FHIRObsResource, RenderType, FormSchema } from '../types';
 import { isEmpty } from '../validators/form-validator';
 import { parseToLocalDateTime } from './common-utils';
 import dayjs from 'dayjs';
+import { ConceptFalse, ConceptTrue } from '../constants';
 
 export function shouldUseInlineLayout(
   renderingType: 'single-line' | 'multiline' | 'automatic',
@@ -94,6 +95,7 @@ export function evaluateHide(
   sessionMode: SessionMode,
   patient: fhir.Patient,
   expressionRunnerFn,
+  updateFormFieldFn: (field: FormField) => void | null,
 ) {
   const { value, type } = node;
   const isHidden = expressionRunnerFn(value['hide']?.hideWhenExpression, node, allFields, allValues, {
@@ -110,15 +112,20 @@ export function evaluateHide(
   if (type == 'page') {
     value['sections'].forEach((section) => {
       section.isParentHidden = isHidden;
-      cascadeVisibilityToChildFields(isHidden, section, allFields);
+      cascadeVisibilityToChildFields(isHidden, section, allFields, updateFormFieldFn);
     });
   }
   if (type == 'section') {
-    cascadeVisibilityToChildFields(isHidden, value, allFields);
+    cascadeVisibilityToChildFields(isHidden, value, allFields, updateFormFieldFn);
   }
 }
 
-function cascadeVisibilityToChildFields(visibility: boolean, section: FormSection, allFields: Array<FormField>) {
+function cascadeVisibilityToChildFields(
+  visibility: boolean,
+  section: FormSection,
+  allFields: Array<FormField>,
+  updateFormFieldFn: (field: FormField) => void,
+) {
   const candidateIds = section.questions.map((q) => q.id);
   allFields
     .filter((field) => candidateIds.includes(field.id))
@@ -129,6 +136,7 @@ function cascadeVisibilityToChildFields(visibility: boolean, section: FormSectio
           member.isParentHidden = visibility;
         });
       }
+      updateFormFieldFn?.(field);
     });
 }
 
@@ -163,7 +171,7 @@ export function scrollIntoView(viewId: string, shouldFocus: boolean = false) {
   const currentElement = document.getElementById(viewId);
   currentElement?.scrollIntoView({
     behavior: 'smooth',
-    block: 'center',
+    block: 'start',
     inline: 'center',
   });
 
@@ -172,24 +180,104 @@ export function scrollIntoView(viewId: string, shouldFocus: boolean = false) {
   }
 }
 
-export const extractObsValueAndDisplay = (field: FormField, obs: OpenmrsObs) => {
+export const extractObsValueAndDisplay = (field: FormField, obs: any) => {
   const rendering = field.questionOptions.rendering;
-
-  if (typeof obs.value === 'string' || typeof obs.value === 'number') {
+  if (typeof obs !== 'object') {
+    return { value: obs, display: obs };
+  }
+  const omrsObs = obs.resourceType === 'Observation' ? mapFHIRObsToOpenMRS(obs, rendering) : obs;
+  if (!omrsObs) {
+    return { value: null, display: null };
+  }
+  if (typeof omrsObs.value === 'string' || typeof omrsObs.value === 'number') {
     if (rendering === 'date' || rendering === 'datetime') {
-      const dateObj = parseToLocalDateTime(`${obs.value}`);
+      const dateObj = parseToLocalDateTime(`${omrsObs.value}`);
       return { value: dateObj, display: dayjs(dateObj).format('YYYY-MM-DD HH:mm') };
     }
-    return { value: obs.value, display: obs.value };
+    return { value: omrsObs.value, display: omrsObs.value };
   } else if (['toggle', 'checkbox'].includes(rendering)) {
     return {
-      value: obs.value?.uuid,
-      display: obs.value?.name?.name,
+      value: omrsObs.value?.uuid,
+      display: omrsObs.value?.name?.name,
     };
   } else {
     return {
-      value: obs.value?.uuid,
-      display: field.questionOptions.answers?.find((option) => option.concept === obs.value?.uuid)?.label,
+      value: omrsObs.value?.uuid,
+      display: field.questionOptions.answers?.find((option) => option.concept === omrsObs.value?.uuid)?.label,
     };
   }
 };
+
+/**
+ * Checks if a given form page has visible content.
+ *
+ * A page is considered to have visible content if:
+ * - The page itself is not hidden.
+ * - At least one section within the page is visible.
+ * - At least one question within each section is visible.
+ */
+export function isPageContentVisible(page: FormPage) {
+  if (page.isHidden) {
+    return false;
+  }
+  return (
+    page.sections?.some((section) => {
+      return !section.isHidden && section.questions?.some((question) => !question.isHidden);
+    }) ?? false
+  );
+}
+
+function mapFHIRObsToOpenMRS(fhirObs: FHIRObsResource, rendering: RenderType) {
+  try {
+    return {
+      obsDatetime: fhirObs.effectiveDateTime,
+      uuid: fhirObs.id,
+      concept: {
+        uuid: fhirObs.code.coding[0]?.code,
+        display: fhirObs.code.coding[0]?.display,
+      },
+      value: extractFHIRObsValue(fhirObs, rendering),
+    };
+  } catch (error) {
+    console.error('Error converting FHIR Obs to OpenMRS modelling', error);
+    return null;
+  }
+}
+
+function extractFHIRObsValue(fhirObs: FHIRObsResource, rendering: RenderType) {
+  switch (rendering) {
+    case 'toggle':
+      return fhirObs.valueBoolean ? { uuid: ConceptTrue } : { uuid: ConceptFalse };
+
+    case 'date':
+    case 'datetime':
+      return fhirObs.valueDateTime;
+
+    case 'number':
+      return fhirObs.valueQuantity?.value ?? null;
+
+    case 'radio':
+    case 'checkbox':
+    case 'select':
+    case 'content-switcher':
+      return fhirObs.valueCodeableConcept?.coding[0]
+        ? {
+            uuid: fhirObs.valueCodeableConcept?.coding[0].code,
+            name: { name: fhirObs.valueCodeableConcept?.coding[0].display },
+          }
+        : null;
+
+    default:
+      return fhirObs.valueString;
+  }
+}
+
+/**
+ * Find formField section
+ * @param formJson FormSchema
+ * @param field FormField
+ */
+export function findFieldSection(formJson: FormSchema, field: FormField) {
+  let page = formJson.pages.find((page) => field.meta.pageId === page.id);
+  return page.sections.find((section) => section.questions.find((question) => question.id === field.id));
+}

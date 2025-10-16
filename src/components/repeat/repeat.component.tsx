@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FormGroup } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import type { FormField, FormFieldInputProps, RenderType } from '../../types';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
@@ -16,6 +15,7 @@ import { useFormFactory } from '../../provider/form-factory-provider';
 const renderingByTypeMap: Record<string, RenderType> = {
   obsGroup: 'group',
   testOrder: 'select',
+  diagnosis: 'ui-select-extended',
 };
 
 const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
@@ -33,6 +33,8 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
     methods: { getValues, setValue },
     addFormField,
     removeFormField,
+    deletedFields,
+    setDeletedFields,
   } = context;
 
   useEffect(() => {
@@ -48,12 +50,13 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
 
   const handleAdd = useCallback(
     (counter: number) => {
+      const clonedFieldsBuffer: FormField[] = [];
       function evaluateExpressions(field: FormField) {
         if (field.hide?.hideWhenExpression) {
           field.isHidden = evaluateExpression(
             field.hide.hideWhenExpression,
             { value: field, type: 'field' },
-            formFields,
+            [...formFields, ...clonedFieldsBuffer],
             getValues(),
             {
               mode: sessionMode,
@@ -65,7 +68,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
           evaluateAsyncExpression(
             field.questionOptions.calculate?.calculateExpression,
             { value: field, type: 'field' },
-            formFields,
+            [...formFields, ...clonedFieldsBuffer],
             getValues(),
             {
               mode: sessionMode,
@@ -79,24 +82,28 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
           });
         }
       }
+
       const clonedField = cloneRepeatField(field, null, counter);
-      // run necessary expressions
+      clonedFieldsBuffer.push(clonedField);
+
+      // Handle nested questions
       if (clonedField.type === 'obsGroup') {
         clonedField.questions?.forEach((childField) => {
-          evaluateExpressions(childField);
-          addFormField(childField);
+          clonedFieldsBuffer.push(childField);
         });
-      } else {
-        evaluateExpressions(clonedField);
       }
-      addFormField(clonedField);
+
+      clonedFieldsBuffer.forEach((field) => {
+        evaluateExpressions(field);
+        addFormField(field);
+      });
       setRows([...rows, clonedField]);
     },
     [formFields, field, rows, context],
   );
 
   const removeNthRow = (field: FormField) => {
-    if (field.meta.previousValue) {
+    if (field.meta.initialValue?.omrsObject) {
       formFieldAdapters[field.type]?.transformFieldValue(field, null, context);
       field.meta.repeat = { ...(field.meta.repeat || {}), wasDeleted: true };
       if (field.type === 'obsGroup') {
@@ -109,6 +116,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
       clearSubmission(field);
     }
     setRows(rows.filter((q) => q.id !== field.id));
+    setDeletedFields([...deletedFields, field]);
     removeFormField(field.id);
   };
 
@@ -170,15 +178,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
 
   return (
     <React.Fragment>
-      {isGrouped ? (
-        <div className={styles.container}>
-          <FormGroup legendText={t(field.label)} className={styles.boldLegend}>
-            {nodes}
-          </FormGroup>
-        </div>
-      ) : (
-        <div>{nodes}</div>
-      )}
+      <div>{nodes}</div>
     </React.Fragment>
   );
 };

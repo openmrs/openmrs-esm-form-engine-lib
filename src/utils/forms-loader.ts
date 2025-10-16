@@ -18,7 +18,7 @@ interface BehaviourProperty {
 }
 
 /**
- * Convinience function for loading form(s) associated to a given package or form version.
+ * Convenience function for loading form(s) associated to a given package or form version.
  *
  * @param packageName The package associated with the form
  * @param formNamespace The form namespace
@@ -145,15 +145,16 @@ export function applyFormIntent(intent, originalJson, parentOverrides?: Array<Be
         behaviourOverrides,
       );
     }
-    // TODO: Apply parentOverrides to pages if applicable
     const pageBehaviour = page.behaviours?.find((behaviour) => behaviour.intent === (intent?.intent || intent));
     if (pageBehaviour) {
-      page.hide = pageBehaviour?.hide;
-      page.readonly = pageBehaviour?.readonly;
+      page.hide = pageBehaviour.hide ?? page.hide;
+      page.readonly = pageBehaviour.readonly ?? page.readonly;
     } else {
       const fallBackBehaviour = page.behaviours?.find((behaviour) => behaviour.intent === '*');
-      page.hide = fallBackBehaviour?.hide;
-      page.readonly = fallBackBehaviour?.readonly;
+      if (fallBackBehaviour) {
+        page.hide = fallBackBehaviour.hide ?? page.hide;
+        page.readonly = fallBackBehaviour.readonly ?? page.readonly;
+      }
     }
 
     // filter page-level markdown behaviour
@@ -164,10 +165,9 @@ export function applyFormIntent(intent, originalJson, parentOverrides?: Array<Be
     page.sections = page.sections || [];
 
     page.sections.forEach((section) => {
-      // TODO: Apply parentOverrides to sections if applicable
       const secBehaviour = section.behaviours?.find((behaviour) => behaviour.intent === intent?.intent || intent);
       if (secBehaviour) {
-        section.hide = secBehaviour?.hide;
+        section.hide = secBehaviour.hide ?? section.hide;
       } else {
         const fallBackBehaviour = section.behaviours?.find((behaviour) => behaviour.intent === '*');
         section.hide = fallBackBehaviour?.hide ?? section.hide;
@@ -213,7 +213,7 @@ export function applyFormIntent(intent, originalJson, parentOverrides?: Array<Be
 function updateQuestionRequiredBehaviour(question, intent: string) {
   const requiredIntentBehaviour = question.behaviours?.find((behaviour) => behaviour.intent === intent);
 
-  const defaultIntentBehaviour = question.behaviours?.find((bevahiour) => bevahiour.intent === '*');
+  const defaultIntentBehaviour = question.behaviours?.find((behaviour) => behaviour.intent === '*');
   // If both required and default intents exist, combine them and update to question
   if (requiredIntentBehaviour || defaultIntentBehaviour) {
     // Remove the intent name props from each object

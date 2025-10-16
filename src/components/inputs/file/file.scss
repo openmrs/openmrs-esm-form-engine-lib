@@ -4,9 +4,6 @@
 @use '@openmrs/esm-styleguide/src/vars' as *;
 
 .label {
-  font-family: IBM Plex Sans;
-  font-size: 14px;
-  font-style: normal;
   font-weight: 600;
   line-height: 30px; /* 128.571% */
   letter-spacing: 0.16px;
@@ -130,8 +127,7 @@
   cursor: pointer;
   background-color: colors.$gray-50;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  width: 5rem;
-  height: 5rem;
+  position: relative;
 }

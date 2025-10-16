@@ -1,35 +1,63 @@
 import { useMemo } from 'react';
-import { type FormSchema, type FormField } from '../types';
+import { type FormField, type FormSchema } from '../types';
 
 export function useFormFields(form: FormSchema): { formFields: FormField[]; conceptReferences: Set<string> } {
   const [flattenedFields, conceptReferences] = useMemo(() => {
-    const flattenedFieldsTemp = [];
+    const flattenedFieldsTemp: FormField[] = [];
     const conceptReferencesTemp = new Set<string>();
+
+    const processFlattenedFields = (
+      fields: FormField[],
+    ): {
+      flattenedFields: FormField[];
+      conceptReferences: Set<string>;
+    } => {
+      const flattenedFields: FormField[] = [];
+      const conceptReferences = new Set<string>();
+
+      const processField = (field: FormField, parentGroupId?: string) => {
+        // Add group ID to nested fields if applicable
+        const processedField = parentGroupId ? { ...field, meta: { ...field.meta, groupId: parentGroupId } } : field;
+
+        // Add field to flattened list
+        flattenedFields.push(processedField);
+
+        // Collect concept references
+        if (processedField.questionOptions?.concept) {
+          conceptReferences.add(processedField.questionOptions.concept);
+        }
+
+        // Collect concept references from answers
+        processedField.questionOptions?.answers?.forEach((answer) => {
+          if (answer.concept) {
+            conceptReferences.add(answer.concept);
+          }
+        });
+
+        // Recursively process nested questions for obsGroup
+        if (processedField.type === 'obsGroup' && processedField.questions) {
+          processedField.questions.forEach((nestedField) => {
+            processField(nestedField, processedField.id);
+          });
+        }
+      };
+
+      // Process all input fields
+      fields.forEach((field) => processField(field));
+
+      return { flattenedFields, conceptReferences };
+    };
+
     form.pages?.forEach((page) =>
       page.sections?.forEach((section) => {
-        section.questions?.forEach((question) => {
-          flattenedFieldsTemp.push(question);
-          if (question.type == 'obsGroup') {
-            question.questions.forEach((groupedField) => {
-              groupedField.meta.groupId = question.id;
-              flattenedFieldsTemp.push(groupedField);
-            });
-          }
-        });
+        if (section.questions) {
+          const { flattenedFields, conceptReferences } = processFlattenedFields(section.questions);
+          flattenedFieldsTemp.push(...flattenedFields);
+          conceptReferences.forEach((conceptReference) => conceptReferencesTemp.add(conceptReference));
+        }
       }),
     );
-    flattenedFieldsTemp.forEach((field) => {
-      if (field.questionOptions?.concept) {
-        conceptReferencesTemp.add(field.questionOptions.concept);
-      }
-      if (field.questionOptions?.answers) {
-        field.questionOptions.answers.forEach((answer) => {
-          if (answer.concept) {
-            conceptReferencesTemp.add(answer.concept);
-          }
-        });
-      }
-    });
+
     return [flattenedFieldsTemp, conceptReferencesTemp];
   }, [form]);
 

@@ -1,13 +1,13 @@
 import React from 'react';
+import userEvent from '@testing-library/user-event';
 import { render, screen, act } from '@testing-library/react';
-import TextField from './text.component';
 import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
 import { mockSessionDataResponse } from '__mocks__/session.mock';
 import { mockPatient } from '__mocks__/patient.mock';
 import { mockVisit } from '__mocks__/visit.mock';
-import textFieldFormJson from '__mocks__/forms/rfe-forms/sample_fields.json';
 import { useFormProviderContext } from 'src/provider/form-provider';
-import userEvent from '@testing-library/user-event';
+import { sampleFieldsForm } from '__mocks__/forms';
+import TextField from './text.component';
 
 const mockOpenmrsFetch = jest.mocked(openmrsFetch);
 const mockUseSession = jest.mocked(useSession);
@@ -128,7 +128,7 @@ const mockProviderValues = {
   formFieldAdapters: {},
   patient: mockPatient,
   methods: undefined,
-  formJson: textFieldFormJson as any,
+  formJson: sampleFieldsForm,
   visit: mockVisit,
   sessionDate: new Date(),
   location: mockVisit.location,
@@ -143,7 +143,7 @@ describe('Text field input', () => {
       getInitialValues: jest.fn(),
     };
     mockOpenmrsFetch.mockResolvedValue({
-      data: { results: [{ ...textFieldFormJson }] },
+      data: { results: [{ ...sampleFieldsForm }] },
     } as unknown as FetchResponse);
     mockUseSession.mockReturnValue(mockSessionDataResponse.data);
     mockUsePatient.mockReturnValue({
@@ -161,17 +161,11 @@ describe('Text field input', () => {
   it('should record new obs', async () => {
     await renderForm(textValues);
     const inputField = screen.getByLabelText('Indicate your notes');
-
-    await user.type(inputField, 'Updated patient notes');
+    await user.click(inputField);
+    await user.paste('Updated patient notes');
 
     await act(async () => {
-      expect(mockSetFieldValue).toHaveBeenCalledWith(
-        expect.objectContaining({
-          target: expect.objectContaining({
-            value: 'Updated patient notes',
-          }),
-        }),
-      );
+      expect(mockSetFieldValue).toHaveBeenCalledWith('Updated patient notes');
     });
   });
 

@@ -101,8 +101,9 @@ export interface DataSourceParameters {
 export interface FormSchemaTransformer {
   /**
    * Transforms the raw schema to be compatible with the React Form Engine.
+   * Adds default values to questions based on the preFilledQuestions object.
    */
-  transform: (form: FormSchema) => FormSchema;
+  transform: (form: FormSchema, preFilledQuestions?: PreFilledQuestions) => FormSchema;
 }
 
 export interface PostSubmissionAction {
@@ -117,8 +118,8 @@ export interface PostSubmissionAction {
   ): void;
 }
 
-export interface FormFieldInputProps {
-  value: any;
+export interface FormFieldInputProps<TValue = any> {
+  value: TValue;
   field: FormField;
   errors: ValidationResult[];
   warnings: ValidationResult[];
@@ -127,7 +128,7 @@ export interface FormFieldInputProps {
    *
    * @param value - The new value of the field.
    */
-  setFieldValue: (value: any) => void;
+  setFieldValue: (value: TValue) => void;
 }
 
 /**
@@ -145,6 +146,8 @@ export interface ValidationResult {
   errCode?: string;
   message: string;
 }
+
+export type PreFilledQuestions = Record<string, string | number | Date | boolean | Array<string>>;
 
 export * from './schema';
 export * from './domain';

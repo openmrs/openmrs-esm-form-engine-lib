@@ -1,6 +1,6 @@
-import { type FormSchema } from '../types';
+import { type FormSchema , type PreFilledQuestions } from '../types';
 import { DefaultFormSchemaTransformer } from './default-schema-transformer';
-import testForm from '__mocks__/forms/afe-forms/test-schema-transformer-form.json';
+import { testForm } from '__mocks__/forms';
 
 const expectedTransformedSchema = {
   name: 'AFE form with aliased questions',
@@ -9,6 +9,7 @@ const expectedTransformedSchema = {
     {
       label: 'Page 1',
       readonly: false,
+      id: 'page-Page1-0',
       sections: [
         {
           label: 'Section 1',
@@ -33,6 +34,11 @@ const expectedTransformedSchema = {
               ],
               meta: {
                 submission: null,
+                pageId: 'page-Page1-0',
+                initialValue: {
+                  omrsObject: null,
+                  refinedValue: null,
+                },
               },
             },
             {
@@ -53,6 +59,11 @@ const expectedTransformedSchema = {
               ],
               meta: {
                 submission: null,
+                pageId: 'page-Page1-0',
+                initialValue: {
+                  omrsObject: null,
+                  refinedValue: null,
+                },
               },
             },
             {
@@ -73,6 +84,11 @@ const expectedTransformedSchema = {
               ],
               meta: {
                 submission: null,
+                pageId: 'page-Page1-0',
+                initialValue: {
+                  omrsObject: null,
+                  refinedValue: null,
+                },
               },
             },
             {
@@ -100,11 +116,21 @@ const expectedTransformedSchema = {
                   ],
                   meta: {
                     submission: null,
+                    pageId: 'page-Page1-0',
+                    initialValue: {
+                      omrsObject: null,
+                      refinedValue: null,
+                    },
                   },
                 },
               ],
               meta: {
                 submission: null,
+                pageId: 'page-Page1-0',
+                initialValue: {
+                  omrsObject: null,
+                  refinedValue: null,
+                },
               },
             },
             {
@@ -141,6 +167,11 @@ const expectedTransformedSchema = {
               ],
               meta: {
                 submission: null,
+                pageId: 'page-Page1-0',
+                initialValue: {
+                  omrsObject: null,
+                  refinedValue: null,
+                },
               },
             },
           ],
@@ -207,5 +238,101 @@ describe('Default form schema transformer', () => {
         },
       ],
     };
+  });
+
+  it('should handle pre-filled questions', () => {
+    const form = {
+      pages: [
+        {
+          sections: [
+            {
+              questions: [
+                {
+                  id: 'question1',
+                  type: 'obs',
+                  questionOptions: {},
+                },
+                {
+                  id: 'nestedGroup',
+                  type: 'obsGroup',
+                  questionOptions: {
+                    rendering: 'group',
+                  },
+                  questions: [
+                    {
+                      id: 'nestedQuestion1',
+                      type: 'obs',
+                      questionOptions: {},
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    const preFilledQuestions = {
+      question1: 'prefilledValue1',
+      nestedQuestion1: 'prefilledValue2',
+    };
+
+    const transformedForm = DefaultFormSchemaTransformer.transform(
+      form as FormSchema,
+      preFilledQuestions as PreFilledQuestions,
+    );
+
+    expect(transformedForm.pages[0].sections[0].questions[0].questionOptions.defaultValue).toEqual('prefilledValue1');
+    expect(transformedForm.pages[0].sections[0].questions[1].questions[0].questionOptions.defaultValue).toEqual(
+      'prefilledValue2',
+    );
+  });
+
+  it('should not modify questions when no pre-filled questions are provided', () => {
+    const form = {
+      pages: [
+        {
+          sections: [
+            {
+              questions: [
+                {
+                  id: 'question1',
+                  type: 'obs',
+                  questionOptions: {},
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const transformedForm = DefaultFormSchemaTransformer.transform(form as FormSchema);
+
+    expect(transformedForm.pages[0].sections[0].questions[0].questionOptions.defaultValue).toBeUndefined();
+  });
+
+  it('should handle empty pre-filled questions object', () => {
+    const form = {
+      pages: [
+        {
+          sections: [
+            {
+              questions: [
+                {
+                  id: 'question1',
+                  type: 'obs',
+                  questionOptions: {},
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const transformedForm = DefaultFormSchemaTransformer.transform(form as FormSchema, {} as PreFilledQuestions);
+
+    expect(transformedForm.pages[0].sections[0].questions[0].questionOptions.defaultValue).toBeUndefined();
   });
 });

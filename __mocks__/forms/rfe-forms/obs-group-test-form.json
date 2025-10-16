@@ -1,0 +1,201 @@
+{
+  "name": "ObsGroup Test Form",
+  "version": "1",
+  "published": true,
+  "retired": false,
+  "pages": [
+    {
+      "label": "Obs Group Page",
+      "sections": [
+        {
+          "label": "Group Section",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "id": "myGroup",
+              "label": "My Group",
+              "type": "obsGroup",
+              "questionOptions": {
+                "rendering": "repeating",
+                "concept": "1c70c490-cafa-4c95-9fdd-a30b62bb78b8"
+              },
+              "behaviours": [
+                {
+                  "intent": "*",
+                  "required": "false",
+                  "unspecified": "false",
+                  "hide": {
+                    "hideWhenExpression": ""
+                  },
+                  "validators": []
+                }
+              ],
+              "questions": [
+                {
+                  "label": "Sex",
+                  "type": "obs",
+                  "required": "true",
+                  "questionOptions": {
+                    "rendering": "radio",
+                    "concept": "1587AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "answers": [
+                      {
+                        "concept": "1535AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Female"
+                      },
+                      {
+                        "concept": "1534AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Male"
+                      }
+                    ]
+                  },
+                  "id": "childSex",
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "true",
+                      "unspecified": "true",
+                      "hide": {
+                        "hideWhenExpression": "false"
+                      },
+                      "validators": []
+                    }
+                  ]
+                },
+                {
+                  "label": "Date of Birth",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "date",
+                    "concept": "164802AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "weeksList": ""
+                  },
+                  "id": "birthDate",
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "true",
+                      "unspecified": "true",
+                      "hide": {
+                        "hideWhenExpression": "false"
+                      },
+                      "validators": [
+                        {
+                          "type": "date",
+                          "allowFutureDates": "false"
+                        },
+                        {
+                          "type": "js_expression",
+                          "failsWhenExpression": "!isDateEqualTo(myValue, useFieldValue('visit_date'))",
+                          "message": "Child birth date should be the same as the visit date!"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Screening Section",
+          "questions": [
+            {
+              "label": "Do you have dependents?",
+              "id": "hasDependents",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "a89e3f94-1350-11df-a1f1-0026b9348837",
+                "answers": [
+                  {
+                    "concept": "a89ce50e-1350-11df-a1f1-0026b9348839",
+                    "label": "Yes"
+                  },
+                  {
+                    "concept": "a89ce50e-1350-11df-a1f1-0026b9348838",
+                    "label": "No"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "label": "Groups with Hide logic",
+          "questions": [
+            {
+              "type": "obsGroup",
+              "label": "Dependents Group",
+              "id": "dependentGroup",
+              "questionOptions": {
+                "concept": "3665d0ef-3718-47b2-9091-8b685bda412d",
+                "rendering": "group"
+              },
+              "questions": [
+                {
+                  "label": "Dependent Type",
+                  "id": "dependentType",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "radio",
+                    "concept": "a89e3f94-1350-11df-a1f1-0026b9348838",
+                    "answers": [
+                      {
+                        "concept": "6daff4ce-bce7-41f5-9141-17e694155180",
+                        "label": "Child"
+                      },
+                      {
+                        "concept": "a89ce50e-1350-11df-a1f1-0026b9348838",
+                        "label": "Spouse"
+                      }
+                    ]
+                  },
+                  "hide": {
+                    "hideWhenExpression": "hasDependents !== 'a89ce50e-1350-11df-a1f1-0026b9348839'"
+                  }
+                },
+                {
+                  "label": "Dependent Name",
+                  "id": "dependentName",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "text",
+                    "concept": "a8a06fc6-1350-11df-a1f1-0026b9348838"
+                  },
+                  "hide": {
+                    "hideWhenExpression": "isEmpty(dependentType)"
+                  }
+                },
+                {
+                  "label": "Dependent Age",
+                  "id": "dependentAge",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "number",
+                    "concept": "a8a06fc6-1350-11df-a1f1-0026b9348839"
+                  },
+                  "hide": {
+                    "hideWhenExpression": "dependentType !== '6daff4ce-bce7-41f5-9141-17e694155180'"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "availableIntents": [
+    {
+      "intent": "*",
+      "display": "ObsGroup Test Form"
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "uuid": "8f713e0e-94a0-3c57-9024-69520933802a",
+  "referencedForms": [],
+  "encounterType": "7e54cd64-f9c3-11eb-8e6a-57478ce139b0",
+  "encounter": "Obs Group Test",
+  "allowUnspecifiedAll": true
+}

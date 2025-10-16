@@ -1,27 +1,27 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { ToastNotification } from '@carbon/react';
+import { Controller, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useConfig } from '@openmrs/esm-framework';
 import {
   type FormField,
   type FormFieldInputProps,
-  type FormFieldValidator,
   type FormFieldValueAdapter,
   type RenderType,
-  type SessionMode,
   type ValidationResult,
   type ValueAndDisplay,
 } from '../../../types';
-import { Controller, useWatch } from 'react-hook-form';
-import { ToastNotification } from '@carbon/react';
-import { useTranslation } from 'react-i18next';
-import { ErrorBoundary } from 'react-error-boundary';
-import { hasRendering } from '../../../utils/common-utils';
-import { useFormProviderContext } from '../../../provider/form-provider';
-import { isEmpty } from '../../../validators/form-validator';
-import PreviousValueReview from '../../previous-value-review/previous-value-review.component';
 import { getFieldControlWithFallback, getRegisteredControl } from '../../../registry/registry';
-import styles from './form-field-renderer.scss';
-import { isTrue } from '../../../utils/boolean-utils';
-import UnspecifiedField from '../../inputs/unspecified/unspecified.component';
 import { handleFieldLogic, validateFieldValue } from './fieldLogic';
+import { hasRendering } from '../../../utils/common-utils';
+import { isEmpty } from '../../../validators/form-validator';
+import { isTrue } from '../../../utils/boolean-utils';
+import { useFormProviderContext } from '../../../provider/form-provider';
+import PreviousValueReview from '../../previous-value-review/previous-value-review.component';
+import UnspecifiedField from '../../inputs/unspecified/unspecified.component';
+import { shouldRenderField } from './fieldRenderUtils';
+import styles from './form-field-renderer.scss';
 
 export interface FormFieldRendererProps {
   fieldId: string;
@@ -40,6 +40,21 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
   const [historicalValue, setHistoricalValue] = useState<ValueAndDisplay>(null);
   const context = useFormProviderContext();
 
+  // Try to get config from external module, fallback to default if not available
+  let hideUnansweredQuestionsInReadonlyForms = false;
+  try {
+    const config = useConfig({
+      externalModuleName: '@openmrs/esm-form-engine-app',
+    });
+    hideUnansweredQuestionsInReadonlyForms = config?.hideUnansweredQuestionsInReadonlyForms ?? false;
+  } catch (error) {
+    // If external module config is not available, use default value
+    console.warn(
+      'Failed to load @openmrs/esm-form engine-app config - using hideUnansweredQuestionsInReadonlyForms=false (empty fields will be visible in readonly mode): ',
+      error,
+    );
+  }
+
   const {
     methods: { control, getValues, getFieldState },
     patient,
@@ -48,6 +63,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
     formFieldValidators,
     addInvalidField,
     removeInvalidField,
+    updateFormField,
   } = context;
 
   const fieldValue = useWatch({ control, name: fieldId, exact: true });
@@ -122,6 +138,13 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
         expressionContext: { patient, mode: sessionMode },
       },
     );
+
+    if (field.meta.submission) {
+      // clear stale submission validation results
+      field.meta.submission.errors = undefined;
+      field.meta.submission.warnings = undefined;
+    }
+
     if (errors.length && !validationErrors.length) {
       removeInvalidField(field.id);
       setErrors([]);
@@ -134,6 +157,18 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
     }
     setWarnings(validationWarnings);
     handleFieldLogic(field, context);
+    if (field.meta.groupId) {
+      const group = formFields.find((f) => f.id === field.meta.groupId);
+      if (group) {
+        group.questions = group.questions.map((child) => {
+          if (child.id === field.id) {
+            return field;
+          }
+          return child;
+        });
+        updateFormField(group);
+      }
+    }
   };
 
   if (!inputComponentWrapper) {
@@ -154,6 +189,20 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
       />
     );
   }
+
+  // In 'embedded-view' mode, empty fields are hidden if they are transient
+  // or if the config flag `hideUnansweredQuestionsInReadonlyForms` is enabled.
+  if (
+    !shouldRenderField(
+      sessionMode,
+      !!field.questionOptions.isTransient,
+      isEmpty(fieldValue),
+      hideUnansweredQuestionsInReadonlyForms,
+    )
+  ) {
+    return null;
+  }
+
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} onReset={noop}>
       <Controller
@@ -204,7 +253,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
   );
 };
 
-function ErrorFallback({ error }) {
+export function ErrorFallback({ error }) {
   const { t } = useTranslation();
   return (
     <ToastNotification
@@ -237,6 +286,6 @@ export function isUnspecifiedSupported(question: FormField) {
   );
 }
 
-function isGroupField(rendering: RenderType) {
+export function isGroupField(rendering: RenderType) {
   return rendering === 'group' || rendering === 'repeating';
 }

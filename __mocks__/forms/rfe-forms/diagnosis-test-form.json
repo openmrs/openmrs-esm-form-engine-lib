@@ -1,0 +1,60 @@
+{
+  "name": "Diagnosis test",
+  "pages": [
+    {
+      "label": "1",
+      "sections": [
+        {
+          "label": "Select diagnosis",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Test Diagnosis 1",
+              "id": "diagnosis1",
+              "type": "diagnosis",
+              "questionOptions": {
+                "rendering": "repeating",
+                "dataSource": "diagnoses",
+                "isSearchable": "true",
+                "diagnosis": {
+                  "isConfirmed": "true",
+                  "rank": 1,
+                  "conceptClasses": [
+                    "8d4918b0-c2cc-11de-8d13-0010c6dffd0f",
+                    "8d492954-c2cc-11de-8d13-0010c6dffd0f",
+                    "8d492b2a-c2cc-11de-8d13-0010c6dffd0f"
+                  ]
+                }
+              }
+            },
+            {
+              "label": "Test Diagnosis 2",
+              "id": "diagnosis2",
+              "type": "diagnosis",
+              "questionOptions": {
+                "rendering": "repeating",
+                "dataSource": "diagnoses",
+                "isSearchable": "false",
+                "diagnosis": {
+                  "isConfirmed": "true",
+                  "rank": 1,
+                  "conceptClasses": [
+                    "8d4918b0-c2cc-11de-8d13-0010c6dffd0f",
+                    "8d492954-c2cc-11de-8d13-0010c6dffd0f",
+                    "8d492b2a-c2cc-11de-8d13-0010c6dffd0f"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "encounterType": "e22e39fd-7db2-45e7-80f1-60fa0d5a4378",
+  "referencedForms": [],
+  "uuid": "29ce67d1-892b-45be-84ce-8e36aa9ca37f",
+  "description": "re",
+  "version": "1.0"
+}

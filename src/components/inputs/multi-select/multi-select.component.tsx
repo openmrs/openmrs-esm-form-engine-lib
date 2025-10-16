@@ -1,28 +1,28 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { FilterableMultiSelect, Layer, Tag, CheckboxGroup, Checkbox } from '@carbon/react';
+import { Checkbox, CheckboxGroup, FilterableMultiSelect, Layer, Tag } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { type FormFieldInputProps } from '../../../types';
-import { ValueEmpty } from '../../value/value.component';
-import { shouldUseInlineLayout } from '../../../utils/form-helper';
 import { isTrue } from '../../../utils/boolean-utils';
+import { shouldUseInlineLayout } from '../../../utils/form-helper';
+import { type FormFieldInputProps } from '../../../types';
+import { useFormProviderContext } from '../../../provider/form-provider';
+import { ValueEmpty } from '../../value/value.component';
+import FieldLabel from '../../field-label/field-label.component';
 import FieldValueView from '../../value/view/field-value-view.component';
 import styles from './multi-select.scss';
-import { useFormProviderContext } from '../../../provider/form-provider';
-import FieldLabel from '../../field-label/field-label.component';
 
 const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, setFieldValue }) => {
   const { t } = useTranslation();
+  const { layoutType, sessionMode, workspaceLayout, formFieldAdapters } = useFormProviderContext();
   const [counter, setCounter] = useState(0);
   const [initiallyCheckedQuestionItems, setInitiallyCheckedQuestionItems] = useState([]);
   const isFirstRender = useRef(true);
-  const { layoutType, sessionMode, workspaceLayout, formFieldAdapters } = useFormProviderContext();
 
   const selectOptions = field.questionOptions.answers
     .filter((answer) => !answer.isHidden)
     .map((answer, index) => ({
       id: `${field.id}-${answer.concept}`,
       concept: answer.concept,
-      label: answer.label,
+      label: t(answer.label),
       key: index,
       disabled: answer.disable?.isDisabled,
       readonly: isTrue(field.readonly),
@@ -77,10 +77,6 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
     return false;
   }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
 
-  const label = useMemo(() => {
-    return field.isRequired ? <FieldLabel field={field} /> : <span>{t(field.label)}</span>;
-  }, [field.isRequired, field.label, t]);
-
   return sessionMode == 'view' || sessionMode == 'embedded-view' ? (
     <div className={styles.formField}>
       <FieldValueView
@@ -97,39 +93,34 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
           <Layer>
             {isSearchable ? (
               <FilterableMultiSelect
-                placeholder={t('search', 'Search') + '...'}
-                onChange={handleSelectItemsChange}
-                id={t(field.label)}
-                items={selectOptions}
-                initialSelectedItems={initiallySelectedQuestionItems}
-                label={''}
-                titleText={label}
-                key={field.id}
-                itemToString={(item) => (item ? item.label : ' ')}
                 disabled={field.isDisabled}
+                id={field.id}
+                initialSelectedItems={initiallySelectedQuestionItems}
                 invalid={errors.length > 0}
                 invalidText={errors[0]?.message}
+                items={selectOptions}
+                itemToString={(item) => (item ? t(item.label) : ' ')}
+                key={field.id}
+                onChange={handleSelectItemsChange}
+                placeholder={t('search', 'Search') + '...'}
+                readOnly={isTrue(field.readonly)}
+                titleText={<FieldLabel field={field} />}
                 warn={warnings.length > 0}
                 warnText={warnings[0]?.message}
-                readOnly={isTrue(field.readonly)}
               />
             ) : (
-              <CheckboxGroup legendText={label} name={field.id} readOnly={isTrue(field.readonly)}>
+              <CheckboxGroup legendText={<FieldLabel field={field} />} readOnly={isTrue(field.readonly)}>
                 {field.questionOptions.answers?.map((value, index) => {
                   return (
                     <Checkbox
-                      key={`${field.id}-${value.concept}`}
                       className={styles.checkbox}
-                      labelText={value.label}
-                      id={`${field.id}-${value.concept}`}
-                      onChange={() => {
-                        handleSelectCheckbox(value);
-                      }}
-                      name={value.concept}
-                      defaultChecked={initiallyCheckedQuestionItems.some((item) => item === value.concept)}
                       checked={initiallyCheckedQuestionItems.some((item) => item === value.concept)}
-                      onBlur={onblur}
                       disabled={value.disable?.isDisabled}
+                      id={`${field.id}-${value.concept}`}
+                      key={`${field.id}-${value.concept}-${index}`}
+                      labelText={t(value.label)}
+                      name={value.concept}
+                      onChange={() => handleSelectCheckbox(value)}
                       readOnly={isTrue(field.readonly)}
                     />
                   );
@@ -144,7 +135,7 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
               <div className={styles.tagContainer}>
                 {formFieldAdapters[field.type]?.getDisplayValue(field, value)?.map((displayValue, index) => (
                   <Tag key={index} type="cool-gray">
-                    {displayValue}
+                    {t(displayValue)}
                   </Tag>
                 ))}
               </div>

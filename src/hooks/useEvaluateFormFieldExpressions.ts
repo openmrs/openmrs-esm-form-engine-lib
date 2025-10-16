@@ -13,6 +13,8 @@ export const useEvaluateFormFieldExpressions = (
 ) => {
   const { formFields, patient, sessionMode } = factoryContext;
   const [evaluatedFormJson, setEvaluatedFormJson] = useState(factoryContext.formJson);
+  const [evaluatedPagesVisibility, setEvaluatedPagesVisibility] = useState(false);
+
   const evaluatedFields = useMemo(() => {
     return formFields?.map((field) => {
       const fieldNode: FormNode = { value: field, type: 'field' };
@@ -107,7 +109,15 @@ export const useEvaluateFormFieldExpressions = (
   useEffect(() => {
     factoryContext.formJson?.pages?.forEach((page) => {
       if (page.hide) {
-        evaluateHide({ value: page, type: 'page' }, formFields, formValues, sessionMode, patient, evaluateExpression);
+        evaluateHide(
+          { value: page, type: 'page' },
+          formFields,
+          formValues,
+          sessionMode,
+          patient,
+          evaluateExpression,
+          null,
+        );
       } else {
         page.isHidden = false;
       }
@@ -120,6 +130,7 @@ export const useEvaluateFormFieldExpressions = (
             sessionMode,
             patient,
             evaluateExpression,
+            null,
           );
         } else {
           section.isHidden = false;
@@ -127,9 +138,10 @@ export const useEvaluateFormFieldExpressions = (
       });
     });
     setEvaluatedFormJson(updateFormSectionReferences(factoryContext.formJson));
+    setEvaluatedPagesVisibility(true);
   }, [factoryContext.formJson, formFields]);
 
-  return { evaluatedFormJson, evaluatedFields };
+  return { evaluatedFormJson, evaluatedFields, evaluatedPagesVisibility };
 };
 
 // helpers

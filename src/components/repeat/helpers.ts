@@ -8,13 +8,22 @@ export function cloneRepeatField(srcField: FormField, value: OpenmrsResource, id
   const originalGroupMembersIds: string[] = [];
   const clonedField = cloneDeep(srcField) as FormField;
   clonedField.questionOptions.repeatOptions = { ...(clonedField.questionOptions.repeatOptions ?? {}) };
-  clonedField.meta = { repeat: { ...(clonedField.meta ?? {}), isClone: true }, previousValue: value };
+  clonedField.meta = {
+    repeat: { ...(clonedField.meta ?? {}), isClone: true },
+    initialValue: {
+      omrsObject: value,
+    },
+  };
   clonedField.id = `${clonedField.id}_${idSuffix}`;
   clonedField.questions?.forEach((childField) => {
     originalGroupMembersIds.push(childField.id);
     childField.id = `${childField.id}_${idSuffix}`;
     childField.meta.groupId = clonedField.id;
-    childField.meta.previousValue = null;
+    childField.meta.initialValue = {
+      omrsObject: null,
+      refinedValue: null,
+    };
+    childField.fieldDependents = new Set();
     clearSubmission(childField);
 
     // cleanup expressions

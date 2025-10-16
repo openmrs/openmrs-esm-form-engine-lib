@@ -42,6 +42,7 @@ export interface FormPage {
     behaviours?: Array<any>;
     form: Omit<FormSchema, 'postSubmissionActions'>;
   };
+  id?: string;
 }
 
 export interface FormSection {
@@ -83,6 +84,7 @@ export interface FormField {
   questionInfo?: string;
   historicalExpression?: string;
   constrainMaxWidth?: boolean;
+  hideSteppers?: boolean;
   /** @deprecated */
   inlineMultiCheckbox?: boolean;
   meta?: QuestionMetaProps;
@@ -112,7 +114,10 @@ export interface RepeatOptions {
 
 export interface QuestionMetaProps {
   concept?: OpenmrsResource;
-  previousValue?: any;
+  initialValue?: {
+    omrsObject: OpenmrsResource | Array<OpenmrsResource>;
+    refinedValue?: string | number | Date | Array<string | number>;
+  };
   submission?: {
     voidedValue?: any;
     newValue?: any;
@@ -125,6 +130,7 @@ export interface QuestionMetaProps {
     wasDeleted?: boolean;
   };
   groupId?: string;
+  pageId?: string;
   [anythingElse: string]: any;
 }
 
@@ -139,9 +145,20 @@ export interface FormQuestionOptions {
   max?: string;
   min?: string;
   /**
-   * maxLength and maxLength are used to validate text field length
+   * specifies the increment or decrement step for number field values
+   */
+  step?: number;
+  /**
+   * @description
+   * Indicates whether the field is transient.
+   * - Transient fields are ignored on form submission.
+   * - If set to __true__, the field is omitted from the O3 Form in `embedded-view` mode.
+   * @default false
    */
   isTransient?: boolean;
+  /**
+   * maxLength and maxLength are used to validate text field length
+   */
   maxLength?: string;
   minLength?: string;
   showDate?: string;
@@ -182,6 +199,12 @@ export interface FormQuestionOptions {
   comment?: string;
   orientation?: 'vertical' | 'horizontal';
   shownCommentOptions?: { validators?: Array<Record<string, any>>; hide?: { hideWhenExpression: string } };
+  diagnosis?: {
+    rank?: number;
+    isConfirmed?: boolean;
+    conceptClasses?: Array<string>;
+    conceptSet?: string;
+  };
 }
 
 export interface QuestionAnswerOption {
