@@ -3,7 +3,7 @@ import { type FormContextProps } from './form-provider';
 import { extractErrorMessagesFromResponse } from '../utils/error-utils';
 import { evaluatePostSubmissionExpression } from '../utils/post-submission-action-helper';
 import { type PostSubmissionActionMeta } from '../hooks/usePostSubmissionActions';
-import { type TFunction } from 'react-i18next';
+import { type TFunction } from 'i18next';
 import { type SessionMode } from '../types';
 
 export function validateForm(context: FormContextProps) {
