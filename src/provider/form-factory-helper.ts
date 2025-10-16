@@ -90,11 +90,13 @@ export async function processPostSubmissionActions(
       } catch (error) {
         const errorMessages = extractErrorMessagesFromResponse(error);
         showSnackbar({
-          title: t(
-            'errorDescriptionTitle',
-            actionId ? actionId.replace(/([a-z])([A-Z])/g, '$1 $2') : 'Post Submission Error',
+          title: String(
+            t(
+              'errorDescriptionTitle',
+              actionId ? actionId.replace(/([a-z])([A-Z])/g, '$1 $2') : 'Post Submission Error',
+            ),
           ),
-          subtitle: t('errorDescription', '{{errors}}', { errors: errorMessages.join(', ') }),
+          subtitle: String(t('errorDescription', '{{errors}}', { errors: errorMessages.join(', ') })),
           kind: 'error',
           isLowContrast: false,
         });
