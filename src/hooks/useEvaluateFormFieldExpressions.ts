@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { type FormProcessorContextProps } from '../types';
-import { type FormNode, evaluateExpression } from '../utils/expression-runner';
+import { type FormNode, evaluateExpression, trackFieldDependenciesFromString } from '../utils/expression-runner';
 import { evalConditionalRequired, evaluateConditionalAnswered, evaluateHide } from '../utils/form-helper';
 import { isTrue } from '../utils/boolean-utils';
 import { isEmpty } from '../validators/form-validator';
@@ -32,6 +32,10 @@ export const useEvaluateFormFieldExpressions = (
           runnerContext,
         );
         field.isHidden = isHidden;
+        // Track dependencies for field hide expressions
+        if (typeof field.hide.hideWhenExpression === 'string') {
+          trackFieldDependenciesFromString(field.hide.hideWhenExpression, fieldNode, formFields);
+        }
         if (Array.isArray(field.questions)) {
           field.questions.forEach((question) => {
             question.isHidden = isHidden;
@@ -55,6 +59,10 @@ export const useEvaluateFormFieldExpressions = (
           formValues,
           runnerContext,
         );
+        // Track dependencies for field disable expressions
+        if (typeof field.disabled.disableWhenExpression === 'string') {
+          trackFieldDependenciesFromString(field.disabled.disableWhenExpression, fieldNode, formFields);
+        }
       } else {
         field.isDisabled = isTrue(field.disabled as string);
       }
@@ -73,6 +81,10 @@ export const useEvaluateFormFieldExpressions = (
             formValues,
             runnerContext,
           );
+          // Track dependencies for answer hide expressions
+          if (typeof answer.hide.hideWhenExpression === 'string') {
+            trackFieldDependenciesFromString(answer.hide.hideWhenExpression, fieldNode, formFields);
+          }
         });
       // evaluate conditional disable for answers
       field.questionOptions.answers
@@ -85,11 +97,19 @@ export const useEvaluateFormFieldExpressions = (
             formValues,
             runnerContext,
           );
+          // Track dependencies for answer disable expressions
+          if (typeof answer.disable.disableWhenExpression === 'string') {
+            trackFieldDependenciesFromString(answer.disable.disableWhenExpression, fieldNode, formFields);
+          }
         });
       // evaluate readonly
       if (typeof field.readonly == 'string' && isNotBooleanString(field.readonly)) {
         field.meta.readonlyExpression = field.readonly;
         field.readonly = evaluateExpression(field.readonly, fieldNode, formFields, formValues, runnerContext);
+        // Track dependencies for readonly expressions
+        if (typeof field.readonly === 'string') {
+          trackFieldDependenciesFromString(field.readonly, fieldNode, formFields);
+        }
       }
       // evaluate repeat limit
       const limitExpression = field.questionOptions.repeatOptions?.limitExpression;
