@@ -6,6 +6,7 @@ import { evaluateAsyncExpression, evaluateExpression, trackFieldDependenciesFrom
 import { evalConditionalRequired, evaluateDisabled, evaluateHide, findFieldSection } from '../../../utils/form-helper';
 import { isEmpty } from '../../../validators/form-validator';
 import { reportError } from '../../../utils/error-utils';
+import { extractVariableNamesFromExpression } from '../../../utils/variable-extractor';
 
 export function handleFieldLogic(field: FormField, context: FormContextProps) {
   const {
@@ -37,7 +38,7 @@ function evaluateFieldAnswerDisabled(field: FormField, values: Record<string, an
   });
 }
 
-function evaluateFieldDependents(field: FormField, values: any, context: FormContextProps) {
+function evaluateFieldDependents(field: FormField, values: any, context: FormContextProps, evaluatedFields = new Set<string>()) {
   const {
     sessionMode,
     formFields,
@@ -52,8 +53,16 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
   let shouldUpdateForm = false;
   // handle fields
   if (field.fieldDependents) {
-    field.fieldDependents.forEach((dep) => {
+    // Sort dependents by dependency order to ensure calculate fields are evaluated correctly
+    const sortedDependents = sortDependentsByDependencyOrder(Array.from(field.fieldDependents), formFields);
+    sortedDependents.forEach((dep) => {
       const dependent = formFields.find((f) => f.id == dep);
+      // Skip if this field has already been evaluated in this cycle to prevent infinite loops
+      if (evaluatedFields.has(dependent.id)) {
+        return;
+      }
+      evaluatedFields.add(dependent.id);
+
       // evaluate calculated value
       if (dependent.questionOptions.calculate?.calculateExpression) {
         evaluateAsyncExpression(
@@ -83,46 +92,48 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
               context.formFieldAdapters[dependent.type].transformFieldValue(dependent, result, context);
             }
             updateFormField(dependent);
-            // Recursively evaluate dependents of calculate fields
-            evaluateFieldDependents(dependent, values, context);
+            // Recursively evaluate dependents of calculate fields with updated values
+            const updatedValues = { ...values, [dependent.id]: result };
+            evaluateFieldDependents(dependent, updatedValues, context, evaluatedFields);
           })
           .catch((error) => {
             reportError(error, 'Error evaluating calculate expression');
           });
-      }
-      // evaluate hide
-      if (dependent.hide) {
-        const targetSection = findFieldSection(formJson, dependent);
-        const isSectionVisible = targetSection?.questions.some((question) => !question.isHidden);
+      } else {
+        // For non-calculate fields, evaluate hide synchronously
+        if (dependent.hide) {
+          const targetSection = findFieldSection(formJson, dependent);
+          const isSectionVisible = targetSection?.questions.some((question) => !question.isHidden);
 
-        evaluateHide(
-          { value: dependent, type: 'field' },
-          formFields,
-          values,
-          sessionMode,
-          patient,
-          evaluateExpression,
-          updateFormField,
-        );
-
-        if (targetSection) {
-          targetSection.questions = targetSection?.questions.map((question) => {
-            if (question.id === dependent.id) {
-              return dependent;
-            }
-            return question;
-          });
-          const isDependentFieldHidden = dependent.isHidden;
-          const sectionHasVisibleFieldAfterEvaluation = [...targetSection.questions, dependent].some(
-            (field) => !field.isHidden,
+          evaluateHide(
+            { value: dependent, type: 'field' },
+            formFields,
+            values,
+            sessionMode,
+            patient,
+            evaluateExpression,
+            updateFormField,
           );
 
-          if (!isSectionVisible && !isDependentFieldHidden) {
-            targetSection.isHidden = false;
-            shouldUpdateForm = true;
-          } else if (isSectionVisible && !sectionHasVisibleFieldAfterEvaluation) {
-            targetSection.isHidden = true;
-            shouldUpdateForm = true;
+          if (targetSection) {
+            targetSection.questions = targetSection?.questions.map((question) => {
+              if (question.id === dependent.id) {
+                return dependent;
+              }
+              return question;
+            });
+            const isDependentFieldHidden = dependent.isHidden;
+            const sectionHasVisibleFieldAfterEvaluation = [...targetSection.questions, dependent].some(
+              (field) => !field.isHidden,
+            );
+
+            if (!isSectionVisible && !isDependentFieldHidden) {
+              targetSection.isHidden = false;
+              shouldUpdateForm = true;
+            } else if (isSectionVisible && !sectionHasVisibleFieldAfterEvaluation) {
+              targetSection.isHidden = true;
+              shouldUpdateForm = true;
+            }
           }
         }
       }
@@ -173,12 +184,6 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
               patient,
             },
           );
-          // Track dependencies for answer hide expressions
-          trackFieldDependenciesFromString(
-            answer.hide?.hideWhenExpression,
-            { value: dependent, type: 'field' },
-            formFields,
-          );
         });
       // evaluate disabled
       dependent?.questionOptions.answers
@@ -193,12 +198,6 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
               mode: sessionMode,
               patient,
             },
-          );
-          // Track dependencies for answer disable expressions
-          trackFieldDependenciesFromString(
-            answer.disable?.disableWhenExpression,
-            { value: dependent, type: 'field' },
-            formFields,
           );
         });
       // evaluate readonly
@@ -273,6 +272,64 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
   if (shouldUpdateForm) {
     setForm(formJson);
   }
+}
+
+/**
+ * Sorts dependents by dependency order to ensure calculate fields are evaluated correctly.
+ * Fields with no dependencies come first, followed by fields that depend on them.
+ */
+function sortDependentsByDependencyOrder(dependentIds: string[], allFields: FormField[]): string[] {
+  // Get the actual field objects for the dependents
+  const dependentFields = dependentIds
+    .map(id => allFields.find(f => f.id === id))
+    .filter(f => f && f.questionOptions?.calculate?.calculateExpression);
+
+  if (dependentFields.length <= 1) {
+    return dependentIds; // No sorting needed for 0 or 1 fields
+  }
+
+  // Build dependency graph for these fields
+  const graph = new Map<string, string[]>();
+  for (const field of dependentFields) {
+    const dependencies = extractVariableNamesFromExpression(field.questionOptions.calculate.calculateExpression);
+    // Filter to only include dependencies that are also in our dependent fields
+    const fieldDependencies = dependencies.filter(dep => dependentIds.includes(dep));
+    graph.set(field.id, fieldDependencies);
+  }
+
+  // Perform topological sort
+  const visited = new Set<string>();
+  const visiting = new Set<string>();
+  const result: string[] = [];
+
+  function visit(node: string): void {
+    if (visiting.has(node)) {
+      // Cycle detected - just add it and continue
+      return;
+    }
+    if (visited.has(node)) {
+      return;
+    }
+
+    visiting.add(node);
+
+    const dependencies = graph.get(node) || [];
+    for (const dep of dependencies) {
+      visit(dep);
+    }
+
+    visiting.delete(node);
+    visited.add(node);
+    result.push(node);
+  }
+
+  for (const node of dependentIds) {
+    if (!visited.has(node)) {
+      visit(node);
+    }
+  }
+
+  return result;
 }
 
 export interface ValidatorConfig {
