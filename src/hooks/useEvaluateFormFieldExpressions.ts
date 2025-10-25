@@ -34,7 +34,7 @@ export const useEvaluateFormFieldExpressions = (
         field.isHidden = isHidden;
         if (Array.isArray(field.questions)) {
           field.questions.forEach((question) => {
-            question.isHidden = isHidden;
+            question.isParentHidden = isHidden;
           });
         }
       } else {
