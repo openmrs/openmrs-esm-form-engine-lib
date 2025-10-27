@@ -110,6 +110,7 @@ function getEvaluationContext(
     },
   });
 
+  const visit = context.visit ?? {};
   const visitType = context.visit?.visitType || { uuid: '' };
   const visitTypeUuid = visitType.uuid ?? '';
 
@@ -127,6 +128,7 @@ function getEvaluationContext(
     sex,
     age,
     HD,
+    visit,
     visitType,
     visitTypeUuid,
     _,
