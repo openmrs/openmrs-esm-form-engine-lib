@@ -110,8 +110,8 @@ function getEvaluationContext(
     },
   });
 
-  const visit = context.visit ?? {};
-  const visitType = context.visit?.visitType || { uuid: '' };
+  const visit: Visit = context.visit ?? ({} as Visit);
+  const visitType = visit.visitType ?? { uuid: '' };
   const visitTypeUuid = visitType.uuid ?? '';
 
   const _ = {
