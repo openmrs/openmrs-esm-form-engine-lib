@@ -76,6 +76,17 @@ export const testFields: Array<FormField> = [
     },
     id: 'bodyTemperature',
   },
+  {
+    id: 'encounterDate',
+    type: 'date',
+    label: 'Encounter Date',
+    questionOptions: {
+      calculate: {
+        calculateExpression: 'calcAgeBasedOnDate(dateValue)',
+      },
+      rendering: 'date',
+    },
+  },
 ];
 
 export const fields: Array<FormField> = [
@@ -359,5 +370,37 @@ describe('Expression runner', () => {
       context,
     );
     expect(result).toEqual(5);
+  });
+
+  // check visit
+  it('should include visit and derived fields in evaluation context', () => {
+    const context: ExpressionContext = {
+      visit: {
+        uuid: 'visit-123',
+        visitType: {
+          uuid: 'type-456',
+          name: 'Initial Visit',
+          display: 'Initial Visit',
+        },
+        startDatetime: '2025-10-27T09:00:00Z',
+      },
+      previousEncounter: { uuid: 'enc-1', obs: [] },
+      mode: 'enter',
+      patient: undefined,
+    };
+
+    const result = evaluateExpression(
+      "calculateExpression: 'calcAgeBasedOnDate(dateValue)'",
+      { value: allFields[4], type: 'field' },
+      allFields,
+      valuesMap,
+      context,
+    );
+
+    expect(result.visit).toBeDefined();
+    expect(result.visit.uuid).toBe('visit-123');
+    expect(result.visitType.uuid).toBe('type-456');
+    expect(result.visitTypeUuid).toBe('type-456');
+    expect(result.visitUuid).toBe('visit-123');
   });
 });
