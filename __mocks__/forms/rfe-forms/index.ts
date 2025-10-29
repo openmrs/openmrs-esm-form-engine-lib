@@ -28,6 +28,7 @@ export { default as nestedForm1Body } from './nested-form1.json';
 export { default as nestedForm2Body } from './nested-form2.json';
 export { default as nextVisitForm } from './next-visit-test-form.json';
 export { default as obsGroupHideTestForm } from './obs-group-hide-test-form.json';
+export { default as obsGroupHideDirectTestForm } from './obs-group-hide-direct-test-form.json';
 export { default as obsGroupTestForm } from './obs-group-test-form.json';
 export { default as postSubmissionTestForm } from './post-submission-test-form.json';
 export { default as preclinicReviewComponentBody } from './component-preclinic-review.json';

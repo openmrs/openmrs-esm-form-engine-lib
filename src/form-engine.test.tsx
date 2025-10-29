@@ -38,6 +38,7 @@ import {
   monthsOnArtForm,
   nextVisitForm,
   obsGroupHideTestForm,
+  obsGroupHideDirectTestForm,
   obsGroupTestForm,
   postSubmissionTestForm,
   readOnlyValidationForm,
@@ -988,9 +989,9 @@ describe('Form engine component', () => {
       const dependentTypeRadios = screen.queryAllByRole('radio', { name: /child|spouse/i });
       expect(dependentTypeRadios.length).toBe(0);
 
-      // Select "Yes" for having dependents
+      // Select "Yes" for having dependents 
       const yesRadio = screen.getByRole('radio', { name: /yes/i });
-      await user.click(yesRadio);
+      await user.click(yesRadio);   
 
       // Now the dependent type radios should be visible
       const visibleDependentTypeRadios = screen.getAllByRole('radio', { name: /child|spouse/i });
@@ -1014,7 +1015,7 @@ describe('Form engine component', () => {
       expect(dependentsGroup).toBeInTheDocument();
 
       // Check that dependent name and age are now visible
-      const dependentNameInput = screen.getByRole('textbox', { name: /dependent name/i });
+       const dependentNameInput = screen.getByRole('textbox', { name: /dependent name/i });
       const dependentAgeInput = screen.getByRole('spinbutton', { name: /dependent age/i });
 
       expect(dependentNameInput).toBeInTheDocument();
@@ -1114,12 +1115,10 @@ describe('Form engine component', () => {
         renderForm(null, obsGroupHideTestForm, '*');
       });
 
-      // Initially, the group should be visible (no selection made yet)
-      const groupLabel = screen.getByText('Test Group (Should hide when \'No\' is selected)');
+       const groupLabel = screen.getByText('Test Group (Should hide when \'No\' is selected)');
       expect(groupLabel).toBeInTheDocument();
 
-      // Child fields should be visible
-      const childTextInput = screen.getByRole('textbox', { name: /child question 1 - text/i });
+       const childTextInput = screen.getByRole('textbox', { name: /child question 1 - text/i });
       const childNumberInput = screen.getByRole('spinbutton', { name: /child question 2 - number/i });
       const childRadioOptions = screen.getAllByRole('radio', { name: /option [ab]/i });
       
@@ -1127,31 +1126,72 @@ describe('Form engine component', () => {
       expect(childNumberInput).toBeInTheDocument();
       expect(childRadioOptions.length).toBe(2);
 
-      // Now select "No" which should hide the obs group and its children
-      const noRadio = screen.getByRole('radio', { name: /^no$/i });
-      await user.click(noRadio);
+       const noRadio = screen.getByRole('radio', { name: /^no$/i });
+      await user.click(noRadio); 
 
-      // The group label should be hidden
-      await waitFor(() => {
+       await waitFor(() => {
         expect(screen.queryByText('Test Group (Should hide when \'No\' is selected)')).not.toBeInTheDocument();
       });
 
-      // Child fields should also be hidden
-      await waitFor(() => {
+       await waitFor(() => {
         expect(screen.queryByRole('textbox', { name: /child question 1 - text/i })).not.toBeInTheDocument();
         expect(screen.queryByRole('spinbutton', { name: /child question 2 - number/i })).not.toBeInTheDocument();
         expect(screen.queryAllByRole('radio', { name: /option [ab]/i }).length).toBe(0);
       });
 
-      // Switch back to "Yes" to verify the group becomes visible again
-      const yesRadio = screen.getByRole('radio', { name: /^yes$/i });
+       const yesRadio = screen.getByRole('radio', { name: /^yes$/i });
       await user.click(yesRadio);
 
-      // Group and children should be visible again
-      await waitFor(() => {
+       await waitFor(() => {
         expect(screen.getByText('Test Group (Should hide when \'No\' is selected)')).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: /child question 1 - text/i })).toBeInTheDocument();
         expect(screen.getByRole('spinbutton', { name: /child question 2 - number/i })).toBeInTheDocument();
+        expect(screen.getAllByRole('radio', { name: /option [ab]/i }).length).toBe(2);
+      });
+    });
+
+    it('should hide obs group children when parent obs group hide property is defined directly at field level', async () => {
+      await act(async () => {
+        renderForm(null, obsGroupHideDirectTestForm, '*');
+      });
+
+      // Verify the group is initially visible
+      const groupLabel = screen.getByText('Test Group Direct (Should hide when \'No\' is selected)');
+      expect(groupLabel).toBeInTheDocument();
+
+      // Verify child fields are initially visible
+      const childTextInput = screen.getByRole('textbox', { name: /child question 1 - text direct/i });
+      const childNumberInput = screen.getByRole('spinbutton', { name: /child question 2 - number direct/i });
+      const childRadioOptions = screen.getAllByRole('radio', { name: /option [ab]/i });
+      
+      expect(childTextInput).toBeInTheDocument();
+      expect(childNumberInput).toBeInTheDocument();
+      expect(childRadioOptions.length).toBe(2);
+
+      // Click "No" to trigger hide condition
+      const noRadio = screen.getByRole('radio', { name: /^no$/i });
+      await user.click(noRadio); 
+
+      // Verify the group and its children are hidden
+      await waitFor(() => {
+        expect(screen.queryByText('Test Group Direct (Should hide when \'No\' is selected)')).not.toBeInTheDocument();
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('textbox', { name: /child question 1 - text direct/i })).not.toBeInTheDocument();
+        expect(screen.queryByRole('spinbutton', { name: /child question 2 - number direct/i })).not.toBeInTheDocument();
+        expect(screen.queryAllByRole('radio', { name: /option [ab]/i }).length).toBe(0);
+      });
+
+      // Click "Yes" to show the group again
+      const yesRadio = screen.getByRole('radio', { name: /^yes$/i });
+      await user.click(yesRadio);
+
+      // Verify the group and its children are visible again
+      await waitFor(() => {
+        expect(screen.getByText('Test Group Direct (Should hide when \'No\' is selected)')).toBeInTheDocument();
+        expect(screen.getByRole('textbox', { name: /child question 1 - text direct/i })).toBeInTheDocument();
+        expect(screen.getByRole('spinbutton', { name: /child question 2 - number direct/i })).toBeInTheDocument();
         expect(screen.getAllByRole('radio', { name: /option [ab]/i }).length).toBe(2);
       });
     });
