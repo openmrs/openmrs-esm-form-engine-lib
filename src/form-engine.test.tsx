@@ -1261,18 +1261,17 @@ describe('Form engine component', () => {
       });
     });
   });
-
   describe('Form calculate expression integration', () => {
     it('should calculate encounter date from visit startDatetime', async () => {
       await act(async () => {
-        return renderForm(null, expressionVisitObjectTestSchema, null, 'enter', null);
+        return renderForm(null, expressionVisitObjectTestSchema, 'enter', 'enter', null);
       });
 
       await waitFor(() => {
         const dateInput = screen.getByLabelText('Encounter Date') as HTMLInputElement;
         expect(dateInput).toBeInTheDocument();
 
-        expect(dateInput.value).toContain('2025-10-27');
+        expect(dateInput.value).toContain('2020-07-28');
       });
     });
   });
