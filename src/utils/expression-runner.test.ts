@@ -76,17 +76,6 @@ export const testFields: Array<FormField> = [
     },
     id: 'bodyTemperature',
   },
-  {
-    id: 'encounterDate',
-    type: 'date',
-    label: 'Encounter Date',
-    questionOptions: {
-      calculate: {
-        calculateExpression: 'calcAgeBasedOnDate(dateValue)',
-      },
-      rendering: 'date',
-    },
-  },
 ];
 
 export const fields: Array<FormField> = [
