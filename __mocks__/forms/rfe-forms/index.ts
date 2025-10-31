@@ -40,6 +40,7 @@ export { default as uiSelectExtForm } from './sample-ui-select-ext.json';
 export { default as unspecifiedForm } from './sample-unspecified-form.json';
 export { default as viralLoadStatusForm } from './viral-load-status-form.json';
 export { default as weightForHeightZscoreTestSchema } from './zscore-weight-height-form.json';
+export { default as expressionVisitObjectTestSchema } from './expression-visit-object-test.json';
 
 export { obsList } from './obs-list-data';
 export {

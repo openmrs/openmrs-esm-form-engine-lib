@@ -45,6 +45,7 @@ import {
   sampleFieldsForm,
   testEnrolmentForm,
   viralLoadStatusForm,
+  expressionVisitObjectTestSchema,
 } from '__mocks__/forms';
 import { type FormSchema, type OpenmrsEncounter, type SessionMode } from './types';
 import { useEncounter } from './hooks/useEncounter';
@@ -1257,6 +1258,20 @@ describe('Form engine component', () => {
         formFieldPath: `rfe-forms-diagnosis1`,
         formFieldNamespace: 'rfe-forms',
         uuid: '95690fb4-0398-42d9-9ffc-8a134e6d829d',
+      });
+    });
+  });
+  describe('Form calculate expression integration', () => {
+    it('should calculate encounter date from visit startDatetime', async () => {
+      await act(async () => {
+        return renderForm(null, expressionVisitObjectTestSchema, 'enter', 'enter', null);
+      });
+
+      await waitFor(() => {
+        const dateInput = screen.getByLabelText('Encounter Date') as HTMLInputElement;
+        expect(dateInput).toBeInTheDocument();
+
+        expect(dateInput.value).toContain('28/07/2020');
       });
     });
   });
