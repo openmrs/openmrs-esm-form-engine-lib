@@ -1271,7 +1271,7 @@ describe('Form engine component', () => {
         const dateInput = screen.getByLabelText('Encounter Date') as HTMLInputElement;
         expect(dateInput).toBeInTheDocument();
 
-        expect(dateInput.value).toContain('2020-07-28');
+        expect(dateInput.value).toContain('28/07/2020');
       });
     });
   });

@@ -19,7 +19,7 @@ export function handleFieldLogic(field: FormField, context: FormContextProps) {
 }
 
 function evaluateFieldAnswerDisabled(field: FormField, values: Record<string, any>, context: FormContextProps) {
-  const { sessionMode, formFields, patient } = context;
+  const { sessionMode, formFields, patient, visit } = context;
   field.questionOptions.answers.forEach((answer) => {
     const disableExpression = answer.disable?.disableWhenExpression;
     if (disableExpression && disableExpression.includes('myValue')) {
@@ -31,6 +31,7 @@ function evaluateFieldAnswerDisabled(field: FormField, values: Record<string, an
         {
           mode: sessionMode,
           patient,
+          visit,
         },
       );
     }
@@ -47,6 +48,7 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
     methods: { setValue },
     updateFormField,
     setForm,
+    visit,
   } = context;
 
   let shouldUpdateForm = false;
@@ -64,6 +66,7 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           {
             mode: sessionMode,
             patient,
+            visit,
           },
         )
           .then((result) => {
@@ -169,6 +172,7 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
             {
               mode: sessionMode,
               patient,
+              visit,
             },
           );
         });
@@ -184,6 +188,7 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
             {
               mode: sessionMode,
               patient,
+              visit,
             },
           );
         });
@@ -197,6 +202,7 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           {
             mode: sessionMode,
             patient,
+            visit,
           },
         );
       }
@@ -210,6 +216,7 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
           {
             mode: sessionMode,
             patient,
+            visit,
           },
         );
       }

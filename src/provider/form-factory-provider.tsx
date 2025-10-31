@@ -8,6 +8,7 @@ import {
   showSnackbar,
   showToast,
   type ToastDescriptor,
+  Visit,
 } from '@openmrs/esm-framework';
 import { type FormProcessorConstructor } from '../processors/form-processor';
 import { type FormContextProps } from './form-provider';
@@ -24,7 +25,7 @@ interface FormFactoryProviderContextProps {
   formProcessors: Record<string, FormProcessorConstructor>;
   layoutType: LayoutType;
   workspaceLayout: 'minimized' | 'maximized';
-  visit: OpenmrsResource;
+  visit: Visit;
   location: OpenmrsResource;
   provider: OpenmrsResource;
   isFormExpanded: boolean;
@@ -42,7 +43,7 @@ interface FormFactoryProviderProps {
   workspaceLayout: 'minimized' | 'maximized';
   location: OpenmrsResource;
   provider: OpenmrsResource;
-  visit: OpenmrsResource;
+  visit: Visit;
   isFormExpanded: boolean;
   children: React.ReactNode;
   formSubmissionProps: {

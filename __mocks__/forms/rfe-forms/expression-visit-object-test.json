@@ -15,7 +15,7 @@
               "questionOptions": {
                 "rendering": "date",
                 "calculate": {
-                  "calculateExpression": "visit && visit?.startDatetime ? new Date(visit?.startDatetime).toISOString().split('T')[0] : null"
+                  "calculateExpression": "visit && visit?.startDatetime ? new Date(visit?.startDatetime) : null"
                 }
               }
             }

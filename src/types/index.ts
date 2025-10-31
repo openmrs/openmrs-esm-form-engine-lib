@@ -1,4 +1,4 @@
-import { type LayoutType, type OpenmrsResource } from '@openmrs/esm-framework';
+import { type Visit, type LayoutType, type OpenmrsResource } from '@openmrs/esm-framework';
 import { type FormProcessor } from '../processors/form-processor';
 import { type FormContextProps } from '../provider/form-provider';
 import { type FormField, type FormSchema } from './schema';
@@ -9,7 +9,7 @@ export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
 export interface FormProcessorContextProps {
   patient: fhir.Patient;
   formJson: FormSchema;
-  visit: OpenmrsResource;
+  visit: Visit;
   sessionMode: SessionMode;
   sessionDate: Date;
   location: OpenmrsResource;
