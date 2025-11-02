@@ -55,7 +55,6 @@ export function evaluateExpression(
   const compiledExpression = getExpressionAst(expression);
   // track dependencies
   trackFieldDependencies(compiledExpression, node, fields);
-
   try {
     return evaluateAsType(compiledExpression, getEvaluationContext(node, fields, fieldValues, context), typePredicate);
   } catch (error) {
@@ -74,6 +73,7 @@ export async function evaluateAsyncExpression(
   if (!expression?.trim()) {
     return null;
   }
+
   const compiledExpression = getExpressionAst(expression);
   // track dependencies
   trackFieldDependencies(compiledExpression, node, fields);
@@ -110,7 +110,8 @@ function getEvaluationContext(
     },
   });
 
-  const visitType = context.visit?.visitType || { uuid: '' };
+  const visit: Visit = context?.visit ?? ({} as Visit);
+  const visitType = visit?.visitType || { uuid: '' };
   const visitTypeUuid = visitType.uuid ?? '';
 
   const _ = {
@@ -127,6 +128,7 @@ function getEvaluationContext(
     sex,
     age,
     HD,
+    visit,
     visitType,
     visitTypeUuid,
     _,
@@ -160,6 +162,7 @@ export function trackFieldDependencies(
   allFields: FormField[],
 ) {
   const variables = extractVariableNames(expression);
+
   for (const variable of variables) {
     const field = allFields.find((field) => field.id === variable);
     if (field) {

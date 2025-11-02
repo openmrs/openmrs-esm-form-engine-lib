@@ -1,0 +1,29 @@
+{
+  "name": "Visit Form",
+  "pages": [
+    {
+      "label": "Page 1",
+      "sections": [
+        {
+          "label": "Section 1",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Encounter Date",
+              "type": "encounterDatetime",
+              "id": "encounterDate",
+              "questionOptions": {
+                "rendering": "date",
+                "calculate": {
+                  "calculateExpression": "visit && visit?.startDatetime ? new Date(visit?.startDatetime) : null"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "uuid": "form-visit-test",
+  "encounterType": "b9c1f50f-f77d-42e2-ad2a-d29304dde2fv"
+}

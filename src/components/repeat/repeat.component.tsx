@@ -35,6 +35,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
     removeFormField,
     deletedFields,
     setDeletedFields,
+    visit,
   } = context;
 
   useEffect(() => {
@@ -61,6 +62,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
             {
               mode: sessionMode,
               patient: patient,
+              visit,
             },
           );
         }
@@ -73,6 +75,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
             {
               mode: sessionMode,
               patient: patient,
+              visit,
             },
           ).then((result) => {
             if (!isEmpty(result)) {
