@@ -343,6 +343,7 @@ export class EncounterFormProcessor extends FormProcessor {
       methods: { getValues },
       formFieldAdapters,
       previousDomainObjectValue,
+      visit,
     } = context;
     const node: FormNode = { value: field, type: 'field' };
     const adapter = formFieldAdapters[field.type];
@@ -351,6 +352,7 @@ export class EncounterFormProcessor extends FormProcessor {
         mode: sessionMode,
         patient: patient,
         previousEncounter: previousDomainObjectValue,
+        visit,
       });
       return value ? extractObsValueAndDisplay(field, value) : null;
     }
@@ -366,12 +368,13 @@ async function evaluateCalculateExpression(
   values: Record<string, any>,
   formContext: FormProcessorContextProps,
 ) {
-  const { formFields, sessionMode, patient } = formContext;
+  const { formFields, sessionMode, patient, visit } = formContext;
   const expression = field.questionOptions.calculate.calculateExpression;
   const node: FormNode = { value: field, type: 'field' };
   const context = {
     mode: sessionMode,
     patient: patient,
+    visit,
   };
   const value = await evaluateAsyncExpression(expression, node, formFields, values, context);
   if (!isEmpty(value)) {
