@@ -8,7 +8,7 @@ import {
   showSnackbar,
   showToast,
   type ToastDescriptor,
-  Visit,
+  type Visit,
 } from '@openmrs/esm-framework';
 import { type FormProcessorConstructor } from '../processors/form-processor';
 import { type FormContextProps } from './form-provider';
