@@ -3,4 +3,4 @@
 
 set -e  # die on error
 
-npx lint-staged
+yarn lint-staged --no-stash
