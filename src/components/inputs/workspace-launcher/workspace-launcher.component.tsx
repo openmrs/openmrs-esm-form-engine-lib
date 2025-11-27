@@ -2,11 +2,11 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { launchWorkspace, showSnackbar } from '@openmrs/esm-framework';
 import { Button } from '@carbon/react';
-
 import { useFormProviderContext } from '../../../provider/form-provider';
 import { type FormFieldInputProps } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
 import { isViewMode } from '../../../utils/common-utils';
+import FieldLabel from '../../field-label/field-label.component';
 import styles from './workspace-launcher.scss';
 
 const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
@@ -35,7 +35,7 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
 
   return (
     <div>
-      <div className={styles.label}>{t(field.label)}</div>
+      <div className={styles.label}>{<FieldLabel field={field} />}</div>
       <div className={styles.workspaceButton}>
         <Button disabled={isTrue(field.readonly)} onClick={handleLaunchWorkspace}>
           {field.questionOptions.buttonLabel
