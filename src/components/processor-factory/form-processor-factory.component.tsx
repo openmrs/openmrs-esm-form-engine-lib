@@ -54,7 +54,7 @@ const FormProcessorFactory = ({
   });
   const { t } = useTranslation();
   const { formFields: rawFormFields, conceptReferences } = useFormFields(formJson);
-  const { concepts: formFieldsConcepts, isLoading: isLoadingConcepts } = useConcepts(conceptReferences);
+  const { concepts: formFieldsConcepts, isLoading: isLoadingConcepts } = useConcepts([].concat(...conceptReferences));
   const formFieldsWithMeta = useFormFieldsMeta(rawFormFields, formFieldsConcepts);
   const formFieldAdapters = useFormFieldValueAdapters(rawFormFields);
   const formFieldValidators = useFormFieldValidators(rawFormFields);
