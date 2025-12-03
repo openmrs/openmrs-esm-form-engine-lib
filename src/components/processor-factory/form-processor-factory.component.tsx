@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { type OpenmrsResource } from '@openmrs/esm-framework';
 import useProcessorDependencies from '../../hooks/useProcessorDependencies';
 import useInitialValues from '../../hooks/useInitialValues';
 import { FormRenderer } from '../renderer/form/form-renderer.component';
@@ -22,12 +23,20 @@ interface FormProcessorFactoryProps {
   setIsLoadingFormDependencies: (isLoading: boolean) => void;
 }
 
+// Mutable parts of the context that can be updated by processors/hooks
+interface MutableContextState {
+  domainObjectValue?: OpenmrsResource;
+  previousDomainObjectValue?: OpenmrsResource;
+  customDependencies?: Record<string, any>;
+}
+
 const FormProcessorFactory = ({
   formJson,
   isSubForm = false,
   setIsLoadingFormDependencies,
 }: FormProcessorFactoryProps) => {
   const { patient, sessionMode, formProcessors, layoutType, location, provider, sessionDate, visit } = useFormFactory();
+  const { t } = useTranslation();
 
   const processor = useMemo(() => {
     const ProcessorClass = formProcessors[formJson.processor];
@@ -38,26 +47,86 @@ const FormProcessorFactory = ({
     return new EncounterFormProcessor(formJson);
   }, [formProcessors, formJson.processor]);
 
-  const [processorContext, setProcessorContext] = useState<FormProcessorContextProps>({
-    patient,
-    formJson,
-    sessionMode,
-    layoutType,
-    location,
-    currentProvider: provider,
-    processor,
-    sessionDate,
-    visit,
-    formFields: [],
-    formFieldAdapters: {},
-    formFieldValidators: {},
-  });
-  const { t } = useTranslation();
+  // Derive form fields and related data
   const { formFields: rawFormFields, conceptReferences } = useFormFields(formJson);
   const { concepts: formFieldsConcepts, isLoading: isLoadingConcepts } = useConcepts(conceptReferences);
   const formFieldsWithMeta = useFormFieldsMeta(rawFormFields, formFieldsConcepts);
   const formFieldAdapters = useFormFieldValueAdapters(rawFormFields);
   const formFieldValidators = useFormFieldValidators(rawFormFields);
+
+  const formFields = useMemo(
+    () => (formFieldsWithMeta?.length ? formFieldsWithMeta : rawFormFields ?? []),
+    [formFieldsWithMeta, rawFormFields],
+  );
+
+  // We divide the context into the "mutatable" parts, which can be changed by custom hooks
+  // and the "static" parts
+  const [mutableContext, setMutableContext] = useState<MutableContextState>({});
+
+  // Create the "static" part of the context
+  const baseContext = useMemo<Omit<FormProcessorContextProps, keyof MutableContextState>>(
+    () => ({
+      patient,
+      formJson,
+      sessionMode,
+      layoutType,
+      location,
+      currentProvider: provider,
+      processor,
+      sessionDate,
+      visit,
+      formFields,
+      formFieldAdapters: formFieldAdapters ?? {},
+      formFieldValidators: formFieldValidators ?? {},
+    }),
+    [
+      patient,
+      formJson,
+      sessionMode,
+      layoutType,
+      location,
+      provider,
+      processor,
+      sessionDate,
+      visit,
+      formFields,
+      formFieldAdapters,
+      formFieldValidators,
+    ],
+  );
+
+  // re-create the full processor context
+  const processorContext = useMemo<FormProcessorContextProps>(
+    () => ({
+      ...baseContext,
+      ...mutableContext,
+    }),
+    [baseContext, mutableContext],
+  );
+
+  // callback to update the mutable part of the context
+  const setProcessorContext = useCallback(
+    (updater: FormProcessorContextProps | ((prev: FormProcessorContextProps) => FormProcessorContextProps)) => {
+      setMutableContext((prevMutable) => {
+        // Build the "previous" full context to pass to the updater
+        const prevFull: FormProcessorContextProps = {
+          ...baseContext,
+          ...prevMutable,
+        };
+
+        const newFull = typeof updater === 'function' ? updater(prevFull) : updater;
+
+        // Extract only the mutable parts from the result
+        return {
+          domainObjectValue: newFull.domainObjectValue,
+          previousDomainObjectValue: newFull.previousDomainObjectValue,
+          customDependencies: newFull.customDependencies,
+        };
+      });
+    },
+    [baseContext],
+  );
+
   const { isLoading: isLoadingCustomDeps } = useProcessorDependencies(processor, processorContext, setProcessorContext);
   const useCustomHooks = processor.getCustomHooks().useCustomHooks;
   const [isLoadingCustomHooks, setIsLoadingCustomHooks] = useState(!!useCustomHooks);
@@ -79,21 +148,8 @@ const FormProcessorFactory = ({
   }, [isLoadingProcessorDependencies, setIsLoadingFormDependencies]);
 
   useEffect(() => {
-    setProcessorContext((prev) => ({
-      ...prev,
-      ...(formFieldAdapters && { formFieldAdapters }),
-      ...(formFieldValidators && { formFieldValidators }),
-      ...(formFieldsWithMeta?.length
-        ? { formFields: formFieldsWithMeta }
-        : rawFormFields?.length
-        ? { formFields: rawFormFields }
-        : {}),
-    }));
-  }, [formFieldAdapters, formFieldValidators, rawFormFields, formFieldsWithMeta]);
-
-  useEffect(() => {
     reportError(initialValuesError, t('errorLoadingInitialValues', 'Error loading initial values'));
-  }, [initialValuesError]);
+  }, [initialValuesError, t]);
 
   useEffect(() => {
     if (formFieldAdapters) {
