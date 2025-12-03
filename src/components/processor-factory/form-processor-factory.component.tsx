@@ -61,18 +61,22 @@ const FormProcessorFactory = ({
   const { isLoading: isLoadingCustomDeps } = useProcessorDependencies(processor, processorContext, setProcessorContext);
   const useCustomHooks = processor.getCustomHooks().useCustomHooks;
   const [isLoadingCustomHooks, setIsLoadingCustomHooks] = useState(!!useCustomHooks);
-  const [isLoadingProcessorDependencies, setIsLoadingProcessorDependencies] = useState(true);
   const {
     isLoadingInitialValues,
     initialValues,
     error: initialValuesError,
   } = useInitialValues(processor, isLoadingCustomDeps || isLoadingCustomHooks || isLoadingConcepts, processorContext);
 
+  // Derive loading state with useMemo to avoid effect-based state updates
+  const isLoadingProcessorDependencies = useMemo(
+    () => isLoadingCustomDeps || isLoadingCustomHooks || isLoadingConcepts || isLoadingInitialValues,
+    [isLoadingCustomDeps, isLoadingCustomHooks, isLoadingConcepts, isLoadingInitialValues],
+  );
+
+  // Notify parent of loading state changes
   useEffect(() => {
-    const isLoading = isLoadingCustomDeps || isLoadingCustomHooks || isLoadingConcepts || isLoadingInitialValues;
-    setIsLoadingFormDependencies(isLoading);
-    setIsLoadingProcessorDependencies(isLoading);
-  }, [isLoadingCustomDeps, isLoadingCustomHooks, isLoadingConcepts, isLoadingInitialValues]);
+    setIsLoadingFormDependencies(isLoadingProcessorDependencies);
+  }, [isLoadingProcessorDependencies, setIsLoadingFormDependencies]);
 
   useEffect(() => {
     setProcessorContext((prev) => ({

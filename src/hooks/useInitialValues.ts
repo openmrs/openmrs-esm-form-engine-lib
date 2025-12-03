@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type FormProcessorContextProps } from '../types';
 import { type FormProcessor } from '../processors/form-processor';
 
@@ -11,16 +11,25 @@ const useInitialValues = (
   const [initialValues, setInitialValues] = useState({});
   const [error, setError] = useState(null);
 
+  const contextRef = useRef(context);
+  contextRef.current = context;
+
+  const hasStartedLoading = useRef(false);
+  const hasFormFields = context.formFields?.length > 0;
+  const hasFormFieldAdapters = Object.keys(context.formFieldAdapters ?? {}).length > 0;
+
   useEffect(() => {
     if (
       formProcessor &&
       !isLoadingContextDependencies &&
-      context.formFields?.length &&
-      Object.keys(context.formFieldAdapters).length &&
-      !Object.keys(initialValues).length
+      hasFormFields &&
+      hasFormFieldAdapters &&
+      !hasStartedLoading.current
     ) {
+      hasStartedLoading.current = true;
+      const currentContext = contextRef.current;
       formProcessor
-        .getInitialValues(context)
+        .getInitialValues(currentContext)
         .then((values) => {
           setInitialValues(values);
           setIsLoadingInitialValues(false);
@@ -31,7 +40,7 @@ const useInitialValues = (
           setIsLoadingInitialValues(false);
         });
     }
-  }, [formProcessor, isLoadingContextDependencies, context, initialValues]);
+  }, [formProcessor, isLoadingContextDependencies, hasFormFields, hasFormFieldAdapters]);
 
   return { isLoadingInitialValues, initialValues, error };
 };

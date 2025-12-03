@@ -1,65 +1,48 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { type FormField, type FormSchema } from '../types';
 
 export function useFormFields(form: FormSchema): { formFields: FormField[]; conceptReferences: Set<string> } {
-  const [flattenedFields, conceptReferences] = useMemo(() => {
+  const conceptReferencesRef = useRef<Set<string>>(new Set());
+
+  const [flattenedFields, conceptReferencesKey] = useMemo(() => {
     const flattenedFieldsTemp: FormField[] = [];
     const conceptReferencesTemp = new Set<string>();
 
-    const processFlattenedFields = (
-      fields: FormField[],
-    ): {
-      flattenedFields: FormField[];
-      conceptReferences: Set<string>;
-    } => {
-      const flattenedFields: FormField[] = [];
-      const conceptReferences = new Set<string>();
+    const processField = (field: FormField, parentGroupId?: string) => {
+      const processedField = parentGroupId ? { ...field, meta: { ...field.meta, groupId: parentGroupId } } : field;
+      flattenedFieldsTemp.push(processedField);
 
-      const processField = (field: FormField, parentGroupId?: string) => {
-        // Add group ID to nested fields if applicable
-        const processedField = parentGroupId ? { ...field, meta: { ...field.meta, groupId: parentGroupId } } : field;
+      if (processedField.questionOptions?.concept) {
+        conceptReferencesTemp.add(processedField.questionOptions.concept);
+      }
 
-        // Add field to flattened list
-        flattenedFields.push(processedField);
-
-        // Collect concept references
-        if (processedField.questionOptions?.concept) {
-          conceptReferences.add(processedField.questionOptions.concept);
+      processedField.questionOptions?.answers?.forEach((answer) => {
+        if (answer.concept) {
+          conceptReferencesTemp.add(answer.concept);
         }
+      });
 
-        // Collect concept references from answers
-        processedField.questionOptions?.answers?.forEach((answer) => {
-          if (answer.concept) {
-            conceptReferences.add(answer.concept);
-          }
+      if (processedField.type === 'obsGroup' && processedField.questions) {
+        processedField.questions.forEach((nestedField) => {
+          processField(nestedField, processedField.id);
         });
-
-        // Recursively process nested questions for obsGroup
-        if (processedField.type === 'obsGroup' && processedField.questions) {
-          processedField.questions.forEach((nestedField) => {
-            processField(nestedField, processedField.id);
-          });
-        }
-      };
-
-      // Process all input fields
-      fields.forEach((field) => processField(field));
-
-      return { flattenedFields, conceptReferences };
+      }
     };
 
     form.pages?.forEach((page) =>
       page.sections?.forEach((section) => {
-        if (section.questions) {
-          const { flattenedFields, conceptReferences } = processFlattenedFields(section.questions);
-          flattenedFieldsTemp.push(...flattenedFields);
-          conceptReferences.forEach((conceptReference) => conceptReferencesTemp.add(conceptReference));
-        }
+        section.questions?.forEach((field) => processField(field));
       }),
     );
 
-    return [flattenedFieldsTemp, conceptReferencesTemp];
+    const sortedRefs = Array.from(conceptReferencesTemp).sort();
+    return [flattenedFieldsTemp, sortedRefs.join(',')];
   }, [form]);
 
-  return { formFields: flattenedFields, conceptReferences };
+  const currentKey = Array.from(conceptReferencesRef.current).sort().join(',');
+  if (conceptReferencesKey !== currentKey) {
+    conceptReferencesRef.current = new Set(conceptReferencesKey.split(',').filter(Boolean));
+  }
+
+  return { formFields: flattenedFields, conceptReferences: conceptReferencesRef.current };
 }
