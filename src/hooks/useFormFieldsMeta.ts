@@ -11,6 +11,19 @@ export function useFormFieldsMeta(rawFormFields: FormField[], concepts: OpenmrsR
         const matchingConcept = findConceptByReference(field.questionOptions.concept, concepts);
         field.questionOptions.concept = matchingConcept ? matchingConcept.uuid : field.questionOptions.concept;
         field.label = field.label ? field.label : matchingConcept?.display;
+
+        if (matchingConcept) {
+          const { lowAbsolute, hiAbsolute } = matchingConcept;
+          
+          if (lowAbsolute !== undefined) {
+            field.questionOptions.min = lowAbsolute;
+          }
+          
+          if (hiAbsolute !== undefined) {
+            field.questionOptions.max = hiAbsolute;
+          }
+        }
+
         if (
           codedTypes.includes(field.questionOptions.rendering) &&
           !field.questionOptions.answers?.length &&
