@@ -49,7 +49,7 @@ const FormProcessorFactory = ({
 
   // Derive form fields and related data
   const { formFields: rawFormFields, conceptReferences } = useFormFields(formJson);
-  const { concepts: formFieldsConcepts, isLoading: isLoadingConcepts } = useConcepts(conceptReferences);
+  const { concepts: formFieldsConcepts, isLoading: isLoadingConcepts } = useConcepts(Array.from(conceptReferences));
   const formFieldsWithMeta = useFormFieldsMeta(rawFormFields, formFieldsConcepts);
   const formFieldAdapters = useFormFieldValueAdapters(rawFormFields);
   const formFieldValidators = useFormFieldValidators(rawFormFields);
