@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useReducer } from 'react';
+import React, { useEffect, useMemo, useReducer, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import PageRenderer from '../page/page.renderer.component';
 import FormProcessorFactory from '../../processor-factory/form-processor-factory.component';
@@ -10,6 +10,9 @@ import { type FormProcessorContextProps } from '../../../types';
 import { useFormStateHelpers } from '../../../hooks/useFormStateHelpers';
 import { pageObserver } from '../../sidebar/page-observer';
 import { isPageContentVisible } from '../../../utils/form-helper';
+import { validateFieldValue } from '../field/fieldLogic';
+import { evaluateAsyncExpression } from '../../../utils/expression-runner';
+import { reportError } from '../../../utils/error-utils';
 
 export type FormRendererProps = {
   processorContext: FormProcessorContextProps;
@@ -39,6 +42,8 @@ export const FormRenderer = ({
   const {
     formState: { isDirty },
   } = methods;
+
+  const calculationsEvaluatedRef = useRef(false);
 
   const [{ formFields, invalidFields, formJson, deletedFields }, dispatch] = useReducer(formStateReducer, {
     ...initialState,
@@ -99,6 +104,45 @@ export const FormRenderer = ({
   useEffect(() => {
     setIsFormDirty(isDirty);
   }, [isDirty]);
+
+  useEffect(() => {
+    if (!calculationsEvaluatedRef.current) {
+      calculationsEvaluatedRef.current = true;
+      const calculatedFields = formFields.filter((f) => f.questionOptions.calculate?.calculateExpression);
+      calculatedFields.forEach((field) => {
+        evaluateAsyncExpression(
+          field.questionOptions.calculate.calculateExpression,
+          { value: field, type: 'field' },
+          formFields,
+          methods.getValues(),
+          {
+            mode: processorContext.sessionMode,
+            patient: processorContext.patient,
+          },
+        )
+          .then((result) => {
+            methods.setValue(field.id, result);
+            const { errors, warnings } = validateFieldValue(field, result, processorContext.formFieldValidators, {
+              formFields,
+              values: methods.getValues(),
+              expressionContext: { patient: processorContext.patient, mode: processorContext.sessionMode },
+            });
+            if (!field.meta.submission) {
+              field.meta.submission = {};
+            }
+            field.meta.submission.errors = errors;
+            field.meta.submission.warnings = warnings;
+            if (!errors.length) {
+              processorContext.formFieldAdapters[field.type].transformFieldValue(field, result, context);
+            }
+            updateFormField(field);
+          })
+          .catch((error) => {
+            reportError(error, 'Error evaluating calculate expression');
+          });
+      });
+    }
+  }, []);
 
   return (
     <FormProvider {...context}>
