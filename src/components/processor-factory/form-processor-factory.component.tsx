@@ -59,7 +59,7 @@ const FormProcessorFactory = ({
     [formFieldsWithMeta, rawFormFields],
   );
 
-  // We divide the context into the "mutatable" parts, which can be changed by custom hooks
+  // We divide the context into the "mutable" parts, which can be changed by custom hooks
   // and the "static" parts
   const [mutableContext, setMutableContext] = useState<MutableContextState>({});
 
