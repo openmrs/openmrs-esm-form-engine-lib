@@ -7,18 +7,18 @@ const conceptRepresentation =
 
 type ConceptRepresentation = Pick<Concept, 'uuid' | 'display'> & {
   conceptClass: Pick<Concept['conceptClass'], 'uuid' | 'display'>;
-  answers: {
+  answers: Array<{
     uuid: string;
     display: string;
-  };
-  conceptMappings: {
+  }>;
+  conceptMappings: Array<{
     conceptReferenceTerm: {
       conceptSource: {
         name: string;
       };
       code: string;
     };
-  };
+  }>;
 };
 
 type ConceptFetchResponse = FetchResponse<{ [reference: string]: ConceptRepresentation }>;
@@ -30,13 +30,13 @@ export function useConcepts(references: Array<string>): {
 } {
   const { data, error, isLoading } = useSWR<ConceptFetchResponse, Error>(
     [`${restBaseUrl}/conceptreferences?v=${conceptRepresentation}`, references],
-    ([url]) =>
+    ([url, refs]) =>
       openmrsFetch(url, {
         headers: {
           'Content-Type': 'application/json',
         },
         body: {
-          references,
+          references: refs,
         },
         method: 'POST',
       }),
