@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { launchWorkspace, showSnackbar } from '@openmrs/esm-framework';
+import { launchWorkspace2, showSnackbar } from '@openmrs/esm-framework';
 import { Button } from '@carbon/react';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import { type FormFieldInputProps } from '../../../types';
@@ -11,13 +11,13 @@ import styles from './workspace-launcher.scss';
 
 const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
   const { t } = useTranslation();
-  const { sessionMode } = useFormProviderContext();
+  const { sessionMode, patient } = useFormProviderContext();
 
   const handleLaunchWorkspace = () => {
     const workspaceName = field.questionOptions?.workspaceName;
     // TODO: properly check if workspace name is valid
     // https://openmrs.atlassian.net/browse/O3-4976
-    const isWorkspaceNameValid = true;
+    const isWorkspaceNameValid = true; 
     if (!isWorkspaceNameValid) {
       showSnackbar({
         title: t('invalidWorkspaceName', 'Invalid workspace name.'),
@@ -26,7 +26,7 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
         isLowContrast: true,
       });
     }
-    launchWorkspace(workspaceName);
+    launchWorkspace2(workspaceName, { patientUuid: patient?.id });
   };
 
   if (field.isHidden || isViewMode(sessionMode)) {
