@@ -81,6 +81,8 @@ const contextInitializableTypes = [
 
 export class EncounterFormProcessor extends FormProcessor {
   prepareFormSchema(schema: FormSchema) {
+    const allFieldIds = new Set<string>();
+
     schema.pages.forEach((page) => {
       page.sections.forEach((section) => {
         section.questions.forEach((question) => {
@@ -90,6 +92,11 @@ export class EncounterFormProcessor extends FormProcessor {
     });
 
     function prepareFormField(field: FormField, section: FormSection, page: FormPage, schema: FormSchema) {
+      // Collect field ID
+      if (field.id) {
+        allFieldIds.add(field.id);
+      }
+
       // inherit inlineRendering and readonly from parent section and page if not set
       field.inlineRendering =
         field.inlineRendering ?? section.inlineRendering ?? page.inlineRendering ?? schema.inlineRendering;
@@ -105,6 +112,9 @@ export class EncounterFormProcessor extends FormProcessor {
         });
       }
     }
+
+    // Validate calculate expressions for common mistakes
+    validateCalculateExpressions(schema, allFieldIds);
 
     return schema;
   }
@@ -367,4 +377,43 @@ async function evaluateCalculateExpression(
   if (!isEmpty(value)) {
     values[field.id] = value;
   }
+}
+
+/**
+ * Validates calculate expressions to warn about common mistakes.
+ * Specifically, checks if string literals in expressions match field IDs,
+ * which usually indicates the user should use bare variable references instead.
+ *
+ * For example: calcEDD('lmp') should be calcEDD(lmp)
+ */
+function validateCalculateExpressions(schema: FormSchema, allFieldIds: Set<string>) {
+  const stringLiteralPattern = /(['"])([a-zA-Z_][a-zA-Z0-9_]*)\1/g;
+
+  function checkExpression(expression: string, fieldId: string) {
+    for (const match of expression.matchAll(stringLiteralPattern)) {
+      const quotedValue = match[2];
+      if (allFieldIds.has(quotedValue)) {
+        console.error(
+          `The calculateExpression for field '${fieldId}' contains '${quotedValue}' as a string, but this is a field ID. ` +
+            `Use the variable ${quotedValue} without quotes to reference its value.`,
+        );
+      }
+    }
+  }
+
+  function processField(field: FormField) {
+    if (field.questionOptions?.calculate?.calculateExpression) {
+      checkExpression(field.questionOptions.calculate.calculateExpression, field.id);
+    }
+    // Process nested questions (for obsGroups)
+    if (field.questions) {
+      field.questions.forEach(processField);
+    }
+  }
+
+  schema.pages.forEach((page) => {
+    page.sections.forEach((section) => {
+      section.questions.forEach(processField);
+    });
+  });
 }
