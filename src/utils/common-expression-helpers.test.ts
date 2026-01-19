@@ -104,6 +104,79 @@ describe('CommonExpressionHelpers', () => {
     });
   });
 
+  describe('isDateAfterSimple', () => {
+    it('should return true if the left date is after the right date', () => {
+      const left = new Date('2021-12-31');
+      const right = '2021-01-01';
+      expect(helpers.isDateAfterSimple(left, right)).toBe(true);
+    });
+
+    it('should return false if the left date is not after the right date', () => {
+      const left = new Date('2021-01-01');
+      const right = '2021-12-31';
+      expect(helpers.isDateAfterSimple(left, right)).toBe(false);
+    });
+
+    it('should accept a Date object as the right parameter', () => {
+      const left = new Date('2021-12-31');
+      const right = new Date('2021-01-01');
+      expect(helpers.isDateAfterSimple(left, right)).toBe(true);
+    });
+
+    it('should use custom format when provided', () => {
+      const left = new Date('2021-12-31');
+      const right = '31/01/2021';
+      expect(helpers.isDateAfterSimple(left, right, 'DD/MM/YYYY')).toBe(true);
+    });
+  });
+
+  describe('isDateAfterOffset', () => {
+    it('should return true if selected date is after base date plus offset in months', () => {
+      const selectedDate = new Date('2022-01-01');
+      const baseDate = new Date('2021-01-01');
+      expect(helpers.isDateAfterOffset(selectedDate, baseDate, 6, 'months')).toBe(true);
+    });
+
+    it('should return true if selected date is after base date plus offset in weeks', () => {
+      const selectedDate = new Date('2021-02-08');
+      const baseDate = new Date('2021-01-01');
+      expect(helpers.isDateAfterOffset(selectedDate, baseDate, 5, 'weeks')).toBe(true);
+    });
+
+    it('should return true if selected date is after base date plus offset in days', () => {
+      const selectedDate = new Date('2021-01-31');
+      const baseDate = new Date('2021-01-01');
+      expect(helpers.isDateAfterOffset(selectedDate, baseDate, 30, 'days')).toBe(true);
+    });
+
+    it('should return true if selected date is after base date plus offset in years', () => {
+      const selectedDate = new Date('2022-01-01');
+      const baseDate = new Date('2021-01-01');
+      expect(helpers.isDateAfterOffset(selectedDate, baseDate, 1, 'years')).toBe(true);
+    });
+
+    it('should return false if selected date is before base date plus offset', () => {
+      const selectedDate = new Date('2021-06-01');
+      const baseDate = new Date('2021-01-01');
+      expect(helpers.isDateAfterOffset(selectedDate, baseDate, 1, 'years')).toBe(false);
+    });
+  });
+
+  describe('addWeeksToDate', () => {
+    it('should add weeks to a date correctly', () => {
+      const date = new Date('2021-01-01');
+      const result = helpers.addWeeksToDate(date, 2);
+      expect(result).toEqual(new Date('2021-01-15'));
+    });
+
+    it('should not mutate the original date', () => {
+      const date = new Date('2021-01-01');
+      const originalTime = date.getTime();
+      helpers.addWeeksToDate(date, 2);
+      expect(date.getTime()).toBe(originalTime);
+    });
+  });
+
   describe('useFieldValue', () => {
     it('should return the field value if the key exists', () => {
       helpers.allFieldValues = { question1: 'value1' };
