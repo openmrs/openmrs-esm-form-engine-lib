@@ -1,7 +1,5 @@
 import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-dayjs.extend(duration);
 dayjs.extend(customParseFormat);
 import findIndex from 'lodash/findIndex';
 import filter from 'lodash/filter';
@@ -42,11 +40,12 @@ export class CommonExpressionHelpers {
     measurementValue: number,
   ): string | null => {
     if (!refSectionObject) {
+      console.warn('Z-score calculation: No reference data object provided');
       return null;
     }
 
-    const refObjectValues = Object.keys(refSectionObject).map((key) => refSectionObject[key]);
     const refObjectKeys = Object.keys(refSectionObject);
+    const refObjectValues = refObjectKeys.map((key) => refSectionObject[key]);
     const minimumValue = refObjectValues[1];
     const minReferencePoint: number[] = [];
 
@@ -101,11 +100,8 @@ export class CommonExpressionHelpers {
    * @param format - Optional format string for parsing right date (defaults to 'YYYY-MM-DD')
    * @returns true if left is before right
    */
-  isDateBefore = (left: Date, right: string | Date, format?: string) => {
-    let otherDate: any = right;
-    if (typeof right == 'string') {
-      otherDate = format ? dayjs(right, format, true).toDate() : dayjs(right, 'YYYY-MM-DD', true).toDate();
-    }
+  isDateBefore = (left: Date, right: string | Date, format?: string): boolean => {
+    const otherDate: Date = right instanceof Date ? right : (format ? dayjs(right, format, true).toDate() : dayjs(right, 'YYYY-MM-DD', true).toDate());
     return left?.getTime() < otherDate.getTime();
   };
 
@@ -117,7 +113,7 @@ export class CommonExpressionHelpers {
    * @param timePeriod - The time unit: 'days', 'weeks', 'months', or 'years'
    * @returns true if selectedDate >= (baseDate + duration)
    */
-  isDateAfter = (selectedDate: Date, baseDate: Date, duration: number, timePeriod: string) => {
+  isDateAfter = (selectedDate: Date, baseDate: Date, duration: number, timePeriod: 'days' | 'weeks' | 'months' | 'years'): boolean => {
     const parsedBaseDate = dayjs(baseDate);
 
     let calculatedDate: Date;
@@ -169,41 +165,8 @@ export class CommonExpressionHelpers {
    * @returns true if left is after right
    */
   isDateAfterSimple = (left: Date, right: string | Date, format?: string): boolean => {
-    let otherDate: Date = right instanceof Date ? right : (format ? dayjs(right, format, true).toDate() : dayjs(right, 'YYYY-MM-DD', true).toDate());
+    const otherDate: Date = right instanceof Date ? right : (format ? dayjs(right, format, true).toDate() : dayjs(right, 'YYYY-MM-DD', true).toDate());
     return left?.getTime() > otherDate.getTime();
-  };
-
-  /**
-   * Checks if selectedDate is after baseDate plus an offset duration.
-   * This is a more clearly named version of isDateAfter with the same functionality.
-   * @param selectedDate - The date to check
-   * @param baseDate - The base date to add the offset to
-   * @param duration - The number of time units to add
-   * @param timePeriod - The time unit ('days', 'weeks', 'months', or 'years')
-   * @returns true if selectedDate is on or after the calculated date
-   */
-  isDateAfterOffset = (selectedDate: Date, baseDate: Date, duration: number, timePeriod: 'days' | 'weeks' | 'months' | 'years'): boolean => {
-    const parsedBaseDate = dayjs(baseDate);
-
-    let calculatedDate: Date;
-    switch (timePeriod) {
-      case 'months':
-        calculatedDate = parsedBaseDate.add(duration, 'month').toDate();
-        break;
-      case 'weeks':
-        calculatedDate = parsedBaseDate.add(duration, 'week').toDate();
-        break;
-      case 'days':
-        calculatedDate = parsedBaseDate.add(duration, 'day').toDate();
-        break;
-      case 'years':
-        calculatedDate = parsedBaseDate.add(duration, 'year').toDate();
-        break;
-      default:
-        calculatedDate = new Date(0);
-    }
-
-    return selectedDate.getTime() >= calculatedDate.getTime();
   };
 
   /**
@@ -320,12 +283,11 @@ export class CommonExpressionHelpers {
    * @param arvDispensedInDays - Number of days of ARV medication dispensed
    * @returns The next visit date (followupDate + arvDispensedInDays), or null if inputs are missing
    */
-  calcNextVisitDate = (followupDate, arvDispensedInDays) => {
-    let resultNextVisitDate: Date;
+  calcNextVisitDate = (followupDate: Date, arvDispensedInDays: number): Date | null => {
     if (followupDate && arvDispensedInDays) {
-      resultNextVisitDate = new Date(followupDate.getTime() + arvDispensedInDays * 24 * 60 * 60 * 1000);
+      return new Date(followupDate.getTime() + arvDispensedInDays * 24 * 60 * 60 * 1000);
     }
-    return resultNextVisitDate ?? null;
+    return null;
   };
 
   /**
@@ -358,16 +320,10 @@ export class CommonExpressionHelpers {
    * @param dateValue - The reference date to calculate age at (defaults to today if not provided)
    * @returns Age in years (year difference only, not precise age)
    */
-  calcAgeBasedOnDate = (dateValue?: ConstructorParameters<typeof Date>[0] | null) => {
-    let targetYear = null;
-    if (dateValue) {
-      targetYear = new Date(dateValue).getFullYear();
-    } else {
-      targetYear = new Date().getFullYear();
-    }
-    let birthDate = new Date(this.patient.birthDate).getFullYear();
-    let calculatedYear = targetYear - birthDate;
-    return calculatedYear;
+  calcAgeBasedOnDate = (dateValue?: ConstructorParameters<typeof Date>[0] | null): number => {
+    const targetYear = dateValue ? new Date(dateValue).getFullYear() : new Date().getFullYear();
+    const birthYear = new Date(this.patient.birthDate).getFullYear();
+    return targetYear - birthYear;
   };
 
   /**
@@ -377,12 +333,11 @@ export class CommonExpressionHelpers {
    * @param weight - Weight in kilograms
    * @returns BSA in m² rounded to 2 decimal places, or null if inputs are missing
    */
-  calcBSA = (height: number, weight: number) => {
-    let result: string;
-    if (height && weight) {
-      result = Math.sqrt((height * weight) / 3600).toFixed(2);
+  calcBSA = (height: number, weight: number): number | null => {
+    if (!height || !weight) {
+      return null;
     }
-    return result ? parseFloat(result) : null;
+    return parseFloat(Math.sqrt((height * weight) / 3600).toFixed(2));
   };
 
   /**
@@ -496,20 +451,14 @@ export class CommonExpressionHelpers {
 
   /**
    * Calculates the gravida (total number of pregnancies) based on term pregnancies and abortions/miscarriages.
-   *
-   * @param {number|string} parityTerm - The number of term pregnancies.
-   * @param {number|string} parityAbortion - The number of abortions (including miscarriages).
-   * @returns {number} The total number of pregnancies (gravida).
-   * @throws {Error} If either input is not a valid number.
-   *
-   * @example
-   * const gravida = calcGravida(2, 1);
-   * console.log(gravida); // Output: 3
+   * @param parityTerm - The number of term pregnancies (can be number or numeric string)
+   * @param parityAbortion - The number of abortions including miscarriages (can be number or numeric string)
+   * @returns The total number of pregnancies (gravida)
+   * @throws Error if either input is not a valid number
    */
-
-  calcGravida = (parityTerm, parityAbortion) => {
-    const term = parseInt(parityTerm, 10);
-    const abortion = parseInt(parityAbortion, 10);
+  calcGravida = (parityTerm: number | string, parityAbortion: number | string): number => {
+    const term = typeof parityTerm === 'number' ? parityTerm : parseInt(parityTerm, 10);
+    const abortion = typeof parityAbortion === 'number' ? parityAbortion : parseInt(parityAbortion, 10);
 
     if (!Number.isInteger(term) || !Number.isInteger(abortion)) {
       throw new Error('Both inputs must be valid numbers.');
@@ -525,7 +474,7 @@ export class CommonExpressionHelpers {
    * @param weight - Patient's weight in kilograms
    * @returns Z-score as a string (e.g., '-2', '0', '1'), '-4' if out of range, or null if inputs missing
    */
-  calcWeightForHeightZscore = (height, weight) => {
+  calcWeightForHeightZscore = (height: number, weight: number): string | null => {
     if (!height || !weight) {
       return null;
     }
@@ -533,7 +482,7 @@ export class CommonExpressionHelpers {
     const birthDate = new Date(this.patient.birthDate);
     const weightForHeightRef = getZRefByGenderAndAge(this.patient.sex, birthDate, new Date()).weightForHeightRef;
 
-    const formattedHeight = parseFloat(height).toFixed(1);
+    const formattedHeight = height.toFixed(1);
     const standardHeightMin = 45;
     const standardMaxHeight = 110;
 
@@ -556,7 +505,7 @@ export class CommonExpressionHelpers {
    * @param weight - Patient's weight in kilograms
    * @returns Z-score as a string (e.g., '-2', '0', '1'), or null if inputs missing
    */
-  calcBMIForAgeZscore = (height, weight) => {
+  calcBMIForAgeZscore = (height: number, weight: number): string | null => {
     if (!height || !weight) {
       return null;
     }
@@ -578,7 +527,7 @@ export class CommonExpressionHelpers {
    * @param _weight - Unused parameter kept for backward compatibility
    * @returns Z-score as a string (e.g., '-2', '0', '1'), or null if height is missing
    */
-  calcHeightForAgeZscore = (height, _weight?) => {
+  calcHeightForAgeZscore = (height: number, _weight?: number): string | null => {
     if (!height) {
       return null;
     }
@@ -594,26 +543,24 @@ export class CommonExpressionHelpers {
    * Calculates the time difference between an observation date and today.
    * @param obsDate - The observation/reference date to compare against today
    * @param timeFrame - The unit of time: 'd' (days), 'w' (weeks), 'm' (months), or 'y' (years)
-   * @returns The absolute time difference as a number, or '0' (string) if obsDate is not provided
+   * @returns The absolute time difference as a number, or 0 if obsDate is not provided
    */
-  calcTimeDifference = (obsDate: Date | dayjs.Dayjs, timeFrame: 'd' | 'w' | 'm' | 'y') => {
-    let daySinceLastObs: number | string = '';
-    const endDate = dayjs();
-    if (obsDate) {
-      if (timeFrame == 'd') {
-        daySinceLastObs = Math.abs(Math.round(endDate.diff(obsDate, 'day', true)));
-      }
-      if (timeFrame == 'w') {
-        daySinceLastObs = Math.abs(Math.round(endDate.diff(obsDate, 'week', true)));
-      }
-      if (timeFrame == 'm') {
-        daySinceLastObs = Math.abs(Math.round(endDate.diff(obsDate, 'month', true)));
-      }
-      if (timeFrame == 'y') {
-        daySinceLastObs = Math.abs(Math.round(endDate.diff(obsDate, 'year', true)));
-      }
+  calcTimeDifference = (obsDate: Date | dayjs.Dayjs, timeFrame: 'd' | 'w' | 'm' | 'y'): number => {
+    if (!obsDate) {
+      return 0;
     }
-    return daySinceLastObs === '' ? '0' : daySinceLastObs;
+
+    const endDate = dayjs();
+    switch (timeFrame) {
+      case 'd':
+        return Math.abs(Math.round(endDate.diff(obsDate, 'day', true)));
+      case 'w':
+        return Math.abs(Math.round(endDate.diff(obsDate, 'week', true)));
+      case 'm':
+        return Math.abs(Math.round(endDate.diff(obsDate, 'month', true)));
+      case 'y':
+        return Math.abs(Math.round(endDate.diff(obsDate, 'year', true)));
+    }
   };
 
   /**
