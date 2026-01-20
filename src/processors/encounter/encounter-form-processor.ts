@@ -394,8 +394,9 @@ function validateCalculateExpressions(schema: FormSchema, allFieldIds: Set<strin
       const quotedValue = match[2];
       if (allFieldIds.has(quotedValue)) {
         console.error(
-          `The calculateExpression for field '${fieldId}' contains '${quotedValue}' as a string, but this is a field ID. ` +
-            `Use the variable ${quotedValue} without quotes to reference its value.`,
+          `The calculateExpression for the field '${fieldId}' incorrectly quotes the field ID '${quotedValue}' as a string. ` +
+            `Field IDs must be referenced as variables without quotes to access their values. ` +
+            `Remove the quotes: use ${quotedValue} instead of '${quotedValue}'.`,
         );
       }
     }

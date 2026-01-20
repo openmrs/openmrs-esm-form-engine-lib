@@ -61,7 +61,7 @@ describe('EncounterFormProcessor', () => {
       processor.prepareFormSchema(schema);
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining("contains 'lmp' as a string, but this is a field ID"),
+        expect.stringContaining("incorrectly quotes the field ID 'lmp' as a string"),
       );
     });
 
@@ -218,8 +218,8 @@ describe('EncounterFormProcessor', () => {
 
       processor.prepareFormSchema(schema);
 
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("'height' as a string, but this is a field ID"));
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("'weight' as a string, but this is a field ID"));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("incorrectly quotes the field ID 'height' as a string"));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("incorrectly quotes the field ID 'weight' as a string"));
     });
   });
 });
