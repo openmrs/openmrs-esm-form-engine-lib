@@ -13,8 +13,11 @@ export const EncounterProviderAdapter: FormFieldValueAdapter = {
     gracefullySetSubmission(field, value, null);
   },
   getInitialValue: function (field: FormField, sourceObject: OpenmrsResource, context: FormProcessorContextProps) {
-    const encounter = sourceObject ?? context.previousDomainObjectValue;
-    return getLatestProvider(encounter)?.uuid;
+    const encounter = sourceObject ?? context.domainObjectValue;
+    if (encounter) {
+      return getLatestProvider(encounter)?.uuid;
+    }
+    return context.currentProvider?.uuid;
   },
   getPreviousValue: function (
     field: FormField,
