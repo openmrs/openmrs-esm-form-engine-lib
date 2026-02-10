@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { launchWorkspace, showSnackbar } from '@openmrs/esm-framework';
+import { launchWorkspace2, showSnackbar } from '@openmrs/esm-framework';
 import { Button } from '@carbon/react';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import { type FormFieldInputProps } from '../../../types';
@@ -11,13 +11,11 @@ import styles from './workspace-launcher.scss';
 
 const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
   const { t } = useTranslation();
-  const { sessionMode } = useFormProviderContext();
+  const { sessionMode, patient, visit } = useFormProviderContext();
 
   const handleLaunchWorkspace = () => {
     const workspaceName = field.questionOptions?.workspaceName;
-    // TODO: properly check if workspace name is valid
-    // https://openmrs.atlassian.net/browse/O3-4976
-    const isWorkspaceNameValid = true;
+    const isWorkspaceNameValid = !!workspaceName;
     if (!isWorkspaceNameValid) {
       showSnackbar({
         title: t('invalidWorkspaceName', 'Invalid workspace name.'),
@@ -25,8 +23,20 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
         kind: 'error',
         isLowContrast: true,
       });
+      return;
     }
-    launchWorkspace(workspaceName);
+
+    // Pass any additional workspace props from field configuration
+    const workspaceProps = field.questionOptions?.workspaceProps ?? {};
+
+    // Pass patient and visit context as window props
+    const windowProps = {
+      patient,
+      patientUuid: patient?.id,
+      visitContext: visit,
+    };
+
+    launchWorkspace2(workspaceName, workspaceProps, windowProps);
   };
 
   if (field.isHidden || isViewMode(sessionMode)) {
@@ -37,7 +47,7 @@ const WorkspaceLauncher: React.FC<FormFieldInputProps> = ({ field }) => {
     <div>
       <div className={styles.label}>{<FieldLabel field={field} />}</div>
       <div className={styles.workspaceButton}>
-        <Button disabled={isTrue(field.readonly)} onClick={handleLaunchWorkspace}>
+        <Button disabled={isTrue(field.readonly ?? false)} onClick={handleLaunchWorkspace}>
           {field.questionOptions.buttonLabel
             ? t(field.questionOptions.buttonLabel)
             : t('launchWorkspace', 'Launch Workspace')}
