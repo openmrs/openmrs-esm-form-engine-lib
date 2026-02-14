@@ -7,8 +7,9 @@ import {
   type PatientIdentifier,
   type PatientProgram,
   type PatientProgramPayload,
+  type PersonAttribute,
 } from '../../types';
-import { createAttachment, savePatientIdentifier, saveProgramEnrollment } from '../../api';
+import { createAttachment, savePatientIdentifier, savePersonAttribute, saveProgramEnrollment } from '../../api';
 import { hasRendering, hasSubmission } from '../../utils/common-utils';
 import dayjs from 'dayjs';
 import { assignedObsIds, constructObs, voidObs } from '../../adapters/obs-adapter';
@@ -97,6 +98,18 @@ export function preparePatientIdentifiers(fields: FormField[], encounterLocation
 export function savePatientIdentifiers(patient: fhir.Patient, identifiers: PatientIdentifier[]) {
   return identifiers.map((patientIdentifier) => {
     return savePatientIdentifier(patientIdentifier, patient.id);
+  });
+}
+
+export function preparePersonAttributes(fields: FormField[]): PersonAttribute[] {
+  return fields
+    .filter((field) => field.type === 'personAttribute' && hasSubmission(field))
+    .map((field) => field.meta.submission.newValue);
+}
+
+export function savePersonAttributes(patient: fhir.Patient, attributes: PersonAttribute[]) {
+  return attributes.map((personAttribute) => {
+    return savePersonAttribute(personAttribute, patient.id);
   });
 }
 
