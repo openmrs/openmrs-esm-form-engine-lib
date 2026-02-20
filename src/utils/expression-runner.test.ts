@@ -76,6 +76,24 @@ export const testFields: Array<FormField> = [
     },
     id: 'bodyTemperature',
   },
+  {
+    label: 'Date of Birth',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'date',
+      concept: 'date_of_birth_concept',
+    },
+    id: 'dateOfBirth',
+  },
+  {
+    label: 'Age in Days',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'number',
+      concept: 'age_in_days_concept',
+    },
+    id: 'ageInDays',
+  },
 ];
 
 export const fields: Array<FormField> = [
@@ -180,6 +198,8 @@ describe('Expression runner', () => {
     htsProviderRemarks: '',
     referredToPreventionServices: [],
     bodyTemperature: 0,
+    dateOfBirth: '',
+    ageInDays: 0,
     no_interest: '',
     depressed: '',
     bad_sleep: '',
@@ -199,6 +219,8 @@ describe('Expression runner', () => {
       htsProviderRemarks: '',
       referredToPreventionServices: [],
       bodyTemperature: 0,
+      dateOfBirth: '',
+      ageInDays: 0,
       no_interest: '',
       depressed: '',
       bad_sleep: '',
@@ -359,5 +381,26 @@ describe('Expression runner', () => {
       context,
     );
     expect(result).toEqual(5);
+  });
+
+  it('should calculate age in days using dayjs diff expression', () => {
+    // setup - use a known date 30 days ago
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const dateOfBirthString = thirtyDaysAgo.toISOString().split('T')[0];
+    valuesMap['dateOfBirth'] = dateOfBirthString;
+
+    // Calculate days difference
+    const result = evaluateExpression(
+      "dayjs().diff(dayjs(dateOfBirth), 'day')",
+      { value: allFields[6], type: 'field' },
+      allFields,
+      valuesMap,
+      context,
+    );
+
+    // Should be approximately 30 days (allowing for time-of-day variations)
+    expect(result).toBeGreaterThanOrEqual(29);
+    expect(result).toBeLessThanOrEqual(31);
   });
 });
