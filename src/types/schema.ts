@@ -191,6 +191,7 @@ export interface FormQuestionOptions {
   workspaceProps?: Record<string, any>;
   buttonLabel?: string;
   identifierType?: string;
+  attributeType?: string;
   orderSettingUuid?: string;
   orderType?: string;
   selectableOrders?: Array<Record<any, any>>;
