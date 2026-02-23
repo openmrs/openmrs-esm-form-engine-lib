@@ -3,24 +3,21 @@ import { type FormField, type FormProcessorContextProps } from '../types';
 import { type FormContextProps } from '../provider/form-provider';
 
 describe('PersonAttributeAdapter', () => {
-  const mockField: FormField = {
+  const mockField = {
     id: 'test-person-attribute',
     type: 'personAttribute',
     questionOptions: {
       attributeType: '7ef225db-94db-4e40-9dd8-fb121d9dc370',
       rendering: 'text',
     },
-    meta: {
-      submission: {},
-      initialValue: {},
-    },
-  } as any;
+    meta: {},
+  } satisfies FormField;
 
-  const mockContext: FormContextProps = {
+  const mockContext = {
     patient: {
       id: 'test-patient-uuid',
     } as fhir.Patient,
-  } as any;
+  } satisfies Partial<FormContextProps> as FormContextProps;
 
   describe('transformFieldValue', () => {
     it('should return null for empty value', () => {
@@ -38,7 +35,7 @@ describe('PersonAttributeAdapter', () => {
             refinedValue: 'test-value',
           },
         },
-      } as any;
+      } satisfies FormField;
       const result = PersonAttributeAdapter.transformFieldValue(field, 'test-value', mockContext);
       expect(result).toBeNull();
     });
@@ -64,7 +61,7 @@ describe('PersonAttributeAdapter', () => {
             refinedValue: 'old-value',
           },
         },
-      } as any;
+      } satisfies FormField;
       const result = PersonAttributeAdapter.transformFieldValue(field, 'updated-value', mockContext);
 
       expect(result).toEqual({
@@ -77,19 +74,19 @@ describe('PersonAttributeAdapter', () => {
 
   describe('getInitialValue', () => {
     it('should return undefined when no person attribute exists', () => {
-      const mockProcessorContext: FormProcessorContextProps = {
+      const mockProcessorContext = {
         patient: {
           id: 'test-patient',
           extension: [],
         } as fhir.Patient,
-      } as any;
+      } satisfies Partial<FormProcessorContextProps> as FormProcessorContextProps;
 
       const result = PersonAttributeAdapter.getInitialValue(mockField, null, mockProcessorContext);
       expect(result).toBeUndefined();
     });
 
     it('should return valueString when person attribute exists', () => {
-      const mockProcessorContext: FormProcessorContextProps = {
+      const mockProcessorContext = {
         patient: {
           id: 'test-patient',
           extension: [
@@ -99,17 +96,17 @@ describe('PersonAttributeAdapter', () => {
             },
           ],
         } as fhir.Patient,
-      } as any;
+      } satisfies Partial<FormProcessorContextProps> as FormProcessorContextProps;
 
       const field = { ...mockField };
       const result = PersonAttributeAdapter.getInitialValue(field, null, mockProcessorContext);
 
       expect(result).toBe('test-attribute-value');
-      expect(field.meta.initialValue.refinedValue).toBe('test-attribute-value');
+      expect((field.meta as any).initialValue.refinedValue).toBe('test-attribute-value');
     });
 
     it('should return valueReference when person attribute has reference', () => {
-      const mockProcessorContext: FormProcessorContextProps = {
+      const mockProcessorContext = {
         patient: {
           id: 'test-patient',
           extension: [
@@ -121,19 +118,19 @@ describe('PersonAttributeAdapter', () => {
             },
           ],
         } as fhir.Patient,
-      } as any;
+      } satisfies Partial<FormProcessorContextProps> as FormProcessorContextProps;
 
       const field = { ...mockField };
       const result = PersonAttributeAdapter.getInitialValue(field, null, mockProcessorContext);
 
       expect(result).toBe('Location/test-location-uuid');
-      expect(field.meta.initialValue.refinedValue).toBe('Location/test-location-uuid');
+      expect((field.meta as any).initialValue.refinedValue).toBe('Location/test-location-uuid');
     });
   });
 
   describe('getPreviousValue', () => {
     it('should return null', () => {
-      const result = PersonAttributeAdapter.getPreviousValue(mockField, null, {} as any);
+      const result = PersonAttributeAdapter.getPreviousValue(mockField, null, {} satisfies Partial<FormProcessorContextProps> as FormProcessorContextProps);
       expect(result).toBeNull();
     });
   });

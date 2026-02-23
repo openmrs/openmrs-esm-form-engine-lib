@@ -22,9 +22,9 @@ export const PersonAttributeAdapter: FormFieldValueAdapter = {
       (ext) => ext.url === `http://fhir.openmrs.org/ext/person-attribute/${field.questionOptions.attributeType}`,
     );
     field.meta = {
-      ...(field.meta || {}),
+      ...field.meta,
       initialValue: {
-        omrsObject: latestAttribute as any,
+        omrsObject: latestAttribute as unknown as OpenmrsResource,
         refinedValue: latestAttribute?.valueString || latestAttribute?.valueReference?.reference,
       },
     };

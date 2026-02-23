@@ -194,7 +194,7 @@ export function savePersonAttribute(personAttribute: PersonAttribute, patientUui
       'Content-Type': 'application/json',
     },
     method: 'POST',
-    body: JSON.stringify(personAttribute),
+    body: personAttribute,
   });
 }
 
