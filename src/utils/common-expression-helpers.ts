@@ -20,6 +20,7 @@ export class CommonExpressionHelpers {
   allFieldValues: Record<string, any> = {};
   api = apiFunctions;
   isEmpty = isValueEmpty;
+  dayjs = dayjs;
 
   constructor(node: FormNode, patient: any, allFields: FormField[], allFieldValues: Record<string, any>) {
     this.allFields = allFields;
@@ -101,7 +102,12 @@ export class CommonExpressionHelpers {
    * @returns true if left is before right
    */
   isDateBefore = (left: Date, right: string | Date, format?: string): boolean => {
-    const otherDate: Date = right instanceof Date ? right : (format ? dayjs(right, format, true).toDate() : dayjs(right, 'YYYY-MM-DD', true).toDate());
+    const otherDate: Date =
+      right instanceof Date
+        ? right
+        : format
+        ? dayjs(right, format, true).toDate()
+        : dayjs(right, 'YYYY-MM-DD', true).toDate();
     return left?.getTime() < otherDate.getTime();
   };
 
@@ -113,7 +119,12 @@ export class CommonExpressionHelpers {
    * @param timePeriod - The time unit: 'days', 'weeks', 'months', or 'years'
    * @returns true if selectedDate >= (baseDate + duration)
    */
-  isDateAfter = (selectedDate: Date, baseDate: Date, duration: number, timePeriod: 'days' | 'weeks' | 'months' | 'years'): boolean => {
+  isDateAfter = (
+    selectedDate: Date,
+    baseDate: Date,
+    duration: number,
+    timePeriod: 'days' | 'weeks' | 'months' | 'years',
+  ): boolean => {
     const parsedBaseDate = dayjs(baseDate);
 
     let calculatedDate: Date;
@@ -165,7 +176,12 @@ export class CommonExpressionHelpers {
    * @returns true if left is after right
    */
   isDateAfterSimple = (left: Date, right: string | Date, format?: string): boolean => {
-    const otherDate: Date = right instanceof Date ? right : (format ? dayjs(right, format, true).toDate() : dayjs(right, 'YYYY-MM-DD', true).toDate());
+    const otherDate: Date =
+      right instanceof Date
+        ? right
+        : format
+        ? dayjs(right, format, true).toDate()
+        : dayjs(right, 'YYYY-MM-DD', true).toDate();
     return left?.getTime() > otherDate.getTime();
   };
 
