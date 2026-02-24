@@ -1,0 +1,146 @@
+{
+  "name": "ObsGroup HideWhen Test Form",
+  "version": "1",
+  "published": true,
+  "retired": false,
+  "pages": [
+    {
+      "label": "Test Page",
+      "sections": [
+        {
+          "label": "Test Section",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Show Group?",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "1587AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "answers": [
+                  {
+                    "concept": "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Yes"
+                  },
+                  {
+                    "concept": "1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "No"
+                  }
+                ]
+              },
+              "id": "showGroup",
+              "behaviours": [
+                {
+                  "intent": "*",
+                  "required": "false",
+                  "unspecified": "false",
+                  "hide": {
+                    "hideWhenExpression": "false"
+                  },
+                  "validators": []
+                }
+              ]
+            },
+            {
+              "id": "testGroup",
+              "label": "Test Group (Should hide when 'No' is selected)",
+              "type": "obsGroup",
+              "questionOptions": {
+                "rendering": "group",
+                "concept": "1c70c490-cafa-4c95-9fdd-a30b62bb78b8"
+              },
+              "behaviours": [
+                {
+                  "intent": "*",
+                  "required": "false",
+                  "unspecified": "false",
+                  "hide": {
+                    "hideWhenExpression": "showGroup === '1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+                  },
+                  "validators": []
+                }
+              ],
+              "questions": [
+                {
+                  "label": "Child Question 1 - Text",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "text",
+                    "concept": "163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                  },
+                  "id": "childText",
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "false",
+                      "unspecified": "false",
+                      "hide": {
+                        "hideWhenExpression": "false"
+                      },
+                      "validators": []
+                    }
+                  ]
+                },
+                {
+                  "label": "Child Question 2 - Number",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "number",
+                    "concept": "5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                  },
+                  "id": "childNumber",
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "false",
+                      "unspecified": "false",
+                      "hide": {
+                        "hideWhenExpression": "false"
+                      },
+                      "validators": []
+                    }
+                  ]
+                },
+                {
+                  "label": "Child Question 3 - Radio",
+                  "type": "obs",
+                  "questionOptions": {
+                    "rendering": "radio",
+                    "concept": "1587AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "answers": [
+                      {
+                        "concept": "1535AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Option A"
+                      },
+                      {
+                        "concept": "1534AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Option B"
+                      }
+                    ]
+                  },
+                  "id": "childRadio",
+                  "behaviours": [
+                    {
+                      "intent": "*",
+                      "required": "false",
+                      "unspecified": "false",
+                      "hide": {
+                        "hideWhenExpression": "false"
+                      },
+                      "validators": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "availableIntents": [],
+  "processor": "EncounterFormProcessor",
+  "uuid": "da24c540-cc83-43bc-978f-c1ef180a497f",
+  "referencedForms": [],
+  "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe"
+}

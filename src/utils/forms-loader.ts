@@ -193,13 +193,22 @@ export function applyFormIntent(intent, originalJson, parentOverrides?: Array<Be
 
         if (question.questions && question.questions.length) {
           question.questions.forEach((childQuestion) => {
-            updateQuestionRequiredBehaviour(childQuestion, intent?.intent || intent);
+            if (childQuestion['behaviours']) {
+              updateQuestionRequiredBehaviour(childQuestion, intent?.intent || intent);
 
-            parentOverrides
-              ?.filter((override) => override.type == 'all' || override.type == 'field')
-              ?.forEach((override) => {
-                childQuestion[override.name] = override.value;
-              });
+              parentOverrides
+                ?.filter((override) => override.type == 'all' || override.type == 'field')
+                ?.forEach((override) => {
+                  childQuestion[override.name] = override.value;
+                });
+            } 
+            
+            // Cascade parent's hide expression to children if parent has one
+            if (question['hide'] && !childQuestion['hide']) {
+              childQuestion['hide'] = question['hide'];
+            } 
+
+            
           });
         }
       });
