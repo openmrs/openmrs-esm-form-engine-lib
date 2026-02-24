@@ -1,0 +1,89 @@
+{
+  "name": "Repeating Component Test Form",
+  "pages": [
+    {
+      "label": "Emergency Contact",
+      "sections": [
+        {
+          "label": "Contacts",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Contact",
+              "type": "obsGroup",
+              "required": true,
+              "id": "patientContact",
+              "questionOptions": {
+                "rendering": "repeating"
+              },
+              "questions": [
+                {
+                  "label": "Contact relationship",
+                  "type": "obs",
+                  "required": true,
+                  "id": "patientContactRelationship",
+                  "questionOptions": {
+                    "rendering": "radio",
+                    "concept": "164352AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "conceptMappings": [
+                      {
+                        "relationship": "SAME-AS",
+                        "type": "CIEL",
+                        "value": "164352"
+                      }
+                    ],
+                    "answers": [
+                      {
+                        "concept": "1528AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Child"
+                      },
+                      {
+                        "concept": "972AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Brother/Sister"
+                      },
+                      {
+                        "concept": "1527AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Father/Mother"
+                      },
+                      {
+                        "concept": "5617AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Partner/Spouse"
+                      },
+                      {
+                        "concept": "5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                        "label": "Other"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "label": "Phone",
+                  "type": "obs",
+                  "required": true,
+                  "id": "phoneNumber",
+                  "questionOptions": {
+                    "rendering": "text",
+                    "concept": "1650AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "conceptMappings": [
+                      {
+                        "relationship": "SAME-AS",
+                        "type": "CIEL",
+                        "value": "1650"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "encounterType": "dd528487-82a5-4082-9c72-ed246bd49591",
+  "referencedForms": [],
+  "uuid": "a8817ad2-ef92-46c8-bbf7-db336505027c",
+  "description": "test-repeating",
+  "version": "1.0"
+}
