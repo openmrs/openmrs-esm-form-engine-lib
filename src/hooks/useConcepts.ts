@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import { type Concept, type FetchResponse, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 
 const conceptRepresentation =
-  'custom:(uuid,display,conceptClass:(uuid,display),answers:(uuid,display),conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
+  'custom:(units,lowAbsolute,hiAbsolute,uuid,display,conceptClass:(uuid,display),answers:(uuid,display),conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
 
 type ConceptRepresentation = Pick<Concept, 'uuid' | 'display'> & {
   conceptClass: Pick<Concept['conceptClass'], 'uuid' | 'display'>;
