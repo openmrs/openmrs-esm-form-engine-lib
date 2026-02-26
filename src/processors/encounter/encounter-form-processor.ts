@@ -140,9 +140,9 @@ export class EncounterFormProcessor extends FormProcessor {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: t('errorSavingPatientIdentifiers', 'Error saving patient identifiers'),
-        description: errorMessages.join(', '),
+        subtitle: errorMessages.join(', '),
         kind: 'error',
-        critical: true,
+        isLowContrast: false,
       });
     }
 
@@ -165,9 +165,9 @@ export class EncounterFormProcessor extends FormProcessor {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: t('errorSavingPatientPrograms', 'Error saving patient program(s)'),
-        description: errorMessages.join(', '),
+        subtitle: errorMessages.join(', '),
         kind: 'error',
-        critical: true,
+        isLowContrast: false,
       });
     }
 
@@ -209,9 +209,9 @@ export class EncounterFormProcessor extends FormProcessor {
         const errorMessages = extractErrorMessagesFromResponse(error);
         return Promise.reject({
           title: t('errorSavingAttachments', 'Error saving attachment(s)'),
-          description: errorMessages.join(', '),
+          subtitle: errorMessages.join(', '),
           kind: 'error',
-          critical: true,
+          isLowContrast: false,
         });
       }
       return savedEncounter;
@@ -220,9 +220,9 @@ export class EncounterFormProcessor extends FormProcessor {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: t('errorSavingEncounter', 'Error saving encounter'),
-        description: errorMessages.join(', '),
+        subtitle: errorMessages.join(', '),
         kind: 'error',
-        critical: true,
+        isLowContrast: false,
       });
     }
   }
