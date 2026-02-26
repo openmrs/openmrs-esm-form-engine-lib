@@ -1,14 +1,14 @@
-import { showToast } from '@openmrs/esm-framework';
+import { showSnackbar } from '@openmrs/esm-framework';
 
 export function reportError(error: Error, title: string): void {
   if (error) {
     const errorMessage = extractErrorMessagesFromResponse(error).join(', ');
     console.error(error);
-    showToast({
-      description: errorMessage,
+    showSnackbar({
+      subtitle: errorMessage,
       title: title,
       kind: 'error',
-      critical: true,
+      isLowContrast: false,
     });
   }
 }
