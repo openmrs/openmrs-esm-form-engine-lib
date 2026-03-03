@@ -387,7 +387,7 @@ describe('Expression runner', () => {
     // setup - use a known date 30 days ago
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const dateOfBirthString = thirtyDaysAgo.toISOString().split('T')[0];
+    const dateOfBirthString = thirtyDaysAgo.toLocaleDateString('en-CA'); // en-CA produces YYYY-MM-DD in local time
     valuesMap['dateOfBirth'] = dateOfBirthString;
 
     // Calculate days difference
