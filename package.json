@@ -4,7 +4,15 @@
   "description": "React Form Engine for O3",
   "main": "dist/index.js",
   "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "src/index.ts",
+  "files": [
+    "dist",
+    "src",
+    "!src/**/*.test.*",
+    "!src/setup-tests.ts",
+    "!src/utils/test-utils.ts",
+    "!src/zscore-tests"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/openmrs/openmrs-esm-form-engine-lib#readme",
   "scripts": {
