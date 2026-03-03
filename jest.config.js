@@ -13,7 +13,7 @@ module.exports = {
   coverageReporters: ['json-summary', 'lcov'],
   collectCoverageFrom: ['./src/**', '!./src/components/**/*.snap'],
   transform: {
-    '^.+\\.[jt]sx?$': ['@swc/jest'],
+    '^.+\\.[jt]sx?$': ['@swc/jest', { swcrc: false }],
   },
   transformIgnorePatterns: ['/node_modules/(?!@openmrs|.+\\.pnp\\.[^\\/]+$)'],
   moduleDirectories: ['node_modules', '__mocks__', __dirname],
