@@ -33,7 +33,7 @@ const Dropdown: React.FC<FormFieldInputProps> = ({ field, value, errors, warning
   );
 
   const items = useMemo(() => {
-    const options = field.questionOptions.answers;
+    const options = field.questionOptions.answers.filter((answer) => !answer.isHidden);
     if (!options.some((option) => option.value === NullSelectOption)) {
       options.unshift({
         value: NullSelectOption,
