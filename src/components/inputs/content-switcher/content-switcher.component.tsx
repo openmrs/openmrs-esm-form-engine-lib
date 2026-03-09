@@ -59,14 +59,16 @@ const ContentSwitcher: React.FC<FormFieldInputProps> = ({ field, value, errors, 
           selectedIndex={selectedIndex}
           className={styles.selectedOption}
           size="md">
-          {field.questionOptions.answers.map((option, index) => (
-            <Switch
-              name={option.concept || option.value}
-              text={t(option.label)}
-              key={index}
-              disabled={field.isDisabled}
-            />
-          ))}
+          {field.questionOptions.answers
+            .filter((answer) => !answer.isHidden)
+            .map((option, index) => (
+              <Switch
+                name={option.concept || option.value}
+                text={t(option.label)}
+                key={index}
+                disabled={field.isDisabled}
+              />
+            ))}
         </CdsContentSwitcher>
       </FormGroup>
     )
