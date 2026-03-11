@@ -83,7 +83,7 @@ const FormEngine = ({
     return patient && workspaceSize === 'ultra-wide' && mode !== 'embedded-view';
   }, [patient, mode, workspaceSize, hidePatientBanner]);
 
-  const isFormWorkspaceTooNarrow = useMemo(() => ['narrow'].includes(workspaceSize), [workspaceSize]);
+  const isFormWorkspaceTooNarrow = useMemo(() => ['narrow', 'wider'].includes(workspaceSize), [workspaceSize]);
 
   const showBottomButtonSet = useMemo(() => {
     if (mode === 'embedded-view' || isLoadingDependencies || hasMultiplePages === null) {
