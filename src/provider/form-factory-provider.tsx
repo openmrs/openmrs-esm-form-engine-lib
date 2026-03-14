@@ -1,21 +1,21 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { type FormField, type FormSchema, type SessionMode } from '../types';
-import { EncounterFormProcessor } from '../processors/encounter/encounter-form-processor';
-import {
-  type LayoutType,
-  useLayoutType,
-  type OpenmrsResource,
-  showSnackbar,
-  showToast,
-  type ToastDescriptor,
-  type Visit,
-} from '@openmrs/esm-framework';
-import { type FormProcessorConstructor } from '../processors/form-processor';
-import { type FormContextProps } from './form-provider';
-import { processPostSubmissionActions, validateForm } from './form-factory-helper';
 import { useTranslation } from 'react-i18next';
-import { usePostSubmissionActions } from '../hooks/usePostSubmissionActions';
+import {
+  showSnackbar,
+  type LayoutType,
+  type OpenmrsResource,
+  type SnackbarDescriptor,
+  type Visit,
+  useLayoutType,
+} from '@openmrs/esm-framework';
+
+import { EncounterFormProcessor } from '../processors/encounter/encounter-form-processor';
+import { processPostSubmissionActions, validateForm } from './form-factory-helper';
+import { type FormContextProps } from './form-provider';
+import { type FormField, type FormSchema, type SessionMode } from '../types';
+import { type FormProcessorConstructor } from '../processors/form-processor';
 import { useExternalFormAction } from '../hooks/useExternalFormAction';
+import { usePostSubmissionActions } from '../hooks/usePostSubmissionActions';
 
 interface FormFactoryProviderContextProps {
   patient: fhir.Patient;
@@ -157,17 +157,17 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
               handleClose();
             }
           })
-          .catch((errorObject: Error | ToastDescriptor) => {
+          .catch((errorObject: Error | SnackbarDescriptor) => {
             setIsSubmitting(false);
             if (errorObject instanceof Error) {
-              showToast({
+              showSnackbar({
                 title: t('errorProcessingFormSubmission', 'Error processing form submission'),
                 kind: 'error',
-                description: errorObject.message,
-                critical: true,
+                subtitle: errorObject.message,
+                isLowContrast: false,
               });
             } else {
-              showToast(errorObject);
+              showSnackbar(errorObject);
             }
           });
       } else {
