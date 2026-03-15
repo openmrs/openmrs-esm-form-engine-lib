@@ -125,6 +125,12 @@ const FormEngine = ({
     <form ref={ref} noValidate className={classNames('cds--form', styles.form)} onSubmit={handleSubmit}>
       {isLoadingPatient || isLoadingFormJson ? (
         <Loader />
+      ) : !refinedFormJson ? (
+        // refinedFormJson is null when the form or one of its dependencies
+        // failed to load (e.g. a missing subform). The error is already
+        // reported via reportError above — here we just avoid crashing
+        // by rendering nothing instead of trying to access null.markdown.
+        <></>
       ) : (
         <FormFactoryProvider
           patient={patient}

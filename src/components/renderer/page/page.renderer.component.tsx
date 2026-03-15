@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { SectionRenderer } from '../section/section-renderer.component';
 import { Waypoint } from 'react-waypoint';
 import styles from './page.renderer.scss';
-import { Accordion, AccordionItem } from '@carbon/react';
+import { Accordion, AccordionItem, InlineNotification } from '@carbon/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@openmrs/esm-framework';
 import classNames from 'classnames';
 import { pageObserver } from '../../sidebar/page-observer';
@@ -26,9 +26,15 @@ function PageRenderer({ page, isFormExpanded }: PageRendererProps) {
   const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  // If this page is a subform page but the subform failed to load,
+  // show a helpful inline error instead of crashing.
+  const isFailedSubform = isTrue(page.isSubform) && !page.subform?.form;
+
   const visibleSections = useMemo(
     () =>
-      page.sections.filter((section) => {
+      // Guard: subform pages have no sections — return empty array
+      // so the rest of the component renders safely
+      (page.sections ?? []).filter((section) => {
         const hasVisibleQuestions = section.questions.some((question) => !isTrue(question.isHidden));
         return !isTrue(section.isHidden) && hasVisibleQuestions;
       }),
@@ -71,17 +77,33 @@ function PageRenderer({ page, isFormExpanded }: PageRendererProps) {
               [styles.hiddenAccordion]: isCollapsed,
               [styles.accordionContainer]: !isCollapsed,
             })}>
-            <Accordion>
-              {visibleSections.map((section, index) => (
-                <CollapsibleSectionContainer
-                  key={`section-${section.label}`}
-                  section={section}
-                  sectionIndex={index}
-                  visibleSections={visibleSections}
-                  isFormExpanded={isFormExpanded}
-                />
-              ))}
-            </Accordion>
+            {isFailedSubform ? (
+              // Show a clear error message when the subform could not be loaded.
+              // This helps admins/developers immediately understand what went wrong
+              // instead of seeing a blank page or a cryptic crash.
+              <InlineNotification
+                kind="error"
+                title={t('subformLoadError', 'Subform could not be loaded')}
+                subtitle={t(
+                  'subformLoadErrorMessage',
+                  'The subform "{{subformName}}" could not be found on this server. Please verify the form name is correct and that it is published.',
+                  { subformName: page.subform?.name },
+                )}
+                hideCloseButton
+              />
+            ) : (
+              <Accordion>
+                {visibleSections.map((section, index) => (
+                  <CollapsibleSectionContainer
+                    key={`section-${section.label}`}
+                    section={section}
+                    sectionIndex={index}
+                    visibleSections={visibleSections}
+                    isFormExpanded={isFormExpanded}
+                  />
+                ))}
+              </Accordion>
+            )}
           </div>
         </div>
       </Waypoint>
