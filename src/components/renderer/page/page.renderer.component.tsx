@@ -25,15 +25,10 @@ interface CollapsibleSectionContainerProps {
 function PageRenderer({ page, isFormExpanded }: PageRendererProps) {
   const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
-
-  // If this page is a subform page but the subform failed to load,
-  // show a helpful inline error instead of crashing.
   const isFailedSubform = isTrue(page.isSubform) && !page.subform?.form;
 
   const visibleSections = useMemo(
     () =>
-      // Guard: subform pages have no sections — return empty array
-      // so the rest of the component renders safely
       (page.sections ?? []).filter((section) => {
         const hasVisibleQuestions = section.questions.some((question) => !isTrue(question.isHidden));
         return !isTrue(section.isHidden) && hasVisibleQuestions;
@@ -78,17 +73,18 @@ function PageRenderer({ page, isFormExpanded }: PageRendererProps) {
               [styles.accordionContainer]: !isCollapsed,
             })}>
             {isFailedSubform ? (
-              // Show a clear error message when the subform could not be loaded.
-              // This helps admins/developers immediately understand what went wrong
-              // instead of seeing a blank page or a cryptic crash.
               <InlineNotification
                 kind="error"
                 title={t('subformLoadError', 'Subform could not be loaded')}
-                subtitle={t(
-                  'subformLoadErrorMessage',
-                  'The subform "{{subformName}}" could not be found on this server. Please verify the form name is correct and that it is published.',
-                  { subformName: page.subform?.name },
-                )}
+                subtitle={
+                  page.subform?.name
+                    ? t(
+                        'subformLoadErrorMessageWithName',
+                        'The subform "{{subformName}}" could not be loaded. Contact your system administrator.',
+                        { subformName: page.subform.name },
+                      )
+                    : t('subformLoadErrorMessage', 'A subform could not be loaded. Contact your system administrator.')
+                }
                 hideCloseButton
               />
             ) : (

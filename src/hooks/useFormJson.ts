@@ -63,7 +63,7 @@ export function useFormJson(
  *
  * @param rawFormJson The raw form JSON object to be used if `formIdentifier` is not provided.
  * @param formIdentifier The UUID or name of the form to be fetched from OpenMRS if `rawFormJson` is not provided.
- * @param formSessionIntent An optional parameter that represents the current intent.
+ * @param formSessionIntent An optional parameter that represents the current intent. It is used to apply a specific intent filter to the subform schema when a form has multiple behaviours defined.
  * @param preFilledQuestions An optional parameter that represents the pre-filled questions.
  * @returns A well-built form object that might include subForms.
  */
@@ -73,11 +73,6 @@ export async function loadFormJson(
   formSessionIntent?: string,
   preFilledQuestions?: PreFilledQuestions,
 ): Promise<FormSchema> {
-  // NOTE: fetchOpenMRSForm already throws:
-  // Error(`Form with ID "${nameOrUUID}" was not found`)
-  // when the form is not found on the backend.
-  // We do NOT add a duplicate null check here — that would
-  // change the error message and break existing tests.
   const openmrsFormResponse = await fetchOpenMRSForm(formIdentifier);
   const clobDataResponse = await fetchClobData(openmrsFormResponse);
   const transformers = await getRegisteredFormSchemaTransformers();
@@ -111,12 +106,9 @@ function extractSubFormRefs(formJson: FormSchema): string[] {
 
 /**
  * Loads subforms for the given subform references.
- * Uses Promise.allSettled instead of Promise.all so that a single
- * missing subform does not crash the entire parent form.
- * Failed subforms are logged to console and skipped gracefully.
  *
  * @param subFormRefs - Array of subform names to load
- * @param formSessionIntent - Optional form session intent
+ * @param formSessionIntent - The intent filter to apply to each subform schema, used when a form has multiple behaviours defined
  * @returns Array of successfully loaded subform schemas
  */
 async function loadSubForms(subFormRefs: string[], formSessionIntent?: string): Promise<FormSchema[]> {
@@ -125,25 +117,24 @@ async function loadSubForms(subFormRefs: string[], formSessionIntent?: string): 
   );
 
   return results
-    .filter((result) => {
+    .filter((result): result is PromiseFulfilledResult<FormSchema> => {
       if (result.status === 'rejected') {
-        console.error(`Error loading subform: ${result.reason?.message}`);
+        const failedIndex = results.indexOf(result);
+        console.error(`Error loading subform "${subFormRefs[failedIndex]}": ${result.reason?.message}`);
         return false;
       }
       return true;
     })
-    .map((result) => (result as PromiseFulfilledResult<FormSchema>).value);
+    .map((result) => result.value);  
 }
 
 /**
  * Updates the parent form JSON with the loaded subforms.
- * Includes a null guard to safely skip any undefined subform entries.
  *
  * @param formJson - The parent form schema
  * @param subForms - Array of loaded subform schemas
  */
 function updateFormJsonWithSubForms(formJson: FormSchema, subForms: FormSchema[]): void {
-  // First populate successfully loaded subforms
   subForms.forEach((subForm) => {
     if (!subForm) return;
     const matchingPage = formJson.pages.find((page) => page.subform?.name === subForm.name);
@@ -204,7 +195,6 @@ function removeInlineSubForms(formJson: FormSchema, formSessionIntent: string): 
       !isTrue(page.isHidden) &&
       page.subform?.form?.encounterType === formJson.encounterType
     ) {
-      // Guard: skip if subform.form failed to load (is null/undefined)
       if (!page.subform?.form?.pages) {
         continue;
       }

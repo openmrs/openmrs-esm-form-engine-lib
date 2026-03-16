@@ -187,8 +187,6 @@ describe('useFormJson', () => {
     const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     // Build a raw parent form that references a subform that does not exist on the backend.
-    // This simulates the exact scenario from O3-4681 where a subform name is wrong or
-    // the subform has not been published yet on the target server.
     const parentFormWithMissingSubform = {
       ...nestedForm1Body,
       pages: [

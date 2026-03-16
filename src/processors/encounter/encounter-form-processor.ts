@@ -84,8 +84,6 @@ export class EncounterFormProcessor extends FormProcessor {
     const allFieldIds = new Set<string>();
 
     schema.pages.forEach((page) => {
-      // Guard: skip subform pages that have no sections
-      // (subform failed to load or is still a reference placeholder)
       if (!page.sections) {
         return;
       }
