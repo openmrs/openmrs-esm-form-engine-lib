@@ -7,9 +7,11 @@ import {
   prepareEncounter,
   preparePatientIdentifiers,
   preparePatientPrograms,
+  preparePersonAttributes,
   saveAttachments,
   savePatientIdentifiers,
   savePatientPrograms,
+  savePersonAttributes,
 } from './encounter-processor-helper';
 import {
   type FormField,
@@ -32,6 +34,7 @@ import { useEncounter } from '../../hooks/useEncounter';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { usePatientPrograms } from '../../hooks/usePatientPrograms';
 import { type TOptions } from 'i18next';
+
 
 function useCustomHooks(context: Partial<FormProcessorContextProps>) {
   const [isLoading, setIsLoading] = useState(true);
@@ -77,6 +80,7 @@ const contextInitializableTypes = [
   'patientIdentifier',
   'encounterRole',
   'programState',
+  'personAttribute',
 ];
 
 export class EncounterFormProcessor extends FormProcessor {
@@ -143,6 +147,27 @@ export class EncounterFormProcessor extends FormProcessor {
         subtitle: errorMessages.join(', '),
         kind: 'error',
         isLowContrast: false,
+      });
+    }
+
+    // save person attributes
+    try {
+      const personAttributes = preparePersonAttributes(context.formFields);
+      await Promise.all(savePersonAttributes(context.patient, personAttributes));
+      if (personAttributes?.length) {
+        showSnackbar({
+          title: t('personAttributesSaved', 'Person attribute(s) saved successfully'),
+          kind: 'success',
+          isLowContrast: true,
+        });
+      }
+    } catch (error) {
+      const errorMessages = extractErrorMessagesFromResponse(error);
+      return Promise.reject({
+        title: t('errorSavingPersonAttributes', 'Error saving person attributes'),
+        description: errorMessages.join(', '),
+        kind: 'error',
+        critical: true,
       });
     }
 
