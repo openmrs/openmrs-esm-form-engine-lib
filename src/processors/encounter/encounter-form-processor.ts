@@ -88,6 +88,9 @@ export class EncounterFormProcessor extends FormProcessor {
     const allFieldIds = new Set<string>();
 
     schema.pages.forEach((page) => {
+      if (!page.sections) {
+        return;
+      }
       page.sections.forEach((section) => {
         section.questions.forEach((question) => {
           prepareFormField(question, section, page, schema);
@@ -438,6 +441,9 @@ function validateCalculateExpressions(schema: FormSchema, allFieldIds: Set<strin
   }
 
   schema.pages.forEach((page) => {
+    if (!page.sections) {
+      return;
+    }
     page.sections.forEach((section) => {
       section.questions.forEach(processField);
     });
