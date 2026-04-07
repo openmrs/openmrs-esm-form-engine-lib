@@ -4,7 +4,6 @@ import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
 import { fetchOpenMRSForm, fetchClobData } from '../api';
 import { getRegisteredFormSchemaTransformers } from '../registry/registry';
-import { useSession } from '@openmrs/esm-framework';
 import { formEngineAppName } from '../globals';
 
 export function useFormJson(
@@ -16,20 +15,20 @@ export function useFormJson(
 ) {
   const [formJson, setFormJson] = useState<FormSchema>(null);
   const [error, setError] = useState(validateFormsArgs(formUuid, rawFormJson));
-  const session = useSession();
 
   useEffect(() => {
     const abortController = new AbortController();
 
     const setFormJsonWithTranslations = (formJson: FormSchema) => {
       if (formJson?.translations) {
-        // Retrieve the current user's locale from the session or fallback to i18next's active language
-        const sessionLocale = session?.user?.userProperties?.defaultLocale ?? session?.locale ?? window?.i18next?.language;
-        const currentLocale = sessionLocale?.split(/_|-/)[0];
-        
-        // Only apply translations if the language matches the current user's session locale
-        if (formJson.translations?.language === currentLocale) {
-          window.i18next.addResourceBundle(currentLocale, formEngineAppName, formJson.translations, true, true);
+        const formTranslationLocale = formJson.translations.language;
+        if (formTranslationLocale) {
+          const normalizedCurrent = window.i18next?.language?.split(/[-_]/)[0];
+          const normalizedForm = formTranslationLocale.split(/[-_]/)[0];
+          
+          if (normalizedCurrent && normalizedCurrent === normalizedForm) {
+            window.i18next.addResourceBundle(window.i18next.language, formEngineAppName, formJson.translations, true, true);
+          }
         }
       }
       setFormJson(formJson);
