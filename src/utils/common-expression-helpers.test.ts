@@ -104,6 +104,68 @@ describe('CommonExpressionHelpers', () => {
     });
   });
 
+  describe('isDateAfterSimple', () => {
+    it('should return true if the left date is after the right date', () => {
+      const left = new Date('2021-12-31');
+      const right = '2021-01-01';
+      expect(helpers.isDateAfterSimple(left, right)).toBe(true);
+    });
+
+    it('should return false if the left date is not after the right date', () => {
+      const left = new Date('2021-01-01');
+      const right = '2021-12-31';
+      expect(helpers.isDateAfterSimple(left, right)).toBe(false);
+    });
+
+    it('should accept a Date object as the right parameter', () => {
+      const left = new Date('2021-12-31');
+      const right = new Date('2021-01-01');
+      expect(helpers.isDateAfterSimple(left, right)).toBe(true);
+    });
+
+    it('should use custom format when provided', () => {
+      const left = new Date('2021-12-31');
+      const right = '31/01/2021';
+      expect(helpers.isDateAfterSimple(left, right, 'DD/MM/YYYY')).toBe(true);
+    });
+  });
+
+  describe('addWeeksToDate', () => {
+    it('should add weeks to a date correctly', () => {
+      const date = new Date('2021-01-01');
+      const result = helpers.addWeeksToDate(date, 2);
+      expect(result).toEqual(new Date('2021-01-15'));
+    });
+
+    it('should not mutate the original date', () => {
+      const date = new Date('2021-01-01');
+      const originalTime = date.getTime();
+      helpers.addWeeksToDate(date, 2);
+      expect(date.getTime()).toBe(originalTime);
+    });
+  });
+
+  describe('addDaysToDate', () => {
+    it('should add days to a date correctly', () => {
+      const date = new Date('2021-01-01');
+      const result = helpers.addDaysToDate(date, 10);
+      expect(result).toEqual(new Date('2021-01-11'));
+    });
+
+    it('should not mutate the original date', () => {
+      const date = new Date('2021-01-01');
+      const originalTime = date.getTime();
+      helpers.addDaysToDate(date, 10);
+      expect(date.getTime()).toBe(originalTime);
+    });
+
+    it('should handle negative days', () => {
+      const date = new Date('2021-01-15');
+      const result = helpers.addDaysToDate(date, -5);
+      expect(result).toEqual(new Date('2021-01-10'));
+    });
+  });
+
   describe('useFieldValue', () => {
     it('should return the field value if the key exists', () => {
       helpers.allFieldValues = { question1: 'value1' };
@@ -152,6 +214,23 @@ describe('CommonExpressionHelpers', () => {
     it('should return null if height or weight is not provided', () => {
       expect(helpers.calcBMI(null, 75)).toBe(null);
       expect(helpers.calcBMI(180, null)).toBe(null);
+    });
+  });
+
+  describe('calcBSA', () => {
+    it('should return the correct BSA value using Mosteller formula', () => {
+      // BSA = sqrt((height * weight) / 3600)
+      // For height=180cm, weight=75kg: sqrt((180 * 75) / 3600) = sqrt(3.75) ≈ 1.94
+      const height = 180;
+      const weight = 75;
+      expect(helpers.calcBSA(height, weight)).toBeCloseTo(1.94, 2);
+    });
+
+    it('should return null if height or weight is not provided', () => {
+      expect(helpers.calcBSA(null, 75)).toBe(null);
+      expect(helpers.calcBSA(180, null)).toBe(null);
+      expect(helpers.calcBSA(0, 75)).toBe(null);
+      expect(helpers.calcBSA(180, 0)).toBe(null);
     });
   });
 
@@ -349,8 +428,8 @@ describe('CommonExpressionHelpers', () => {
       expect(helpers.calcTimeDifference(obsDate, 'y')).toBe(1);
     });
 
-    it('should return "0" if obsDate is not provided', () => {
-      expect(helpers.calcTimeDifference(null, 'd')).toBe('0');
+    it('should return 0 if obsDate is not provided', () => {
+      expect(helpers.calcTimeDifference(null, 'd')).toBe(0);
     });
   });
 

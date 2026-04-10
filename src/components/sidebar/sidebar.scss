@@ -6,10 +6,13 @@
   border-left: 0.5rem solid colors.$teal-20;
   display: flex;
   align-items: center;
-  height: layout.$spacing-07;
   padding: 0.25rem 0.5rem;
   background-color: colors.$white;
   margin: 0 0 0.063rem;
+
+  :hover {
+    cursor: pointer;
+  }
 }
 
 .pageLinkTablet {
