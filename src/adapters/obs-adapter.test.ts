@@ -1086,6 +1086,108 @@ describe('findObsByFormField', () => {
     expect(matchedObs.length).toBe(1);
     expect(matchedObs[0]).toBe(obsList[3]);
   });
+
+  it('Should scope concept fallback to the parent obsGroup when field has a groupId', () => {
+    // Scenario: Two repeating obsGroups (e.g. ARV and PrEP) whose child fields share
+    // the same concept. When editing a PrEP-only encounter, the ARV child field should
+    // NOT steal PrEP obs via concept fallback.
+    const strengthConcept = 'shared-strength-concept-uuid';
+
+    const arvStrengthField: FormField = {
+      label: 'ARV Strength',
+      type: 'obs',
+      questionOptions: { rendering: 'select', concept: strengthConcept },
+      id: 'arv_strength',
+      meta: { groupId: 'arvGroup' },
+    };
+
+    const prepStrengthObs = {
+      uuid: 'prep-strength-obs-uuid',
+      concept: { uuid: strengthConcept },
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-prep_strength',
+    };
+
+    const prepGroupObs = {
+      uuid: 'prep-group-obs-uuid',
+      concept: { uuid: 'prep-group-concept' },
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-prepGroup',
+      groupMembers: [prepStrengthObs],
+    };
+
+    const flatObs = [prepGroupObs, prepStrengthObs];
+
+    // ARV strength field should NOT match the PrEP strength obs
+    const matched = findObsByFormField(flatObs, [], arvStrengthField);
+    expect(matched.length).toBe(0);
+  });
+
+  it('Should allow concept fallback within the correct parent obsGroup', () => {
+    const strengthConcept = 'shared-strength-concept-uuid';
+
+    const prepStrengthField: FormField = {
+      label: 'PrEP Strength',
+      type: 'obs',
+      questionOptions: { rendering: 'select', concept: strengthConcept },
+      id: 'prep_strength_NEW',
+      meta: { groupId: 'prepGroup' },
+    };
+
+    const prepStrengthObs = {
+      uuid: 'prep-strength-obs-uuid',
+      concept: { uuid: strengthConcept },
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-prep_strength',
+    };
+
+    const prepGroupObs = {
+      uuid: 'prep-group-obs-uuid',
+      concept: { uuid: 'prep-group-concept' },
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-prepGroup',
+      groupMembers: [prepStrengthObs],
+    };
+
+    const flatObs = [prepGroupObs, prepStrengthObs];
+
+    // PrEP strength field SHOULD match via concept fallback (correct group)
+    const matched = findObsByFormField(flatObs, [], prepStrengthField);
+    expect(matched.length).toBe(1);
+    expect(matched[0]).toBe(prepStrengthObs);
+  });
+
+  it('Should preserve backward compatibility when parent obsGroup has no formFieldPath', () => {
+    const strengthConcept = 'shared-strength-concept-uuid';
+
+    const childField: FormField = {
+      label: 'Strength',
+      type: 'obs',
+      questionOptions: { rendering: 'select', concept: strengthConcept },
+      id: 'some_strength',
+      meta: { groupId: 'myGroup' },
+    };
+
+    const strengthObs = {
+      uuid: 'strength-obs-uuid',
+      concept: { uuid: strengthConcept },
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-old_field_id',
+    };
+
+    const groupObs = {
+      uuid: 'group-obs-uuid',
+      concept: { uuid: 'group-concept' },
+      groupMembers: [strengthObs],
+    };
+
+    const flatObs = [groupObs, strengthObs];
+
+    // No formFieldPath on parent → backward compat → allow fallback
+    const matched = findObsByFormField(flatObs, [], childField);
+    expect(matched.length).toBe(1);
+    expect(matched[0]).toBe(strengthObs);
+  });
 });
 
 describe('ObsAdapter - handling nested obsGroups', () => {
