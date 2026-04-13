@@ -1086,6 +1086,110 @@ describe('findObsByFormField', () => {
     expect(matchedObs.length).toBe(1);
     expect(matchedObs[0]).toBe(obsList[3]);
   });
+
+  it('Should scope concept fallback to the parent obsGroup when field has a groupId', () => {
+    // Scenario: A form has two obsGroups — "Blood Tests" and "Urine Tests" — whose
+    // child fields share the same "Result Value" concept. When editing an encounter
+    // that only has Urine Test data, the Blood Test child field should NOT steal the
+    // Urine Test obs via concept fallback.
+    const resultValueConcept = 'shared-result-value-concept-uuid';
+
+    const bloodTestResultField: FormField = {
+      label: 'Blood Test Result',
+      type: 'obs',
+      questionOptions: { rendering: 'number', concept: resultValueConcept },
+      id: 'blood_test_result',
+      meta: { groupId: 'bloodTestGroup' },
+    };
+
+    const urineResultObs = {
+      uuid: 'urine-result-obs-uuid',
+      concept: { uuid: resultValueConcept },
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-urine_test_result',
+    };
+
+    const urineGroupObs = {
+      uuid: 'urine-group-obs-uuid',
+      concept: { uuid: 'urine-group-concept' },
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-urineTestGroup',
+      groupMembers: [urineResultObs],
+    };
+
+    const flatObs = [urineGroupObs, urineResultObs];
+
+    // Blood test field should NOT match the urine test obs
+    const matched = findObsByFormField(flatObs, [], bloodTestResultField);
+    expect(matched.length).toBe(0);
+  });
+
+  it('Should allow concept fallback within the correct parent obsGroup', () => {
+    const resultValueConcept = 'shared-result-value-concept-uuid';
+
+    const urineResultField: FormField = {
+      label: 'Urine Test Result',
+      type: 'obs',
+      questionOptions: { rendering: 'number', concept: resultValueConcept },
+      id: 'urine_test_result_v2',  // different ID so path match fails
+      meta: { groupId: 'urineTestGroup' },
+    };
+
+    const urineResultObs = {
+      uuid: 'urine-result-obs-uuid',
+      concept: { uuid: resultValueConcept },
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-urine_test_result',  // doesn't match field ID
+    };
+
+    const urineGroupObs = {
+      uuid: 'urine-group-obs-uuid',
+      concept: { uuid: 'urine-group-concept' },
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-urineTestGroup',
+      groupMembers: [urineResultObs],
+    };
+
+    const flatObs = [urineGroupObs, urineResultObs];
+
+    // Urine result field SHOULD match via concept fallback (correct group)
+    const matched = findObsByFormField(flatObs, [], urineResultField);
+    expect(matched.length).toBe(1);
+    expect(matched[0]).toBe(urineResultObs);
+  });
+
+  it('Should preserve backward compatibility when parent obsGroup has no formFieldPath', () => {
+    const resultValueConcept = 'shared-result-value-concept-uuid';
+
+    const childField: FormField = {
+      label: 'Test Result',
+      type: 'obs',
+      questionOptions: { rendering: 'number', concept: resultValueConcept },
+      id: 'test_result',
+      meta: { groupId: 'labTestGroup' },
+    };
+
+    const resultObs = {
+      uuid: 'result-obs-uuid',
+      concept: { uuid: resultValueConcept },
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-old_field_id',
+    };
+
+    // Parent group saved from an older form version without formFieldPath
+    const groupObs = {
+      uuid: 'group-obs-uuid',
+      concept: { uuid: 'group-concept' },
+      groupMembers: [resultObs],
+    };
+
+    const flatObs = [groupObs, resultObs];
+
+    // No formFieldPath on parent → backward compat → allow fallback
+    const matched = findObsByFormField(flatObs, [], childField);
+    expect(matched.length).toBe(1);
+    expect(matched[0]).toBe(resultObs);
+  });
 });
 
 describe('ObsAdapter - handling nested obsGroups', () => {
