@@ -123,9 +123,6 @@ function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
   if (!formUuid && !rawFormJson) {
     return new Error('InvalidArgumentsErr: Neither formUuid nor formJson was provided');
   }
-  if (formUuid && rawFormJson) {
-    return new Error('InvalidArgumentsErr: Both formUuid and formJson cannot be provided at the same time.');
-  }
 }
 
 /**
