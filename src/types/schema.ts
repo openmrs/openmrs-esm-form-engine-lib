@@ -26,6 +26,28 @@ export interface FormSchema {
       [anythingElse: string]: any;
     };
   };
+  referencedConcepts?: Array<ReferencedConcept>;
+}
+
+export interface ReferencedConcept {
+  uuid: string;
+  display: string;
+  conceptClass: {
+    uuid: string;
+    display: string;
+  };
+  answers: Array<{
+    uuid: string;
+    display: string;
+  }>;
+  conceptMappings: Array<{
+    conceptReferenceTerm: {
+      conceptSource: {
+        name: string;
+      };
+      code: string;
+    };
+  }>;
 }
 
 export interface FormPage {
