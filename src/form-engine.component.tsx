@@ -125,6 +125,8 @@ const FormEngine = ({
     <form ref={ref} noValidate className={classNames('cds--form', styles.form)} onSubmit={handleSubmit}>
       {isLoadingPatient || isLoadingFormJson ? (
         <Loader />
+      ) : !refinedFormJson ? (
+        <></>
       ) : (
         <FormFactoryProvider
           patient={patient}
