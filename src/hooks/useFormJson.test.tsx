@@ -19,83 +19,68 @@ import {
 
 const MINI_FORM_NAME = 'Mini Form';
 const MINI_FORM_UUID = '112d73b4-79e5-4be8-b9ae-d0840f00d4cf';
-const MINI_FORM_SCHEMA_VALUE_REF = '6bd7ba90-d2d6-4f81-9f09-7d1f23346a1c';
 
 const PARENT_FORM_NAME = 'Nested Form One';
 const PARENT_FORM_UUID = 'af7c1fe6-d669-414e-b066-e9733f0de7a8';
-const PARENT_FORM_SCHEMA_VALUE_REF = '1ad1fccc-d279-46a0-8980-1d91afd6ba67';
 
 const SUB_FORM_NAME = 'Nested Form Two';
 const SUB_FORM_UUID = '8304e5ff-6324-4863-ac51-8fcbc6812b13';
-const SUB_FORM_SCHEMA_VALUE_REF = 'ca52a95c-8bb4-4a9f-a0cf-f0df437592da';
 
 const COMPONENT_FORM_NAME = 'Form Component';
 const COMPONENT_FORM_UUID = 'af7c1fe6-d669-414e-b066-e9733f0de7b8';
-const COMPONENT_FORM_SCHEMA_VALUE_REF = '74d06044-850f-11ee-b9d1-0242ac120002';
 const COMPONENT_ART = 'component_art';
 const COMPONENT_ART_UUID = '2f063f32-7f8a-11ee-b962-0242ac120002';
-const COMPONENT_ART_SCHEMA_VALUE_REF = '74d06044-850f-11ee-b9d1-0242ac120003';
 const COMPONENT_PRECLINIC_REVIEW = 'component_preclinic-review';
 const COMPONENT_PRECLINIC_REVIEW_UUID = '2f063f32-7f8a-11ee-b962-0242ac120004';
-const COMPONENT_PRECLINIC_REVIEW_SCHEMA_VALUE_REF = '74d06044-850f-11ee-b9d1-0242ac120004';
 const NON_EXISTENT_FORM_NAME = 'non-existent-form';
 
-// Base setup
+// Base setup. The form engine now uses /o3/forms/{uuid} for fully resolved
+// schemas and only falls back to /form?q={name} for non-UUID name resolution.
 const mockOpenmrsFetch = openmrsFetch as jest.Mock;
 mockOpenmrsFetch.mockImplementation(jest.fn());
 
 // parent form
 when(mockOpenmrsFetch)
-  .calledWith(buildPath(PARENT_FORM_NAME))
+  .calledWith(buildPath(`form?q=${PARENT_FORM_NAME}`))
   .mockResolvedValue({ data: { results: [nestedForm1Skeleton] } });
-when(mockOpenmrsFetch).calledWith(buildPath(PARENT_FORM_UUID)).mockResolvedValue({ data: nestedForm1Skeleton });
-when(mockOpenmrsFetch).calledWith(buildPath(PARENT_FORM_SCHEMA_VALUE_REF)).mockResolvedValue({ data: nestedForm1Body });
+when(mockOpenmrsFetch).calledWith(buildPath(`o3/forms/${PARENT_FORM_UUID}`)).mockResolvedValue({ data: nestedForm1Body });
 
 // sub form
 when(mockOpenmrsFetch)
-  .calledWith(buildPath(SUB_FORM_NAME))
+  .calledWith(buildPath(`form?q=${SUB_FORM_NAME}`))
   .mockResolvedValue({ data: { results: [nestedForm2Skeleton] } });
-when(mockOpenmrsFetch).calledWith(buildPath(SUB_FORM_UUID)).mockResolvedValue({ data: nestedForm2Skeleton });
-when(mockOpenmrsFetch).calledWith(buildPath(SUB_FORM_SCHEMA_VALUE_REF)).mockResolvedValue({ data: nestedForm2Body });
+when(mockOpenmrsFetch).calledWith(buildPath(`o3/forms/${SUB_FORM_UUID}`)).mockResolvedValue({ data: nestedForm2Body });
 
 // mini form
 when(mockOpenmrsFetch)
-  .calledWith(buildPath(MINI_FORM_NAME))
+  .calledWith(buildPath(`form?q=${MINI_FORM_NAME}`))
   .mockResolvedValue({ data: { results: [miniFormSkeleton] } });
-when(mockOpenmrsFetch).calledWith(buildPath(MINI_FORM_UUID)).mockResolvedValue({ data: miniFormSkeleton });
-when(mockOpenmrsFetch).calledWith(buildPath(MINI_FORM_SCHEMA_VALUE_REF)).mockResolvedValue({ data: miniFormBody });
+when(mockOpenmrsFetch).calledWith(buildPath(`o3/forms/${MINI_FORM_UUID}`)).mockResolvedValue({ data: miniFormBody });
 
 // form components
 when(mockOpenmrsFetch)
-  .calledWith(buildPath(COMPONENT_FORM_NAME))
+  .calledWith(buildPath(`form?q=${COMPONENT_FORM_NAME}`))
   .mockResolvedValue({ data: { results: [formComponentSkeleton] } });
-when(mockOpenmrsFetch).calledWith(buildPath(COMPONENT_FORM_UUID)).mockResolvedValue({ data: formComponentSkeleton });
 when(mockOpenmrsFetch)
-  .calledWith(buildPath(COMPONENT_FORM_SCHEMA_VALUE_REF))
+  .calledWith(buildPath(`o3/forms/${COMPONENT_FORM_UUID}`))
   .mockResolvedValue({ data: formComponentBody });
 
 when(mockOpenmrsFetch)
-  .calledWith(buildPath(COMPONENT_ART))
+  .calledWith(buildPath(`form?q=${COMPONENT_ART}`))
   .mockResolvedValue({ data: { results: [artComponentSkeleton] } });
-
-when(mockOpenmrsFetch).calledWith(buildPath(COMPONENT_ART_UUID)).mockResolvedValue({ data: artComponentSkeleton });
 when(mockOpenmrsFetch)
-  .calledWith(buildPath(COMPONENT_ART_SCHEMA_VALUE_REF))
+  .calledWith(buildPath(`o3/forms/${COMPONENT_ART_UUID}`))
   .mockResolvedValue({ data: artComponentBody });
 
 when(mockOpenmrsFetch)
-  .calledWith(buildPath(COMPONENT_PRECLINIC_REVIEW))
+  .calledWith(buildPath(`form?q=${COMPONENT_PRECLINIC_REVIEW}`))
   .mockResolvedValue({ data: { results: [preclinicReviewComponentSkeleton] } });
-
 when(mockOpenmrsFetch)
-  .calledWith(buildPath(COMPONENT_PRECLINIC_REVIEW_UUID))
-  .mockResolvedValue({ data: preclinicReviewComponentSkeleton });
-when(mockOpenmrsFetch)
-  .calledWith(buildPath(COMPONENT_PRECLINIC_REVIEW_SCHEMA_VALUE_REF))
+  .calledWith(buildPath(`o3/forms/${COMPONENT_PRECLINIC_REVIEW_UUID}`))
   .mockResolvedValue({ data: preclinicReviewComponentBody });
 
 when(mockOpenmrsFetch)
-  .calledWith(buildPath(NON_EXISTENT_FORM_NAME))
+  .calledWith(buildPath(`form?q=${NON_EXISTENT_FORM_NAME}`))
   .mockResolvedValue({ data: { results: [] } });
 
 describe('useFormJson', () => {
@@ -175,6 +160,67 @@ describe('useFormJson', () => {
     );
     expect(hook.result.current.formJson).toBe(null);
     mockConsoleError.mockRestore();
+  });
+
+  it('fetches the schema via /o3/forms/{uuid} when given a UUID, with no /form/ or /clobdata/ calls', async () => {
+    mockOpenmrsFetch.mockClear();
+    await act(async () => {
+      renderHook(() => useFormJson(MINI_FORM_UUID, null, null, null));
+    });
+
+    const calledUrls = mockOpenmrsFetch.mock.calls.map(([url]) => url);
+    expect(calledUrls.some((url) => url.includes(`o3/forms/${MINI_FORM_UUID}`))).toBe(true);
+    expect(calledUrls.some((url) => /\/form\/[a-f0-9-]+\?v=full/.test(url))).toBe(false);
+    expect(calledUrls.some((url) => url.includes('/clobdata/'))).toBe(false);
+  });
+
+  it('does not re-fetch the root schema when rawFormJson is supplied', async () => {
+    mockOpenmrsFetch.mockClear();
+    await act(async () => {
+      renderHook(() => useFormJson(PARENT_FORM_UUID, nestedForm1Body, null, null));
+    });
+
+    const calledUrls = mockOpenmrsFetch.mock.calls.map(([url]) => url);
+    // The root schema is taken from rawFormJson, so no /o3/forms/{PARENT_FORM_UUID} call
+    expect(calledUrls.some((url) => url.includes(`o3/forms/${PARENT_FORM_UUID}`))).toBe(false);
+  });
+
+  it('loads subforms via /o3/forms/{uuid}, not via /form/{uuid}?v=full + /clobdata/', async () => {
+    mockOpenmrsFetch.mockClear();
+    let hook = null;
+    await act(async () => {
+      hook = renderHook(() => useFormJson(PARENT_FORM_UUID, null, null, null));
+    });
+    expect(hook.result.current.formError).toBe(undefined);
+
+    const calledUrls = mockOpenmrsFetch.mock.calls.map(([url]) => url);
+    // root + subform both go through the bundled endpoint
+    expect(calledUrls.some((url) => url.includes(`o3/forms/${PARENT_FORM_UUID}`))).toBe(true);
+    expect(calledUrls.some((url) => url.includes(`o3/forms/${SUB_FORM_UUID}`))).toBe(true);
+    // legacy paths must not be hit
+    expect(calledUrls.some((url) => /\/form\/[a-f0-9-]+\?v=full/.test(url))).toBe(false);
+    expect(calledUrls.some((url) => url.includes('/clobdata/'))).toBe(false);
+  });
+
+  it('preserves referencedConcepts bundled in the schema', async () => {
+    const bundledConcepts = [
+      {
+        uuid: '164400AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        display: 'Test concept',
+        conceptClass: { uuid: 'a82ef63c-e4e4-48d6-988a-fdd74d7541a7', display: 'Question' },
+        answers: [],
+        conceptMappings: [],
+      },
+    ];
+    const formWithBundledConcepts = { ...miniFormBody, referencedConcepts: bundledConcepts };
+
+    let hook = null;
+    await act(async () => {
+      hook = renderHook(() => useFormJson(null, formWithBundledConcepts, null, null));
+    });
+
+    expect(hook.result.current.formError).toBe(undefined);
+    expect(hook.result.current.formJson.referencedConcepts).toEqual(bundledConcepts);
   });
 });
 

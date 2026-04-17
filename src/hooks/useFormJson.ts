@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { type FormSchemaTransformer, type FormSchema, type FormSection, type ReferencedForm , type PreFilledQuestions } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
-import { fetchOpenMRSForm, fetchClobData } from '../api';
+import { fetchO3FormSchema } from '../api';
 import { getRegisteredFormSchemaTransformers } from '../registry/registry';
 import { formEngineAppName } from '../globals';
 
@@ -67,12 +67,20 @@ export async function loadFormJson(
   formSessionIntent?: string,
   preFilledQuestions?: PreFilledQuestions,
 ): Promise<FormSchema> {
-  const openmrsFormResponse = await fetchOpenMRSForm(formIdentifier);
-  const clobDataResponse = await fetchClobData(openmrsFormResponse);
   const transformers = await getRegisteredFormSchemaTransformers();
-  const formJson: FormSchema = clobDataResponse
-    ? { ...clobDataResponse, uuid: openmrsFormResponse.uuid }
-    : parseFormJson(rawFormJson);
+
+  // Honour a pre-fetched schema when supplied (e.g. esm-form-engine-app already
+  // fetches via /o3/forms/). Otherwise fetch the bundled schema from the o3forms
+  // endpoint, which resolves subforms, concepts, and translations server-side.
+  const fetchedJson = rawFormJson ?? (await fetchO3FormSchema(formIdentifier));
+
+  if (!fetchedJson) {
+    throw new Error(`Form schema could not be loaded (id: ${formIdentifier})`);
+  }
+
+  // Deep-clone so downstream mutations (subform inlining, transformers) don't
+  // poison the SWR cache or the rawFormJson the caller still holds a reference to.
+  const formJson: FormSchema = parseFormJson(fetchedJson);
 
   // Sub forms
   const subFormRefs = extractSubFormRefs(formJson);
