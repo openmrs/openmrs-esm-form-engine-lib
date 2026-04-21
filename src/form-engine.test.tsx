@@ -1116,8 +1116,11 @@ describe('Form engine component', () => {
 
       await user.click(screen.getByRole('button', { name: 'Add' }));
 
+      await waitFor(() => {
+        expect(screen.getAllByRole('radio', { name: /^male$/i })).toHaveLength(2);
+      });
+
       const maleRadios = screen.getAllByRole('radio', { name: /^male$/i });
-      expect(maleRadios).toHaveLength(2);
       await user.click(maleRadios[1]);
       expect(maleRadios[1]).toBeChecked();
 
