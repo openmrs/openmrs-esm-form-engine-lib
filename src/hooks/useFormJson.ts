@@ -68,18 +68,12 @@ export async function loadFormJson(
   preFilledQuestions?: PreFilledQuestions,
 ): Promise<FormSchema> {
   const transformers = await getRegisteredFormSchemaTransformers();
-
-  // Honour a pre-fetched schema when supplied (e.g. esm-form-engine-app already
-  // fetches via /o3/forms/). Otherwise fetch the bundled schema from the o3forms
-  // endpoint, which resolves subforms, concepts, and translations server-side.
   const fetchedJson = rawFormJson ?? (await fetchO3FormSchema(formIdentifier));
 
   if (!fetchedJson) {
     throw new Error(`Form schema could not be loaded (id: ${formIdentifier})`);
   }
 
-  // Deep-clone so downstream mutations (subform inlining, transformers) don't
-  // poison the SWR cache or the rawFormJson the caller still holds a reference to.
   const formJson: FormSchema = parseFormJson(fetchedJson);
 
   // Sub forms
@@ -146,7 +140,10 @@ function refineFormJson(
 }
 
 /**
- * Parses the input form JSON and returns a deep copy of the object.
+ * Parses the input form JSON into a deep copy of the object. The deep clone is
+ * deliberate: downstream steps (subform inlining, schema transformers) mutate
+ * the result, and a shared reference would poison the SWR cache or any rawFormJson
+ * the caller still holds.
  * @param {any} formJson - The input form JSON object or string.
  * @returns {FormSchema} - The parsed form JSON object of type FormSchema.
  */

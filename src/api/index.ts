@@ -120,27 +120,10 @@ export async function fetchOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm 
  *
  * The /o3/forms/{uuid} endpoint bundles the parsed JSON schema with resolved
  * subforms, referenced concepts, and locale-specific translations in a single
- * response, eliminating the need for the form engine to round-trip for each
- * concept and subform individually.
- *
- * The endpoint is UUID-only; when given a name, the form is resolved to a UUID
- * via fetchOpenMRSForm first.
+ * response. The path segment accepts either a form UUID or a form name.
  */
 export async function fetchO3FormSchema(nameOrUUID: string): Promise<FormSchema | null> {
-  if (!nameOrUUID) {
-    return null;
-  }
-
-  let uuid = nameOrUUID;
-  if (!isUuid(nameOrUUID)) {
-    const meta = await fetchOpenMRSForm(nameOrUUID);
-    if (!meta?.uuid) {
-      throw new Error(`Form with ID "${nameOrUUID}" was not found`);
-    }
-    uuid = meta.uuid;
-  }
-
-  const { data } = await openmrsFetch<FormSchema>(`${restBaseUrl}/o3/forms/${uuid}`);
+  const { data } = await openmrsFetch<FormSchema>(`${restBaseUrl}/o3/forms/${nameOrUUID}`);
   return data ?? null;
 }
 

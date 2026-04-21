@@ -58,8 +58,7 @@ const FormProcessorFactory = ({
   });
   const { t } = useTranslation();
   const { formFields: rawFormFields, conceptReferences } = useFormFields(formJson);
-  // Prefer concepts bundled by /o3/forms/ — when present, skip the runtime
-  // /conceptreferences POST and feed the bundled set straight to field meta.
+  // Prefer concepts bundled by /o3/forms/
   const bundledConcepts = formJson?.referencedConcepts;
   const hasBundledConcepts = Array.isArray(bundledConcepts) && bundledConcepts.length > 0;
   const { concepts: fetchedConcepts, isLoading: isLoadingConcepts } = useConcepts(
