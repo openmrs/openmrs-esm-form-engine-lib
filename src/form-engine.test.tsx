@@ -1140,6 +1140,41 @@ describe('Form engine component', () => {
         expect(femaleRadiosAfterReadd[1]).not.toBeChecked();
       });
     });
+
+    it('should assign unique ids to repeating rows after a middle row is deleted', async () => {
+      await act(async () => {
+        renderForm(null, obsGroupTestForm);
+      });
+
+      // Only the last row carries an Add button, so re-query it after every click.
+      // Add two more rows so we have 3 total (_0, _1, _2).
+      await user.click(screen.getByRole('button', { name: 'Add' }));
+      await waitFor(() => {
+        expect(screen.getAllByRole('radio', { name: /^male$/i })).toHaveLength(2);
+      });
+      await user.click(screen.getByRole('button', { name: 'Add' }));
+      await waitFor(() => {
+        expect(screen.getAllByRole('radio', { name: /^male$/i })).toHaveLength(3);
+      });
+
+      // Delete the middle row (_1). Only clones have Remove buttons, so there are 2.
+      const removeButtons = screen.getAllByRole('button', { name: /Remove/i });
+      expect(removeButtons).toHaveLength(2);
+      await user.click(removeButtons[0]);
+      await waitFor(() => {
+        expect(screen.getAllByRole('radio', { name: /^male$/i })).toHaveLength(2);
+      });
+
+      // Add a new row — its suffix must not collide with the surviving row (_2).
+      await user.click(screen.getByRole('button', { name: 'Add' }));
+      await new Promise((r) => setTimeout(r, 100));
+
+      const maleRadios = screen.getAllByRole('radio', { name: /^male$/i });
+      const ids = maleRadios.map((r) => r.id);
+      // Expect three rows, each with a unique childSex-Male input id.
+      expect(maleRadios).toHaveLength(3);
+      expect(new Set(ids).size).toBe(ids.length);
+    });
   });
 
   describe('Read only mode', () => {
