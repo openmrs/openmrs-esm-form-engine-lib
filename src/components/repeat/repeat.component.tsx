@@ -30,7 +30,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
     sessionMode,
     formFieldAdapters,
     formFields,
-    methods: { getValues, setValue },
+    methods: { getValues, setValue, unregister },
     addFormField,
     removeFormField,
     deletedFields,
@@ -117,6 +117,10 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
       }
     } else {
       clearSubmission(field);
+      // Unregister from react-hook-form so a re-added row with the same id
+      // starts empty instead of rehydrating the deleted row's value.
+      unregister(field.id);
+      field.questions?.forEach((child) => unregister(child.id));
     }
     setRows(rows.filter((q) => q.id !== field.id));
     setDeletedFields([...deletedFields, field]);

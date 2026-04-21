@@ -1108,6 +1108,34 @@ describe('Form engine component', () => {
 
       expect(removeGroupButton).not.toBeInTheDocument();
     });
+
+    it('should not rehydrate values from a deleted row when a new row is added in its place', async () => {
+      await act(async () => {
+        renderForm(null, obsGroupTestForm);
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Add' }));
+
+      const maleRadios = screen.getAllByRole('radio', { name: /^male$/i });
+      expect(maleRadios).toHaveLength(2);
+      await user.click(maleRadios[1]);
+      expect(maleRadios[1]).toBeChecked();
+
+      await user.click(screen.getByRole('button', { name: /Remove/i }));
+      await waitFor(() => {
+        expect(screen.getAllByRole('radio', { name: /^male$/i })).toHaveLength(1);
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Add' }));
+
+      await waitFor(() => {
+        const maleRadiosAfterReadd = screen.getAllByRole('radio', { name: /^male$/i });
+        const femaleRadiosAfterReadd = screen.getAllByRole('radio', { name: /female/i });
+        expect(maleRadiosAfterReadd).toHaveLength(2);
+        expect(maleRadiosAfterReadd[1]).not.toBeChecked();
+        expect(femaleRadiosAfterReadd[1]).not.toBeChecked();
+      });
+    });
   });
 
   describe('Read only mode', () => {
