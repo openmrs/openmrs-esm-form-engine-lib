@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { createErrorHandler } from '@openmrs/esm-framework';
 import type { FormField, FormFieldInputProps, RenderType } from '../../types';
+import { FormFieldRenderer } from '../renderer/field/form-field-renderer.component';
+import { clearSubmission, isViewMode } from '../../utils/common-utils';
+import { cloneRepeatField } from './helpers';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { isEmpty } from '../../validators/form-validator';
-import styles from './repeat.scss';
-import { cloneRepeatField } from './helpers';
-import { clearSubmission, isViewMode } from '../../utils/common-utils';
-import RepeatControls from './repeat-controls.component';
-import { createErrorHandler } from '@openmrs/esm-framework';
-import { useFormProviderContext } from '../../provider/form-provider';
-import { FormFieldRenderer } from '../renderer/field/form-field-renderer.component';
 import { useFormFactory } from '../../provider/form-factory-provider';
+import { useFormProviderContext } from '../../provider/form-provider';
+import RepeatControls from './repeat-controls.component';
+import styles from './repeat.scss';
 
 const renderingByTypeMap: Record<string, RenderType> = {
   obsGroup: 'group',
@@ -18,7 +18,6 @@ const renderingByTypeMap: Record<string, RenderType> = {
 };
 
 const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
-  const [counter, setCounter] = useState(0);
   const [rows, setRows] = useState([]);
   const context = useFormProviderContext();
   const { handleConfirmQuestionDeletion } = useFormFactory();
@@ -42,7 +41,6 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
         _field.id.startsWith(field.id) &&
         !_field.meta?.repeat?.wasDeleted,
     );
-    setCounter(repeatedFields.length - 1);
     setRows(repeatedFields);
   }, [formFields, field]);
 
@@ -140,16 +138,16 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
   };
 
   const nodes = useMemo(() => {
-    return rows.map((field, index) => {
+    return rows.map((row, index) => {
       const component = (
         <FormFieldRenderer
-          fieldId={field.id}
-          valueAdapter={formFieldAdapters[field.type]}
-          repeatOptions={{ targetRendering: getQuestionWithSupportedRendering(field).questionOptions.rendering }}
+          fieldId={row.id}
+          valueAdapter={formFieldAdapters[row.type]}
+          repeatOptions={{ targetRendering: getQuestionWithSupportedRendering(row).questionOptions.rendering }}
         />
       );
       return (
-        <div key={field.id + '_wrapper'}>
+        <div key={row.id + '_wrapper'}>
           {index !== 0 && (
             <div>
               <hr className={styles.divider} />
@@ -158,16 +156,21 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
           <div className={styles.nodeContainer}>{component}</div>
           {!isViewMode(sessionMode) && (
             <RepeatControls
-              question={field}
+              question={row}
               rows={rows}
               questionIndex={index}
               handleDelete={() => {
-                onClickDeleteQuestion(field);
+                onClickDeleteQuestion(row);
               }}
               handleAdd={() => {
-                const nextCount = counter + 1;
-                handleAdd(nextCount);
-                setCounter(nextCount);
+                // Use max-existing-suffix + 1 so new rows don't collide with a surviving
+                // row after a middle row is deleted (the buggy `length - 1 + 1` would).
+                const nextSuffix =
+                  rows.reduce((max, r) => {
+                    const suffix = Number(r.id.slice(field.id.length + 1));
+                    return Number.isFinite(suffix) ? Math.max(max, suffix) : max;
+                  }, 0) + 1;
+                handleAdd(nextSuffix);
               }}
             />
           )}
