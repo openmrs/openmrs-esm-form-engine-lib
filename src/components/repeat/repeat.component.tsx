@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import type { FormField, FormFieldInputProps, RenderType } from '../../types';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { isEmpty } from '../../validators/form-validator';
@@ -19,8 +18,6 @@ const renderingByTypeMap: Record<string, RenderType> = {
 };
 
 const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
-  const { t } = useTranslation();
-  const isGrouped = useMemo(() => field.questions?.length > 1, [field]);
   const [counter, setCounter] = useState(0);
   const [rows, setRows] = useState([]);
   const context = useFormProviderContext();
