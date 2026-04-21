@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import type { FormField, FormFieldInputProps, RenderType } from '../../types';
 import { evaluateAsyncExpression, evaluateExpression } from '../../utils/expression-runner';
 import { isEmpty } from '../../validators/form-validator';
@@ -19,8 +18,6 @@ const renderingByTypeMap: Record<string, RenderType> = {
 };
 
 const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
-  const { t } = useTranslation();
-  const isGrouped = useMemo(() => field.questions?.length > 1, [field]);
   const [counter, setCounter] = useState(0);
   const [rows, setRows] = useState([]);
   const context = useFormProviderContext();
@@ -30,7 +27,7 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
     sessionMode,
     formFieldAdapters,
     formFields,
-    methods: { getValues, setValue },
+    methods: { getValues, setValue, unregister },
     addFormField,
     removeFormField,
     deletedFields,
@@ -117,6 +114,10 @@ const Repeat: React.FC<FormFieldInputProps> = ({ field }) => {
       }
     } else {
       clearSubmission(field);
+      // Unregister from react-hook-form so a re-added row with the same id
+      // starts empty instead of rehydrating the deleted row's value.
+      unregister(field.id);
+      field.questions?.forEach((child) => unregister(child.id));
     }
     setRows(rows.filter((q) => q.id !== field.id));
     setDeletedFields([...deletedFields, field]);
