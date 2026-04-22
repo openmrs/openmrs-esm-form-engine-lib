@@ -1,3 +1,6 @@
+// Set timezone to UTC for consistent date handling in tests
+process.env.TZ = 'UTC';
+
 /** @type {import('jest').Config} */
 module.exports = {
   verbose: true,
