@@ -39,6 +39,7 @@ const COMPONENT_PRECLINIC_REVIEW = 'component_preclinic-review';
 const COMPONENT_PRECLINIC_REVIEW_UUID = '2f063f32-7f8a-11ee-b962-0242ac120004';
 const COMPONENT_PRECLINIC_REVIEW_SCHEMA_VALUE_REF = '74d06044-850f-11ee-b9d1-0242ac120004';
 const NON_EXISTENT_FORM_NAME = 'non-existent-form';
+const MISSING_SUBFORM_NAME = 'missing-subform';
 
 // Base setup
 const mockOpenmrsFetch = openmrsFetch as jest.Mock;
@@ -96,6 +97,11 @@ when(mockOpenmrsFetch)
 
 when(mockOpenmrsFetch)
   .calledWith(buildPath(NON_EXISTENT_FORM_NAME))
+  .mockResolvedValue({ data: { results: [] } });
+
+// missing subform — returns empty results (not found on backend)
+when(mockOpenmrsFetch)
+  .calledWith(buildPath(MISSING_SUBFORM_NAME))
   .mockResolvedValue({ data: { results: [] } });
 
 describe('useFormJson', () => {
@@ -174,6 +180,47 @@ describe('useFormJson', () => {
       'Error loading form JSON: Form with ID "non-existent-form" was not found',
     );
     expect(hook.result.current.formJson).toBe(null);
+    mockConsoleError.mockRestore();
+  });
+
+  it('should load parent form and skip missing subform gracefully', async () => {
+    const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    // Build a raw parent form that references a subform that does not exist on the backend.
+    const parentFormWithMissingSubform = {
+      ...nestedForm1Body,
+      pages: [
+        {
+          label: 'Missing Subform Page',
+          isSubform: true,
+          subform: {
+            name: MISSING_SUBFORM_NAME,
+          },
+        },
+        // keep the normal (non-subform) pages so the parent form is not empty
+        ...nestedForm1Body.pages.filter((page) => !page.isSubform),
+      ],
+    };
+
+    let hook = null;
+    await act(async () => {
+      hook = renderHook(() => useFormJson(null, parentFormWithMissingSubform, null, null));
+    });
+
+    // parent form should still load — no crash
+    expect(hook.result.current.isLoading).toBe(false);
+
+    // formJson should exist — parent form rendered successfully
+    expect(hook.result.current.formJson).not.toBe(null);
+
+    // no top-level error — only the subform failed, not the whole form
+    expect(hook.result.current.formError).toBe(undefined);
+
+    // a console error should have been logged for the missing subform
+    expect(mockConsoleError).toHaveBeenCalledWith(
+      expect.stringContaining('Error loading subform'),
+    );
+
     mockConsoleError.mockRestore();
   });
 });

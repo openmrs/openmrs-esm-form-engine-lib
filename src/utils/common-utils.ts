@@ -91,7 +91,7 @@ export function formatDateAsDisplayString(field: FormField, date: Date) {
  */
 export function updateFormSectionReferences(formJson: FormSchema) {
   formJson.pages = formJson.pages.map((page) => {
-    page.sections = Array.from(page.sections);
+    page.sections = Array.from(page.sections ?? []);
     return page;
   });
   return { ...formJson };
