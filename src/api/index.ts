@@ -4,6 +4,7 @@ import { encounterRepresentation } from '../constants';
 import type {
   AttachmentFieldValue,
   FHIRObsResource,
+  FormSchema,
   OpenmrsForm,
   PatientDeathPayload,
   PatientIdentifier,
@@ -112,6 +113,18 @@ export async function fetchOpenMRSForm(nameOrUUID: string): Promise<OpenmrsForm 
     }
   }
   throw new Error(`Form with ID "${nameOrUUID}" was not found`);
+}
+
+/**
+ * Fetches a fully resolved form schema from the o3forms backend module.
+ *
+ * The /o3/forms/{uuid} endpoint bundles the parsed JSON schema with resolved
+ * subforms, referenced concepts, and locale-specific translations in a single
+ * response. The path segment accepts either a form UUID or a form name.
+ */
+export async function fetchO3FormSchema(nameOrUUID: string): Promise<FormSchema | null> {
+  const { data } = await openmrsFetch<FormSchema>(`${restBaseUrl}/o3/forms/${nameOrUUID}`);
+  return data ?? null;
 }
 
 /**
