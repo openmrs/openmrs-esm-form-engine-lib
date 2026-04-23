@@ -83,23 +83,23 @@ const FormEngine = ({
     return patient && workspaceSize === 'ultra-wide' && mode !== 'embedded-view';
   }, [patient, mode, workspaceSize, hidePatientBanner]);
 
-  const isFormWorkspaceTooNarrow = useMemo(() => ['narrow'].includes(workspaceSize), [workspaceSize]);
+  const shouldHideFormSidebar = useMemo(() => ['narrow', 'wider'].includes(workspaceSize), [workspaceSize]);
 
   const showBottomButtonSet = useMemo(() => {
     if (mode === 'embedded-view' || isLoadingDependencies || hasMultiplePages === null) {
       return false;
     }
 
-    return isFormWorkspaceTooNarrow || !hasMultiplePages;
-  }, [mode, isFormWorkspaceTooNarrow, isLoadingDependencies, hasMultiplePages]);
+    return shouldHideFormSidebar || !hasMultiplePages;
+  }, [mode, shouldHideFormSidebar, isLoadingDependencies, hasMultiplePages]);
 
   const showSidebar = useMemo(() => {
     if (mode === 'embedded-view' || isLoadingDependencies || hasMultiplePages === null) {
       return false;
     }
 
-    return !isFormWorkspaceTooNarrow && hasMultiplePages;
-  }, [isFormWorkspaceTooNarrow, isLoadingDependencies, hasMultiplePages]);
+    return !shouldHideFormSidebar && hasMultiplePages;
+  }, [shouldHideFormSidebar, isLoadingDependencies, hasMultiplePages]);
 
   useEffect(() => {
     reportError(formError, t('errorLoadingFormSchema', 'Error loading form schema'));
