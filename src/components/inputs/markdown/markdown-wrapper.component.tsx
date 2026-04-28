@@ -1,6 +1,10 @@
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import styles from './markdown-wrapper.scss';
+
+const components: Components = {
+  a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" />,
+};
 
 const MarkdownWrapper: React.FC<{ markdown: string }> = ({ markdown }) => {
   return (
@@ -28,6 +32,7 @@ const MarkdownWrapper: React.FC<{ markdown: string }> = ({ markdown }) => {
           'hr',
           'br',
         ]}
+        components={components}
       />
     </div>
   );
