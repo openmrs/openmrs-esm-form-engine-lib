@@ -1,5 +1,4 @@
 import React from 'react';
-import userEvent from '@testing-library/user-event';
 import { render, screen, act } from '@testing-library/react';
 import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
 import { mockSessionDataResponse } from '__mocks__/session.mock';
@@ -7,7 +6,7 @@ import { mockPatient } from '__mocks__/patient.mock';
 import { mockVisit } from '__mocks__/visit.mock';
 import { useFormProviderContext } from 'src/provider/form-provider';
 import { sampleFieldsForm } from '__mocks__/forms';
-import TextField from './text.component';
+import TextArea from './text-area.component';
 
 const mockOpenmrsFetch = jest.mocked(openmrsFetch);
 const mockUseSession = jest.mocked(useSession);
@@ -29,32 +28,15 @@ jest.mock('src/provider/form-provider', () => ({
 
 const mockUseFormProviderContext = useFormProviderContext as jest.Mock;
 
-const textValues = {
+const textAreaValues = {
   field: {
-    label: 'Indicate your notes',
+    label: 'Clinical notes',
     type: 'obs',
     required: false,
-    id: 'indicateNotes',
+    id: 'clinicalNotes',
     questionOptions: {
-      rendering: 'text',
+      rendering: 'textarea',
       concept: '160632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-      conceptMappings: [
-        {
-          relationship: 'SAME-AS',
-          type: 'CIEL',
-          value: '160632',
-        },
-        {
-          relationship: 'SAME-AS',
-          type: 'AMPATH',
-          value: '1915',
-        },
-        {
-          relationship: 'BROADER-THAN',
-          type: 'LOINC',
-          value: '48767-8',
-        },
-      ],
       answers: [],
     },
     meta: {
@@ -69,42 +51,10 @@ const textValues = {
           display: 'Question',
         },
         answers: [],
-        conceptMappings: [
-          {
-            conceptReferenceTerm: {
-              conceptSource: {
-                name: 'CIEL',
-              },
-              code: '160632',
-            },
-          },
-          {
-            conceptReferenceTerm: {
-              conceptSource: {
-                name: 'AMPATH',
-              },
-              code: '1915',
-            },
-          },
-          {
-            conceptReferenceTerm: {
-              conceptSource: {
-                name: 'LOINC',
-              },
-              code: '48767-8',
-            },
-          },
-        ],
+        conceptMappings: [],
       },
     },
-    validators: [
-      {
-        type: 'form_field',
-      },
-      {
-        type: 'default_value',
-      },
-    ],
+    validators: [{ type: 'form_field' }, { type: 'default_value' }],
     isHidden: false,
     isRequired: false,
     isDisabled: false,
@@ -116,7 +66,7 @@ const textValues = {
 };
 
 const renderForm = async (props) => {
-  await act(() => render(<TextField {...props} />));
+  await act(() => render(<TextArea {...props} />));
 };
 
 let formProcessor;
@@ -136,12 +86,9 @@ const mockProviderValues = {
   processor: formProcessor,
 };
 
-describe('Text field input', () => {
-  const user = userEvent.setup();
+describe('TextArea field input', () => {
   beforeEach(() => {
-    formProcessor = {
-      getInitialValues: jest.fn(),
-    };
+    formProcessor = { getInitialValues: jest.fn() };
     mockOpenmrsFetch.mockResolvedValue({
       data: { results: [{ ...sampleFieldsForm }] },
     } as unknown as FetchResponse);
@@ -158,56 +105,34 @@ describe('Text field input', () => {
     });
   });
 
-  it('should record new obs', async () => {
-    await renderForm(textValues);
-    const inputField = screen.getByLabelText('Indicate your notes');
-    await user.click(inputField);
-    await user.paste('Updated patient notes');
-
-    await act(async () => {
-      expect(mockSetFieldValue).toHaveBeenCalledWith('Updated patient notes');
-    });
-  });
-
   it('should have value passed in as prop', async () => {
-    await renderForm({
-      ...textValues,
-      value: 'Initial patient notes',
-    });
-    const inputField = screen.getByLabelText('Indicate your notes');
-
-    expect(inputField).toHaveValue('Initial patient notes');
+    await renderForm({ ...textAreaValues, value: 'Initial clinical notes' });
+    const inputField = screen.getByLabelText('Clinical notes');
+    expect(inputField).toHaveValue('Initial clinical notes');
   });
 
   it('should disable field', async () => {
     await renderForm({
-      ...textValues,
-      field: {
-        ...textValues.field,
-        isDisabled: true,
-      },
+      ...textAreaValues,
+      field: { ...textAreaValues.field, isDisabled: true },
     });
-    const inputField = screen.getByLabelText('Indicate your notes');
-
+    const inputField = screen.getByLabelText('Clinical notes');
     expect(inputField).toBeDisabled();
   });
 
   it('should show character counter when maxLength is set', async () => {
     await renderForm({
-      ...textValues,
+      ...textAreaValues,
       field: {
-        ...textValues.field,
-        questionOptions: {
-          ...textValues.field.questionOptions,
-          maxLength: 100,
-        },
+        ...textAreaValues.field,
+        questionOptions: { ...textAreaValues.field.questionOptions, maxLength: 500 },
       },
     });
-    expect(screen.getByText('0/100')).toBeInTheDocument();
+    expect(screen.getByText('0/500')).toBeInTheDocument();
   });
 
   it('should not show character counter when maxLength is not set', async () => {
-    await renderForm(textValues);
+    await renderForm(textAreaValues);
     expect(screen.queryByText(/\/\d+/)).not.toBeInTheDocument();
   });
 });

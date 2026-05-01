@@ -1,0 +1,60 @@
+@use '@carbon/colors';
+@use '@carbon/layout';
+
+.markdownWrapper {
+  ul,
+  ol {
+    margin: layout.$spacing-03 0 layout.$spacing-03 layout.$spacing-06;
+  }
+
+  ul {
+    list-style: disc;
+  }
+
+  ol {
+    list-style: decimal;
+  }
+
+  li {
+    margin-bottom: layout.$spacing-02;
+  }
+
+  blockquote {
+    margin: layout.$spacing-03 0;
+    padding: layout.$spacing-02 layout.$spacing-04;
+    border-left: 3px solid colors.$gray-30;
+    color: colors.$gray-70;
+  }
+
+  pre {
+    margin: layout.$spacing-03 0;
+    padding: layout.$spacing-03;
+    background: colors.$gray-10;
+    border-radius: 4px;
+    overflow-x: auto;
+
+    code {
+      background: none;
+      padding: 0;
+    }
+  }
+
+  code {
+    background: colors.$gray-10;
+    padding: 0 layout.$spacing-02;
+    border-radius: 2px;
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.875em;
+  }
+
+  hr {
+    margin: layout.$spacing-04 0;
+    border: 0;
+    border-top: 1px solid colors.$gray-30;
+  }
+
+  a {
+    color: colors.$blue-60;
+    text-decoration: underline;
+  }
+}
