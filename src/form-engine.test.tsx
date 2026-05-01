@@ -132,6 +132,7 @@ jest.mock('../src/api', () => {
     getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(mockHxpEncounter)),
     getConcept: jest.fn().mockImplementation(() => Promise.resolve(null)),
     getLatestObs: jest.fn().mockImplementation(() => Promise.resolve({ valueNumeric: 60 })),
+    getLatestObsForConceptSet: jest.fn().mockImplementation(() => Promise.resolve([{ valueNumeric: 60 }])),
     saveEncounter: jest.fn().mockImplementation(() => Promise.resolve(mockSaveEncounter)),
     createProgramEnrollment: jest.fn(),
   };
