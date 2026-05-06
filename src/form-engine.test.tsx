@@ -45,6 +45,7 @@ import {
   sampleFieldsForm,
   testEnrolmentForm,
   viralLoadStatusForm,
+  expressionVisitObjectTestSchema,
 } from '__mocks__/forms';
 import { type FormSchema, type OpenmrsEncounter, type SessionMode } from './types';
 import { useEncounter } from './hooks/useEncounter';
@@ -131,6 +132,7 @@ jest.mock('../src/api', () => {
     getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(mockHxpEncounter)),
     getConcept: jest.fn().mockImplementation(() => Promise.resolve(null)),
     getLatestObs: jest.fn().mockImplementation(() => Promise.resolve({ valueNumeric: 60 })),
+    getLatestObsForConceptSet: jest.fn().mockImplementation(() => Promise.resolve([{ valueNumeric: 60 }])),
     saveEncounter: jest.fn().mockImplementation(() => Promise.resolve(mockSaveEncounter)),
     createProgramEnrollment: jest.fn(),
   };
@@ -253,7 +255,7 @@ describe('Form engine component', () => {
         renderForm(null, sampleFieldsForm);
       });
 
-      screen.findByRole('textbox', { name: /text question/i });
+      screen.findByLabelText(/text question/i);
 
       const textFieldTooltip = screen.getByTestId('id_text-label');
       expect(textFieldTooltip).toBeInTheDocument();
@@ -359,7 +361,7 @@ describe('Form engine component', () => {
       const requiredAsterisks = screen.getAllByText('*');
       expect(requiredAsterisks).toHaveLength(2);
 
-      const inputFields = screen.getAllByRole('textbox', { name: /Text question/i });
+      const inputFields = screen.getAllByLabelText(/Text question/i);
       expect(inputFields).toHaveLength(2);
 
       inputFields.forEach((inputField) => {
@@ -494,6 +496,42 @@ describe('Form engine component', () => {
       expect(saveEncounterMock).toHaveBeenCalledTimes(1);
       expect(saveEncounterMock).toHaveBeenCalledWith(expect.any(AbortController), expect.any(Object), undefined);
       expect(saveEncounterMock).toHaveReturned();
+    });
+
+    it('should clear stale submission validation errors', async () => {
+      await act(async () => {
+        renderForm(null, requiredTestForm);
+      });
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      const inputFields = screen.getAllByLabelText(/Text question/i);
+      expect(inputFields).toHaveLength(2);
+
+      inputFields.forEach((inputField) => {
+        expect(inputField).toHaveClass('cds--text-input--invalid');
+      });
+
+      let errorMessages = screen.getAllByText('Field is mandatory');
+      expect(errorMessages).toHaveLength(2);
+
+      // interact with first input
+      const textInput1 = inputFields[0];
+      await user.type(textInput1, 'Some value');
+
+      // assert validation errors were cleared for the first input
+      expect(textInput1).not.toHaveClass('cds--text-input--invalid');
+      errorMessages = screen.getAllByText('Field is mandatory');
+      expect(errorMessages).toHaveLength(1);
+
+      // interact with last input
+      const textInput2 = inputFields[1];
+      await user.type(textInput2, 'Some other value');
+
+      // assert validation errors were cleared
+      expect(textInput2).not.toHaveClass('cds--text-input--invalid');
+      errorMessages = screen.queryAllByText('Field is mandatory');
+      expect(errorMessages).toHaveLength(0);
     });
 
     it('should validate transient fields', async () => {
@@ -1040,9 +1078,12 @@ describe('Form engine component', () => {
       await user.click(addButton);
 
       expect(screen.getByRole('button', { name: /Remove/i })).toBeInTheDocument();
-      expect(screen.getAllByRole('radio', { name: /^male$/i }).length).toEqual(2);
-      expect(screen.getAllByRole('radio', { name: /^female$/i }).length).toEqual(2);
-      expect(screen.getAllByRole('textbox', { name: /date of birth/i }).length).toEqual(2);
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('radio', { name: /^male$/i })).toHaveLength(2);
+        expect(screen.getAllByRole('radio', { name: /female/i })).toHaveLength(2);
+        expect(screen.getAllByRole('textbox', { name: /date of birth/i })).toHaveLength(2);
+      });
     });
 
     it('should test deletion of a group', async () => {
@@ -1067,6 +1108,73 @@ describe('Form engine component', () => {
       await user.click(removeGroupButton);
 
       expect(removeGroupButton).not.toBeInTheDocument();
+    });
+
+    it('should not rehydrate values from a deleted row when a new row is added in its place', async () => {
+      await act(async () => {
+        renderForm(null, obsGroupTestForm);
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Add' }));
+
+      let maleRadios: HTMLElement[];
+      await waitFor(() => {
+        maleRadios = screen.getAllByRole('radio', { name: /^male$/i });
+        expect(maleRadios).toHaveLength(2);
+      });
+
+      await user.click(maleRadios[1]);
+      expect(maleRadios[1]).toBeChecked();
+
+      await user.click(screen.getByRole('button', { name: /Remove/i }));
+      await waitFor(() => {
+        expect(screen.getAllByRole('radio', { name: /^male$/i })).toHaveLength(1);
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Add' }));
+
+      await waitFor(() => {
+        const maleRadiosAfterReadd = screen.getAllByRole('radio', { name: /^male$/i });
+        const femaleRadiosAfterReadd = screen.getAllByRole('radio', { name: /female/i });
+        expect(maleRadiosAfterReadd).toHaveLength(2);
+        expect(maleRadiosAfterReadd[1]).not.toBeChecked();
+        expect(femaleRadiosAfterReadd[1]).not.toBeChecked();
+      });
+    });
+
+    it('should assign unique ids to repeating rows after a middle row is deleted', async () => {
+      await act(async () => {
+        renderForm(null, obsGroupTestForm);
+      });
+
+      // Only the last row carries an Add button, so re-query it after every click.
+      // Add two more rows so we have 3 total (_0, _1, _2).
+      await user.click(screen.getByRole('button', { name: 'Add' }));
+      await waitFor(() => {
+        expect(screen.getAllByRole('radio', { name: /^male$/i })).toHaveLength(2);
+      });
+      await user.click(screen.getByRole('button', { name: 'Add' }));
+      await waitFor(() => {
+        expect(screen.getAllByRole('radio', { name: /^male$/i })).toHaveLength(3);
+      });
+
+      // Delete the middle row (_1). Only clones have Remove buttons, so there are 2.
+      const removeButtons = screen.getAllByRole('button', { name: /Remove/i });
+      expect(removeButtons).toHaveLength(2);
+      await user.click(removeButtons[0]);
+      await waitFor(() => {
+        expect(screen.getAllByRole('radio', { name: /^male$/i })).toHaveLength(2);
+      });
+
+      // Add a new row — its suffix must not collide with the surviving row (_2).
+      await user.click(screen.getByRole('button', { name: 'Add' }));
+      await new Promise((r) => setTimeout(r, 100));
+
+      const maleRadios = screen.getAllByRole('radio', { name: /^male$/i });
+      const ids = maleRadios.map((r) => r.id);
+      // Expect three rows, each with a unique childSex-Male input id.
+      expect(maleRadios).toHaveLength(3);
+      expect(new Set(ids).size).toBe(ids.length);
     });
   });
 
@@ -1218,6 +1326,20 @@ describe('Form engine component', () => {
         formFieldPath: `rfe-forms-diagnosis1`,
         formFieldNamespace: 'rfe-forms',
         uuid: '95690fb4-0398-42d9-9ffc-8a134e6d829d',
+      });
+    });
+  });
+  describe('Form calculate expression integration', () => {
+    it('should calculate encounter date from visit startDatetime', async () => {
+      await act(async () => {
+        return renderForm(null, expressionVisitObjectTestSchema, 'enter', 'enter', null);
+      });
+
+      await waitFor(() => {
+        const dateInput = screen.getByLabelText('Encounter Date') as HTMLInputElement;
+        expect(dateInput).toBeInTheDocument();
+
+        expect(dateInput.value).toContain('28/07/2020');
       });
     });
   });

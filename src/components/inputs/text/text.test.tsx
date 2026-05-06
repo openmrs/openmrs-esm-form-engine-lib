@@ -191,4 +191,23 @@ describe('Text field input', () => {
 
     expect(inputField).toBeDisabled();
   });
+
+  it('should show character counter when maxLength is set', async () => {
+    await renderForm({
+      ...textValues,
+      field: {
+        ...textValues.field,
+        questionOptions: {
+          ...textValues.field.questionOptions,
+          maxLength: 100,
+        },
+      },
+    });
+    expect(screen.getByText('0/100')).toBeInTheDocument();
+  });
+
+  it('should not show character counter when maxLength is not set', async () => {
+    await renderForm(textValues);
+    expect(screen.queryByText(/\/\d+/)).not.toBeInTheDocument();
+  });
 });

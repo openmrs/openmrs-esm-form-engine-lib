@@ -1,53 +1,58 @@
 import { useMemo } from 'react';
-import useSWRInfinite from 'swr/infinite';
-import { type FetchResponse, openmrsFetch, type OpenmrsResource, restBaseUrl } from '@openmrs/esm-framework';
-import { useRestApiMaxResults } from './useRestApiMaxResults';
-
-type ConceptFetchResponse = FetchResponse<{ results: Array<OpenmrsResource> }>;
+import useSWR from 'swr';
+import { type Concept, type FetchResponse, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 
 const conceptRepresentation =
   'custom:(uuid,display,conceptClass:(uuid,display),answers:(uuid,display),conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
 
-export function useConcepts(references: Set<string>): {
-  concepts: Array<OpenmrsResource> | undefined;
+type ConceptRepresentation = Pick<Concept, 'uuid' | 'display'> & {
+  conceptClass: Pick<Concept['conceptClass'], 'uuid' | 'display'>;
+  answers: Array<{
+    uuid: string;
+    display: string;
+  }>;
+  conceptMappings: Array<{
+    conceptReferenceTerm: {
+      conceptSource: {
+        name: string;
+      };
+      code: string;
+    };
+  }>;
+};
+
+type ConceptFetchResponse = FetchResponse<{ [reference: string]: ConceptRepresentation }>;
+
+export function useConcepts(references: Array<string>): {
+  concepts: Array<ConceptRepresentation> | undefined;
   isLoading: boolean;
   error: Error | undefined;
 } {
-  const { maxResults } = useRestApiMaxResults();
-  const totalCount = references.size;
-  const totalPages = Math.ceil(totalCount / maxResults);
-
-  const getUrl = (index: number, prevPageData: ConceptFetchResponse) => {
-    if (index >= totalPages) {
-      return null;
-    }
-
-    const start = index * maxResults;
-    const end = start + maxResults;
-    const referenceChunk = Array.from(references).slice(start, end);
-    return `${restBaseUrl}/concept?references=${referenceChunk.join(
-      ',',
-    )}&v=${conceptRepresentation}&limit=${maxResults}`;
-  };
-
-  const { data, error, isLoading } = useSWRInfinite<ConceptFetchResponse, Error>(getUrl, openmrsFetch, {
-    initialSize: totalPages,
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
-
-  const results = useMemo(
-    () => ({
-      // data?.[0] check is added for tests, as response is undefined in tests
-      // hence the returned concepts are [undefined], which breaks the form-helper.ts
-      // As it cannot read `uuid` of `undefined`
-      concepts: data && data?.[0] ? [].concat(...data.map((res) => res?.data?.results)) : undefined,
-      error,
-      isLoading,
-    }),
-    [data, error, isLoading],
+  const { data, error, isLoading } = useSWR<ConceptFetchResponse, Error>(
+    [`${restBaseUrl}/conceptreferences?v=${conceptRepresentation}`, references],
+    ([url, refs]) =>
+      openmrsFetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: {
+          references: refs,
+        },
+        method: 'POST',
+      }),
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      shouldRetryOnError: false,
+    },
   );
 
-  return results;
+  const concepts = useMemo(() => (data?.data ? Object.values(data.data) : undefined), [data]);
+
+  return {
+    concepts,
+    isLoading,
+    error,
+  };
 }

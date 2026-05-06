@@ -1,6 +1,15 @@
-import { fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import type { TFunction } from 'i18next';
+import { attachmentUrl, fhirBaseUrl, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { encounterRepresentation } from '../constants';
-import type { FHIRObsResource, OpenmrsForm, PatientIdentifier, PatientProgramPayload } from '../types';
+import type {
+  AttachmentFieldValue,
+  FHIRObsResource,
+  OpenmrsForm,
+  PatientDeathPayload,
+  PatientIdentifier,
+  PatientProgramPayload,
+  PersonAttribute,
+} from '../types';
 import { isUuid } from '../utils/boolean-utils';
 
 export function saveEncounter(abortController: AbortController, payload, encounterUuid?: string) {
@@ -18,39 +27,26 @@ export function saveEncounter(abortController: AbortController, payload, encount
   });
 }
 
-export function saveAttachment(patientUuid, field, conceptUuid, date, encounterUUID, abortController) {
-  const url = `${restBaseUrl}/attachment`;
-
-  const content = field.meta.submission?.newValue?.value;
-  const cameraUploadType = typeof content === 'string' && content?.split(';')[0].split(':')[1].split('/')[1];
-
+export async function createAttachment(patientUuid: string, encounterUUID: string, attachment: AttachmentFieldValue) {
   const formData = new FormData();
-  const fileCaption = field.id;
 
-  formData.append('fileCaption', fileCaption);
+  formData.append('fileCaption', attachment.fileDescription);
   formData.append('patient', patientUuid);
 
-  if (typeof content === 'object') {
-    formData.append('file', content);
+  if (attachment.file) {
+    formData.append('file', attachment.file, attachment.fileName);
   } else {
-    formData.append('file', new File([''], `camera-upload.${cameraUploadType}`), `camera-upload.${cameraUploadType}`);
-    formData.append('base64Content', content);
+    formData.append('file', new File([''], attachment.fileName), attachment.fileName);
+    formData.append('base64Content', attachment.base64Content);
   }
   formData.append('encounter', encounterUUID);
-  formData.append('obsDatetime', date);
+  formData.append('formFieldNamespace', attachment.formFieldNamespace);
+  formData.append('formFieldPath', attachment.formFieldPath);
 
-  return openmrsFetch(url, {
+  return openmrsFetch(`${attachmentUrl}`, {
     method: 'POST',
-    signal: abortController.signal,
     body: formData,
   });
-}
-
-export function getAttachmentByUuid(patientUuid: string, encounterUuid: string, abortController: AbortController) {
-  const attachmentUrl = `${restBaseUrl}/attachment`;
-  return openmrsFetch(`${attachmentUrl}?patient=${patientUuid}&encounter=${encounterUuid}`, {
-    signal: abortController.signal,
-  }).then((response) => response.data);
 }
 
 export function getConcept(conceptUuid: string, v: string) {
@@ -81,13 +77,34 @@ export async function getLatestObs(
   conceptUuid: string,
   encounterTypeUuid?: string,
 ): Promise<FHIRObsResource> {
-  let params = `patient=${patientUuid}&code=${conceptUuid}${
-    encounterTypeUuid ? `&encounter.type=${encounterTypeUuid}` : ''
-  }`;
+  let params = `patient=${patientUuid}&code=${conceptUuid}${encounterTypeUuid ? `&encounter.type=${encounterTypeUuid}` : ''
+    }`;
   // the latest obs
   params += '&_sort=-date&_count=1';
   const { data } = await openmrsFetch(`${fhirBaseUrl}/Observation?${params}`);
   return data.entry?.length ? data.entry[0].resource : null;
+}
+
+export async function getLatestObsForConceptSet(
+  patientUuid: string,
+  conceptUuid: string,
+  encounterTypeUuid?: string,
+): Promise<FHIRObsResource[]> {
+  // First, find the single latest obs to identify the encounter
+  const latestObs = await getLatestObs(patientUuid, conceptUuid, encounterTypeUuid);
+  if (!latestObs) {
+    return [];
+  }
+
+  const encounterId = latestObs.encounter?.reference?.split('/').pop();
+  if (!encounterId) {
+    return [latestObs];
+  }
+
+  // Fetch ALL obs for that concept within the same encounter
+  const params = `patient=${patientUuid}&code=${conceptUuid}&encounter=${encounterId}`;
+  const { data } = await openmrsFetch(`${fhirBaseUrl}/Observation?${params}`);
+  return data.entry?.map((e) => e.resource) ?? [];
 }
 
 /**
@@ -161,7 +178,7 @@ export function saveProgramEnrollment(payload: PatientProgramPayload, abortContr
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(payload),
+    body: payload,
     signal: abortController.signal,
   });
 }
@@ -181,5 +198,48 @@ export function savePatientIdentifier(patientIdentifier: PatientIdentifier, pati
     },
     method: 'POST',
     body: JSON.stringify(patientIdentifier),
+  });
+}
+
+export function savePersonAttribute(personAttribute: PersonAttribute, patientUuid: string) {
+  let url: string;
+
+  if (personAttribute.uuid) {
+    url = `${restBaseUrl}/person/${patientUuid}/attribute/${personAttribute.uuid}`;
+  } else {
+    url = `${restBaseUrl}/person/${patientUuid}/attribute`;
+  }
+
+  return openmrsFetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+    body: personAttribute,
+  });
+}
+
+export function markPatientAsDeceased(
+  t: TFunction,
+  patientUUID: string,
+  payload: PatientDeathPayload,
+  abortController: AbortController,
+) {
+  if (!payload) {
+    throw new Error(
+      t(
+        'patientCannotBeMarkedAsDeceasedBecauseNoPayloadSupplied',
+        'Patient cannot be marked as deceased because no payload is supplied',
+      ),
+    );
+  }
+  const url = `${restBaseUrl}/person/${patientUUID}`;
+  return openmrsFetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: payload,
+    signal: abortController.signal,
   });
 }

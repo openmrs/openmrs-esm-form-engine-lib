@@ -41,11 +41,14 @@ const TextField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnin
         <Layer>
           <TextInput
             disabled={field.isDisabled}
+            enableCounter={!!(field.questionOptions.max || field.questionOptions.maxLength)}
             id={field.id}
             invalid={errors.length > 0}
             invalidText={errors[0]?.message}
             labelText={<FieldLabel field={field} />}
-            maxLength={field.questionOptions.max || TextInput.maxLength}
+            maxCount={
+              field.questionOptions.max ? Number(field.questionOptions.max) : Number(field.questionOptions.maxLength)
+            }
             name={field.id}
             onBlur={onBlur}
             onChange={(event) => {

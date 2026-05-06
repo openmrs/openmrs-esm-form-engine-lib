@@ -7,9 +7,11 @@ import {
   prepareEncounter,
   preparePatientIdentifiers,
   preparePatientPrograms,
+  preparePersonAttributes,
   saveAttachments,
   savePatientIdentifiers,
   savePatientPrograms,
+  savePersonAttributes,
 } from './encounter-processor-helper';
 import {
   type FormField,
@@ -32,6 +34,7 @@ import { useEncounter } from '../../hooks/useEncounter';
 import { useEncounterRole } from '../../hooks/useEncounterRole';
 import { usePatientPrograms } from '../../hooks/usePatientPrograms';
 import { type TOptions } from 'i18next';
+
 
 function useCustomHooks(context: Partial<FormProcessorContextProps>) {
   const [isLoading, setIsLoading] = useState(true);
@@ -77,10 +80,13 @@ const contextInitializableTypes = [
   'patientIdentifier',
   'encounterRole',
   'programState',
+  'personAttribute',
 ];
 
 export class EncounterFormProcessor extends FormProcessor {
   prepareFormSchema(schema: FormSchema) {
+    const allFieldIds = new Set<string>();
+
     schema.pages.forEach((page) => {
       page.sections.forEach((section) => {
         section.questions.forEach((question) => {
@@ -90,6 +96,11 @@ export class EncounterFormProcessor extends FormProcessor {
     });
 
     function prepareFormField(field: FormField, section: FormSection, page: FormPage, schema: FormSchema) {
+      // Collect field ID
+      if (field.id) {
+        allFieldIds.add(field.id);
+      }
+
       // inherit inlineRendering and readonly from parent section and page if not set
       field.inlineRendering =
         field.inlineRendering ?? section.inlineRendering ?? page.inlineRendering ?? schema.inlineRendering;
@@ -105,6 +116,9 @@ export class EncounterFormProcessor extends FormProcessor {
         });
       }
     }
+
+    // Validate calculate expressions for common mistakes
+    validateCalculateExpressions(schema, allFieldIds);
 
     return schema;
   }
@@ -130,6 +144,27 @@ export class EncounterFormProcessor extends FormProcessor {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: t('errorSavingPatientIdentifiers', 'Error saving patient identifiers'),
+        subtitle: errorMessages.join(', '),
+        kind: 'error',
+        isLowContrast: false,
+      });
+    }
+
+    // save person attributes
+    try {
+      const personAttributes = preparePersonAttributes(context.formFields);
+      await Promise.all(savePersonAttributes(context.patient, personAttributes));
+      if (personAttributes?.length) {
+        showSnackbar({
+          title: t('personAttributesSaved', 'Person attribute(s) saved successfully'),
+          kind: 'success',
+          isLowContrast: true,
+        });
+      }
+    } catch (error) {
+      const errorMessages = extractErrorMessagesFromResponse(error);
+      return Promise.reject({
+        title: t('errorSavingPersonAttributes', 'Error saving person attributes'),
         description: errorMessages.join(', '),
         kind: 'error',
         critical: true,
@@ -155,9 +190,9 @@ export class EncounterFormProcessor extends FormProcessor {
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: t('errorSavingPatientPrograms', 'Error saving patient program(s)'),
-        description: errorMessages.join(', '),
+        subtitle: errorMessages.join(', '),
         kind: 'error',
-        critical: true,
+        isLowContrast: false,
       });
     }
 
@@ -185,9 +220,8 @@ export class EncounterFormProcessor extends FormProcessor {
       }
       // handle attachments
       try {
-        const attachmentsResponse = await Promise.all(
-          saveAttachments(context.formFields, savedEncounter, abortController),
-        );
+        const attachmentsResponse = await saveAttachments(context.formFields, savedEncounter, abortController);
+
         if (attachmentsResponse?.length) {
           showSnackbar({
             title: t('attachmentsSaved', 'Attachment(s) saved successfully'),
@@ -196,22 +230,24 @@ export class EncounterFormProcessor extends FormProcessor {
           });
         }
       } catch (error) {
+        console.error('Error saving attachments', error);
         const errorMessages = extractErrorMessagesFromResponse(error);
         return Promise.reject({
           title: t('errorSavingAttachments', 'Error saving attachment(s)'),
-          description: errorMessages.join(', '),
+          subtitle: errorMessages.join(', '),
           kind: 'error',
-          critical: true,
+          isLowContrast: false,
         });
       }
       return savedEncounter;
     } catch (error) {
+      console.error('Error saving encounter', error);
       const errorMessages = extractErrorMessagesFromResponse(error);
       return Promise.reject({
         title: t('errorSavingEncounter', 'Error saving encounter'),
-        description: errorMessages.join(', '),
+        subtitle: errorMessages.join(', '),
         kind: 'error',
-        critical: true,
+        isLowContrast: false,
       });
     }
   }
@@ -329,6 +365,7 @@ export class EncounterFormProcessor extends FormProcessor {
       methods: { getValues },
       formFieldAdapters,
       previousDomainObjectValue,
+      visit,
     } = context;
     const node: FormNode = { value: field, type: 'field' };
     const adapter = formFieldAdapters[field.type];
@@ -337,6 +374,7 @@ export class EncounterFormProcessor extends FormProcessor {
         mode: sessionMode,
         patient: patient,
         previousEncounter: previousDomainObjectValue,
+        visit,
       });
       return value ? extractObsValueAndDisplay(field, value) : null;
     }
@@ -352,15 +390,56 @@ async function evaluateCalculateExpression(
   values: Record<string, any>,
   formContext: FormProcessorContextProps,
 ) {
-  const { formFields, sessionMode, patient } = formContext;
+  const { formFields, sessionMode, patient, visit } = formContext;
   const expression = field.questionOptions.calculate.calculateExpression;
   const node: FormNode = { value: field, type: 'field' };
   const context = {
     mode: sessionMode,
     patient: patient,
+    visit,
   };
   const value = await evaluateAsyncExpression(expression, node, formFields, values, context);
   if (!isEmpty(value)) {
     values[field.id] = value;
   }
+}
+
+/**
+ * Validates calculate expressions to warn about common mistakes.
+ * Specifically, checks if string literals in expressions match field IDs,
+ * which usually indicates the user should use bare variable references instead.
+ *
+ * For example: calcEDD('lmp') should be calcEDD(lmp)
+ */
+function validateCalculateExpressions(schema: FormSchema, allFieldIds: Set<string>) {
+  const stringLiteralPattern = /(['"])([a-zA-Z_][a-zA-Z0-9_]*)\1/g;
+
+  function checkExpression(expression: string, fieldId: string) {
+    for (const match of expression.matchAll(stringLiteralPattern)) {
+      const quotedValue = match[2];
+      if (allFieldIds.has(quotedValue)) {
+        console.error(
+          `The calculateExpression for the field '${fieldId}' incorrectly quotes the field ID '${quotedValue}' as a string. ` +
+            `Field IDs must be referenced as variables without quotes to access their values. ` +
+            `Remove the quotes: use ${quotedValue} instead of '${quotedValue}'.`,
+        );
+      }
+    }
+  }
+
+  function processField(field: FormField) {
+    if (field.questionOptions?.calculate?.calculateExpression) {
+      checkExpression(field.questionOptions.calculate.calculateExpression, field.id);
+    }
+    // Process nested questions (for obsGroups)
+    if (field.questions) {
+      field.questions.forEach(processField);
+    }
+  }
+
+  schema.pages.forEach((page) => {
+    page.sections.forEach((section) => {
+      section.questions.forEach(processField);
+    });
+  });
 }

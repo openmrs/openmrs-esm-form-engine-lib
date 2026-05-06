@@ -67,7 +67,7 @@ describe('useInitialValues', () => {
 
     const { result } = renderHook(() => useInitialValues(formProcessor, false, context));
 
-    await waitFor(() => expect(result.current.isLoadingInitialValues).toBe(true));
+    await waitFor(() => expect(result.current.isLoadingInitialValues).toBe(false));
 
     expect(formProcessor.getInitialValues).toHaveBeenCalledWith(context);
     expect(result.current.initialValues).toEqual(mockInitialValues);

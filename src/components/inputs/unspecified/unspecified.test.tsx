@@ -141,6 +141,16 @@ describe('Unspecified', () => {
     expect(bodyWeightField.value).toBe('');
   });
 
+  it('Should not subject previously unspecified fields to validation in edit', async () => {
+    // setup
+    await renderForm('edit');
+
+    // invoke form submission to trigger form validation
+    await user.click(screen.getByRole('button', { name: /Save/ }));
+    let errorMessages = screen.queryAllByText('Field is mandatory');
+    expect(errorMessages).toHaveLength(0);
+  });
+
   it('Should not display the unspecified checkbox in view mode', async () => {
     // setup
     await renderForm('view');

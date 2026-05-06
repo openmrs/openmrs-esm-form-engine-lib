@@ -12,7 +12,7 @@ import { useFormCollapse } from './hooks/useFormCollapse';
 import { useFormWorkspaceSize } from './hooks/useFormWorkspaceSize';
 import { usePageObserver } from './components/sidebar/usePageObserver';
 import { usePatientData } from './hooks/usePatientData';
-import type { FormField, FormSchema, SessionMode } from './types';
+import type { FormField, FormSchema, SessionMode, PreFilledQuestions } from './types';
 import FormProcessorFactory from './components/processor-factory/form-processor-factory.component';
 import Loader from './components/loaders/loader.component';
 import MarkdownWrapper from './components/inputs/markdown/markdown-wrapper.component';
@@ -33,6 +33,9 @@ interface FormEngineProps {
   handleClose?: () => void;
   handleConfirmQuestionDeletion?: (question: Readonly<FormField>) => Promise<void>;
   markFormAsDirty?: (isDirty: boolean) => void;
+  hideControls?: boolean;
+  hidePatientBanner?: boolean;
+  preFilledQuestions?: PreFilledQuestions;
 }
 
 const FormEngine = ({
@@ -48,6 +51,9 @@ const FormEngine = ({
   handleClose,
   handleConfirmQuestionDeletion,
   markFormAsDirty,
+  hideControls = false,
+  hidePatientBanner = false,
+  preFilledQuestions,
 }: FormEngineProps) => {
   const { t } = useTranslation();
   const session = useSession();
@@ -68,11 +74,14 @@ const FormEngine = ({
     formJson: refinedFormJson,
     isLoading: isLoadingFormJson,
     formError,
-  } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent);
+  } = useFormJson(formUUID, formJson, encounterUUID, formSessionIntent, preFilledQuestions);
 
   const showPatientBanner = useMemo(() => {
+    if (hidePatientBanner) {
+      return false;
+    }
     return patient && workspaceSize === 'ultra-wide' && mode !== 'embedded-view';
-  }, [patient, mode, workspaceSize]);
+  }, [patient, mode, workspaceSize, hidePatientBanner]);
 
   const isFormWorkspaceTooNarrow = useMemo(() => ['narrow'].includes(workspaceSize), [workspaceSize]);
 
@@ -119,6 +128,7 @@ const FormEngine = ({
       ) : (
         <FormFactoryProvider
           patient={patient}
+          patientUUID={patientUUID}
           sessionMode={sessionMode}
           sessionDate={sessionDate}
           formJson={refinedFormJson}
@@ -148,10 +158,11 @@ const FormEngine = ({
                 <Sidebar
                   isFormSubmitting={isSubmitting}
                   sessionMode={mode}
-                  defaultPage={formJson.defaultPage}
+                  defaultPage={refinedFormJson.defaultPage}
                   onCancel={onCancel}
                   handleClose={handleClose}
                   hideFormCollapseToggle={hideFormCollapseToggle}
+                  hideControls={hideControls}
                 />
               )}
               <div className={styles.formContentInner}>
@@ -167,7 +178,7 @@ const FormEngine = ({
                     setIsLoadingFormDependencies={setIsLoadingDependencies}
                   />
                 </div>
-                {showBottomButtonSet && (
+                {showBottomButtonSet && !hideControls && (
                   <ButtonSet className={styles.minifiedButtons}>
                     <Button
                       kind="secondary"

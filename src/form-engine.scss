@@ -29,9 +29,9 @@
   flex-basis: 65%;
   flex-grow: 1;
   flex-shrink: 1;
+  display: flex;
   position: relative;
   overflow-y: hidden;
-  display: flex;
   flex-direction: column;
   justify-content: space-between;
 }

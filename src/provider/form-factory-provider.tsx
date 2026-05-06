@@ -1,18 +1,20 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
-import { type FormField, type FormSchema, type SessionMode } from '../types';
-import { EncounterFormProcessor } from '../processors/encounter/encounter-form-processor';
-import {
-  type LayoutType,
-  useLayoutType,
-  type OpenmrsResource,
-  showSnackbar,
-  showToast,
-  type ToastDescriptor,
-} from '@openmrs/esm-framework';
-import { type FormProcessorConstructor } from '../processors/form-processor';
-import { type FormContextProps } from './form-provider';
-import { processPostSubmissionActions, validateForm } from './form-factory-helper';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  showSnackbar,
+  type LayoutType,
+  type OpenmrsResource,
+  type SnackbarDescriptor,
+  type Visit,
+  useLayoutType,
+} from '@openmrs/esm-framework';
+
+import { EncounterFormProcessor } from '../processors/encounter/encounter-form-processor';
+import { processPostSubmissionActions, validateForm } from './form-factory-helper';
+import { type FormContextProps } from './form-provider';
+import { type FormField, type FormSchema, type SessionMode } from '../types';
+import { type FormProcessorConstructor } from '../processors/form-processor';
+import { useExternalFormAction } from '../hooks/useExternalFormAction';
 import { usePostSubmissionActions } from '../hooks/usePostSubmissionActions';
 
 interface FormFactoryProviderContextProps {
@@ -23,7 +25,7 @@ interface FormFactoryProviderContextProps {
   formProcessors: Record<string, FormProcessorConstructor>;
   layoutType: LayoutType;
   workspaceLayout: 'minimized' | 'maximized';
-  visit: OpenmrsResource;
+  visit: Visit;
   location: OpenmrsResource;
   provider: OpenmrsResource;
   isFormExpanded: boolean;
@@ -34,13 +36,14 @@ interface FormFactoryProviderContextProps {
 
 interface FormFactoryProviderProps {
   patient: fhir.Patient;
+  patientUUID: string;
   sessionMode: SessionMode;
   sessionDate: Date;
   formJson: FormSchema;
   workspaceLayout: 'minimized' | 'maximized';
   location: OpenmrsResource;
   provider: OpenmrsResource;
-  visit: OpenmrsResource;
+  visit: Visit;
   isFormExpanded: boolean;
   children: React.ReactNode;
   formSubmissionProps: {
@@ -59,6 +62,7 @@ const FormFactoryProviderContext = createContext<FormFactoryProviderContextProps
 
 export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   patient,
+  patientUUID,
   sessionMode,
   sessionDate,
   formJson,
@@ -78,6 +82,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   const subForms = useRef<Record<string, FormContextProps>>({});
   const layoutType = useLayoutType();
   const { isSubmitting, setIsSubmitting, onSubmit, onError, handleClose } = formSubmissionProps;
+  const [isValidating, setIsValidating] = useState(false);
   const postSubmissionHandlers = usePostSubmissionActions(formJson.postSubmissionActions);
 
   const abortController = new AbortController();
@@ -95,12 +100,34 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
     EncounterFormProcessor: EncounterFormProcessor,
   });
 
+  const validateAllForms = useCallback(() => {
+    const forms = [rootForm.current, ...Object.values(subForms.current)];
+    const isValid = forms.every((formContext) => validateForm(formContext));
+    return {
+      forms: forms,
+      isValid: isValid,
+    };
+  }, []);
+
+  useExternalFormAction({
+    patientUuid: patientUUID,
+    formUuid: formJson?.uuid,
+    setIsSubmitting: setIsSubmitting,
+    setIsValidating: setIsValidating,
+  });
+
+  useEffect(() => {
+    if (isValidating) {
+      validateAllForms();
+      setIsValidating(false);
+    }
+  }, [isValidating, validateAllForms]);
+
   useEffect(() => {
     if (isSubmitting) {
       // TODO: find a dynamic way of managing the form processing order
-      const forms = [rootForm.current, ...Object.values(subForms.current)];
       // validate all forms
-      const isValid = forms.every((formContext) => validateForm(formContext));
+      const { forms, isValid } = validateAllForms();
       if (isValid) {
         Promise.all(forms.map((formContext) => formContext.processor.processSubmission(formContext, abortController)))
           .then(async (results) => {
@@ -130,17 +157,17 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
               handleClose();
             }
           })
-          .catch((errorObject: Error | ToastDescriptor) => {
+          .catch((errorObject: Error | SnackbarDescriptor) => {
             setIsSubmitting(false);
             if (errorObject instanceof Error) {
-              showToast({
+              showSnackbar({
                 title: t('errorProcessingFormSubmission', 'Error processing form submission'),
                 kind: 'error',
-                description: errorObject.message,
-                critical: true,
+                subtitle: errorObject.message,
+                isLowContrast: false,
               });
             } else {
-              showToast(errorObject);
+              showSnackbar(errorObject);
             }
           });
       } else {
@@ -150,7 +177,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
     return () => {
       abortController.abort();
     };
-  }, [isSubmitting]);
+  }, [isSubmitting, validateAllForms]);
 
   return (
     <FormFactoryProviderContext.Provider

@@ -31,11 +31,15 @@ const FormProcessorFactory = ({
 
   const processor = useMemo(() => {
     const ProcessorClass = formProcessors[formJson.processor];
+    let processorInstance;
     if (ProcessorClass) {
-      return new ProcessorClass(formJson);
+      processorInstance = new ProcessorClass(formJson);
+    } else {
+      console.error(`Form processor ${formJson.processor} not found, defaulting to EncounterFormProcessor`);
+      processorInstance = new EncounterFormProcessor(formJson);
     }
-    console.error(`Form processor ${formJson.processor} not found, defaulting to EncounterFormProcessor`);
-    return new EncounterFormProcessor(formJson);
+    processorInstance.prepareFormSchema(formJson);
+    return processorInstance;
   }, [formProcessors, formJson.processor]);
 
   const [processorContext, setProcessorContext] = useState<FormProcessorContextProps>({
@@ -54,7 +58,7 @@ const FormProcessorFactory = ({
   });
   const { t } = useTranslation();
   const { formFields: rawFormFields, conceptReferences } = useFormFields(formJson);
-  const { concepts: formFieldsConcepts, isLoading: isLoadingConcepts } = useConcepts(conceptReferences);
+  const { concepts: formFieldsConcepts, isLoading: isLoadingConcepts } = useConcepts(Array.from(conceptReferences));
   const formFieldsWithMeta = useFormFieldsMeta(rawFormFields, formFieldsConcepts);
   const formFieldAdapters = useFormFieldValueAdapters(rawFormFields);
   const formFieldValidators = useFormFieldValidators(rawFormFields);

@@ -11,7 +11,7 @@ export const useEvaluateFormFieldExpressions = (
   formValues: Record<string, any>,
   factoryContext: FormProcessorContextProps,
 ) => {
-  const { formFields, patient, sessionMode } = factoryContext;
+  const { formFields, patient, sessionMode, visit } = factoryContext;
   const [evaluatedFormJson, setEvaluatedFormJson] = useState(factoryContext.formJson);
   const [evaluatedPagesVisibility, setEvaluatedPagesVisibility] = useState(false);
 
@@ -21,6 +21,7 @@ export const useEvaluateFormFieldExpressions = (
       const runnerContext = {
         patient,
         mode: sessionMode,
+        visit,
       };
       // evaluate hide
       if (field.hide?.hideWhenExpression) {

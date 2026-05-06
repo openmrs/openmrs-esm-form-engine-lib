@@ -1,4 +1,4 @@
-import { type OpenmrsResource } from '@openmrs/esm-framework';
+import { type UploadedFile, type OpenmrsResource } from '@openmrs/esm-framework';
 
 export interface OpenmrsEncounter {
   uuid?: string;
@@ -108,14 +108,14 @@ export interface OpenmrsFormResource extends OpenmrsResource {
   valueReference?: string;
 }
 
-export interface Attachment {
-  id: string;
-  src: string;
-  title: string;
-  description: string;
-  dateTime: string;
-  bytesMimeType: string;
-  bytesContentFamily: string;
+export interface Attachment extends UploadedFile {
+  uuid?: string;
+  voided?: boolean;
+}
+
+export interface AttachmentFieldValue extends Attachment {
+  formFieldNamespace: string;
+  formFieldPath: string;
 }
 
 export interface AttachmentResponse {
@@ -185,12 +185,24 @@ export interface PatientProgramPayload {
   }>;
 }
 
+export interface PatientDeathPayload {
+  dead: boolean;
+  causeOfDeath: string;
+  deathDate: string;
+}
+
 export interface PatientIdentifier {
   uuid?: string;
   identifier: string;
   identifierType?: string;
   location?: string;
   preferred?: boolean;
+}
+
+export interface PersonAttribute {
+  uuid?: string;
+  value: string;
+  attributeType: string;
 }
 
 export interface DiagnosisPayload {

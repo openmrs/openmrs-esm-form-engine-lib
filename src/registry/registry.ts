@@ -16,6 +16,7 @@ import { getControlTemplate } from './inbuilt-components/control-templates';
 import { inbuiltPostSubmissionActions } from './inbuilt-components/InbuiltPostSubmissionActions';
 import { inbuiltFormTransformers } from './inbuilt-components/inbuiltTransformers';
 import { inbuiltFieldValueAdapters } from './inbuilt-components/inbuiltFieldValueAdapters';
+import { hasRendering } from '../utils/common-utils';
 
 /**
  * @internal
@@ -143,7 +144,7 @@ export async function getRegisteredControl(renderType: string) {
  */
 export function getFieldControlWithFallback(question: FormField) {
   // Check if the question has a missing concept
-  if (hasMissingConcept(question)) {
+  if (hasMissingConcept(question) && !hasRendering(question, 'file')) {
     // If so, render a disabled text input
     question.disabled = true;
     question.isDisabled = true;
