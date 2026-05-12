@@ -29,7 +29,7 @@ export function useConcepts(references: Array<string>): {
   error: Error | undefined;
 } {
   const { data, error, isLoading } = useSWR<ConceptFetchResponse, Error>(
-    [`${restBaseUrl}/conceptreferences?v=${conceptRepresentation}`, references],
+    references?.length ? [`${restBaseUrl}/conceptreferences?v=${conceptRepresentation}`, references] : null,
     ([url, refs]) =>
       openmrsFetch(url, {
         headers: {

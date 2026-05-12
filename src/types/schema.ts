@@ -1,4 +1,4 @@
-import { type OpenmrsResource } from '@openmrs/esm-framework';
+import { type Concept, type OpenmrsResource } from '@openmrs/esm-framework';
 import { type OpenmrsEncounter } from './domain';
 
 export interface FormSchema {
@@ -26,7 +26,24 @@ export interface FormSchema {
       [anythingElse: string]: any;
     };
   };
+  referencedConcepts?: Array<ReferencedConcept>;
 }
+
+export type ReferencedConcept = Pick<Concept, 'uuid' | 'display'> & {
+  conceptClass: Pick<Concept['conceptClass'], 'uuid' | 'display'>;
+  answers: Array<{
+    uuid: string;
+    display: string;
+  }>;
+  conceptMappings: Array<{
+    conceptReferenceTerm: {
+      conceptSource: {
+        name: string;
+      };
+      code: string;
+    };
+  }>;
+};
 
 export interface FormPage {
   label: string;

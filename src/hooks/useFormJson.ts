@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { type FormSchemaTransformer, type FormSchema, type FormSection, type ReferencedForm , type PreFilledQuestions } from '../types';
 import { isTrue } from '../utils/boolean-utils';
 import { applyFormIntent } from '../utils/forms-loader';
-import { fetchOpenMRSForm, fetchClobData } from '../api';
+import { fetchO3FormSchema } from '../api';
 import { getRegisteredFormSchemaTransformers } from '../registry/registry';
 import { formEngineAppName } from '../globals';
 
@@ -67,12 +67,14 @@ export async function loadFormJson(
   formSessionIntent?: string,
   preFilledQuestions?: PreFilledQuestions,
 ): Promise<FormSchema> {
-  const openmrsFormResponse = await fetchOpenMRSForm(formIdentifier);
-  const clobDataResponse = await fetchClobData(openmrsFormResponse);
   const transformers = await getRegisteredFormSchemaTransformers();
-  const formJson: FormSchema = clobDataResponse
-    ? { ...clobDataResponse, uuid: openmrsFormResponse.uuid }
-    : parseFormJson(rawFormJson);
+  const fetchedJson = rawFormJson ?? (await fetchO3FormSchema(formIdentifier));
+
+  if (!fetchedJson) {
+    throw new Error(`Form schema could not be loaded (id: ${formIdentifier})`);
+  }
+
+  const formJson: FormSchema = parseFormJson(fetchedJson);
 
   // Sub forms
   const subFormRefs = extractSubFormRefs(formJson);
@@ -115,9 +117,6 @@ function validateFormsArgs(formUuid: string, rawFormJson: any): Error {
   if (!formUuid && !rawFormJson) {
     return new Error('InvalidArgumentsErr: Neither formUuid nor formJson was provided');
   }
-  if (formUuid && rawFormJson) {
-    return new Error('InvalidArgumentsErr: Both formUuid and formJson cannot be provided at the same time.');
-  }
 }
 
 /**
@@ -141,7 +140,10 @@ function refineFormJson(
 }
 
 /**
- * Parses the input form JSON and returns a deep copy of the object.
+ * Parses the input form JSON into a deep copy of the object. The deep clone is
+ * deliberate: downstream steps (subform inlining, schema transformers) mutate
+ * the result, and a shared reference would poison the SWR cache or any rawFormJson
+ * the caller still holds.
  * @param {any} formJson - The input form JSON object or string.
  * @returns {FormSchema} - The parsed form JSON object of type FormSchema.
  */

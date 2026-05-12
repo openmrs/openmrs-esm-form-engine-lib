@@ -55,6 +55,7 @@ const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 const formsResourcePath = when((url: string) => url.includes(`${restBaseUrl}/form/`));
 const clobDataResourcePath = when((url: string) => url.includes(`${restBaseUrl}/clobdata/`));
+const o3FormsResourcePath = when((url: string) => url.includes(`${restBaseUrl}/o3/forms/`));
 
 const mockOpenmrsFetch = jest.mocked(openmrsFetch);
 const mockExtensionSlot = jest.mocked(ExtensionSlot);
@@ -81,6 +82,7 @@ mockOpenmrsDatePicker.mockImplementation(({ id, labelText, value, onChange, isIn
 
 when(mockOpenmrsFetch).calledWith(formsResourcePath).mockReturnValue({ data: demoHtsOpenmrsForm });
 when(mockOpenmrsFetch).calledWith(clobDataResourcePath).mockReturnValue({ data: demoHtsForm });
+when(mockOpenmrsFetch).calledWith(o3FormsResourcePath).mockReturnValue({ data: demoHtsForm });
 
 jest.mock('lodash-es/debounce', () => jest.fn((fn) => fn));
 

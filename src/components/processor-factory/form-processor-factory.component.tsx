@@ -58,7 +58,13 @@ const FormProcessorFactory = ({
   });
   const { t } = useTranslation();
   const { formFields: rawFormFields, conceptReferences } = useFormFields(formJson);
-  const { concepts: formFieldsConcepts, isLoading: isLoadingConcepts } = useConcepts(Array.from(conceptReferences));
+  // Prefer concepts bundled by /o3/forms/
+  const bundledConcepts = formJson?.referencedConcepts;
+  const hasBundledConcepts = Array.isArray(bundledConcepts) && bundledConcepts.length > 0;
+  const { concepts: fetchedConcepts, isLoading: isLoadingConcepts } = useConcepts(
+    hasBundledConcepts ? [] : Array.from(conceptReferences),
+  );
+  const formFieldsConcepts = hasBundledConcepts ? bundledConcepts : fetchedConcepts;
   const formFieldsWithMeta = useFormFieldsMeta(rawFormFields, formFieldsConcepts);
   const formFieldAdapters = useFormFieldValueAdapters(rawFormFields);
   const formFieldValidators = useFormFieldValidators(rawFormFields);
