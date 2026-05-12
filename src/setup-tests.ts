@@ -1,7 +1,8 @@
-import '@testing-library/jest-dom';
-import 'jest-when';
+import '@testing-library/jest-dom/vitest';
+import { vi } from 'vitest';
+import ResizeObserver from 'resize-observer-polyfill';
 
-global.ResizeObserver = require('resize-observer-polyfill');
+global.ResizeObserver = ResizeObserver;
 
 // https://github.com/jsdom/jsdom/issues/1695
 window.HTMLElement.prototype.scrollIntoView = function () {};
@@ -11,7 +12,7 @@ Object.defineProperty(window, 'i18next', {
   configurable: true,
   value: {
     language: 'en',
-    t: jest.fn(),
+    t: vi.fn(),
   },
 });
 

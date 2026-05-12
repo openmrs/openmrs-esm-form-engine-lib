@@ -6,12 +6,13 @@ import {
   hasSubmission,
   parseToLocalDateTime,
 } from './common-utils';
+import { vi, describe, it, expect, type Mock } from 'vitest';
 import { isEmpty } from '../validators/form-validator';
 import { obsList } from '__mocks__/forms';
 import { type FormField } from '../types';
 
-jest.mock('../validators/form-validator', () => ({
-  isEmpty: jest.fn(),
+vi.mock('../validators/form-validator', () => ({
+  isEmpty: vi.fn(),
 }));
 
 describe('utils functions', () => {
@@ -75,7 +76,7 @@ describe('utils functions', () => {
         meta: {},
       } as FormField;
 
-      (isEmpty as jest.Mock).mockReturnValueOnce(false).mockReturnValueOnce(false);
+      (isEmpty as Mock).mockReturnValueOnce(false).mockReturnValueOnce(false);
 
       const newValue = 'new value';
       const voidedValue = 'voided value';
@@ -97,7 +98,7 @@ describe('utils functions', () => {
         meta: {},
       } as FormField;
 
-      (isEmpty as jest.Mock).mockReturnValueOnce(true).mockReturnValueOnce(true);
+      (isEmpty as Mock).mockReturnValueOnce(true).mockReturnValueOnce(true);
 
       gracefullySetSubmission(field, '', '');
 

@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+import { vi, describe, it, expect, test, beforeEach, afterEach, type Mock } from 'vitest';
 import { useEvaluateFormFieldExpressions } from './useEvaluateFormFieldExpressions';
 import { type FormProcessorContextProps, type FormField } from '../types';
 import { evaluateExpression } from '../utils/expression-runner';
@@ -8,20 +9,20 @@ import { isEmpty } from '../validators/form-validator';
 // ---- MOCK DEPENDENCIES ----
 
 // Mock utility functions so we can control their behavior in tests
-jest.mock('../utils/expression-runner', () => ({
-  evaluateExpression: jest.fn(),
+vi.mock('../utils/expression-runner', () => ({
+  evaluateExpression: vi.fn(),
 }));
-jest.mock('../utils/form-helper', () => ({
-  evalConditionalRequired: jest.fn(),
-  evaluateConditionalAnswered: jest.fn(),
-  evaluateHide: jest.fn(),
-  isPageContentVisible: jest.fn(), // assume handled inside hook
+vi.mock('../utils/form-helper', () => ({
+  evalConditionalRequired: vi.fn(),
+  evaluateConditionalAnswered: vi.fn(),
+  evaluateHide: vi.fn(),
+  isPageContentVisible: vi.fn(), // assume handled inside hook
 }));
-jest.mock('../validators/form-validator', () => ({
-  isEmpty: jest.fn(),
+vi.mock('../validators/form-validator', () => ({
+  isEmpty: vi.fn(),
 }));
-jest.mock('../utils/common-utils', () => ({
-  updateFormSectionReferences: jest.fn((formJson) => formJson), // identity for simplicity
+vi.mock('../utils/common-utils', () => ({
+  updateFormSectionReferences: vi.fn((formJson) => formJson), // identity for simplicity
 }));
 
 // ---- TEST SUITE ----
@@ -89,17 +90,17 @@ describe('useEvaluateFormFieldExpressions', () => {
 
   beforeEach(() => {
     // Control mock return values before each test
-    (evaluateExpression as jest.Mock).mockReturnValue(true);
-    (evalConditionalRequired as jest.Mock).mockReturnValue(true);
-    (evaluateConditionalAnswered as jest.Mock).mockImplementation(() => {});
-    (evaluateHide as jest.Mock).mockImplementation((node) => {
+    (evaluateExpression as Mock).mockReturnValue(true);
+    (evalConditionalRequired as Mock).mockReturnValue(true);
+    (evaluateConditionalAnswered as Mock).mockImplementation(() => {});
+    (evaluateHide as Mock).mockImplementation((node) => {
       node.value.isHidden = true;
     });
-    (isEmpty as jest.Mock).mockReturnValue(false);
+    (isEmpty as Mock).mockReturnValue(false);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ---- MAIN TEST CASE ----
@@ -134,17 +135,17 @@ describe('useEvaluateFormFieldExpressions', () => {
   // ---- EDGE CASES ----
   describe('useEvaluateFormFieldExpressions edge cases', () => {
     beforeEach(() => {
-      (evaluateExpression as jest.Mock).mockReturnValue(true);
-      (evalConditionalRequired as jest.Mock).mockReturnValue(true);
-      (evaluateConditionalAnswered as jest.Mock).mockImplementation(() => {});
-      (evaluateHide as jest.Mock).mockImplementation((node) => {
+      (evaluateExpression as Mock).mockReturnValue(true);
+      (evalConditionalRequired as Mock).mockReturnValue(true);
+      (evaluateConditionalAnswered as Mock).mockImplementation(() => {});
+      (evaluateHide as Mock).mockImplementation((node) => {
         node.value.isHidden = true;
       });
-      (isEmpty as jest.Mock).mockReturnValue(false);
+      (isEmpty as Mock).mockReturnValue(false);
     });
 
     afterEach(() => {
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it('handles empty formFields gracefully', () => {
@@ -213,7 +214,7 @@ describe('useEvaluateFormFieldExpressions', () => {
         formFields: [fieldWithReadonlyExpr],
       };
 
-      (evaluateExpression as jest.Mock).mockReturnValueOnce(false);
+      (evaluateExpression as Mock).mockReturnValueOnce(false);
 
       const { result } = renderHook(() =>
         useEvaluateFormFieldExpressions(mockFormValues, contextReadonlyExpr),
@@ -241,7 +242,7 @@ describe('useEvaluateFormFieldExpressions', () => {
         formFields: [fieldWithSimpleAnswers],
       };
 
-      (isEmpty as jest.Mock).mockReturnValue(true); // simulate no hide/disable logic
+      (isEmpty as Mock).mockReturnValue(true); // simulate no hide/disable logic
 
       const { result } = renderHook(() =>
         useEvaluateFormFieldExpressions(mockFormValues, contextSimpleAnswers),

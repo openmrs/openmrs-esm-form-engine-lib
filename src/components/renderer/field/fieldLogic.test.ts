@@ -1,11 +1,12 @@
 import { handleFieldLogic, validateFieldValue } from './fieldLogic';
+import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 import { evaluateExpression } from '../../../utils/expression-runner';
 import { type FormField } from '../../../types';
 import { type FormContextProps } from '../../../provider/form-provider';
 
-jest.mock('../../../utils/expression-runner', () => ({
-  evaluateExpression: jest.fn(),
-  evaluateAsyncExpression: jest.fn().mockResolvedValue({ result: 'mockedResult' }),
+vi.mock('../../../utils/expression-runner', () => ({
+  evaluateExpression: vi.fn(),
+  evaluateAsyncExpression: vi.fn().mockResolvedValue({ result: 'mockedResult' }),
 }));
 
 describe('handleFieldLogic', () => {
@@ -15,8 +16,8 @@ describe('handleFieldLogic', () => {
   beforeEach(() => {
     mockContext = {
       methods: {
-        getValues: jest.fn().mockReturnValue({}),
-        setValue: jest.fn(),
+        getValues: vi.fn().mockReturnValue({}),
+        setValue: vi.fn(),
       },
       formFields: [],
       sessionMode: 'edit',
@@ -24,12 +25,12 @@ describe('handleFieldLogic', () => {
       formFieldValidators: {},
       formFieldAdapters: {
         obs: {
-          transformFieldValue: jest.fn(),
+          transformFieldValue: vi.fn(),
         },
       },
       formJson: { pages: [] },
-      updateFormField: jest.fn(),
-      setForm: jest.fn(),
+      updateFormField: vi.fn(),
+      setForm: vi.fn(),
     } as unknown as FormContextProps;
 
     mockFieldCoded = {
@@ -56,7 +57,7 @@ describe('handleFieldLogic', () => {
   });
 
   it('should evaluate field answer disabled logic', () => {
-    (evaluateExpression as jest.Mock).mockReturnValue(true);
+    (evaluateExpression as Mock).mockReturnValue(true);
 
     handleFieldLogic(mockFieldCoded, mockContext);
 
@@ -112,7 +113,7 @@ describe('validateFieldValue', () => {
 
     mockValidators = {
       required: {
-        validate: jest.fn().mockReturnValue([{ resultType: 'error', message: 'Field is required' }]),
+        validate: vi.fn().mockReturnValue([{ resultType: 'error', message: 'Field is required' }]),
       },
     };
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { act, render, screen } from '@testing-library/react';
 import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
@@ -10,19 +11,19 @@ import FormEngine from '../form-engine.component';
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
 
-const mockOpenmrsFetch = jest.mocked(openmrsFetch);
-const mockUsePatient = jest.mocked(usePatient);
-const mockUseSession = jest.mocked(useSession);
+const mockOpenmrsFetch = vi.mocked(openmrsFetch);
+const mockUsePatient = vi.mocked(usePatient);
+const mockUseSession = vi.mocked(useSession);
 
-jest.mock('../../src/api', () => {
-  const originalModule = jest.requireActual('../../src/api');
+vi.mock('../../src/api', async () => {
+  const originalModule = (await vi.importActual('../../src/api')) as object;
 
   return {
     ...originalModule,
-    getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(null)),
-    getConcept: jest.fn().mockImplementation(() => Promise.resolve(null)),
-    getLatestObs: jest.fn().mockImplementation(() => Promise.resolve({ valueNumeric: 60 })),
-    saveEncounter: jest.fn(),
+    getPreviousEncounter: vi.fn().mockImplementation(() => Promise.resolve(null)),
+    getConcept: vi.fn().mockImplementation(() => Promise.resolve(null)),
+    getLatestObs: vi.fn().mockImplementation(() => Promise.resolve({ valueNumeric: 60 })),
+    saveEncounter: vi.fn(),
   };
 });
 
