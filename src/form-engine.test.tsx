@@ -80,12 +80,17 @@ mockOpenmrsDatePicker.mockImplementation(({ id, labelText, value, onChange, isIn
   );
 });
 
-when(mockOpenmrsFetch).calledWith(formsResourcePath).mockReturnValue({ data: demoHtsOpenmrsForm } as never);
-when(mockOpenmrsFetch).calledWith(clobDataResourcePath).mockReturnValue({ data: demoHtsForm } as never);
+when(mockOpenmrsFetch)
+  .calledWith(formsResourcePath)
+  .mockReturnValue({ data: demoHtsOpenmrsForm } as never);
+when(mockOpenmrsFetch)
+  .calledWith(clobDataResourcePath)
+  .mockReturnValue({ data: demoHtsForm } as never);
 
 vi.mock('lodash-es/debounce', () => vi.fn((fn) => fn));
 
-vi.mock('lodash-es', async () => ({ ...((await vi.importActual('lodash-es')) as object),
+vi.mock('lodash-es', async () => ({
+  ...((await vi.importActual('lodash-es')) as object),
   debounce: vi.fn((fn) => fn),
 }));
 
@@ -842,23 +847,24 @@ describe('Form engine component', () => {
       expect(eddField).toHaveValue('12/04/2023');
     });
 
+    // TODO: Re-enable once the fake-timer setup is ported off jest-fake-timers semantics.
+    // jest-fake-timers' `doNotFake` option has no direct vitest equivalent, and the
+    // months-on-ART calculation depends on it.
     it.skip('should evaluate months on ART', async () => {
       await act(async () => renderForm(null, monthsOnArtForm));
 
-      vi
-        .useFakeTimers({
-          // @ts-expect-error - test is skipped; doNotFake was jest-fake-timers-specific
-          doNotFake: [
-            'nextTick',
-            'setImmediate',
-            'clearImmediate',
-            'setInterval',
-            'clearInterval',
-            'setTimeout',
-            'clearTimeout',
-          ],
-        })
-        .setSystemTime(new Date(2022, 9, 1));
+      vi.useFakeTimers({
+        // @ts-expect-error - test is skipped; doNotFake was jest-fake-timers-specific
+        doNotFake: [
+          'nextTick',
+          'setImmediate',
+          'clearImmediate',
+          'setInterval',
+          'clearInterval',
+          'setTimeout',
+          'clearTimeout',
+        ],
+      }).setSystemTime(new Date(2022, 9, 1));
 
       let artStartDateField = screen.getByRole('textbox', {
         name: /antiretroviral treatment start date/i,
@@ -1262,6 +1268,9 @@ describe('Form engine component', () => {
       expect(removeButton).not.toBeInTheDocument();
     });
 
+    // TODO: Re-enable once the Carbon combobox in the diagnosis search workspace
+    // renders its options discoverably under jsdom + @testing-library/react 16.
+    // Skipped during the vitest migration.
     it.skip('should save diagnosis field on form submission', async () => {
       await act(async () => {
         renderForm(null, diagnosisForm);
@@ -1296,6 +1305,9 @@ describe('Form engine component', () => {
       });
     });
 
+    // TODO: Re-enable once the Carbon combobox in the diagnosis search workspace
+    // renders its options discoverably under jsdom + @testing-library/react 16.
+    // Skipped during the vitest migration.
     it.skip('should edit diagnosis field on form submission', async () => {
       await act(async () => {
         renderForm(null, diagnosisForm, null, 'edit', mockHxpEncounter.uuid);

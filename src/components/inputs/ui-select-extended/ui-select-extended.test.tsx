@@ -16,7 +16,8 @@ const mockUseSession = vi.mocked(useSession);
 
 vi.mock('lodash-es/debounce', () => vi.fn((fn) => fn));
 
-vi.mock('lodash-es', async () => ({ ...((await vi.importActual('lodash-es')) as object),
+vi.mock('lodash-es', async () => ({
+  ...((await vi.importActual('lodash-es')) as object),
   debounce: vi.fn((fn) => fn),
 }));
 
@@ -154,6 +155,8 @@ describe('UiSelectExtended', () => {
     mockUseSession.mockImplementation(() => mockSessionDataResponse.data);
   });
 
+  // TODO: Re-enable once the Carbon UiSelectExtended combobox renders its options
+  // discoverably under jsdom + @testing-library/react 16. Skipped during the vitest migration.
   describe.skip('Enter/New mode', () => {
     it('should render comboboxes correctly for both "non-searchable" and "searchable" instances', async () => {
       await act(async () => {
@@ -266,6 +269,8 @@ describe('UiSelectExtended', () => {
     });
   });
 
+  // TODO: Re-enable once the Carbon UiSelectExtended combobox renders its options
+  // discoverably under jsdom + @testing-library/react 16. Skipped during the vitest migration.
   describe.skip('Edit mode', () => {
     it('should initialize with the current value for both "non-searchable" and "searchable" instances', async () => {
       await act(async () => {
