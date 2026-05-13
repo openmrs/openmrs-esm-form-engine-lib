@@ -5,10 +5,11 @@ import {
   isPageContentVisible,
   extractObsValueAndDisplay,
 } from './form-helper';
+import { vi, describe, it, expect, test, beforeEach, type Mock } from 'vitest';
 import { ConceptTrue } from '../constants';
 import type { FormPage, FormField } from '../types';
 
-jest.mock('../validators/default-value-validator');
+vi.mock('../validators/default-value-validator');
 
 describe('Form Engine Helper', () => {
   describe('findConceptByReference', () => {
@@ -92,7 +93,7 @@ describe('Form Engine Helper', () => {
   });
 
   // describe('inferInitialValueFromDefaultFieldValue', () => {
-  //   const mockHandleFieldSubmission = jest.fn();
+  //   const mockHandleFieldSubmission = vi.fn();
   //   const mockHandler = {
   //     handleFieldSubmission: mockHandleFieldSubmission,
   //     getInitialValue: function (
@@ -120,12 +121,12 @@ describe('Form Engine Helper', () => {
   //     location: {},
   //     sessionMode: 'edit',
   //     encounterDate: new Date(),
-  //     setEncounterDate: jest.fn(),
+  //     setEncounterDate: vi.fn(),
   //     encounterProvider: '',
-  //     setEncounterProvider: jest.fn(),
-  //     setEncounterLocation: jest.fn(),
+  //     setEncounterProvider: vi.fn(),
+  //     setEncounterLocation: vi.fn(),
   //     encounterRole: '',
-  //     setEncounterRole: jest.fn(),
+  //     setEncounterRole: vi.fn(),
   //   };
 
   //   it('should return true if rendering is toggle and default value is ConceptTrue', () => {
@@ -149,7 +150,7 @@ describe('Form Engine Helper', () => {
   //       id: 'text-field',
   //     };
 
-  //     (DefaultValueValidator.validate as jest.Mock).mockReturnValue([]);
+  //     (DefaultValueValidator.validate as Mock).mockReturnValue([]);
 
   //     const result = inferInitialValueFromDefaultFieldValue(sampleField, sampleContext, mockHandler);
 
@@ -166,7 +167,7 @@ describe('Form Engine Helper', () => {
   //       id: 'text-field',
   //     };
 
-  //     (DefaultValueValidator.validate as jest.Mock).mockReturnValue(['Error: Invalid value']);
+  //     (DefaultValueValidator.validate as Mock).mockReturnValue(['Error: Invalid value']);
 
   //     const result = inferInitialValueFromDefaultFieldValue(sampleField, sampleContext, mockHandler);
 
@@ -386,7 +387,7 @@ describe('Form Engine Helper', () => {
     let patient;
 
     beforeEach(() => {
-      mockExpressionRunnerFn = jest.fn();
+      mockExpressionRunnerFn = vi.fn();
       node = { value: { disabled: { disableWhenExpression: '' } } };
       allFields = [{ id: 'field1', value: 'value1' }];
       allValues = { field1: 'value1' };

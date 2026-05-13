@@ -1,4 +1,5 @@
 import { type FormJsonFile, getForm, getFormByVersion, getLatestFormVersion, applyFormIntent } from './forms-loader';
+import { vi, describe, it, expect, test } from 'vitest';
 import formsRegistry from '__mocks__/packages/test-forms-registry';
 import {
   htsHivtestResultingSchemaV2,
@@ -168,7 +169,7 @@ describe('Forms loader - getForm', () => {
     try {
       getForm('hiv', 'hts_poc', '9.1', true, formsRegistry);
       // fail test if this point is hit
-      fail('An error was expected to be called');
+      expect.fail('An error was expected to be called');
     } catch (error) {
       // verify
       expect(error.message).toBe("Couldn't find form with version: 9.1");
@@ -320,7 +321,7 @@ describe('Forms loader - getFormByVersion', () => {
   });
 });
 
-xdescribe('Forms loader - applyFormIntent', () => {
+describe.skip('Forms loader - applyFormIntent', () => {
   it('should return correct fields for HTS_RETROSPECTIVE intent', () => {
     let resultingSchema = applyFormIntent('HTS_RETROSPECTIVE', testSchemaV2);
 

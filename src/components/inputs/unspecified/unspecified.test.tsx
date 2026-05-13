@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi, describe, it, expect, test, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { act, render, screen } from '@testing-library/react';
 import { usePatient, useSession } from '@openmrs/esm-framework';
@@ -10,21 +11,21 @@ import { mockPatient } from '__mocks__/patient.mock';
 import { mockSessionDataResponse } from '__mocks__/session.mock';
 import FormEngine from '../../../form-engine.component';
 
-const mockUsePatient = jest.mocked(usePatient);
-const mockUseSession = jest.mocked(useSession);
+const mockUsePatient = vi.mocked(usePatient);
+const mockUseSession = vi.mocked(useSession);
 
-jest.mock('../../../api', () => {
-  const originalModule = jest.requireActual('../../../api');
+vi.mock('../../../api', async () => {
+  const originalModule = (await vi.importActual('../../../api')) as object;
   return {
     ...originalModule,
-    getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(null)),
-    getConcept: jest.fn().mockImplementation(() => Promise.resolve(null)),
-    saveEncounter: jest.fn(),
+    getPreviousEncounter: vi.fn().mockImplementation(() => Promise.resolve(null)),
+    getConcept: vi.fn().mockImplementation(() => Promise.resolve(null)),
+    saveEncounter: vi.fn(),
   };
 });
 
-jest.mock('../../../hooks/useConcepts', () => ({
-  useConcepts: jest.fn().mockImplementation((references: Set<string>) => {
+vi.mock('../../../hooks/useConcepts', () => ({
+  useConcepts: vi.fn().mockImplementation((references: Set<string>) => {
     return {
       isLoading: false,
       concepts: [],
@@ -33,16 +34,16 @@ jest.mock('../../../hooks/useConcepts', () => ({
   }),
 }));
 
-jest.mock('../../../hooks/useEncounterRole', () => ({
-  useEncounterRole: jest.fn().mockReturnValue({
+vi.mock('../../../hooks/useEncounterRole', () => ({
+  useEncounterRole: vi.fn().mockReturnValue({
     isLoading: false,
     encounterRole: { name: 'Clinician', uuid: 'clinician-uuid' },
     error: undefined,
   }),
 }));
 
-jest.mock('../../../hooks/useEncounter', () => ({
-  useEncounter: jest.fn().mockImplementation((formJson: FormSchema) => {
+vi.mock('../../../hooks/useEncounter', () => ({
+  useEncounter: vi.fn().mockImplementation((formJson: FormSchema) => {
     return {
       encounter: formJson.encounter
         ? {
@@ -106,7 +107,7 @@ describe('Unspecified', () => {
 
   it('Should bypass form validation when the "Unspecified" checkbox is clicked', async () => {
     //setup
-    const mockSaveEncounter = jest.spyOn(api, 'saveEncounter');
+    const mockSaveEncounter = vi.spyOn(api, 'saveEncounter');
     await renderForm();
     const unspecifiedCheckbox = screen.getByRole('checkbox', { name: /Unspecified/ });
     const bodyWeightField = await findNumberInput(screen, 'Body Weight *');
@@ -157,7 +158,7 @@ describe('Unspecified', () => {
 
     try {
       screen.getByRole('checkbox', { name: /Unspecified/ });
-      fail('Unspecified checkbox should not be displayed');
+      expect.fail('Unspecified checkbox should not be displayed');
     } catch (error) {
       expect(error).toBeDefined();
     }

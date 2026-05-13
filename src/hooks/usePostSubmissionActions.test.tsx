@@ -1,14 +1,16 @@
 import { renderHook, act } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 import { usePostSubmissionActions } from './usePostSubmissionActions';
+import { getRegisteredPostSubmissionAction } from '../registry/registry';
 
 // Mock the getRegisteredPostSubmissionAction function
-jest.mock('../registry/registry', () => ({
-  getRegisteredPostSubmissionAction: jest.fn(),
+vi.mock('../registry/registry', () => ({
+  getRegisteredPostSubmissionAction: vi.fn(),
 }));
 
 describe('usePostSubmissionActions', () => {
   // Mock the actual post-submission action function
-  const mockPostAction = jest.fn();
+  const mockPostAction = vi.fn();
 
   // Sample action references
   const actionRefs = [
@@ -18,7 +20,7 @@ describe('usePostSubmissionActions', () => {
 
   // Set up the mock implementation for getRegisteredPostSubmissionAction
   beforeEach(() => {
-    jest.requireMock('../registry/registry').getRegisteredPostSubmissionAction.mockImplementation((actionId) => {
+    vi.mocked(getRegisteredPostSubmissionAction).mockImplementation((actionId) => {
       if (actionId === 'action1') {
         return Promise.resolve(mockPostAction);
       }
