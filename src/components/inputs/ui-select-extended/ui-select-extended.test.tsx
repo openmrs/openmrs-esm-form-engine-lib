@@ -1,8 +1,8 @@
 import React from 'react';
 import { vi, describe, it, expect, test, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { act, render, screen } from '@testing-library/react';
-import { usePatient, useSession } from '@openmrs/esm-framework';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import { openmrsFetch, restBaseUrl, usePatient, useSession } from '@openmrs/esm-framework';
 import * as api from '../../../api';
 import { type FormSchema, type SessionMode, type OpenmrsEncounter } from '../../../types';
 import { assertFormHasAllFields, findSelectInput } from '../../../utils/test-utils';
@@ -13,6 +13,7 @@ import FormEngine from '../../../form-engine.component';
 
 const mockUsePatient = vi.mocked(usePatient);
 const mockUseSession = vi.mocked(useSession);
+const mockOpenmrsFetch = vi.mocked(openmrsFetch);
 
 vi.mock('lodash-es/debounce', () => vi.fn((fn) => fn));
 
@@ -60,48 +61,56 @@ vi.mock('../../../hooks/useConcepts', () => ({
 }));
 
 vi.mock('../../../registry/registry', async () => {
-  const originalModule = (await vi.importActual('../../../registry/registry')) as object;
-  return {
-    ...originalModule,
-    getRegisteredDataSource: vi.fn().mockResolvedValue({
-      fetchData: vi.fn().mockImplementation((...args) => {
-        if (args[1].class?.length) {
-          // concept DS
-          return Promise.resolve([
-            {
-              uuid: 'stage-1-uuid',
-              display: 'stage 1',
-            },
-            {
-              uuid: 'stage-2-uuid',
-              display: 'stage 2',
-            },
-          ]);
-        }
-
-        // location DS
+  const originalModule = (await vi.importActual('../../../registry/registry')) as any;
+  const mockDataSource = {
+    fetchData: vi.fn().mockImplementation((...args: any[]) => {
+      if (args[1].class?.length) {
+        // concept DS
         return Promise.resolve([
           {
-            uuid: 'aaa-1',
-            display: 'Kololo',
+            uuid: 'stage-1-uuid',
+            display: 'stage 1',
           },
           {
-            uuid: 'aaa-2',
-            display: 'Naguru',
-          },
-          {
-            uuid: 'aaa-3',
-            display: 'Muyenga',
+            uuid: 'stage-2-uuid',
+            display: 'stage 2',
           },
         ]);
-      }),
-      fetchSingleItem: vi.fn().mockImplementation((uuid: string) => {
-        return Promise.resolve({
-          uuid,
-          display: 'stage 1',
-        });
-      }),
-      toUuidAndDisplay: (data) => data,
+      }
+
+      // location DS
+      return Promise.resolve([
+        {
+          uuid: 'aaa-1',
+          display: 'Kololo',
+        },
+        {
+          uuid: 'aaa-2',
+          display: 'Naguru',
+        },
+        {
+          uuid: 'aaa-3',
+          display: 'Muyenga',
+        },
+      ]);
+    }),
+    fetchSingleItem: vi.fn().mockImplementation((uuid: string) => {
+      return Promise.resolve({
+        uuid,
+        display: 'stage 1',
+      });
+    }),
+    toUuidAndDisplay: (data: any) => data,
+  };
+
+  return {
+    ...originalModule,
+    getRegisteredDataSource: vi.fn().mockImplementation((name: string) => {
+      if (name === 'encounter-provider' || name === 'provider_datasource') {
+        return originalModule.getRegisteredDataSource(name);
+      }
+
+      return Promise.resolve(mockDataSource);
     }),
   };
 });
@@ -244,7 +253,6 @@ describe('UiSelectExtended', () => {
         undefined,
       );
     });
-
     it('should display all items regardless of user input', async () => {
       await act(async () => {
         renderForm();
@@ -267,6 +275,39 @@ describe('UiSelectExtended', () => {
       expect(screen.getByText('Naguru')).toBeInTheDocument();
       expect(screen.getByText('Muyenga')).toBeInTheDocument();
     });
+  });
+
+  it('should fetch the session provider via ProviderDataSource on a new form', async () => {
+    const provider = mockSessionDataResponse.data.currentProvider;
+    mockOpenmrsFetch.mockResolvedValueOnce({ data: { uuid: provider.uuid, display: provider.display } } as any);
+
+    await act(async () => {
+      renderForm('enter');
+    });
+
+    await waitFor(() => {
+      expect(mockOpenmrsFetch).toHaveBeenCalledWith(`${restBaseUrl}/provider/${provider.uuid}?v=custom:(uuid,display)`);
+    });
+  });
+
+  it('should save the encounter with the session provider when the user submits without touching the provider field', async () => {
+    const provider = mockSessionDataResponse.data.currentProvider;
+    const mockSaveEncounter = vi.spyOn(api, 'saveEncounter');
+    mockOpenmrsFetch.mockResolvedValueOnce({ data: { uuid: provider.uuid, display: provider.display } } as any);
+
+    await act(async () => {
+      renderForm('enter');
+    });
+
+    await user.click(screen.getByRole('button', { name: /save/i }));
+
+    expect(mockSaveEncounter).toHaveBeenCalledWith(
+      expect.any(AbortController),
+      expect.objectContaining({
+        encounterProviders: [expect.objectContaining({ provider: provider.uuid })],
+      }),
+      undefined,
+    );
   });
 
   // TODO: Re-enable once the Carbon UiSelectExtended combobox renders its options

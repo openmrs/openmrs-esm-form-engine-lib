@@ -124,28 +124,29 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
 
   useEffect(() => {
     let ignore = false;
-    if (value && !isDirty && dataSource && isSearchable && sessionMode !== 'enter' && !items.length) {
-      // While in edit mode, search-based instances should fetch the initial item (previously selected value) to resolve its display property
+    if (value && !isDirty && dataSource && isSearchable && !items.length) {
+      // For search-based instances, fetch the initial item to resolve its display property
       setIsLoading(true);
-      try {
-        dataSource.fetchSingleItem(value).then((item) => {
+      dataSource
+        .fetchSingleItem(value)
+        .then((item) => {
           if (!ignore) {
             setItems([dataSource.toUuidAndDisplay(item)]);
             setIsLoading(false);
           }
+        })
+        .catch((error) => {
+          if (!ignore) {
+            console.error(error);
+            setIsLoading(false);
+          }
         });
-      } catch (error) {
-        if (!ignore) {
-          console.error(error);
-          setIsLoading(false);
-        }
-      }
     }
 
     return () => {
       ignore = true;
     };
-  }, [value, isDirty, sessionMode, dataSource, isSearchable, items]);
+  }, [value, isDirty, dataSource, isSearchable, items]);
 
   if (isLoading) {
     return <DropdownSkeleton />;
