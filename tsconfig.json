@@ -25,5 +25,5 @@
       "__mocks__": ["./__mocks__"]
     }
   },
-  "include": ["src/**/*", "vitest.config.ts"]
+  "include": ["src/**/*", "tools/setup-tests.ts", "vitest.config.ts"]
 }

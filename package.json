@@ -9,7 +9,6 @@
     "dist",
     "src",
     "!src/**/*.test.*",
-    "!src/setup-tests.ts",
     "!src/utils/test-utils.ts",
     "!src/zscore-tests"
   ],

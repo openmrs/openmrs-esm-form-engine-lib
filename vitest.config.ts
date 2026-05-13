@@ -11,7 +11,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     clearMocks: true,
-    setupFiles: ['./src/setup-tests.ts'],
+    setupFiles: ['./tools/setup-tests.ts'],
     exclude: ['**/node_modules/**', '**/e2e/**', '**/dist/**'],
     server: {
       deps: {
