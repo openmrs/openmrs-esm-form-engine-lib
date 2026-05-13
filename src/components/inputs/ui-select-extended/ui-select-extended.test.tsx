@@ -253,21 +253,6 @@ describe('UiSelectExtended', () => {
         undefined,
       );
     });
-    it('should display the session provider name in the provider ComboBox on a new form', async () => {
-      const provider = mockSessionDataResponse.data.currentProvider;
-      mockOpenmrsFetch.mockResolvedValueOnce({ data: { uuid: provider.uuid, display: provider.display } } as any);
-
-      await act(async () => {
-        renderForm('enter');
-      });
-
-      const providerSelect = await findSelectInput(screen, 'Provider');
-      expect(mockOpenmrsFetch).toHaveBeenCalledWith(
-        `${restBaseUrl}/provider/${provider.uuid}?v=custom:(uuid,display)`,
-      );
-      expect(providerSelect).toHaveValue(provider.display);
-    });
-
     it('should display all items regardless of user input', async () => {
       await act(async () => {
         renderForm();
@@ -290,6 +275,39 @@ describe('UiSelectExtended', () => {
       expect(screen.getByText('Naguru')).toBeInTheDocument();
       expect(screen.getByText('Muyenga')).toBeInTheDocument();
     });
+  });
+
+  it('should fetch the session provider via ProviderDataSource on a new form', async () => {
+    const provider = mockSessionDataResponse.data.currentProvider;
+    mockOpenmrsFetch.mockResolvedValueOnce({ data: { uuid: provider.uuid, display: provider.display } } as any);
+
+    await act(async () => {
+      renderForm('enter');
+    });
+
+    await waitFor(() => {
+      expect(mockOpenmrsFetch).toHaveBeenCalledWith(`${restBaseUrl}/provider/${provider.uuid}?v=custom:(uuid,display)`);
+    });
+  });
+
+  it('should save the encounter with the session provider when the user submits without touching the provider field', async () => {
+    const provider = mockSessionDataResponse.data.currentProvider;
+    const mockSaveEncounter = vi.spyOn(api, 'saveEncounter');
+    mockOpenmrsFetch.mockResolvedValueOnce({ data: { uuid: provider.uuid, display: provider.display } } as any);
+
+    await act(async () => {
+      renderForm('enter');
+    });
+
+    await user.click(screen.getByRole('button', { name: /save/i }));
+
+    expect(mockSaveEncounter).toHaveBeenCalledWith(
+      expect.any(AbortController),
+      expect.objectContaining({
+        encounterProviders: [expect.objectContaining({ provider: provider.uuid })],
+      }),
+      undefined,
+    );
   });
 
   // TODO: Re-enable once the Carbon UiSelectExtended combobox renders its options
