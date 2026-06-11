@@ -172,13 +172,26 @@ export function saveAttachments(fields: FormField[], encounter: OpenmrsEncounter
 }
 
 export function getMutableSessionProps(context: FormContextProps) {
-  const { formFields, location, currentProvider, customDependencies, domainObjectValue: encounter } = context;
+  const {
+    formFields,
+    location,
+    currentProvider,
+    customDependencies,
+    sessionDate,
+    domainObjectValue: encounter,
+  } = context;
   const { defaultEncounterRole } = customDependencies;
   const encounterRole =
     formFields.find((field) => field.type === 'encounterRole')?.meta.submission?.newValue || defaultEncounterRole?.uuid;
   const encounterProvider =
     formFields.find((field) => field.type === 'encounterProvider')?.meta.submission?.newValue || currentProvider.uuid;
-  const encounterDate = formFields.find((field) => field.type === 'encounterDatetime')?.meta.submission?.newValue;
+  const explicitEncounterDate = formFields.find((field) => field.type === 'encounterDatetime')?.meta.submission
+    ?.newValue;
+  // Always submit an explicit datetime for new encounters; if it is omitted, the backend
+  // defaults it to "now", which fails validation when saving into a past (stopped) visit.
+  // `sessionDate` is already constrained to the visit window.
+  const encounterDate =
+    explicitEncounterDate ?? (encounter?.encounterDatetime ? new Date(encounter.encounterDatetime) : sessionDate);
   const encounterLocation =
     formFields.find((field) => field.type === 'encounterLocation')?.meta.submission?.newValue ||
     encounter?.location?.uuid ||
