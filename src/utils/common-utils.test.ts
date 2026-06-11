@@ -1,12 +1,14 @@
 import {
   clearSubmission,
   flattenObsList,
+  getDateWithinVisitWindow,
   gracefullySetSubmission,
   hasRendering,
   hasSubmission,
   parseToLocalDateTime,
 } from './common-utils';
 import { vi, describe, it, expect, type Mock } from 'vitest';
+import { type Visit } from '@openmrs/esm-framework';
 import { isEmpty } from '../validators/form-validator';
 import { obsList } from '__mocks__/forms';
 import { type FormField } from '../types';
@@ -135,6 +137,50 @@ describe('utils functions', () => {
 
       expect(hasSubmission(field)).toBe(false);
     });
+  });
+});
+
+describe('getDateWithinVisitWindow', () => {
+  const date = new Date('2026-06-11T12:00:00.000Z');
+
+  it('should return the date unchanged when there is no visit', () => {
+    expect(getDateWithinVisitWindow(date, undefined)).toEqual(date);
+  });
+
+  it('should return the date unchanged when it falls within the visit window', () => {
+    const visit = {
+      startDatetime: '2026-06-11T09:00:00.000Z',
+      stopDatetime: '2026-06-11T17:00:00.000Z',
+    } as Visit;
+
+    expect(getDateWithinVisitWindow(date, visit)).toEqual(date);
+  });
+
+  it('should return the date unchanged for an active visit with no stop datetime', () => {
+    const visit = {
+      startDatetime: '2026-06-11T09:00:00.000Z',
+      stopDatetime: null,
+    } as Visit;
+
+    expect(getDateWithinVisitWindow(date, visit)).toEqual(date);
+  });
+
+  it('should return the visit start datetime when the date is after the visit window (retrospective entry)', () => {
+    const visit = {
+      startDatetime: '2026-06-10T09:00:00.000Z',
+      stopDatetime: '2026-06-10T17:00:00.000Z',
+    } as Visit;
+
+    expect(getDateWithinVisitWindow(date, visit)).toEqual(new Date('2026-06-10T09:00:00.000Z'));
+  });
+
+  it('should return the visit start datetime when the date is before the visit window', () => {
+    const visit = {
+      startDatetime: '2026-06-12T09:00:00.000Z',
+      stopDatetime: null,
+    } as Visit;
+
+    expect(getDateWithinVisitWindow(date, visit)).toEqual(new Date('2026-06-12T09:00:00.000Z'));
   });
 });
 
