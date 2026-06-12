@@ -21,9 +21,16 @@ import { assignedOrderIds } from '../../adapters/orders-adapter';
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import { assignedDiagnosesIds } from '../../adapters/encounter-diagnosis-adapter';
 
+type MutableSessionProps = {
+  encounterRole: string;
+  encounterProvider: string;
+  encounterDate?: Date;
+  encounterLocation: string;
+};
+
 export function prepareEncounter(
   context: FormContextProps,
-  encounterDate: Date,
+  encounterDate: Date | undefined,
   encounterRole: string,
   encounterProvider: string,
   location: string,
@@ -54,7 +61,9 @@ export function prepareEncounter(
       ];
     }
     // TODO: Question: Should we be editing the location, form and visit here?
-    encounterForSubmission.encounterDatetime = encounterDate;
+    if (encounterDate) {
+      encounterForSubmission.encounterDatetime = encounterDate;
+    }
     encounterForSubmission.location = location;
     encounterForSubmission.form = {
       uuid: formJson.uuid,
@@ -68,7 +77,6 @@ export function prepareEncounter(
   } else {
     encounterForSubmission = {
       patient: patient.id,
-      encounterDatetime: encounterDate,
       location: location,
       encounterType: formJson.encounterType,
       encounterProviders: [
@@ -85,6 +93,9 @@ export function prepareEncounter(
       orders: ordersForSubmission,
       diagnoses: diagnosesForSubmission,
     };
+    if (encounterDate) {
+      encounterForSubmission.encounterDatetime = encounterDate;
+    }
   }
   return encounterForSubmission;
 }
@@ -171,7 +182,7 @@ export function saveAttachments(fields: FormField[], encounter: OpenmrsEncounter
   return Promise.all(allPromises);
 }
 
-export function getMutableSessionProps(context: FormContextProps) {
+export function getMutableSessionProps(context: FormContextProps): MutableSessionProps {
   const {
     formFields,
     location,
@@ -179,6 +190,7 @@ export function getMutableSessionProps(context: FormContextProps) {
     customDependencies,
     sessionDate,
     domainObjectValue: encounter,
+    visit,
   } = context;
   const { defaultEncounterRole } = customDependencies;
   const encounterRole =
@@ -186,12 +198,15 @@ export function getMutableSessionProps(context: FormContextProps) {
   const encounterProvider =
     formFields.find((field) => field.type === 'encounterProvider')?.meta.submission?.newValue || currentProvider.uuid;
   const explicitEncounterDate = formFields.find((field) => field.type === 'encounterDatetime')?.meta.submission
-    ?.newValue;
-  // Always submit an explicit datetime for new encounters; if it is omitted, the backend
-  // defaults it to "now", which fails validation when saving into a past (stopped) visit.
-  // `sessionDate` is already constrained to the visit window.
+    ?.newValue as Date | undefined;
+  // Stopped visits need an explicit datetime because the backend defaults omitted
+  // encounter datetimes to server "now", which can be outside the visit window.
+  // Active visits should use the backend default so client clock skew does not
+  // submit future encounter datetimes.
+  const defaultEncounterDate = visit?.stopDatetime ? sessionDate : undefined;
   const encounterDate =
-    explicitEncounterDate ?? (encounter?.encounterDatetime ? new Date(encounter.encounterDatetime) : sessionDate);
+    explicitEncounterDate ??
+    (encounter?.encounterDatetime ? new Date(encounter.encounterDatetime) : defaultEncounterDate);
   const encounterLocation =
     formFields.find((field) => field.type === 'encounterLocation')?.meta.submission?.newValue ||
     encounter?.location?.uuid ||
@@ -199,7 +214,7 @@ export function getMutableSessionProps(context: FormContextProps) {
   return {
     encounterRole: encounterRole as string,
     encounterProvider: encounterProvider as string,
-    encounterDate: encounterDate as Date,
+    encounterDate,
     encounterLocation: encounterLocation as string,
   };
 }
