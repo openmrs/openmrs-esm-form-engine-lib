@@ -47,6 +47,7 @@ import {
   testEnrolmentForm,
   viralLoadStatusForm,
   expressionVisitObjectTestSchema,
+  obsDateAndCommentForm,
 } from '__mocks__/forms';
 import { type FormSchema, type OpenmrsEncounter, type SessionMode } from './types';
 import { useEncounter } from './hooks/useEncounter';
@@ -1354,6 +1355,65 @@ describe('Form engine component', () => {
 
         expect(dateInput.value).toContain('28/07/2020');
       });
+    });
+  });
+
+  describe('Inline obs date and comment', () => {
+    const haemoglobinConcept = '21AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+
+    it('saves the obs datetime entered in the inline date field', async () => {
+      const saveEncounterMock = vi.spyOn(api, 'saveEncounter');
+      await act(async () => {
+        renderForm(null, obsDateAndCommentForm);
+      });
+
+      const testSelector = await screen.findByRole('combobox', { name: /which tests do you want to record/i });
+      await user.click(testSelector);
+      await user.click(await screen.findByRole('option', { name: /haemoglobin/i }));
+
+      const haemoglobinInput = await screen.findByRole('spinbutton', { name: /haemoglobin/i });
+      await user.type(haemoglobinInput, '12');
+
+      const dateInput = await screen.findByRole('textbox', { name: /date for haemoglobin/i });
+      await user.click(dateInput);
+      await user.paste('2024-01-15');
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      await waitFor(() => {
+        expect(saveEncounterMock).toHaveBeenCalledTimes(1);
+      });
+      const [, encounter] = saveEncounterMock.mock.calls[0];
+      const obs = encounter.obs.find((o) => o.concept === haemoglobinConcept);
+      expect(obs).toBeDefined();
+      expect(dayjs(obs.obsDatetime).format('YYYY-MM-DD')).toBe('2024-01-15');
+    });
+
+    it('saves the comment entered in the inline comment field', async () => {
+      const saveEncounterMock = vi.spyOn(api, 'saveEncounter');
+      await act(async () => {
+        renderForm(null, obsDateAndCommentForm);
+      });
+
+      const testSelector = await screen.findByRole('combobox', { name: /which tests do you want to record/i });
+      await user.click(testSelector);
+      await user.click(await screen.findByRole('option', { name: /haemoglobin/i }));
+
+      const haemoglobinInput = await screen.findByRole('spinbutton', { name: /haemoglobin/i });
+      await user.type(haemoglobinInput, '12');
+
+      const commentInput = await screen.findByRole('textbox', { name: /comment for haemoglobin/i });
+      await user.type(commentInput, 'within normal range');
+
+      await user.click(screen.getByRole('button', { name: /save/i }));
+
+      await waitFor(() => {
+        expect(saveEncounterMock).toHaveBeenCalledTimes(1);
+      });
+      const [, encounter] = saveEncounterMock.mock.calls[0];
+      const obs = encounter.obs.find((o) => o.concept === haemoglobinConcept);
+      expect(obs).toBeDefined();
+      expect(obs.comment).toBe('within normal range');
     });
   });
 
