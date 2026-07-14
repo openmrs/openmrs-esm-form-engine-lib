@@ -17,3 +17,27 @@
 .loader {
   padding: 0.25rem 0.5rem;
 }
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.code {
+  flex: none;
+  min-width: 4rem;
+  max-width: 8rem;
+  overflow: hidden;
+  color: inherit;
+  font-family: 'IBM Plex Mono', 'Menlo', 'Consolas', monospace;
+  font-weight: 600;
+  text-overflow: ellipsis;
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
