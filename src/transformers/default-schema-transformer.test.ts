@@ -261,6 +261,51 @@ describe('Default form schema transformer', () => {
     });
   });
 
+  it('should preserve diagnosis datasource config for concept-set diagnoses', () => {
+    const form = {
+      pages: [
+        {
+          sections: [
+            {
+              questions: [
+                {
+                  id: 'primaryDiagnosis',
+                  label: 'Primary diagnosis',
+                  type: 'diagnosis',
+                  questionOptions: {
+                    rendering: 'repeating',
+                    datasource: {
+                      name: 'diagnoses',
+                      config: {
+                        conceptSourceUuid: 'icd-11-source',
+                      },
+                    },
+                    diagnosis: {
+                      conceptSet: 'diagnosis-concept-set',
+                      rank: 1,
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const transformedForm = DefaultFormSchemaTransformer.transform(form as any);
+    const transformedQuestion = transformedForm.pages[0].sections[0].questions[0];
+
+    expect(transformedQuestion.questionOptions.datasource).toEqual({
+      name: 'problem_datasource',
+      config: {
+        conceptSourceUuid: 'icd-11-source',
+        concept: 'diagnosis-concept-set',
+        useSetMembersByConcept: true,
+      },
+    });
+  });
+
   it('should handle multiCheckbox rendering', () => {
     // setup
     const form = {

@@ -311,6 +311,7 @@ function handleDiagnosis(question: FormField) {
           name: 'problem_datasource',
           config: {
             ...datasourceConfig,
+            concept: question.questionOptions.diagnosis.conceptSet,
             useSetMembersByConcept: true,
           },
         },

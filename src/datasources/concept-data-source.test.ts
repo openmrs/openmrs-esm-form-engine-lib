@@ -5,6 +5,8 @@ import { ConceptDataSource } from './concept-data-source';
 const mockOpenmrsFetch = vi.mocked(openmrsFetch);
 const codedConceptRepresentation =
   'custom:(uuid,display,conceptClass:(uuid,display),mappings:(conceptMapType:(uuid,display),conceptReferenceTerm:(code,conceptSource:(uuid))))';
+const codedSetMemberRepresentation =
+  'custom:(uuid,setMembers:(uuid,display,mappings:(conceptMapType:(uuid,display),conceptReferenceTerm:(code,conceptSource:(uuid)))))';
 const sameAsConceptMapTypeUuid = '35543629-7d8c-11e1-909d-c80aa9edcf4e';
 
 describe('ConceptDataSource', () => {
@@ -135,5 +137,21 @@ describe('ConceptDataSource', () => {
       `${restBaseUrl}/concept/${concept.uuid}?v=${codedConceptRepresentation}`,
     );
     expect(result).toEqual(concept);
+  });
+
+  it('requests mapped members from the configured concept set', async () => {
+    const setMember = { uuid: 'diagnosis-uuid', display: 'Cholera', mappings: [] };
+    mockOpenmrsFetch.mockResolvedValueOnce({ data: { setMembers: [setMember] } } as any);
+
+    const result = await dataSource.fetchData('cholera', {
+      concept: 'diagnosis-concept-set',
+      conceptSourceUuid: 'icd-11-source',
+      useSetMembersByConcept: true,
+    });
+
+    expect(mockOpenmrsFetch).toHaveBeenCalledWith(
+      `${restBaseUrl}/concept/diagnosis-concept-set?v=${codedSetMemberRepresentation}&q=cholera`,
+    );
+    expect(result).toEqual([setMember]);
   });
 });
