@@ -46,6 +46,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
   }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
 
   const selectedItem = useMemo(() => items.find((item) => item.uuid == value) || null, [items, value]);
+  const hasCodes = useMemo(() => items.some((item) => item.code), [items]);
 
   const debouncedSearch = debounce((searchTerm: string, dataSource: DataSource<OpenmrsResource>) => {
     setIsSearching(true);
@@ -169,7 +170,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
             items={items}
             itemToElement={(item) => (
               <span className={styles.item}>
-                {item?.code && <span className={styles.code}>{item.code}</span>}
+                {hasCodes && <span className={styles.code}>{item?.code}</span>}
                 <span className={styles.label}>{item?.display}</span>
               </span>
             )}
