@@ -46,6 +46,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
   }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
 
   const selectedItem = useMemo(() => items.find((item) => item.uuid == value) || null, [items, value]);
+  const hasCodes = useMemo(() => items.some((item) => item.code), [items]);
 
   const debouncedSearch = debounce((searchTerm: string, dataSource: DataSource<OpenmrsResource>) => {
     setIsSearching(true);
@@ -55,7 +56,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
       .then((dataItems) => {
         if (dataItems.length) {
           const currentSelectedItem = items.find((item) => item.uuid == value);
-          const newItems = dataItems.map(dataSource.toUuidAndDisplay);
+          const newItems = dataItems.map((item) => dataSource.toUuidAndDisplay(item, config));
           if (currentSelectedItem && !newItems.some((item) => item.uuid == currentSelectedItem.uuid)) {
             newItems.unshift(currentSelectedItem);
           }
@@ -98,7 +99,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
         .fetchData(null, { ...config, referencedValue: dataSourceDependentValue })
         .then((dataItems) => {
           if (!ignore) {
-            setItems(dataItems.map(dataSource.toUuidAndDisplay));
+            setItems(dataItems.map((item) => dataSource.toUuidAndDisplay(item, config)));
             setIsLoading(false);
           }
         })
@@ -128,10 +129,10 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
       // For search-based instances, fetch the initial item to resolve its display property
       setIsLoading(true);
       dataSource
-        .fetchSingleItem(value)
+        .fetchSingleItem(value, config)
         .then((item) => {
           if (!ignore) {
-            setItems([dataSource.toUuidAndDisplay(item)]);
+            setItems([dataSource.toUuidAndDisplay(item, config)]);
             setIsLoading(false);
           }
         })
@@ -146,7 +147,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
     return () => {
       ignore = true;
     };
-  }, [value, isDirty, dataSource, isSearchable, items]);
+  }, [value, isDirty, dataSource, isSearchable, items, config]);
 
   if (isLoading) {
     return <DropdownSkeleton />;
@@ -155,7 +156,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
   return isViewMode(sessionMode) || isTrue(field.readonly) ? (
     <FieldValueView
       label={t(field.label)}
-      value={value ? items.find((item) => item.uuid == value)?.display : value}
+      value={value ? getItemText(items.find((item) => item.uuid == value)) : value}
       conceptName={field.meta?.concept?.display}
       isInline={isInline}
     />
@@ -167,7 +168,13 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
             id={field.id}
             titleText={<FieldLabel field={field} />}
             items={items}
-            itemToString={(item) => item?.display}
+            itemToElement={(item) => (
+              <span className={styles.item}>
+                {hasCodes && <span className={styles.code}>{item?.code}</span>}
+                <span className={styles.label}>{item?.display}</span>
+              </span>
+            )}
+            itemToString={getItemText}
             selectedItem={selectedItem}
             placeholder={isSearchable ? t('search', 'Search') + '...' : null}
             onChange={({ selectedItem }) => {
@@ -207,3 +214,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
 };
 
 export default UiSelectExtended;
+
+export function getItemText(item?: { code?: string; display?: string }): string {
+  return item?.code ? `${item.code} ${item.display}` : item?.display ?? '';
+}

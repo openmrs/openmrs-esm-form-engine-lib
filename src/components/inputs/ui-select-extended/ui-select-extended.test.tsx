@@ -10,6 +10,7 @@ import { mockPatient } from '__mocks__/patient.mock';
 import { mockSessionDataResponse } from '__mocks__/session.mock';
 import { uiSelectExtForm } from '__mocks__/forms';
 import FormEngine from '../../../form-engine.component';
+import { getItemText } from './ui-select-extended.component';
 
 const mockUsePatient = vi.mocked(usePatient);
 const mockUseSession = vi.mocked(useSession);
@@ -162,6 +163,11 @@ describe('UiSelectExtended', () => {
     }));
 
     mockUseSession.mockImplementation(() => mockSessionDataResponse.data);
+  });
+
+  it('includes an optional terminology code in the displayed item text', () => {
+    expect(getItemText({ code: '1A00', display: 'Cholera' })).toBe('1A00 Cholera');
+    expect(getItemText({ display: 'Typhoid arthritis' })).toBe('Typhoid arthritis');
   });
 
   // TODO: Re-enable once the Carbon UiSelectExtended combobox renders its options

@@ -1,4 +1,4 @@
-import { type FormSchema , type PreFilledQuestions } from '../types';
+import { type FormSchema, type PreFilledQuestions } from '../types';
 import { vi, describe, it, expect } from 'vitest';
 import { DefaultFormSchemaTransformer } from './default-schema-transformer';
 import { testForm } from '__mocks__/forms';
@@ -215,6 +215,95 @@ describe('Default form schema transformer', () => {
     // verify
     expect(transformedQuestion.questionOptions.rendering).toEqual('checkbox');
     expect(transformedQuestion.questionOptions.isCheckboxSearchable).toEqual(true);
+  });
+
+  it('should preserve diagnosis datasource config when mapping to the problem datasource', () => {
+    const form = {
+      pages: [
+        {
+          sections: [
+            {
+              questions: [
+                {
+                  id: 'primaryDiagnosis',
+                  label: 'Primary diagnosis',
+                  type: 'diagnosis',
+                  questionOptions: {
+                    rendering: 'repeating',
+                    datasource: {
+                      name: 'diagnoses',
+                      config: {
+                        conceptSourceUuid: 'icd-11-source',
+                      },
+                    },
+                    diagnosis: {
+                      conceptClasses: ['diagnosis-class'],
+                      rank: 1,
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const transformedForm = DefaultFormSchemaTransformer.transform(form as any);
+    const transformedQuestion = transformedForm.pages[0].sections[0].questions[0];
+
+    expect(transformedQuestion.questionOptions.datasource).toEqual({
+      name: 'problem_datasource',
+      config: {
+        conceptSourceUuid: 'icd-11-source',
+        class: ['diagnosis-class'],
+      },
+    });
+  });
+
+  it('should preserve diagnosis datasource config for concept-set diagnoses', () => {
+    const form = {
+      pages: [
+        {
+          sections: [
+            {
+              questions: [
+                {
+                  id: 'primaryDiagnosis',
+                  label: 'Primary diagnosis',
+                  type: 'diagnosis',
+                  questionOptions: {
+                    rendering: 'repeating',
+                    datasource: {
+                      name: 'diagnoses',
+                      config: {
+                        conceptSourceUuid: 'icd-11-source',
+                      },
+                    },
+                    diagnosis: {
+                      conceptSet: 'diagnosis-concept-set',
+                      rank: 1,
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const transformedForm = DefaultFormSchemaTransformer.transform(form as any);
+    const transformedQuestion = transformedForm.pages[0].sections[0].questions[0];
+
+    expect(transformedQuestion.questionOptions.datasource).toEqual({
+      name: 'problem_datasource',
+      config: {
+        conceptSourceUuid: 'icd-11-source',
+        concept: 'diagnosis-concept-set',
+        useSetMembersByConcept: true,
+      },
+    });
   });
 
   it('should handle multiCheckbox rendering', () => {
