@@ -1,11 +1,12 @@
 import { useCurrentActivePage } from './useCurrentActivePage';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { scrollIntoView } from '../../utils/form-helper';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import { type FormPage } from '../../types';
 
-jest.mock('../../utils/form-helper', () => ({
-  scrollIntoView: jest.fn(),
+vi.mock('../../utils/form-helper', () => ({
+  scrollIntoView: vi.fn(),
 }));
 
 describe('useCurrentActivePage', () => {
@@ -22,12 +23,12 @@ describe('useCurrentActivePage', () => {
   ] as Array<FormPage>;
 
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   describe('Initialization', () => {
@@ -120,7 +121,7 @@ describe('useCurrentActivePage', () => {
 
       // Fast-forward halfway through the lock timeout
       act(() => {
-        jest.advanceTimersByTime(250);
+        vi.advanceTimersByTime(250);
       });
 
       // Should still be on initial page
@@ -139,7 +140,7 @@ describe('useCurrentActivePage', () => {
 
       // Fast-forward past the lock timeout
       act(() => {
-        jest.advanceTimersByTime(500);
+        vi.advanceTimersByTime(500);
       });
 
       // Update active pages
@@ -165,7 +166,7 @@ describe('useCurrentActivePage', () => {
 
       // Fast-forward past the lock timeout
       act(() => {
-        jest.advanceTimersByTime(500);
+        vi.advanceTimersByTime(500);
       });
 
       expect(result.current.currentActivePage).toBe('page-1');

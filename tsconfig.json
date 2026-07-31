@@ -25,5 +25,5 @@
       "__mocks__": ["./__mocks__"]
     }
   },
-  "include": ["src/**/*", "./setupTests.ts", "jest.config.js"]
+  "include": ["src/**/*", "tools/setup-tests.ts", "vitest.config.ts"]
 }

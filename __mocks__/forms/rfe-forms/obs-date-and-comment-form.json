@@ -1,0 +1,62 @@
+{
+  "name": "Obs date and comment",
+  "version": "1",
+  "published": true,
+  "retired": false,
+  "encounterType": "3596fafb-6f6f-4396-8c87-6e63a0f1bd71",
+  "processor": "EncounterFormProcessor",
+  "uuid": "0e8f8f1e-1c2b-4a4d-9c2a-7d7b8a9e0f11",
+  "referencedForms": [],
+  "pages": [
+    {
+      "label": "Results",
+      "sections": [
+        {
+          "label": "Select tests to record",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Which tests do you want to record?",
+              "id": "testsToRecord",
+              "type": "obs",
+              "required": false,
+              "questionOptions": {
+                "rendering": "checkbox-searchable",
+                "isSearchable": true,
+                "concept": "1748a953-d12e-4be1-914c-f6b096c6cdef",
+                "answers": [
+                  {
+                    "concept": "21AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Haemoglobin"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "label": "Results",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Haemoglobin",
+              "id": "haemoglobin",
+              "type": "obs",
+              "required": false,
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "21AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "showDate": true,
+                "showComment": true
+              },
+              "hide": {
+                "hideWhenExpression": "!arrayContains(testsToRecord, '21AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "description": "Form for testing inline obs date and comment"
+}

@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { type FormSchema, type FormField, type OpenmrsObs, type RenderType } from '../types';
 import { isEmpty } from '../validators/form-validator';
-import { formatDate, type FormatDateOptions } from '@openmrs/esm-framework';
+import { formatDate, type FormatDateOptions, type Visit } from '@openmrs/esm-framework';
 
 export function flattenObsList(obsList: OpenmrsObs[]): OpenmrsObs[] {
   const flattenedList: OpenmrsObs[] = [];
@@ -73,6 +73,24 @@ export function parseToLocalDateTime(dateString: string): Date {
     console.error(e);
   }
   return dateObj;
+}
+
+/**
+ * Returns `date` if it falls within the visit's start/stop window, otherwise the
+ * visit's start datetime. This keeps default encounter datetimes valid when filling
+ * forms against a past (stopped) visit via retrospective data entry; the backend
+ * rejects encounters dated outside the visit window.
+ */
+export function getDateWithinVisitWindow(date: Date, visit?: Visit): Date {
+  if (!visit) {
+    return date;
+  }
+  const visitStart = visit.startDatetime ? new Date(visit.startDatetime) : null;
+  const visitStop = visit.stopDatetime ? new Date(visit.stopDatetime) : null;
+  if ((visitStart && date < visitStart) || (visitStop && date > visitStop)) {
+    return visitStart ?? visitStop;
+  }
+  return date;
 }
 
 export function formatDateAsDisplayString(field: FormField, date: Date) {

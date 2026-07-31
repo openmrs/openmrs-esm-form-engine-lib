@@ -1,4 +1,5 @@
 import { getRegisteredControl } from './registry';
+import { vi, describe, it, expect } from 'vitest';
 import MultiSelect from '../components/inputs/multi-select/multi-select.component';
 import Number from '../components/inputs/number/number.component';
 

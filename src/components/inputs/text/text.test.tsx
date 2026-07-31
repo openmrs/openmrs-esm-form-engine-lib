@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen, act } from '@testing-library/react';
 import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
@@ -9,25 +10,25 @@ import { useFormProviderContext } from 'src/provider/form-provider';
 import { sampleFieldsForm } from '__mocks__/forms';
 import TextField from './text.component';
 
-const mockOpenmrsFetch = jest.mocked(openmrsFetch);
-const mockUseSession = jest.mocked(useSession);
-const mockUsePatient = jest.mocked(usePatient);
-const mockSetFieldValue = jest.fn();
+const mockOpenmrsFetch = vi.mocked(openmrsFetch);
+const mockUseSession = vi.mocked(useSession);
+const mockUsePatient = vi.mocked(usePatient);
+const mockSetFieldValue = vi.fn();
 
-jest.mock('../../../api', () => {
-  const originalModule = jest.requireActual('../../../api');
+vi.mock('../../../api', async () => {
+  const originalModule = (await vi.importActual('../../../api')) as object;
 
   return {
     ...originalModule,
-    getPreviousEncounter: jest.fn().mockImplementation(() => Promise.resolve(null)),
+    getPreviousEncounter: vi.fn().mockImplementation(() => Promise.resolve(null)),
   };
 });
 
-jest.mock('src/provider/form-provider', () => ({
-  useFormProviderContext: jest.fn(),
+vi.mock('src/provider/form-provider', () => ({
+  useFormProviderContext: vi.fn(),
 }));
 
-const mockUseFormProviderContext = useFormProviderContext as jest.Mock;
+const mockUseFormProviderContext = useFormProviderContext as Mock;
 
 const textValues = {
   field: {
@@ -140,7 +141,7 @@ describe('Text field input', () => {
   const user = userEvent.setup();
   beforeEach(() => {
     formProcessor = {
-      getInitialValues: jest.fn(),
+      getInitialValues: vi.fn(),
     };
     mockOpenmrsFetch.mockResolvedValue({
       data: { results: [{ ...sampleFieldsForm }] },

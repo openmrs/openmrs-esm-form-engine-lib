@@ -1,15 +1,16 @@
 import React from 'react';
+import { vi, describe, it, expect, test, beforeEach, type Mock } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
 import { type FormField } from '../../../types';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import DateField from './date.component';
 
-jest.mock('src/provider/form-provider', () => ({
-  useFormProviderContext: jest.fn(),
+vi.mock('src/provider/form-provider', () => ({
+  useFormProviderContext: vi.fn(),
 }));
 
-const mockUseFormProviderContext = useFormProviderContext as jest.Mock;
-const mockSetFieldValue = jest.fn();
+const mockUseFormProviderContext = useFormProviderContext as Mock;
+const mockSetFieldValue = vi.fn();
 
 const dateFieldMock: FormField = {
   id: 'test-date-field',

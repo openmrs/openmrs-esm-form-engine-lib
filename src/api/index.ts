@@ -77,13 +77,34 @@ export async function getLatestObs(
   conceptUuid: string,
   encounterTypeUuid?: string,
 ): Promise<FHIRObsResource> {
-  let params = `patient=${patientUuid}&code=${conceptUuid}${
-    encounterTypeUuid ? `&encounter.type=${encounterTypeUuid}` : ''
-  }`;
+  let params = `patient=${patientUuid}&code=${conceptUuid}${encounterTypeUuid ? `&encounter.type=${encounterTypeUuid}` : ''
+    }`;
   // the latest obs
   params += '&_sort=-date&_count=1';
   const { data } = await openmrsFetch(`${fhirBaseUrl}/Observation?${params}`);
   return data.entry?.length ? data.entry[0].resource : null;
+}
+
+export async function getLatestObsForConceptSet(
+  patientUuid: string,
+  conceptUuid: string,
+  encounterTypeUuid?: string,
+): Promise<FHIRObsResource[]> {
+  // First, find the single latest obs to identify the encounter
+  const latestObs = await getLatestObs(patientUuid, conceptUuid, encounterTypeUuid);
+  if (!latestObs) {
+    return [];
+  }
+
+  const encounterId = latestObs.encounter?.reference?.split('/').pop();
+  if (!encounterId) {
+    return [latestObs];
+  }
+
+  // Fetch ALL obs for that concept within the same encounter
+  const params = `patient=${patientUuid}&code=${conceptUuid}&encounter=${encounterId}`;
+  const { data } = await openmrsFetch(`${fhirBaseUrl}/Observation?${params}`);
+  return data.entry?.map((e) => e.resource) ?? [];
 }
 
 /**

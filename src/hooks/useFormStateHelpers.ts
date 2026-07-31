@@ -31,7 +31,7 @@ export function useFormStateHelpers(dispatch: Dispatch<Action>, formFields: Form
     (fieldId: string) => {
       return formFields.find((field) => field.id === fieldId);
     },
-    [formFields.length],
+    [formFields],
   );
 
   const removeFormField = useCallback((fieldId: string) => {

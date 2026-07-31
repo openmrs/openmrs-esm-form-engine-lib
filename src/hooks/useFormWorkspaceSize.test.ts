@@ -1,9 +1,10 @@
 import { act } from 'react';
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useFormWorkspaceSize } from './useFormWorkspaceSize';
 
 // Mock the pxToRem utility
-jest.mock('../utils/common-utils', () => ({
+vi.mock('../utils/common-utils', () => ({
   pxToRem: (px: number) => px / 16, // Simulate px to rem conversion (1rem = 16px)
 }));
 

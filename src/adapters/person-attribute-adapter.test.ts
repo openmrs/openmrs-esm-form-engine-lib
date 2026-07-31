@@ -1,4 +1,5 @@
 import { PersonAttributeAdapter } from './person-attribute-adapter';
+import { vi, describe, it, expect, test } from 'vitest';
 import { type FormField, type FormProcessorContextProps } from '../types';
 import { type FormContextProps } from '../provider/form-provider';
 

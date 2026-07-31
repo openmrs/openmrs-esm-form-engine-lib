@@ -1,4 +1,5 @@
 import { updateFieldIdInExpression } from './helpers';
+import { vi, describe, it, expect } from 'vitest';
 
 describe('RepeatingFieldComponent - handleExpressionFieldIdUpdate', () => {
   it('Should handle update of expression with ids in repeat group', () => {

@@ -40,7 +40,7 @@ module.exports = {
   useTranslation: () => useMock,
 
   // mock if needed
-  I18nextProvider: jest.fn().mockImplementation(({ children }) => children),
+  I18nextProvider: ({ children }) => children,
   initReactI18next: reactI18next.initReactI18next,
   setDefaults: reactI18next.setDefaults,
   getDefaults: reactI18next.getDefaults,
