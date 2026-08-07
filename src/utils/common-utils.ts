@@ -77,8 +77,8 @@ export function parseToLocalDateTime(dateString: string): Date {
   try {
     const timePart = dateString.split('T')[1];
     if (timePart) {
-      // Strip timezone suffix (Z, +02:00, etc.) and milliseconds
-      const cleanTimePart = timePart.replace(/([Zz]|[+-]\d{2}:\d{2})$/, '');
+      // Strip timezone suffix (Z, +02:00, +0200, etc.) and milliseconds
+      const cleanTimePart = timePart.replace(/([Zz]|[+-]\d{2}:?\d{2})$/, '');
       const timeTokens = cleanTimePart.split(':');
       const hours = parseInt(timeTokens[0]);
       const minutes = parseInt(timeTokens[1]);
