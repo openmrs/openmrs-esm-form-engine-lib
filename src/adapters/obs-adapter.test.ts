@@ -404,6 +404,43 @@ describe('ObsAdapter - transformFieldValue', () => {
     expect(field.meta.submission.voidedValue).toBe(null);
   });
 
+  it('should not create duplicate obs when date value is unchanged and other fields change', () => {
+    // setup — simulates the bug where changing other fields causes
+    // transformFieldValue to be called for the date field with the same value
+    formContext.sessionMode = 'edit';
+    const existingDate = new Date(2020, 11, 16);
+    const field: FormField = {
+      label: 'HTS date',
+      type: 'obs',
+      datePickerFormat: 'calendar',
+      questionOptions: {
+        rendering: 'date',
+        concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
+      },
+      meta: {
+        initialValue: {
+          omrsObject: {
+            uuid: 'bca7277f-a726-4d3d-9db8-40937228ead5',
+            person: '833db896-c1f0-11eb-8529-0242ac130003',
+            concept: '3e432ad5-7b19-4866-a68f-abf0d9f52a01',
+            location: { uuid: '41e6e516-c1f0-11eb-8529-0242ac130003' },
+            order: null,
+            groupMembers: [],
+            voided: false,
+            value: existingDate,
+          },
+        },
+      },
+      id: 'hts-date',
+    };
+    // replay — same date value (user changed other fields, not this one)
+    const result = ObsAdapter.transformFieldValue(field, existingDate, formContext);
+    // verify — no new submission should be created
+    expect(result).toBe(null);
+    expect(field.meta.submission.newValue).toBe(null);
+    expect(field.meta.submission.voidedValue).toBe(null);
+  });
+
   // deleting/voiding existing values (edit mode)
   it('should void deleted obs text/number value in edit mode', () => {
     // setup
@@ -952,8 +989,9 @@ describe('hasPreviousObsValueChanged', () => {
         },
       },
     } as any as FormField;
-    expect(hasPreviousObsValueChanged(dateField, new Date('2024-05-01T19:49:50.000+0000'))).toBe(false);
-    expect(hasPreviousObsValueChanged(dateField, new Date('2024-05-02T15:49:50.000+0000'))).toBe(true);
+    // Use constructor form to match how parseToLocalDateTime produces values
+    expect(hasPreviousObsValueChanged(dateField, new Date(2024, 4, 1, 19, 49, 50))).toBe(false);
+    expect(hasPreviousObsValueChanged(dateField, new Date(2024, 4, 2, 15, 49, 50))).toBe(true);
   });
   it('should support datetime values', () => {
     const dateTimeField = {
@@ -969,8 +1007,9 @@ describe('hasPreviousObsValueChanged', () => {
         },
       },
     } as any as FormField;
-    expect(hasPreviousObsValueChanged(dateTimeField, new Date('2024-04-01T19:50:00.000+0000'))).toBe(false);
-    expect(hasPreviousObsValueChanged(dateTimeField, new Date('2024-04-01T19:40:40.000+0000'))).toBe(true);
+    // Use constructor form to match how parseToLocalDateTime produces values
+    expect(hasPreviousObsValueChanged(dateTimeField, new Date(2024, 3, 1, 19, 50, 0))).toBe(false);
+    expect(hasPreviousObsValueChanged(dateTimeField, new Date(2024, 3, 1, 19, 40, 40))).toBe(true);
   });
   it('should support free text', () => {
     const textField = {
@@ -987,6 +1026,102 @@ describe('hasPreviousObsValueChanged', () => {
     } as any as FormField;
     expect(hasPreviousObsValueChanged(textField, 'Text value')).toBe(false);
     expect(hasPreviousObsValueChanged(textField, 'Edited')).toBe(true);
+  });
+
+  it('should return false when date value has not changed (timezone-safe comparison)', () => {
+    const field = {
+      datePickerFormat: 'calendar',
+      questionOptions: {
+        rendering: 'date',
+      },
+      meta: {
+        initialValue: {
+          omrsObject: {
+            value: '2026-05-01T22:21:00.000+0000',
+          },
+        },
+      },
+    } as any as FormField;
+
+    // Same date (May 1) even though the UTC string has time 22:21
+    const newValue = new Date(2026, 4, 1, 22, 21);
+    expect(hasPreviousObsValueChanged(field, newValue)).toBe(false);
+  });
+
+  it('should return true when date value has changed', () => {
+    const field = {
+      datePickerFormat: 'calendar',
+      questionOptions: {
+        rendering: 'date',
+      },
+      meta: {
+        initialValue: {
+          omrsObject: {
+            value: '2026-05-01T22:21:00.000+0000',
+          },
+        },
+      },
+    } as any as FormField;
+
+    const newValue = new Date(2026, 4, 2, 10, 0);
+    expect(hasPreviousObsValueChanged(field, newValue)).toBe(true);
+  });
+
+  it('should return false when datetime value has not changed', () => {
+    const field = {
+      datePickerFormat: 'both',
+      questionOptions: {
+        rendering: 'datetime',
+      },
+      meta: {
+        initialValue: {
+          omrsObject: {
+            value: '2026-05-01T22:21:00.000+0000',
+          },
+        },
+      },
+    } as any as FormField;
+
+    const newValue = new Date(2026, 4, 1, 22, 21);
+    expect(hasPreviousObsValueChanged(field, newValue)).toBe(false);
+  });
+
+  it('should return true when datetime value has changed', () => {
+    const field = {
+      datePickerFormat: 'both',
+      questionOptions: {
+        rendering: 'datetime',
+      },
+      meta: {
+        initialValue: {
+          omrsObject: {
+            value: '2026-05-01T22:21:00.000+0000',
+          },
+        },
+      },
+    } as any as FormField;
+
+    const newValue = new Date(2026, 4, 1, 23, 30);
+    expect(hasPreviousObsValueChanged(field, newValue)).toBe(true);
+  });
+
+  it('should handle Date object as previousObs.value for date rendering', () => {
+    const field = {
+      datePickerFormat: 'calendar',
+      questionOptions: {
+        rendering: 'date',
+      },
+      meta: {
+        initialValue: {
+          omrsObject: {
+            value: new Date(2026, 4, 1, 22, 21),
+          },
+        },
+      },
+    } as any as FormField;
+
+    expect(hasPreviousObsValueChanged(field, new Date(2026, 4, 1, 22, 21))).toBe(false);
+    expect(hasPreviousObsValueChanged(field, new Date(2026, 4, 2, 10, 0))).toBe(true);
   });
 });
 

@@ -89,6 +89,11 @@ export const ObsAdapter: FormFieldValueAdapter = {
       return gracefullySetSubmission(field, undefined, voidObs(field.meta.initialValue.omrsObject as OpenmrsObs));
     }
     if (!isEmpty(value)) {
+      // If there's an existing obs and the value hasn't changed, don't create a duplicate.
+      // Previously this fell through to constructObs, creating a new obs without voiding the old one.
+      if (field.meta.initialValue?.omrsObject) {
+        return null;
+      }
       return gracefullySetSubmission(field, constructObs(field, value), undefined);
     }
     return null;
@@ -206,10 +211,19 @@ export function hasPreviousObsValueChanged(field: FormField, newValue: any) {
     return previousObs.value.uuid !== newValue;
   }
   if (hasRendering(field, 'date')) {
-    return dayjs(newValue).diff(dayjs(previousObs.value), 'D') !== 0;
+    // Normalize both values through parseToLocalDateTime to avoid timezone-induced
+    // false positives/negatives. previousObs.value can be a raw UTC string or a
+    // Date object (e.g. in tests); newValue is a local Date.
+    const previousDate =
+      previousObs.value instanceof Date ? previousObs.value : parseToLocalDateTime(previousObs.value);
+    const newDate = newValue instanceof Date ? newValue : parseToLocalDateTime(newValue);
+    return dayjs(previousDate).format('YYYY-MM-DD') !== dayjs(newDate).format('YYYY-MM-DD');
   }
   if (hasRendering(field, 'datetime') || field.datePickerFormat === 'both') {
-    return dayjs(newValue).diff(dayjs(previousObs.value), 'minute') !== 0;
+    const previousDate =
+      previousObs.value instanceof Date ? previousObs.value : parseToLocalDateTime(previousObs.value);
+    const newDate = newValue instanceof Date ? newValue : parseToLocalDateTime(newValue);
+    return dayjs(previousDate).diff(dayjs(newDate), 'minute') !== 0;
   }
   if (hasRendering(field, 'toggle')) {
     return (previousObs.value.uuid === ConceptTrue) !== newValue;
