@@ -210,20 +210,15 @@ export function hasPreviousObsValueChanged(field: FormField, newValue: any) {
   if (codedTypes.includes(field.questionOptions.rendering)) {
     return previousObs.value.uuid !== newValue;
   }
-  if (hasRendering(field, 'date')) {
-    // Normalize both values through parseToLocalDateTime to avoid timezone-induced
-    // false positives/negatives. previousObs.value can be a raw UTC string or a
-    // Date object (e.g. in tests); newValue is a local Date.
+  if (field.questionOptions.rendering.startsWith('date')) {
+    // A value has changed when the string we'd submit differs.
+    // Parse the previous obs value back to a Date, then format both
+    // through formatDateByPickerType so the comparison uses the same
+    // submission format regardless of picker type.
     const previousDate =
       previousObs.value instanceof Date ? previousObs.value : parseToLocalDateTime(previousObs.value);
     const newDate = newValue instanceof Date ? newValue : parseToLocalDateTime(newValue);
-    return dayjs(previousDate).format('YYYY-MM-DD') !== dayjs(newDate).format('YYYY-MM-DD');
-  }
-  if (hasRendering(field, 'datetime') || field.datePickerFormat === 'both') {
-    const previousDate =
-      previousObs.value instanceof Date ? previousObs.value : parseToLocalDateTime(previousObs.value);
-    const newDate = newValue instanceof Date ? newValue : parseToLocalDateTime(newValue);
-    return dayjs(previousDate).diff(dayjs(newDate), 'minute') !== 0;
+    return formatDateByPickerType(field, previousDate) !== formatDateByPickerType(field, newDate);
   }
   if (hasRendering(field, 'toggle')) {
     return (previousObs.value.uuid === ConceptTrue) !== newValue;

@@ -1,6 +1,6 @@
 import { type FormSchema, type FormField, type OpenmrsObs, type RenderType } from '../types';
 import { isEmpty } from '../validators/form-validator';
-import { formatDate, type FormatDateOptions, type Visit } from '@openmrs/esm-framework';
+import { formatDate, parseDate, type FormatDateOptions, type Visit } from '@openmrs/esm-framework';
 
 export function flattenObsList(obsList: OpenmrsObs[]): OpenmrsObs[] {
   const flattenedList: OpenmrsObs[] = [];
@@ -57,42 +57,11 @@ export function isViewMode(sessionMode: string) {
 }
 
 export function parseToLocalDateTime(dateString: string): Date {
-  // Parse date and time components directly from the string to avoid
-  // timezone conversion shifting the date. For example, '2026-05-01T22:21:00.000Z'
-  // should produce a local Date for May 1, 10:21 PM regardless of the user's timezone.
-  const datePart = dateString.split('T')[0];
-  const [year, month, day] = datePart.split('-').map(Number);
-
-  if (isNaN(year) || isNaN(month) || isNaN(day)) {
-    return new Date(NaN);
-  }
-
-  // Construct date from raw components (month is 0-indexed)
-  const dateObj = new Date(year, month - 1, day);
-
-  if (isNaN(dateObj.getTime())) {
-    return new Date(NaN);
-  }
-
-  try {
-    const timePart = dateString.split('T')[1];
-    if (timePart) {
-      // Strip timezone suffix (Z, +02:00, +0200, etc.) and milliseconds
-      const cleanTimePart = timePart.replace(/([Zz]|[+-]\d{2}:?\d{2})$/, '');
-      const timeTokens = cleanTimePart.split(':');
-      const hours = parseInt(timeTokens[0]);
-      const minutes = parseInt(timeTokens[1]);
-      const seconds = parseInt(timeTokens[2]) || 0;
-
-      if (!isNaN(hours)) {
-        dateObj.setHours(hours, isNaN(minutes) ? 0 : minutes, seconds, 0);
-      }
-    }
-  } catch (e) {
-    console.error(e);
-  }
-
-  return dateObj;
+  // The engine submits obs dates as timezone-free wall-clock values, so the offset the
+  // server returns describes its own clock rather than the value. Drop it and read the
+  // wall clock as written.
+  const wallClock = dateString.trim().replace(' ', 'T').replace(/([Zz]|[+-]\d{2}:?\d{2})$/, '');
+  return parseDate(wallClock);
 }
 
 /**
