@@ -105,8 +105,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
       !submission?.newValue &&
       !isDirty &&
       !unspecified &&
-      (calculate?.calculateExpression || defaultValue) &&
-      !field.meta.initialValue?.omrsObject // ← FIX: don't apply default when an existing obs value exists
+      (calculate?.calculateExpression || defaultValue)
     ) {
       valueAdapter.transformFieldValue(field, fieldValue, context);
     }
