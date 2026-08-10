@@ -261,7 +261,7 @@ describe('Form engine component', () => {
         renderForm(null, sampleFieldsForm);
       });
 
-      screen.findByLabelText(/text question/i);
+      await screen.findByLabelText(/text question/i);
 
       const textFieldTooltip = screen.getByTestId('id_text-label');
       expect(textFieldTooltip).toBeInTheDocument();
@@ -346,7 +346,7 @@ describe('Form engine component', () => {
       expect(api.getPreviousEncounter).toHaveBeenCalled();
       expect(api.getPreviousEncounter).toHaveReturnedWith(Promise.resolve(mockHxpEncounter));
 
-      expect(screen.getByRole('button', { name: /reuse value/i })).toBeInTheDocument;
+      expect(screen.getByRole('button', { name: /reuse value/i })).toBeInTheDocument();
       expect(screen.getByText(/Entry into a country/i, { selector: 'div.value' }));
     });
   });
@@ -392,8 +392,8 @@ describe('Form engine component', () => {
       const visitScheduledDropdown = screen.getByRole('combobox', { name: /Was this visit scheduled?/i });
       await user.click(visitScheduledDropdown);
 
-      expect(screen.queryByRole('option', { name: /Unscheduled Visit Early/i })).toBeInTheDocument();
-      expect(screen.queryByRole('option', { name: /Unscheduled Visit Late/i })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: /Unscheduled Visit Early/i })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: /Unscheduled Visit Late/i })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'Scheduled visit' })).toBeInTheDocument();
 
       const options = screen.getAllByRole('option');
@@ -677,20 +677,20 @@ describe('Form engine component', () => {
 
       await user.click(recommendationDropdown);
 
-      expect(screen.queryByRole('option', { name: /Perfect testing/i })).toBeInTheDocument();
-      expect(screen.queryByRole('option', { name: /Minimal testing/i })).toBeInTheDocument();
-      expect(screen.queryByRole('option', { name: /Un-decisive/i })).toBeInTheDocument();
-      expect(screen.queryByRole('option', { name: /Not ideal/i })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: /Perfect testing/i })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: /Minimal testing/i })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: /Un-decisive/i })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: /Not ideal/i })).toBeInTheDocument();
 
       await user.click(recommendationDropdown);
       await user.type(testCountField, '6');
       await user.click(recommendationDropdown);
 
       expect(testCountField).toHaveValue(6);
-      expect(screen.queryByRole('option', { name: /Perfect testing/i })).toBeNull();
-      expect(screen.queryByRole('option', { name: /Minimal testing/i })).toBeNull();
-      expect(screen.queryByRole('option', { name: /Un-decisive/i })).toBeInTheDocument();
-      expect(screen.queryByRole('option', { name: /Not ideal/i })).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: /Perfect testing/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: /Minimal testing/i })).not.toBeInTheDocument();
+      expect(screen.getByRole('option', { name: /Un-decisive/i })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: /Not ideal/i })).toBeInTheDocument();
     });
   });
 
@@ -1012,8 +1012,8 @@ describe('Form engine component', () => {
       // Check that dependent name and age are still hidden
       const hiddenDependentNameInput = screen.queryByRole('textbox', { name: /dependent name/i });
       const hiddenDependentAgeInput = screen.queryByRole('spinbutton', { name: /dependent age/i });
-      expect(hiddenDependentNameInput).toBeNull();
-      expect(hiddenDependentAgeInput).toBeNull();
+      expect(hiddenDependentNameInput).not.toBeInTheDocument();
+      expect(hiddenDependentAgeInput).not.toBeInTheDocument();
 
       // Select "Child" as dependent type
       await user.click(visibleDependentTypeRadios[0]);
@@ -1101,7 +1101,7 @@ describe('Form engine component', () => {
 
       const addButton = screen.getByRole('button', { name: 'Add' });
       expect(addButton).toBeInTheDocument();
-      expect(screen.queryByRole('textbox', { name: /date of birth/i })).toBeInTheDocument();
+      expect(screen.getByRole('textbox', { name: /date of birth/i })).toBeInTheDocument();
       expect(screen.getByRole('radio', { name: /^male$/i })).toBeInTheDocument();
       expect(screen.getByRole('radio', { name: /female/i })).toBeInTheDocument();
 

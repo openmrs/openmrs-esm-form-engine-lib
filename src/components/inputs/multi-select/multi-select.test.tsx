@@ -82,7 +82,7 @@ describe('MultiSelect Component', () => {
     await user.click(screen.getByRole('combobox', { name: /Patient covered by NHIF/i }));
     await user.click(screen.getByRole('option', { name: /no/i }));
     const unscheduledVisitOption = screen.getByRole('checkbox', { name: /Unscheduled visit early/i });
-    expect(unscheduledVisitOption).toHaveAttribute('disabled');
+    expect(unscheduledVisitOption).toBeDisabled();
   });
 
   it('should enable checkbox option if the field value depends on evaluates the expression to false', async () => {
@@ -91,6 +91,6 @@ describe('MultiSelect Component', () => {
     await user.click(screen.getByRole('combobox', { name: /patient covered by nhif/i }));
     await user.click(screen.getByRole('option', { name: /yes/i }));
     const unscheduledVisitOption = screen.getByRole('checkbox', { name: /Unscheduled visit early/i });
-    expect(unscheduledVisitOption).not.toBeDisabled();
+    expect(unscheduledVisitOption).toBeEnabled();
   });
 });
