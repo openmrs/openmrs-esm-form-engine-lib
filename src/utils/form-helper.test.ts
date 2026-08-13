@@ -4,7 +4,13 @@ import {
   evaluateDisabled,
   isPageContentVisible,
   extractObsValueAndDisplay,
+  shouldUseInlineLayout,
+  findPagesWithErrors,
+  findFieldSection,
+  evaluateConditionalAnswered,
+  evalConditionalRequired,
 } from './form-helper';
+import { buildField, buildFormSchema } from '../test-support';
 import { vi, describe, it, expect, test, beforeEach, type Mock } from 'vitest';
 import { ConceptTrue } from '../constants';
 import type { FormPage, FormField } from '../types';
@@ -661,5 +667,151 @@ describe('Form Engine Helper', () => {
         });
       });
     });
+  });
+});
+
+describe('shouldUseInlineLayout', () => {
+  it('always inlines in embedded-view mode', () => {
+    expect(shouldUseInlineLayout('multiline', 'tablet', 'minimized', 'embedded-view')).toBe(true);
+  });
+
+  it('inlines automatic rendering only in a maximized desktop workspace', () => {
+    expect(shouldUseInlineLayout('automatic', 'small-desktop', 'maximized', 'enter')).toBe(true);
+    expect(shouldUseInlineLayout('automatic', 'large-desktop', 'maximized', 'enter')).toBe(true);
+    expect(shouldUseInlineLayout('automatic', 'tablet', 'maximized', 'enter')).toBe(false);
+    expect(shouldUseInlineLayout('automatic', 'small-desktop', 'minimized', 'enter')).toBe(false);
+  });
+
+  it('inlines single-line rendering and never multiline outside embedded-view', () => {
+    expect(shouldUseInlineLayout('single-line', 'tablet', 'minimized', 'enter')).toBe(true);
+    expect(shouldUseInlineLayout('multiline', 'large-desktop', 'maximized', 'enter')).toBe(false);
+  });
+});
+
+describe('findPagesWithErrors', () => {
+  const fieldA = buildField({ id: 'fieldA' });
+  const fieldB = buildField({ id: 'fieldB' });
+  const fieldC = buildField({ id: 'fieldC' });
+  const pageOne = {
+    label: 'Page 1',
+    sections: [{ label: 'Section 1', isExpanded: 'true', questions: [fieldA, fieldB] }],
+  } as any;
+  const pageTwo = {
+    label: 'Page 2',
+    sections: [{ label: 'Section 2', isExpanded: 'true', questions: [fieldC] }],
+  } as any;
+
+  it('returns the labels of pages containing error fields', () => {
+    expect(findPagesWithErrors(new Set([pageOne, pageTwo]), [fieldA, fieldC])).toEqual(['Page 1', 'Page 2']);
+  });
+
+  it('does not duplicate a page when it has multiple error fields', () => {
+    expect(findPagesWithErrors(new Set([pageOne, pageTwo]), [fieldA, fieldB])).toEqual(['Page 1']);
+  });
+
+  it('returns an empty list when there are no error fields', () => {
+    expect(findPagesWithErrors(new Set([pageOne, pageTwo]), [])).toEqual([]);
+  });
+
+  it('matches error fields by object identity, not id', () => {
+    const cloneOfFieldA = buildField({ id: 'fieldA' });
+    expect(findPagesWithErrors(new Set([pageOne]), [cloneOfFieldA])).toEqual([]);
+  });
+});
+
+describe('findFieldSection', () => {
+  it('finds the section containing the field on the page referenced by meta.pageId', () => {
+    const field = buildField({ id: 'question1' });
+    const formJson = buildFormSchema({ questions: [field] });
+
+    expect(findFieldSection(formJson, field).label).toBe('Section 1');
+  });
+
+  it('returns undefined when the page has no section containing the field', () => {
+    const field = buildField({ id: 'question1' });
+    const formJson = buildFormSchema({ questions: [] });
+    field.meta.pageId = formJson.pages[0].id;
+
+    expect(findFieldSection(formJson, field)).toBeUndefined();
+  });
+});
+
+describe('evaluateConditionalAnswered', () => {
+  it('registers the field as a dependent of the referenced field', () => {
+    const referenced = buildField({ id: 'referenced' });
+    const dependent = buildField({
+      id: 'dependent',
+      validators: [{ type: 'conditionalAnswered', referenceQuestionId: 'referenced' }],
+    });
+
+    evaluateConditionalAnswered(dependent, [referenced, dependent]);
+
+    expect(referenced.fieldDependents).toEqual(new Set(['dependent']));
+  });
+
+  it('preserves previously registered dependents', () => {
+    const referenced = buildField({ id: 'referenced', fieldDependents: new Set(['existing']) });
+    const dependent = buildField({
+      id: 'dependent',
+      validators: [{ type: 'conditionalAnswered', referenceQuestionId: 'referenced' }],
+    });
+
+    evaluateConditionalAnswered(dependent, [referenced, dependent]);
+
+    expect(referenced.fieldDependents).toEqual(new Set(['existing', 'dependent']));
+  });
+
+  it('does nothing when the referenced field does not exist', () => {
+    const dependent = buildField({
+      id: 'dependent',
+      validators: [{ type: 'conditionalAnswered', referenceQuestionId: 'missing' }],
+    });
+
+    expect(() => evaluateConditionalAnswered(dependent, [dependent])).not.toThrow();
+  });
+});
+
+describe('evalConditionalRequired', () => {
+  const conditionallyRequired = () =>
+    buildField({
+      id: 'dependent',
+      required: {
+        type: 'conditionalRequired',
+        referenceQuestionId: 'referenced',
+        referenceQuestionAnswers: ['yes-uuid'],
+      },
+    });
+
+  it('returns false when required is not the conditional object form', () => {
+    const field = buildField({ id: 'plain', required: true });
+    expect(evalConditionalRequired(field, [field], {})).toBe(false);
+  });
+
+  it('returns true when the referenced field has one of the trigger answers', () => {
+    const referenced = buildField({ id: 'referenced' });
+    const field = conditionallyRequired();
+
+    expect(evalConditionalRequired(field, [referenced, field], { referenced: 'yes-uuid' })).toBe(true);
+  });
+
+  it('returns false when the referenced field has a different answer', () => {
+    const referenced = buildField({ id: 'referenced' });
+    const field = conditionallyRequired();
+
+    expect(evalConditionalRequired(field, [referenced, field], { referenced: 'no-uuid' })).toBe(false);
+  });
+
+  it('registers the field as a dependent of the referenced field', () => {
+    const referenced = buildField({ id: 'referenced' });
+    const field = conditionallyRequired();
+
+    evalConditionalRequired(field, [referenced, field], {});
+
+    expect(referenced.fieldDependents).toEqual(new Set(['dependent']));
+  });
+
+  it('returns false when the referenced field does not exist', () => {
+    const field = conditionallyRequired();
+    expect(evalConditionalRequired(field, [field], { referenced: 'yes-uuid' })).toBe(false);
   });
 });
