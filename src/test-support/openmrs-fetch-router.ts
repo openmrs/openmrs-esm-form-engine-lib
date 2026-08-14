@@ -35,7 +35,11 @@ export function mockOpenmrsFetchRoutes(routes: FetchRoute[]): Mock {
       if (candidate.method && candidate.method.toUpperCase() !== method) {
         return false;
       }
-      return candidate.match instanceof RegExp ? candidate.match.test(url) : candidate.match(url);
+      if (candidate.match instanceof RegExp) {
+        candidate.match.lastIndex = 0;
+        return candidate.match.test(url);
+      }
+      return candidate.match(url);
     });
     if (!route) {
       unmatchedRequests.push(`${method} ${url}`);

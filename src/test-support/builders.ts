@@ -99,9 +99,11 @@ export function buildFormSchema(options: FormSchemaOptions = {}): FormSchema {
   const defaultPageLabel = 'Page 1';
   const defaultPageId = derivePageId(defaultPageLabel, 0);
   if (!pages) {
-    questions.forEach((question) => {
+    const stamp = (question: FormField) => {
       question.meta = { ...(question.meta ?? {}), pageId: defaultPageId };
-    });
+      question.questions?.forEach(stamp);
+    };
+    questions.forEach(stamp);
   }
   return {
     name,
