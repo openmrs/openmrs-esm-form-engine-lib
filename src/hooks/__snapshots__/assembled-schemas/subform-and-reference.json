@@ -1,0 +1,183 @@
+{
+  "name": "composite_root_form",
+  "processor": "EncounterFormProcessor",
+  "encounterType": "composite-encounter-type-uuid",
+  "referencedForms": [
+    {
+      "formName": "composite_referenced_form",
+      "alias": "ref"
+    }
+  ],
+  "pages": [
+    {
+      "label": "Root Page",
+      "sections": [
+        {
+          "label": "Root Section",
+          "questions": [
+            {
+              "id": "rootQuestion",
+              "label": "Root question",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "root-concept-uuid"
+              },
+              "meta": {
+                "submission": null,
+                "initialValue": {
+                  "omrsObject": null,
+                  "refinedValue": null
+                },
+                "pageId": "page-RootPage-0"
+              },
+              "validators": [
+                {
+                  "type": "form_field"
+                },
+                {
+                  "type": "default_value"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "reference": {
+            "form": "ref",
+            "page": "Referenced Page",
+            "section": "Referenced Section"
+          },
+          "label": "Referenced Section",
+          "questions": [
+            {
+              "id": "referencedQuestion1",
+              "label": "Referenced question one",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "referenced-concept-1-uuid"
+              },
+              "meta": {
+                "submission": null,
+                "initialValue": {
+                  "omrsObject": null,
+                  "refinedValue": null
+                },
+                "pageId": "page-RootPage-0"
+              },
+              "validators": [
+                {
+                  "type": "form_field"
+                },
+                {
+                  "type": "default_value"
+                }
+              ]
+            },
+            {
+              "id": "referencedQuestion2",
+              "label": "Referenced question two",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "referenced-concept-2-uuid"
+              },
+              "meta": {
+                "submission": null,
+                "initialValue": {
+                  "omrsObject": null,
+                  "refinedValue": null
+                },
+                "pageId": "page-RootPage-0"
+              },
+              "validators": [
+                {
+                  "type": "form_field"
+                },
+                {
+                  "type": "default_value"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "id": "page-RootPage-0"
+    },
+    {
+      "label": "Subform Page",
+      "sections": [
+        {
+          "label": "Subform Section",
+          "questions": [
+            {
+              "id": "subformQuestion",
+              "label": "Subform question",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "subform-concept-uuid"
+              },
+              "meta": {
+                "submission": null,
+                "initialValue": {
+                  "omrsObject": null,
+                  "refinedValue": null
+                },
+                "pageId": "page-SubformPage-1"
+              },
+              "validators": [
+                {
+                  "type": "form_field"
+                },
+                {
+                  "type": "default_value"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "reference": {
+            "form": "ref",
+            "page": "Referenced Page",
+            "section": "Referenced Section",
+            "excludeQuestions": [
+              "referencedQuestion2"
+            ]
+          },
+          "label": "Referenced Section",
+          "questions": [
+            {
+              "id": "referencedQuestion1",
+              "label": "Referenced question one",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "referenced-concept-1-uuid"
+              },
+              "meta": {
+                "submission": null,
+                "initialValue": {
+                  "omrsObject": null,
+                  "refinedValue": null
+                },
+                "pageId": "page-SubformPage-1"
+              },
+              "validators": [
+                {
+                  "type": "form_field"
+                },
+                {
+                  "type": "default_value"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "id": "page-SubformPage-1"
+    }
+  ]
+}
