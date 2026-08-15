@@ -263,4 +263,12 @@ describe('parseToLocalDateTime', () => {
     expect(parsedDate.getDate()).toBe(1);
     expect(parsedDate.getHours()).toBe(0);
   });
+
+  it('should parse space-separated date string correctly', () => {
+    const dateString = '2026-05-01 22:21';
+    const expectedDate = new Date(2026, 4, 1, 22, 21, 0);
+    const parsedDate = parseToLocalDateTime(dateString);
+
+    expect(parsedDate).toEqual(expectedDate);
+  });
 });
