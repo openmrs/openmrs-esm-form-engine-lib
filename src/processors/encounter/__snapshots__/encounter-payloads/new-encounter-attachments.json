@@ -1,0 +1,30 @@
+{
+  "patient": "8673ee4f-e2ab-4077-ba55-4980f408773e",
+  "location": "7fdfa2cb-bc95-405a-88c6-32b7673c0453",
+  "encounterType": "test-encounter-type-uuid",
+  "encounterProviders": [
+    {
+      "provider": "current-provider-uuid",
+      "encounterRole": "clinician-role-uuid"
+    }
+  ],
+  "obs": [
+    {
+      "uuid": "existing-attachment-uuid",
+      "voided": true
+    },
+    {
+      "value": "Attachment notes",
+      "concept": "textField-concept-uuid",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-textField"
+    }
+  ],
+  "form": {
+    "uuid": "test-form-uuid"
+  },
+  "visit": "15dd49ba-4283-472f-bce3-05401f85c0d3",
+  "orders": [],
+  "diagnoses": [],
+  "encounterDatetime": "2026-01-01T10:00:00.000Z"
+}

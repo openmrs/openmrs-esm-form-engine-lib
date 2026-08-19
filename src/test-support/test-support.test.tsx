@@ -26,16 +26,33 @@ describe('builders', () => {
     expect(field.validators).toEqual([{ type: 'form_field' }, { type: 'default_value' }]);
   });
 
-  it('buildObsGroup stamps copies of the children with the group id, without default validators', () => {
+  it('buildObsGroup stamps copies of the children with the group id', () => {
     const child = buildField({ id: 'child' });
     const group = buildObsGroup('group1', [child]);
 
     expect(group.type).toBe('obsGroup');
     expect(group.questionOptions.rendering).toBe('group');
-    expect(group.validators).toEqual([]);
     expect(group.questions[0].meta.groupId).toBe('group1');
     // The caller's field object is not mutated; group.questions holds the copies.
     expect(child.meta.groupId).toBeUndefined();
+  });
+
+  it('buildObsGroup gives default validators to every rendering except group', () => {
+    // `setFieldValidators` early-returns on rendering `group`, not on type
+    // `obsGroup`, so a repeating group really does get both defaults from the
+    // pipeline — see `myGroup` in __mocks__/forms/rfe-forms/obs-group-test-form.json
+    const groupRendered = buildObsGroup('group1', [buildField({ id: 'child' })]);
+    const repeating = buildObsGroup('group2', [buildField({ id: 'child' })], {
+      questionOptions: { rendering: 'repeating' },
+    });
+
+    expect(groupRendered.validators).toEqual([]);
+    expect(repeating.questionOptions.rendering).toBe('repeating');
+    expect(repeating.validators).toEqual([{ type: 'form_field' }, { type: 'default_value' }]);
+    // an explicit override still wins over either default
+    expect(buildObsGroup('group3', [], { validators: [{ type: 'js_expression' }] }).validators).toEqual([
+      { type: 'js_expression' },
+    ]);
   });
 
   it('buildFormSchema wraps questions in a single page/section with the derived page id', () => {
