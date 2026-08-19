@@ -9,6 +9,7 @@
     "dist",
     "src",
     "!src/**/*.test.*",
+    "!src/**/__snapshots__",
     "!src/utils/test-utils.ts",
     "!src/test-support",
     "!src/zscore-tests"
@@ -21,7 +22,7 @@
     "test": "cross-env TZ=UTC vitest run --passWithNoTests",
     "test:watch": "cross-env TZ=UTC vitest watch",
     "typescript": "tsc",
-    "build": "rimraf dist && concurrently \"swc --copy-files --ignore '**/*.test.*' --ignore '**/setup-tests.*' --ignore '**/test-utils.*' --ignore '**/test-support/**' src -d dist\" \"tsc --project tsconfig.build.json\"",
+    "build": "rimraf dist && concurrently \"swc --copy-files --ignore '**/*.test.*' --ignore '**/__snapshots__/**' --ignore '**/setup-tests.*' --ignore '**/test-utils.*' --ignore '**/test-support/**' src -d dist\" \"tsc --project tsconfig.build.json\"",
     "coverage": "yarn test --coverage",
     "prepare": "husky install",
     "extract-translations": "i18next 'src/**/*.component.tsx' 'src/**/*.ts' --config './tools/i18next-parser.config.js'"

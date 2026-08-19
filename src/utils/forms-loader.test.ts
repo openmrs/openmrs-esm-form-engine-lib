@@ -1,12 +1,8 @@
 import { type FormJsonFile, getForm, getFormByVersion, getLatestFormVersion, applyFormIntent } from './forms-loader';
 import { vi, describe, it, expect, test } from 'vitest';
 import formsRegistry from '__mocks__/packages/test-forms-registry';
-import {
-  htsHivtestResultingSchemaV2,
-  htsRetrospectiveResultingSchemaV2,
-  htsWildcardResultingSchemaV2,
-  testSchemaV2,
-} from '__mocks__/forms';
+import { testSchemaV2 } from '__mocks__/forms';
+import { loadFormFixture } from '../test-support';
 
 const htsTestForms: FormJsonFile[] = [
   {
@@ -321,22 +317,58 @@ describe('Forms loader - getFormByVersion', () => {
   });
 });
 
-describe.skip('Forms loader - applyFormIntent', () => {
-  it('should return correct fields for HTS_RETROSPECTIVE intent', () => {
-    let resultingSchema = applyFormIntent('HTS_RETROSPECTIVE', testSchemaV2);
+/**
+ * Golden characterization snapshots of `applyFormIntent`, pinning CURRENT
+ * behavior, bugs included — eyeballed once at creation, then frozen.
+ *
+ * This replaces a long-skipped suite whose hand-built expected schemas had
+ * drifted from reality: they assumed an intent behaviour REPLACES the
+ * question's validation props wholesale, but the code MERGES the `*` fallback
+ * behaviour with the intent-specific one and applies the result OVER the
+ * question's existing props (so unmatched base props like `unspecified`
+ * survive). The snapshots pin the merge semantics.
+ */
+describe('Forms loader - applyFormIntent', () => {
+  const intents = [
+    { intent: 'HTS_RETROSPECTIVE', snapshot: 'hts-retrospective' },
+    { intent: 'HTS_HIVTEST', snapshot: 'hts-hivtest' },
+    { intent: '*', snapshot: 'wildcard' },
+  ];
 
-    expect(resultingSchema).toEqual(htsRetrospectiveResultingSchemaV2);
+  it.each(intents)('applies the $intent intent to its golden schema', async ({ intent, snapshot }) => {
+    const result = applyFormIntent(intent, loadFormFixture(testSchemaV2));
+
+    await expect(JSON.stringify(result, null, 2) + '\n').toMatchFileSnapshot(
+      `__snapshots__/applied-intents/${snapshot}.json`,
+    );
   });
 
-  it('should return correct fields for HTS_HIVTEST intent', () => {
-    let resultingSchema = applyFormIntent('HTS_HIVTEST', testSchemaV2);
+  it('returns the original object untouched when no intent is given', () => {
+    const schema = loadFormFixture(testSchemaV2);
 
-    expect(resultingSchema).toEqual(htsHivtestResultingSchemaV2);
+    expect(applyFormIntent(undefined, schema)).toBe(schema);
   });
 
-  it('should return correct fields for * intent', () => {
-    let resultingSchema = applyFormIntent('*', testSchemaV2);
+  it('returns a deep copy and leaves the input schema unmodified when an intent is given', () => {
+    const schema = loadFormFixture(testSchemaV2);
 
-    expect(resultingSchema).toEqual(htsWildcardResultingSchemaV2);
+    const result = applyFormIntent('HTS_HIVTEST', schema);
+
+    expect(result).not.toBe(schema);
+    expect(schema).toEqual(testSchemaV2);
+  });
+
+  it('stamps defaultPage from the availableIntents entry matching the active intent', () => {
+    const schema = {
+      name: 'Intent Form',
+      availableIntents: [
+        { intent: 'INTENT_A', defaultPage: 'Page A' },
+        { intent: 'INTENT_B', defaultPage: 'Page B' },
+      ],
+      pages: [],
+    };
+
+    expect(applyFormIntent('INTENT_B', schema).defaultPage).toBe('Page B');
+    expect(applyFormIntent('UNLISTED_INTENT', schema).defaultPage).toBeUndefined();
   });
 });
