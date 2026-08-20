@@ -19,14 +19,6 @@ export default [
     },
   },
   {
-    // The shared config exempts __mocks__/**/*.js from no-require-imports.
-    // These mocks are TypeScript and load JSON fixtures the same way.
-    files: ['__mocks__/**'],
-    rules: {
-      '@typescript-eslint/no-require-imports': 'off',
-    },
-  },
-  {
     // The shared config lints tests with testing-library for the first time
     // here. These three need the tests reworked rather than reformatted, so
     // they are off until that happens.
