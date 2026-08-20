@@ -17,6 +17,7 @@ import { inbuiltPostSubmissionActions } from './inbuilt-components/InbuiltPostSu
 import { inbuiltFormTransformers } from './inbuilt-components/inbuiltTransformers';
 import { inbuiltFieldValueAdapters } from './inbuilt-components/inbuiltFieldValueAdapters';
 import { hasRendering } from '../utils/common-utils';
+import { registryCache } from './registry-cache';
 
 /**
  * @internal
@@ -55,24 +56,6 @@ export interface FormsRegistryStoreState {
   expressionHelpers: Record<string, Function>;
   formSchemaTransformers: ComponentRegistration<FormSchemaTransformer>[];
 }
-
-interface FormRegistryCache {
-  validators: Record<string, FormFieldValidator>;
-  controls: Record<string, React.ComponentType<FormFieldInputProps>>;
-  fieldValueAdapters: Record<string, FormFieldValueAdapter>;
-  postSubmissionActions: Record<string, PostSubmissionAction>;
-  dataSources: Record<string, DataSource<any>>;
-  formSchemaTransformers: Record<string, FormSchemaTransformer>;
-}
-
-const registryCache: FormRegistryCache = {
-  validators: {},
-  controls: {},
-  fieldValueAdapters: {},
-  postSubmissionActions: {},
-  dataSources: {},
-  formSchemaTransformers: {},
-};
 
 // Registers
 

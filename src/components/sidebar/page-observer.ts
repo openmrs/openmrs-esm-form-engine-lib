@@ -5,9 +5,9 @@ class PageObserver {
   private scrollablePagesSubject = new BehaviorSubject<Array<FormPage>>([]);
   private pagesWithErrorsSubject = new BehaviorSubject<Set<string>>(new Set());
   private activePagesSubject = new BehaviorSubject<Set<string>>(new Set());
-  private evaluatedPagesVisibilitySubject = new BehaviorSubject<boolean>(null);
+  private evaluatedPagesVisibilitySubject = new BehaviorSubject<boolean | null>(null);
 
-  setEvaluatedPagesVisibility(evaluatedPagesVisibility: boolean) {
+  setEvaluatedPagesVisibility(evaluatedPagesVisibility: boolean | null) {
     this.evaluatedPagesVisibilitySubject.next(evaluatedPagesVisibility);
   }
 
