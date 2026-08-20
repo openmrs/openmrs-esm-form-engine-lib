@@ -1,4 +1,4 @@
-import { type FormField, type FormPage, type FormSchema } from '../types';
+import { type FormField, type FormPage, type FormQuestionOptions, type FormSchema } from '../types';
 
 /**
  * Builders for test fixtures approximating the shape components, adapters, and
@@ -18,7 +18,14 @@ export function derivePageId(label: string, index: number): string {
   return `page-${(label ?? '').replace(/\s/g, '')}-${index}`;
 }
 
-type FieldOverrides = Partial<FormField> & { id: string };
+/**
+ * `questionOptions` is widened to a partial because `rendering` — its only
+ * required member — is supplied by the builder; callers state only what differs.
+ */
+type FieldOverrides = Omit<Partial<FormField>, 'questionOptions'> & {
+  id: string;
+  questionOptions?: Partial<FormQuestionOptions>;
+};
 
 export function buildField(overrides: FieldOverrides): FormField {
   const { id, questionOptions, meta, ...rest } = overrides;
@@ -47,26 +54,32 @@ export function buildField(overrides: FieldOverrides): FormField {
   };
 }
 
-type ObsGroupOverrides = Omit<Partial<FormField>, 'id' | 'questions' | 'type'>;
+type ObsGroupOverrides = Omit<FieldOverrides, 'id' | 'questions' | 'type'>;
 
 /**
  * Builds an obsGroup field whose `questions` are copies of `children` stamped with
  * `meta.groupId` (the input field objects are not mutated — read children back via
- * `group.questions`). Group-rendered fields get NO default validators, matching
- * `setFieldValidators`, which skips groups.
+ * `group.questions`).
+ *
+ * Default validators track the RENDERING, not the type: `setFieldValidators`
+ * early-returns on `hasRendering(question, 'group')`, so a `group`-rendered field
+ * gets none — but an obsGroup rendered as `repeating` (a real schema shape, e.g.
+ * `myGroup` in `__mocks__/forms/rfe-forms/obs-group-test-form.json`) does get both
+ * defaults from the pipeline. Callers can still override `validators` outright.
  */
 export function buildObsGroup(id: string, children: FormField[], overrides: ObsGroupOverrides = {}): FormField {
+  const rendering = overrides.questionOptions?.rendering ?? 'group';
   return buildField({
     id,
     type: 'obsGroup',
-    validators: [],
+    ...(rendering === 'group' ? { validators: [] } : {}),
     questions: children.map((child) => ({
       ...child,
       meta: { ...(child.meta ?? {}), groupId: id },
     })),
     ...overrides,
     questionOptions: {
-      rendering: 'group',
+      rendering,
       ...overrides.questionOptions,
     },
   });
