@@ -262,4 +262,64 @@ describe('parseToLocalDateTime', () => {
     // Check if the parsedDate is an Invalid Date
     expect(isNaN(parsedDate.getTime())).toBe(true);
   });
+
+  it('should parse UTC date string with time correctly regardless of timezone', () => {
+    // Simulates a user in UTC+2 with a saved value of 2026-05-01 10:21 PM UTC
+    // The date should remain May 1, not shift to May 2
+    const dateString = '2026-05-01T22:21:00.000Z';
+    const parsedDate = parseToLocalDateTime(dateString);
+
+    expect(parsedDate.getFullYear()).toBe(2026);
+    expect(parsedDate.getMonth()).toBe(4); // May (0-indexed)
+    expect(parsedDate.getDate()).toBe(1);
+    expect(parsedDate.getHours()).toBe(22);
+    expect(parsedDate.getMinutes()).toBe(21);
+  });
+
+  it('should parse date string with timezone offset correctly', () => {
+    const dateString = '2026-05-01T22:21:00.000+0000';
+    const parsedDate = parseToLocalDateTime(dateString);
+
+    expect(parsedDate.getFullYear()).toBe(2026);
+    expect(parsedDate.getMonth()).toBe(4);
+    expect(parsedDate.getDate()).toBe(1);
+    expect(parsedDate.getHours()).toBe(22);
+    expect(parsedDate.getMinutes()).toBe(21);
+  });
+
+  it('should parse date-only string without shifting due to timezone', () => {
+    const dateString = '2026-07-03T00:00:00.000Z';
+    const parsedDate = parseToLocalDateTime(dateString);
+
+    expect(parsedDate.getFullYear()).toBe(2026);
+    expect(parsedDate.getMonth()).toBe(6); // July
+    expect(parsedDate.getDate()).toBe(3);
+  });
+
+  it('should parse date string with milliseconds and timezone', () => {
+    const dateString = '2026-05-01T22:21:30.123Z';
+    const parsedDate = parseToLocalDateTime(dateString);
+
+    expect(parsedDate.getHours()).toBe(22);
+    expect(parsedDate.getMinutes()).toBe(21);
+    expect(parsedDate.getSeconds()).toBe(30);
+  });
+
+  it('should handle date string without time part', () => {
+    const dateString = '2026-05-01';
+    const parsedDate = parseToLocalDateTime(dateString);
+
+    expect(parsedDate.getFullYear()).toBe(2026);
+    expect(parsedDate.getMonth()).toBe(4);
+    expect(parsedDate.getDate()).toBe(1);
+    expect(parsedDate.getHours()).toBe(0);
+  });
+
+  it('should parse space-separated date string correctly', () => {
+    const dateString = '2026-05-01 22:21';
+    const expectedDate = new Date(2026, 4, 1, 22, 21, 0);
+    const parsedDate = parseToLocalDateTime(dateString);
+
+    expect(parsedDate).toEqual(expectedDate);
+  });
 });
