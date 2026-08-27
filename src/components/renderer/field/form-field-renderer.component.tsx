@@ -99,11 +99,13 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
   useEffect(() => {
     const { isDirty, isTouched } = getFieldState(field.id);
     const { submission, unspecified } = field.meta;
+    const { calculate, defaultValue } = field.questionOptions;
     if (
       !isEmpty(fieldValue) &&
       !submission?.newValue &&
       !isDirty &&
-      !unspecified
+      !unspecified &&
+      (calculate?.calculateExpression || defaultValue)
     ) {
       valueAdapter.transformFieldValue(field, fieldValue, context);
     }
