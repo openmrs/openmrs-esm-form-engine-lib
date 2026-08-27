@@ -89,9 +89,6 @@ export const ObsAdapter: FormFieldValueAdapter = {
       return gracefullySetSubmission(field, undefined, voidObs(field.meta.initialValue.omrsObject as OpenmrsObs));
     }
     if (!isEmpty(value)) {
-      if (field.meta.initialValue?.omrsObject) {
-        return null;
-      }
       return gracefullySetSubmission(field, constructObs(field, value), undefined);
     }
     return null;
@@ -129,7 +126,12 @@ function extractFieldValue(field: FormField, obsList: OpenmrsObs[] = [], makeFie
     assignedObsIds.push(obs.uuid);
     if (typeof obs.value === 'string' || typeof obs.value === 'number') {
       if (rendering.startsWith('date')) {
-        return parseToLocalDateTime(obs.value as string);
+        const dateObject = parseToLocalDateTime(obs.value as string);
+        if (makeFieldDirty) {
+          const obsObject = field.meta.initialValue.omrsObject as OpenmrsObs;
+          obsObject.value = dayjs(dateObject).format('YYYY-MM-DD HH:mm');
+        }
+        return dateObject;
       }
       return obs.value;
     }
@@ -152,8 +154,8 @@ export function constructObs(field: FormField, value: any): Partial<OpenmrsObs> 
     field.type === 'obsGroup'
       ? { groupMembers: [] }
       : {
-        value: field.questionOptions.rendering.startsWith('date') ? formatDateByPickerType(field, value) : value,
-      };
+          value: field.questionOptions.rendering.startsWith('date') ? formatDateByPickerType(field, value) : value,
+        };
   return {
     ...draftObs,
     concept: field.questionOptions.concept,

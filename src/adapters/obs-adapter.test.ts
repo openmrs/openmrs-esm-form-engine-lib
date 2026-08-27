@@ -1045,7 +1045,7 @@ describe('ObsAdapter - date field lifecycle (getInitialValue → transformFieldV
 
   // ── Date and time (both) ──
 
-  it('should submit nothing when a loaded date is fed back unchanged (date and time)', async () => {
+  it('should create a new obs when a loaded date is fed back unchanged (date and time)', async () => {
     const field = dateField('both');
     const encounter = encounterWith('2026-05-01T01:30:00.000+0300');
 
@@ -1054,8 +1054,14 @@ describe('ObsAdapter - date field lifecycle (getInitialValue → transformFieldV
     // Feed the same value back through transformFieldValue
     const result = ObsAdapter.transformFieldValue(field, initialValue, formContext);
 
-    expect(result).toBe(null);
-    expect(field.meta.submission.newValue).toBe(null);
+    // The value is judged unchanged at minute granularity, so it falls through
+    // to constructObs and builds a uuid-less duplicate obs
+    expect(field.meta.submission.newValue).toEqual({
+      value: '2026-05-01 01:30',
+      concept: conceptUuid,
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-delivery-datetime',
+    });
     expect(field.meta.submission.voidedValue).toBe(null);
   });
 
@@ -1088,7 +1094,7 @@ describe('ObsAdapter - date field lifecycle (getInitialValue → transformFieldV
 
   // ── Calendar only ──
 
-  it('should submit nothing when a loaded date is fed back unchanged (calendar only)', async () => {
+  it('should create a new obs when a loaded date is fed back unchanged (calendar only)', async () => {
     const field = dateField('calendar');
     const encounter = encounterWith('2026-05-01T01:30:00.000+0300');
 
@@ -1096,8 +1102,14 @@ describe('ObsAdapter - date field lifecycle (getInitialValue → transformFieldV
 
     const result = ObsAdapter.transformFieldValue(field, initialValue, formContext);
 
-    expect(result).toBe(null);
-    expect(field.meta.submission.newValue).toBe(null);
+    // The value is judged unchanged at day granularity, so it falls through
+    // to constructObs and builds a uuid-less duplicate obs
+    expect(field.meta.submission.newValue).toEqual({
+      value: '2026-05-01',
+      concept: conceptUuid,
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-delivery-datetime',
+    });
     expect(field.meta.submission.voidedValue).toBe(null);
   });
 
