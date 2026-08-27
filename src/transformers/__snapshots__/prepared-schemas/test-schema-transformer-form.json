@@ -1,0 +1,184 @@
+{
+  "name": "AFE form with aliased questions",
+  "readonly": false,
+  "pages": [
+    {
+      "label": "Page 1",
+      "readonly": false,
+      "sections": [
+        {
+          "label": "Section 1",
+          "isExpanded": true,
+          "questions": [
+            {
+              "label": "Multi Checkbox",
+              "type": "obs",
+              "id": "dem_multi_checkbox",
+              "required": true,
+              "questionOptions": {
+                "rendering": "checkbox",
+                "isCheckboxSearchable": true
+              },
+              "meta": {
+                "submission": null,
+                "initialValue": {
+                  "omrsObject": null,
+                  "refinedValue": null
+                },
+                "pageId": "page-Page1-0"
+              },
+              "validators": [
+                {
+                  "type": "form_field"
+                },
+                {
+                  "type": "default_value"
+                }
+              ],
+              "readonly": false
+            },
+            {
+              "label": "Numeric",
+              "id": "dem_numeric",
+              "type": "obs",
+              "required": false,
+              "questionOptions": {
+                "rendering": "number"
+              },
+              "meta": {
+                "submission": null,
+                "initialValue": {
+                  "omrsObject": null,
+                  "refinedValue": null
+                },
+                "pageId": "page-Page1-0"
+              },
+              "validators": [
+                {
+                  "type": "form_field"
+                },
+                {
+                  "type": "default_value"
+                }
+              ],
+              "readonly": false
+            },
+            {
+              "label": "Encounter Provider",
+              "id": "dem_encounter_provider",
+              "type": "encounterProvider",
+              "required": false,
+              "questionOptions": {
+                "rendering": "encounter-provider"
+              },
+              "meta": {
+                "submission": null,
+                "initialValue": {
+                  "omrsObject": null,
+                  "refinedValue": null
+                },
+                "pageId": "page-Page1-0"
+              },
+              "validators": [
+                {
+                  "type": "form_field"
+                },
+                {
+                  "type": "default_value"
+                }
+              ],
+              "readonly": false
+            },
+            {
+              "id": "dem_encounter_location",
+              "type": "obsGroup",
+              "required": false,
+              "questionOptions": {
+                "rendering": "group"
+              },
+              "questions": [
+                {
+                  "label": "Encounter Location",
+                  "type": "encounterLocation",
+                  "required": false,
+                  "questionOptions": {
+                    "rendering": "encounter-location"
+                  },
+                  "meta": {
+                    "submission": null,
+                    "initialValue": {
+                      "omrsObject": null,
+                      "refinedValue": null
+                    },
+                    "pageId": "page-Page1-0"
+                  },
+                  "validators": [
+                    {
+                      "type": "form_field"
+                    },
+                    {
+                      "type": "default_value"
+                    }
+                  ],
+                  "readonly": false
+                }
+              ],
+              "meta": {
+                "submission": null,
+                "initialValue": {
+                  "omrsObject": null,
+                  "refinedValue": null
+                },
+                "pageId": "page-Page1-0"
+              },
+              "readonly": false
+            },
+            {
+              "id": "labOrder",
+              "type": "testOrder",
+              "label": "Add Lab Order",
+              "required": true,
+              "questionOptions": {
+                "rendering": "repeating",
+                "concept": "f1742346-cf43-4a17-8c98-720e3f487fc0",
+                "orderType": "testorder",
+                "orderSettingUuid": "INPATIENT",
+                "repeatOptions": {
+                  "limit": 2
+                },
+                "answers": [
+                  {
+                    "concept": "30e2da8f-34ca-4c93-94c8-d429f22d381c",
+                    "label": "Option 1"
+                  },
+                  {
+                    "concept": "143264AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Option 2"
+                  }
+                ]
+              },
+              "meta": {
+                "submission": null,
+                "initialValue": {
+                  "omrsObject": null,
+                  "refinedValue": null
+                },
+                "pageId": "page-Page1-0"
+              },
+              "validators": [
+                {
+                  "type": "form_field"
+                },
+                {
+                  "type": "default_value"
+                }
+              ],
+              "readonly": false
+            }
+          ]
+        }
+      ],
+      "id": "page-Page1-0"
+    }
+  ]
+}

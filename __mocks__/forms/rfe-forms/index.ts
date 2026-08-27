@@ -44,9 +44,4 @@ export { default as expressionVisitObjectTestSchema } from './expression-visit-o
 export { default as obsDateAndCommentForm } from './obs-date-and-comment-form.json';
 
 export { obsList } from './obs-list-data';
-export {
-  htsHivtestResultingSchemaV2,
-  htsRetrospectiveResultingSchemaV2,
-  htsWildcardResultingSchemaV2,
-  testSchemaV2,
-} from './forms-loader.test.schema';
+export { testSchemaV2 } from './forms-loader.test.schema';

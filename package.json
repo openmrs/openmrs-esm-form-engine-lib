@@ -9,18 +9,20 @@
     "dist",
     "src",
     "!src/**/*.test.*",
+    "!src/**/__snapshots__",
     "!src/utils/test-utils.ts",
+    "!src/test-support",
     "!src/zscore-tests"
   ],
   "license": "MIT",
   "homepage": "https://github.com/openmrs/openmrs-esm-form-engine-lib#readme",
   "scripts": {
-    "lint": "eslint src --ext .ts,.tsx --fix",
+    "lint": "eslint src --fix",
     "verify": "turbo run lint typescript test --concurrency=5",
     "test": "cross-env TZ=UTC vitest run --passWithNoTests",
     "test:watch": "cross-env TZ=UTC vitest watch",
     "typescript": "tsc",
-    "build": "rimraf dist && concurrently \"swc --copy-files --ignore '**/*.test.*' --ignore '**/setup-tests.*' --ignore '**/test-utils.*' src -d dist\" \"tsc --project tsconfig.build.json\"",
+    "build": "rimraf dist && concurrently \"swc --copy-files --ignore '**/*.test.*' --ignore '**/__snapshots__/**' --ignore '**/setup-tests.*' --ignore '**/test-utils.*' --ignore '**/test-support/**' src -d dist\" \"tsc --project tsconfig.build.json\"",
     "coverage": "yarn test --coverage",
     "prepare": "husky install",
     "extract-translations": "i18next 'src/**/*.component.tsx' 'src/**/*.ts' --config './tools/i18next-parser.config.js'"
@@ -36,7 +38,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@carbon/react": "^1.83.0",
     "classnames": "^2.5.1",
     "lodash-es": "^4.17.21",
     "react-error-boundary": "^4.0.13",
@@ -46,6 +47,7 @@
     "react-webcam": "^7.2.0"
   },
   "peerDependencies": {
+    "@carbon/react": "1.x",
     "@openmrs/esm-framework": "10.x",
     "dayjs": "1.x",
     "i18next": "25.x",
@@ -54,6 +56,8 @@
     "swr": "2.x"
   },
   "devDependencies": {
+    "@carbon/react": "^1.92.1",
+    "@openmrs/eslint-config": "^2.1.0",
     "@openmrs/esm-framework": "next",
     "@openmrs/esm-styleguide": "next",
     "@swc/cli": "^0.1.65",
@@ -65,16 +69,11 @@
     "@types/lodash": "^4.17.4",
     "@types/lodash-es": "^4.17.12",
     "@types/react": "^18.3.2",
-    "@typescript-eslint/eslint-plugin": "^7.9.0",
-    "@typescript-eslint/parser": "^7.9.0",
     "@vitest/coverage-v8": "^4.1.2",
     "concurrently": "^6.5.1",
     "cross-env": "^10.1.0",
     "dayjs": "^1.11.11",
-    "eslint": "^8.57.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-jsx-a11y": "^6.8.0",
-    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint": "^9.39.0",
     "husky": "^8.0.3",
     "i18next": "^25.0.0",
     "i18next-parser": "^9.3.0",
