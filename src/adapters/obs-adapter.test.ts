@@ -918,7 +918,7 @@ describe('hasPreviousObsValueChanged', () => {
     expect(hasPreviousObsValueChanged(textField, 'Edited')).toBe(true);
   });
 
-  it('should return false when date value has not changed (timezone-safe comparison)', () => {
+  it('should return false when date value has not changed', () => {
     const field = {
       datePickerFormat: 'calendar',
       questionOptions: {
