@@ -23,6 +23,7 @@
     "test:watch": "cross-env TZ=UTC vitest watch",
     "typescript": "tsc",
     "build": "rimraf dist && concurrently \"swc --copy-files --ignore '**/*.test.*' --ignore '**/__snapshots__/**' --ignore '**/setup-tests.*' --ignore '**/test-utils.*' --ignore '**/test-support/**' src -d dist\" \"tsc --project tsconfig.build.json\"",
+    "clean": "git clean -fdX -- dist",
     "coverage": "yarn test --coverage",
     "prepare": "husky install",
     "extract-translations": "i18next 'src/**/*.component.tsx' 'src/**/*.ts' --config './tools/i18next-parser.config.js'"
