@@ -1,0 +1,92 @@
+{
+  "name": "Test Form 2",
+  "version": "1",
+  "published": true,
+  "retired": false,
+  "encounter": "Consultation",
+  "pages": [
+    {
+      "label": "Basic Data",
+      "sections": [
+        {
+          "label": "Initial Details",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Height",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "conceptMappings": [
+                  {
+                    "type": "CIEL",
+                    "value": "5090"
+                  },
+                  {
+                    "type": "AMPATH",
+                    "value": "5090"
+                  },
+                  {
+                    "type": "PIH",
+                    "value": "5090"
+                  }
+                ]
+              },
+              "id": "Ht"
+            }
+          ]
+        },
+        {
+          "label": "Body Conditions",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "annotation",
+                "concept": "00000000-0000-0000-0000-000000000000",
+                "annotationOptions": {
+                  "templates": [
+                    {
+                      "id": "001",
+                      "label": "Template 1",
+                      "src": "https://thumb.ac-illust.com/b9/b9f175a0d667b2b826da6040256d3e07_w.jpeg"
+                    },
+                    {
+                      "id": "002",
+                      "label": "Template 2",
+                      "src": "https://thumb.ac-illust.com/b9/b9f175a0d667b2b826da6040256d3e07_w.jpeg"
+                    },
+                    {
+                      "id": "003",
+                      "label": "Template 3",
+                      "src": "https://thumb.ac-illust.com/b9/b9f175a0d667b2b826da6040256d3e07_w.jpeg"
+                    },
+                    {
+                      "id": "004",
+                      "label": "Template 4",
+                      "src": "https://thumb.ac-illust.com/b9/b9f175a0d667b2b826da6040256d3e07_w.jpeg"
+                    },
+                    {
+                      "id": "005",
+                      "label": "Template 5",
+                      "src": "https://thumb.ac-illust.com/b9/b9f175a0d667b2b826da6040256d3e07_w.jpeg"
+                    }
+                  ]
+                }
+              },
+              "id": "bodyAnnotation",
+              "label": "Annotate body on the body"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "referencedForms": [],
+  "description": "test form\n",
+  "encounterType": "e22e39fd-7db2-45e7-80f1-60fa0d5a4378",
+  "uuid": "a53413bc-94fa-4659-a3c7-4a7cf2cfe6a2"
+}

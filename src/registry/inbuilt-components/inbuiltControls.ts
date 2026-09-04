@@ -14,6 +14,7 @@ import UiSelectExtended from '../../components/inputs/ui-select-extended/ui-sele
 import WorkspaceLauncher from '../../components/inputs/workspace-launcher/workspace-launcher.component';
 import Repeat from '../../components/repeat/repeat.component';
 import File from '../../components/inputs/file/file.component';
+import Annotation from '../../components/inputs/annotation/annotation.component';
 import { type FormFieldInputProps } from '../../types';
 import { type RegistryItem } from '../registry';
 import { controlTemplates } from './control-templates';
@@ -91,6 +92,10 @@ export const inbuiltControls: Array<RegistryItem<React.ComponentType<FormFieldIn
   {
     name: 'file',
     component: File,
+  },
+  {
+    name: 'annotation',
+    component: Annotation,
   },
   ...controlTemplates.map((template) => ({
     name: template.name,
