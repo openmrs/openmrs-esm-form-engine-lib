@@ -42,7 +42,7 @@ import { getMutableSessionProps, prepareEncounter } from './encounter-processor-
  *
  * A missing golden file is WRITTEN rather than failed when running locally
  * (`toMatchFileSnapshot` only fails on absence under `CI=true`), so a deleted or
- * renamed snapshot goes green here — check the file list, not just the run.
+ *   renamed snapshot goes green here — check the file list, not just the run.
  *
  * Timezone safety: every date handed to an adapter is built from local calendar
  * components, because the date renderings format with local-time dayjs. Values
@@ -150,7 +150,7 @@ async function hydrate(context: FormContextProps, encounter: OpenmrsEncounter, a
     await context.processor.getInitialValues(context);
     if (consoleError.mock.calls.length) {
       throw new Error(
-        `buildScenario: hydration logged ${consoleError.mock.calls.length} error(s), which ` +
+        `buildScenario: hydration logged ${consoleError.mock.calls.length} error(s), which` +
           `getInitialValues swallows:\n  ${consoleError.mock.calls.map((call) => String(call[0])).join('\n  ')}`,
       );
     }
@@ -164,8 +164,8 @@ async function hydrate(context: FormContextProps, encounter: OpenmrsEncounter, a
   const unclaimed = flattenObsList(encounter.obs ?? []).filter((obs) => !assignedObsIds.includes(obs.uuid));
   if (unclaimed.length) {
     throw new Error(
-      `buildScenario: ${unclaimed.length} obs on the fixture encounter never bound to a field ` +
-        `(likely a formFieldPath or concept typo). Pass allowUnclaimedObs if intended:\n  ` +
+      `buildScenario: ${unclaimed.length} obs on the fixture encounter never bound to a field` +
+        `(likely a formFieldPath or concept typo). Pass allowUnclaimedObs if intended:\n` +
         unclaimed.map((obs) => `${obs.uuid} (${obs.formFieldPath})`).join('\n  '),
     );
   }
@@ -590,9 +590,10 @@ describe('golden encounter payloads: edited encounters', () => {
       dateField: new Date(2026, 4, 10),
       // `datetime` compares at minute granularity, so a time-only change is an edit
       datetimeField: new Date(2026, 4, 4, 9, 15),
-      // A time-only change on a `date` field is ALSO an edit — see the
-      // change-detection granularity test below for why the day-granularity the
-      // code reads as if it implements is not what actually happens.
+      // A time-only change on a `date` field is NOT an edit: `formatDateByPickerType`
+      // compares at day granularity for calendar fields, so the field is judged
+      // unchanged and falls through to `constructObs`, producing a uuid-less
+      // duplicate rather than an update.
       sameDayDateField: new Date(2026, 4, 4, 14, 30),
       clearedField: '',
     });
@@ -604,17 +605,16 @@ describe('golden encounter payloads: edited encounters', () => {
     await matchGolden(toEncounterPayload(context), 'edit-encounter-obs-changes');
   });
 
-  it('detects date changes at millisecond granularity and datetime changes at minute granularity', async () => {
-    // `hasPreviousObsValueChanged` reads as if `date` renderings compare whole
-    // days: `dayjs(newValue).diff(dayjs(previousObs.value), 'D')`. They do not.
-    // dayjs normalizes `'D'` to `'date'` (day-of-month), which `diff` has no case
-    // for, so it falls through to its default — MILLISECONDS. Any difference at
-    // all therefore counts as a change on a `date` field.
+  it('detects date changes at day granularity and datetime changes at minute granularity', async () => {
+    // `hasPreviousObsValueChanged` uses `formatDateByPickerType` to compare
+    // dates at their picker granularity: day for calendar, minute for datetime.
+    // A sub-day change on a `date` field is therefore NOT a change, and the
+    // field falls through to `constructObs`, producing a uuid-less duplicate.
     //
-    // `datetime` (and `datePickerFormat: 'both'`) uses `'minute'`, a unit dayjs
-    // does understand, so sub-minute changes there really are treated as "no
-    // change" — and fall through to `constructObs`, producing a uuid-less
-    // duplicate rather than an update.
+    // `datetime` (and `datePickerFormat: 'both'`) compares at minute granularity,
+    // so sub-minute changes there are also treated as "no change" — and fall
+    // through to `constructObs`, producing a uuid-less duplicate rather than
+    // an update.
     const encounter = existingEncounter({
       obs: [
         existingObs({
@@ -645,10 +645,11 @@ describe('golden encounter payloads: edited encounters', () => {
       datetimeField: new Date(2026, 4, 4, 8, 30, 30),
     });
 
-    // the date field took the edit path (uuid present, no concept)
+    // the date field was judged unchanged at day granularity and built a
+    // brand-new obs instead (concept present, no uuid)
     expect(fieldById(context, 'dateField').meta.submission.newValue).toEqual({
-      uuid: 'obs-date-uuid',
       value: '2026-05-04',
+      concept: 'dateField-concept-uuid',
       formFieldNamespace: 'rfe-forms',
       formFieldPath: 'rfe-forms-dateField',
     });
