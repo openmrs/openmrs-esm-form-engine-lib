@@ -295,10 +295,12 @@ function handleDiagnosis(question: FormField) {
     ('dataSource' in question.questionOptions && question.questionOptions['dataSource'] === 'diagnoses') ||
     question.type === 'diagnosis'
   ) {
+    const datasourceConfig = question.questionOptions.datasource?.config;
     question.questionOptions.datasource = {
       name: 'problem_datasource',
       config: {
-        class: question.questionOptions.diagnosis?.conceptClasses,
+        ...datasourceConfig,
+        class: question.questionOptions.diagnosis?.conceptClasses ?? datasourceConfig?.class,
       },
     };
     if (question.questionOptions.diagnosis?.conceptSet) {
@@ -308,6 +310,8 @@ function handleDiagnosis(question: FormField) {
         datasource: {
           name: 'problem_datasource',
           config: {
+            ...datasourceConfig,
+            concept: question.questionOptions.diagnosis.conceptSet,
             useSetMembersByConcept: true,
           },
         },

@@ -1,4 +1,4 @@
-import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { openmrsFetch, restBaseUrl, type OpenmrsResource } from '@openmrs/esm-framework';
 import { BaseOpenMRSDataSource } from './data-source';
 
 export class ProviderDataSource extends BaseOpenMRSDataSource {
@@ -11,5 +11,10 @@ export class ProviderDataSource extends BaseOpenMRSDataSource {
     const url = `${restBaseUrl}/provider?${rep}`;
     const { data } = await openmrsFetch(searchTerm ? `${url}&q=${searchTerm}` : url);
     return data?.results;
+  }
+
+  async fetchSingleItem(uuid: string): Promise<OpenmrsResource | null> {
+    const { data } = await openmrsFetch(`${restBaseUrl}/provider/${uuid}?v=custom:(uuid,display)`);
+    return data;
   }
 }

@@ -1,0 +1,80 @@
+{
+  "patient": "8673ee4f-e2ab-4077-ba55-4980f408773e",
+  "location": "7fdfa2cb-bc95-405a-88c6-32b7673c0453",
+  "encounterType": "test-encounter-type-uuid",
+  "encounterProviders": [
+    {
+      "provider": "current-provider-uuid",
+      "encounterRole": "clinician-role-uuid"
+    }
+  ],
+  "obs": [
+    {
+      "value": "Some free text",
+      "concept": "textField-concept-uuid",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-textField"
+    },
+    {
+      "value": 42,
+      "concept": "numberField-concept-uuid",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-numberField"
+    },
+    {
+      "value": "A longer narrative answer",
+      "concept": "textareaField-concept-uuid",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-textareaField"
+    },
+    {
+      "value": "2026-05-04",
+      "concept": "dateField-concept-uuid",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-dateField"
+    },
+    {
+      "value": "2026-05-04 08:30",
+      "concept": "datetimeField-concept-uuid",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-datetimeField"
+    },
+    {
+      "value": "answer-b-uuid",
+      "concept": "selectField-concept-uuid",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-selectField"
+    },
+    {
+      "value": "answer-c-uuid",
+      "concept": "radioField-concept-uuid",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-radioField"
+    },
+    {
+      "value": "answer-d-uuid",
+      "concept": "checkboxField-concept-uuid",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-checkboxField"
+    },
+    {
+      "value": "answer-e-uuid",
+      "concept": "checkboxField-concept-uuid",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-checkboxField"
+    },
+    {
+      "value": true,
+      "concept": "toggleField-concept-uuid",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-toggleField"
+    }
+  ],
+  "form": {
+    "uuid": "test-form-uuid"
+  },
+  "visit": "15dd49ba-4283-472f-bce3-05401f85c0d3",
+  "orders": [],
+  "diagnoses": [],
+  "encounterDatetime": "2026-01-01T10:00:00.000Z"
+}

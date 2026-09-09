@@ -1,4 +1,5 @@
 import { type FormContextProps } from '../provider/form-provider';
+import { vi, describe, it, expect } from 'vitest';
 import { type FormField } from '../types';
 import { EncounterDiagnosisAdapter } from './encounter-diagnosis-adapter';
 
@@ -32,15 +33,15 @@ const formContext = {
     patientPrograms: [],
   },
   deletedFields: [],
-  getFormField: jest.fn(),
-  addFormField: jest.fn(),
-  updateFormField: jest.fn(),
+  getFormField: vi.fn(),
+  addFormField: vi.fn(),
+  updateFormField: vi.fn(),
   removeFormField: () => {},
-  addInvalidField: jest.fn(),
-  removeInvalidField: jest.fn(),
-  setInvalidFields: jest.fn(),
-  setForm: jest.fn(),
-  setDeletedFields: jest.fn(),
+  addInvalidField: vi.fn(),
+  removeInvalidField: vi.fn(),
+  setInvalidFields: vi.fn(),
+  setForm: vi.fn(),
+  setDeletedFields: vi.fn(),
 } as FormContextProps;
 
 const field = {

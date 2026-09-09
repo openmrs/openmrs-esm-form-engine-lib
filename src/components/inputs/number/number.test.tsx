@@ -1,14 +1,15 @@
 import React from 'react';
+import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { act, render, screen } from '@testing-library/react';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import NumberField from './number.component';
 
-jest.mock('../../../provider/form-provider', () => ({
-  useFormProviderContext: jest.fn(),
+vi.mock('../../../provider/form-provider', () => ({
+  useFormProviderContext: vi.fn(),
 }));
 
-const mockUseFormProviderContext = useFormProviderContext as jest.Mock;
+const mockUseFormProviderContext = useFormProviderContext as Mock;
 
 const numberFieldMock = {
   label: 'Weight(kg):',
@@ -45,7 +46,7 @@ describe('NumberField Component', () => {
       value: '',
       errors: [],
       warnings: [],
-      setFieldValue: jest.fn(),
+      setFieldValue: vi.fn(),
     });
 
     expect(screen.getByLabelText('Weight(kg):')).toBeInTheDocument();
@@ -57,7 +58,7 @@ describe('NumberField Component', () => {
       value: NaN,
       errors: [],
       warnings: [],
-      setFieldValue: jest.fn(),
+      setFieldValue: vi.fn(),
     });
 
     const inputElement = screen.getByLabelText('Weight(kg):') as HTMLInputElement;
@@ -66,7 +67,7 @@ describe('NumberField Component', () => {
 
   it('calls setFieldValue on input change', async () => {
     const user = userEvent.setup();
-    const mockSetFieldValue = jest.fn();
+    const mockSetFieldValue = vi.fn();
 
     await renderNumberField({
       field: numberFieldMock,
@@ -88,7 +89,7 @@ describe('NumberField Component', () => {
       value: '',
       errors: [{ message: 'Invalid value' }],
       warnings: [],
-      setFieldValue: jest.fn(),
+      setFieldValue: vi.fn(),
     });
 
     expect(screen.getByText('Invalid value')).toBeInTheDocument();
@@ -100,7 +101,7 @@ describe('NumberField Component', () => {
       value: '',
       errors: [],
       warnings: [],
-      setFieldValue: jest.fn(),
+      setFieldValue: vi.fn(),
     });
 
     const inputElement = screen.getByLabelText('Weight(kg):') as HTMLInputElement;

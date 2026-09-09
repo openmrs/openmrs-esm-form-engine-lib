@@ -59,13 +59,18 @@ export function cloneRepeatField(srcField: FormField, value: OpenmrsResource, id
 }
 
 export function updateFieldIdInExpression(expression: string, index: number, questionIds: string[]) {
-  let uniqueQuestionIds = [...new Set(questionIds)];
-  uniqueQuestionIds.forEach((id) => {
-    if (expression.match(id)) {
-      expression = expression.replace(new RegExp(id, 'g'), `${id}_${index}`);
-    }
-  });
-  return expression;
+  const uniqueQuestionIds = [...new Set(questionIds)];
+  if (!uniqueQuestionIds.length) {
+    return expression;
+  }
+  // Sort by length desc so longer ids are tried before their shorter prefixes (e.g. `status_code` before `status`).
+  // Word boundaries keep the match from landing inside a longer identifier; regex metachars in ids are escaped.
+  const pattern = uniqueQuestionIds
+    .slice()
+    .sort((a, b) => b.length - a.length)
+    .map((id) => id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+  return expression.replace(new RegExp(`\\b(?:${pattern})\\b`, 'g'), (match) => `${match}_${index}`);
 }
 
 export function disableRepeatAddButton(limit: string | number, counter: number) {

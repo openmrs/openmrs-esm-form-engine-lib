@@ -188,8 +188,10 @@ export interface FormQuestionOptions {
    */
   isCheckboxSearchable?: boolean;
   workspaceName?: string;
+  workspaceProps?: Record<string, any>;
   buttonLabel?: string;
   identifierType?: string;
+  attributeType?: string;
   orderSettingUuid?: string;
   orderType?: string;
   selectableOrders?: Array<Record<any, any>>;

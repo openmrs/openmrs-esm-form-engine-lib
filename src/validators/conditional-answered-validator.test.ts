@@ -1,9 +1,10 @@
 import { conditionalAnsweredValidator } from './conditional-answered-validator';
+import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 import { isEmpty } from '../validators/form-validator';
 import { type FormField, FormFieldValidator } from '../types';
 
-jest.mock('../validators/form-validator', () => ({
-  isEmpty: jest.fn(),
+vi.mock('../validators/form-validator', () => ({
+  isEmpty: vi.fn(),
 }));
 
 describe('conditionalAnsweredValidator', () => {
@@ -29,7 +30,7 @@ describe('conditionalAnsweredValidator', () => {
   });
 
   it('should return no error if value is empty', () => {
-    (isEmpty as jest.Mock).mockReturnValue(true);
+    (isEmpty as Mock).mockReturnValue(true);
     value = '';
 
     const result = conditionalAnsweredValidator.validate(field, value, config);
@@ -38,7 +39,7 @@ describe('conditionalAnsweredValidator', () => {
   });
 
   it('should return no error if value is not empty and reference question answer is included', () => {
-    (isEmpty as jest.Mock).mockReturnValue(false);
+    (isEmpty as Mock).mockReturnValue(false);
     value = 'some value';
     config.values.referenceQuestionId = 'answer1';
 
@@ -48,7 +49,7 @@ describe('conditionalAnsweredValidator', () => {
   });
 
   it('should return an error if value is not empty and reference question answer is not included', () => {
-    (isEmpty as jest.Mock).mockReturnValue(false);
+    (isEmpty as Mock).mockReturnValue(false);
     value = 'some value';
     config.values.referenceQuestionId = 'answer3';
 

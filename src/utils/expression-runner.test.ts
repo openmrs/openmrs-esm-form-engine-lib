@@ -1,4 +1,5 @@
 import { registerExpressionHelper } from '..';
+import { vi, describe, it, expect, afterEach } from 'vitest';
 import { type FormField } from '../types';
 import { evaluateAsyncExpression, evaluateExpression, type ExpressionContext } from './expression-runner';
 
@@ -75,6 +76,24 @@ export const testFields: Array<FormField> = [
       concept: '537d1e25-e7av-481c-aabc-01f21c6cdefo',
     },
     id: 'bodyTemperature',
+  },
+  {
+    label: 'Date of Birth',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'date',
+      concept: 'date_of_birth_concept',
+    },
+    id: 'dateOfBirth',
+  },
+  {
+    label: 'Age in Days',
+    type: 'obs',
+    questionOptions: {
+      rendering: 'number',
+      concept: 'age_in_days_concept',
+    },
+    id: 'ageInDays',
   },
 ];
 
@@ -180,6 +199,8 @@ describe('Expression runner', () => {
     htsProviderRemarks: '',
     referredToPreventionServices: [],
     bodyTemperature: 0,
+    dateOfBirth: '',
+    ageInDays: 0,
     no_interest: '',
     depressed: '',
     bad_sleep: '',
@@ -199,6 +220,8 @@ describe('Expression runner', () => {
       htsProviderRemarks: '',
       referredToPreventionServices: [],
       bodyTemperature: 0,
+      dateOfBirth: '',
+      ageInDays: 0,
       no_interest: '',
       depressed: '',
       bad_sleep: '',
@@ -359,5 +382,26 @@ describe('Expression runner', () => {
       context,
     );
     expect(result).toEqual(5);
+  });
+
+  it('should calculate age in days using dayjs diff expression', () => {
+    // setup - use a known date 30 days ago
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const dateOfBirthString = thirtyDaysAgo.toLocaleDateString('en-CA'); // en-CA produces YYYY-MM-DD in local time
+    valuesMap['dateOfBirth'] = dateOfBirthString;
+
+    // Calculate days difference
+    const result = evaluateExpression(
+      "dayjs().diff(dayjs(dateOfBirth), 'day')",
+      { value: allFields[6], type: 'field' },
+      allFields,
+      valuesMap,
+      context,
+    );
+
+    // Should be approximately 30 days (allowing for time-of-day variations)
+    expect(result).toBeGreaterThanOrEqual(29);
+    expect(result).toBeLessThanOrEqual(31);
   });
 });

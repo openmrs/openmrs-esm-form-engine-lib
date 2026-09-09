@@ -21,9 +21,14 @@ const ContentSwitcher: React.FC<FormFieldInputProps> = ({ field, value, errors, 
     [setFieldValue],
   );
 
+  const visibleAnswers = useMemo(
+    () => field.questionOptions.answers.filter((answer) => !answer.isHidden),
+    [field.questionOptions.answers],
+  );
+
   const selectedIndex = useMemo(
-    () => field.questionOptions.answers.findIndex((option) => option.concept == value),
-    [value, field.questionOptions.answers],
+    () => visibleAnswers.findIndex((option) => option.concept == value),
+    [value, visibleAnswers],
   );
 
   const isInline = useMemo(() => {
@@ -59,7 +64,7 @@ const ContentSwitcher: React.FC<FormFieldInputProps> = ({ field, value, errors, 
           selectedIndex={selectedIndex}
           className={styles.selectedOption}
           size="md">
-          {field.questionOptions.answers.map((option, index) => (
+          {visibleAnswers.map((option, index) => (
             <Switch
               name={option.concept || option.value}
               text={t(option.label)}

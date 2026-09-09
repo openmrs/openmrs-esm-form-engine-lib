@@ -53,6 +53,10 @@ const TextArea: React.FC<FormFieldInputProps> = ({ field, value, errors, warning
             invalidText={errors[0]?.message}
             warn={warnings.length > 0}
             warnText={warnings[0]?.message}
+            enableCounter={!!(field.questionOptions.max || field.questionOptions.maxLength)}
+            maxCount={
+              field.questionOptions.max ? Number(field.questionOptions.max) : Number(field.questionOptions.maxLength)
+            }
           />
         </Layer>
       </div>

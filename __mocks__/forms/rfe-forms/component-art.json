@@ -43,7 +43,7 @@
                 },
                 {
                   "type": "js_expression",
-                  "failsWhenExpression": "(new moment(encDate)).isBefore((new moment(myValue)), 'day') || (new moment(encDate)).isSame((new moment(myValue)), 'day')",
+                  "failsWhenExpression": "dayjs(encDate).isBefore(dayjs(myValue), 'day') || dayjs(encDate).isSame(dayjs(myValue), 'day')",
                   "message": "Date should be before the encounter date."
                 }
               ]
@@ -114,7 +114,7 @@
                 },
                 {
                   "type": "js_expression",
-                  "failsWhenExpression": "(new moment(encDate)).isBefore((new moment(myValue)), 'day') || (new moment(encDate)).isSame((new moment(myValue)), 'day')",
+                  "failsWhenExpression": "dayjs(encDate).isBefore(dayjs(myValue), 'day') || dayjs(encDate).isSame(dayjs(myValue), 'day')",
                   "message": "ARV start date should be before the encounter date."
                 }
               ]
@@ -134,7 +134,7 @@
                 },
                 {
                   "type": "js_expression",
-                  "failsWhenExpression": "(new moment(encDate)).isBefore((new moment(myValue)), 'day') || (new moment(encDate)).isSame((new moment(myValue)), 'day')",
+                  "failsWhenExpression": "dayjs(encDate).isBefore(dayjs(myValue), 'day') || dayjs(encDate).isSame(dayjs(myValue), 'day')",
                   "message": "ARV start date should be before the encounter date."
                 }
               ]
@@ -154,7 +154,7 @@
                 },
                 {
                   "type": "js_expression",
-                  "failsWhenExpression": "(new moment(encDate)).isBefore((new moment(myValue)), 'day') || (new moment(encDate)).isSame((new moment(myValue)), 'day')",
+                  "failsWhenExpression": "dayjs(encDate).isBefore(dayjs(myValue), 'day') || dayjs(encDate).isSame(dayjs(myValue), 'day')",
                   "message": "ARV start date should be before the encounter date."
                 }
               ]

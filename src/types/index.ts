@@ -75,12 +75,12 @@ export interface DataSource<T> {
    * Fetches a single item from the data source based on its UUID.
    * This is used for value binding with previously selected values.
    */
-  fetchSingleItem(uuid: string): Promise<T | null>;
+  fetchSingleItem(uuid: string, config?: Record<string, any>): Promise<T | null>;
 
   /**
    * Maps a data source item to an object with a uuid and display property
    */
-  toUuidAndDisplay(item: T): OpenmrsResource;
+  toUuidAndDisplay(item: T, config?: Record<string, any>): OpenmrsResource;
 }
 
 export interface ControlTemplate {

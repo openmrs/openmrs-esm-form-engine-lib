@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
+import { vi, describe, it, expect, type Mock } from 'vitest';
 import { openmrsFetch } from '@openmrs/esm-framework';
 import { when } from 'jest-when';
 import { useFormJson } from './useFormJson';
@@ -41,8 +42,8 @@ const COMPONENT_PRECLINIC_REVIEW_SCHEMA_VALUE_REF = '74d06044-850f-11ee-b9d1-024
 const NON_EXISTENT_FORM_NAME = 'non-existent-form';
 
 // Base setup
-const mockOpenmrsFetch = openmrsFetch as jest.Mock;
-mockOpenmrsFetch.mockImplementation(jest.fn());
+const mockOpenmrsFetch = openmrsFetch as Mock;
+mockOpenmrsFetch.mockImplementation(vi.fn());
 
 // parent form
 when(mockOpenmrsFetch)
@@ -163,7 +164,7 @@ describe('useFormJson', () => {
   });
 
   it('should return an error when the form is not found', async () => {
-    const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     let hook = null;
     await act(async () => {
       hook = renderHook(() => useFormJson(NON_EXISTENT_FORM_NAME, null, null, null));

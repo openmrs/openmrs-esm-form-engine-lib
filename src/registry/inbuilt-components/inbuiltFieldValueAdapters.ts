@@ -9,6 +9,7 @@ import { ObsAdapter } from '../../adapters/obs-adapter';
 import { ObsCommentAdapter } from '../../adapters/obs-comment-adapter';
 import { OrdersAdapter } from '../../adapters/orders-adapter';
 import { PatientIdentifierAdapter } from '../../adapters/patient-identifier-adapter';
+import { PersonAttributeAdapter } from '../../adapters/person-attribute-adapter';
 import { ProgramStateAdapter } from '../../adapters/program-state-adapter';
 import { EncounterDiagnosisAdapter } from '../../adapters/encounter-diagnosis-adapter';
 import { type FormFieldValueAdapter } from '../../types';
@@ -61,6 +62,10 @@ export const inbuiltFieldValueAdapters: RegistryItem<FormFieldValueAdapter>[] = 
   {
     type: 'patientIdentifier',
     component: PatientIdentifierAdapter,
+  },
+  {
+    type: 'personAttribute',
+    component: PersonAttributeAdapter,
   },
   {
     type: 'diagnosis',

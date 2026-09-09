@@ -110,12 +110,12 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
               />
             ) : (
               <CheckboxGroup legendText={<FieldLabel field={field} />} readOnly={isTrue(field.readonly)}>
-                {field.questionOptions.answers?.map((value, index) => {
+                {selectOptions?.map((value, index) => {
                   return (
                     <Checkbox
                       className={styles.checkbox}
                       checked={initiallyCheckedQuestionItems.some((item) => item === value.concept)}
-                      disabled={value.disable?.isDisabled}
+                      disabled={value.disabled}
                       id={`${field.id}-${value.concept}`}
                       key={`${field.id}-${value.concept}-${index}`}
                       labelText={t(value.label)}

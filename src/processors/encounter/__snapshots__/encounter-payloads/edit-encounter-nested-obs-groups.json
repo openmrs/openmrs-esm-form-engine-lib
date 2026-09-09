@@ -1,0 +1,80 @@
+{
+  "uuid": "6c9a2d1f-1e3c-4f36-9b3d-1e0d1a0b5f21",
+  "encounterDatetime": "2026-06-01T10:00:00.000Z",
+  "encounterType": {
+    "uuid": "test-encounter-type-uuid",
+    "name": "Test Encounter Type"
+  },
+  "location": "encounter-location-uuid",
+  "patient": {
+    "uuid": "8673ee4f-e2ab-4077-ba55-4980f408773e",
+    "display": "Test Patient"
+  },
+  "encounterProviders": [
+    {
+      "uuid": "encounter-provider-uuid",
+      "provider": {
+        "uuid": "other-provider-uuid",
+        "name": "Other Provider"
+      },
+      "encounterRole": {
+        "uuid": "clinician-role-uuid",
+        "name": "Clinician"
+      }
+    },
+    {
+      "provider": "current-provider-uuid",
+      "encounterRole": "clinician-role-uuid"
+    }
+  ],
+  "obs": [
+    {
+      "groupMembers": [
+        {
+          "uuid": "obs-systolic-uuid",
+          "value": 130,
+          "formFieldNamespace": "rfe-forms",
+          "formFieldPath": "rfe-forms-systolic"
+        },
+        {
+          "uuid": "obs-diastolic-uuid",
+          "voided": true
+        },
+        {
+          "value": "answer-c-uuid",
+          "concept": "groupCheckbox-concept-uuid",
+          "formFieldNamespace": "rfe-forms",
+          "formFieldPath": "rfe-forms-groupCheckbox"
+        },
+        {
+          "uuid": "obs-group-checkbox-b-uuid",
+          "voided": true
+        },
+        {
+          "groupMembers": [
+            {
+              "uuid": "obs-nested-note-uuid",
+              "value": "Taken while standing",
+              "formFieldNamespace": "rfe-forms",
+              "formFieldPath": "rfe-forms-nestedNote"
+            }
+          ],
+          "concept": "nestedGroup-concept-uuid",
+          "formFieldNamespace": "rfe-forms",
+          "formFieldPath": "rfe-forms-nestedGroup",
+          "uuid": "obs-nested-group-uuid"
+        }
+      ],
+      "concept": "vitals-concept-uuid",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-vitals",
+      "uuid": "obs-group-uuid"
+    }
+  ],
+  "orders": [],
+  "diagnoses": [],
+  "form": {
+    "uuid": "test-form-uuid"
+  },
+  "visit": "15dd49ba-4283-472f-bce3-05401f85c0d3"
+}
