@@ -1,7 +1,9 @@
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import useSWRImmutable from 'swr/immutable';
 import { getRegisteredValidator } from '../registry/registry';
 import { type FormField, type FormFieldValidator } from '../types';
+
+const EMPTY_VALIDATORS: Record<string, FormFieldValidator> = {};
 
 export function useFormFieldValidators(fields: FormField[]) {
   const validatorTypesKey = useMemo(() => {
@@ -11,8 +13,6 @@ export function useFormFieldValidators(fields: FormField[]) {
     });
     return Array.from(uniqueTypes).sort().join(',');
   }, [fields]);
-
-  const validatorsRef = useRef<Record<string, FormFieldValidator>>({});
 
   const { data: validators } = useSWRImmutable(
     validatorTypesKey ? ['formFieldValidators', validatorTypesKey] : null,
@@ -25,11 +25,8 @@ export function useFormFieldValidators(fields: FormField[]) {
       });
       return validatorsByType;
     },
+    { keepPreviousData: true },
   );
 
-  if (validators && validators !== validatorsRef.current) {
-    validatorsRef.current = validators;
-  }
-
-  return validatorsRef.current;
+  return validators ?? EMPTY_VALIDATORS;
 }

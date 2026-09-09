@@ -1,7 +1,9 @@
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import useSWRImmutable from 'swr/immutable';
 import { type FormField, type FormFieldValueAdapter } from '../types';
 import { getRegisteredFieldValueAdapter } from '../registry/registry';
+
+const EMPTY_ADAPTERS: Record<string, FormFieldValueAdapter> = {};
 
 export const useFormFieldValueAdapters = (fields: FormField[]) => {
   const typesKey = useMemo(() => {
@@ -9,8 +11,6 @@ export const useFormFieldValueAdapters = (fields: FormField[]) => {
     fields.forEach((field) => uniqueTypes.add(field.type));
     return Array.from(uniqueTypes).sort().join(',');
   }, [fields]);
-
-  const adaptersRef = useRef<Record<string, FormFieldValueAdapter>>({});
 
   const { data: adapters } = useSWRImmutable(
     typesKey ? ['formFieldValueAdapters', typesKey] : null,
@@ -23,11 +23,8 @@ export const useFormFieldValueAdapters = (fields: FormField[]) => {
       });
       return adaptersByType;
     },
+    { keepPreviousData: true },
   );
 
-  if (adapters && adapters !== adaptersRef.current) {
-    adaptersRef.current = adapters;
-  }
-
-  return adaptersRef.current;
+  return adapters ?? EMPTY_ADAPTERS;
 };

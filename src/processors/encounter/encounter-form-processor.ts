@@ -24,7 +24,7 @@ import {
 import { evaluateAsyncExpression, type FormNode } from '../../utils/expression-runner';
 import { extractErrorMessagesFromResponse } from '../../utils/error-utils';
 import { extractObsValueAndDisplay } from '../../utils/form-helper';
-import { FormProcessor } from '../form-processor';
+import { FormProcessor, type FormProcessorContextSetters } from '../form-processor';
 import { getPreviousEncounter, saveEncounter } from '../../api';
 import { hasRendering } from '../../utils/common-utils';
 import { isEmpty } from '../../validators/form-validator';
@@ -50,19 +50,14 @@ function useCustomHooks(context: Partial<FormProcessorContextProps>) {
     data: { encounter, patientPrograms, encounterRole },
     isLoading,
     error: null,
-    updateContext: (setContext: React.Dispatch<React.SetStateAction<FormProcessorContextProps>>) => {
-      setContext((context) => {
-        context.processor.domainObjectValue = encounter as OpenmrsResource;
-        return {
-          ...context,
-          domainObjectValue: encounter as OpenmrsResource,
-          customDependencies: {
-            ...context.customDependencies,
-            patientPrograms: patientPrograms,
-            defaultEncounterRole: encounterRole,
-          },
-        };
-      });
+    updateContext: (_setContext, { setDomainObjectValue, setCustomDependencies }) => {
+      context.processor.domainObjectValue = encounter as OpenmrsResource;
+      setDomainObjectValue(encounter as OpenmrsResource);
+      setCustomDependencies((previous) => ({
+        ...previous,
+        patientPrograms: patientPrograms,
+        defaultEncounterRole: encounterRole,
+      }));
     },
   };
 }
@@ -344,16 +339,12 @@ export class EncounterFormProcessor extends FormProcessor {
 
   async loadDependencies(
     context: FormContextProps,
-    setContext: React.Dispatch<React.SetStateAction<FormProcessorContextProps>>,
+    _setContext: React.Dispatch<React.SetStateAction<FormProcessorContextProps>>,
+    { setPreviousDomainObjectValue }: FormProcessorContextSetters,
   ) {
     const { patient, formJson } = context;
     const encounter = await getPreviousEncounter(patient?.id, formJson.encounterType);
-    setContext((context) => {
-      return {
-        ...context,
-        previousDomainObjectValue: encounter,
-      };
-    });
+    setPreviousDomainObjectValue(encounter);
     return context;
   }
 

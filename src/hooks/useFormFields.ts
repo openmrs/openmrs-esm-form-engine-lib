@@ -1,9 +1,7 @@
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { type FormField, type FormSchema } from '../types';
 
 export function useFormFields(form: FormSchema): { formFields: FormField[]; conceptReferences: Set<string> } {
-  const conceptReferencesRef = useRef<Set<string>>(new Set());
-
   const [flattenedFields, conceptReferencesKey] = useMemo(() => {
     const flattenedFieldsTemp: FormField[] = [];
     const conceptReferencesTemp = new Set<string>();
@@ -42,14 +40,13 @@ export function useFormFields(form: FormSchema): { formFields: FormField[]; conc
       }),
     );
 
+    // Serialised so the set below is rebuilt only when the references change. JSON rather than a
+    // delimiter because mapping codes may contain any character, commas included.
     const sortedRefs = Array.from(conceptReferencesTemp).sort();
-    return [flattenedFieldsTemp, sortedRefs.join(',')];
+    return [flattenedFieldsTemp, JSON.stringify(sortedRefs)];
   }, [form]);
 
-  const currentKey = Array.from(conceptReferencesRef.current).sort().join(',');
-  if (conceptReferencesKey !== currentKey) {
-    conceptReferencesRef.current = new Set(conceptReferencesKey.split(',').filter(Boolean));
-  }
+  const conceptReferences = useMemo(() => new Set<string>(JSON.parse(conceptReferencesKey)), [conceptReferencesKey]);
 
-  return { formFields: flattenedFields, conceptReferences: conceptReferencesRef.current };
+  return { formFields: flattenedFields, conceptReferences };
 }

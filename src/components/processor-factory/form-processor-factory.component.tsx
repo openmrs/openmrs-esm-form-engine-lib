@@ -12,6 +12,7 @@ import { useFormFieldsMeta } from '../../hooks/useFormFieldsMeta';
 import { useFormFactory } from '../../provider/form-factory-provider';
 import { useFormFieldValueAdapters } from '../../hooks/useFormFieldValueAdapters';
 import { EncounterFormProcessor } from '../../processors/encounter/encounter-form-processor';
+import { type FormProcessorContextSetters } from '../../processors/form-processor';
 import { reportError } from '../../utils/error-utils';
 import { useTranslation } from 'react-i18next';
 import Loader from '../loaders/loader.component';
@@ -28,6 +29,34 @@ interface MutableContextState {
   domainObjectValue?: OpenmrsResource;
   previousDomainObjectValue?: OpenmrsResource;
   customDependencies?: Record<string, any>;
+}
+
+/** Context properties this component derives; a processor that sets one of these is ignored. */
+const factoryOwnedContextKeys = [
+  'patient',
+  'formJson',
+  'visit',
+  'sessionMode',
+  'sessionDate',
+  'location',
+  'currentProvider',
+  'layoutType',
+  'processor',
+  'formFields',
+  'formFieldAdapters',
+  'formFieldValidators',
+] as const satisfies ReadonlyArray<keyof FormProcessorContextProps>;
+
+function warnAboutIgnoredContextKeys(previous: FormProcessorContextProps, next: FormProcessorContextProps) {
+  const ignored = factoryOwnedContextKeys.filter((key) => key in next && next[key] !== previous[key]);
+  if (ignored.length) {
+    console.warn(
+      `A form processor tried to set the context propert${ignored.length === 1 ? 'y' : 'ies'} ` +
+        `${ignored.join(', ')}, which the form engine derives itself. ${
+          ignored.length === 1 ? 'It was' : 'They were'
+        } ignored. Use the setters passed alongside setContext to update the domain object or custom dependencies.`,
+    );
+  }
 }
 
 const FormProcessorFactory = ({
@@ -120,6 +149,12 @@ const FormProcessorFactory = ({
 
         const newFull = typeof updater === 'function' ? updater(prevFull) : updater;
 
+        // Only the updater form sees prevFull; a bare object may be a stale context, whose
+        // differences aren't attempted writes.
+        if (typeof updater === 'function') {
+          warnAboutIgnoredContextKeys(prevFull, newFull);
+        }
+
         // Extract only the mutable parts from the result
         return {
           domainObjectValue: newFull.domainObjectValue,
@@ -131,7 +166,27 @@ const FormProcessorFactory = ({
     [baseContext],
   );
 
-  const { isLoading: isLoadingCustomDeps } = useProcessorDependencies(processor, processorContext, setProcessorContext);
+  const processorSetters = useMemo<FormProcessorContextSetters>(
+    () => ({
+      setDomainObjectValue: (value) => setMutableContext((prev) => ({ ...prev, domainObjectValue: value })),
+      setPreviousDomainObjectValue: (value) =>
+        setMutableContext((prev) => ({ ...prev, previousDomainObjectValue: value })),
+      setCustomDependencies: (dependencies) =>
+        setMutableContext((prev) => ({
+          ...prev,
+          customDependencies:
+            typeof dependencies === 'function' ? dependencies(prev.customDependencies ?? {}) : dependencies,
+        })),
+    }),
+    [],
+  );
+
+  const { isLoading: isLoadingCustomDeps } = useProcessorDependencies(
+    processor,
+    processorContext,
+    setProcessorContext,
+    processorSetters,
+  );
   const useCustomHooks = processor.getCustomHooks().useCustomHooks;
   const [isLoadingCustomHooks, setIsLoadingCustomHooks] = useState(!!useCustomHooks);
   const {
@@ -167,6 +222,7 @@ const FormProcessorFactory = ({
         <CustomHooksRenderer
           context={processorContext}
           setContext={setProcessorContext}
+          setters={processorSetters}
           useCustomHooks={useCustomHooks}
           setIsLoadingCustomHooks={setIsLoadingCustomHooks}
         />
