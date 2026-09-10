@@ -47,27 +47,42 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
 
   const selectedItem = useMemo(() => items.find((item) => item.uuid == value) || null, [items, value]);
 
-  const debouncedSearch = debounce((searchTerm: string, dataSource: DataSource<OpenmrsResource>) => {
-    setIsSearching(true);
+  const searchGeneration = useRef(0);
 
-    dataSource
-      .fetchData(searchTerm, config)
-      .then((dataItems) => {
-        if (dataItems.length) {
-          const currentSelectedItem = items.find((item) => item.uuid == value);
-          const newItems = dataItems.map((item) => dataSource.toUuidAndDisplay(item, config));
-          if (currentSelectedItem && !newItems.some((item) => item.uuid == currentSelectedItem.uuid)) {
-            newItems.unshift(currentSelectedItem);
-          }
-          setItems(newItems);
-        }
-        setIsSearching(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setIsSearching(false);
-      });
-  }, 300);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((searchTerm: string, dataSource: DataSource<OpenmrsResource>) => {
+        const generation = searchGeneration.current;
+        setIsSearching(true);
+
+        dataSource
+          .fetchData(searchTerm, config)
+          .then((dataItems) => {
+            if (generation !== searchGeneration.current) {
+              return;
+            }
+            if (dataItems.length) {
+              setItems((currentItems) => {
+                const currentSelectedItem = currentItems.find((item) => item.uuid == value);
+                const newItems = dataItems.map((item) => dataSource.toUuidAndDisplay(item, config));
+                if (currentSelectedItem && !newItems.some((item) => item.uuid == currentSelectedItem.uuid)) {
+                  newItems.unshift(currentSelectedItem);
+                }
+                return newItems;
+              });
+            }
+            setIsSearching(false);
+          })
+          .catch((err) => {
+            if (generation !== searchGeneration.current) {
+              return;
+            }
+            console.error(err);
+            setIsSearching(false);
+          });
+      }, 300),
+    [config, value],
+  );
 
   const searchTermHasMatchingItem = useCallback(
     (searchTerm: string) => {
@@ -119,8 +134,14 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
   useEffect(() => {
     if (dataSource && isSearchable && !isEmpty(searchTerm) && !searchTermHasMatchingItem(searchTerm)) {
       debouncedSearch(searchTerm, dataSource);
+    } else {
+      setIsSearching(false);
     }
-  }, [dataSource, searchTerm, config]);
+    return () => {
+      debouncedSearch.cancel();
+      searchGeneration.current++;
+    };
+  }, [dataSource, searchTerm, isSearchable, debouncedSearch]);
 
   useEffect(() => {
     let ignore = false;
