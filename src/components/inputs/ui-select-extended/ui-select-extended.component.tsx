@@ -48,6 +48,11 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
   const selectedItem = useMemo(() => items.find((item) => item.uuid == value) || null, [items, value]);
 
   const searchGeneration = useRef(0);
+  const valueRef = useRef(value);
+
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
 
   const debouncedSearch = useMemo(
     () =>
@@ -63,7 +68,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
             }
             if (dataItems.length) {
               setItems((currentItems) => {
-                const currentSelectedItem = currentItems.find((item) => item.uuid == value);
+                const currentSelectedItem = currentItems.find((item) => item.uuid == valueRef.current);
                 const newItems = dataItems.map((item) => dataSource.toUuidAndDisplay(item, config));
                 if (currentSelectedItem && !newItems.some((item) => item.uuid == currentSelectedItem.uuid)) {
                   newItems.unshift(currentSelectedItem);
@@ -81,7 +86,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
             setIsSearching(false);
           });
       }, 300),
-    [config, value],
+    [config],
   );
 
   const searchTermHasMatchingItem = useCallback(
@@ -198,6 +203,9 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
             selectedItem={selectedItem}
             placeholder={isSearchable ? t('search', 'Search') + '...' : null}
             onChange={({ selectedItem }) => {
+              debouncedSearch.cancel();
+              searchGeneration.current++;
+              setIsSearching(false);
               isProcessingSelection.current = true;
               setFieldValue(selectedItem?.uuid);
             }}
