@@ -207,6 +207,7 @@ export interface FormQuestionOptions {
     conceptClasses?: Array<string>;
     conceptSet?: string;
   };
+  annotationOptions?: AnnotationOptions;
 }
 
 export interface QuestionAnswerOption {
@@ -215,6 +216,16 @@ export interface QuestionAnswerOption {
   label?: string;
   concept?: string;
   [key: string]: any;
+}
+
+export interface AnnotationOptions {
+  templates: Array<AnnotationTemplate>;
+}
+
+export interface AnnotationTemplate {
+  id: string;
+  label: string;
+  src: string;
 }
 
 export type RenderType =
@@ -242,7 +253,8 @@ export type RenderType =
   | 'workspace-launcher'
   | 'markdown'
   | 'extension-widget'
-  | 'select-concept-answers';
+  | 'select-concept-answers'
+  | 'annotation';
 
 export interface FormReference {
   form: string;

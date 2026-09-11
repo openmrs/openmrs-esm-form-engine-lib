@@ -1,0 +1,9 @@
+@use '@carbon/layout';
+@use '@carbon/colors';
+
+.label {
+  font-weight: 600;
+  line-height: 30px;
+  color: colors.$black-100;
+}
+
