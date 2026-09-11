@@ -182,19 +182,17 @@ export function editObs(field: FormField, newValue: any) {
 }
 
 function formatDateByPickerType(field: FormField, value: Date) {
-  if (field.datePickerFormat) {
-    switch (field.datePickerFormat) {
-      case 'calendar':
-        return dayjs(value).format('YYYY-MM-DD');
-      case 'timer':
-        return dayjs(value).format('HH:mm');
-      case 'both':
-        return dayjs(value).format('YYYY-MM-DD HH:mm');
-      default:
-        return dayjs(value).format('YYYY-MM-DD');
-    }
+  const format = field.datePickerFormat ?? (hasRendering(field, 'datetime') ? 'both' : 'calendar');
+  switch (format) {
+    case 'calendar':
+      return dayjs(value).format('YYYY-MM-DD');
+    case 'timer':
+      return dayjs(value).format('HH:mm');
+    case 'both':
+      return dayjs(value).format('YYYY-MM-DD HH:mm');
+    default:
+      return dayjs(value).format('YYYY-MM-DD');
   }
-  return value;
 }
 
 export function hasPreviousObsValueChanged(field: FormField, newValue: any) {
@@ -205,11 +203,11 @@ export function hasPreviousObsValueChanged(field: FormField, newValue: any) {
   if (codedTypes.includes(field.questionOptions.rendering)) {
     return previousObs.value.uuid !== newValue;
   }
-  if (hasRendering(field, 'date')) {
-    return dayjs(newValue).diff(dayjs(previousObs.value), 'D') !== 0;
-  }
-  if (hasRendering(field, 'datetime') || field.datePickerFormat === 'both') {
-    return dayjs(newValue).diff(dayjs(previousObs.value), 'minute') !== 0;
+  if (field.questionOptions.rendering.startsWith('date')) {
+    const previousDate =
+      previousObs.value instanceof Date ? previousObs.value : parseToLocalDateTime(previousObs.value);
+    const newDate = newValue instanceof Date ? newValue : parseToLocalDateTime(newValue);
+    return formatDateByPickerType(field, previousDate) !== formatDateByPickerType(field, newDate);
   }
   if (hasRendering(field, 'toggle')) {
     return (previousObs.value.uuid === ConceptTrue) !== newValue;
@@ -234,7 +232,7 @@ function handleMultiSelect(field: FormField, values: Array<string> = []) {
   }
   if (obsArray?.length && !isEmpty(values)) {
     const toBeVoided = obsArray.filter((obs) => !values.includes(obs.value.uuid));
-    const toBeCreated = values.filter((v) => !obsArray.some((obs) => obs.value.uuid === v));
+    const toBeCreated = values.filter((v) => !obsArray.some((obs) => obs.value.uuid == v));
     return gracefullySetSubmission(
       field,
       toBeCreated.map((value) => constructObs(field, value)),
