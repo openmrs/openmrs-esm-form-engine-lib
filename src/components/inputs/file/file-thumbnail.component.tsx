@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { type ComponentProps, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './file-thumbnail.scss';
-import { CloseFilled, DocumentPdf, DocumentUnknown } from '@carbon/react/icons';
+import { Close, DocumentPdf, DocumentUnknown } from '@carbon/react/icons';
 import { Button } from '@carbon/react';
 
 interface FileThumbnailProps {
@@ -28,16 +28,25 @@ export function FileThumbnail({ bytesContentFamily, removeFileCb, ...thumbnailPr
   }, []);
 
   return (
-    <div className={styles.thumbnail}>
-      <Thumbnail {...thumbnailProps} />
-      <Button
-        kind="ghost"
-        className={styles.removeButton}
-        onClick={removeFileCb}
-        aria-label={t('removeAttachment', 'Remove attachment')}>
-        <CloseFilled size={16} className={styles.closeIcon} />
-      </Button>
-    </div>
+    <>
+      <div className={styles.thumbnail}>
+        <Thumbnail {...thumbnailProps} />
+      </div>
+      <div className={styles.caption}>
+        <span className={styles.fileName} title={thumbnailProps.title}>
+          {thumbnailProps.title}
+        </span>
+        <Button
+          kind="ghost"
+          size="sm"
+          hasIconOnly
+          renderIcon={(props: ComponentProps<typeof Close>) => <Close size={16} {...props} />}
+          iconDescription={t('removeAttachment', 'Remove attachment')}
+          onClick={removeFileCb}
+          tooltipPosition="bottom"
+        />
+      </div>
+    </>
   );
 }
 

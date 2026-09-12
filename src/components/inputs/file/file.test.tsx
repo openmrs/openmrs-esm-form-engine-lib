@@ -114,6 +114,18 @@ describe('File field input', () => {
     expect(screen.getByRole('img', { name: 'third.jpg' })).toBeInTheDocument();
   });
 
+  it('should show each attachment filename and keep the full name reachable when it is clipped', async () => {
+    const fileNames = ['first.jpg', 'a-considerably-longer-file-name.jpg', 'third.jpg'];
+    await renderFileField({ ...fileValues, value: fileNames.map((fileName) => imageAttachment(fileName)) });
+
+    for (const fileName of fileNames) {
+      // The caption is only as wide as the tile and shares that with the remove control, so the
+      // stylesheet clips the name with an ellipsis. `title` is what keeps the rest of it reachable;
+      // jsdom does no layout, so the clipping itself is a manual check.
+      expect(screen.getByText(fileName)).toHaveAttribute('title', fileName);
+    }
+  });
+
   it('should not offer to add files in view mode', async () => {
     await renderFileField({ ...fileValues, value: [imageAttachment('first.jpg')] }, 'view');
     expect(screen.queryByRole('button', { name: /add file/i })).not.toBeInTheDocument();
