@@ -35,6 +35,30 @@ const pdfAttachment = (fileName: string, overrides: Partial<Attachment> = {}): A
   ...overrides,
 });
 
+/**
+ * Makes every element report itself as wider than the box it is in, which is the condition the file
+ * name uses to decide it needs a tooltip. jsdom reports 0 for both, so without this no name is ever
+ * clipped. Returns a function that puts the original descriptors back.
+ */
+function stubClippedText() {
+  const original = (['offsetWidth', 'scrollWidth'] as const).map(
+    (property) => [property, Object.getOwnPropertyDescriptor(HTMLElement.prototype, property)] as const,
+  );
+
+  Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, get: () => 68 });
+  Object.defineProperty(HTMLElement.prototype, 'scrollWidth', { configurable: true, get: () => 200 });
+
+  return () => {
+    for (const [property, descriptor] of original) {
+      if (descriptor) {
+        Object.defineProperty(HTMLElement.prototype, property, descriptor);
+      } else {
+        delete HTMLElement.prototype[property];
+      }
+    }
+  };
+}
+
 const fileField = {
   label: 'Attach a scan',
   type: 'obs',
@@ -122,17 +146,33 @@ describe('File field input', () => {
     expect(screen.getByRole('img', { name: 'third.jpg' })).toBeInTheDocument();
   });
 
+  it('should show each attachment filename', async () => {
+    const fileNames = ['first.jpg', 'second.jpg', 'third.jpg'];
+    await renderFileField({ ...fileValues, value: fileNames.map((fileName) => imageAttachment(fileName)) });
+
+    for (const fileName of fileNames) {
+      expect(screen.getByText(fileName)).toBeInTheDocument();
+    }
+  });
+
+  it('should leave a filename that fits as plain text', async () => {
+    await renderFileField({ ...fileValues, value: [imageAttachment('short.jpg')] });
+
+    expect(screen.getByText('short.jpg')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'short.jpg' })).not.toBeInTheDocument();
+  });
+
   it('should show a document tile rather than an image for a non-image attachment', async () => {
     await renderFileField({
       ...fileValues,
       value: [imageAttachment('scan.jpg'), pdfAttachment('operative-note.pdf')],
     });
 
-    // A PDF has no preview to render, so it gets a glyph rather than an <img> that would resolve to
-    // nothing. Both still get their own remove control.
+    // A PDF has no preview to render, so it gets a glyph on the same media box as the images rather
+    // than an <img> that would resolve to nothing. Its name still shows in the card's bar.
     expect(screen.getByRole('img', { name: 'scan.jpg' })).toBeInTheDocument();
     expect(screen.queryByRole('img', { name: 'operative-note.pdf' })).not.toBeInTheDocument();
-    expect(screen.getAllByRole('button', { name: /remove attachment/i })).toHaveLength(2);
+    expect(screen.getByText('operative-note.pdf')).toBeInTheDocument();
   });
 
   it('should offer to remove a document the same way it offers to remove an image', async () => {
@@ -142,6 +182,24 @@ describe('File field input', () => {
     await user.click(screen.getByRole('button', { name: /remove attachment/i }));
 
     expect(mockSetFieldValue).toHaveBeenCalledWith([]);
+  });
+
+  it('should offer the whole filename in a tooltip once the caption clips it', async () => {
+    // The caption is only as wide as the tile and shares that with the remove control, so a long
+    // name is clipped with an ellipsis and the rest of it has to come from somewhere. jsdom does no
+    // layout, so the measurement the component makes has to be stood in for.
+    const restoreTextSize = stubClippedText();
+    const fileName = 'a-considerably-longer-file-name.jpg';
+
+    try {
+      await renderFileField({ ...fileValues, value: [imageAttachment(fileName)] });
+
+      // A button rather than a bare span, so the name is reachable by keyboard and not only by
+      // hovering. Carbon's Tooltip names the trigger after the label, which is the whole filename.
+      expect(screen.getByRole('button', { name: fileName })).toBeInTheDocument();
+    } finally {
+      restoreTextSize();
+    }
   });
 
   it('should not offer to add files in view mode', async () => {

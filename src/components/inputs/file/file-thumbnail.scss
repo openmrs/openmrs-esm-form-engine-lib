@@ -1,19 +1,45 @@
 @use '@carbon/layout';
+@use '@carbon/styles/scss/theme';
+@use '@carbon/type';
 @use '@openmrs/esm-styleguide/src/vars' as vars;
+
+// A Carbon preview card cut down to its first two rows: a media box, then the bar carrying the file
+// name and the remove control. One surface for the whole card, as Carbon's Card is, so the divider
+// below is the only thing separating the picture from its action bar.
+//
+// `$layer-accent` is a slight stretch of the token: Carbon means it for a subdued band inside a
+// layer, which is how its data table header uses it. It is the right value here - one step darker
+// than the form panel, and darker than `$layer-hover`, so the card reads as a surface rather than
+// as something the cursor is doing. It holds the same #e0e0e0 at every layer depth, as does
+// `$border-strong` below, so the card needs no `<Layer>` around it.
+.card {
+  width: 7rem;
+  background-color: theme.$layer-accent;
+}
 
 .thumbnail {
   height: 7rem;
   width: 7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // No background of its own: the card's surface shows through wherever the picture's own aspect
+  // ratio does not fill the box.
+  // A broken image renders its alt text, which would otherwise escape the card.
+  overflow: hidden;
 }
 
 .imageThumbnail {
+  // `max-*` rather than a fixed width and height, so a source smaller than the box keeps its own
+  // size instead of being scaled up to a blur. Anything larger fills the box on its long axis and
+  // letterboxes on the short one.
   max-width: 100%;
   max-height: 100%;
-  object-fit: cover;
 }
 
 .pdfThumbnail {
-  background-color: vars.$color-gray-30;
+  // No background of its own: a document sits on the same media box as a picture, so the two share
+  // one shape.
   display: flex;
   justify-content: center;
   align-items: center;
@@ -21,22 +47,55 @@
   height: 100%;
 }
 
-.removeButton {
-  position: absolute;
-  top: layout.$spacing-02;
-  right: layout.$spacing-02;
-  background-color: transparent;
-  border: none;
+.caption {
+  display: flex;
+  align-items: center;
+  gap: layout.$spacing-02;
+  // Same 7rem as `.thumbnail` above and as the grid track in file.scss. The bar being the card's own
+  // width, and abutting the media box, is what makes it read as part of the tile rather than as
+  // something floating underneath it.
+  width: 7rem;
+  height: layout.$spacing-07;
+  padding-left: layout.$spacing-03;
+  // `$color-gray-30` is what this app already uses to separate one region from another on a grey
+  // surface: the left nav's edge, the action menu's top border, the side rail. The #e0e0e0 hairline
+  // used everywhere else is the one for white surfaces, and it would not show against this card.
+  border-top: 1px solid vars.$color-gray-30;
+}
+
+.fileName {
+  @include type.type-style('label-01');
+
+  // `display: block` matters: as a flex child the span is blockified for free, but inside the
+  // tooltip's button it is not, and `overflow`/`text-overflow` do nothing to an inline box - the
+  // name would run past the card instead of ellipsising.
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  color: vars.$text-02;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Carbon puts a `Tooltip`'s className on its popover container, which is the flex child here. Block
+// layout inside it so the trigger wrapper and the button take the width they are given; a chain of
+// flex children would each floor at their own content width and the name would never ellipsise.
+// No `overflow: hidden` here: the tooltip itself is absolutely positioned inside this container, so
+// clipping the container clips the tooltip away. `.fileName` does the clipping instead.
+.fileNameTooltip {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: block;
+}
+
+.fileNameButton {
+  display: block;
+  width: 100%;
   padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  text-align: start;
   cursor: pointer;
-  padding-block-start: 0;
-  --cds-layout-size-height-local: 0;
-}
-
-.removeButton:hover {
-  background-color: transparent;
-}
-
-.closeIcon {
-  fill: white !important;
 }
