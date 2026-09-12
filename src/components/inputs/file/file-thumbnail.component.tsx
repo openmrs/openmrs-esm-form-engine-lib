@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './file-thumbnail.scss';
 import { CloseFilled, DocumentPdf, DocumentUnknown } from '@carbon/react/icons';
 import { Button } from '@carbon/react';
@@ -13,6 +14,8 @@ interface FileThumbnailProps {
 type ThumbnailProps = Omit<FileThumbnailProps, 'bytesContentFamily' | 'removeFileCb'>;
 
 export function FileThumbnail({ bytesContentFamily, removeFileCb, ...thumbnailProps }: FileThumbnailProps) {
+  const { t } = useTranslation();
+
   const Thumbnail = useMemo(() => {
     switch (bytesContentFamily) {
       case 'image':
@@ -27,7 +30,11 @@ export function FileThumbnail({ bytesContentFamily, removeFileCb, ...thumbnailPr
   return (
     <div className={styles.thumbnail}>
       <Thumbnail {...thumbnailProps} />
-      <Button kind="ghost" className={styles.removeButton} onClick={removeFileCb}>
+      <Button
+        kind="ghost"
+        className={styles.removeButton}
+        onClick={removeFileCb}
+        aria-label={t('removeAttachment', 'Remove attachment')}>
         <CloseFilled size={16} className={styles.closeIcon} />
       </Button>
     </div>
