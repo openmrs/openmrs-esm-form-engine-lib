@@ -5,7 +5,10 @@ import {
   gracefullySetSubmission,
   hasRendering,
   hasSubmission,
+  isViewMode,
   parseToLocalDateTime,
+  pxToRem,
+  updateFormSectionReferences,
 } from './common-utils';
 import { vi, describe, it, expect, type Mock } from 'vitest';
 import { type Visit } from '@openmrs/esm-framework';
@@ -181,6 +184,54 @@ describe('getDateWithinVisitWindow', () => {
     } as Visit;
 
     expect(getDateWithinVisitWindow(date, visit)).toEqual(new Date('2026-06-12T09:00:00.000Z'));
+  });
+});
+
+describe('isViewMode', () => {
+  it('returns true for view and embedded-view', () => {
+    expect(isViewMode('view')).toBe(true);
+    expect(isViewMode('embedded-view')).toBe(true);
+  });
+
+  it('returns false for enter and edit', () => {
+    expect(isViewMode('enter')).toBe(false);
+    expect(isViewMode('edit')).toBe(false);
+  });
+});
+
+describe('updateFormSectionReferences', () => {
+  it('returns a new top-level object with new sections arrays but the same page objects', () => {
+    const section = { label: 'Section', isExpanded: 'true', questions: [] };
+    const page = { label: 'Page', sections: [section] };
+    const originalSections = page.sections;
+    const formJson = { name: 'Form', pages: [page] } as any;
+
+    const result = updateFormSectionReferences(formJson);
+
+    expect(result).not.toBe(formJson);
+    expect(result.pages[0]).toBe(page);
+    expect(result.pages[0].sections).not.toBe(originalSections);
+    expect(result.pages[0].sections[0]).toBe(section);
+  });
+
+  it('reassigns the pages array on the input object (mutating it)', () => {
+    const originalPages = [{ label: 'Page', sections: [] }];
+    const formJson = { name: 'Form', pages: originalPages } as any;
+
+    updateFormSectionReferences(formJson);
+
+    expect(formJson.pages).not.toBe(originalPages);
+  });
+});
+
+describe('pxToRem', () => {
+  it('divides by the default 16px font size', () => {
+    expect(pxToRem(32)).toBe(2);
+    expect(pxToRem(8)).toBe(0.5);
+  });
+
+  it('honors a custom font size', () => {
+    expect(pxToRem(32, 8)).toBe(4);
   });
 });
 

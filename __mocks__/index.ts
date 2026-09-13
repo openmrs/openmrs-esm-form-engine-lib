@@ -66,12 +66,7 @@ export { default as preclinicReviewComponentSkeleton } from './forms/afe-forms/c
 export { default as mockConcepts } from './concepts.mock.json';
 
 export { obsList } from './forms/rfe-forms/obs-list-data';
-export {
-  testSchemaV2,
-  htsRetrospectiveResultingSchemaV2,
-  htsHivtestResultingSchemaV2,
-  htsWildcardResultingSchemaV2,
-} from './forms/rfe-forms/forms-loader.test.schema';
+export { testSchemaV2 } from './forms/rfe-forms/forms-loader.test.schema';
 
 export const formMocks = {
   rfe: {

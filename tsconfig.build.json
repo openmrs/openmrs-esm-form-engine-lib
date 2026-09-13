@@ -7,5 +7,5 @@
     "declarationDir": "dist",
     "emitDeclarationOnly": true
   },
-  "exclude": ["**/*.test.*", "**/setup-tests.*", "**/test-utils.*", "**/__mocks__/**"]
+  "exclude": ["**/*.test.*", "**/setup-tests.*", "**/test-utils.*", "**/test-support/**", "**/__mocks__/**"]
 }

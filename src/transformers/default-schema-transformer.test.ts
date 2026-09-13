@@ -425,4 +425,106 @@ describe('Default form schema transformer', () => {
 
     expect(transformedForm.pages[0].sections[0].questions[0].questionOptions.defaultValue).toBeUndefined();
   });
+
+  describe('type and rendering rewrites', () => {
+    function transformQuestions(...questions: Array<Record<string, unknown>>) {
+      const form = { pages: [{ sections: [{ questions }] }] } as unknown as FormSchema;
+      return DefaultFormSchemaTransformer.transform(form).pages[0].sections[0].questions;
+    }
+
+    it('should map encounterRole questions to the encounter-role rendering', () => {
+      const [question] = transformQuestions({
+        id: 'encRole',
+        type: 'encounterRole',
+        questionOptions: { rendering: 'ui-select-extended' },
+      });
+
+      expect(question.questionOptions.rendering).toEqual('encounter-role');
+    });
+
+    it('should map ui-select-extended encounterDatetime questions to the date rendering', () => {
+      const [uiSelect, datetime] = transformQuestions(
+        { id: 'encDate1', type: 'encounterDatetime', questionOptions: { rendering: 'ui-select-extended' } },
+        { id: 'encDate2', type: 'encounterDatetime', questionOptions: { rendering: 'datetime' } },
+      );
+
+      expect(uiSelect.questionOptions.rendering).toEqual('date');
+      expect(uiSelect.datePickerFormat).toEqual('calendar');
+      expect(datetime.questionOptions.rendering).toEqual('datetime');
+    });
+
+    it('should default the datePickerFormat of datetime questions to "both"', () => {
+      const [defaulted, explicit] = transformQuestions(
+        { id: 'apptDatetime', type: 'obs', questionOptions: { rendering: 'datetime' } },
+        { id: 'pinnedDatetime', type: 'obs', datePickerFormat: 'calendar', questionOptions: { rendering: 'datetime' } },
+      );
+
+      expect(defaulted.datePickerFormat).toEqual('both');
+      expect(explicit.datePickerFormat).toEqual('calendar');
+    });
+
+    it('should inject the select-concept-answers datasource when none is configured', () => {
+      const [question] = transformQuestions({
+        id: 'conceptAnswers',
+        type: 'obs',
+        questionOptions: { rendering: 'select-concept-answers', concept: 'concept-set-uuid' },
+      });
+
+      expect(question.questionOptions.isSearchable).toBe(true);
+      expect(question.questionOptions.datasource).toEqual({
+        name: 'select_concept_answers_datasource',
+        config: { concept: 'concept-set-uuid' },
+      });
+    });
+
+    it('should keep a pre-configured select-concept-answers datasource', () => {
+      const [question] = transformQuestions({
+        id: 'conceptAnswers',
+        type: 'obs',
+        questionOptions: {
+          rendering: 'select-concept-answers',
+          concept: 'concept-set-uuid',
+          datasource: { name: 'custom_datasource', config: { concept: 'custom-concept-uuid' } },
+        },
+      });
+
+      expect(question.questionOptions.isSearchable).toBe(true);
+      expect(question.questionOptions.datasource).toEqual({
+        name: 'custom_datasource',
+        config: { concept: 'custom-concept-uuid' },
+      });
+    });
+
+    it('should turn workspace-launcher questions into controls', () => {
+      const [question] = transformQuestions({
+        id: 'launcher',
+        type: 'obs',
+        questionOptions: { rendering: 'workspace-launcher' },
+      });
+
+      expect(question.type).toEqual('control');
+    });
+
+    it('should make drug and problem questions searchable', () => {
+      const [drug, problem] = transformQuestions(
+        { id: 'drugQuestion', type: 'obs', questionOptions: { rendering: 'drug' } },
+        { id: 'problemQuestion', type: 'obs', questionOptions: { rendering: 'problem' } },
+      );
+
+      expect(drug.questionOptions.isSearchable).toBe(true);
+      expect(problem.questionOptions.isSearchable).toBe(true);
+    });
+
+    it('should render inline multiCheckbox questions as plain checkboxes', () => {
+      const [question] = transformQuestions({
+        id: 'inlineMulti',
+        type: 'obs',
+        inlineMultiCheckbox: true,
+        questionOptions: { rendering: 'multiCheckbox' },
+      });
+
+      expect(question.questionOptions.rendering).toEqual('checkbox');
+      expect(question.questionOptions.isCheckboxSearchable).toBeUndefined();
+    });
+  });
 });

@@ -1,0 +1,64 @@
+{
+  "patient": "8673ee4f-e2ab-4077-ba55-4980f408773e",
+  "location": "7fdfa2cb-bc95-405a-88c6-32b7673c0453",
+  "encounterType": "test-encounter-type-uuid",
+  "encounterProviders": [
+    {
+      "provider": "current-provider-uuid",
+      "encounterRole": "clinician-role-uuid"
+    }
+  ],
+  "obs": [
+    {
+      "value": "Presented with fever",
+      "concept": "clinicalNote-concept-uuid",
+      "formFieldNamespace": "rfe-forms",
+      "formFieldPath": "rfe-forms-clinicalNote"
+    }
+  ],
+  "form": {
+    "uuid": "test-form-uuid"
+  },
+  "visit": "15dd49ba-4283-472f-bce3-05401f85c0d3",
+  "orders": [
+    {
+      "action": "NEW",
+      "concept": "malaria-test-concept-uuid",
+      "type": "testorder",
+      "careSetting": "6f0c9a92-6f24-11e3-af88-005056821db0",
+      "orderer": "current-provider-uuid"
+    },
+    {
+      "action": "NEW",
+      "concept": "cbc-test-concept-uuid",
+      "type": "labtestorder",
+      "careSetting": "inpatient-care-setting-uuid",
+      "orderer": "current-provider-uuid"
+    }
+  ],
+  "diagnoses": [
+    {
+      "patient": "8673ee4f-e2ab-4077-ba55-4980f408773e",
+      "condition": null,
+      "diagnosis": {
+        "coded": "malaria-concept-uuid"
+      },
+      "certainty": "CONFIRMED",
+      "rank": 1,
+      "formFieldPath": "rfe-forms-primaryDiagnosis",
+      "formFieldNamespace": "rfe-forms"
+    },
+    {
+      "patient": "8673ee4f-e2ab-4077-ba55-4980f408773e",
+      "condition": null,
+      "diagnosis": {
+        "coded": "anaemia-concept-uuid"
+      },
+      "certainty": "PROVISIONAL",
+      "rank": 1,
+      "formFieldPath": "rfe-forms-unrankedDiagnosis",
+      "formFieldNamespace": "rfe-forms"
+    }
+  ],
+  "encounterDatetime": "2026-01-01T10:00:00.000Z"
+}
