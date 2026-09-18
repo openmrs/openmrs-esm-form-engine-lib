@@ -16,10 +16,18 @@ export const InlineDateAdapter: FormFieldValueAdapter = {
         // clear submission
         targetField.meta.submission.newValue = null;
       } else {
-        targetField.meta.submission.newValue.obsDatetime = dateString;
+        const prevObsDatetime = targetField.meta.submission.newValue.obsDatetime;
+        if (prevObsDatetime !== dateString) {
+          targetField.meta.submission.newValue.obsDatetime = dateString;
+        }
       }
     } else if (!hasSubmission(targetField) && targetField.meta.initialValue?.omrsObject) {
-      if (isEmpty(value) && isEmpty((targetField.meta.initialValue.omrsObject as OpenmrsResource)?.obsDatetime)) {
+      const initialObs = targetField.meta.initialValue.omrsObject as OpenmrsResource;
+      if (isEmpty(value) && isEmpty(initialObs?.obsDatetime)) {
+        return null;
+      }
+      const hasTargetValue = !isEmpty(targetFieldCurrentValue) || !isEmpty(initialObs?.value);
+      if (!hasTargetValue) {
         return null;
       }
       // generate submission
