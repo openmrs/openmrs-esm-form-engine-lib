@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Layer, TimePicker } from '@carbon/react';
 import { OpenmrsDatePicker } from '@openmrs/esm-framework';
-import { formatDateAsDisplayString } from '../../../utils/common-utils';
+import { formatDateAsDisplayString, parseToLocalDateTime } from '../../../utils/common-utils';
 import { isEmpty } from '../../../validators/form-validator';
 import { isTrue } from '../../../utils/boolean-utils';
 import { shouldUseInlineLayout } from '../../../utils/form-helper';
@@ -54,9 +54,13 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
 
   useEffect(() => {
     if (dateValue) {
-      if (dateValue instanceof Date) {
-        const hours = dateValue.getHours() < 10 ? `0${dateValue.getHours()}` : `${dateValue.getHours()}`;
-        const minutes = dateValue.getMinutes() < 10 ? `0${dateValue.getMinutes()}` : `${dateValue.getMinutes()}`;
+      // Normalize string values to Date using parseToLocalDateTime to avoid
+      // timezone shifts. Previously only Date instances were handled, causing
+      // string values from async loads or defaults to be skipped intermittently.
+      const dateObj = dateValue instanceof Date ? dateValue : parseToLocalDateTime(String(dateValue));
+      if (dateObj && !isNaN(dateObj.getTime())) {
+        const hours = dateObj.getHours() < 10 ? `0${dateObj.getHours()}` : `${dateObj.getHours()}`;
+        const minutes = dateObj.getMinutes() < 10 ? `0${dateObj.getMinutes()}` : `${dateObj.getMinutes()}`;
         setTime([hours, minutes].join(':'));
       }
     }
