@@ -78,7 +78,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   setIsFormDirty,
 }) => {
   const { t } = useTranslation();
-  const rootForm = useRef<FormContextProps>();
+  const rootForm = useRef<FormContextProps | undefined>(undefined);
   const subForms = useRef<Record<string, FormContextProps>>({});
   const layoutType = useLayoutType();
   const { isSubmitting, setIsSubmitting, onSubmit, onError, handleClose } = formSubmissionProps;
