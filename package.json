@@ -90,7 +90,7 @@
     "resize-observer-polyfill": "^1.5.1",
     "rimraf": "^5.0.0",
     "sass": "^1.77.2",
-    "swr": "^2.2.5",
+    "swr": "2.5.1",
     "turbo": "^2.5.2",
     "typescript": "^5.0.0",
     "vitest": "^4.1.2"
