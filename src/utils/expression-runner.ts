@@ -3,6 +3,7 @@ import { isEmpty } from 'lodash-es';
 import { type OpenmrsEncounter, type FormField, type FormPage, type FormSection } from '../types';
 import { CommonExpressionHelpers, registerDependency, simpleHash } from './common-expression-helpers';
 import { HistoricalDataSourceService } from '../datasources/historical-data-source';
+import { astCache } from './ast-cache';
 import {
   compile,
   type DefaultEvaluateReturnType,
@@ -28,7 +29,7 @@ export interface ExpressionContext {
 
 export type EvaluateReturnType = DefaultEvaluateReturnType | Record<string, any>;
 
-export const astCache = new Map();
+export { astCache };
 
 function typePredicate(result: unknown): result is EvaluateReturnType {
   return (

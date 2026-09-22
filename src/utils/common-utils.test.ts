@@ -1,17 +1,23 @@
 import {
   clearSubmission,
   flattenObsList,
+  getDateWithinVisitWindow,
   gracefullySetSubmission,
   hasRendering,
   hasSubmission,
+  isViewMode,
   parseToLocalDateTime,
+  pxToRem,
+  updateFormSectionReferences,
 } from './common-utils';
+import { vi, describe, it, expect, type Mock } from 'vitest';
+import { type Visit } from '@openmrs/esm-framework';
 import { isEmpty } from '../validators/form-validator';
 import { obsList } from '__mocks__/forms';
 import { type FormField } from '../types';
 
-jest.mock('../validators/form-validator', () => ({
-  isEmpty: jest.fn(),
+vi.mock('../validators/form-validator', () => ({
+  isEmpty: vi.fn(),
 }));
 
 describe('utils functions', () => {
@@ -75,7 +81,7 @@ describe('utils functions', () => {
         meta: {},
       } as FormField;
 
-      (isEmpty as jest.Mock).mockReturnValueOnce(false).mockReturnValueOnce(false);
+      (isEmpty as Mock).mockReturnValueOnce(false).mockReturnValueOnce(false);
 
       const newValue = 'new value';
       const voidedValue = 'voided value';
@@ -97,7 +103,7 @@ describe('utils functions', () => {
         meta: {},
       } as FormField;
 
-      (isEmpty as jest.Mock).mockReturnValueOnce(true).mockReturnValueOnce(true);
+      (isEmpty as Mock).mockReturnValueOnce(true).mockReturnValueOnce(true);
 
       gracefullySetSubmission(field, '', '');
 
@@ -134,6 +140,98 @@ describe('utils functions', () => {
 
       expect(hasSubmission(field)).toBe(false);
     });
+  });
+});
+
+describe('getDateWithinVisitWindow', () => {
+  const date = new Date('2026-06-11T12:00:00.000Z');
+
+  it('should return the date unchanged when there is no visit', () => {
+    expect(getDateWithinVisitWindow(date, undefined)).toEqual(date);
+  });
+
+  it('should return the date unchanged when it falls within the visit window', () => {
+    const visit = {
+      startDatetime: '2026-06-11T09:00:00.000Z',
+      stopDatetime: '2026-06-11T17:00:00.000Z',
+    } as Visit;
+
+    expect(getDateWithinVisitWindow(date, visit)).toEqual(date);
+  });
+
+  it('should return the date unchanged for an active visit with no stop datetime', () => {
+    const visit = {
+      startDatetime: '2026-06-11T09:00:00.000Z',
+      stopDatetime: null,
+    } as Visit;
+
+    expect(getDateWithinVisitWindow(date, visit)).toEqual(date);
+  });
+
+  it('should return the visit start datetime when the date is after the visit window (retrospective entry)', () => {
+    const visit = {
+      startDatetime: '2026-06-10T09:00:00.000Z',
+      stopDatetime: '2026-06-10T17:00:00.000Z',
+    } as Visit;
+
+    expect(getDateWithinVisitWindow(date, visit)).toEqual(new Date('2026-06-10T09:00:00.000Z'));
+  });
+
+  it('should return the visit start datetime when the date is before the visit window', () => {
+    const visit = {
+      startDatetime: '2026-06-12T09:00:00.000Z',
+      stopDatetime: null,
+    } as Visit;
+
+    expect(getDateWithinVisitWindow(date, visit)).toEqual(new Date('2026-06-12T09:00:00.000Z'));
+  });
+});
+
+describe('isViewMode', () => {
+  it('returns true for view and embedded-view', () => {
+    expect(isViewMode('view')).toBe(true);
+    expect(isViewMode('embedded-view')).toBe(true);
+  });
+
+  it('returns false for enter and edit', () => {
+    expect(isViewMode('enter')).toBe(false);
+    expect(isViewMode('edit')).toBe(false);
+  });
+});
+
+describe('updateFormSectionReferences', () => {
+  it('returns a new top-level object with new sections arrays but the same page objects', () => {
+    const section = { label: 'Section', isExpanded: 'true', questions: [] };
+    const page = { label: 'Page', sections: [section] };
+    const originalSections = page.sections;
+    const formJson = { name: 'Form', pages: [page] } as any;
+
+    const result = updateFormSectionReferences(formJson);
+
+    expect(result).not.toBe(formJson);
+    expect(result.pages[0]).toBe(page);
+    expect(result.pages[0].sections).not.toBe(originalSections);
+    expect(result.pages[0].sections[0]).toBe(section);
+  });
+
+  it('reassigns the pages array on the input object (mutating it)', () => {
+    const originalPages = [{ label: 'Page', sections: [] }];
+    const formJson = { name: 'Form', pages: originalPages } as any;
+
+    updateFormSectionReferences(formJson);
+
+    expect(formJson.pages).not.toBe(originalPages);
+  });
+});
+
+describe('pxToRem', () => {
+  it('divides by the default 16px font size', () => {
+    expect(pxToRem(32)).toBe(2);
+    expect(pxToRem(8)).toBe(0.5);
+  });
+
+  it('honors a custom font size', () => {
+    expect(pxToRem(32, 8)).toBe(4);
   });
 });
 

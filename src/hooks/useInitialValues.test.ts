@@ -1,4 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { type FormField } from '../types';
 import useInitialValues from './useInitialValues';
 
@@ -34,7 +35,7 @@ describe('useInitialValues', () => {
 
   beforeEach(() => {
     formProcessor = {
-      getInitialValues: jest.fn(),
+      getInitialValues: vi.fn(),
     };
     context = {
       formFields: mockFormFields,
@@ -50,7 +51,7 @@ describe('useInitialValues', () => {
   });
 
   it('should set error if getInitialValues rejects', async () => {
-    const mockConsole = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const mockConsole = vi.spyOn(console, 'error').mockImplementation(() => {});
     const mockError = new Error('Failed to fetch initial values');
     formProcessor.getInitialValues.mockRejectedValue(mockError);
 

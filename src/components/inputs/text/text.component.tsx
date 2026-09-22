@@ -41,6 +41,7 @@ const TextField: React.FC<FormFieldInputProps> = ({ field, value, errors, warnin
         <Layer>
           <TextInput
             disabled={field.isDisabled}
+            enableCounter={!!(field.questionOptions.max || field.questionOptions.maxLength)}
             id={field.id}
             invalid={errors.length > 0}
             invalidText={errors[0]?.message}

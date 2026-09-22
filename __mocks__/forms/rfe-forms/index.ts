@@ -41,11 +41,7 @@ export { default as unspecifiedForm } from './sample-unspecified-form.json';
 export { default as viralLoadStatusForm } from './viral-load-status-form.json';
 export { default as weightForHeightZscoreTestSchema } from './zscore-weight-height-form.json';
 export { default as expressionVisitObjectTestSchema } from './expression-visit-object-test.json';
+export { default as obsDateAndCommentForm } from './obs-date-and-comment-form.json';
 
 export { obsList } from './obs-list-data';
-export {
-  htsHivtestResultingSchemaV2,
-  htsRetrospectiveResultingSchemaV2,
-  htsWildcardResultingSchemaV2,
-  testSchemaV2,
-} from './forms-loader.test.schema';
+export { testSchemaV2 } from './forms-loader.test.schema';

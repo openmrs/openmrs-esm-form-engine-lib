@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import { init, teardown } from './lifecycle';
 import { isEmpty, useFormJson } from '.';
 import { formEngineAppName } from './globals';
 import { reportError } from './utils/error-utils';
+import { getDateWithinVisitWindow } from './utils/common-utils';
 import { useFormCollapse } from './hooks/useFormCollapse';
 import { useFormWorkspaceSize } from './hooks/useFormWorkspaceSize';
 import { usePageObserver } from './components/sidebar/usePageObserver';
@@ -58,9 +59,12 @@ const FormEngine = ({
   const { t } = useTranslation();
   const session = useSession();
   const ref = useRef(null);
+  const rawSessionDate = useRef(new Date());
+  // Recompute when the visit bounds arrive or change; the visit prop may not be
+  // fully loaded when the form mounts.
   const sessionDate = useMemo(() => {
-    return new Date();
-  }, []);
+    return getDateWithinVisitWindow(rawSessionDate.current, visit);
+  }, [visit?.startDatetime, visit?.stopDatetime]);
   const workspaceSize = useFormWorkspaceSize(ref);
   const { patient, isLoadingPatient } = usePatientData(patientUUID);
   const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
@@ -213,9 +217,11 @@ const FormEngine = ({
 
 function I18FormEngine(props: FormEngineProps) {
   return (
-    <I18nextProvider i18n={window.i18next} defaultNS={formEngineAppName}>
-      <FormEngine {...props} />
-    </I18nextProvider>
+    <Suspense fallback={<Loader />}>
+      <I18nextProvider i18n={window.i18next} defaultNS={formEngineAppName}>
+        <FormEngine {...props} />
+      </I18nextProvider>
+    </Suspense>
   );
 }
 

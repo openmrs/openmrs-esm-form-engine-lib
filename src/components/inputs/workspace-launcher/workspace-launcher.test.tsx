@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import { launchWorkspace2, showSnackbar } from '@openmrs/esm-framework';
@@ -7,13 +8,13 @@ import { useFormProviderContext } from 'src/provider/form-provider';
 import { type FormField } from '../../../types';
 import WorkspaceLauncher from './workspace-launcher.component';
 
-jest.mock('src/provider/form-provider', () => ({
-  useFormProviderContext: jest.fn(),
+vi.mock('src/provider/form-provider', () => ({
+  useFormProviderContext: vi.fn(),
 }));
 
-const mockUseFormProviderContext = useFormProviderContext as jest.Mock;
-const mockLaunchWorkspace2 = launchWorkspace2 as jest.Mock;
-const mockShowSnackbar = showSnackbar as jest.Mock;
+const mockUseFormProviderContext = useFormProviderContext as Mock;
+const mockLaunchWorkspace2 = launchWorkspace2 as Mock;
+const mockShowSnackbar = showSnackbar as Mock;
 
 const baseField: FormField = {
   label: 'Add patient allergies',
@@ -35,7 +36,7 @@ const defaultProps = {
   value: null,
   errors: [],
   warnings: [],
-  setFieldValue: jest.fn(),
+  setFieldValue: vi.fn(),
 };
 
 const mockProviderValues = {
@@ -49,7 +50,7 @@ const mockProviderValues = {
   sessionDate: new Date(),
   location: mockVisit.location,
   currentProvider: undefined,
-  processor: { getInitialValues: jest.fn() },
+  processor: { getInitialValues: vi.fn() },
 };
 
 const renderWorkspaceLauncher = async (props = defaultProps) => {
@@ -60,7 +61,7 @@ describe('WorkspaceLauncher', () => {
   const user = userEvent.setup();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockUseFormProviderContext.mockReturnValue(mockProviderValues);
   });
 

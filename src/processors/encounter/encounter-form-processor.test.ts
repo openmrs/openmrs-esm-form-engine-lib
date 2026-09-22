@@ -1,14 +1,15 @@
 import { EncounterFormProcessor } from './encounter-form-processor';
+import { vi, describe, it, expect, test, beforeEach, afterEach, type MockInstance } from 'vitest';
 import { type FormSchema } from '../../types';
 
 describe('EncounterFormProcessor', () => {
   describe('prepareFormSchema - validateCalculateExpressions', () => {
     let processor: EncounterFormProcessor;
-    let consoleSpy: jest.SpyInstance;
+    let consoleSpy: MockInstance;
 
     beforeEach(() => {
       processor = new EncounterFormProcessor(null);
-      consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     });
 
     afterEach(() => {

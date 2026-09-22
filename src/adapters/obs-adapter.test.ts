@@ -1,4 +1,5 @@
 import { getAttachmentByUuid } from '@openmrs/esm-framework';
+import { vi, describe, it, expect, test, beforeEach } from 'vitest';
 import { type FormContextProps } from '../provider/form-provider';
 import { type FormField } from '../types';
 import { findObsByFormField, hasPreviousObsValueChanged, ObsAdapter } from './obs-adapter';
@@ -30,19 +31,19 @@ const formContext = {
   formFieldValidators: null,
   customDependencies: null,
   deletedFields: [],
-  getFormField: jest.fn(),
-  addFormField: jest.fn(),
-  updateFormField: jest.fn(),
+  getFormField: vi.fn(),
+  addFormField: vi.fn(),
+  updateFormField: vi.fn(),
   removeFormField: () => {},
-  addInvalidField: jest.fn(),
-  removeInvalidField: jest.fn(),
-  setInvalidFields: jest.fn(),
-  setForm: jest.fn(),
-  setDeletedFields: jest.fn(),
+  addInvalidField: vi.fn(),
+  removeInvalidField: vi.fn(),
+  setInvalidFields: vi.fn(),
+  setForm: vi.fn(),
+  setDeletedFields: vi.fn(),
 } as FormContextProps;
 
 window.openmrsBase = 'openmrs';
-const mockGetAttachmentByUuid = jest.mocked(getAttachmentByUuid);
+const mockGetAttachmentByUuid = vi.mocked(getAttachmentByUuid);
 
 describe('ObsAdapter - transformFieldValue', () => {
   // new submission (enter mode)
