@@ -133,6 +133,9 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
   }, [field.meta.submission]);
 
   const onAfterChange = (value: any) => {
+    if (field.meta.submission?.unspecified && !isEmpty(value)) {
+      field.meta.submission.unspecified = false;
+    }
     const { errors: validationErrors, warnings: validationWarnings } = validateFieldValue(
       field,
       value,

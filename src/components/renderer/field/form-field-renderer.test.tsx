@@ -64,8 +64,13 @@ describe('field change processing', () => {
     expectChanges(spies, 1);
   });
 
-  it.each([false, true])('processes a reused historical value once (touched: %s)', async (touched) => {
-    const field = buildField({ id: 'remarks', historicalExpression: '"previous"' });
+  it.each([
+    [false, false],
+    [true, false],
+    [false, true],
+    [true, true],
+  ])('processes a reused historical value once (touched: %s, unspecified: %s)', async (touched, unspecified) => {
+    const field = buildField({ id: 'remarks', historicalExpression: '"previous"', unspecified });
     const processor = createTestFormContext().processor;
     vi.spyOn(processor, 'getHistoricalValue').mockResolvedValue({ value: 'previous', display: 'Previous remarks' });
     renderWithFormContext(<FormFieldRenderer fieldId={field.id} valueAdapter={ObsAdapter} />, {
@@ -78,10 +83,16 @@ describe('field change processing', () => {
     if (touched) {
       await user.type(input, 'a');
     }
+    if (unspecified) {
+      await user.click(screen.getByRole('checkbox', { name: 'Unspecified' }));
+    }
     const spies = observeChanges();
     await user.click(screen.getByRole('button', { name: 'Reuse value' }));
     expectChanges(spies, 1);
     expect(screen.getByRole('textbox')).toHaveValue('previous');
+    if (unspecified) {
+      expect(screen.getByRole('checkbox', { name: 'Unspecified' })).not.toBeChecked();
+    }
   });
 
   it('processes clearing an unspecified field once', async () => {
@@ -96,5 +107,43 @@ describe('field change processing', () => {
     await user.click(screen.getByRole('checkbox', { name: 'Unspecified' }));
     expectChanges(spies, 1);
     expect(screen.getByRole('textbox')).toHaveValue('');
+  });
+
+  it.each(['enter', 'edit'] as const)('validates the first value after unspecified in %s mode', async (sessionMode) => {
+    const field = buildField({
+      id: 'remarks',
+      unspecified: true,
+      questionOptions: { rendering: 'text', minLength: '3' },
+    });
+    const { getContext } = renderWithFormContext(<FormFieldRenderer fieldId={field.id} valueAdapter={ObsAdapter} />, {
+      fields: [field],
+      initialValues: { remarks: '' },
+      context: { sessionMode },
+    });
+    const user = userEvent.setup();
+    const input = await screen.findByRole('textbox');
+    const unspecified = screen.getByRole('checkbox', { name: 'Unspecified' });
+    if (sessionMode === 'enter') {
+      await user.click(unspecified);
+    }
+    expect(unspecified).toBeChecked();
+    const spies = observeChanges();
+
+    await user.type(input, 'a');
+
+    expect(spies.validate).toHaveBeenCalledTimes(1);
+    expect(spies.transform).not.toHaveBeenCalled();
+    expect(spies.logic).toHaveBeenCalledTimes(1);
+    expect(unspecified).not.toBeChecked();
+    expect(screen.getByText('Length should be at least 3 characters')).toBeInTheDocument();
+    expect(getContext().invalidFields.map((field) => field.id)).toEqual(['remarks']);
+
+    await user.type(input, 'bc');
+
+    expect(screen.queryByText('Length should be at least 3 characters')).not.toBeInTheDocument();
+    expect(getContext().invalidFields).toHaveLength(0);
+    expect(spies.validate).toHaveBeenCalledTimes(3);
+    expect(spies.transform).toHaveBeenCalledTimes(1);
+    expect(spies.logic).toHaveBeenCalledTimes(3);
   });
 });
