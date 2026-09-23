@@ -32,7 +32,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
     layoutType,
     sessionMode,
     workspaceLayout,
-    methods: { control, getFieldState },
+    methods: { control, getFieldState, getValues },
   } = useFormProviderContext();
 
   const value = useWatch({ control, name: field.id, exact: true });
@@ -48,11 +48,6 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
   const selectedItem = useMemo(() => items.find((item) => item.uuid == value) || null, [items, value]);
 
   const searchGeneration = useRef(0);
-  const valueRef = useRef(value);
-
-  useEffect(() => {
-    valueRef.current = value;
-  }, [value]);
 
   const debouncedSearch = useMemo(
     () =>
@@ -68,7 +63,8 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
             }
             if (dataItems.length) {
               setItems((currentItems) => {
-                const currentSelectedItem = currentItems.find((item) => item.uuid == valueRef.current);
+                const currentValue = getValues(field.id);
+                const currentSelectedItem = currentItems.find((item) => item.uuid == currentValue);
                 const newItems = dataItems.map((item) => dataSource.toUuidAndDisplay(item, config));
                 if (currentSelectedItem && !newItems.some((item) => item.uuid == currentSelectedItem.uuid)) {
                   newItems.unshift(currentSelectedItem);
@@ -86,7 +82,7 @@ const UiSelectExtended: React.FC<FormFieldInputProps> = ({ field, errors, warnin
             setIsSearching(false);
           });
       }, 300),
-    [config],
+    [config, field.id, getValues],
   );
 
   const searchTermHasMatchingItem = useCallback(
