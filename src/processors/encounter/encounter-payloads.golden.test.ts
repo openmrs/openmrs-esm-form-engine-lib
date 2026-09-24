@@ -42,7 +42,7 @@ import { getMutableSessionProps, prepareEncounter } from './encounter-processor-
  *
  * A missing golden file is WRITTEN rather than failed when running locally
  * (`toMatchFileSnapshot` only fails on absence under `CI=true`), so a deleted or
- *   renamed snapshot goes green here — check the file list, not just the run.
+ * renamed snapshot goes green here — check the file list, not just the run.
  *
  * Timezone safety: every date handed to an adapter is built from local calendar
  * components, because the date renderings format with local-time dayjs. Values
