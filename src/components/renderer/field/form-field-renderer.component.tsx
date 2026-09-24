@@ -97,7 +97,6 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
   }, []);
 
   useEffect(() => {
-    const { isDirty, isTouched } = getFieldState(field.id);
     const { submission, unspecified } = field.meta;
     const { calculate, defaultValue } = field.questionOptions;
     if (
