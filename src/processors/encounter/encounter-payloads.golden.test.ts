@@ -164,8 +164,8 @@ async function hydrate(context: FormContextProps, encounter: OpenmrsEncounter, a
   const unclaimed = flattenObsList(encounter.obs ?? []).filter((obs) => !assignedObsIds.includes(obs.uuid));
   if (unclaimed.length) {
     throw new Error(
-      `buildScenario: ${unclaimed.length} obs on the fixture encounter never bound to a field` +
-        `(likely a formFieldPath or concept typo). Pass allowUnclaimedObs if intended:\n` +
+      `buildScenario: ${unclaimed.length} obs on the fixture encounter never bound to a field ` +
+        `(likely a formFieldPath or concept typo). Pass allowUnclaimedObs if intended:\n  ` +
         unclaimed.map((obs) => `${obs.uuid} (${obs.formFieldPath})`).join('\n  '),
     );
   }
