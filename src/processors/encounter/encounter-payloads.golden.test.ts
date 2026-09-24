@@ -150,7 +150,7 @@ async function hydrate(context: FormContextProps, encounter: OpenmrsEncounter, a
     await context.processor.getInitialValues(context);
     if (consoleError.mock.calls.length) {
       throw new Error(
-        `buildScenario: hydration logged ${consoleError.mock.calls.length} error(s), which` +
+        `buildScenario: hydration logged ${consoleError.mock.calls.length} error(s), which ` +
           `getInitialValues swallows:\n  ${consoleError.mock.calls.map((call) => String(call[0])).join('\n  ')}`,
       );
     }
