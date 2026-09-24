@@ -232,7 +232,7 @@ function handleMultiSelect(field: FormField, values: Array<string> = []) {
   }
   if (obsArray?.length && !isEmpty(values)) {
     const toBeVoided = obsArray.filter((obs) => !values.includes(obs.value.uuid));
-    const toBeCreated = values.filter((v) => !obsArray.some((obs) => obs.value.uuid == v));
+    const toBeCreated = values.filter((v) => !obsArray.some((obs) => obs.value.uuid === v));
     return gracefullySetSubmission(
       field,
       toBeCreated.map((value) => constructObs(field, value)),
