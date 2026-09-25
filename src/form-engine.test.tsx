@@ -88,13 +88,6 @@ when(mockOpenmrsFetch)
   .calledWith(clobDataResourcePath)
   .mockReturnValue({ data: demoHtsForm } as never);
 
-vi.mock('lodash-es/debounce', () => vi.fn((fn) => fn));
-
-vi.mock('lodash-es', async () => ({
-  ...((await vi.importActual('lodash-es')) as object),
-  debounce: vi.fn((fn) => fn),
-}));
-
 vi.mock('./registry/registry', async () => {
   const originalModule = (await vi.importActual('./registry/registry')) as object;
   return {

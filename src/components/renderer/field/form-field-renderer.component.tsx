@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { isEqual } from 'lodash-es';
 import { ToastNotification } from '@carbon/react';
 import { Controller, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -66,6 +67,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
     updateFormField,
   } = context;
 
+  const pendingChange = useRef<{ value: unknown } | null>(null);
   const fieldValue = useWatch({ control, name: fieldId, exact: true });
   const noop = () => {};
 
@@ -109,7 +111,10 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
     ) {
       valueAdapter.transformFieldValue(field, fieldValue, context);
     }
-    if (isDirty || isTouched) {
+    // Controls already process changes synchronously; the watcher also handles external updates.
+    const processedChange = pendingChange.current;
+    pendingChange.current = null;
+    if ((isDirty || isTouched) && (!processedChange || !isEqual(processedChange.value, fieldValue))) {
       onAfterChange(fieldValue);
     }
   }, [fieldValue]);
@@ -128,6 +133,9 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
   }, [field.meta.submission]);
 
   const onAfterChange = (value: any) => {
+    if (field.meta.submission?.unspecified && !isEmpty(value)) {
+      field.meta.submission.unspecified = false;
+    }
     const { errors: validationErrors, warnings: validationWarnings } = validateFieldValue(
       field,
       value,
@@ -169,6 +177,11 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
         updateFormField(group);
       }
     }
+  };
+
+  const handleAfterChange = (value: unknown) => {
+    pendingChange.current = { value };
+    onAfterChange(value);
   };
 
   if (!inputComponentWrapper) {
@@ -218,7 +231,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
               warnings={warnings}
               setFieldValue={(val) => {
                 onChange(val);
-                onAfterChange(val);
+                handleAfterChange(val);
                 onBlur();
               }}
             />
@@ -229,7 +242,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
                     key={`${field.id}-unspecified`}
                     field={field}
                     setFieldValue={onChange}
-                    onAfterChange={onAfterChange}
+                    onAfterChange={handleAfterChange}
                     fieldValue={value}
                   />
                 )}
@@ -241,7 +254,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
                   key={`${field.id}-previous-value-review`}
                   previousValue={historicalValue.value}
                   displayText={historicalValue.display}
-                  onAfterChange={onAfterChange}
+                  onAfterChange={handleAfterChange}
                   field={field}
                 />
               </div>
