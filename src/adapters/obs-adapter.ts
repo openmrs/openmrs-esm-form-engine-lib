@@ -88,6 +88,9 @@ export const ObsAdapter: FormFieldValueAdapter = {
     if (field.meta.initialValue?.omrsObject && isEmpty(value)) {
       return gracefullySetSubmission(field, undefined, voidObs(field.meta.initialValue.omrsObject as OpenmrsObs));
     }
+    if (!isEmpty(value) && field.meta.initialValue?.omrsObject) {
+      return null;
+    }
     if (!isEmpty(value)) {
       return gracefullySetSubmission(field, constructObs(field, value), undefined);
     }
@@ -126,12 +129,7 @@ function extractFieldValue(field: FormField, obsList: OpenmrsObs[] = [], makeFie
     assignedObsIds.push(obs.uuid);
     if (typeof obs.value === 'string' || typeof obs.value === 'number') {
       if (rendering.startsWith('date')) {
-        const dateObject = parseToLocalDateTime(obs.value as string);
-        if (makeFieldDirty) {
-          const obsObject = field.meta.initialValue.omrsObject as OpenmrsObs;
-          obsObject.value = dayjs(dateObject).format('YYYY-MM-DD HH:mm');
-        }
-        return dateObject;
+        return parseToLocalDateTime(obs.value as string);
       }
       return obs.value;
     }
@@ -216,14 +214,8 @@ export function hasPreviousObsValueChanged(field: FormField, newValue: any) {
 }
 
 function handleMultiSelect(field: FormField, values: Array<string> = []) {
-  // three possible scenarios
-  // 1. we have a previous value and an empty current value
-  // 2. a mix of both (previous and current)
-  // 3. we only have a current value
   const obsArray = field.meta.initialValue?.omrsObject as Array<OpenmrsResource>;
   if (obsArray?.length && isEmpty(values)) {
-    // we assume the user cleared the existing value(s)
-    // so we void all previous values
     return gracefullySetSubmission(
       field,
       null,
@@ -262,10 +254,6 @@ function handleAttachments(field: FormField, attachments: Attachment[] = []) {
 
 /**
  * Retrieves a list of observations from a given `obsList` that correspond to the specified field.
- *
- * Notes:
- * If the query by field-path returns an empty list, the function falls back to querying
- * by concept and uses `claimedObsIds` to exclude already assigned observations.
  */
 export function findObsByFormField(
   obsList: Array<OpenmrsObs>,
@@ -273,7 +261,6 @@ export function findObsByFormField(
   field: FormField,
 ): OpenmrsObs[] {
   const obs = obsList.filter((candidate) => {
-    // we ignore the concept for attachments because they're managed from the backend
     if (hasRendering(field, 'file') && candidate.formFieldPath == `rfe-forms-${field.id}`) {
       return true;
     }
@@ -282,8 +269,6 @@ export function findObsByFormField(
     );
   });
 
-  // We shall fall back to mapping by the associated concept
-  // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
   if (!obs?.length) {
     const obsByConcept = obsList.filter((obs) => obs.concept.uuid == field.questionOptions.concept);
     return claimedObsIds?.length ? obsByConcept.filter((obs) => !claimedObsIds.includes(obs.uuid)) : obsByConcept;

@@ -1045,23 +1045,15 @@ describe('ObsAdapter - date field lifecycle (getInitialValue → transformFieldV
 
   // ── Date and time (both) ──
 
-  it('should create a new obs when a loaded date is fed back unchanged (date and time)', async () => {
+   it('should submit nothing when a loaded date is fed back unchanged (date and time)', async () => {
     const field = dateField('both');
     const encounter = encounterWith('2026-05-01T01:30:00.000+0300');
 
     const initialValue = await ObsAdapter.getInitialValue(field, encounter, formContext);
 
-    // Feed the same value back through transformFieldValue
-    const result = ObsAdapter.transformFieldValue(field, initialValue, formContext);
+    ObsAdapter.transformFieldValue(field, initialValue, formContext);
 
-    // The value is judged unchanged at minute granularity, so it falls through
-    // to constructObs and builds a uuid-less duplicate obs
-    expect(field.meta.submission.newValue).toEqual({
-      value: '2026-05-01 01:30',
-      concept: conceptUuid,
-      formFieldNamespace: 'rfe-forms',
-      formFieldPath: 'rfe-forms-delivery-datetime',
-    });
+    expect(field.meta.submission.newValue).toBe(null);
     expect(field.meta.submission.voidedValue).toBe(null);
   });
 
@@ -1082,7 +1074,7 @@ describe('ObsAdapter - date field lifecycle (getInitialValue → transformFieldV
 
     await ObsAdapter.getInitialValue(field, encounter, formContext);
 
-    const result = ObsAdapter.transformFieldValue(field, new Date(2026, 4, 1, 23, 30), formContext);
+    ObsAdapter.transformFieldValue(field, new Date(2026, 4, 1, 23, 30), formContext);
 
     expect(field.meta.submission.newValue).toEqual({
       uuid: obsUuid,
@@ -1094,24 +1086,18 @@ describe('ObsAdapter - date field lifecycle (getInitialValue → transformFieldV
 
   // ── Calendar only ──
 
-  it('should create a new obs when a loaded date is fed back unchanged (calendar only)', async () => {
+   it('should submit nothing when a loaded date is fed back unchanged (calendar only)', async () => {
     const field = dateField('calendar');
     const encounter = encounterWith('2026-05-01T01:30:00.000+0300');
 
     const initialValue = await ObsAdapter.getInitialValue(field, encounter, formContext);
 
-    const result = ObsAdapter.transformFieldValue(field, initialValue, formContext);
+    ObsAdapter.transformFieldValue(field, initialValue, formContext);
 
-    // The value is judged unchanged at day granularity, so it falls through
-    // to constructObs and builds a uuid-less duplicate obs
-    expect(field.meta.submission.newValue).toEqual({
-      value: '2026-05-01',
-      concept: conceptUuid,
-      formFieldNamespace: 'rfe-forms',
-      formFieldPath: 'rfe-forms-delivery-datetime',
-    });
+    expect(field.meta.submission.newValue).toBe(null);
     expect(field.meta.submission.voidedValue).toBe(null);
   });
+
 
   it('should show the date the server stored rather than shifting it by the offset (calendar)', async () => {
     const field = dateField('calendar');
@@ -1128,7 +1114,7 @@ describe('ObsAdapter - date field lifecycle (getInitialValue → transformFieldV
 
     await ObsAdapter.getInitialValue(field, encounter, formContext);
 
-    const result = ObsAdapter.transformFieldValue(field, new Date(2026, 4, 2, 10, 0), formContext);
+    ObsAdapter.transformFieldValue(field, new Date(2026, 4, 2, 10, 0), formContext);
 
     expect(field.meta.submission.newValue).toEqual({
       uuid: obsUuid,
