@@ -57,7 +57,12 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
       // Normalize string values to Date using parseToLocalDateTime to avoid
       // timezone shifts. Previously only Date instances were handled, causing
       // string values from async loads or defaults to be skipped intermittently.
-      const dateObj = dateValue instanceof Date ? dateValue : parseToLocalDateTime(String(dateValue));
+      const dateObj =
+        dateValue instanceof Date
+          ? dateValue
+          : typeof dateValue === 'string'
+            ? parseToLocalDateTime(dateValue)
+            : new Date(NaN);
       if (dateObj && !isNaN(dateObj.getTime())) {
         const hours = dateObj.getHours() < 10 ? `0${dateObj.getHours()}` : `${dateObj.getHours()}`;
         const minutes = dateObj.getMinutes() < 10 ? `0${dateObj.getMinutes()}` : `${dateObj.getMinutes()}`;
