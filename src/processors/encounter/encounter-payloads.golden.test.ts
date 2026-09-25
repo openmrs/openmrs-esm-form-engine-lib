@@ -42,7 +42,7 @@ import { getMutableSessionProps, prepareEncounter } from './encounter-processor-
  *
  * A missing golden file is WRITTEN rather than failed when running locally
  * (`toMatchFileSnapshot` only fails on absence under `CI=true`), so a deleted or
- *   renamed snapshot goes green here — check the file list, not just the run.
+ * renamed snapshot goes green here — check the file list, not just the run.
  *
  * Timezone safety: every date handed to an adapter is built from local calendar
  * components, because the date renderings format with local-time dayjs. Values
@@ -150,7 +150,7 @@ async function hydrate(context: FormContextProps, encounter: OpenmrsEncounter, a
     await context.processor.getInitialValues(context);
     if (consoleError.mock.calls.length) {
       throw new Error(
-        `buildScenario: hydration logged ${consoleError.mock.calls.length} error(s), which` +
+        `buildScenario: hydration logged ${consoleError.mock.calls.length} error(s), which ` +
           `getInitialValues swallows:\n  ${consoleError.mock.calls.map((call) => String(call[0])).join('\n  ')}`,
       );
     }
@@ -164,8 +164,8 @@ async function hydrate(context: FormContextProps, encounter: OpenmrsEncounter, a
   const unclaimed = flattenObsList(encounter.obs ?? []).filter((obs) => !assignedObsIds.includes(obs.uuid));
   if (unclaimed.length) {
     throw new Error(
-      `buildScenario: ${unclaimed.length} obs on the fixture encounter never bound to a field` +
-        `(likely a formFieldPath or concept typo). Pass allowUnclaimedObs if intended:\n` +
+      `buildScenario: ${unclaimed.length} obs on the fixture encounter never bound to a field ` +
+        `(likely a formFieldPath or concept typo). Pass allowUnclaimedObs if intended:\n  ` +
         unclaimed.map((obs) => `${obs.uuid} (${obs.formFieldPath})`).join('\n  '),
     );
   }
@@ -1361,4 +1361,3 @@ describe('prepareEncounter session metadata', () => {
     expect(payload.visit).toEqual({ uuid: 'stored-visit-uuid', display: 'Stored visit' });
   });
 });
- 
