@@ -576,10 +576,10 @@ describe('golden encounter payloads: edited encounters', () => {
 
     const context = await buildScenario({ fields, encounter });
 
-    // hydration rewrites the stored value of a date-rendered obs into
-    // `YYYY-MM-DD HH:mm`, which is what the change comparison below reads
+    // hydration stores the original server value; the change comparison
+    // parses it through `parseToLocalDateTime` when needed
     expect(fieldById(context, 'datetimeField').meta.initialValue.omrsObject).toMatchObject({
-      value: '2026-05-04 08:30',
+      value: '2026-05-04T08:30:00',
     });
 
     applyValues(context, {
@@ -590,9 +590,8 @@ describe('golden encounter payloads: edited encounters', () => {
       dateField: new Date(2026, 4, 10),
       // `datetime` compares at minute granularity, so a time-only change is an edit
       datetimeField: new Date(2026, 4, 4, 9, 15),
-      // A time-only change on a `date` field is ALSO an edit — see the
-      // change-detection granularity test below for why the day-granularity the
-      // code reads as if it implements is not what actually happens.
+      // A time-only change on a `date` field is NOT an edit: the guard
+      // returns null — nothing is submitted.
       sameDayDateField: new Date(2026, 4, 4, 14, 30),
       clearedField: '',
     });
@@ -604,17 +603,9 @@ describe('golden encounter payloads: edited encounters', () => {
     await matchGolden(toEncounterPayload(context), 'edit-encounter-obs-changes');
   });
 
-  it('detects date changes at millisecond granularity and datetime changes at minute granularity', async () => {
-    // `hasPreviousObsValueChanged` reads as if `date` renderings compare whole
-    // days: `dayjs(newValue).diff(dayjs(previousObs.value), 'D')`. They do not.
-    // dayjs normalizes `'D'` to `'date'` (day-of-month), which `diff` has no case
-    // for, so it falls through to its default — MILLISECONDS. Any difference at
-    // all therefore counts as a change on a `date` field.
-    //
-    // `datetime` (and `datePickerFormat: 'both'`) uses `'minute'`, a unit dayjs
-    // does understand, so sub-minute changes there really are treated as "no
-    // change" — and fall through to `constructObs`, producing a uuid-less
-    // duplicate rather than an update.
+  it('detects date changes at day granularity and datetime changes at minute granularity', async () => {
+    // A sub-day change on a `date` field is NOT a change; the guard returns null.
+    // A sub-minute change on a `datetime` field is also NOT a change; same guard.
     const encounter = existingEncounter({
       obs: [
         existingObs({
@@ -645,20 +636,8 @@ describe('golden encounter payloads: edited encounters', () => {
       datetimeField: new Date(2026, 4, 4, 8, 30, 30),
     });
 
-    // the date field took the edit path (uuid present, no concept)
-    expect(fieldById(context, 'dateField').meta.submission.newValue).toEqual({
-      uuid: 'obs-date-uuid',
-      value: '2026-05-04',
-      formFieldNamespace: 'rfe-forms',
-      formFieldPath: 'rfe-forms-dateField',
-    });
-    // the datetime field was judged unchanged and built a brand-new obs instead
-    expect(fieldById(context, 'datetimeField').meta.submission.newValue).toEqual({
-      value: '2026-05-04 08:30',
-      concept: 'datetimeField-concept-uuid',
-      formFieldNamespace: 'rfe-forms',
-      formFieldPath: 'rfe-forms-datetimeField',
-    });
+    expect(fieldById(context, 'dateField').meta.submission.newValue).toBe(null);
+    expect(fieldById(context, 'datetimeField').meta.submission.newValue).toBe(null);
   });
 
   it('compares a stored toggle against the "true" concept rather than the raw value', async () => {
@@ -698,15 +677,12 @@ describe('golden encounter payloads: edited encounters', () => {
       uuid: 'obs-toggle-flipped-uuid',
       value: false,
     });
-    // re-affirmed at the same value: judged unchanged, so it falls through to
-    // `constructObs` and duplicates, exactly like the text field above
-    expect(fieldById(context, 'unchangedToggle').meta.submission.newValue).not.toHaveProperty('uuid');
+    // re-affirmed at the same value: judged unchanged, the guard returns null
+    expect(fieldById(context, 'unchangedToggle').meta.submission.newValue).toBe(null);
   });
 
-  it('duplicates rather than updates when a coded answer is re-selected unchanged', async () => {
-    // the coded analogue of the edit-then-revert text case: `codedTypes` compares
-    // `previousObs.value.uuid !== newValue`, so re-picking the stored answer reads
-    // as "unchanged" and builds a fresh, uuid-less obs
+  it('submits nothing when a coded answer is re-selected unchanged', async () => {
+    // re-picking the stored answer reads as "unchanged"; the guard returns null
     const encounter = existingEncounter({
       obs: [
         existingObs({
@@ -735,22 +711,15 @@ describe('golden encounter payloads: edited encounters', () => {
 
     applyValues(context, { codedField: 'answer-a-uuid' });
 
-    expect(toEncounterPayload(context).obs).toEqual([
-      {
-        value: 'answer-a-uuid',
-        concept: 'codedField-concept-uuid',
-        formFieldNamespace: 'rfe-forms',
-        formFieldPath: 'rfe-forms-codedField',
-      },
-    ]);
+    expect(toEncounterPayload(context).obs).toEqual([]);
   });
 
   it('normalizes a stored date onto its own copy, not onto the fetched encounter', async () => {
-    // `extractFieldValue` takes `{ ...obs }` before rewriting the value to
-    // `YYYY-MM-DD HH:mm` for date renderings. Without that copy the rewrite would
-    // land on the fetched encounter itself — an aliasing bug that would corrupt
-    // every later reader of the same obs (previous-value lookups, other fields
-    // falling back by concept, and any consumer holding the encounter).
+    // `extractFieldValue` takes `{ ...obs }` before storing the value. Without
+    // that copy any rewrite would land on the fetched encounter itself — an
+    // aliasing bug that would corrupt every later reader of the same obs
+    // (previous-value lookups, other fields falling back by concept, and any
+    // consumer holding the encounter).
     const encounter = existingEncounter({
       obs: [
         existingObs({
@@ -767,7 +736,7 @@ describe('golden encounter payloads: edited encounters', () => {
     });
 
     expect(fieldById(context, 'dateField').meta.initialValue.omrsObject).toMatchObject({
-      value: '2026-05-04 00:00',
+      value: '2026-05-04',
     });
     expect(encounter.obs[0].value).toBe('2026-05-04');
   });
@@ -899,12 +868,9 @@ describe('golden encounter payloads: edited encounters', () => {
     expect(payload.encounterProviders[0].provider.uuid).toBe(CURRENT_PROVIDER_UUID);
   });
 
-  it('creates a second obs when an edited value is changed back to the stored one', async () => {
-    // `transformFieldValue` treats "equal to the stored value" as "nothing was
-    // edited" and falls through to `constructObs`, which has no uuid — so a user
-    // who edits a field and then restores the original text submits a duplicate
-    // rather than a no-op. Reachable only through edit-then-revert, since the
-    // adapter is not invoked for untouched fields.
+  it('submits nothing when an edited value is changed back to the stored one', async () => {
+    // "equal to the stored value" is treated as unchanged; the guard returns null.
+    // Reachable only through edit-then-revert.
     const encounter = existingEncounter({
       obs: [
         existingObs({
@@ -923,14 +889,7 @@ describe('golden encounter payloads: edited encounters', () => {
     applyValues(context, { textField: 'A different value' });
     applyValues(context, { textField: 'The original text' });
 
-    expect(toEncounterPayload(context).obs).toEqual([
-      {
-        value: 'The original text',
-        concept: 'textField-concept-uuid',
-        formFieldNamespace: 'rfe-forms',
-        formFieldPath: 'rfe-forms-textField',
-      },
-    ]);
+    expect(toEncounterPayload(context).obs).toEqual([]);
   });
 
   it('reuses obs group uuids, voids cleared members, and drops untouched ones', async () => {
