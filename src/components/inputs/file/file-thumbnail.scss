@@ -31,10 +31,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 1.75rem;
+  height: 1.75rem;
   min-width: 0;
-  border: none;
+  border: 1px solid colors.$gray-50;
   border-radius: 50%;
   background-color: colors.$white;
   padding: 0;
