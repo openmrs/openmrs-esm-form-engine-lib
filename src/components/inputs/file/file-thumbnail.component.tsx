@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import styles from './file-thumbnail.scss';
-import { CloseFilled, DocumentPdf, DocumentUnknown } from '@carbon/react/icons';
+import { Close, DocumentPdf, DocumentUnknown } from '@carbon/react/icons';
 import { Button } from '@carbon/react';
 
 interface FileThumbnailProps {
@@ -28,7 +28,7 @@ export function FileThumbnail({ bytesContentFamily, removeFileCb, ...thumbnailPr
     <div className={styles.thumbnail}>
       <Thumbnail {...thumbnailProps} />
       <Button kind="ghost" className={styles.removeButton} onClick={removeFileCb}>
-        <CloseFilled size={16} className={styles.closeIcon} />
+        <Close size={16} className={styles.closeIcon} />
       </Button>
     </div>
   );
