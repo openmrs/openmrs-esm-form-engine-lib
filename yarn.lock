@@ -2700,6 +2700,7 @@ __metadata:
     react-webcam: "npm:^7.2.0"
     resize-observer-polyfill: "npm:^1.5.1"
     rimraf: "npm:^5.0.0"
+    rxjs: "npm:^6.6.7"
     sass: "npm:^1.77.2"
     swr: "npm:2.5.1"
     turbo: "npm:^2.5.2"
@@ -15440,7 +15441,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:^6.5.3, rxjs@npm:^6.6.3":
+"rxjs@npm:^6.5.3, rxjs@npm:^6.6.3, rxjs@npm:^6.6.7":
   version: 6.6.7
   resolution: "rxjs@npm:6.6.7"
   dependencies:
