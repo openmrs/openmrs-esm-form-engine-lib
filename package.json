@@ -45,7 +45,8 @@
     "react-hook-form": "^7.52.0",
     "react-markdown": "^9.0.1",
     "react-waypoint": "^10.3.0",
-    "react-webcam": "^7.2.0"
+    "react-webcam": "^7.2.0",
+    "rxjs": "^6.6.7"
   },
   "peerDependencies": {
     "@carbon/react": "1.x",
@@ -90,7 +91,7 @@
     "resize-observer-polyfill": "^1.5.1",
     "rimraf": "^5.0.0",
     "sass": "^1.77.2",
-    "swr": "^2.2.5",
+    "swr": "2.5.1",
     "turbo": "^2.5.2",
     "typescript": "^5.0.0",
     "vitest": "^4.1.2"
