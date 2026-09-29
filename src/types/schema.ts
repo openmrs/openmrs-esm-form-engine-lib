@@ -254,7 +254,7 @@ export type RenderType =
   | 'markdown'
   | 'extension-widget'
   | 'select-concept-answers'
-  | 'annotation';
+  | 'predefined-annotation';
 
 export interface FormReference {
   form: string;
