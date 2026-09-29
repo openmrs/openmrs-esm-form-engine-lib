@@ -432,6 +432,50 @@ describe('golden encounter payloads: new encounters', () => {
     await matchGolden(toEncounterPayload(context), 'new-encounter-hidden-and-transient');
   });
 
+  it('drops hidden obs group members, orders and diagnoses', async () => {
+    const vitals = buildObsGroup('vitals', [
+      buildField({ id: 'temperature', questionOptions: { rendering: 'number' } }),
+      buildField({ id: 'weight', questionOptions: { rendering: 'number' } }),
+    ]);
+    const fields = [
+      vitals,
+      buildField({
+        id: 'hiddenOrder',
+        type: 'testOrder',
+        questionOptions: {
+          rendering: 'select',
+          answers: [{ concept: 'malaria-test-concept-uuid', label: 'Malaria smear' }],
+        },
+      }),
+      buildField({
+        id: 'hiddenDiagnosis',
+        type: 'diagnosis',
+        questionOptions: {
+          rendering: 'select',
+          answers: [{ concept: 'malaria-concept-uuid', label: 'Malaria' }],
+        },
+      }),
+    ];
+    const context = await buildScenario({ fields });
+
+    applyValues(context, {
+      temperature: 37,
+      weight: 70,
+      hiddenOrder: 'malaria-test-concept-uuid',
+      hiddenDiagnosis: 'malaria-concept-uuid',
+    });
+    // values entered before a hide expression turned true stay on the fields, so
+    // the payload builder is what keeps them out of the encounter
+    fieldById(context, 'weight').isHidden = true;
+    fieldById(context, 'hiddenOrder').isHidden = true;
+    fieldById(context, 'hiddenDiagnosis').isHidden = true;
+
+    const payload = toEncounterPayload(context);
+    expect(payload.orders).toEqual([]);
+    expect(payload.diagnoses).toEqual([]);
+    await matchGolden(payload, 'new-encounter-hidden-group-members-orders-diagnoses');
+  });
+
   it('keeps voided attachments in the obs list and leaves new ones to the attachment endpoint', async () => {
     const fields = [
       buildField({ id: 'attachmentField', questionOptions: { rendering: 'file' } }),
@@ -862,6 +906,54 @@ describe('golden encounter payloads: edited encounters', () => {
     fieldById(context, 'hiddenCheckbox').isHidden = true;
 
     await matchGolden(toEncounterPayload(context), 'edit-encounter-hidden-voiding');
+  });
+
+  it('voids the stored obs of obs group members hidden after hydration', async () => {
+    const encounter = existingEncounter({
+      obs: [
+        existingObs({
+          uuid: 'obs-group-uuid',
+          concept: { uuid: 'vitals-concept-uuid', name: { name: 'Vitals' } },
+          formFieldPath: 'rfe-forms-vitals',
+          groupMembers: [
+            existingObs({
+              uuid: 'obs-temperature-uuid',
+              concept: { uuid: 'temperature-concept-uuid', name: { name: 'Temperature' } },
+              value: 37,
+              formFieldPath: 'rfe-forms-temperature',
+            }),
+            existingObs({
+              uuid: 'obs-weight-uuid',
+              concept: { uuid: 'weight-concept-uuid', name: { name: 'Weight' } },
+              value: 70,
+              formFieldPath: 'rfe-forms-weight',
+            }),
+          ],
+        }),
+      ],
+    });
+    const vitals = buildObsGroup('vitals', [
+      buildField({ id: 'temperature', questionOptions: { rendering: 'number' } }),
+      buildField({ id: 'weight', questionOptions: { rendering: 'number' } }),
+    ]);
+
+    const context = await buildScenario({ fields: [vitals], encounter });
+    // In the running form the group's `questions` hold different objects from the
+    // flattened fields until a value is written, and neither hydration nor the
+    // initial hide evaluation reaches them. Detaching them here means the hidden
+    // flag and the stored obs exist only on the flattened field.
+    const group = fieldById(context, 'vitals');
+    group.questions = group.questions.map((child) => ({ ...child, meta: { groupId: 'vitals' } }));
+    fieldById(context, 'weight').isHidden = true;
+
+    const payload = toEncounterPayload(context);
+    expect(payload.obs).toEqual([
+      expect.objectContaining({
+        uuid: 'obs-group-uuid',
+        groupMembers: [{ uuid: 'obs-weight-uuid', voided: true }],
+      }),
+    ]);
+    await matchGolden(payload, 'edit-encounter-hidden-group-member-voiding');
   });
 
   it('appends the current provider and overwrites the encounter metadata', async () => {
