@@ -1229,11 +1229,13 @@ describe('golden encounter payloads: edited encounters', () => {
   it.each([
     ['isHidden', 'cleared'],
     ['isHidden', 'reanswered'],
+    ['isHidden', 'swapped'],
     ['isHidden', 'unchanged'],
     ['isParentHidden', 'cleared'],
     ['isParentHidden', 'reanswered'],
+    ['isParentHidden', 'swapped'],
     ['isParentHidden', 'unchanged'],
-  ] as const)('preserves only pending voids for %s orders and diagnoses (%s)', async (hiddenFlag, action) => {
+  ] as const)('voids only cleared stored values for %s orders and diagnoses (%s)', async (hiddenFlag, action) => {
     const encounter = existingEncounter({
       orders: [
         {
@@ -1283,20 +1285,18 @@ describe('golden encounter payloads: edited encounters', () => {
       ],
     });
 
-    if (action !== 'unchanged') {
+    if (action === 'cleared' || action === 'reanswered') {
       applyValues(context, { order: '', diagnosis: '' });
     }
-    if (action === 'reanswered') {
+    if (action === 'reanswered' || action === 'swapped') {
       applyValues(context, { order: 'cbc-test-concept-uuid', diagnosis: 'anaemia-concept-uuid' });
     }
     fieldById(context, 'order')[hiddenFlag] = true;
     fieldById(context, 'diagnosis')[hiddenFlag] = true;
 
     const payload = toEncounterPayload(context);
-    expect(payload.orders).toEqual(action === 'unchanged' ? [] : [{ uuid: 'existing-order-uuid', voided: true }]);
-    expect(payload.diagnoses).toEqual(
-      action === 'unchanged' ? [] : [{ uuid: 'existing-diagnosis-uuid', voided: true }],
-    );
+    expect(payload.orders).toEqual(action === 'cleared' ? [{ uuid: 'existing-order-uuid', voided: true }] : []);
+    expect(payload.diagnoses).toEqual(action === 'cleared' ? [{ uuid: 'existing-diagnosis-uuid', voided: true }] : []);
   });
 
   it('replaces orders and voids diagnoses', async () => {

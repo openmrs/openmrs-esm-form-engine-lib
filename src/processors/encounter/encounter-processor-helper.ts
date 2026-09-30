@@ -294,7 +294,7 @@ function prepareOrders(fields: FormField[]) {
     .filter((field) => field.type === 'testOrder' && hasSubmission(field))
     .flatMap((field) =>
       isFieldHidden(field)
-        ? [field.meta.submission.voidedValue]
+        ? [field.meta.submission.newValue ? undefined : field.meta.submission.voidedValue]
         : [field.meta.submission.newValue, field.meta.submission.voidedValue],
     )
     .filter((o) => o);
@@ -431,7 +431,9 @@ function prepareDiagnosis(fields: FormField[]) {
     .filter((field) => field.type === 'diagnosis' && hasSubmission(field))
     .map((field) =>
       isFieldHidden(field)
-        ? field.meta.submission.voidedValue
+        ? field.meta.submission.newValue
+          ? undefined
+          : field.meta.submission.voidedValue
         : field.meta.submission.newValue || field.meta.submission.voidedValue,
     )
     .filter((o) => o);
