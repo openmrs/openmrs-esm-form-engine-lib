@@ -262,13 +262,13 @@ function processObsGroup(obsForSubmission: OpenmrsObs[], groupField: FormField, 
     const member = fields.find((field) => field.id === nestedField.id) ?? nestedField;
     if (isFieldHidden(member)) {
       voidStoredObs(obsGroup.groupMembers, member);
-    } else if (nestedField.type === 'obsGroup') {
+    } else if (member.type === 'obsGroup') {
       const nestedObsGroup: OpenmrsObs[] = [];
-      processObsGroup(nestedObsGroup, nestedField, fields);
+      processObsGroup(nestedObsGroup, member, fields);
       addObsToList(obsGroup.groupMembers, nestedObsGroup);
-    } else if (hasSubmission(nestedField)) {
-      addObsToList(obsGroup.groupMembers, nestedField.meta.submission.newValue);
-      addObsToList(obsGroup.groupMembers, nestedField.meta.submission.voidedValue);
+    } else if (hasSubmission(member)) {
+      addObsToList(obsGroup.groupMembers, member.meta.submission.newValue);
+      addObsToList(obsGroup.groupMembers, member.meta.submission.voidedValue);
     }
   });
 
@@ -324,10 +324,10 @@ function hasSubmittableObs(field: FormField) {
   if (isTransient || !['obs', 'obsGroup'].includes(type) || field.meta.groupId) {
     return false;
   }
-  if ((field.isHidden || field.isParentHidden) && field.meta.initialValue?.omrsObject) {
+  if (isFieldHidden(field) && field.meta.initialValue?.omrsObject) {
     return true;
   }
-  return !field.isHidden && !field.isParentHidden && (type === 'obsGroup' || hasSubmission(field));
+  return !isFieldHidden(field) && (type === 'obsGroup' || hasSubmission(field));
 }
 
 export function inferInitialValueFromDefaultFieldValue(field: FormField) {

@@ -956,6 +956,63 @@ describe('golden encounter payloads: edited encounters', () => {
     await matchGolden(payload, 'edit-encounter-hidden-group-member-voiding');
   });
 
+  it('keeps the stored uuid of a nested obs group whose member is hidden after hydration', async () => {
+    const encounter = existingEncounter({
+      obs: [
+        existingObs({
+          uuid: 'obs-group-uuid',
+          concept: { uuid: 'vitals-concept-uuid', name: { name: 'Vitals' } },
+          formFieldPath: 'rfe-forms-vitals',
+          groupMembers: [
+            existingObs({
+              uuid: 'obs-nested-group-uuid',
+              concept: { uuid: 'nestedGroup-concept-uuid', name: { name: 'Nested group' } },
+              formFieldPath: 'rfe-forms-nestedGroup',
+              groupMembers: [
+                existingObs({
+                  uuid: 'obs-temperature-uuid',
+                  concept: { uuid: 'temperature-concept-uuid', name: { name: 'Temperature' } },
+                  value: 37,
+                  formFieldPath: 'rfe-forms-temperature',
+                }),
+                existingObs({
+                  uuid: 'obs-weight-uuid',
+                  concept: { uuid: 'weight-concept-uuid', name: { name: 'Weight' } },
+                  value: 70,
+                  formFieldPath: 'rfe-forms-weight',
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    });
+    const nestedGroup = buildObsGroup('nestedGroup', [
+      buildField({ id: 'temperature', questionOptions: { rendering: 'number' } }),
+      buildField({ id: 'weight', questionOptions: { rendering: 'number' } }),
+    ]);
+    const vitals = buildObsGroup('vitals', [nestedGroup]);
+
+    const context = await buildScenario({ fields: [vitals], encounter });
+    // Detached the same way as above, so the nested group's stored obs exists only on its flattened field
+    const group = fieldById(context, 'vitals');
+    group.questions = group.questions.map((child) => ({ ...child, meta: { groupId: 'vitals' } }));
+    fieldById(context, 'weight').isHidden = true;
+
+    const payload = toEncounterPayload(context);
+    expect(payload.obs).toEqual([
+      expect.objectContaining({
+        uuid: 'obs-group-uuid',
+        groupMembers: [
+          expect.objectContaining({
+            uuid: 'obs-nested-group-uuid',
+            groupMembers: [{ uuid: 'obs-weight-uuid', voided: true }],
+          }),
+        ],
+      }),
+    ]);
+  });
+
   it('appends the current provider and overwrites the encounter metadata', async () => {
     const encounter = existingEncounter({
       obs: [
