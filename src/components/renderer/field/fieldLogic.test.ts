@@ -118,6 +118,29 @@ describe('handleFieldLogic', () => {
     expect(repeatedOrderInstance.isHidden).toBe(true);
     expect(repeatedOrder.isHidden).toBe(true);
   });
+
+  it('should skip dependents that are no longer in the form fields', () => {
+    (evaluateExpression as Mock).mockReturnValue(true);
+    const repeatedOrder = {
+      id: 'malariaOrder',
+      type: 'testOrder',
+      questionOptions: { rendering: 'repeating', answers: [] },
+      hide: { hideWhenExpression: "testField !== 'yes'" },
+      validators: [],
+      meta: { pageId: 'page-1' },
+    } as unknown as FormField;
+    const deletedInstance = cloneRepeatField(repeatedOrder, null, 1);
+    const remainingInstance = cloneRepeatField(repeatedOrder, null, 2);
+    // deleting a repeated row removes it from the form fields but leaves its id in `fieldDependents`
+    mockFieldCoded.fieldDependents = new Set([repeatedOrder.id, deletedInstance.id, remainingInstance.id]);
+    mockContext.formFields = [repeatedOrder, remainingInstance];
+    mockContext.formJson = {
+      pages: [{ id: 'page-1', label: 'Page 1', sections: [{ label: 'Section 1', questions: [repeatedOrder] }] }],
+    } as unknown as FormContextProps['formJson'];
+
+    expect(() => handleFieldLogic(mockFieldCoded, mockContext)).not.toThrow();
+    expect(remainingInstance.isHidden).toBe(true);
+  });
 });
 
 describe('validateFieldValue', () => {
