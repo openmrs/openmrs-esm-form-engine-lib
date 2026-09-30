@@ -1169,6 +1169,79 @@ describe('golden encounter payloads: edited encounters', () => {
     await matchGolden(toEncounterPayload(context), 'edit-encounter-deleted-fields');
   });
 
+  it.each([
+    ['isHidden', 'cleared'],
+    ['isHidden', 'reanswered'],
+    ['isHidden', 'unchanged'],
+    ['isParentHidden', 'cleared'],
+    ['isParentHidden', 'reanswered'],
+    ['isParentHidden', 'unchanged'],
+  ] as const)('preserves only pending voids for %s orders and diagnoses (%s)', async (hiddenFlag, action) => {
+    const encounter = existingEncounter({
+      orders: [
+        {
+          uuid: 'existing-order-uuid',
+          display: 'Malaria smear',
+          concept: { uuid: 'malaria-test-concept-uuid', display: 'Malaria smear' },
+          voided: false,
+        },
+      ],
+      diagnoses: [
+        {
+          uuid: 'existing-diagnosis-uuid',
+          certainty: 'PROVISIONAL',
+          rank: 1,
+          voided: false,
+          formFieldNamespace: 'rfe-forms',
+          formFieldPath: 'rfe-forms-diagnosis',
+          diagnosis: { coded: { uuid: 'malaria-concept-uuid', display: 'Malaria' } },
+        },
+      ] as unknown as OpenmrsEncounter['diagnoses'],
+    });
+    const context = await buildScenario({
+      encounter,
+      fields: [
+        buildField({
+          id: 'order',
+          type: 'testOrder',
+          questionOptions: {
+            rendering: 'select',
+            answers: [
+              { concept: 'malaria-test-concept-uuid', label: 'Malaria smear' },
+              { concept: 'cbc-test-concept-uuid', label: 'Complete blood count' },
+            ],
+          },
+        }),
+        buildField({
+          id: 'diagnosis',
+          type: 'diagnosis',
+          questionOptions: {
+            rendering: 'select',
+            answers: [
+              { concept: 'malaria-concept-uuid', label: 'Malaria' },
+              { concept: 'anaemia-concept-uuid', label: 'Anaemia' },
+            ],
+          },
+        }),
+      ],
+    });
+
+    if (action !== 'unchanged') {
+      applyValues(context, { order: '', diagnosis: '' });
+    }
+    if (action === 'reanswered') {
+      applyValues(context, { order: 'cbc-test-concept-uuid', diagnosis: 'anaemia-concept-uuid' });
+    }
+    fieldById(context, 'order')[hiddenFlag] = true;
+    fieldById(context, 'diagnosis')[hiddenFlag] = true;
+
+    const payload = toEncounterPayload(context);
+    expect(payload.orders).toEqual(action === 'unchanged' ? [] : [{ uuid: 'existing-order-uuid', voided: true }]);
+    expect(payload.diagnoses).toEqual(
+      action === 'unchanged' ? [] : [{ uuid: 'existing-diagnosis-uuid', voided: true }],
+    );
+  });
+
   it('replaces orders and voids diagnoses', async () => {
     const encounter = existingEncounter({
       orders: [

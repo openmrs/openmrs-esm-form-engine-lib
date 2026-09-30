@@ -291,8 +291,12 @@ function voidStoredObs(obsList: Array<Partial<OpenmrsObs>>, field: FormField) {
 
 function prepareOrders(fields: FormField[]) {
   return fields
-    .filter((field) => field.type === 'testOrder' && !isFieldHidden(field) && hasSubmission(field))
-    .flatMap((field) => [field.meta.submission.newValue, field.meta.submission.voidedValue])
+    .filter((field) => field.type === 'testOrder' && hasSubmission(field))
+    .flatMap((field) =>
+      isFieldHidden(field)
+        ? [field.meta.submission.voidedValue]
+        : [field.meta.submission.newValue, field.meta.submission.voidedValue],
+    )
     .filter((o) => o);
 }
 
@@ -424,8 +428,12 @@ export async function hydrateRepeatField(
 
 function prepareDiagnosis(fields: FormField[]) {
   const diagnoses = fields
-    .filter((field) => field.type === 'diagnosis' && !isFieldHidden(field) && hasSubmission(field))
-    .map((field) => field.meta.submission.newValue || field.meta.submission.voidedValue)
+    .filter((field) => field.type === 'diagnosis' && hasSubmission(field))
+    .map((field) =>
+      isFieldHidden(field)
+        ? field.meta.submission.voidedValue
+        : field.meta.submission.newValue || field.meta.submission.voidedValue,
+    )
     .filter((o) => o);
 
   return diagnoses;
