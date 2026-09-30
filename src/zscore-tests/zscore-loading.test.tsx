@@ -49,33 +49,33 @@ describe('Z-score helpers in a form', () => {
     vi.useRealTimers();
   });
 
-  it('loads new tables and initial values when the schema changes without unmounting', async () => {
-    const first = structuredClone(zscoreLoadingTestForm) as FormSchema;
-    first.pages[0].sections[0].questions = first.pages[0].sections[0].questions.slice(0, 2);
+  it('keeps entered values when the form is re-rendered with an equal schema object', async () => {
     let view: ReturnType<typeof render>;
     await act(async () => {
-      view = render(<FormEngine formJson={first} patientUUID={patient.id} visit={mockVisit} />);
+      view = render(
+        <FormEngine
+          formJson={structuredClone(zscoreLoadingTestForm) as FormSchema}
+          patientUUID={patient.id}
+          visit={mockVisit}
+        />,
+      );
     });
     const height = await screen.findByRole('spinbutton', { name: /^height/i });
     await user.clear(height);
     await user.type(height, '120');
-    let finish: () => void;
-    const load = vi.mocked(loadZScoreReferences).getMockImplementation();
-    vi.mocked(loadZScoreReferences).mockImplementationOnce(async (schema) => {
-      await new Promise<void>((resolve) => {
-        finish = resolve;
-      });
-      return load(schema);
-    });
+
     await act(async () => {
       view.rerender(
-        <FormEngine formJson={zscoreLoadingTestForm as FormSchema} patientUUID={patient.id} visit={mockVisit} />,
+        <FormEngine
+          formJson={structuredClone(zscoreLoadingTestForm) as FormSchema}
+          patientUUID={patient.id}
+          visit={mockVisit}
+        />,
       );
     });
-    expect(screen.queryByRole('textbox', { name: /^bmi for age z-score/i })).not.toBeInTheDocument();
-    await act(async () => finish());
-    expect(await screen.findByRole('textbox', { name: /^bmi for age z-score/i })).toHaveValue('2');
-    expect(screen.getByRole('spinbutton', { name: /^height/i })).toHaveValue(150);
+
+    expect(screen.getByRole('spinbutton', { name: /^height/i })).toHaveValue(120);
+    expect(loadZScoreReferences).toHaveBeenCalledOnce();
   });
 
   it('blocks fields and saving after a failed table load, then recovers on retry', async () => {

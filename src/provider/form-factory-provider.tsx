@@ -61,16 +61,7 @@ interface FormFactoryProviderProps {
 
 const FormFactoryProviderContext = createContext<FormFactoryProviderContextProps | undefined>(undefined);
 
-// Replacing a schema resets processors, field state and registered subforms together.
-export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = (props) => {
-  const [session, setSession] = useState({ schema: props.formJson, key: 0 });
-  if (session.schema !== props.formJson) {
-    setSession({ schema: props.formJson, key: session.key + 1 });
-  }
-  return <FormFactorySession key={session.key} {...props} />;
-};
-
-const FormFactorySession: React.FC<FormFactoryProviderProps> = ({
+export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   patient,
   patientUUID,
   sessionMode,

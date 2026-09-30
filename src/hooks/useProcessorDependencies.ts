@@ -13,17 +13,13 @@ const useProcessorDependencies = (
   const { formJson } = context;
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState<{
-    formJson: typeof formJson;
     loadDependencies: typeof loadDependencies;
     attempt: number;
     error: Error | null;
   }>(null);
   const retry = useCallback(() => setAttempt((previous) => previous + 1), []);
-  // A new schema or retry is pending on its first render, before the effect runs.
-  const currentResult =
-    result?.formJson === formJson && result?.loadDependencies === loadDependencies && result?.attempt === attempt
-      ? result
-      : null;
+  // A retry is pending on its first render, before the effect runs.
+  const currentResult = result?.loadDependencies === loadDependencies && result?.attempt === attempt ? result : null;
 
   useEffect(() => {
     let ignore = false;
@@ -37,7 +33,6 @@ const useProcessorDependencies = (
       if (!ignore) {
         const failure = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
         setResult({
-          formJson,
           loadDependencies,
           attempt,
           error: failure ? new Error(failure.reason?.message ?? String(failure.reason)) : null,
@@ -49,7 +44,7 @@ const useProcessorDependencies = (
     return () => {
       ignore = true;
     };
-  }, [loadDependencies, formJson, attempt]);
+  }, [loadDependencies, attempt]);
 
   // Failed dependencies must also keep initial values, expressions and submission blocked.
   return { isLoading: !currentResult || !!currentResult.error, error: currentResult?.error, retry };

@@ -95,14 +95,13 @@ function renderProvider({ contexts, sessionMode = 'enter', withoutOnSubmit = fal
   };
   const hideFormCollapseToggle = vi.fn();
 
-  const schema = buildFormSchema();
-  const ui = (isSubmitting: boolean, formJson = schema, contexts = formContexts) => (
+  const ui = (isSubmitting: boolean) => (
     <FormFactoryProvider
       patient={mockPatient as fhir.Patient}
       patientUUID={mockPatient.id}
       sessionMode={sessionMode}
       sessionDate={new Date('2026-01-01T10:00:00.000Z')}
-      formJson={formJson}
+      formJson={buildFormSchema()}
       workspaceLayout="maximized"
       location={mockVisit.location}
       provider={{ uuid: 'current-provider-uuid' } as never}
@@ -111,7 +110,7 @@ function renderProvider({ contexts, sessionMode = 'enter', withoutOnSubmit = fal
       formSubmissionProps={{ isSubmitting, ...handlers }}
       hideFormCollapseToggle={hideFormCollapseToggle}
       setIsFormDirty={vi.fn()}>
-      {contexts.map((context, index) => (
+      {formContexts.map((context, index) => (
         <RegisterProbe key={index} formId={`form-${index}`} isSubForm={index > 0} context={context} />
       ))}
     </FormFactoryProvider>
@@ -125,8 +124,6 @@ function renderProvider({ contexts, sessionMode = 'enter', withoutOnSubmit = fal
     unmount: result.unmount,
     /** Flips `isSubmitting` to true, which is what kicks off the submission effect. */
     submit: () => result.rerender(ui(true)),
-    replaceAndSubmit: (contexts: FormContextProps[]) =>
-      result.rerender(ui(true, { ...schema, uuid: 'replacement-form' }, contexts)),
   };
 }
 
@@ -164,18 +161,6 @@ describe('FormFactoryProvider submission', () => {
     await waitFor(() => expect(handlers.onSubmit).toHaveBeenCalled());
     expect(root.processor.processSubmission).toHaveBeenCalledWith(root, expect.any(AbortController));
     expect(subform.processor.processSubmission).toHaveBeenCalledWith(subform, expect.any(AbortController));
-  });
-
-  it('discards old subform registrations when the schema is replaced', async () => {
-    const oldRoot = buildFormContext({});
-    const oldSubform = buildFormContext({});
-    const nextRoot = buildFormContext({});
-    const { handlers, replaceAndSubmit } = renderProvider({ contexts: [oldRoot, oldSubform] });
-    replaceAndSubmit([nextRoot]);
-    await waitFor(() => expect(handlers.onSubmit).toHaveBeenCalled());
-    expect(nextRoot.processor.processSubmission).toHaveBeenCalledOnce();
-    expect(oldRoot.processor.processSubmission).not.toHaveBeenCalled();
-    expect(oldSubform.processor.processSubmission).not.toHaveBeenCalled();
   });
 
   it('blocks submission of every form when only one of them is invalid', async () => {
