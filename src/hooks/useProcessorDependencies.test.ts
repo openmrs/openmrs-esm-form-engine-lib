@@ -1,17 +1,14 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { type FormSchema } from '../types';
 import { type FormProcessorContextSetters } from '../processors/form-processor';
 import { EncounterFormProcessor } from '../processors/encounter/encounter-form-processor';
-import { reportError } from '../utils/error-utils';
 import { loadZScoreReferences } from '../utils/zscore-service';
 import useProcessorDependencies from './useProcessorDependencies';
 
 vi.mock('../utils/zscore-service', () => ({ loadZScoreReferences: vi.fn() }));
-vi.mock('../utils/error-utils', () => ({ reportError: vi.fn() }));
 
 const mockLoadZScoreReferences = vi.mocked(loadZScoreReferences);
-const mockReportError = vi.mocked(reportError);
 
 const formJson: FormSchema = {
   name: 'Growth',
@@ -72,14 +69,68 @@ describe('useProcessorDependencies', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
   });
 
-  it('finishes loading and reports the error when the z-score tables fail to load', async () => {
-    const error = new Error('Failed to fetch dynamically imported module');
-    mockLoadZScoreReferences.mockRejectedValue(error);
-
+  it('blocks evaluation after a failed table load and retries', async () => {
+    mockLoadZScoreReferences.mockRejectedValueOnce(new Error('Download failed'));
     const { result } = renderDependencies((context) => Promise.resolve(context));
-
+    await waitFor(() => expect(result.current.error?.message).toBe('Download failed'));
+    expect(result.current.isLoading).toBe(true);
+    act(() => result.current.retry());
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.error).toBeUndefined();
     await waitFor(() => expect(result.current.isLoading).toBe(false));
-    expect(result.current.error).toBe('');
-    expect(mockReportError).toHaveBeenCalledWith(error, 'Error loading z-score reference data');
+    expect(mockLoadZScoreReferences).toHaveBeenCalledTimes(2);
+  });
+
+  it('blocks the first render of a replacement schema until its tables load', async () => {
+    const processor = processorLoading((context) => Promise.resolve(context));
+    const renders: boolean[] = [];
+    const { result, rerender } = renderHook(
+      ({ schema }) => {
+        const dependencies = useProcessorDependencies(processor, { formJson: schema }, vi.fn(), setters);
+        renders.push(dependencies.isLoading);
+        return dependencies;
+      },
+      { initialProps: { schema: formJson } },
+    );
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    let finish: () => void;
+    mockLoadZScoreReferences.mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    const next = { ...formJson, uuid: 'next-form' };
+    renders.length = 0;
+    rerender({ schema: next });
+    expect(renders[0]).toBe(true);
+    expect(mockLoadZScoreReferences).toHaveBeenLastCalledWith(next);
+    await act(async () => finish());
+    expect(result.current.isLoading).toBe(false);
+  });
+
+  it('ignores an old schema completing while the new schema is loading', async () => {
+    let finishFirst: () => void;
+    let finishSecond: () => void;
+    mockLoadZScoreReferences
+      .mockReturnValueOnce(
+        new Promise((resolve) => {
+          finishFirst = resolve;
+        }),
+      )
+      .mockReturnValueOnce(
+        new Promise((resolve) => {
+          finishSecond = resolve;
+        }),
+      );
+    const processor = processorLoading((context) => Promise.resolve(context));
+    const { result, rerender } = renderHook(
+      ({ schema }) => useProcessorDependencies(processor, { formJson: schema }, vi.fn(), setters),
+      { initialProps: { schema: formJson } },
+    );
+    rerender({ schema: { ...formJson, uuid: 'next-form' } });
+    await act(async () => finishFirst());
+    expect(result.current.isLoading).toBe(true);
+    await act(async () => finishSecond());
+    expect(result.current.isLoading).toBe(false);
   });
 });

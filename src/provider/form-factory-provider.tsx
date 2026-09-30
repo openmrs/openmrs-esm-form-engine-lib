@@ -46,6 +46,7 @@ interface FormFactoryProviderProps {
   visit: Visit;
   isFormExpanded: boolean;
   children: React.ReactNode;
+  isLoadingDependencies?: boolean;
   formSubmissionProps: {
     isSubmitting: boolean;
     setIsSubmitting: (isSubmitting: boolean) => void;
@@ -60,7 +61,16 @@ interface FormFactoryProviderProps {
 
 const FormFactoryProviderContext = createContext<FormFactoryProviderContextProps | undefined>(undefined);
 
-export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
+// Replacing a schema resets processors, field state and registered subforms together.
+export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = (props) => {
+  const [session, setSession] = useState({ schema: props.formJson, key: 0 });
+  if (session.schema !== props.formJson) {
+    setSession({ schema: props.formJson, key: session.key + 1 });
+  }
+  return <FormFactorySession key={session.key} {...props} />;
+};
+
+const FormFactorySession: React.FC<FormFactoryProviderProps> = ({
   patient,
   patientUUID,
   sessionMode,
@@ -72,6 +82,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   visit,
   isFormExpanded = true,
   children,
+  isLoadingDependencies = false,
   formSubmissionProps,
   hideFormCollapseToggle,
   handleConfirmQuestionDeletion,
@@ -118,13 +129,19 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
 
   useEffect(() => {
     if (isValidating) {
-      validateAllForms();
+      if (!isLoadingDependencies) {
+        validateAllForms();
+      }
       setIsValidating(false);
     }
-  }, [isValidating, validateAllForms]);
+  }, [isValidating, validateAllForms, isLoadingDependencies]);
 
   useEffect(() => {
     if (isSubmitting) {
+      if (isLoadingDependencies) {
+        setIsSubmitting(false);
+        return;
+      }
       // TODO: find a dynamic way of managing the form processing order
       // validate all forms
       const { forms, isValid } = validateAllForms();
@@ -177,7 +194,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
     return () => {
       abortController.abort();
     };
-  }, [isSubmitting, validateAllForms]);
+  }, [isSubmitting, validateAllForms, isLoadingDependencies]);
 
   return (
     <FormFactoryProviderContext.Provider

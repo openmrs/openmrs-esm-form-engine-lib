@@ -1,12 +1,19 @@
 import React from 'react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
 import { mockPatient, mockSessionDataResponse, mockVisit } from '__mocks__';
 import { zscoreLoadingTestForm } from '__mocks__/forms';
 import { type FormSchema } from '../types';
 import FormEngine from '../form-engine.component';
+import { saveEncounter } from '../api';
+import { loadZScoreReferences } from '../utils/zscore-service';
+
+vi.mock('../utils/zscore-service', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../utils/zscore-service')>();
+  return { ...actual, loadZScoreReferences: vi.fn(actual.loadZScoreReferences) };
+});
 
 const mockOpenmrsFetch = vi.mocked(openmrsFetch);
 const mockUsePatient = vi.mocked(usePatient);
@@ -40,6 +47,55 @@ describe('Z-score helpers in a form', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it('loads new tables and initial values when the schema changes without unmounting', async () => {
+    const first = structuredClone(zscoreLoadingTestForm) as FormSchema;
+    first.pages[0].sections[0].questions = first.pages[0].sections[0].questions.slice(0, 2);
+    let view: ReturnType<typeof render>;
+    await act(async () => {
+      view = render(<FormEngine formJson={first} patientUUID={patient.id} visit={mockVisit} />);
+    });
+    const height = await screen.findByRole('spinbutton', { name: /^height/i });
+    await user.clear(height);
+    await user.type(height, '120');
+    let finish: () => void;
+    const load = vi.mocked(loadZScoreReferences).getMockImplementation();
+    vi.mocked(loadZScoreReferences).mockImplementationOnce(async (schema) => {
+      await new Promise<void>((resolve) => {
+        finish = resolve;
+      });
+      return load(schema);
+    });
+    await act(async () => {
+      view.rerender(
+        <FormEngine formJson={zscoreLoadingTestForm as FormSchema} patientUUID={patient.id} visit={mockVisit} />,
+      );
+    });
+    expect(screen.queryByRole('textbox', { name: /^bmi for age z-score/i })).not.toBeInTheDocument();
+    await act(async () => finish());
+    expect(await screen.findByRole('textbox', { name: /^bmi for age z-score/i })).toHaveValue('2');
+    expect(screen.getByRole('spinbutton', { name: /^height/i })).toHaveValue(150);
+  });
+
+  it('blocks fields and saving after a failed table load, then recovers on retry', async () => {
+    vi.mocked(loadZScoreReferences).mockRejectedValueOnce(new Error('Download failed'));
+    await act(async () => renderForm());
+    expect(await screen.findByText('Unable to load form data')).toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: /^bmi for age z-score/i })).not.toBeInTheDocument();
+    const save = screen.queryByRole('button', { name: /^save$/i });
+    if (save) expect(save).toBeDisabled();
+    await act(async () => {
+      window.dispatchEvent(
+        new CustomEvent('ampath-form-action', {
+          detail: { action: 'onSubmit', formUuid: zscoreLoadingTestForm.uuid, patientUuid: patient.id },
+        }),
+      );
+    });
+    expect(saveEncounter).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(await screen.findByRole('textbox', { name: /^bmi for age z-score/i })).toHaveValue('2');
+    await waitFor(() => expect(screen.queryByText('Unable to load form data')).not.toBeInTheDocument());
   });
 
   it('calculates z-scores from default values as the form opens', async () => {

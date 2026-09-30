@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { type FormProcessorContextProps } from '../types';
 import { type FormProcessor, type FormProcessorContextSetters } from '../processors/form-processor';
-import { reportError } from '../utils/error-utils';
 import { loadZScoreReferences } from '../utils/zscore-service';
 
 const useProcessorDependencies = (
@@ -11,42 +10,49 @@ const useProcessorDependencies = (
   setters: FormProcessorContextSetters,
 ) => {
   const { loadDependencies } = formProcessor;
-  // Loading from the first render: once a form has opened, its field adapters and concepts are cached, so
-  // initial values would otherwise be computed before this effect had started loading the dependencies
-  const [isLoading, setIsLoading] = useState(Boolean(loadDependencies));
-  const [error, setError] = useState('');
+  const { formJson } = context;
+  const [attempt, setAttempt] = useState(0);
+  const [result, setResult] = useState<{
+    formJson: typeof formJson;
+    loadDependencies: typeof loadDependencies;
+    attempt: number;
+    error: Error | null;
+  }>(null);
+  const retry = useCallback(() => setAttempt((previous) => previous + 1), []);
+  // A new schema or retry is pending on its first render, before the effect runs.
+  const currentResult =
+    result?.formJson === formJson && result?.loadDependencies === loadDependencies && result?.attempt === attempt
+      ? result
+      : null;
 
   useEffect(() => {
     let ignore = false;
 
-    if (loadDependencies) {
-      setIsLoading(true);
-      Promise.all([
-        loadDependencies(context, setContext, setters),
-        // A form whose z-score tables fail to load still opens, and its z-score helpers return null
-        loadZScoreReferences(context.formJson).catch((error) =>
-          reportError(error, 'Error loading z-score reference data'),
-        ),
-      ])
-        .then(() => {
-          if (!ignore) {
-            setIsLoading(false);
-          }
-        })
-        .catch((error) => {
-          if (!ignore) {
-            setError(error);
-            reportError(error, 'Encountered error while loading dependencies');
-          }
+    async function load() {
+      // Wait for both operations to finish before allowing a retry, including when one fails.
+      const results = await Promise.allSettled([
+        Promise.resolve().then(() => loadDependencies?.(context, setContext, setters)),
+        loadZScoreReferences(formJson),
+      ]);
+      if (!ignore) {
+        const failure = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+        setResult({
+          formJson,
+          loadDependencies,
+          attempt,
+          error: failure ? new Error(failure.reason?.message ?? String(failure.reason)) : null,
         });
+      }
     }
+    load();
 
     return () => {
       ignore = true;
     };
-  }, [loadDependencies]);
+  }, [loadDependencies, formJson, attempt]);
 
-  return { isLoading, error };
+  // Failed dependencies must also keep initial values, expressions and submission blocked.
+  return { isLoading: !currentResult || !!currentResult.error, error: currentResult?.error, retry };
 };
 
 export default useProcessorDependencies;
