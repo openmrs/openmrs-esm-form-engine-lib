@@ -406,6 +406,36 @@ describe('golden encounter payloads: new encounters', () => {
     await matchGolden(payload, 'new-encounter-orders-and-diagnoses');
   });
 
+  it('drops orders and diagnoses that are selected and then cleared', async () => {
+    const context = await buildScenario({
+      fields: [
+        buildField({
+          id: 'order',
+          type: 'testOrder',
+          questionOptions: {
+            rendering: 'select',
+            answers: [{ concept: 'malaria-test-concept-uuid', label: 'Malaria smear' }],
+          },
+        }),
+        buildField({
+          id: 'diagnosis',
+          type: 'diagnosis',
+          questionOptions: {
+            rendering: 'select',
+            answers: [{ concept: 'malaria-concept-uuid', label: 'Malaria' }],
+          },
+        }),
+      ],
+    });
+
+    applyValues(context, { order: 'malaria-test-concept-uuid', diagnosis: 'malaria-concept-uuid' });
+    applyValues(context, { order: '', diagnosis: '' });
+
+    const payload = toEncounterPayload(context);
+    expect(payload.orders).toEqual([]);
+    expect(payload.diagnoses).toEqual([]);
+  });
+
   it('drops hidden and transient fields but keeps disabled ones', async () => {
     const fields = [
       buildField({ id: 'visibleField' }),
@@ -1183,15 +1213,9 @@ describe('golden encounter payloads: edited encounters', () => {
     await matchGolden(payload, 'edit-encounter-orders-and-diagnoses');
   });
 
-  it('drops the void when a diagnosis is cleared and then re-answered', async () => {
-    // Three things have to line up for this: `EncounterDiagnosisAdapter` never
-    // calls `clearSubmission` (unlike `ObsAdapter`, which clears both values on
-    // every write), `gracefullySetSubmission` only ever sets — it cannot clear an
-    // already-set `voidedValue` — and `prepareDiagnosis` then collapses each field
-    // with `newValue || voidedValue`. So clearing a diagnosis and picking a
-    // different answer submits the new diagnosis and silently forgets the void,
-    // leaving the original in place. The missing `clearSubmission` is the fix
-    // candidate; `prepareOrders` sidesteps it by emitting both values.
+  it('edits a diagnosis in place when it is cleared and then re-answered', async () => {
+    // `EncounterDiagnosisAdapter` clears the submission on every write, so the
+    // void from clearing the field doesn't survive the re-answer
     const encounter = existingEncounter({
       diagnoses: [
         {
@@ -1231,16 +1255,8 @@ describe('golden encounter payloads: edited encounters', () => {
 
     applyValues(context, { reAnsweredDiagnosis: 'anaemia-concept-uuid' });
 
-    // the MECHANISM: the void is still sitting on the field after the re-answer.
-    // Asserting this (and not just the payload) is what makes the recommended
-    // `clearSubmission` fix visible — with it, this expectation flips to null while
-    // the payload below stays the same.
-    expect(fieldById(context, 'reAnsweredDiagnosis').meta.submission.voidedValue).toEqual({
-      uuid: 'existing-diagnosis-uuid',
-      voided: true,
-    });
+    expect(fieldById(context, 'reAnsweredDiagnosis').meta.submission.voidedValue).toBeNull();
 
-    // the OUTCOME: `prepareDiagnosis` drops it anyway
     const { diagnoses } = toEncounterPayload(context);
     expect(diagnoses).toHaveLength(1);
     expect(diagnoses[0]).toMatchObject({ diagnosis: { coded: 'anaemia-concept-uuid' } });
@@ -1265,10 +1281,11 @@ describe('golden encounter payloads: edited encounters', () => {
   });
 
   it('treats re-selecting a stored order as a no-op', async () => {
-    // `editOrder` early-returns and CLEARS the submission when the value matches
-    // the stored order — the opposite of the diagnosis path above, which re-emits
-    // an update. Without it, the stored order would be voided and a duplicate
-    // `action: 'NEW'` order submitted alongside it.
+    // `editOrder` early-returns when the value matches the stored order, leaving
+    // the submission that `transformFieldValue` just cleared empty — the opposite
+    // of the diagnosis path above, which re-emits an update. Without it, the stored
+    // order would be voided and a duplicate `action: 'NEW'` order submitted
+    // alongside it.
     const encounter = existingEncounter({
       orders: [
         {
@@ -1300,6 +1317,64 @@ describe('golden encounter payloads: edited encounters', () => {
       voidedValue: null,
     });
     expect(toEncounterPayload(context).orders).toEqual([]);
+  });
+
+  it('voids a stored order and diagnosis that are swapped and then cleared', async () => {
+    const encounter = existingEncounter({
+      orders: [
+        {
+          uuid: 'existing-order-uuid',
+          display: 'Malaria smear',
+          concept: { uuid: 'malaria-test-concept-uuid', display: 'Malaria smear' },
+          voided: false,
+        },
+      ],
+      diagnoses: [
+        {
+          uuid: 'existing-diagnosis-uuid',
+          certainty: 'PROVISIONAL',
+          rank: 1,
+          voided: false,
+          formFieldNamespace: 'rfe-forms',
+          formFieldPath: 'rfe-forms-diagnosis',
+          diagnosis: { coded: { uuid: 'malaria-concept-uuid', display: 'Malaria' } },
+        },
+      ] as unknown as OpenmrsEncounter['diagnoses'],
+    });
+    const context = await buildScenario({
+      encounter,
+      fields: [
+        buildField({
+          id: 'order',
+          type: 'testOrder',
+          questionOptions: {
+            rendering: 'select',
+            answers: [
+              { concept: 'malaria-test-concept-uuid', label: 'Malaria smear' },
+              { concept: 'cbc-test-concept-uuid', label: 'Complete blood count' },
+            ],
+          },
+        }),
+        buildField({
+          id: 'diagnosis',
+          type: 'diagnosis',
+          questionOptions: {
+            rendering: 'select',
+            answers: [
+              { concept: 'malaria-concept-uuid', label: 'Malaria' },
+              { concept: 'anaemia-concept-uuid', label: 'Anaemia' },
+            ],
+          },
+        }),
+      ],
+    });
+
+    applyValues(context, { order: 'cbc-test-concept-uuid', diagnosis: 'anaemia-concept-uuid' });
+    applyValues(context, { order: '', diagnosis: '' });
+
+    const payload = toEncounterPayload(context);
+    expect(payload.orders).toEqual([{ uuid: 'existing-order-uuid', voided: true }]);
+    expect(payload.diagnoses).toEqual([{ uuid: 'existing-diagnosis-uuid', voided: true }]);
   });
 
   it('lets only the first field claim a stored order', async () => {
