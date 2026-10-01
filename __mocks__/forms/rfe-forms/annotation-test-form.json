@@ -1,0 +1,101 @@
+{
+  "name": "Test Form 2",
+  "version": "1",
+  "published": true,
+  "retired": false,
+  "encounter": "Consultation",
+  "pages": [
+    {
+      "label": "Basic Data",
+      "sections": [
+        {
+          "label": "Initial Details",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Height",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "conceptMappings": [
+                  {
+                    "type": "CIEL",
+                    "value": "5090"
+                  },
+                  {
+                    "type": "AMPATH",
+                    "value": "5090"
+                  },
+                  {
+                    "type": "PIH",
+                    "value": "5090"
+                  }
+                ]
+              },
+              "id": "Ht"
+            }
+          ]
+        },
+        {
+          "label": "Body Conditions",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "predefined-annotation",
+                "concept": "00000000-0000-0000-0000-000000000000",
+                "annotationOptions": {
+                  "templates": [
+                    {
+                      "id": "001",
+                      "label": "Front Body",
+                      "src": "https://thumb.ac-illust.com/b9/b9f175a0d667b2b826da6040256d3e07_w.jpeg"
+                    },
+                    {
+                      "id": "002",
+                      "label": "Leg",
+                      "src": "https://i.pinimg.com/236x/f7/d8/de/f7d8de6c46d6cde63f6484c0665937e8.jpg"
+                    },
+                    {
+                      "id": "003",
+                      "label": "Body Front Side View",
+                      "src": "https://media.istockphoto.com/id/2239954584/vector/athletic-man-body-contour-in-three-dynamic-poses-a-printable-human-template-with-clean-line.jpg"
+                    },
+                    {
+                      "id": "004",
+                      "label": "Front and Back View",
+                      "src": "https://media.istockphoto.com/id/1160619280/vector/male-and-female-body-chart.jpg"
+                    },
+                    {
+                      "id": "005",
+                      "label": "Chest",
+                      "src": "https://i.pinimg.com/736x/c3/d6/4a/c3d64acf901c921c770edb12277a3df5.jpg"
+                    }
+                  ]
+                }
+              },
+              "id": "bodyAnnotation",
+              "label": "Annotate body on the body"
+            },
+            {
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "file",
+                "concept": "165616AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              },
+              "id": "frontBodyImage",
+              "label": "Front body Image"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "referencedForms": [],
+  "description": "test form\n",
+  "encounterType": "e22e39fd-7db2-45e7-80f1-60fa0d5a4378",
+  "uuid": "a53413bc-94fa-4659-a3c7-4a7cf2cfe6a2"
+}
