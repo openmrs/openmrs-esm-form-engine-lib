@@ -10,7 +10,7 @@ import { type FormField } from '../types';
 import { type FormNode } from './expression-runner';
 import { isEmpty as isValueEmpty } from '../validators/form-validator';
 import * as apiFunctions from '../api';
-import { getZRefByGenderAndAge } from './zscore-service';
+import { getBmiForAgeRef, getHeightForAgeRef, getWeightForHeightRef } from './zscore-service';
 import { formatDate, parseDate } from '@openmrs/esm-framework';
 
 export class CommonExpressionHelpers {
@@ -496,7 +496,7 @@ export class CommonExpressionHelpers {
     }
 
     const birthDate = new Date(this.patient.birthDate);
-    const weightForHeightRef = getZRefByGenderAndAge(this.patient.sex, birthDate, new Date()).weightForHeightRef;
+    const weightForHeightRef = getWeightForHeightRef(this.patient.sex, birthDate, new Date());
 
     const formattedHeight = height.toFixed(1);
     const standardHeightMin = 45;
@@ -527,7 +527,7 @@ export class CommonExpressionHelpers {
     }
 
     const birthDate = new Date(this.patient.birthDate);
-    const bmiForAgeRef = getZRefByGenderAndAge(this.patient.sex, birthDate, new Date()).bmiForAgeRef;
+    const bmiForAgeRef = getBmiForAgeRef(this.patient.sex, birthDate, new Date());
 
     const heightInMeters = height / 100;
     const bmi = parseFloat((weight / (heightInMeters * heightInMeters)).toFixed(1));
@@ -549,7 +549,7 @@ export class CommonExpressionHelpers {
     }
 
     const birthDate = new Date(this.patient.birthDate);
-    const heightForAgeRef = getZRefByGenderAndAge(this.patient.sex, birthDate, new Date()).heightForAgeRef;
+    const heightForAgeRef = getHeightForAgeRef(this.patient.sex, birthDate, new Date());
     const refSectionObject = first(heightForAgeRef);
 
     return this.calculateZScoreFromRef(refSectionObject, height);

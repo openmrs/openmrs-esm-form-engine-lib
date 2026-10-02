@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { type FormProcessorContextProps } from '../types';
 import { type FormProcessor, type FormProcessorContextSetters } from '../processors/form-processor';
-import { reportError } from '../utils/error-utils';
+import { loadZScoreReferences } from '../utils/zscore-service';
 
 const useProcessorDependencies = (
   formProcessor: FormProcessor,
@@ -9,35 +9,45 @@ const useProcessorDependencies = (
   setContext: React.Dispatch<React.SetStateAction<FormProcessorContextProps>>,
   setters: FormProcessorContextSetters,
 ) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const { loadDependencies } = formProcessor;
+  const { formJson } = context;
+  const [attempt, setAttempt] = useState(0);
+  const [result, setResult] = useState<{
+    loadDependencies: typeof loadDependencies;
+    attempt: number;
+    error: Error | null;
+  }>(null);
+  const retry = useCallback(() => setAttempt((previous) => previous + 1), []);
+  // A retry is pending on its first render, before the effect runs.
+  const currentResult = result?.loadDependencies === loadDependencies && result?.attempt === attempt ? result : null;
 
   useEffect(() => {
     let ignore = false;
 
-    if (loadDependencies) {
-      setIsLoading(true);
-      loadDependencies(context, setContext, setters)
-        .then(() => {
-          if (!ignore) {
-            setIsLoading(false);
-          }
-        })
-        .catch((error) => {
-          if (!ignore) {
-            setError(error);
-            reportError(error, 'Encountered error while loading dependencies');
-          }
+    async function load() {
+      // Wait for both operations to finish before allowing a retry, including when one fails.
+      const results = await Promise.allSettled([
+        Promise.resolve().then(() => loadDependencies?.(context, setContext, setters)),
+        loadZScoreReferences(formJson),
+      ]);
+      if (!ignore) {
+        const failure = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+        setResult({
+          loadDependencies,
+          attempt,
+          error: failure ? new Error(failure.reason?.message ?? String(failure.reason)) : null,
         });
+      }
     }
+    load();
 
     return () => {
       ignore = true;
     };
-  }, [loadDependencies]);
+  }, [loadDependencies, attempt]);
 
-  return { isLoading, error };
+  // Failed dependencies must also keep initial values, expressions and submission blocked.
+  return { isLoading: !currentResult || !!currentResult.error, error: currentResult?.error, retry };
 };
 
 export default useProcessorDependencies;

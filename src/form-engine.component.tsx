@@ -67,7 +67,7 @@ const FormEngine = ({
   }, [visit?.startDatetime, visit?.stopDatetime]);
   const workspaceSize = useFormWorkspaceSize(ref);
   const { patient, isLoadingPatient } = usePatientData(patientUUID);
-  const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
+  const [isLoadingDependencies, setIsLoadingDependencies] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
   const sessionMode = !isEmpty(mode) ? mode : !isEmpty(encounterUUID) ? 'edit' : 'enter';
@@ -132,6 +132,7 @@ const FormEngine = ({
       ) : (
         <FormFactoryProvider
           patient={patient}
+          isLoadingDependencies={isLoadingDependencies}
           patientUUID={patientUUID}
           sessionMode={sessionMode}
           sessionDate={sessionDate}
