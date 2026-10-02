@@ -10,6 +10,7 @@ const defaultCareSetting = '6f0c9a92-6f24-11e3-af88-005056821db0';
 
 export const OrdersAdapter: FormFieldValueAdapter = {
   transformFieldValue: function (field: FormField, value: any, context: FormContextProps) {
+    clearSubmission(field);
     if (context.sessionMode == 'edit' && field.meta.initialValue?.omrsObject) {
       return editOrder(value, field, context.currentProvider.uuid);
     }
@@ -70,7 +71,6 @@ function constructNewOrder(value: any, field: FormField, orderer: string) {
 function editOrder(newOrder: any, field: FormField, orderer: string) {
   const previousOrder = field.meta.initialValue?.omrsObject as OpenmrsResource;
   if (newOrder === previousOrder?.concept?.uuid) {
-    clearSubmission(field);
     return null;
   }
   const voided = {
