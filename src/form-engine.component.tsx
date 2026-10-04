@@ -68,6 +68,15 @@ const FormEngine = ({
   const workspaceSize = useFormWorkspaceSize(ref);
   const { patient, isLoadingPatient } = usePatientData(patientUUID);
   const [isLoadingDependencies, setIsLoadingDependencies] = useState(true);
+  const loadingForms = useRef(new Set<string>());
+  const setIsLoadingFormDependencies = useCallback((formId: string, isLoading: boolean) => {
+    if (isLoading) {
+      loadingForms.current.add(formId);
+    } else {
+      loadingForms.current.delete(formId);
+    }
+    setIsLoadingDependencies(loadingForms.current.size > 0);
+  }, []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
   const sessionMode = !isEmpty(mode) ? mode : !isEmpty(encounterUUID) ? 'edit' : 'enter';
@@ -180,7 +189,7 @@ const FormEngine = ({
                 <div className={styles.formBody}>
                   <FormProcessorFactory
                     formJson={refinedFormJson}
-                    setIsLoadingFormDependencies={setIsLoadingDependencies}
+                    setIsLoadingFormDependencies={setIsLoadingFormDependencies}
                   />
                 </div>
                 {showBottomButtonSet && !hideControls && (
