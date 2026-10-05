@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
-import { vi, describe, it, expect, test, beforeEach } from 'vitest';
+import { vi, describe, it, expect, test, beforeEach, beforeAll, afterEach } from 'vitest';
 import { CommonExpressionHelpers, simpleHash } from './common-expression-helpers';
-import { type FormField } from '../types';
+import { type FormField, type FormSchema } from '../types';
+import { loadZScoreReferences } from './zscore-service';
 
 describe('CommonExpressionHelpers', () => {
   let helpers: CommonExpressionHelpers;
@@ -441,6 +442,161 @@ describe('CommonExpressionHelpers', () => {
       expect(result).toBe('resolved value');
     });
   });
+});
+
+describe('z-score helpers', () => {
+  // The birth dates are relative to 30 September 2026, and the expected values are what the helpers
+  // returned before their reference tables were loaded on demand
+  const birthDates = {
+    infant30d: '2026-08-31',
+    age2: '2024-06-15',
+    age4: '2022-01-10',
+    age7: '2019-05-20',
+    age12: '2014-02-02',
+    age16: '2009-11-01',
+    adult: '1990-01-01',
+  };
+
+  const formUsingAllHelpers: FormSchema = {
+    name: 'Z-scores',
+    processor: 'EncounterFormProcessor',
+    uuid: 'zscore-form',
+    referencedForms: [],
+    encounterType: 'encounter-type',
+    pages: [
+      {
+        label: 'Growth',
+        sections: [
+          {
+            label: 'Z-scores',
+            isExpanded: 'true',
+            questions: ['calcWeightForHeightZscore', 'calcBMIForAgeZscore', 'calcHeightForAgeZscore'].map((helper) => ({
+              id: helper,
+              label: helper,
+              type: 'obs',
+              questionOptions: {
+                rendering: 'text',
+                concept: `${helper}-concept`,
+                calculate: { calculateExpression: `${helper}(height, weight)` },
+              },
+            })),
+          },
+        ],
+      },
+    ],
+  };
+
+  beforeAll(async () => {
+    await loadZScoreReferences(formUsingAllHelpers);
+  });
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-09-30T12:00:00Z'));
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it.each([
+    ['calcWeightForHeightZscore', 'M', 'infant30d', [45, 2.5], '0'],
+    ['calcWeightForHeightZscore', 'M', 'infant30d', [65.2, 7], '-1'],
+    ['calcWeightForHeightZscore', 'M', 'infant30d', [80, 14], '3'],
+    ['calcWeightForHeightZscore', 'M', 'infant30d', [95.7, 14], '-1'],
+    ['calcWeightForHeightZscore', 'M', 'age2', [45, 2.5], '0'],
+    ['calcWeightForHeightZscore', 'M', 'age2', [65.2, 7], '-1'],
+    ['calcWeightForHeightZscore', 'M', 'age2', [80, 14], '3'],
+    ['calcWeightForHeightZscore', 'M', 'age2', [95.7, 14], '-1'],
+    ['calcWeightForHeightZscore', 'M', 'age4', [45, 2.5], '0'],
+    ['calcWeightForHeightZscore', 'M', 'age4', [65.2, 7], '-1'],
+    ['calcWeightForHeightZscore', 'M', 'age4', [80, 14], '3'],
+    ['calcWeightForHeightZscore', 'M', 'age4', [95.7, 14], '-1'],
+    ['calcWeightForHeightZscore', 'M', 'age2', [44.9, 2], '-4'],
+    ['calcWeightForHeightZscore', 'M', 'age2', [110.1, 20], '-4'],
+    ['calcWeightForHeightZscore', 'M', 'age2', [0, 10], null],
+    ['calcWeightForHeightZscore', 'M', 'age7', [80, 10], null],
+    ['calcWeightForHeightZscore', 'F', 'infant30d', [45, 2.5], '0'],
+    ['calcWeightForHeightZscore', 'F', 'infant30d', [65.2, 7], '-1'],
+    ['calcWeightForHeightZscore', 'F', 'infant30d', [80, 14], '3'],
+    ['calcWeightForHeightZscore', 'F', 'infant30d', [95.7, 14], '0'],
+    ['calcWeightForHeightZscore', 'F', 'age2', [45, 2.5], '0'],
+    ['calcWeightForHeightZscore', 'F', 'age2', [65.2, 7], '-1'],
+    ['calcWeightForHeightZscore', 'F', 'age2', [80, 14], '3'],
+    ['calcWeightForHeightZscore', 'F', 'age2', [95.7, 14], '0'],
+    ['calcWeightForHeightZscore', 'F', 'age4', [45, 2.5], '0'],
+    ['calcWeightForHeightZscore', 'F', 'age4', [65.2, 7], '-1'],
+    ['calcWeightForHeightZscore', 'F', 'age4', [80, 14], '3'],
+    ['calcWeightForHeightZscore', 'F', 'age4', [95.7, 14], '0'],
+    ['calcWeightForHeightZscore', 'F', 'age2', [44.9, 2], '-4'],
+    ['calcWeightForHeightZscore', 'F', 'age2', [110.1, 20], '-4'],
+    ['calcWeightForHeightZscore', 'F', 'age2', [0, 10], null],
+    ['calcWeightForHeightZscore', 'F', 'age7', [80, 10], null],
+    ['calcWeightForHeightZscore', 'U', 'age2', [65.2, 7], null],
+    ['calcBMIForAgeZscore', 'M', 'age7', [120, 20], '-2'],
+    ['calcBMIForAgeZscore', 'M', 'age7', [140, 35], '1'],
+    ['calcBMIForAgeZscore', 'M', 'age7', [150, 60], '4'],
+    ['calcBMIForAgeZscore', 'M', 'age12', [120, 20], '-3'],
+    ['calcBMIForAgeZscore', 'M', 'age12', [140, 35], '-1'],
+    ['calcBMIForAgeZscore', 'M', 'age12', [150, 60], '2'],
+    ['calcBMIForAgeZscore', 'M', 'age16', [120, 20], '-4'],
+    ['calcBMIForAgeZscore', 'M', 'age16', [140, 35], '-2'],
+    ['calcBMIForAgeZscore', 'M', 'age16', [150, 60], '1'],
+    ['calcBMIForAgeZscore', 'M', 'age12', [120, 0], null],
+    ['calcBMIForAgeZscore', 'M', 'age2', [140, 35], null],
+    ['calcBMIForAgeZscore', 'M', 'adult', [140, 35], null],
+    ['calcBMIForAgeZscore', 'F', 'age7', [120, 20], '-2'],
+    ['calcBMIForAgeZscore', 'F', 'age7', [140, 35], '1'],
+    ['calcBMIForAgeZscore', 'F', 'age7', [150, 60], '3'],
+    ['calcBMIForAgeZscore', 'F', 'age12', [120, 20], '-3'],
+    ['calcBMIForAgeZscore', 'F', 'age12', [140, 35], '-1'],
+    ['calcBMIForAgeZscore', 'F', 'age12', [150, 60], '2'],
+    ['calcBMIForAgeZscore', 'F', 'age16', [120, 20], '-4'],
+    ['calcBMIForAgeZscore', 'F', 'age16', [140, 35], '-2'],
+    ['calcBMIForAgeZscore', 'F', 'age16', [150, 60], '1'],
+    ['calcBMIForAgeZscore', 'F', 'age12', [120, 0], null],
+    ['calcBMIForAgeZscore', 'F', 'age2', [140, 35], null],
+    ['calcBMIForAgeZscore', 'F', 'adult', [140, 35], null],
+    ['calcBMIForAgeZscore', 'U', 'age7', [140, 35], null],
+    ['calcHeightForAgeZscore', 'M', 'infant30d', [60], '2'],
+    ['calcHeightForAgeZscore', 'M', 'infant30d', [95], '4'],
+    ['calcHeightForAgeZscore', 'M', 'infant30d', [150], '4'],
+    ['calcHeightForAgeZscore', 'M', 'age2', [60], '-4'],
+    ['calcHeightForAgeZscore', 'M', 'age2', [95], '1'],
+    ['calcHeightForAgeZscore', 'M', 'age2', [150], '4'],
+    ['calcHeightForAgeZscore', 'M', 'age7', [60], '-4'],
+    ['calcHeightForAgeZscore', 'M', 'age7', [95], '-4'],
+    ['calcHeightForAgeZscore', 'M', 'age7', [150], '4'],
+    ['calcHeightForAgeZscore', 'M', 'age12', [60], '-4'],
+    ['calcHeightForAgeZscore', 'M', 'age12', [95], '-4'],
+    ['calcHeightForAgeZscore', 'M', 'age12', [150], '-1'],
+    ['calcHeightForAgeZscore', 'M', 'age12', [0], null],
+    ['calcHeightForAgeZscore', 'M', 'adult', [150], null],
+    ['calcHeightForAgeZscore', 'F', 'infant30d', [60], '3'],
+    ['calcHeightForAgeZscore', 'F', 'infant30d', [95], '4'],
+    ['calcHeightForAgeZscore', 'F', 'infant30d', [150], '4'],
+    ['calcHeightForAgeZscore', 'F', 'age2', [60], '-4'],
+    ['calcHeightForAgeZscore', 'F', 'age2', [95], '1'],
+    ['calcHeightForAgeZscore', 'F', 'age2', [150], '4'],
+    ['calcHeightForAgeZscore', 'F', 'age7', [60], '-4'],
+    ['calcHeightForAgeZscore', 'F', 'age7', [95], '-4'],
+    ['calcHeightForAgeZscore', 'F', 'age7', [150], '4'],
+    ['calcHeightForAgeZscore', 'F', 'age12', [60], '-4'],
+    ['calcHeightForAgeZscore', 'F', 'age12', [95], '-4'],
+    ['calcHeightForAgeZscore', 'F', 'age12', [150], '-1'],
+    ['calcHeightForAgeZscore', 'F', 'age12', [0], null],
+    ['calcHeightForAgeZscore', 'F', 'adult', [150], null],
+    ['calcHeightForAgeZscore', 'U', 'age2', [95], null],
+  ] as Array<[string, string, keyof typeof birthDates, Array<number>, string | null]>)(
+    '%s for a %s patient (%s) with %j returns %j',
+    (helper, sex, age, args, expected) => {
+      const helpers = new CommonExpressionHelpers(null, { sex, birthDate: birthDates[age] }, [], {});
+
+      expect(helpers[helper](...args)).toBe(expected);
+    },
+  );
 });
 
 describe('simpleHash', () => {

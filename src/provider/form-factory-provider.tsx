@@ -46,6 +46,7 @@ interface FormFactoryProviderProps {
   visit: Visit;
   isFormExpanded: boolean;
   children: React.ReactNode;
+  isLoadingDependencies?: boolean;
   formSubmissionProps: {
     isSubmitting: boolean;
     setIsSubmitting: (isSubmitting: boolean) => void;
@@ -72,6 +73,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
   visit,
   isFormExpanded = true,
   children,
+  isLoadingDependencies = false,
   formSubmissionProps,
   hideFormCollapseToggle,
   handleConfirmQuestionDeletion,
@@ -118,13 +120,19 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
 
   useEffect(() => {
     if (isValidating) {
-      validateAllForms();
+      if (!isLoadingDependencies) {
+        validateAllForms();
+      }
       setIsValidating(false);
     }
-  }, [isValidating, validateAllForms]);
+  }, [isValidating, validateAllForms, isLoadingDependencies]);
 
   useEffect(() => {
     if (isSubmitting) {
+      if (isLoadingDependencies) {
+        setIsSubmitting(false);
+        return;
+      }
       // TODO: find a dynamic way of managing the form processing order
       // validate all forms
       const { forms, isValid } = validateAllForms();
@@ -177,7 +185,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
     return () => {
       abortController.abort();
     };
-  }, [isSubmitting, validateAllForms]);
+  }, [isSubmitting, validateAllForms, isLoadingDependencies]);
 
   return (
     <FormFactoryProviderContext.Provider

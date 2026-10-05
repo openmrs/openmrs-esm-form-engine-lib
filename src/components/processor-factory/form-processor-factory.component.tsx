@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { Button, InlineNotification } from '@carbon/react';
 import { type OpenmrsResource } from '@openmrs/esm-framework';
 import useProcessorDependencies from '../../hooks/useProcessorDependencies';
 import useInitialValues from '../../hooks/useInitialValues';
@@ -21,7 +22,7 @@ import { registerFormFieldAdaptersForCleanUp } from '../../lifecycle';
 interface FormProcessorFactoryProps {
   formJson: FormSchema;
   isSubForm?: boolean;
-  setIsLoadingFormDependencies: (isLoading: boolean) => void;
+  setIsLoadingFormDependencies: (formId: string, isLoading: boolean) => void;
 }
 
 // Mutable parts of the context that can be updated by processors/hooks
@@ -66,6 +67,7 @@ const FormProcessorFactory = ({
 }: FormProcessorFactoryProps) => {
   const { patient, sessionMode, formProcessors, layoutType, location, provider, sessionDate, visit } = useFormFactory();
   const { t } = useTranslation();
+  const formId = useId();
 
   const processor = useMemo(() => {
     const ProcessorClass = formProcessors[formJson.processor];
@@ -181,12 +183,11 @@ const FormProcessorFactory = ({
     [],
   );
 
-  const { isLoading: isLoadingCustomDeps } = useProcessorDependencies(
-    processor,
-    processorContext,
-    setProcessorContext,
-    processorSetters,
-  );
+  const {
+    isLoading: isLoadingCustomDeps,
+    error: dependenciesError,
+    retry,
+  } = useProcessorDependencies(processor, processorContext, setProcessorContext, processorSetters);
   const useCustomHooks = processor.getCustomHooks().useCustomHooks;
   const [isLoadingCustomHooks, setIsLoadingCustomHooks] = useState(!!useCustomHooks);
   const {
@@ -203,8 +204,12 @@ const FormProcessorFactory = ({
 
   // Notify parent of loading state changes
   useEffect(() => {
-    setIsLoadingFormDependencies(isLoadingProcessorDependencies);
-  }, [isLoadingProcessorDependencies, setIsLoadingFormDependencies]);
+    setIsLoadingFormDependencies(formId, isLoadingProcessorDependencies);
+  }, [formId, isLoadingProcessorDependencies, setIsLoadingFormDependencies]);
+
+  useEffect(() => {
+    return () => setIsLoadingFormDependencies(formId, false);
+  }, [formId, setIsLoadingFormDependencies]);
 
   useEffect(() => {
     reportError(initialValuesError, t('errorLoadingInitialValues', 'Error loading initial values'));
@@ -227,7 +232,22 @@ const FormProcessorFactory = ({
           setIsLoadingCustomHooks={setIsLoadingCustomHooks}
         />
       )}
-      {isLoadingProcessorDependencies && !isSubForm ? (
+      {dependenciesError ? (
+        <div>
+          <InlineNotification
+            kind="error"
+            hideCloseButton
+            title={t('errorLoadingFormDependencies', 'Unable to load form data')}
+            subtitle={t(
+              'retryLoadingFormDependencies',
+              'Required form data could not be loaded. Retry to complete and save this form.',
+            )}
+          />
+          <Button kind="tertiary" onClick={retry}>
+            {t('retry', 'Retry')}
+          </Button>
+        </div>
+      ) : isLoadingProcessorDependencies ? (
         <Loader />
       ) : (
         <FormRenderer
