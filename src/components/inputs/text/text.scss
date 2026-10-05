@@ -10,6 +10,6 @@
   font-weight: 600;
 }
 
-:global(.cds--text-input__readonly-icon) {
+.boldedLabel :global(.cds--text-input__readonly-icon) {
   display: none;
 }

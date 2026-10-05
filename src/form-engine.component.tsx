@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
@@ -217,9 +217,11 @@ const FormEngine = ({
 
 function I18FormEngine(props: FormEngineProps) {
   return (
-    <I18nextProvider i18n={window.i18next} defaultNS={formEngineAppName}>
-      <FormEngine {...props} />
-    </I18nextProvider>
+    <Suspense fallback={<Loader />}>
+      <I18nextProvider i18n={window.i18next} defaultNS={formEngineAppName}>
+        <FormEngine {...props} />
+      </I18nextProvider>
+    </Suspense>
   );
 }
 

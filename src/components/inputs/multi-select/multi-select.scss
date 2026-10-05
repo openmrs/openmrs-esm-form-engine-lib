@@ -1,7 +1,7 @@
 @use '@carbon/colors';
 
 .boldedLabel label,
-legend > span {
+.boldedLabel legend > span {
   font-weight: 600;
   color: colors.$black-100;
 }

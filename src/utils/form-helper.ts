@@ -279,5 +279,5 @@ function extractFHIRObsValue(fhirObs: FHIRObsResource, rendering: RenderType) {
  */
 export function findFieldSection(formJson: FormSchema, field: FormField) {
   let page = formJson.pages.find((page) => field.meta.pageId === page.id);
-  return page.sections.find((section) => section.questions.find((question) => question.id === field.id));
+  return page?.sections.find((section) => section.questions.find((question) => question.id === field.id));
 }
