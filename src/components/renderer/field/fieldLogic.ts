@@ -56,6 +56,9 @@ function evaluateFieldDependents(field: FormField, values: any, context: FormCon
   if (field.fieldDependents) {
     field.fieldDependents.forEach((dep) => {
       const dependent = formFields.find((f) => f.id == dep);
+      if (!dependent) {
+        return;
+      }
       // evaluate calculated value
       if (dependent.questionOptions.calculate?.calculateExpression) {
         evaluateAsyncExpression(
