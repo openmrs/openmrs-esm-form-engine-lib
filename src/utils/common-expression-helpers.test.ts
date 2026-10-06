@@ -513,6 +513,7 @@ describe('z-score helpers', () => {
     ['calcWeightForHeightZscore', 'M', 'age4', [45, 2.5], '0'],
     ['calcWeightForHeightZscore', 'M', 'age4', [65.2, 7], '-1'],
     ['calcWeightForHeightZscore', 'M', 'age4', [80, 14], '3'],
+    ['calcWeightForHeightZscore', 'M', 'age4', [95.7, 14], '-1'],
     ['calcWeightForHeightZscore', 'M', 'age2', [44.9, 2], null],
     ['calcWeightForHeightZscore', 'M', 'age2', [44.96, 2], null],
     ['calcWeightForHeightZscore', 'M', 'age2', [110.04, 20], null],
