@@ -488,7 +488,7 @@ export class CommonExpressionHelpers {
    * Used to assess acute malnutrition (wasting).
    * @param height - Patient's height/length in centimeters (valid range: 45-110 cm)
    * @param weight - Patient's weight in kilograms
-   * @returns Z-score as a string (e.g., '-2', '0', '1'), '-4' if out of range, or null if inputs missing
+   * @returns Z-score as a string (e.g., '-2', '0', '1'), or null if out of range, reference missing, or inputs missing
    */
   calcWeightForHeightZscore = (height: number, weight: number): string | null => {
     if (!height || !weight) {
@@ -498,13 +498,18 @@ export class CommonExpressionHelpers {
     const birthDate = new Date(this.patient.birthDate);
     const weightForHeightRef = getWeightForHeightRef(this.patient.sex, birthDate, new Date());
 
-    const formattedHeight = height.toFixed(1);
+    if (!weightForHeightRef) {
+      return null;
+    }
+
     const standardHeightMin = 45;
     const standardMaxHeight = 110;
 
-    if (parseFloat(formattedHeight) < standardHeightMin || parseFloat(formattedHeight) > standardMaxHeight) {
-      return '-4';
+    if (height < standardHeightMin || height > standardMaxHeight) {
+      return null;
     }
+
+    const formattedHeight = height.toFixed(1);
 
     const refSection = filter(weightForHeightRef, (refObject) => {
       return parseFloat(refObject['Length']).toFixed(1) === formattedHeight;
