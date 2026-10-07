@@ -601,6 +601,24 @@ describe('z-score helpers', () => {
       expect(helpers[helper](...args)).toBe(expected);
     },
   );
+
+  it.each([
+    ['M', 'age2', ['65.2', 7], '-1'],
+    ['M', 'age2', ['80', 14], '3'],
+    ['F', 'age2', ['95.7', 14], '0'],
+    ['M', 'age2', ['44.9', 2], null],
+    ['M', 'age2', ['110.1', 20], null],
+    ['M', 'age2', ['0', 10], null],
+    ['M', 'age2', ['', 10], null],
+    ['M', 'age2', ['abc', 10], null],
+  ] as Array<[string, keyof typeof birthDates, [string, number], string | null]>)(
+    'calcWeightForHeightZscore for a %s patient (%s) accepts a string height %j and returns %j',
+    (sex, age, args, expected) => {
+      const helpers = new CommonExpressionHelpers(null, { sex, birthDate: birthDates[age] }, [], {});
+
+      expect(helpers.calcWeightForHeightZscore(...args)).toBe(expected);
+    },
+  );
 });
 
 describe('simpleHash', () => {
