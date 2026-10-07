@@ -453,8 +453,11 @@ describe('z-score helpers', () => {
     age4: '2022-01-10',
     age7: '2019-05-20',
     age12: '2014-02-02',
+    age15: '2011-09-30',
     age16: '2009-11-01',
     adult: '1990-01-01',
+    missingDOB: undefined as any,
+    invalidDOB: 'not-a-date',
   };
 
   const formUsingAllHelpers: FormSchema = {
@@ -590,9 +593,19 @@ describe('z-score helpers', () => {
     ['calcHeightForAgeZscore', 'F', 'age12', [60], '-4'],
     ['calcHeightForAgeZscore', 'F', 'age12', [95], '-4'],
     ['calcHeightForAgeZscore', 'F', 'age12', [150], '-1'],
+    ['calcHeightForAgeZscore', 'F', 'age15', [160], '-1'],
+    ['calcHeightForAgeZscore', 'M', 'age15', [160], '-2'],
     ['calcHeightForAgeZscore', 'F', 'age12', [0], null],
     ['calcHeightForAgeZscore', 'F', 'adult', [150], null],
     ['calcHeightForAgeZscore', 'U', 'age2', [95], null],
+    ['calcHeightForAgeZscore', 'F', 'missingDOB', [150], null],
+    ['calcHeightForAgeZscore', 'M', 'missingDOB', [150], null],
+    ['calcHeightForAgeZscore', 'F', 'invalidDOB', [150], null],
+    ['calcHeightForAgeZscore', 'M', 'invalidDOB', [150], null],
+    ['calcBMIForAgeZscore', 'F', 'missingDOB', [140, 35], null],
+    ['calcBMIForAgeZscore', 'M', 'missingDOB', [140, 35], null],
+    ['calcBMIForAgeZscore', 'F', 'invalidDOB', [140, 35], null],
+    ['calcBMIForAgeZscore', 'M', 'invalidDOB', [140, 35], null],
   ] as Array<[string, string, keyof typeof birthDates, Array<number>, string | null]>)(
     '%s for a %s patient (%s) with %j returns %j',
     (helper, sex, age, args, expected) => {
