@@ -166,17 +166,24 @@ describe('zscore-service', () => {
   });
 
   it('returns null when birth date is missing or invalid for both sexes', async () => {
-    const { loadZScoreReferences, getHeightForAgeRef, getBmiForAgeRef } = await importZScoreService();
+    const { loadZScoreReferences, getWeightForHeightRef, getHeightForAgeRef, getBmiForAgeRef } =
+      await importZScoreService();
     const referenceDate = new Date(2026, 9, 6);
 
     await loadZScoreReferences(
       formUsing([
+        calculatedField('calcWeightForHeightZscore(height, weight)'),
         calculatedField('calcHeightForAgeZscore(height, weight)'),
         calculatedField('calcBMIForAgeZscore(height, weight)'),
       ]),
     );
 
     for (const sex of ['F', 'M']) {
+      expect(getWeightForHeightRef(sex, undefined, referenceDate)).toBeNull();
+      expect(getWeightForHeightRef(sex, null, referenceDate)).toBeNull();
+      expect(getWeightForHeightRef(sex, new Date('invalid'), referenceDate)).toBeNull();
+      expect(getWeightForHeightRef(sex, 'not-a-date', referenceDate)).toBeNull();
+
       expect(getHeightForAgeRef(sex, undefined, referenceDate)).toBeNull();
       expect(getHeightForAgeRef(sex, null, referenceDate)).toBeNull();
       expect(getHeightForAgeRef(sex, new Date('invalid'), referenceDate)).toBeNull();

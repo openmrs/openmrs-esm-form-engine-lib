@@ -74,10 +74,10 @@ const firstMonthOfOlderChildTables = 61;
 export function getWeightForHeightRef(gender, birthDate, refdate) {
   const age = getAge(birthDate, refdate, 'years');
 
-  if (gender === 'F' && age < 5) {
+  if (gender === 'F' && age !== null && age < 5) {
     return getTable('wflFemaleBelow5');
   }
-  if (gender === 'M' && age < 5) {
+  if (gender === 'M' && age !== null && age < 5) {
     return getTable('wflMaleBelow5');
   }
   return null;
