@@ -486,12 +486,13 @@ export class CommonExpressionHelpers {
   /**
    * Calculates the Weight-for-Height Z-score for pediatric patients using WHO growth standards.
    * Used to assess acute malnutrition (wasting).
-   * @param height - Patient's height/length in centimeters (valid range: 45-110 cm)
+   * @param height - Patient's height/length in centimeters (valid range: 45-110 cm). Numeric strings are accepted.
    * @param weight - Patient's weight in kilograms
    * @returns Z-score as a string (e.g., '-2', '0', '1'), or null if out of range, reference missing, or inputs missing
    */
-  calcWeightForHeightZscore = (height: number, weight: number): string | null => {
-    if (!height || !weight) {
+  calcWeightForHeightZscore = (height: number | string, weight: number): string | null => {
+    const numericHeight = Number(height);
+    if (!numericHeight || !weight) {
       return null;
     }
 
@@ -505,11 +506,11 @@ export class CommonExpressionHelpers {
     const standardHeightMin = 45;
     const standardMaxHeight = 110;
 
-    if (height < standardHeightMin || height > standardMaxHeight) {
+    if (numericHeight < standardHeightMin || numericHeight > standardMaxHeight) {
       return null;
     }
 
-    const formattedHeight = height.toFixed(1);
+    const formattedHeight = numericHeight.toFixed(1);
 
     const refSection = filter(weightForHeightRef, (refObject) => {
       return parseFloat(refObject['Length']).toFixed(1) === formattedHeight;
