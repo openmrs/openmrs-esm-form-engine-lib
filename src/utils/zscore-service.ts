@@ -64,13 +64,20 @@ function getTable(name: ZScoreTableName) {
   return table;
 }
 
+/**
+ * The under-5 tables (the WHO child growth standards) go up to day 1,856, and the 5 to 19 year tables (the WHO
+ * growth reference) start at 61 months.
+ */
+const lastDayOfUnderFiveTables = 1856;
+const firstMonthOfOlderChildTables = 61;
+
 export function getWeightForHeightRef(gender, birthDate, refdate) {
   const age = getAge(birthDate, refdate, 'years');
 
-  if (gender === 'F' && age < 5) {
+  if (gender === 'F' && age !== null && age < 5) {
     return getTable('wflFemaleBelow5');
   }
-  if (gender === 'M' && age < 5) {
+  if (gender === 'M' && age !== null && age < 5) {
     return getTable('wflMaleBelow5');
   }
   return null;
@@ -80,21 +87,22 @@ export function getHeightForAgeRef(gender, birthDate, refdate) {
   const age = getAge(birthDate, refdate, 'years');
   const ageInMonths = getAge(birthDate, refdate, 'months');
   const ageInDays = getAge(birthDate, refdate, 'days');
+  const olderChildMonth = Math.max(ageInMonths, firstMonthOfOlderChildTables);
 
   if (gender === 'F') {
-    if (age < 5) {
+    if (ageInDays !== null && ageInDays <= lastDayOfUnderFiveTables) {
       return getScoreReference(getTable('hfaFemaleBelow5'), 'Day', ageInDays);
     }
-    if (age >= 5 && age < 18) {
-      return getScoreReference(getTable('hfaFemale5Above'), 'Month', ageInMonths);
+    if (ageInDays > lastDayOfUnderFiveTables && age < 18) {
+      return getScoreReference(getTable('hfaFemale5Above'), 'Month', olderChildMonth);
     }
   }
   if (gender === 'M') {
-    if (age < 5) {
+    if (ageInDays !== null && ageInDays <= lastDayOfUnderFiveTables) {
       return getScoreReference(getTable('hfaMaleBelow5'), 'Day', ageInDays);
     }
-    if (age >= 5 && age < 18) {
-      return getScoreReference(getTable('hfaMale5Above'), 'Month', ageInMonths);
+    if (ageInDays > lastDayOfUnderFiveTables && age < 18) {
+      return getScoreReference(getTable('hfaMale5Above'), 'Month', olderChildMonth);
     }
   }
   return null;
@@ -103,12 +111,14 @@ export function getHeightForAgeRef(gender, birthDate, refdate) {
 export function getBmiForAgeRef(gender, birthDate, refdate) {
   const age = getAge(birthDate, refdate, 'years');
   const ageInMonths = getAge(birthDate, refdate, 'months');
+  const ageInDays = getAge(birthDate, refdate, 'days');
+  const olderChildMonth = Math.max(ageInMonths, firstMonthOfOlderChildTables);
 
-  if (gender === 'F' && age >= 5 && age < 18) {
-    return getScoreReference(getTable('bfaFemale5Above'), 'Month', ageInMonths);
+  if (gender === 'F' && ageInDays > lastDayOfUnderFiveTables && age < 18) {
+    return getScoreReference(getTable('bfaFemale5Above'), 'Month', olderChildMonth);
   }
-  if (gender === 'M' && age >= 5 && age < 18) {
-    return getScoreReference(getTable('bfaMale5Above'), 'Month', ageInMonths);
+  if (gender === 'M' && ageInDays > lastDayOfUnderFiveTables && age < 18) {
+    return getScoreReference(getTable('bfaMale5Above'), 'Month', olderChildMonth);
   }
   return null;
 }
@@ -123,6 +133,9 @@ function getAge(birthdate, refDate, ageIn) {
   if (birthdate && refDate && ageIn) {
     const todayMoment: any = dayjs(refDate);
     const birthDateMoment: any = dayjs(birthdate);
+    if (!todayMoment.isValid() || !birthDateMoment.isValid()) {
+      return null;
+    }
     return todayMoment.diff(birthDateMoment, ageIn);
   }
   return null;
