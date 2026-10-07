@@ -2705,7 +2705,7 @@ __metadata:
     vitest: "npm:^4.1.2"
   peerDependencies:
     "@carbon/react": 1.x
-    "@openmrs/esm-framework": 10.x
+    "@openmrs/esm-framework": 11.x
     dayjs: 1.x
     i18next: 25.x
     react: 18.x
