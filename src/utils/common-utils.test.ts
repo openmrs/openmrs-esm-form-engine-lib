@@ -255,6 +255,12 @@ describe('parseToLocalDateTime', () => {
     expect(parsedDate).toEqual(expectedDate);
   });
 
+  it('should read the instant from a date string with a UTC offset', () => {
+    const parsedDate = parseToLocalDateTime('2026-10-07T23:30:00.000+0530');
+
+    expect(parsedDate.toISOString()).toBe('2026-10-07T18:00:00.000Z');
+  });
+
   it('should handle invalid date string format gracefully', () => {
     const dateString = 'invalid-date-string';
     const parsedDate = parseToLocalDateTime(dateString);

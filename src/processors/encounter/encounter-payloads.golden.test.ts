@@ -53,6 +53,9 @@ import { getMutableSessionProps, prepareEncounter } from './encounter-processor-
  * absent, and a locally-built `Date` would then serialize as a timezone-dependent
  * instant. `encounterDatetime` fields need no such care — their adapter stores the
  * `Date` as-is and never reaches `formatDateByPickerType`.
+ * Exception: `datePickerFormat: 'both'` submits with the local UTC offset
+ * (`YYYY-MM-DDTHH:mmZ`), so those values match the goldens only under the
+ * `TZ=UTC` that the test script sets.
  */
 
 const CURRENT_PROVIDER_UUID = 'current-provider-uuid';
@@ -590,8 +593,10 @@ describe('golden encounter payloads: edited encounters', () => {
           value: '2026-05-04',
           formFieldPath: 'rfe-forms-dateField',
         }),
-        // stored without a UTC offset on purpose: `parseToLocalDateTime` reads the
-        // time part as local, so an offset would make the golden timezone-dependent
+        // stored without a UTC offset on purpose: `parseToLocalDateTime` then reads it
+        // as local time, so the loaded value is 08:30 in any timezone. The submitted
+        // value still carries the local UTC offset, so it matches the golden only
+        // under the `TZ=UTC` that the test script sets
         existingObs({
           uuid: 'obs-datetime-uuid',
           concept: { uuid: 'datetimeField-concept-uuid', name: { name: 'Datetime concept' } },
@@ -728,7 +733,7 @@ describe('golden encounter payloads: edited encounters', () => {
     });
     // the datetime field was judged unchanged and built a brand-new obs instead
     expect(fieldById(context, 'datetimeField').meta.submission.newValue).toEqual({
-      value: '2026-05-04 08:30',
+      value: '2026-05-04T08:30+00:00',
       concept: 'datetimeField-concept-uuid',
       formFieldNamespace: 'rfe-forms',
       formFieldPath: 'rfe-forms-datetimeField',

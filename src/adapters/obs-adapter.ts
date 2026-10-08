@@ -13,6 +13,7 @@ import {
   gracefullySetSubmission,
   clearSubmission,
   flattenObsList,
+  parseClockTime,
   parseToLocalDateTime,
   formatDateAsDisplayString,
 } from '../utils/common-utils';
@@ -126,7 +127,10 @@ function extractFieldValue(field: FormField, obsList: OpenmrsObs[] = [], makeFie
     assignedObsIds.push(obs.uuid);
     if (typeof obs.value === 'string' || typeof obs.value === 'number') {
       if (rendering.startsWith('date')) {
-        const dateObject = parseToLocalDateTime(obs.value as string);
+        const dateObject =
+          field.datePickerFormat === 'timer'
+            ? parseClockTime(obs.value as string)
+            : parseToLocalDateTime(obs.value as string);
         if (makeFieldDirty) {
           const obsObject = field.meta.initialValue.omrsObject as OpenmrsObs;
           obsObject.value = dayjs(dateObject).format('YYYY-MM-DD HH:mm');
@@ -189,7 +193,7 @@ function formatDateByPickerType(field: FormField, value: Date) {
       case 'timer':
         return dayjs(value).format('HH:mm');
       case 'both':
-        return dayjs(value).format('YYYY-MM-DD HH:mm');
+        return dayjs(value).format('YYYY-MM-DDTHH:mmZ');
       default:
         return dayjs(value).format('YYYY-MM-DD');
     }

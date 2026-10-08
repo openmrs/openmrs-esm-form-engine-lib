@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { getAttachmentByUuid } from '@openmrs/esm-framework';
 import { vi, describe, it, expect, test, beforeEach } from 'vitest';
 import { type FormContextProps } from '../provider/form-provider';
@@ -168,6 +169,30 @@ describe('ObsAdapter - transformFieldValue', () => {
       formFieldNamespace: 'rfe-forms',
       formFieldPath: 'rfe-forms-hts-date',
       value: '2019-12-20',
+    });
+  });
+
+  it('should submit datetime values with their UTC offset', () => {
+    // setup
+    const field: FormField = {
+      label: 'Procedure date/time',
+      type: 'obs',
+      datePickerFormat: 'both',
+      questionOptions: {
+        rendering: 'datetime',
+        concept: '160715AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      },
+      id: 'procedure-datetime',
+    };
+    const procedureDate = new Date(2026, 9, 7, 23, 30);
+    // replay
+    const obs = ObsAdapter.transformFieldValue(field, procedureDate, formContext);
+    // verify
+    expect(obs).toEqual({
+      concept: '160715AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-procedure-datetime',
+      value: `2026-10-07T23:30${dayjs(procedureDate).format('Z')}`,
     });
   });
 
@@ -708,6 +733,95 @@ describe('ObsAdapter - getInitialValue', () => {
     const initialValue: any = await ObsAdapter.getInitialValue(field, formContext.domainObjectValue, formContext);
     // verify
     expect(initialValue.toLocaleDateString('en-US')).toEqual('11/19/2016');
+  });
+
+  it('should get the instant as the initial value for datetime rendering', async () => {
+    // setup
+    const field: FormField = {
+      label: 'Procedure date/time',
+      type: 'obs',
+      datePickerFormat: 'both',
+      questionOptions: {
+        rendering: 'datetime',
+        concept: '7d3f2a91-6c4e-4b8a-9e2f-3a1b5c7d9e02',
+      },
+      id: 'procedure-datetime',
+    };
+    const obs: any = {
+      uuid: 'a3c9e1f4-7b2d-4e6a-8f1c-5d9b3e7a2c40',
+      concept: {
+        uuid: '7d3f2a91-6c4e-4b8a-9e2f-3a1b5c7d9e02',
+      },
+      value: '2026-10-07T23:30:00.000+0530',
+    };
+    formContext.domainObjectValue['obs'].push(obs);
+    // replay
+    const initialValue: any = await ObsAdapter.getInitialValue(field, formContext.domainObjectValue, formContext);
+    // verify
+    expect(initialValue.toISOString()).toBe('2026-10-07T18:00:00.000Z');
+  });
+
+  it('should detect datetime edits against a loaded value with a UTC offset', async () => {
+    // setup
+    formContext.sessionMode = 'edit';
+    const field: FormField = {
+      label: 'Discharge date/time',
+      type: 'obs',
+      datePickerFormat: 'both',
+      questionOptions: {
+        rendering: 'datetime',
+        concept: '9e4b6c12-3d5f-4a7b-8c9d-1e2f3a4b5c61',
+      },
+      id: 'discharge-datetime',
+    };
+    const obs: any = {
+      uuid: 'b7d1f3a5-9c2e-4f6b-8a0d-2e4c6a8b1d73',
+      concept: {
+        uuid: '9e4b6c12-3d5f-4a7b-8c9d-1e2f3a4b5c61',
+      },
+      value: '2026-10-07T23:30:00.000+0530',
+    };
+    formContext.domainObjectValue['obs'].push(obs);
+    const loadedValue: Date = await ObsAdapter.getInitialValue(field, formContext.domainObjectValue, formContext);
+    const editedValue = dayjs(loadedValue).add(1, 'minute').toDate();
+    // verify
+    expect(hasPreviousObsValueChanged(field, loadedValue)).toBe(false);
+    ObsAdapter.transformFieldValue(field, editedValue, formContext);
+    expect(field.meta.submission.newValue).toEqual({
+      uuid: 'b7d1f3a5-9c2e-4f6b-8a0d-2e4c6a8b1d73',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-discharge-datetime',
+      value: dayjs(editedValue).format('YYYY-MM-DDTHH:mmZ'),
+    });
+    expect(editedValue.toISOString()).toBe('2026-10-07T18:01:00.000Z');
+  });
+
+  it('should get the clock time as the initial value for time-only rendering', async () => {
+    // setup
+    const field: FormField = {
+      label: 'Time of dose',
+      type: 'obs',
+      datePickerFormat: 'timer',
+      questionOptions: {
+        rendering: 'datetime',
+        concept: '5c1b3e74-5a4b-4a5c-9b1a-2f0f3a7d9e61',
+      },
+      id: 'time-of-dose',
+    };
+    // the backend returns Time concepts as 1970-01-01 in its own timezone
+    const obs: any = {
+      uuid: '1f6d2f0e-3b8a-4f0b-8f3e-7f6f1d9c2a10',
+      concept: {
+        uuid: '5c1b3e74-5a4b-4a5c-9b1a-2f0f3a7d9e61',
+      },
+      value: '1970-01-01T22:00:00.000+0300',
+    };
+    formContext.domainObjectValue['obs'].push(obs);
+    // replay
+    const initialValue: any = await ObsAdapter.getInitialValue(field, formContext.domainObjectValue, formContext);
+    // verify
+    expect(initialValue.getHours()).toBe(22);
+    expect(initialValue.getMinutes()).toBe(0);
   });
 
   it('should get initial value for coded input types', async () => {
