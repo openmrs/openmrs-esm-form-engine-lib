@@ -453,8 +453,11 @@ describe('z-score helpers', () => {
     age4: '2022-01-10',
     age7: '2019-05-20',
     age12: '2014-02-02',
+    age15: '2011-09-30',
     age16: '2009-11-01',
     adult: '1990-01-01',
+    missingDOB: undefined as any,
+    invalidDOB: 'not-a-date',
   };
 
   const formUsingAllHelpers: FormSchema = {
@@ -514,10 +517,13 @@ describe('z-score helpers', () => {
     ['calcWeightForHeightZscore', 'M', 'age4', [65.2, 7], '-1'],
     ['calcWeightForHeightZscore', 'M', 'age4', [80, 14], '3'],
     ['calcWeightForHeightZscore', 'M', 'age4', [95.7, 14], '-1'],
-    ['calcWeightForHeightZscore', 'M', 'age2', [44.9, 2], '-4'],
-    ['calcWeightForHeightZscore', 'M', 'age2', [110.1, 20], '-4'],
+    ['calcWeightForHeightZscore', 'M', 'age2', [44.9, 2], null],
+    ['calcWeightForHeightZscore', 'M', 'age2', [44.96, 2], null],
+    ['calcWeightForHeightZscore', 'M', 'age2', [110.04, 20], null],
+    ['calcWeightForHeightZscore', 'M', 'age2', [110.1, 20], null],
     ['calcWeightForHeightZscore', 'M', 'age2', [0, 10], null],
     ['calcWeightForHeightZscore', 'M', 'age7', [80, 10], null],
+    ['calcWeightForHeightZscore', 'M', 'age7', [112, 20], null],
     ['calcWeightForHeightZscore', 'F', 'infant30d', [45, 2.5], '0'],
     ['calcWeightForHeightZscore', 'F', 'infant30d', [65.2, 7], '-1'],
     ['calcWeightForHeightZscore', 'F', 'infant30d', [80, 14], '3'],
@@ -530,10 +536,11 @@ describe('z-score helpers', () => {
     ['calcWeightForHeightZscore', 'F', 'age4', [65.2, 7], '-1'],
     ['calcWeightForHeightZscore', 'F', 'age4', [80, 14], '3'],
     ['calcWeightForHeightZscore', 'F', 'age4', [95.7, 14], '0'],
-    ['calcWeightForHeightZscore', 'F', 'age2', [44.9, 2], '-4'],
-    ['calcWeightForHeightZscore', 'F', 'age2', [110.1, 20], '-4'],
+    ['calcWeightForHeightZscore', 'F', 'age2', [44.9, 2], null],
+    ['calcWeightForHeightZscore', 'F', 'age2', [110.1, 20], null],
     ['calcWeightForHeightZscore', 'F', 'age2', [0, 10], null],
     ['calcWeightForHeightZscore', 'F', 'age7', [80, 10], null],
+    ['calcWeightForHeightZscore', 'F', 'age7', [112, 20], null],
     ['calcWeightForHeightZscore', 'U', 'age2', [65.2, 7], null],
     ['calcBMIForAgeZscore', 'M', 'age7', [120, 20], '-2'],
     ['calcBMIForAgeZscore', 'M', 'age7', [140, 35], '1'],
@@ -586,15 +593,47 @@ describe('z-score helpers', () => {
     ['calcHeightForAgeZscore', 'F', 'age12', [60], '-4'],
     ['calcHeightForAgeZscore', 'F', 'age12', [95], '-4'],
     ['calcHeightForAgeZscore', 'F', 'age12', [150], '-1'],
+    ['calcHeightForAgeZscore', 'F', 'age15', [160], '-1'],
+    ['calcHeightForAgeZscore', 'M', 'age15', [160], '-2'],
     ['calcHeightForAgeZscore', 'F', 'age12', [0], null],
     ['calcHeightForAgeZscore', 'F', 'adult', [150], null],
     ['calcHeightForAgeZscore', 'U', 'age2', [95], null],
+    ['calcWeightForHeightZscore', 'F', 'missingDOB', [80, 10], null],
+    ['calcWeightForHeightZscore', 'M', 'missingDOB', [80, 10], null],
+    ['calcWeightForHeightZscore', 'F', 'invalidDOB', [80, 10], null],
+    ['calcWeightForHeightZscore', 'M', 'invalidDOB', [80, 10], null],
+    ['calcHeightForAgeZscore', 'F', 'missingDOB', [150], null],
+    ['calcHeightForAgeZscore', 'M', 'missingDOB', [150], null],
+    ['calcHeightForAgeZscore', 'F', 'invalidDOB', [150], null],
+    ['calcHeightForAgeZscore', 'M', 'invalidDOB', [150], null],
+    ['calcBMIForAgeZscore', 'F', 'missingDOB', [140, 35], null],
+    ['calcBMIForAgeZscore', 'M', 'missingDOB', [140, 35], null],
+    ['calcBMIForAgeZscore', 'F', 'invalidDOB', [140, 35], null],
+    ['calcBMIForAgeZscore', 'M', 'invalidDOB', [140, 35], null],
   ] as Array<[string, string, keyof typeof birthDates, Array<number>, string | null]>)(
     '%s for a %s patient (%s) with %j returns %j',
     (helper, sex, age, args, expected) => {
       const helpers = new CommonExpressionHelpers(null, { sex, birthDate: birthDates[age] }, [], {});
 
       expect(helpers[helper](...args)).toBe(expected);
+    },
+  );
+
+  it.each([
+    ['M', 'age2', ['65.2', 7], '-1'],
+    ['M', 'age2', ['80', 14], '3'],
+    ['F', 'age2', ['95.7', 14], '0'],
+    ['M', 'age2', ['44.9', 2], null],
+    ['M', 'age2', ['110.1', 20], null],
+    ['M', 'age2', ['0', 10], null],
+    ['M', 'age2', ['', 10], null],
+    ['M', 'age2', ['abc', 10], null],
+  ] as Array<[string, keyof typeof birthDates, [string, number], string | null]>)(
+    'calcWeightForHeightZscore for a %s patient (%s) accepts a string height %j and returns %j',
+    (sex, age, args, expected) => {
+      const helpers = new CommonExpressionHelpers(null, { sex, birthDate: birthDates[age] }, [], {});
+
+      expect(helpers.calcWeightForHeightZscore(...args)).toBe(expected);
     },
   );
 });

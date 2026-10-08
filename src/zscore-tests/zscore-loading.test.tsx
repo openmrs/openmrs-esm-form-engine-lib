@@ -60,6 +60,12 @@ describe('Z-score helpers in a form', () => {
         />,
       );
     });
+
+    // Wait for the cold table imports before starting the input query's timeout.
+    await act(async () => {
+      await vi.mocked(loadZScoreReferences).mock.results[0].value;
+    });
+
     const height = await screen.findByRole('spinbutton', { name: /^height/i });
     await user.clear(height);
     await user.type(height, '120');
