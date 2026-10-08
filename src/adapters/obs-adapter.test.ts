@@ -796,6 +796,51 @@ describe('ObsAdapter - getInitialValue', () => {
     expect(editedValue.toISOString()).toBe('2026-10-07T18:01:00.000Z');
   });
 
+  it('should keep the browser offset when a datetime near midnight is saved, reloaded and edited outside UTC', async () => {
+    // setup: the test script runs under TZ=UTC, where a local and a UTC offset look the same
+    const originalTimezone = process.env.TZ;
+    process.env.TZ = 'Asia/Kolkata';
+    try {
+      formContext.sessionMode = 'edit';
+      const createField = (): FormField => ({
+        label: 'Admission date/time',
+        type: 'obs',
+        datePickerFormat: 'both',
+        questionOptions: {
+          rendering: 'datetime',
+          concept: '3f8a2c64-1b7d-4e9a-a5c2-6d0e8f1b3a95',
+        },
+        id: 'admission-datetime',
+      });
+      // replay: submit 23:30 local time
+      const submittedObs = ObsAdapter.transformFieldValue(createField(), new Date(2026, 9, 7, 23, 30), formContext);
+      expect(submittedObs.value).toBe('2026-10-07T23:30+05:30');
+      // replay: reload the obs as REST returns it from a server in UTC
+      const field = createField();
+      formContext.domainObjectValue['obs'].push({
+        uuid: 'c2e4a6b8-0d1f-4a3c-9e5b-7f9a1c3e5d70',
+        formFieldPath: 'rfe-forms-admission-datetime',
+        concept: {
+          uuid: '3f8a2c64-1b7d-4e9a-a5c2-6d0e8f1b3a95',
+        },
+        value: '2026-10-07T18:00:00.000+0000',
+      } as any);
+      const loadedValue: Date = await ObsAdapter.getInitialValue(field, formContext.domainObjectValue, formContext);
+      expect(dayjs(loadedValue).format('YYYY-MM-DD HH:mm')).toBe('2026-10-07 23:30');
+      // replay: change the time
+      ObsAdapter.transformFieldValue(field, new Date(2026, 9, 7, 23, 45), formContext);
+      // verify
+      expect(field.meta.submission.newValue).toEqual({
+        uuid: 'c2e4a6b8-0d1f-4a3c-9e5b-7f9a1c3e5d70',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-admission-datetime',
+        value: '2026-10-07T23:45+05:30',
+      });
+    } finally {
+      process.env.TZ = originalTimezone;
+    }
+  });
+
   it('should get the clock time as the initial value for time-only rendering', async () => {
     // setup
     const field: FormField = {
