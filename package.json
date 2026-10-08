@@ -1,6 +1,6 @@
 {
   "name": "@openmrs/esm-form-engine-lib",
-  "version": "4.2.1",
+  "version": "4.3.0",
   "description": "React Form Engine for O3",
   "main": "dist/index.js",
   "module": "dist/index.js",
