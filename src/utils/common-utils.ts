@@ -1,7 +1,6 @@
-import dayjs from 'dayjs';
 import { type FormSchema, type FormField, type OpenmrsObs, type RenderType } from '../types';
 import { isEmpty } from '../validators/form-validator';
-import { formatDate, type FormatDateOptions, type Visit } from '@openmrs/esm-framework';
+import { formatDate, parseDate, type FormatDateOptions, type Visit } from '@openmrs/esm-framework';
 
 export function flattenObsList(obsList: OpenmrsObs[]): OpenmrsObs[] {
   const flattenedList: OpenmrsObs[] = [];
@@ -58,21 +57,11 @@ export function isViewMode(sessionMode: string) {
 }
 
 export function parseToLocalDateTime(dateString: string): Date {
-  const dateObj = dayjs(dateString).toDate();
-  if (isNaN(dateObj.getTime())) {
-    return new Date(NaN);
-  }
-
-  try {
-    const timePart = dateString.split('T')[1];
-    if (timePart) {
-      const localTimeTokens = timePart.split(':');
-      dateObj.setHours(parseInt(localTimeTokens[0]), parseInt(localTimeTokens[1]), 0);
-    }
-  } catch (e) {
-    console.error(e);
-  }
-  return dateObj;
+  // The engine submits obs dates as timezone-free wall-clock values, so the offset the
+  // server returns describes its own clock rather than the value. Drop it and read the
+  // wall clock as written.
+  const wallClock = dateString.trim().replace(' ', 'T').replace(/([Zz]|[+-]\d{2}:?\d{2})$/, '');
+  return parseDate(wallClock);
 }
 
 /**
