@@ -3,10 +3,12 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { act, render, screen } from '@testing-library/react';
 import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
-import { type FormSchema } from '../../../types';
+import { type FormField, type FormSchema, type ValidationResult } from '../../../types';
 import { mockPatient, mockSessionDataResponse, mockVisit } from '__mocks__';
 import { multiSelectFormSchema } from '__mocks__/forms';
 import FormEngine from '../../../form-engine.component';
+import { FormProvider, type FormProviderProps } from '../../../provider/form-provider';
+import MultiSelect from './multi-select.component';
 
 const mockOpenmrsFetch = vi.mocked(openmrsFetch);
 const mockUseSession = vi.mocked(useSession);
@@ -92,5 +94,65 @@ describe('MultiSelect Component', () => {
     await user.click(screen.getByRole('option', { name: /yes/i }));
     const unscheduledVisitOption = screen.getByRole('checkbox', { name: /Unscheduled visit early/i });
     expect(unscheduledVisitOption).toBeEnabled();
+  });
+});
+
+const checkboxField = {
+  label: 'Was this visit scheduled?',
+  type: 'obs',
+  id: 'scheduledVisit',
+  questionOptions: {
+    rendering: 'checkbox',
+    answers: [
+      {
+        concept: 'a89b6440-1350-11df-a1f1-0026b9348838',
+        label: 'Scheduled visit',
+      },
+    ],
+  },
+  isHidden: false,
+} as FormField;
+
+const renderCheckboxGroup = async (errors: ValidationResult[], warnings: ValidationResult[] = []) => {
+  const providerProps = {
+    methods: {},
+    workspaceLayout: 'minimized',
+    deletedFields: [],
+    layoutType: 'small-desktop',
+    sessionMode: 'enter',
+    formFieldAdapters: {},
+    patient: mockPatient,
+    formJson: multiSelectFormSchema,
+    visit: mockVisit,
+    sessionDate: new Date(),
+    location: mockVisit.location,
+    currentProvider: {},
+    processor: {},
+  } as unknown as FormProviderProps;
+
+  await act(async () => {
+    render(
+      <FormProvider {...providerProps}>
+        <MultiSelect field={checkboxField} value={[]} errors={errors} warnings={warnings} setFieldValue={vi.fn()} />
+      </FormProvider>,
+    );
+  });
+};
+
+describe('non-searchable checkbox group validation', () => {
+  it('renders the invalid state and validation message when errors exist', async () => {
+    await renderCheckboxGroup([{ resultType: 'error', message: 'Field is mandatory' }]);
+
+    const group = screen.getByRole('group', { name: /Was this visit scheduled/i });
+    expect(group).toHaveClass('cds--checkbox-group--invalid');
+    expect(screen.getByText('Field is mandatory')).toBeInTheDocument();
+  });
+
+  it('is not invalid when errors are empty', async () => {
+    await renderCheckboxGroup([]);
+
+    const group = screen.getByRole('group', { name: /Was this visit scheduled/i });
+    expect(group).not.toHaveClass('cds--checkbox-group--invalid');
+    expect(screen.queryByText('Field is mandatory')).not.toBeInTheDocument();
   });
 });
