@@ -268,6 +268,11 @@ function handleAttachments(field: FormField, attachments: Attachment[] = []) {
  * Notes:
  * If the query by field-path returns an empty list, the function falls back to querying
  * by concept and uses `claimedObsIds` to exclude already assigned observations.
+ *
+ * When the field belongs to an obsGroup (i.e. `field.meta.groupId` is set), the concept
+ * fallback is scoped to observations that are members of the matching parent obsGroup.
+ * This prevents child obs from one obsGroup from being incorrectly assigned to fields
+ * in a different obsGroup that happens to share the same concept.
  */
 export function findObsByFormField(
   obsList: Array<OpenmrsObs>,
@@ -287,7 +292,31 @@ export function findObsByFormField(
   // We shall fall back to mapping by the associated concept
   // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
   if (!obs?.length) {
-    const obsByConcept = obsList.filter((obs) => obs.concept.uuid == field.questionOptions.concept);
+    let obsByConcept = obsList.filter((obs) => obs.concept.uuid == field.questionOptions.concept);
+
+    // If this field belongs to an obsGroup, restrict the concept fallback to
+    // respect obsGroup boundaries.  For each candidate obs we check whether it
+    // is a member of any obsGroup in the encounter.  Three cases:
+    //   1. The obs is standalone (not in any group) → allow (normal fallback).
+    //   2. The obs is in a group whose formFieldPath matches the expected
+    //      parent → allow (correct group).
+    //   3. The obs is in a group with a *different* formFieldPath → exclude
+    //      (prevents cross-group concept bleeding, e.g. PrEP → ARV).
+    //   4. The obs is in a group that has no formFieldPath (old encounter) →
+    //      allow (backward compatibility).
+    if (field.meta?.groupId) {
+      const parentPath = `rfe-forms-${field.meta.groupId}`;
+      obsByConcept = obsByConcept.filter((candidate) => {
+        // Find the obsGroup that owns this candidate (if any)
+        const ownerGroup = obsList.find(
+          (o) => o.groupMembers?.some((m) => m.uuid === candidate.uuid),
+        );
+        if (!ownerGroup) return true;                       // case 1: standalone
+        if (!ownerGroup.formFieldPath) return true;         // case 4: old encounter
+        return ownerGroup.formFieldPath == parentPath;      // case 2 or 3
+      });
+    }
+
     return claimedObsIds?.length ? obsByConcept.filter((obs) => !claimedObsIds.includes(obs.uuid)) : obsByConcept;
   }
 
