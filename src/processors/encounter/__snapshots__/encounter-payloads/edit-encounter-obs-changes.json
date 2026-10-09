@@ -58,7 +58,7 @@
     },
     {
       "uuid": "obs-datetime-uuid",
-      "value": "2026-05-04 09:15",
+      "value": "2026-05-04T09:15+00:00",
       "formFieldNamespace": "rfe-forms",
       "formFieldPath": "rfe-forms-datetimeField"
     },
