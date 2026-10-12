@@ -4,9 +4,10 @@ import { evaluatePostSubmissionExpression } from './post-submission-action-helpe
 /**
  * Characterization tests pinning the semantics of the post-submission `enabled`
  * expression evaluator, including its quirks: `includes`-based obs matching,
- * `undefined` for missing fields, truthiness coercion of non-boolean results,
- * and support for field ids that start with a digit. Any change to the evaluation
- * mechanism must preserve (or deliberately revisit) each behavior pinned here.
+ * `null` for missing fields (with `undefined` treated as `null`), truthiness
+ * coercion of non-boolean results, and `useFieldValue()` for field ids that
+ * aren't valid identifiers. Any change to the evaluation mechanism must preserve
+ * (or deliberately revisit) each behavior pinned here.
  */
 describe('evaluatePostSubmissionExpression', () => {
   const encounterWithObs = (obs: Array<{ fieldId: string; value: unknown }>) => [
@@ -46,7 +47,7 @@ describe('evaluatePostSubmissionExpression', () => {
     expect(evaluatePostSubmissionExpression("visit == 'outpatient'", encounters)).toBe(true);
   });
 
-  it('resolves referenced fields with no matching obs to undefined', () => {
+  it('resolves referenced fields with no matching obs to null', () => {
     const encounters = encounterWithObs([{ fieldId: 'weight', value: 75 }]);
     expect(evaluatePostSubmissionExpression("missingField === 'anything'", encounters)).toBe(false);
   });
@@ -72,15 +73,29 @@ describe('evaluatePostSubmissionExpression', () => {
     expect(evaluatePostSubmissionExpression("weight > 50 ? 'yes' : ''", encounters)).toBe(true);
   });
 
-  it('resolves field ids that start with a digit', () => {
+  it('treats null and undefined as equivalent, as the eval-based implementation did', () => {
+    const encounters = encounterWithObs([{ fieldId: 'weight', value: 75 }]);
+    expect(evaluatePostSubmissionExpression('missingField === null', encounters)).toBe(true);
+    expect(evaluatePostSubmissionExpression('missingField !== null', encounters)).toBe(false);
+    expect(evaluatePostSubmissionExpression('missingField === undefined', encounters)).toBe(true);
+    expect(evaluatePostSubmissionExpression('weight !== null && weight !== undefined', encounters)).toBe(true);
+  });
+
+  it('reads fields by id with useFieldValue()', () => {
     const encounters = encounterWithObs([
       { fieldId: '1stVisit', value: 'yes' },
       { fieldId: '2ndDose', value: { uuid: 'given-uuid' } },
     ]);
-    expect(evaluatePostSubmissionExpression("1stVisit === 'yes'", encounters)).toBe(true);
-    expect(evaluatePostSubmissionExpression("2ndDose === 'given-uuid' && 1stVisit === 'yes'", encounters)).toBe(true);
-    expect(evaluatePostSubmissionExpression("1stVisit.includes('y')", encounters)).toBe(true);
-    expect(evaluatePostSubmissionExpression('3rdVisit', encounters)).toBe(false);
+    expect(evaluatePostSubmissionExpression("useFieldValue('1stVisit') === 'yes'", encounters)).toBe(true);
+    expect(evaluatePostSubmissionExpression("useFieldValue('2ndDose') === 'given-uuid'", encounters)).toBe(true);
+    expect(evaluatePostSubmissionExpression("useFieldValue('3rdVisit') === null", encounters)).toBe(true);
+  });
+
+  it('rejects field ids that are not valid identifiers', () => {
+    const encounters = encounterWithObs([{ fieldId: '1stVisit', value: 'yes' }]);
+    expect(() => evaluatePostSubmissionExpression("1stVisit === 'yes'", encounters)).toThrow(
+      'Error evaluating expression',
+    );
   });
 
   it('does not treat numeric literals as field ids', () => {
@@ -94,13 +109,9 @@ describe('evaluatePostSubmissionExpression', () => {
   });
 
   it('does not resolve field ids inside string literals', () => {
-    const encounters = encounterWithObs([
-      { fieldId: 'status', value: 'status' },
-      { fieldId: '1stVisit', value: '1stVisit' },
-    ]);
+    const encounters = encounterWithObs([{ fieldId: 'status', value: 'status' }]);
     expect(evaluatePostSubmissionExpression("status === 'status'", encounters)).toBe(true);
     expect(evaluatePostSubmissionExpression('status === "status"', encounters)).toBe(true);
-    expect(evaluatePostSubmissionExpression("1stVisit === '1stVisit'", encounters)).toBe(true);
   });
 
   it('compares string obs values containing quotes', () => {
@@ -109,15 +120,16 @@ describe('evaluatePostSubmissionExpression', () => {
     expect(evaluatePostSubmissionExpression('surname === "O\'Brien"', encounters)).toBe(true);
   });
 
-  it('resolves a null obs value to undefined', () => {
+  it('resolves a null obs value to null', () => {
     const encounters = encounterWithObs([{ fieldId: 'notes', value: null }]);
+    expect(evaluatePostSubmissionExpression('notes === null', encounters)).toBe(true);
     expect(evaluatePostSubmissionExpression('notes === undefined', encounters)).toBe(true);
     expect(evaluatePostSubmissionExpression('notes', encounters)).toBe(false);
   });
 
-  it('throws a generic error when the expression cannot be evaluated', () => {
+  it('throws a generic error, with the underlying error as its cause, when the expression cannot be evaluated', () => {
     expect(() => evaluatePostSubmissionExpression('status ===', encounterWithObs([]))).toThrow(
-      'Error evaluating expression',
+      expect.objectContaining({ message: 'Error evaluating expression', cause: expect.anything() }),
     );
   });
 });
