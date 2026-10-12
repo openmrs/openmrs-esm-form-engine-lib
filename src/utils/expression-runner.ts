@@ -4,6 +4,7 @@ import { type OpenmrsEncounter, type FormField, type FormPage, type FormSection 
 import { CommonExpressionHelpers, registerDependency, simpleHash } from './common-expression-helpers';
 import { HistoricalDataSourceService } from '../datasources/historical-data-source';
 import { astCache } from './ast-cache';
+import { rewriteFieldIds, toFieldId, toVariableName } from './field-id-rewriter';
 import {
   compile,
   type DefaultEvaluateReturnType,
@@ -123,7 +124,9 @@ function getEvaluationContext(
     ...new CommonExpressionHelpers(node, patient, formFields, fieldValues),
     ...getRegisteredExpressionHelpers(),
     ...context,
-    ...fieldValues,
+    ...Object.fromEntries(
+      Object.entries(fieldValues ?? {}).map(([fieldId, value]) => [toVariableName(fieldId), value]),
+    ),
     patient,
     myValue,
     sex,
@@ -146,7 +149,7 @@ function getExpressionAst(expression: string): ReturnType<typeof compile> {
   if (astCache.has(hash)) {
     return astCache.get(hash);
   }
-  const ast = compile(expression);
+  const ast = compile(rewriteFieldIds(expression));
   astCache.set(hash, ast);
   return ast;
 }
@@ -165,7 +168,8 @@ export function trackFieldDependencies(
   const variables = extractVariableNames(expression);
 
   for (const variable of variables) {
-    const field = allFields.find((field) => field.id === variable);
+    const fieldId = toFieldId(variable);
+    const field = allFields.find((field) => field.id === fieldId);
     if (field) {
       registerDependency(fieldNode, field);
     }

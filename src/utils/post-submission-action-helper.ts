@@ -1,71 +1,32 @@
+import { compile, evaluate, extractVariableNames, type VariablesMap } from '@openmrs/esm-framework';
+import { rewriteFieldIds, toFieldId } from './field-id-rewriter';
+
+/**
+ * Evaluates a post-submission action's `enabled` expression against the obs of the first encounter. Each
+ * variable in the expression is a field id, resolved to the value of the obs whose `formFieldPath` contains
+ * it (or the `uuid` for coded values). Fields without an obs resolve to `undefined`.
+ *
+ * The result is coerced to a boolean, so non-boolean expressions are treated as truthy or falsy.
+ *
+ * @throws If the expression cannot be parsed or evaluated
+ */
 export function evaluatePostSubmissionExpression(expression: string, encounters: any[]): boolean {
   const encounter = encounters[0];
-  const regx = /(?:\w+|'(?:\\'|[^'\n])*')/g;
-  let match;
-  const fieldIds = new Set<string>();
   try {
-    while ((match = regx.exec(expression))) {
-      const value = match[0].replace(/\\'/g, "'"); // Replace escaped single quotes
+    const ast = compile(rewriteFieldIds(expression));
 
-      const isBoolean = /^(true|false)$/i.test(value);
-      const isNumber = /^-?\d+$/.test(value);
-      const isFloat = /^-?\d+\.\d+$/.test(value);
-
-      if (
-        !(value.startsWith("'") && value.endsWith("'")) &&
-        typeof value === 'string' &&
-        !isBoolean &&
-        !isNumber &&
-        !isFloat
-      ) {
-        fieldIds.add(value);
-      }
+    const variables: VariablesMap = {};
+    for (const name of extractVariableNames(ast)) {
+      variables[name] = getFieldValue(toFieldId(name), encounter);
     }
 
-    let fieldToValueMap = {};
-    let replacedExpression;
-    if (fieldIds.size) {
-      fieldToValueMap = getFieldValues(fieldIds, encounter);
-    }
-
-    if (Object.keys(fieldToValueMap).length) {
-      replacedExpression = expression.replace(/(\w+)/g, (match) => {
-        return Object.prototype.hasOwnProperty.call(fieldToValueMap, match) ? fieldToValueMap[match] : match;
-      });
-    } else {
-      replacedExpression = expression;
-    }
-
-    return eval(replacedExpression);
+    return Boolean(evaluate(ast, variables));
   } catch (error) {
     throw new Error('Error evaluating expression');
   }
 }
 
-function getFieldValues(fieldIds: Set<string>, encounter: any): Record<string, any> {
-  const result: Record<string, any> = {};
-  fieldIds.forEach((fieldId) => {
-    let value = encounter.obs?.find((item) => item.formFieldPath.includes(fieldId))?.value;
-    if (typeof value === 'object') {
-      value = value.uuid;
-    }
-    if (value) {
-      value = formatValue(value);
-    }
-    result[fieldId] = value;
-  });
-
-  return result;
-}
-
-//This function wraps string values in single quotes which Javascript will evaluate
-function formatValue(value: any): any {
-  if (typeof value === 'string') {
-    if (value.length >= 2 && value[0] === "'" && value[value.length - 1] === "'") {
-      return value;
-    } else {
-      return `'${value}'`;
-    }
-  }
-  return value;
+function getFieldValue(fieldId: string, encounter: any) {
+  const value = encounter.obs?.find((item) => item.formFieldPath.includes(fieldId))?.value;
+  return typeof value === 'object' ? value?.uuid : value;
 }

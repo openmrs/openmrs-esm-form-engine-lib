@@ -407,6 +407,49 @@ describe('Expression runner', () => {
   });
 });
 
+describe('Expression runner with field ids starting with a digit', () => {
+  const context: ExpressionContext = { mode: 'enter', patient: {} };
+  const makeField = (id: string): FormField => ({
+    id,
+    label: id,
+    type: 'obs',
+    questionOptions: { rendering: 'text', concept: `${id}-concept` },
+  });
+
+  it('resolves digit-leading field ids in synchronous expressions', () => {
+    const fields = [makeField('1stVisit'), makeField('2ndDose'), makeField('summary')];
+    const values = { '1stVisit': 'yes', '2ndDose': 2, summary: '' };
+    const node = { value: fields[2], type: 'field' as const };
+
+    expect(evaluateExpression("1stVisit === 'yes' && 2ndDose > 1", node, fields, values, context)).toBe(true);
+    expect(evaluateExpression("1stVisit === '1stVisit'", node, fields, values, context)).toBe(false);
+    expect(evaluateExpression('2ndDose * 1e1', node, fields, values, context)).toBe(20);
+  });
+
+  it('resolves digit-leading field ids in async expressions', async () => {
+    const fields = [makeField('1stVisit'), makeField('summary')];
+    const values = { '1stVisit': 'yes', summary: '' };
+
+    await expect(
+      evaluateAsyncExpression(
+        "Promise.resolve(1stVisit === 'yes')",
+        { value: fields[1], type: 'field' },
+        fields,
+        values,
+        context,
+      ),
+    ).resolves.toBe(true);
+  });
+
+  it('registers dependencies on digit-leading fields', () => {
+    const fields = [makeField('1stVisit'), makeField('summary')];
+
+    evaluateExpression('isEmpty(1stVisit)', { value: fields[1], type: 'field' }, fields, {}, context);
+
+    expect(Array.from(fields[0].fieldDependents)).toStrictEqual(['summary']);
+  });
+});
+
 describe('Z-score helpers in expressions', () => {
   // A two-year-old girl on 30 September 2026, for whom 80 cm and 6 kg is a weight-for-height z-score of -4
   const context: ExpressionContext = { mode: 'enter', patient: { sex: 'F', birthDate: '2024-06-15' } };

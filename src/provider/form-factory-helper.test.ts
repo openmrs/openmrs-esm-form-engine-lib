@@ -241,8 +241,8 @@ describe('processPostSubmissionActions', () => {
   });
 
   it('evaluates `enabled` against the obs of the first encounter, by field id', async () => {
-    // `evaluatePostSubmissionExpression` substitutes each bare identifier with the
-    // value of the obs whose formFieldPath contains it, then evals the result
+    // `evaluatePostSubmissionExpression` resolves each variable to the value of the
+    // obs whose formFieldPath contains it
     const encounter = {
       uuid: 'encounter-uuid',
       obs: [{ formFieldPath: 'rfe-forms-hivStatus', value: { uuid: 'positive-uuid' } }],
