@@ -279,6 +279,7 @@ function handleAttachments(field: FormField, attachments: Attachment[] = []) {
 /**
  * Confines a group member to the obs its parent field matched, which relies on the parent being hydrated first.
  * A parent missing from `formFields` is a repeat clone whose caller already scoped the obs to its row.
+ * With no matched group only the encounter's ungrouped obs stay eligible, so other groups' members never do.
  */
 function obsListForField(field: FormField, encounterObs: OpenmrsObs[], formFields: FormField[] = []): OpenmrsObs[] {
   const parent = field.meta?.groupId ? formFields.find((candidate) => candidate.id === field.meta.groupId) : null;
@@ -286,7 +287,7 @@ function obsListForField(field: FormField, encounterObs: OpenmrsObs[], formField
     return flattenObsList(encounterObs);
   }
   const group = parent.meta?.initialValue?.omrsObject as OpenmrsObs;
-  return group ? flattenObsList([group]) : [];
+  return group ? flattenObsList([group]) : encounterObs.filter((obs) => !obs.groupMembers?.length);
 }
 
 /**

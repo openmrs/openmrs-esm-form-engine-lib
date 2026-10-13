@@ -1122,6 +1122,27 @@ describe('ObsAdapter - hydrating obs group members', () => {
 
     expect(value).toBe('Second');
   });
+
+  it('hydrates a member from an ungrouped obs when its parent matched no group', async () => {
+    const bloodResult = buildMember('bloodResult', 'bloodTests');
+    const bloodTests = buildGroup('bloodTests', 'blood-group-concept-uuid', [bloodResult]);
+    const standaloneResult = {
+      uuid: 'standalone-result-obs-uuid',
+      concept: { uuid: resultConcept },
+      value: 3,
+      formFieldPath: 'rfe-forms-bloodResult',
+    };
+    const context = {
+      ...formContext,
+      formFields: [bloodTests, bloodResult],
+      domainObjectValue: { uuid: 'encounter-uuid', obs: [urineGroupObs, standaloneResult] },
+    } as FormContextProps;
+
+    await ObsAdapter.getInitialValue(bloodTests, context.domainObjectValue, context);
+    const value = await ObsAdapter.getInitialValue(bloodResult, context.domainObjectValue, context);
+
+    expect(value).toBe(3);
+  });
 });
 
 describe('ObsAdapter - getDisplayValue', () => {
