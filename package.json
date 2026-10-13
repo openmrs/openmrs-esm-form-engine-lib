@@ -15,6 +15,13 @@
     "!src/zscore-tests"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openmrs/openmrs-esm-form-engine-lib.git"
+  },
+  "bugs": {
+    "url": "https://openmrs.atlassian.net/jira/software/c/projects/O3/boards/37"
+  },
   "homepage": "https://github.com/openmrs/openmrs-esm-form-engine-lib#readme",
   "scripts": {
     "lint": "eslint src --fix",
