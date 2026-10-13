@@ -109,7 +109,13 @@ const MultiSelect: React.FC<FormFieldInputProps> = ({ field, value, errors, warn
                 warnText={warnings[0]?.message}
               />
             ) : (
-              <CheckboxGroup legendText={<FieldLabel field={field} />} readOnly={isTrue(field.readonly)}>
+              <CheckboxGroup
+                invalid={errors.length > 0}
+                invalidText={errors[0]?.message}
+                legendText={<FieldLabel field={field} />}
+                readOnly={isTrue(field.readonly)}
+                warn={warnings.length > 0}
+                warnText={warnings[0]?.message}>
                 {selectOptions?.map((value, index) => {
                   return (
                     <Checkbox
