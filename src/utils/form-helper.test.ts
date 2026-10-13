@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import {
   findConceptByReference,
   evaluateFieldReadonlyProp,
@@ -665,6 +666,20 @@ describe('Form Engine Helper', () => {
           value: expect.any(Date),
           display: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/),
         });
+      });
+
+      it('should read the instant of a datetime OpenMRS observation', () => {
+        const datetimeField = { datePickerFormat: 'both', questionOptions: { rendering: 'datetime' } } as any;
+        const result = extractObsValueAndDisplay(datetimeField, { value: '2026-10-07T23:30:00.000+0530' });
+        expect(result.value.toISOString()).toBe('2026-10-07T18:00:00.000Z');
+        expect(result.display).toBe(dayjs(result.value).format('YYYY-MM-DD HH:mm'));
+      });
+
+      it('should read the clock time of a time-only OpenMRS observation', () => {
+        const timeField = { datePickerFormat: 'timer', questionOptions: { rendering: 'datetime' } } as any;
+        const result = extractObsValueAndDisplay(timeField, { value: '1970-01-01T22:00:00.000+0300' });
+        expect(result.value.getHours()).toBe(22);
+        expect(result.display).toBe('1970-01-01 22:00');
       });
     });
   });

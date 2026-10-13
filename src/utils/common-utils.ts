@@ -1,7 +1,6 @@
-import dayjs from 'dayjs';
 import { type FormSchema, type FormField, type OpenmrsObs, type RenderType } from '../types';
 import { isEmpty } from '../validators/form-validator';
-import { formatDate, type FormatDateOptions, type Visit } from '@openmrs/esm-framework';
+import { formatDate, parseDate, type FormatDateOptions, type Visit } from '@openmrs/esm-framework';
 
 export function flattenObsList(obsList: OpenmrsObs[]): OpenmrsObs[] {
   const flattenedList: OpenmrsObs[] = [];
@@ -58,21 +57,18 @@ export function isViewMode(sessionMode: string) {
 }
 
 export function parseToLocalDateTime(dateString: string): Date {
-  const dateObj = dayjs(dateString).toDate();
-  if (isNaN(dateObj.getTime())) {
-    return new Date(NaN);
-  }
+  return parseDate(dateString);
+}
 
-  try {
-    const timePart = dateString.split('T')[1];
-    if (timePart) {
-      const localTimeTokens = timePart.split(':');
-      dateObj.setHours(parseInt(localTimeTokens[0]), parseInt(localTimeTokens[1]), 0);
-    }
-  } catch (e) {
-    console.error(e);
-  }
-  return dateObj;
+/**
+ * Reads a Time obs value. The backend returns Time obs as a datetime in its own timezone
+ * (e.g. `1970-01-01T22:00:00.000+0000`), but the value is a clock time, so the offset does not apply.
+ * Returns 1970-01-01 at that clock time in local time, without seconds, or an Invalid Date
+ * if the string has no `THH:mm` part.
+ */
+export function parseClockTime(dateString: string): Date {
+  const [, hours, minutes] = /T(\d{2}):(\d{2})/.exec(dateString) ?? [];
+  return hours ? new Date(1970, 0, 1, Number(hours), Number(minutes)) : new Date(NaN);
 }
 
 /**
