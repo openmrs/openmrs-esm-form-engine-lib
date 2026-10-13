@@ -63,12 +63,6 @@
       "formFieldPath": "rfe-forms-datetimeField"
     },
     {
-      "uuid": "obs-same-day-uuid",
-      "value": "2026-05-04",
-      "formFieldNamespace": "rfe-forms",
-      "formFieldPath": "rfe-forms-sameDayDateField"
-    },
-    {
       "uuid": "obs-cleared-uuid",
       "voided": true
     }
