@@ -6,6 +6,7 @@ export {
   type RenderWithFormContextOptions,
   type RenderWithFormContextResult,
 } from './form-context';
+export { flattenFields, renderFormField, type RenderFormFieldOptions, type RenderFormFieldResult } from './form-field';
 export {
   mockOpenmrsFetchRoutes,
   formAndClobRoutes,
