@@ -1122,6 +1122,7 @@ describe('findObsByFormField', () => {
     expect(matchedObs.length).toBe(1);
     expect(matchedObs[0]).toBe(obsList[3]);
   });
+
   it('does not bind a path match whose concept differs from the field', () => {
     // a path match must ALSO match on concept, so an obs left over from before the
     // field's concept was changed is not edited under the new concept
