@@ -27,7 +27,11 @@ export let assignedObsIds: string[] = [];
 export const ObsAdapter: FormFieldValueAdapter = {
   async getInitialValue(field: FormField, sourceObject: any, context: FormContextProps) {
     const encounter = sourceObject ?? (context.domainObjectValue as OpenmrsEncounter);
-    const matchingObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field);
+    const matchingObs = findObsByFormField(
+      obsListForField(field, encounter.obs, context.formFields),
+      assignedObsIds,
+      field,
+    );
     if (hasRendering(field, 'file') && matchingObs?.length) {
       return resolveAttachmentsFromObs(field, matchingObs);
     }
@@ -270,6 +274,22 @@ function handleAttachments(field: FormField, attachments: Attachment[] = []) {
       ...newAttachment,
     })));
   return gracefullySetSubmission(field, newAttachments, voided);
+}
+
+/**
+ * The obs a field may be hydrated from. A group member is confined to the group obs its parent
+ * field matched (the parent precedes its members in `formFields`), the way `hydrateRepeatField`
+ * confines repeat rows by passing `{ obs: [group] }`; otherwise a member with no obs of its own
+ * falls back by concept to a member of any other group that shares the concept. A parent absent
+ * from `formFields` is a repeat clone still being hydrated, whose caller already scoped the list.
+ */
+function obsListForField(field: FormField, encounterObs: OpenmrsObs[], formFields: FormField[] = []): OpenmrsObs[] {
+  const parent = field.meta?.groupId ? formFields.find((candidate) => candidate.id === field.meta.groupId) : null;
+  if (!parent) {
+    return flattenObsList(encounterObs);
+  }
+  const group = parent.meta?.initialValue?.omrsObject as OpenmrsObs;
+  return group ? flattenObsList([group]) : [];
 }
 
 /**
