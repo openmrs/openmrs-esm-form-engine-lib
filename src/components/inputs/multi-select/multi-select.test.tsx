@@ -148,6 +148,14 @@ describe('non-searchable checkbox group validation', () => {
     expect(screen.getByText('Field is mandatory')).toBeInTheDocument();
   });
 
+  it('renders the warning state and message when only warnings exist', async () => {
+    await renderCheckboxGroup([], [{ resultType: 'warning', message: 'Select at least one option' }]);
+
+    const group = screen.getByRole('group', { name: /Was this visit scheduled/i });
+    expect(group).toHaveClass('cds--checkbox-group--warning');
+    expect(screen.getByText('Select at least one option')).toBeInTheDocument();
+  });
+
   it('is not invalid when errors are empty', async () => {
     await renderCheckboxGroup([]);
 
