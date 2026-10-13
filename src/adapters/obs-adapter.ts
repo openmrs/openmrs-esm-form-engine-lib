@@ -277,11 +277,8 @@ function handleAttachments(field: FormField, attachments: Attachment[] = []) {
 }
 
 /**
- * The obs a field may be hydrated from. A group member is confined to the group obs its parent
- * field matched (the parent precedes its members in `formFields`), the way `hydrateRepeatField`
- * confines repeat rows by passing `{ obs: [group] }`; otherwise a member with no obs of its own
- * falls back by concept to a member of any other group that shares the concept. A parent absent
- * from `formFields` is a repeat clone still being hydrated, whose caller already scoped the list.
+ * Confines a group member to the obs its parent field matched, which relies on the parent being hydrated first.
+ * A parent missing from `formFields` is a repeat clone whose caller already scoped the obs to its row.
  */
 function obsListForField(field: FormField, encounterObs: OpenmrsObs[], formFields: FormField[] = []): OpenmrsObs[] {
   const parent = field.meta?.groupId ? formFields.find((candidate) => candidate.id === field.meta.groupId) : null;
