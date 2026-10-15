@@ -1,214 +1,152 @@
 import React from 'react';
-import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen, act } from '@testing-library/react';
-import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
-import { mockSessionDataResponse } from '__mocks__/session.mock';
-import { mockPatient } from '__mocks__/patient.mock';
-import { mockVisit } from '__mocks__/visit.mock';
-import { useFormProviderContext } from 'src/provider/form-provider';
-import { sampleFieldsForm } from '__mocks__/forms';
+import { screen } from '@testing-library/react';
+import { buildField, renderWithFormContext } from '../../../test-support';
+import { type FormField, type FormFieldInputProps } from '../../../types';
+import FieldValueView from '../../value/view/field-value-view.component';
 import TextField from './text.component';
 
-const mockOpenmrsFetch = vi.mocked(openmrsFetch);
-const mockUseSession = vi.mocked(useSession);
-const mockUsePatient = vi.mocked(usePatient);
-const mockSetFieldValue = vi.fn();
-
-vi.mock('../../../api', async () => {
-  const originalModule = (await vi.importActual('../../../api')) as object;
-
-  return {
-    ...originalModule,
-    getPreviousEncounter: vi.fn().mockImplementation(() => Promise.resolve(null)),
-  };
+// a pass-through spy: it still renders the real view, but exposes the props
+// TextField chose (inline vs stacked has no accessible difference to query by)
+vi.mock('../../value/view/field-value-view.component', async (importOriginal) => {
+  const actual = await importOriginal<{ default: React.FC }>();
+  return { default: vi.fn(actual.default) };
 });
 
-vi.mock('src/provider/form-provider', () => ({
-  useFormProviderContext: vi.fn(),
-}));
+/*
+ * Input-control tests render the control on its own inside `renderWithFormContext`,
+ * which supplies a real `FormProvider` (session mode, layout, etc.) instead of a
+ * hand-mocked `useFormProviderContext`. The control's contract is its props:
+ * it renders `value`, reports edits through `setFieldValue`, and surfaces
+ * `errors`/`warnings`. Write-path behavior beyond that (validation, adapters)
+ * belongs to the field renderer tests.
+ */
 
-const mockUseFormProviderContext = useFormProviderContext as Mock;
+const notesField = (overrides: Partial<FormField> = {}) =>
+  buildField({ id: 'indicateNotes', label: 'Indicate your notes', ...overrides });
 
-const textValues = {
-  field: {
-    label: 'Indicate your notes',
-    type: 'obs',
-    required: false,
-    id: 'indicateNotes',
-    questionOptions: {
-      rendering: 'text',
-      concept: '160632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-      conceptMappings: [
-        {
-          relationship: 'SAME-AS',
-          type: 'CIEL',
-          value: '160632',
-        },
-        {
-          relationship: 'SAME-AS',
-          type: 'AMPATH',
-          value: '1915',
-        },
-        {
-          relationship: 'BROADER-THAN',
-          type: 'LOINC',
-          value: '48767-8',
-        },
-      ],
-      answers: [],
-    },
-    meta: {
-      submission: {
-        newValue: null,
-      },
-      concept: {
-        uuid: '160632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-        display: 'Free text general',
-        conceptClass: {
-          uuid: '8d491e50-c2cc-11de-8d13-0010c6dffd0f',
-          display: 'Question',
-        },
-        answers: [],
-        conceptMappings: [
-          {
-            conceptReferenceTerm: {
-              conceptSource: {
-                name: 'CIEL',
-              },
-              code: '160632',
-            },
-          },
-          {
-            conceptReferenceTerm: {
-              conceptSource: {
-                name: 'AMPATH',
-              },
-              code: '1915',
-            },
-          },
-          {
-            conceptReferenceTerm: {
-              conceptSource: {
-                name: 'LOINC',
-              },
-              code: '48767-8',
-            },
-          },
-        ],
-      },
-    },
-    validators: [
-      {
-        type: 'form_field',
-      },
-      {
-        type: 'default_value',
-      },
-    ],
-    isHidden: false,
-    isRequired: false,
-    isDisabled: false,
-  },
-  value: null,
-  errors: [],
-  warnings: [],
-  setFieldValue: mockSetFieldValue,
-};
+function renderTextField(
+  props: Partial<FormFieldInputProps> = {},
+  options: Parameters<typeof renderWithFormContext>[1] = {},
+) {
+  const field = props.field ?? notesField();
+  const setFieldValue = vi.fn();
+  renderWithFormContext(
+    <TextField field={field} value={null} errors={[]} warnings={[]} setFieldValue={setFieldValue} {...props} />,
+    { fields: [field], ...options },
+  );
+  return { setFieldValue };
+}
 
-const renderForm = async (props) => {
-  await act(() => render(<TextField {...props} />));
-};
+describe('TextField', () => {
+  it('reports pasted text through setFieldValue', async () => {
+    const { setFieldValue } = renderTextField();
 
-let formProcessor;
-
-const mockProviderValues = {
-  layoutType: 'small-desktop',
-  sessionMode: 'enter',
-  workspaceLayout: 'minimized',
-  formFieldAdapters: {},
-  patient: mockPatient,
-  methods: undefined,
-  formJson: sampleFieldsForm,
-  visit: mockVisit,
-  sessionDate: new Date(),
-  location: mockVisit.location,
-  currentProvider: mockVisit.encounters[0]?.encounterProvider,
-  processor: formProcessor,
-};
-
-describe('Text field input', () => {
-  const user = userEvent.setup();
-  beforeEach(() => {
-    formProcessor = {
-      getInitialValues: vi.fn(),
-    };
-    mockOpenmrsFetch.mockResolvedValue({
-      data: { results: [{ ...sampleFieldsForm }] },
-    } as unknown as FetchResponse);
-    mockUseSession.mockReturnValue(mockSessionDataResponse.data);
-    mockUsePatient.mockReturnValue({
-      isLoading: false,
-      patient: mockPatient,
-      patientUuid: mockPatient.id,
-      error: null,
-    });
-    mockUseFormProviderContext.mockReturnValue({
-      ...mockProviderValues,
-      setFieldValue: mockSetFieldValue,
-    });
-  });
-
-  it('should record new obs', async () => {
-    await renderForm(textValues);
-    const inputField = screen.getByLabelText('Indicate your notes');
-    await user.click(inputField);
+    const user = userEvent.setup();
+    await user.click(screen.getByLabelText('Indicate your notes'));
     await user.paste('Updated patient notes');
 
-    await act(async () => {
-      expect(mockSetFieldValue).toHaveBeenCalledWith('Updated patient notes');
-    });
+    expect(setFieldValue).toHaveBeenCalledWith('Updated patient notes');
   });
 
-  it('should have value passed in as prop', async () => {
-    await renderForm({
-      ...textValues,
-      value: 'Initial patient notes',
-    });
-    const inputField = screen.getByLabelText('Indicate your notes');
+  it('reports each typed character, since it is controlled by `value`', async () => {
+    // the parent owns the value; with `value` held at null, each keystroke is
+    // reported against an empty input
+    const { setFieldValue } = renderTextField();
 
-    expect(inputField).toHaveValue('Initial patient notes');
+    await userEvent.setup().type(screen.getByLabelText('Indicate your notes'), 'ab');
+
+    expect(setFieldValue.mock.calls).toEqual([['a'], ['b']]);
   });
 
-  it('should disable field', async () => {
-    await renderForm({
-      ...textValues,
-      field: {
-        ...textValues.field,
-        isDisabled: true,
-      },
-    });
-    const inputField = screen.getByLabelText('Indicate your notes');
+  it('renders the value passed in as a prop', () => {
+    renderTextField({ value: 'Initial patient notes' });
 
-    expect(inputField).toBeDisabled();
+    expect(screen.getByLabelText('Indicate your notes')).toHaveValue('Initial patient notes');
   });
 
-  it('should show character counter when maxLength is set', async () => {
-    await renderForm({
-      ...textValues,
-      field: {
-        ...textValues.field,
-        questionOptions: {
-          ...textValues.field.questionOptions,
-          maxLength: 100,
-        },
-      },
-    });
+  it('disables the input for a disabled field', () => {
+    renderTextField({ field: notesField({ isDisabled: true }) });
+
+    expect(screen.getByLabelText('Indicate your notes')).toBeDisabled();
+  });
+
+  it.each([true, 'true'])('makes the input read-only for readonly: %j', (readonly) => {
+    // schemas commonly carry the string form; `isTrue` accepts both
+    renderTextField({ field: notesField({ readonly: readonly as never }) });
+
+    expect(screen.getByLabelText('Indicate your notes')).toHaveAttribute('readonly');
+  });
+
+  it('shows a character counter when maxLength is set', () => {
+    renderTextField({ field: notesField({ questionOptions: { rendering: 'text', maxLength: '100' } }) });
+
     expect(screen.getByText('0/100')).toBeInTheDocument();
   });
 
-  it('should not show character counter when maxLength is not set', async () => {
-    await renderForm(textValues);
+  it('counts against `max` in preference to `maxLength` when both are set', () => {
+    renderTextField({ field: notesField({ questionOptions: { rendering: 'text', max: '50', maxLength: '100' } }) });
+
+    expect(screen.getByText('0/50')).toBeInTheDocument();
+  });
+
+  it('does not show a character counter when maxLength is not set', () => {
+    renderTextField();
+
     expect(screen.queryByText(/\/\d+/)).not.toBeInTheDocument();
+  });
+
+  it('shows the first error and marks the input invalid', () => {
+    renderTextField({
+      errors: [
+        { resultType: 'error', errCode: 'field.required', message: 'Field is mandatory' },
+        { resultType: 'error', errCode: 'other', message: 'Second error' },
+      ],
+    });
+
+    expect(screen.getByText('Field is mandatory')).toBeInTheDocument();
+    expect(screen.queryByText('Second error')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Indicate your notes')).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('shows the first warning', () => {
+    renderTextField({ warnings: [{ resultType: 'warning', message: 'That looks odd' }] });
+
+    expect(screen.getByText('That looks odd')).toBeInTheDocument();
+  });
+
+  it('renders nothing for a hidden field in edit modes', () => {
+    renderTextField({ field: notesField({ isHidden: true }) });
+
+    expect(screen.queryByLabelText('Indicate your notes')).not.toBeInTheDocument();
+  });
+
+  it.each(['view', 'embedded-view'] as const)('renders the value read-only in %s mode', (sessionMode) => {
+    renderTextField({ value: 'Recorded notes' }, { context: { sessionMode } });
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(screen.getByText('Recorded notes')).toBeInTheDocument();
+  });
+
+  it('offers the concept name as the label tooltip in read-only mode', () => {
+    const field = notesField({ meta: { concept: { uuid: 'concept-uuid', display: 'Free text general' } } as never });
+    renderTextField({ field, value: 'Recorded notes' }, { context: { sessionMode: 'view' } });
+
+    expect(screen.getByText('Free text general')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['always inline in embedded-view', 'embedded-view', {}, true],
+    ["inline in view mode for `inlineRendering: 'single-line'`", 'view', { inlineRendering: 'single-line' }, true],
+    ['stacked in view mode by default', 'view', {}, false],
+  ] as const)('lays the read-only value out %s', (_case, sessionMode, overrides, inline) => {
+    renderTextField(
+      { field: notesField(overrides as Partial<FormField>), value: 'Recorded notes' },
+      { context: { sessionMode } },
+    );
+
+    const [props] = vi.mocked(FieldValueView).mock.calls.at(-1) as unknown as [{ isInline: boolean }];
+    expect(props.isInline).toBe(inline);
   });
 });

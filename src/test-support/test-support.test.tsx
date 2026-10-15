@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { act, screen } from '@testing-library/react';
 import { openmrsFetch } from '@openmrs/esm-framework';
 import { useFormProviderContext } from '../provider/form-provider';
@@ -10,6 +10,7 @@ import { registryCache } from '../registry/registry-cache';
 import { getRegisteredExpressionHelpers, registerExpressionHelper } from '../registry/registry';
 import { buildField, buildFormSchema, buildObsGroup, loadFormFixture } from './builders';
 import { createFormMethodsStub, createTestFormContext, renderWithFormContext } from './form-context';
+import { renderFormField } from './form-field';
 import { drainUnmatchedFetches, mockOpenmrsFetchRoutes } from './openmrs-fetch-router';
 import { resetFormEngineModuleState } from './reset';
 
@@ -147,6 +148,53 @@ describe('renderWithFormContext', () => {
       result.getContext().methods.setValue('a', 'changed');
     });
     expect(result.getContext().methods.getValues('a')).toBe('changed');
+  });
+});
+
+describe('renderFormField', () => {
+  it('mounts a renderer per field, seeded empty, and exposes the live field', async () => {
+    const { getField, getContext } = renderFormField([buildField({ id: 'first' }), buildField({ id: 'second' })]);
+
+    expect(await screen.findAllByRole('textbox')).toHaveLength(2);
+    expect(getContext().methods.getValues()).toEqual({ first: '', second: '' });
+    expect(getField('second').id).toBe('second');
+  });
+
+  it('expands group members into form state but mounts only the requested ids', async () => {
+    const group = buildObsGroup('vitals', [buildField({ id: 'pulse' }), buildField({ id: 'temperature' })]);
+
+    const { getContext } = renderFormField(group, { renderFieldIds: ['pulse'] });
+
+    expect(await screen.findAllByRole('textbox')).toHaveLength(1);
+    expect(getContext().formFields.map((field) => field.id)).toEqual(['vitals', 'pulse', 'temperature']);
+    // the group members are the same objects `buildObsGroup` put in `questions`
+    expect(getContext().formFields[1]).toBe(group.questions[0]);
+  });
+
+  it('lets supplied initial values win over the empty defaults', async () => {
+    renderFormField(buildField({ id: 'remarks' }), { initialValues: { remarks: 'hydrated' } });
+
+    expect(await screen.findByRole('textbox')).toHaveValue('hydrated');
+  });
+
+  it('wires each field to the inbuilt adapter for its type, unless one is supplied', async () => {
+    const transformFieldValue = vi.spyOn(ObsAdapter, 'transformFieldValue');
+    const custom = { ...ObsAdapter, transformFieldValue: vi.fn() };
+    const field = buildField({ id: 'remarks', questionOptions: { rendering: 'text', defaultValue: 'preset' } });
+
+    renderFormField(field, { initialValues: { remarks: 'preset' }, valueAdapter: custom });
+    await screen.findByRole('textbox');
+
+    // a default value is transformed on mount, so the chosen adapter is observable
+    expect(custom.transformFieldValue).toHaveBeenCalled();
+    expect(transformFieldValue).not.toHaveBeenCalled();
+    transformFieldValue.mockRestore();
+  });
+
+  it('rejects an id that is not among the fields', () => {
+    expect(() => renderFormField(buildField({ id: 'remarks' }), { renderFieldIds: ['missing'] })).toThrow(
+      'renderFormField: no field with id "missing"',
+    );
   });
 });
 
