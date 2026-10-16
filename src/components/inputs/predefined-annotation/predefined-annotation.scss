@@ -1,0 +1,20 @@
+@use '@carbon/layout';
+@use '@carbon/colors';
+@use './annotation-thumbnail.scss' as thumbnail;
+
+.label {
+  font-weight: 600;
+  line-height: 30px;
+  color: colors.$black-100;
+}
+
+.thumbnailContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(thumbnail.$thumbnail-size, 1fr));
+  gap: layout.$spacing-03;
+}
+
+.noAnnotations {
+  font-style: italic;
+  color: colors.$gray-50;
+}
