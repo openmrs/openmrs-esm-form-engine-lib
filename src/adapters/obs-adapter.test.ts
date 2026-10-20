@@ -939,6 +939,41 @@ describe('ObsAdapter - getInitialValue', () => {
     ]);
   });
 
+  it('logs and drops an attachment whose metadata cannot be fetched', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    // restore in `finally` so a failing assertion cannot leak the silenced console
+    // or the per-uuid implementation into later tests
+    try {
+      const field: FormField = {
+        label: 'Scans',
+        type: 'obs',
+        questionOptions: { rendering: 'file' },
+        meta: {},
+        id: 'scans',
+      };
+      const encounter = {
+        obs: [
+          { uuid: 'good-attachment', formFieldPath: 'rfe-forms-scans' },
+          { uuid: 'missing-attachment', formFieldPath: 'rfe-forms-scans' },
+        ],
+      };
+      mockGetAttachmentByUuid.mockImplementation(((uuid: string) =>
+        uuid === 'good-attachment'
+          ? Promise.resolve({ data: { uuid, filename: 'good.png', comment: 'Good', bytesContentFamily: 'IMAGE' } })
+          : Promise.reject(new Error('not found'))) as never);
+
+      const initialValue = await ObsAdapter.getInitialValue(field, encounter as never, formContext);
+
+      expect(initialValue).toEqual([expect.objectContaining({ uuid: 'good-attachment', fileName: 'good.png' })]);
+      expect(consoleError).toHaveBeenCalledWith('Failed to fetch attachment missing-attachment:', expect.any(Error));
+      // the field still remembers BOTH stored obs, so neither is orphaned on save
+      expect(field.meta.initialValue.omrsObject).toEqual(encounter.obs);
+    } finally {
+      consoleError.mockRestore();
+      mockGetAttachmentByUuid.mockReset();
+    }
+  });
+
   it('should get initial values for obs-group members', async () => {
     // setup
     const basePath = 'rfe-forms-';
@@ -1245,6 +1280,22 @@ describe('findObsByFormField', () => {
     // verify
     expect(matchedObs.length).toBe(1);
     expect(matchedObs[0]).toBe(obsList[3]);
+  });
+
+  it('does not bind a path match whose concept differs from the field', () => {
+    // a path match must ALSO match on concept, so an obs left over from before the
+    // field's concept was changed is not edited under the new concept
+    const staleObs = { uuid: 'stale-obs', concept: { uuid: 'old-concept' }, formFieldPath: 'rfe-forms-fieldOne' };
+
+    expect(findObsByFormField([staleObs], [], fields[0])).toEqual([]);
+  });
+
+  it('binds a file field by path alone, whatever the concept', () => {
+    // attachment obs are managed by the backend, so their concept is not compared
+    const fileField: FormField = { label: 'Scan', type: 'obs', id: 'scan', questionOptions: { rendering: 'file' } };
+    const attachmentObs = { uuid: 'attachment-obs', concept: { uuid: 'any-concept' }, formFieldPath: 'rfe-forms-scan' };
+
+    expect(findObsByFormField([attachmentObs], [], fileField)).toEqual([attachmentObs]);
   });
 });
 
