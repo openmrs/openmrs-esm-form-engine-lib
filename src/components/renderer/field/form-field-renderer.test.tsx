@@ -325,6 +325,25 @@ describe('field write processing', () => {
     expect(transform).not.toHaveBeenCalled();
   });
 
+  it('does not auto-transform a default-valued field once the user has edited it', async () => {
+    // clearing nulls `newValue`, so only the dirty guard stops the rejected 'x'
+    // from being transformed when the watcher sees it
+    const field = buildField({
+      id: 'remarks',
+      questionOptions: { rendering: 'text', defaultValue: 'preset' },
+      validators: [{ type: 'js_expression', failsWhenExpression: "myValue === 'x'", message: 'Not x' }],
+    });
+    renderFormField(field, { initialValues: { remarks: 'preset' } });
+    const user = userEvent.setup();
+    const input = await screen.findByRole('textbox');
+    await user.clear(input);
+
+    await user.type(input, 'x');
+
+    expect(screen.getByText('Not x')).toBeInTheDocument();
+    expect(field.meta.submission.newValue).toBeNull();
+  });
+
   it('keeps processing external updates after the user typed and then cleared the field', async () => {
     // after an edit returns the value to its default the field is no longer dirty,
     // so only the `onBlur()` fired with each change (marking it touched) keeps the
@@ -377,7 +396,10 @@ describe('field write processing', () => {
     // `embedded-view` empty-field gate
     const GroupControl = vi.fn(() => <div>group control</div>);
     vi.spyOn(registry, 'getFieldControlWithFallback').mockResolvedValue(GroupControl as never);
-    const group = buildObsGroup('vitals', [buildField({ id: 'pulse' })]);
+    // transient and empty, so the gate would hide it if it applied to groups
+    const group = buildObsGroup('vitals', [buildField({ id: 'pulse' })], {
+      questionOptions: { rendering: 'group', isTransient: true },
+    });
     renderFormField(group, { context: { sessionMode: 'embedded-view' } });
 
     expect(await screen.findByText('group control')).toBeInTheDocument();

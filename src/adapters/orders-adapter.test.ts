@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { buildField, createTestFormContext } from '../test-support';
 import { type FormContextProps } from '../provider/form-provider';
 import { assignedOrderIds, OrdersAdapter } from './orders-adapter';
@@ -26,6 +26,8 @@ const orderField = (questionOptions = {}) =>
   });
 
 const storedOrder = { uuid: 'stored-order-uuid', concept: { uuid: 'malaria-test-uuid' }, voided: false };
+
+afterEach(() => OrdersAdapter.tearDown());
 
 describe('OrdersAdapter.transformFieldValue', () => {
   const context = (sessionMode: FormContextProps['sessionMode']) => createTestFormContext({ sessionMode });
@@ -102,17 +104,20 @@ describe('OrdersAdapter.getInitialValue', () => {
     const field = orderField();
     const encounter = {
       orders: [
+        { uuid: 'claimed-order', concept: { uuid: 'malaria-test-uuid' }, voided: false },
         { uuid: 'voided-order', concept: { uuid: 'malaria-test-uuid' }, voided: true },
         { uuid: 'other-orderable', concept: { uuid: 'unrelated-uuid' }, voided: false },
         storedOrder,
       ],
     };
+    // an earlier field already took this order
+    assignedOrderIds.push('claimed-order');
 
     const value = await OrdersAdapter.getInitialValue(field, encounter as never, createTestFormContext());
 
     expect(value).toBe('malaria-test-uuid');
     expect(field.meta.initialValue).toEqual({ omrsObject: storedOrder, refinedValue: 'malaria-test-uuid' });
-    expect(assignedOrderIds).toEqual(['stored-order-uuid']);
+    expect(assignedOrderIds).toEqual(['claimed-order', 'stored-order-uuid']);
   });
 
   it('returns null when every candidate order is voided', async () => {
