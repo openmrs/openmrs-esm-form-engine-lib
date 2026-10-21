@@ -21,8 +21,15 @@ export function useFormJson(
 
     const setFormJsonWithTranslations = (formJson: FormSchema) => {
       if (formJson?.translations) {
-        const language = window.i18next.language;
-        window.i18next.addResourceBundle(language, formEngineAppName, formJson.translations, true, true);
+        const formTranslationLocale = formJson.translations.language;
+        if (formTranslationLocale) {
+          const normalizedCurrent = window.i18next?.language?.split(/[-_]/)[0];
+          const normalizedForm = formTranslationLocale.split(/[-_]/)[0];
+          
+          if (normalizedCurrent && normalizedCurrent === normalizedForm) {
+            window.i18next.addResourceBundle(window.i18next.language, formEngineAppName, formJson.translations, true, true);
+          }
+        }
       }
       setFormJson(formJson);
     };
