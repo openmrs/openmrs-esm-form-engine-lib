@@ -1,54 +1,36 @@
 import React from 'react';
-import styles from './annotation-thumbnail.scss';
-import { Edit, Reset } from '@carbon/react/icons';
 import { Button } from '@carbon/react';
+import { Edit } from '@carbon/react/icons';
+import classNames from 'classnames';
+import styles from './annotation-thumbnail.scss';
 
 interface AnnotationThumbnailProps {
   src: string;
   title: string;
-  resetAnnotation?: () => void;
-  editTemplate?: (imageSrc: string) => void;
+  isAnnotated?: boolean;
+  onEdit?: () => void;
 }
 
-export function AnnotationThumbnail({ src, title, resetAnnotation, editTemplate }: AnnotationThumbnailProps) {
-  const handleResetAnnotation = () => {
-    resetAnnotation();
-  };
-
-  const handleEditAnnotation = () => {
-    editTemplate(src);
-  };
-
+export function AnnotationThumbnail({ src, title, isAnnotated, onEdit }: AnnotationThumbnailProps) {
   return (
     <div className={styles.thumbnailContainer}>
-      <div className={styles.thumbnailBox}>
+      <div className={classNames(styles.thumbnailBox, { [styles.annotated]: isAnnotated })}>
         <img className={styles.thumbnailImage} src={src} alt={title} />
-
-        <div className={styles.thumbnailButtons}>
-          <Button
-            kind="ghost"
-            size="sm"
-            className={styles.thumbnailButton}
-            onClick={handleResetAnnotation}
-            renderIcon={(props) => <Reset size={16} {...props} />}
-            hasIconOnly
-            tooltipPosition="bottom"
-            iconDescription="Reset"
-          />
-
-          <Button
-            kind="ghost"
-            size="sm"
-            className={styles.thumbnailButton}
-            onClick={handleEditAnnotation}
-            renderIcon={(props) => <Edit size={16} {...props} />}
-            hasIconOnly
-            tooltipPosition="bottom"
-            iconDescription="Edit"
-          />
-        </div>
+        {onEdit && (
+          <div className={styles.thumbnailButtons}>
+            <Button
+              kind="ghost"
+              size="sm"
+              className={styles.editButton}
+              onClick={onEdit}
+              renderIcon={(props) => <Edit size={16} {...props} />}
+              hasIconOnly
+              tooltipPosition="left"
+              iconDescription={isAnnotated ? 'Edit annotation' : 'Annotate'}
+            />
+          </div>
+        )}
       </div>
-
       <div className={styles.label}>{title}</div>
     </div>
   );
