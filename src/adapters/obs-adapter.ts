@@ -296,12 +296,21 @@ export function findObsByFormField(
 
   // We shall fall back to mapping by the associated concept
   // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
+  // An obs saved by a repeat instance of this field (`rfe-forms-<id>_<n>`) belongs to that instance's clone,
+  // so it is left out: otherwise the first instance claims it, and voids it when its own copy is hidden.
   if (!obs?.length) {
-    const obsByConcept = obsList.filter((obs) => obs.concept.uuid == field.questionOptions.concept);
+    const obsByConcept = obsList.filter(
+      (obs) => obs.concept.uuid == field.questionOptions.concept && !isRepeatInstanceOf(obs.formFieldPath, field),
+    );
     return claimedObsIds?.length ? obsByConcept.filter((obs) => !claimedObsIds.includes(obs.uuid)) : obsByConcept;
   }
 
   return obs;
+}
+
+function isRepeatInstanceOf(formFieldPath: string, field: FormField) {
+  const prefix = `rfe-forms-${field.id}_`;
+  return Boolean(formFieldPath?.startsWith(prefix)) && /^\d+$/.test(formFieldPath.slice(prefix.length));
 }
 
 async function resolveAttachmentsFromObs(field: FormField, obs: OpenmrsObs[]) {
