@@ -27,7 +27,11 @@ export let assignedObsIds: string[] = [];
 export const ObsAdapter: FormFieldValueAdapter = {
   async getInitialValue(field: FormField, sourceObject: any, context: FormContextProps) {
     const encounter = sourceObject ?? (context.domainObjectValue as OpenmrsEncounter);
-    const matchingObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field);
+    const matchingObs = findObsByFormField(
+      obsListForField(field, encounter.obs, context.formFields),
+      assignedObsIds,
+      field,
+    );
     if (hasRendering(field, 'file') && matchingObs?.length) {
       return resolveAttachmentsFromObs(field, matchingObs);
     }
@@ -270,6 +274,20 @@ function handleAttachments(field: FormField, attachments: Attachment[] = []) {
       ...newAttachment,
     })));
   return gracefullySetSubmission(field, newAttachments, voided);
+}
+
+/**
+ * Confines a group member to the obs its parent field matched, which relies on the parent being hydrated first.
+ * A parent missing from `formFields` is a repeat clone whose caller already scoped the obs to its row.
+ * With no matched group only the encounter's ungrouped obs stay eligible, so other groups' members never do.
+ */
+function obsListForField(field: FormField, encounterObs: OpenmrsObs[], formFields: FormField[] = []): OpenmrsObs[] {
+  const parent = field.meta?.groupId ? formFields.find((candidate) => candidate.id === field.meta.groupId) : null;
+  if (!parent) {
+    return flattenObsList(encounterObs);
+  }
+  const group = parent.meta?.initialValue?.omrsObject as OpenmrsObs;
+  return group ? flattenObsList([group]) : encounterObs.filter((obs) => !obs.groupMembers?.length);
 }
 
 /**

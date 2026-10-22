@@ -3,7 +3,7 @@ import { getAttachmentByUuid } from '@openmrs/esm-framework';
 import { vi, describe, it, expect, test, beforeEach, afterEach } from 'vitest';
 import { type FormContextProps } from '../provider/form-provider';
 import { type FormField } from '../types';
-import { findObsByFormField, hasPreviousObsValueChanged, ObsAdapter } from './obs-adapter';
+import { assignedObsIds, findObsByFormField, hasPreviousObsValueChanged, ObsAdapter } from './obs-adapter';
 
 const formContext = {
   methods: null,
@@ -1036,6 +1036,112 @@ describe('ObsAdapter - getInitialValue', () => {
       formContext,
     );
     expect(initialValue).toEqual('Can be discharged in next visit');
+  });
+});
+
+describe('ObsAdapter - hydrating obs group members', () => {
+  const resultConcept = 'result-concept-uuid';
+
+  const buildMember = (id: string, groupId: string): FormField => ({
+    label: id,
+    type: 'obs',
+    id,
+    questionOptions: { rendering: 'number', concept: resultConcept },
+    meta: { groupId, initialValue: { omrsObject: null, refinedValue: null } },
+  });
+
+  const buildGroup = (id: string, concept: string, questions: FormField[]): FormField => ({
+    label: id,
+    type: 'obsGroup',
+    id,
+    questionOptions: { rendering: 'group', concept },
+    questions,
+    meta: { initialValue: { omrsObject: null, refinedValue: null } },
+  });
+
+  const urineGroupObs = {
+    uuid: 'urine-group-obs-uuid',
+    concept: { uuid: 'urine-group-concept-uuid' },
+    formFieldPath: 'rfe-forms-urineTests',
+    groupMembers: [
+      {
+        uuid: 'urine-result-obs-uuid',
+        concept: { uuid: resultConcept },
+        value: 7,
+        formFieldPath: 'rfe-forms-urineResult',
+      },
+    ],
+  };
+
+  beforeEach(() => {
+    assignedObsIds.length = 0;
+  });
+
+  it('confines a member with no obs of its own to the group its parent matched', async () => {
+    const bloodResult = buildMember('bloodResult', 'bloodTests');
+    const bloodTests = buildGroup('bloodTests', 'blood-group-concept-uuid', [bloodResult]);
+    const urineResult = buildMember('urineResultRenamed', 'urineTests');
+    const urineTests = buildGroup('urineTests', 'urine-group-concept-uuid', [urineResult]);
+    const context = {
+      ...formContext,
+      formFields: [bloodTests, bloodResult, urineTests, urineResult],
+      domainObjectValue: { uuid: 'encounter-uuid', obs: [urineGroupObs] },
+    } as FormContextProps;
+
+    // hydrate in form order, parents before their members
+    for (const field of context.formFields) {
+      await ObsAdapter.getInitialValue(field, context.domainObjectValue, context);
+    }
+
+    expect(bloodResult.meta.initialValue.omrsObject).toBeNull();
+    expect(urineTests.meta.initialValue.omrsObject).toMatchObject({ uuid: 'urine-group-obs-uuid' });
+    expect(urineResult.meta.initialValue.omrsObject).toMatchObject({ uuid: 'urine-result-obs-uuid' });
+  });
+
+  it('hydrates a repeat row member from the group its caller passes in', async () => {
+    const note = buildMember('note', 'repeatGroup');
+    const repeatGroup = buildGroup('repeatGroup', 'repeat-group-concept-uuid', [note]);
+    repeatGroup.meta.initialValue.omrsObject = { uuid: 'repeat-group-obs-1' } as any;
+    const clonedNote = buildMember('note_1', 'repeatGroup_1');
+    const secondRow = {
+      uuid: 'repeat-group-obs-2',
+      concept: { uuid: 'repeat-group-concept-uuid' },
+      formFieldPath: 'rfe-forms-repeatGroup',
+      groupMembers: [
+        {
+          uuid: 'repeat-group-obs-2-member',
+          concept: { uuid: resultConcept },
+          value: 'Second',
+          formFieldPath: 'rfe-forms-note',
+        },
+      ],
+    };
+    const context = { ...formContext, formFields: [repeatGroup, note] } as FormContextProps;
+
+    const value = await ObsAdapter.getInitialValue(clonedNote, { obs: [secondRow] } as any, context);
+
+    expect(value).toBe('Second');
+  });
+
+  it('hydrates a member from an ungrouped obs when its parent matched no group', async () => {
+    const bloodResult = buildMember('bloodResult', 'bloodTests');
+    const bloodTests = buildGroup('bloodTests', 'blood-group-concept-uuid', [bloodResult]);
+    const standaloneResult = {
+      uuid: 'standalone-result-obs-uuid',
+      concept: { uuid: resultConcept },
+      value: 3,
+      formFieldPath: 'rfe-forms-bloodResult',
+    };
+    const context = {
+      ...formContext,
+      formFields: [bloodTests, bloodResult],
+      domainObjectValue: { uuid: 'encounter-uuid', obs: [urineGroupObs, standaloneResult] },
+    } as FormContextProps;
+
+    await ObsAdapter.getInitialValue(bloodTests, context.domainObjectValue, context);
+    const value = await ObsAdapter.getInitialValue(bloodResult, context.domainObjectValue, context);
+
+    expect(value).toBe(3);
   });
 });
 
