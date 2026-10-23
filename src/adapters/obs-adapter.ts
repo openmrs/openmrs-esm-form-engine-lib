@@ -13,6 +13,7 @@ import {
   gracefullySetSubmission,
   clearSubmission,
   flattenObsList,
+  parseClockTime,
   parseToLocalDateTime,
   formatDateAsDisplayString,
 } from '../utils/common-utils';
@@ -35,10 +36,12 @@ export const ObsAdapter: FormFieldValueAdapter = {
   async getPreviousValue(field: FormField, sourceObject: any, context: FormContextProps): Promise<ValueAndDisplay> {
     const encounter = sourceObject ?? (context.previousDomainObjectValue as OpenmrsEncounter);
     if (encounter) {
+      // the previous encounter's obs must not become this field's obs to edit or void;
+      // an obs already loaded for this encounter stays bound to the field
       const value = extractFieldValue(
         field,
         findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field),
-        true,
+        false,
       );
       if (!isEmpty(value)) {
         return {
@@ -85,6 +88,11 @@ export const ObsAdapter: FormFieldValueAdapter = {
     if (!isEmpty(value) && hasPreviousObsValueChanged(field, value)) {
       return gracefullySetSubmission(field, editObs(field, value), undefined);
     }
+    if (!isEmpty(value) && field.meta.initialValue?.omrsObject) {
+      // unchanged value on a stored obs: leave it alone, as falling through
+      // to constructObs would submit a uuid-less duplicate
+      return null;
+    }
     if (field.meta.initialValue?.omrsObject && isEmpty(value)) {
       return gracefullySetSubmission(field, undefined, voidObs(field.meta.initialValue.omrsObject as OpenmrsObs));
     }
@@ -116,7 +124,9 @@ function extractFieldValue(field: FormField, obsList: OpenmrsObs[] = [], makeFie
   if (obsList.length) {
     if (rendering == 'checkbox') {
       assignedObsIds.push(...obsList.map((obs) => obs.uuid));
-      field.meta.initialValue.omrsObject = makeFieldDirty ? obsList : null;
+      if (makeFieldDirty) {
+        field.meta.initialValue.omrsObject = obsList;
+      }
       return obsList.map((o) => o.value.uuid);
     }
     const obs = obsList[0];
@@ -126,7 +136,10 @@ function extractFieldValue(field: FormField, obsList: OpenmrsObs[] = [], makeFie
     assignedObsIds.push(obs.uuid);
     if (typeof obs.value === 'string' || typeof obs.value === 'number') {
       if (rendering.startsWith('date')) {
-        const dateObject = parseToLocalDateTime(obs.value as string);
+        const dateObject =
+          field.datePickerFormat === 'timer'
+            ? parseClockTime(obs.value as string)
+            : parseToLocalDateTime(obs.value as string);
         if (makeFieldDirty) {
           const obsObject = field.meta.initialValue.omrsObject as OpenmrsObs;
           obsObject.value = dayjs(dateObject).format('YYYY-MM-DD HH:mm');
@@ -181,20 +194,19 @@ export function editObs(field: FormField, newValue: any) {
   };
 }
 
-function formatDateByPickerType(field: FormField, value: Date) {
-  if (field.datePickerFormat) {
-    switch (field.datePickerFormat) {
-      case 'calendar':
-        return dayjs(value).format('YYYY-MM-DD');
-      case 'timer':
-        return dayjs(value).format('HH:mm');
-      case 'both':
-        return dayjs(value).format('YYYY-MM-DD HH:mm');
-      default:
-        return dayjs(value).format('YYYY-MM-DD');
-    }
+function formatDateByPickerType(field: FormField, value: Date | string) {
+  // fields that skip the schema transformer can arrive without a datePickerFormat,
+  // so fall back to the defaults the transformer applies per rendering
+  const datePickerFormat = field.datePickerFormat ?? (hasRendering(field, 'datetime') ? 'both' : 'calendar');
+  switch (datePickerFormat) {
+    case 'timer':
+      return dayjs(value).format('HH:mm');
+    case 'both':
+      return dayjs(value).format('YYYY-MM-DDTHH:mmZ');
+    case 'calendar':
+    default:
+      return dayjs(value).format('YYYY-MM-DD');
   }
-  return value;
 }
 
 export function hasPreviousObsValueChanged(field: FormField, newValue: any) {
@@ -205,11 +217,9 @@ export function hasPreviousObsValueChanged(field: FormField, newValue: any) {
   if (codedTypes.includes(field.questionOptions.rendering)) {
     return previousObs.value.uuid !== newValue;
   }
-  if (hasRendering(field, 'date')) {
-    return dayjs(newValue).diff(dayjs(previousObs.value), 'D') !== 0;
-  }
-  if (hasRendering(field, 'datetime') || field.datePickerFormat === 'both') {
-    return dayjs(newValue).diff(dayjs(previousObs.value), 'minute') !== 0;
+  if (field.questionOptions.rendering.startsWith('date')) {
+    // compare what would be submitted, at the precision of the date picker
+    return formatDateByPickerType(field, previousObs.value) !== formatDateByPickerType(field, newValue);
   }
   if (hasRendering(field, 'toggle')) {
     return (previousObs.value.uuid === ConceptTrue) !== newValue;

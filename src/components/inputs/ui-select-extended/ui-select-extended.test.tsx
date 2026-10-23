@@ -16,13 +16,6 @@ const mockUsePatient = vi.mocked(usePatient);
 const mockUseSession = vi.mocked(useSession);
 const mockOpenmrsFetch = vi.mocked(openmrsFetch);
 
-vi.mock('lodash-es/debounce', () => vi.fn((fn) => fn));
-
-vi.mock('lodash-es', async () => ({
-  ...((await vi.importActual('lodash-es')) as object),
-  debounce: vi.fn((fn) => fn),
-}));
-
 vi.mock('../../../api', async () => {
   const originalModule = (await vi.importActual('../../../api')) as object;
   return {

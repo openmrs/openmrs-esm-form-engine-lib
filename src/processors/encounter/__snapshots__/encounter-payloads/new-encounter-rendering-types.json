@@ -34,7 +34,7 @@
       "formFieldPath": "rfe-forms-dateField"
     },
     {
-      "value": "2026-05-04 08:30",
+      "value": "2026-05-04T08:30+00:00",
       "concept": "datetimeField-concept-uuid",
       "formFieldNamespace": "rfe-forms",
       "formFieldPath": "rfe-forms-datetimeField"

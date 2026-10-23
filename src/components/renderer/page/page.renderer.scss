@@ -69,6 +69,6 @@
 }
 
 // TODO: try removing this when upgrading @carbon/react. Added at 1.37
-:global(.cds--accordion__wrapper) {
+.sectionContainer :global(.cds--accordion__wrapper) {
   max-block-size: unset !important;
 }

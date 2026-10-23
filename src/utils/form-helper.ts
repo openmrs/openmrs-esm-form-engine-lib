@@ -1,7 +1,7 @@
 import { type LayoutType } from '@openmrs/esm-framework';
 import type { FormField, FormPage, FormSection, SessionMode, FHIRObsResource, RenderType, FormSchema } from '../types';
 import { isEmpty } from '../validators/form-validator';
-import { parseToLocalDateTime } from './common-utils';
+import { parseClockTime, parseToLocalDateTime } from './common-utils';
 import dayjs from 'dayjs';
 import { ConceptFalse, ConceptTrue } from '../constants';
 
@@ -191,7 +191,10 @@ export const extractObsValueAndDisplay = (field: FormField, obs: any) => {
   }
   if (typeof omrsObs.value === 'string' || typeof omrsObs.value === 'number') {
     if (rendering === 'date' || rendering === 'datetime') {
-      const dateObj = parseToLocalDateTime(`${omrsObs.value}`);
+      const dateObj =
+        field.datePickerFormat === 'timer'
+          ? parseClockTime(`${omrsObs.value}`)
+          : parseToLocalDateTime(`${omrsObs.value}`);
       return { value: dateObj, display: dayjs(dateObj).format('YYYY-MM-DD HH:mm') };
     }
     return { value: omrsObs.value, display: omrsObs.value };
@@ -279,5 +282,5 @@ function extractFHIRObsValue(fhirObs: FHIRObsResource, rendering: RenderType) {
  */
 export function findFieldSection(formJson: FormSchema, field: FormField) {
   let page = formJson.pages.find((page) => field.meta.pageId === page.id);
-  return page.sections.find((section) => section.questions.find((question) => question.id === field.id));
+  return page?.sections.find((section) => section.questions.find((question) => question.id === field.id));
 }

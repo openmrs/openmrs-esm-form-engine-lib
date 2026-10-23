@@ -7,7 +7,7 @@ import {
   type FormField,
 } from '../types';
 import { type FormContextProps } from '../provider/form-provider';
-import { gracefullySetSubmission } from '../utils/common-utils';
+import { clearSubmission, gracefullySetSubmission } from '../utils/common-utils';
 import { isEmpty } from '../validators/form-validator';
 import { isTrue } from '../utils/boolean-utils';
 
@@ -15,6 +15,7 @@ export let assignedDiagnosesIds: string[] = [];
 
 export const EncounterDiagnosisAdapter: FormFieldValueAdapter = {
   transformFieldValue: function (field: FormField, value: any, context: FormContextProps) {
+    clearSubmission(field);
     if (field.meta.initialValue?.omrsObject && isEmpty(value)) {
       return gracefullySetSubmission(field, undefined, voidDiagnosis(field.meta.initialValue.omrsObject as OpenmrsObs));
     }

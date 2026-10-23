@@ -10,7 +10,7 @@ import { type FormField } from '../types';
 import { type FormNode } from './expression-runner';
 import { isEmpty as isValueEmpty } from '../validators/form-validator';
 import * as apiFunctions from '../api';
-import { getZRefByGenderAndAge } from './zscore-service';
+import { getBmiForAgeRef, getHeightForAgeRef, getWeightForHeightRef } from './zscore-service';
 import { formatDate, parseDate } from '@openmrs/esm-framework';
 
 export class CommonExpressionHelpers {
@@ -486,25 +486,31 @@ export class CommonExpressionHelpers {
   /**
    * Calculates the Weight-for-Height Z-score for pediatric patients using WHO growth standards.
    * Used to assess acute malnutrition (wasting).
-   * @param height - Patient's height/length in centimeters (valid range: 45-110 cm)
+   * @param height - Patient's height/length in centimeters (valid range: 45-110 cm). Numeric strings are accepted.
    * @param weight - Patient's weight in kilograms
-   * @returns Z-score as a string (e.g., '-2', '0', '1'), '-4' if out of range, or null if inputs missing
+   * @returns Z-score as a string (e.g., '-2', '0', '1'), or null if out of range, reference missing, or inputs missing
    */
-  calcWeightForHeightZscore = (height: number, weight: number): string | null => {
-    if (!height || !weight) {
+  calcWeightForHeightZscore = (height: number | string, weight: number): string | null => {
+    const numericHeight = Number(height);
+    if (!numericHeight || !weight) {
       return null;
     }
 
     const birthDate = new Date(this.patient.birthDate);
-    const weightForHeightRef = getZRefByGenderAndAge(this.patient.sex, birthDate, new Date()).weightForHeightRef;
+    const weightForHeightRef = getWeightForHeightRef(this.patient.sex, birthDate, new Date());
 
-    const formattedHeight = height.toFixed(1);
+    if (!weightForHeightRef) {
+      return null;
+    }
+
     const standardHeightMin = 45;
     const standardMaxHeight = 110;
 
-    if (parseFloat(formattedHeight) < standardHeightMin || parseFloat(formattedHeight) > standardMaxHeight) {
-      return '-4';
+    if (numericHeight < standardHeightMin || numericHeight > standardMaxHeight) {
+      return null;
     }
+
+    const formattedHeight = numericHeight.toFixed(1);
 
     const refSection = filter(weightForHeightRef, (refObject) => {
       return parseFloat(refObject['Length']).toFixed(1) === formattedHeight;
@@ -527,7 +533,7 @@ export class CommonExpressionHelpers {
     }
 
     const birthDate = new Date(this.patient.birthDate);
-    const bmiForAgeRef = getZRefByGenderAndAge(this.patient.sex, birthDate, new Date()).bmiForAgeRef;
+    const bmiForAgeRef = getBmiForAgeRef(this.patient.sex, birthDate, new Date());
 
     const heightInMeters = height / 100;
     const bmi = parseFloat((weight / (heightInMeters * heightInMeters)).toFixed(1));
@@ -549,7 +555,7 @@ export class CommonExpressionHelpers {
     }
 
     const birthDate = new Date(this.patient.birthDate);
-    const heightForAgeRef = getZRefByGenderAndAge(this.patient.sex, birthDate, new Date()).heightForAgeRef;
+    const heightForAgeRef = getHeightForAgeRef(this.patient.sex, birthDate, new Date());
     const refSectionObject = first(heightForAgeRef);
 
     return this.calculateZScoreFromRef(refSectionObject, height);

@@ -88,13 +88,6 @@ when(mockOpenmrsFetch)
   .calledWith(clobDataResourcePath)
   .mockReturnValue({ data: demoHtsForm } as never);
 
-vi.mock('lodash-es/debounce', () => vi.fn((fn) => fn));
-
-vi.mock('lodash-es', async () => ({
-  ...((await vi.importActual('lodash-es')) as object),
-  debounce: vi.fn((fn) => fn),
-}));
-
 vi.mock('./registry/registry', async () => {
   const originalModule = (await vi.importActual('./registry/registry')) as object;
   return {
@@ -154,7 +147,13 @@ vi.mock('./hooks/useEncounterRole', () => ({
 
 vi.mock('./hooks/useConcepts', () => ({
   useConcepts: vi.fn().mockImplementation((references: Set<string>) => {
-    if ([...references].join(',').includes('PIH:Occurrence of trauma,PIH:Yes,PIH:No,PIH:COUGH')) {
+    const refArray = [...references];
+    const hasAllRefs =
+      refArray.includes('PIH:Occurrence of trauma') &&
+      refArray.includes('PIH:Yes') &&
+      refArray.includes('PIH:No') &&
+      refArray.includes('PIH:COUGH');
+    if (hasAllRefs) {
       return {
         isLoading: false,
         concepts: mockConcepts.results,

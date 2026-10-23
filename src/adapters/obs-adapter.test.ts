@@ -1,5 +1,6 @@
+import dayjs from 'dayjs';
 import { getAttachmentByUuid } from '@openmrs/esm-framework';
-import { vi, describe, it, expect, test, beforeEach } from 'vitest';
+import { vi, describe, it, expect, test, beforeEach, afterEach } from 'vitest';
 import { type FormContextProps } from '../provider/form-provider';
 import { type FormField } from '../types';
 import { findObsByFormField, hasPreviousObsValueChanged, ObsAdapter } from './obs-adapter';
@@ -168,6 +169,30 @@ describe('ObsAdapter - transformFieldValue', () => {
       formFieldNamespace: 'rfe-forms',
       formFieldPath: 'rfe-forms-hts-date',
       value: '2019-12-20',
+    });
+  });
+
+  it('should submit datetime values with their UTC offset', () => {
+    // setup
+    const field: FormField = {
+      label: 'Procedure date/time',
+      type: 'obs',
+      datePickerFormat: 'both',
+      questionOptions: {
+        rendering: 'datetime',
+        concept: '160715AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      },
+      id: 'procedure-datetime',
+    };
+    const procedureDate = new Date(2026, 9, 7, 23, 30);
+    // replay
+    const obs = ObsAdapter.transformFieldValue(field, procedureDate, formContext);
+    // verify
+    expect(obs).toEqual({
+      concept: '160715AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-procedure-datetime',
+      value: `2026-10-07T23:30${dayjs(procedureDate).format('Z')}`,
     });
   });
 
@@ -710,6 +735,140 @@ describe('ObsAdapter - getInitialValue', () => {
     expect(initialValue.toLocaleDateString('en-US')).toEqual('11/19/2016');
   });
 
+  it('should get the instant as the initial value for datetime rendering', async () => {
+    // setup
+    const field: FormField = {
+      label: 'Procedure date/time',
+      type: 'obs',
+      datePickerFormat: 'both',
+      questionOptions: {
+        rendering: 'datetime',
+        concept: '7d3f2a91-6c4e-4b8a-9e2f-3a1b5c7d9e02',
+      },
+      id: 'procedure-datetime',
+    };
+    const obs: any = {
+      uuid: 'a3c9e1f4-7b2d-4e6a-8f1c-5d9b3e7a2c40',
+      concept: {
+        uuid: '7d3f2a91-6c4e-4b8a-9e2f-3a1b5c7d9e02',
+      },
+      value: '2026-10-07T23:30:00.000+0530',
+    };
+    formContext.domainObjectValue['obs'].push(obs);
+    // replay
+    const initialValue: any = await ObsAdapter.getInitialValue(field, formContext.domainObjectValue, formContext);
+    // verify
+    expect(initialValue.toISOString()).toBe('2026-10-07T18:00:00.000Z');
+  });
+
+  it('should detect datetime edits against a loaded value with a UTC offset', async () => {
+    // setup
+    formContext.sessionMode = 'edit';
+    const field: FormField = {
+      label: 'Discharge date/time',
+      type: 'obs',
+      datePickerFormat: 'both',
+      questionOptions: {
+        rendering: 'datetime',
+        concept: '9e4b6c12-3d5f-4a7b-8c9d-1e2f3a4b5c61',
+      },
+      id: 'discharge-datetime',
+    };
+    const obs: any = {
+      uuid: 'b7d1f3a5-9c2e-4f6b-8a0d-2e4c6a8b1d73',
+      concept: {
+        uuid: '9e4b6c12-3d5f-4a7b-8c9d-1e2f3a4b5c61',
+      },
+      value: '2026-10-07T23:30:00.000+0530',
+    };
+    formContext.domainObjectValue['obs'].push(obs);
+    const loadedValue: Date = await ObsAdapter.getInitialValue(field, formContext.domainObjectValue, formContext);
+    const editedValue = dayjs(loadedValue).add(1, 'minute').toDate();
+    // verify
+    expect(hasPreviousObsValueChanged(field, loadedValue)).toBe(false);
+    ObsAdapter.transformFieldValue(field, editedValue, formContext);
+    expect(field.meta.submission.newValue).toEqual({
+      uuid: 'b7d1f3a5-9c2e-4f6b-8a0d-2e4c6a8b1d73',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-discharge-datetime',
+      value: dayjs(editedValue).format('YYYY-MM-DDTHH:mmZ'),
+    });
+    expect(editedValue.toISOString()).toBe('2026-10-07T18:01:00.000Z');
+  });
+
+  it('should keep the browser offset when a datetime near midnight is saved, reloaded and edited outside UTC', async () => {
+    // setup: the test script runs under TZ=UTC, where a local and a UTC offset look the same
+    const originalTimezone = process.env.TZ;
+    process.env.TZ = 'Asia/Kolkata';
+    try {
+      formContext.sessionMode = 'edit';
+      const createField = (): FormField => ({
+        label: 'Admission date/time',
+        type: 'obs',
+        datePickerFormat: 'both',
+        questionOptions: {
+          rendering: 'datetime',
+          concept: '3f8a2c64-1b7d-4e9a-a5c2-6d0e8f1b3a95',
+        },
+        id: 'admission-datetime',
+      });
+      // replay: submit 23:30 local time
+      const submittedObs = ObsAdapter.transformFieldValue(createField(), new Date(2026, 9, 7, 23, 30), formContext);
+      expect(submittedObs.value).toBe('2026-10-07T23:30+05:30');
+      // replay: reload the obs as REST returns it from a server in UTC
+      const field = createField();
+      formContext.domainObjectValue['obs'].push({
+        uuid: 'c2e4a6b8-0d1f-4a3c-9e5b-7f9a1c3e5d70',
+        formFieldPath: 'rfe-forms-admission-datetime',
+        concept: {
+          uuid: '3f8a2c64-1b7d-4e9a-a5c2-6d0e8f1b3a95',
+        },
+        value: '2026-10-07T18:00:00.000+0000',
+      } as any);
+      const loadedValue: Date = await ObsAdapter.getInitialValue(field, formContext.domainObjectValue, formContext);
+      expect(dayjs(loadedValue).format('YYYY-MM-DD HH:mm')).toBe('2026-10-07 23:30');
+      // replay: change the time
+      ObsAdapter.transformFieldValue(field, new Date(2026, 9, 7, 23, 45), formContext);
+      // verify
+      expect(field.meta.submission.newValue).toEqual({
+        uuid: 'c2e4a6b8-0d1f-4a3c-9e5b-7f9a1c3e5d70',
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-admission-datetime',
+        value: '2026-10-07T23:45+05:30',
+      });
+    } finally {
+      process.env.TZ = originalTimezone;
+    }
+  });
+
+  it('should get the clock time as the initial value for time-only rendering', async () => {
+    // setup
+    const field: FormField = {
+      label: 'Time of dose',
+      type: 'obs',
+      datePickerFormat: 'timer',
+      questionOptions: {
+        rendering: 'datetime',
+        concept: '5c1b3e74-5a4b-4a5c-9b1a-2f0f3a7d9e61',
+      },
+      id: 'time-of-dose',
+    };
+    // the backend returns Time concepts as 1970-01-01 in its own timezone
+    const obs: any = {
+      uuid: '1f6d2f0e-3b8a-4f0b-8f3e-7f6f1d9c2a10',
+      concept: {
+        uuid: '5c1b3e74-5a4b-4a5c-9b1a-2f0f3a7d9e61',
+      },
+      value: '1970-01-01T22:00:00.000+0300',
+    };
+    formContext.domainObjectValue['obs'].push(obs);
+    // replay
+    const initialValue: any = await ObsAdapter.getInitialValue(field, formContext.domainObjectValue, formContext);
+    // verify
+    expect(initialValue.getHours()).toBe(22);
+    expect(initialValue.getMinutes()).toBe(0);
+  });
+
   it('should get initial value for coded input types', async () => {
     // setup
     const field: FormField = {
@@ -947,13 +1106,13 @@ describe('hasPreviousObsValueChanged', () => {
       meta: {
         initialValue: {
           omrsObject: {
-            value: '2024-05-01T19:49:50.000+0000',
+            value: '2024-05-01 19:49',
           },
         },
       },
     } as any as FormField;
-    expect(hasPreviousObsValueChanged(dateField, new Date('2024-05-01T19:49:50.000+0000'))).toBe(false);
-    expect(hasPreviousObsValueChanged(dateField, new Date('2024-05-02T15:49:50.000+0000'))).toBe(true);
+    expect(hasPreviousObsValueChanged(dateField, new Date(2024, 4, 1, 19, 49, 50))).toBe(false);
+    expect(hasPreviousObsValueChanged(dateField, new Date(2024, 4, 2, 15, 49, 50))).toBe(true);
   });
   it('should support datetime values', () => {
     const dateTimeField = {
@@ -964,13 +1123,13 @@ describe('hasPreviousObsValueChanged', () => {
       meta: {
         initialValue: {
           omrsObject: {
-            value: '2024-04-01T19:50:00.000+0000',
+            value: '2024-04-01 19:50',
           },
         },
       },
     } as any as FormField;
-    expect(hasPreviousObsValueChanged(dateTimeField, new Date('2024-04-01T19:50:00.000+0000'))).toBe(false);
-    expect(hasPreviousObsValueChanged(dateTimeField, new Date('2024-04-01T19:40:40.000+0000'))).toBe(true);
+    expect(hasPreviousObsValueChanged(dateTimeField, new Date(2024, 3, 1, 19, 50))).toBe(false);
+    expect(hasPreviousObsValueChanged(dateTimeField, new Date(2024, 3, 1, 19, 40, 40))).toBe(true);
   });
   it('should support free text', () => {
     const textField = {
@@ -1371,5 +1530,396 @@ describe('ObsAdapter - handling nested obsGroups', () => {
     const commentField = fields.questions[1].questions[0];
     const commentValue = await ObsAdapter.getInitialValue(commentField, emptyEncounter, formContext);
     expect(commentValue).toBe('');
+  });
+});
+
+describe('ObsAdapter - values fed back after loading', () => {
+  const conceptUuid = 'b6b6b0d9-1c2e-4b0a-9f0e-6f1a0a4d2c11';
+  const obsUuid = '4a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c8d';
+
+  const obsField = (overrides: Partial<FormField> = {}): FormField =>
+    ({
+      label: 'Date and time of delivery',
+      type: 'obs',
+      id: 'delivery-datetime',
+      ...overrides,
+      questionOptions: { rendering: 'date', concept: conceptUuid, ...overrides.questionOptions },
+    } as FormField);
+
+  const encounterWith = (value: string) => ({
+    uuid: 'd0a1b2c3-d4e5-4f60-a1b2-c3d4e5f60718',
+    obs: [{ uuid: obsUuid, formFieldPath: 'rfe-forms-delivery-datetime', concept: { uuid: conceptUuid }, value }],
+  });
+
+  beforeEach(() => {
+    ObsAdapter.tearDown();
+  });
+
+  it('should submit nothing when a loaded text value is fed back unchanged', async () => {
+    // setup
+    const field = obsField({ questionOptions: { rendering: 'text', concept: conceptUuid } });
+    const initialValue = await ObsAdapter.getInitialValue(field, encounterWith('Delivered at home'), formContext);
+    // replay
+    ObsAdapter.transformFieldValue(field, initialValue, formContext);
+    // verify
+    expect(field.meta.submission.newValue).toBeNull();
+    expect(field.meta.submission.voidedValue).toBeNull();
+  });
+
+  it('should submit nothing when a loaded date is fed back unchanged', async () => {
+    // setup
+    const field = obsField({ datePickerFormat: 'calendar' });
+    const initialValue = await ObsAdapter.getInitialValue(
+      field,
+      encounterWith('2026-05-01T00:00:00.000+0000'),
+      formContext,
+    );
+    // replay
+    ObsAdapter.transformFieldValue(field, initialValue, formContext);
+    // verify
+    expect(field.meta.submission.newValue).toBeNull();
+    expect(field.meta.submission.voidedValue).toBeNull();
+  });
+
+  it('should submit nothing when a loaded date and time is fed back unchanged', async () => {
+    // setup
+    const field = obsField({ datePickerFormat: 'both' });
+    const initialValue = await ObsAdapter.getInitialValue(
+      field,
+      encounterWith('2026-05-01T22:21:00.000+0000'),
+      formContext,
+    );
+    // replay
+    ObsAdapter.transformFieldValue(field, initialValue, formContext);
+    // verify
+    expect(field.meta.submission.newValue).toBeNull();
+    expect(field.meta.submission.voidedValue).toBeNull();
+  });
+
+  it('should submit nothing when only the time changes on a date-only field', async () => {
+    // setup
+    const field = obsField({ datePickerFormat: 'calendar' });
+    const initialValue = (await ObsAdapter.getInitialValue(
+      field,
+      encounterWith('2026-05-01T00:00:00.000+0000'),
+      formContext,
+    )) as Date;
+    const sameDayOtherTime = new Date(initialValue);
+    sameDayOtherTime.setHours(14, 30);
+    // replay: a calendar field only submits the day
+    ObsAdapter.transformFieldValue(field, sameDayOtherTime, formContext);
+    // verify
+    expect(field.meta.submission.newValue).toBeNull();
+    expect(field.meta.submission.voidedValue).toBeNull();
+  });
+
+  it('should edit the existing obs when only the time changes on a date and time field', async () => {
+    // setup
+    const field = obsField({ datePickerFormat: 'both' });
+    await ObsAdapter.getInitialValue(field, encounterWith('2026-05-01T12:00:00.000+0000'), formContext);
+    // replay: same day, later time
+    ObsAdapter.transformFieldValue(field, new Date(2026, 4, 1, 23, 30), formContext);
+    // verify
+    expect(field.meta.submission.newValue).toEqual({
+      uuid: obsUuid,
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-delivery-datetime',
+      value: '2026-05-01T23:30+00:00',
+    });
+    expect(field.meta.submission.voidedValue).toBeNull();
+  });
+
+  it('should format a date field without a datePickerFormat by its rendering', () => {
+    // setup
+    const dateField = obsField();
+    const datetimeField = obsField({ questionOptions: { rendering: 'datetime', concept: conceptUuid } });
+    // replay
+    ObsAdapter.transformFieldValue(dateField, new Date(2026, 4, 1, 14, 30), formContext);
+    ObsAdapter.transformFieldValue(datetimeField, new Date(2026, 4, 1, 14, 30), formContext);
+    // verify
+    expect(dateField.meta.submission.newValue).toMatchObject({ value: '2026-05-01' });
+    expect(datetimeField.meta.submission.newValue).toMatchObject({ value: '2026-05-01T14:30+00:00' });
+  });
+
+  it('should compare a stored date without a datePickerFormat at the precision of its rendering', async () => {
+    // setup
+    const dateField = obsField();
+    const initialDate = (await ObsAdapter.getInitialValue(
+      dateField,
+      encounterWith('2026-05-01T00:00:00.000+0000'),
+      formContext,
+    )) as Date;
+    ObsAdapter.tearDown();
+    const datetimeField = obsField({ questionOptions: { rendering: 'datetime', concept: conceptUuid } });
+    await ObsAdapter.getInitialValue(datetimeField, encounterWith('2026-05-01T12:00:00.000+0000'), formContext);
+    const sameDayOtherTime = new Date(initialDate);
+    sameDayOtherTime.setHours(14, 30);
+    // replay
+    ObsAdapter.transformFieldValue(dateField, sameDayOtherTime, formContext);
+    ObsAdapter.transformFieldValue(datetimeField, new Date(2026, 4, 1, 12, 45), formContext);
+    // verify
+    expect(dateField.meta.submission.newValue).toBeNull();
+    expect(datetimeField.meta.submission.newValue).toEqual({
+      uuid: obsUuid,
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-delivery-datetime',
+      value: '2026-05-01T12:45+00:00',
+    });
+  });
+
+  it('should compare a time-only field by its clock time', async () => {
+    // setup
+    const unchanged = obsField({ datePickerFormat: 'timer' });
+    await ObsAdapter.getInitialValue(unchanged, encounterWith('1970-01-01T22:00:00.000+0000'), formContext);
+    ObsAdapter.tearDown();
+    const edited = obsField({ datePickerFormat: 'timer' });
+    await ObsAdapter.getInitialValue(edited, encounterWith('1970-01-01T22:00:00.000+0000'), formContext);
+    // replay: the time picker puts the chosen time on a different date than the stored 1970-01-01 value
+    ObsAdapter.transformFieldValue(unchanged, new Date(2026, 4, 1, 22, 0), formContext);
+    ObsAdapter.transformFieldValue(edited, new Date(2026, 4, 1, 23, 15), formContext);
+    // verify
+    expect(unchanged.meta.submission.newValue).toBeNull();
+    expect(edited.meta.submission.newValue).toEqual({
+      uuid: obsUuid,
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-delivery-datetime',
+      value: '23:15',
+    });
+  });
+
+  it('should create a new obs when a previous value is reused in a new encounter', async () => {
+    // setup: the stored obs belongs to the previous encounter, not to this one
+    const field = obsField({ questionOptions: { rendering: 'text', concept: conceptUuid } });
+    const previousValue = await ObsAdapter.getPreviousValue(field, encounterWith('Delivered at home'), formContext);
+    // replay
+    ObsAdapter.transformFieldValue(field, previousValue.value, formContext);
+    // verify
+    expect(field.meta.submission.newValue).toEqual({
+      value: 'Delivered at home',
+      concept: conceptUuid,
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-delivery-datetime',
+    });
+    expect(field.meta.submission.voidedValue).toBeNull();
+  });
+
+  it('should not edit or void the previous encounter obs from a new encounter', async () => {
+    // setup
+    const edited = obsField({ questionOptions: { rendering: 'text', concept: conceptUuid } });
+    await ObsAdapter.getPreviousValue(edited, encounterWith('Delivered at home'), formContext);
+    ObsAdapter.tearDown();
+    const cleared = obsField({ questionOptions: { rendering: 'text', concept: conceptUuid } });
+    await ObsAdapter.getPreviousValue(cleared, encounterWith('Delivered at home'), formContext);
+    // replay
+    ObsAdapter.transformFieldValue(edited, 'Delivered at the facility', formContext);
+    ObsAdapter.transformFieldValue(cleared, '', formContext);
+    // verify
+    expect(edited.meta.submission.newValue).not.toHaveProperty('uuid');
+    expect(cleared.meta.submission.voidedValue).toBeNull();
+  });
+
+  it('should create new obs when previous checkbox values are reused in a new encounter', async () => {
+    // setup
+    const field = obsField({
+      questionOptions: {
+        rendering: 'checkbox',
+        concept: conceptUuid,
+        answers: [
+          { concept: 'answer-a-uuid', label: 'Answer A' },
+          { concept: 'answer-b-uuid', label: 'Answer B' },
+        ],
+      },
+    });
+    const encounter = {
+      uuid: 'd0a1b2c3-d4e5-4f60-a1b2-c3d4e5f60718',
+      obs: [
+        {
+          uuid: obsUuid,
+          formFieldPath: 'rfe-forms-delivery-datetime',
+          concept: { uuid: conceptUuid },
+          value: { uuid: 'answer-a-uuid' },
+        },
+      ],
+    };
+    const previousValue = await ObsAdapter.getPreviousValue(field, encounter, formContext);
+    // replay
+    ObsAdapter.transformFieldValue(field, previousValue.value, formContext);
+    // verify
+    expect(field.meta.submission.newValue).toEqual([
+      {
+        value: 'answer-a-uuid',
+        concept: conceptUuid,
+        formFieldNamespace: 'rfe-forms',
+        formFieldPath: 'rfe-forms-delivery-datetime',
+      },
+    ]);
+  });
+
+  it('should keep the loaded checkbox obs when a previous value is also read', async () => {
+    // setup: the form loads a saved encounter, then reads an older encounter for the previous value
+    const field = obsField({
+      questionOptions: {
+        rendering: 'checkbox',
+        concept: conceptUuid,
+        answers: [
+          { concept: 'answer-a-uuid', label: 'Answer A' },
+          { concept: 'answer-b-uuid', label: 'Answer B' },
+        ],
+      },
+    });
+    const checkboxObs = (uuid: string, answerUuid: string) => ({
+      uuid,
+      formFieldPath: 'rfe-forms-delivery-datetime',
+      concept: { uuid: conceptUuid },
+      value: { uuid: answerUuid },
+    });
+    const savedEncounter = {
+      uuid: 'd0a1b2c3-d4e5-4f60-a1b2-c3d4e5f60718',
+      obs: [checkboxObs('saved-obs-a', 'answer-a-uuid'), checkboxObs('saved-obs-b', 'answer-b-uuid')],
+    };
+    const olderEncounter = {
+      uuid: 'e1b2c3d4-e5f6-4a71-b2c3-d4e5f6071829',
+      obs: [checkboxObs('older-obs-a', 'answer-a-uuid')],
+    };
+    await ObsAdapter.getInitialValue(field, savedEncounter, formContext);
+    await ObsAdapter.getPreviousValue(field, olderEncounter, formContext);
+    // replay: answer B is removed
+    ObsAdapter.transformFieldValue(field, ['answer-a-uuid'], formContext);
+    // verify
+    expect(field.meta.submission.newValue).toBeNull();
+    expect(field.meta.submission.voidedValue).toEqual([{ uuid: 'saved-obs-b', voided: true }]);
+  });
+
+  it('should void only the unselected answer when a loaded checkbox answer is unselected', async () => {
+    // setup
+    formContext.sessionMode = 'edit';
+    const field = obsField({
+      questionOptions: {
+        rendering: 'checkbox',
+        concept: conceptUuid,
+        answers: [
+          { concept: 'answer-a-uuid', label: 'Answer A' },
+          { concept: 'answer-b-uuid', label: 'Answer B' },
+          { concept: 'answer-c-uuid', label: 'Answer C' },
+        ],
+      },
+    });
+    const checkboxObs = (uuid: string, answerUuid: string) => ({
+      uuid,
+      formFieldPath: 'rfe-forms-delivery-datetime',
+      concept: { uuid: conceptUuid },
+      value: { uuid: answerUuid },
+    });
+    const savedEncounter = {
+      uuid: 'd0a1b2c3-d4e5-4f60-a1b2-c3d4e5f60718',
+      obs: [
+        checkboxObs('saved-obs-a', 'answer-a-uuid'),
+        checkboxObs('saved-obs-b', 'answer-b-uuid'),
+        checkboxObs('saved-obs-c', 'answer-c-uuid'),
+      ],
+    };
+    const initialValue = await ObsAdapter.getInitialValue(field, savedEncounter, formContext);
+    expect(initialValue).toEqual(['answer-a-uuid', 'answer-b-uuid', 'answer-c-uuid']);
+    // replay: answer B is unselected
+    ObsAdapter.transformFieldValue(field, ['answer-a-uuid', 'answer-c-uuid'], formContext);
+    // verify: only answer B is voided, so answers A and C stay as they are
+    expect(field.meta.submission.newValue).toBeNull();
+    expect(field.meta.submission.voidedValue).toEqual([{ uuid: 'saved-obs-b', voided: true }]);
+  });
+
+  it('should edit the loaded obs when a previous value is also read', async () => {
+    // setup: the form loads a saved encounter, then reads an older encounter for the previous value
+    const field = obsField({ questionOptions: { rendering: 'text', concept: conceptUuid } });
+    const textObs = (uuid: string, value: string) => ({
+      uuid,
+      formFieldPath: 'rfe-forms-delivery-datetime',
+      concept: { uuid: conceptUuid },
+      value,
+    });
+    const savedEncounter = {
+      uuid: 'd0a1b2c3-d4e5-4f60-a1b2-c3d4e5f60718',
+      obs: [textObs('saved-obs', 'Delivered at home')],
+    };
+    const olderEncounter = {
+      uuid: 'e1b2c3d4-e5f6-4a71-b2c3-d4e5f6071829',
+      obs: [textObs('older-obs', 'Delivered at the facility')],
+    };
+    await ObsAdapter.getInitialValue(field, savedEncounter, formContext);
+    await ObsAdapter.getPreviousValue(field, olderEncounter, formContext);
+    // replay
+    ObsAdapter.transformFieldValue(field, 'Delivered on the way', formContext);
+    // verify
+    expect(field.meta.submission.newValue).toEqual({
+      uuid: 'saved-obs',
+      value: 'Delivered on the way',
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: 'rfe-forms-delivery-datetime',
+    });
+    expect(field.meta.submission.voidedValue).toBeNull();
+  });
+
+  it('should submit nothing when a loaded time is fed back unchanged', async () => {
+    // setup
+    const field = obsField({ datePickerFormat: 'timer' });
+    const initialValue = await ObsAdapter.getInitialValue(
+      field,
+      encounterWith('1970-01-01T22:00:00.000+0000'),
+      formContext,
+    );
+    // replay
+    ObsAdapter.transformFieldValue(field, initialValue, formContext);
+    // verify
+    expect(field.meta.submission.newValue).toBeNull();
+    expect(field.meta.submission.voidedValue).toBeNull();
+  });
+
+  // `yarn test` runs in UTC, where a stored value near midnight cannot move to another local day
+  describe.each(['Asia/Kolkata', 'America/Los_Angeles'])('in %s', (timezone) => {
+    let originalTimezone: string;
+
+    beforeEach(() => {
+      originalTimezone = process.env.TZ;
+      process.env.TZ = timezone;
+    });
+
+    afterEach(() => {
+      if (originalTimezone === undefined) {
+        delete process.env.TZ;
+      } else {
+        process.env.TZ = originalTimezone;
+      }
+    });
+
+    it.each([
+      ['calendar', '2026-05-01T23:30:00.000+0000'],
+      ['calendar', '2026-05-01T00:15:00.000+0000'],
+      ['both', '2026-05-01T23:30:00.000+0000'],
+      ['both', '2026-05-01T00:15:00.000+0000'],
+    ] as const)('should submit nothing when a %s value stored at %s is fed back unchanged', async (format, stored) => {
+      // setup
+      const field = obsField({ datePickerFormat: format });
+      const initialValue = await ObsAdapter.getInitialValue(field, encounterWith(stored), formContext);
+      // replay
+      ObsAdapter.transformFieldValue(field, initialValue, formContext);
+      // verify
+      expect(field.meta.submission.newValue).toBeNull();
+      expect(field.meta.submission.voidedValue).toBeNull();
+    });
+
+    it.each(['2026-05-01T23:30:00.000+0000', '2026-05-01T00:15:00.000+0000'])(
+      'should submit nothing when the calendar picker re-selects the shown day of a date stored at %s',
+      async (stored) => {
+        // setup
+        const field = obsField({ datePickerFormat: 'calendar' });
+        const initialValue = (await ObsAdapter.getInitialValue(field, encounterWith(stored), formContext)) as Date;
+        // replay: the calendar picker sends midnight of the day it shows
+        const pickedDay = new Date(initialValue);
+        pickedDay.setHours(0, 0, 0, 0);
+        ObsAdapter.transformFieldValue(field, pickedDay, formContext);
+        // verify
+        expect(field.meta.submission.newValue).toBeNull();
+        expect(field.meta.submission.voidedValue).toBeNull();
+      },
+    );
   });
 });

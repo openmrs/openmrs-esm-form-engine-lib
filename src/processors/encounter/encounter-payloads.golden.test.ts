@@ -48,11 +48,14 @@ import { getMutableSessionProps, prepareEncounter } from './encounter-processor-
  * components, because the date renderings format with local-time dayjs. Values
  * that reach the snapshot as `Date` objects (the encounter datetime) are built
  * from absolute instants instead, since those serialize through `toISOString`.
- * A corollary: every OBS date/datetime field here sets `datePickerFormat`,
- * because `formatDateByPickerType` passes the raw `Date` through when it is
- * absent, and a locally-built `Date` would then serialize as a timezone-dependent
- * instant. `encounterDatetime` fields need no such care — their adapter stores the
- * `Date` as-is and never reaches `formatDateByPickerType`.
+ * OBS date/datetime fields always reach the payload as local-time strings:
+ * `formatDateByPickerType` falls back to `both` for `datetime` and `calendar`
+ * otherwise when `datePickerFormat` is absent. `encounterDatetime` fields are
+ * different — their adapter stores the `Date` as-is and never reaches
+ * `formatDateByPickerType`.
+ * Exception: `datePickerFormat: 'both'` submits with the local UTC offset
+ * (`YYYY-MM-DDTHH:mmZ`), so those values match the goldens only under the
+ * `TZ=UTC` that the test script sets.
  */
 
 const CURRENT_PROVIDER_UUID = 'current-provider-uuid';
@@ -406,6 +409,36 @@ describe('golden encounter payloads: new encounters', () => {
     await matchGolden(payload, 'new-encounter-orders-and-diagnoses');
   });
 
+  it('drops orders and diagnoses that are selected and then cleared', async () => {
+    const context = await buildScenario({
+      fields: [
+        buildField({
+          id: 'order',
+          type: 'testOrder',
+          questionOptions: {
+            rendering: 'select',
+            answers: [{ concept: 'malaria-test-concept-uuid', label: 'Malaria smear' }],
+          },
+        }),
+        buildField({
+          id: 'diagnosis',
+          type: 'diagnosis',
+          questionOptions: {
+            rendering: 'select',
+            answers: [{ concept: 'malaria-concept-uuid', label: 'Malaria' }],
+          },
+        }),
+      ],
+    });
+
+    applyValues(context, { order: 'malaria-test-concept-uuid', diagnosis: 'malaria-concept-uuid' });
+    applyValues(context, { order: '', diagnosis: '' });
+
+    const payload = toEncounterPayload(context);
+    expect(payload.orders).toEqual([]);
+    expect(payload.diagnoses).toEqual([]);
+  });
+
   it('drops hidden and transient fields but keeps disabled ones', async () => {
     const fields = [
       buildField({ id: 'visibleField' }),
@@ -430,6 +463,50 @@ describe('golden encounter payloads: new encounters', () => {
     fieldById(context, 'parentHiddenField').isParentHidden = true;
 
     await matchGolden(toEncounterPayload(context), 'new-encounter-hidden-and-transient');
+  });
+
+  it('drops hidden obs group members, orders and diagnoses', async () => {
+    const vitals = buildObsGroup('vitals', [
+      buildField({ id: 'temperature', questionOptions: { rendering: 'number' } }),
+      buildField({ id: 'weight', questionOptions: { rendering: 'number' } }),
+    ]);
+    const fields = [
+      vitals,
+      buildField({
+        id: 'hiddenOrder',
+        type: 'testOrder',
+        questionOptions: {
+          rendering: 'select',
+          answers: [{ concept: 'malaria-test-concept-uuid', label: 'Malaria smear' }],
+        },
+      }),
+      buildField({
+        id: 'hiddenDiagnosis',
+        type: 'diagnosis',
+        questionOptions: {
+          rendering: 'select',
+          answers: [{ concept: 'malaria-concept-uuid', label: 'Malaria' }],
+        },
+      }),
+    ];
+    const context = await buildScenario({ fields });
+
+    applyValues(context, {
+      temperature: 37,
+      weight: 70,
+      hiddenOrder: 'malaria-test-concept-uuid',
+      hiddenDiagnosis: 'malaria-concept-uuid',
+    });
+    // values entered before a hide expression turned true stay on the fields, so
+    // the payload builder is what keeps them out of the encounter
+    fieldById(context, 'weight').isHidden = true;
+    fieldById(context, 'hiddenOrder').isHidden = true;
+    fieldById(context, 'hiddenDiagnosis').isHidden = true;
+
+    const payload = toEncounterPayload(context);
+    expect(payload.orders).toEqual([]);
+    expect(payload.diagnoses).toEqual([]);
+    await matchGolden(payload, 'new-encounter-hidden-group-members-orders-diagnoses');
   });
 
   it('keeps voided attachments in the obs list and leaves new ones to the attachment endpoint', async () => {
@@ -516,8 +593,10 @@ describe('golden encounter payloads: edited encounters', () => {
           value: '2026-05-04',
           formFieldPath: 'rfe-forms-dateField',
         }),
-        // stored without a UTC offset on purpose: `parseToLocalDateTime` reads the
-        // time part as local, so an offset would make the golden timezone-dependent
+        // stored without a UTC offset on purpose: `parseToLocalDateTime` then reads it
+        // as local time, so the loaded value is 08:30 in any timezone. The submitted
+        // value still carries the local UTC offset, so it matches the golden only
+        // under the `TZ=UTC` that the test script sets
         existingObs({
           uuid: 'obs-datetime-uuid',
           concept: { uuid: 'datetimeField-concept-uuid', name: { name: 'Datetime concept' } },
@@ -590,9 +669,8 @@ describe('golden encounter payloads: edited encounters', () => {
       dateField: new Date(2026, 4, 10),
       // `datetime` compares at minute granularity, so a time-only change is an edit
       datetimeField: new Date(2026, 4, 4, 9, 15),
-      // A time-only change on a `date` field is ALSO an edit — see the
-      // change-detection granularity test below for why the day-granularity the
-      // code reads as if it implements is not what actually happens.
+      // a time-only change on a `calendar` field does not change the submitted
+      // day, so nothing is submitted for it
       sameDayDateField: new Date(2026, 4, 4, 14, 30),
       clearedField: '',
     });
@@ -604,17 +682,11 @@ describe('golden encounter payloads: edited encounters', () => {
     await matchGolden(toEncounterPayload(context), 'edit-encounter-obs-changes');
   });
 
-  it('detects date changes at millisecond granularity and datetime changes at minute granularity', async () => {
-    // `hasPreviousObsValueChanged` reads as if `date` renderings compare whole
-    // days: `dayjs(newValue).diff(dayjs(previousObs.value), 'D')`. They do not.
-    // dayjs normalizes `'D'` to `'date'` (day-of-month), which `diff` has no case
-    // for, so it falls through to its default — MILLISECONDS. Any difference at
-    // all therefore counts as a change on a `date` field.
-    //
-    // `datetime` (and `datePickerFormat: 'both'`) uses `'minute'`, a unit dayjs
-    // does understand, so sub-minute changes there really are treated as "no
-    // change" — and fall through to `constructObs`, producing a uuid-less
-    // duplicate rather than an update.
+  it('compares stored dates at the precision of their date picker format', async () => {
+    // `hasPreviousObsValueChanged` formats both the stored and the new value the
+    // way they would be submitted (`YYYY-MM-DD` for `calendar`, `YYYY-MM-DDTHH:mmZ`
+    // for `both`) and compares the strings, so a change below that precision is
+    // not a change and nothing is submitted.
     const encounter = existingEncounter({
       obs: [
         existingObs({
@@ -639,26 +711,14 @@ describe('golden encounter payloads: edited encounters', () => {
       encounter,
     });
 
-    // 30 seconds later: below a minute, above a millisecond
+    // 30 seconds later: same day, same minute
     applyValues(context, {
       dateField: new Date(2026, 4, 4, 8, 30, 30),
       datetimeField: new Date(2026, 4, 4, 8, 30, 30),
     });
 
-    // the date field took the edit path (uuid present, no concept)
-    expect(fieldById(context, 'dateField').meta.submission.newValue).toEqual({
-      uuid: 'obs-date-uuid',
-      value: '2026-05-04',
-      formFieldNamespace: 'rfe-forms',
-      formFieldPath: 'rfe-forms-dateField',
-    });
-    // the datetime field was judged unchanged and built a brand-new obs instead
-    expect(fieldById(context, 'datetimeField').meta.submission.newValue).toEqual({
-      value: '2026-05-04 08:30',
-      concept: 'datetimeField-concept-uuid',
-      formFieldNamespace: 'rfe-forms',
-      formFieldPath: 'rfe-forms-datetimeField',
-    });
+    expect(fieldById(context, 'dateField').meta.submission.newValue).toBeNull();
+    expect(fieldById(context, 'datetimeField').meta.submission.newValue).toBeNull();
   });
 
   it('compares a stored toggle against the "true" concept rather than the raw value', async () => {
@@ -698,15 +758,14 @@ describe('golden encounter payloads: edited encounters', () => {
       uuid: 'obs-toggle-flipped-uuid',
       value: false,
     });
-    // re-affirmed at the same value: judged unchanged, so it falls through to
-    // `constructObs` and duplicates, exactly like the text field above
-    expect(fieldById(context, 'unchangedToggle').meta.submission.newValue).not.toHaveProperty('uuid');
+    // re-affirmed at the same value: judged unchanged, so nothing is submitted
+    expect(fieldById(context, 'unchangedToggle').meta.submission.newValue).toBeNull();
   });
 
-  it('duplicates rather than updates when a coded answer is re-selected unchanged', async () => {
-    // the coded analogue of the edit-then-revert text case: `codedTypes` compares
+  it('submits nothing when a coded answer is re-selected unchanged', async () => {
+    // the coded analogue of re-entering the stored value: `codedTypes` compares
     // `previousObs.value.uuid !== newValue`, so re-picking the stored answer reads
-    // as "unchanged" and builds a fresh, uuid-less obs
+    // as "unchanged" and leaves the stored obs alone
     const encounter = existingEncounter({
       obs: [
         existingObs({
@@ -735,14 +794,7 @@ describe('golden encounter payloads: edited encounters', () => {
 
     applyValues(context, { codedField: 'answer-a-uuid' });
 
-    expect(toEncounterPayload(context).obs).toEqual([
-      {
-        value: 'answer-a-uuid',
-        concept: 'codedField-concept-uuid',
-        formFieldNamespace: 'rfe-forms',
-        formFieldPath: 'rfe-forms-codedField',
-      },
-    ]);
+    expect(toEncounterPayload(context).obs).toEqual([]);
   });
 
   it('normalizes a stored date onto its own copy, not onto the fetched encounter', async () => {
@@ -864,6 +916,111 @@ describe('golden encounter payloads: edited encounters', () => {
     await matchGolden(toEncounterPayload(context), 'edit-encounter-hidden-voiding');
   });
 
+  it('voids the stored obs of obs group members hidden after hydration', async () => {
+    const encounter = existingEncounter({
+      obs: [
+        existingObs({
+          uuid: 'obs-group-uuid',
+          concept: { uuid: 'vitals-concept-uuid', name: { name: 'Vitals' } },
+          formFieldPath: 'rfe-forms-vitals',
+          groupMembers: [
+            existingObs({
+              uuid: 'obs-temperature-uuid',
+              concept: { uuid: 'temperature-concept-uuid', name: { name: 'Temperature' } },
+              value: 37,
+              formFieldPath: 'rfe-forms-temperature',
+            }),
+            existingObs({
+              uuid: 'obs-weight-uuid',
+              concept: { uuid: 'weight-concept-uuid', name: { name: 'Weight' } },
+              value: 70,
+              formFieldPath: 'rfe-forms-weight',
+            }),
+          ],
+        }),
+      ],
+    });
+    const vitals = buildObsGroup('vitals', [
+      buildField({ id: 'temperature', questionOptions: { rendering: 'number' } }),
+      buildField({ id: 'weight', questionOptions: { rendering: 'number' } }),
+    ]);
+
+    const context = await buildScenario({ fields: [vitals], encounter });
+    // In the running form the group's `questions` hold different objects from the
+    // flattened fields until a value is written, and neither hydration nor the
+    // initial hide evaluation reaches them. Detaching them here means the hidden
+    // flag and the stored obs exist only on the flattened field.
+    const group = fieldById(context, 'vitals');
+    group.questions = group.questions.map((child) => ({ ...child, meta: { groupId: 'vitals' } }));
+    fieldById(context, 'weight').isHidden = true;
+
+    const payload = toEncounterPayload(context);
+    expect(payload.obs).toEqual([
+      expect.objectContaining({
+        uuid: 'obs-group-uuid',
+        groupMembers: [{ uuid: 'obs-weight-uuid', voided: true }],
+      }),
+    ]);
+    await matchGolden(payload, 'edit-encounter-hidden-group-member-voiding');
+  });
+
+  it('keeps the stored uuid of a nested obs group whose member is hidden after hydration', async () => {
+    const encounter = existingEncounter({
+      obs: [
+        existingObs({
+          uuid: 'obs-group-uuid',
+          concept: { uuid: 'vitals-concept-uuid', name: { name: 'Vitals' } },
+          formFieldPath: 'rfe-forms-vitals',
+          groupMembers: [
+            existingObs({
+              uuid: 'obs-nested-group-uuid',
+              concept: { uuid: 'nestedGroup-concept-uuid', name: { name: 'Nested group' } },
+              formFieldPath: 'rfe-forms-nestedGroup',
+              groupMembers: [
+                existingObs({
+                  uuid: 'obs-temperature-uuid',
+                  concept: { uuid: 'temperature-concept-uuid', name: { name: 'Temperature' } },
+                  value: 37,
+                  formFieldPath: 'rfe-forms-temperature',
+                }),
+                existingObs({
+                  uuid: 'obs-weight-uuid',
+                  concept: { uuid: 'weight-concept-uuid', name: { name: 'Weight' } },
+                  value: 70,
+                  formFieldPath: 'rfe-forms-weight',
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    });
+    const nestedGroup = buildObsGroup('nestedGroup', [
+      buildField({ id: 'temperature', questionOptions: { rendering: 'number' } }),
+      buildField({ id: 'weight', questionOptions: { rendering: 'number' } }),
+    ]);
+    const vitals = buildObsGroup('vitals', [nestedGroup]);
+
+    const context = await buildScenario({ fields: [vitals], encounter });
+    // Detached the same way as above, so the nested group's stored obs exists only on its flattened field
+    const group = fieldById(context, 'vitals');
+    group.questions = group.questions.map((child) => ({ ...child, meta: { groupId: 'vitals' } }));
+    fieldById(context, 'weight').isHidden = true;
+
+    const payload = toEncounterPayload(context);
+    expect(payload.obs).toEqual([
+      expect.objectContaining({
+        uuid: 'obs-group-uuid',
+        groupMembers: [
+          expect.objectContaining({
+            uuid: 'obs-nested-group-uuid',
+            groupMembers: [{ uuid: 'obs-weight-uuid', voided: true }],
+          }),
+        ],
+      }),
+    ]);
+  });
+
   it('appends the current provider and overwrites the encounter metadata', async () => {
     const encounter = existingEncounter({
       obs: [
@@ -899,12 +1056,11 @@ describe('golden encounter payloads: edited encounters', () => {
     expect(payload.encounterProviders[0].provider.uuid).toBe(CURRENT_PROVIDER_UUID);
   });
 
-  it('creates a second obs when an edited value is changed back to the stored one', async () => {
+  it('submits nothing when an edited value is changed back to the stored one', async () => {
     // `transformFieldValue` treats "equal to the stored value" as "nothing was
-    // edited" and falls through to `constructObs`, which has no uuid — so a user
-    // who edits a field and then restores the original text submits a duplicate
-    // rather than a no-op. Reachable only through edit-then-revert, since the
-    // adapter is not invoked for untouched fields.
+    // edited", so a user who edits a field and then restores the original text
+    // submits nothing and the stored obs is left in place. Reachable only through
+    // edit-then-revert, since the adapter is not invoked for untouched fields.
     const encounter = existingEncounter({
       obs: [
         existingObs({
@@ -923,14 +1079,7 @@ describe('golden encounter payloads: edited encounters', () => {
     applyValues(context, { textField: 'A different value' });
     applyValues(context, { textField: 'The original text' });
 
-    expect(toEncounterPayload(context).obs).toEqual([
-      {
-        value: 'The original text',
-        concept: 'textField-concept-uuid',
-        formFieldNamespace: 'rfe-forms',
-        formFieldPath: 'rfe-forms-textField',
-      },
-    ]);
+    expect(toEncounterPayload(context).obs).toEqual([]);
   });
 
   it('reuses obs group uuids, voids cleared members, and drops untouched ones', async () => {
@@ -1027,6 +1176,86 @@ describe('golden encounter payloads: edited encounters', () => {
     await matchGolden(toEncounterPayload(context), 'edit-encounter-nested-obs-groups');
   });
 
+  it('submits nothing when obs group members are re-entered unchanged', async () => {
+    // the group analogue of re-entering the stored value: each member, nested
+    // ones included, is judged unchanged, so neither the group nor its members are
+    // submitted
+    const encounter = existingEncounter({
+      obs: [
+        existingObs({
+          uuid: 'obs-group-uuid',
+          concept: { uuid: 'vitals-concept-uuid', name: { name: 'Vitals' } },
+          formFieldPath: 'rfe-forms-vitals',
+          groupMembers: [
+            existingObs({
+              uuid: 'obs-systolic-uuid',
+              concept: { uuid: 'systolic-concept-uuid', name: { name: 'Systolic' } },
+              value: 120,
+              formFieldPath: 'rfe-forms-systolic',
+            }),
+            existingObs({
+              uuid: 'obs-diastolic-uuid',
+              concept: { uuid: 'diastolic-concept-uuid', name: { name: 'Diastolic' } },
+              value: 80,
+              formFieldPath: 'rfe-forms-diastolic',
+            }),
+            existingObs({
+              uuid: 'obs-group-checkbox-a-uuid',
+              concept: { uuid: 'groupCheckbox-concept-uuid', name: { name: 'Group checkbox' } },
+              value: { uuid: 'answer-a-uuid', name: { name: 'Answer A' } },
+              formFieldPath: 'rfe-forms-groupCheckbox',
+            }),
+            existingObs({
+              uuid: 'obs-group-checkbox-b-uuid',
+              concept: { uuid: 'groupCheckbox-concept-uuid', name: { name: 'Group checkbox' } },
+              value: { uuid: 'answer-b-uuid', name: { name: 'Answer B' } },
+              formFieldPath: 'rfe-forms-groupCheckbox',
+            }),
+            existingObs({
+              uuid: 'obs-nested-group-uuid',
+              concept: { uuid: 'nestedGroup-concept-uuid', name: { name: 'Nested group' } },
+              formFieldPath: 'rfe-forms-nestedGroup',
+              groupMembers: [
+                existingObs({
+                  uuid: 'obs-nested-note-uuid',
+                  concept: { uuid: 'nestedNote-concept-uuid', name: { name: 'Nested note' } },
+                  value: 'Taken while seated',
+                  formFieldPath: 'rfe-forms-nestedNote',
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    });
+    const nestedGroup = buildObsGroup('nestedGroup', [buildField({ id: 'nestedNote' })]);
+    const vitals = buildObsGroup('vitals', [
+      buildField({ id: 'systolic', questionOptions: { rendering: 'number' } }),
+      buildField({ id: 'diastolic', questionOptions: { rendering: 'number' } }),
+      buildField({
+        id: 'groupCheckbox',
+        questionOptions: {
+          rendering: 'checkbox',
+          answers: [
+            { concept: 'answer-a-uuid', label: 'Answer A' },
+            { concept: 'answer-b-uuid', label: 'Answer B' },
+          ],
+        },
+      }),
+      nestedGroup,
+    ]);
+
+    const context = await buildScenario({ fields: [vitals], encounter });
+    applyValues(context, {
+      systolic: 120,
+      diastolic: 80,
+      groupCheckbox: ['answer-a-uuid', 'answer-b-uuid'],
+      nestedNote: 'Taken while seated',
+    });
+
+    expect(toEncounterPayload(context).obs).toEqual([]);
+  });
+
   it('voids the fields deleted from repeating sections', async () => {
     const encounter = existingEncounter({
       obs: [
@@ -1075,6 +1304,79 @@ describe('golden encounter payloads: edited encounters', () => {
     // `processObsGroup` early-returns on the group's `voidedValue`, so the child
     // voids computed above are discarded and the server is relied on to cascade.
     await matchGolden(toEncounterPayload(context), 'edit-encounter-deleted-fields');
+  });
+
+  it.each([
+    ['isHidden', 'cleared'],
+    ['isHidden', 'reanswered'],
+    ['isHidden', 'swapped'],
+    ['isHidden', 'unchanged'],
+    ['isParentHidden', 'cleared'],
+    ['isParentHidden', 'reanswered'],
+    ['isParentHidden', 'swapped'],
+    ['isParentHidden', 'unchanged'],
+  ] as const)('voids only cleared stored values for %s orders and diagnoses (%s)', async (hiddenFlag, action) => {
+    const encounter = existingEncounter({
+      orders: [
+        {
+          uuid: 'existing-order-uuid',
+          display: 'Malaria smear',
+          concept: { uuid: 'malaria-test-concept-uuid', display: 'Malaria smear' },
+          voided: false,
+        },
+      ],
+      diagnoses: [
+        {
+          uuid: 'existing-diagnosis-uuid',
+          certainty: 'PROVISIONAL',
+          rank: 1,
+          voided: false,
+          formFieldNamespace: 'rfe-forms',
+          formFieldPath: 'rfe-forms-diagnosis',
+          diagnosis: { coded: { uuid: 'malaria-concept-uuid', display: 'Malaria' } },
+        },
+      ] as unknown as OpenmrsEncounter['diagnoses'],
+    });
+    const context = await buildScenario({
+      encounter,
+      fields: [
+        buildField({
+          id: 'order',
+          type: 'testOrder',
+          questionOptions: {
+            rendering: 'select',
+            answers: [
+              { concept: 'malaria-test-concept-uuid', label: 'Malaria smear' },
+              { concept: 'cbc-test-concept-uuid', label: 'Complete blood count' },
+            ],
+          },
+        }),
+        buildField({
+          id: 'diagnosis',
+          type: 'diagnosis',
+          questionOptions: {
+            rendering: 'select',
+            answers: [
+              { concept: 'malaria-concept-uuid', label: 'Malaria' },
+              { concept: 'anaemia-concept-uuid', label: 'Anaemia' },
+            ],
+          },
+        }),
+      ],
+    });
+
+    if (action === 'cleared' || action === 'reanswered') {
+      applyValues(context, { order: '', diagnosis: '' });
+    }
+    if (action === 'reanswered' || action === 'swapped') {
+      applyValues(context, { order: 'cbc-test-concept-uuid', diagnosis: 'anaemia-concept-uuid' });
+    }
+    fieldById(context, 'order')[hiddenFlag] = true;
+    fieldById(context, 'diagnosis')[hiddenFlag] = true;
+
+    const payload = toEncounterPayload(context);
+    expect(payload.orders).toEqual(action === 'cleared' ? [{ uuid: 'existing-order-uuid', voided: true }] : []);
+    expect(payload.diagnoses).toEqual(action === 'cleared' ? [{ uuid: 'existing-diagnosis-uuid', voided: true }] : []);
   });
 
   it('replaces orders and voids diagnoses', async () => {
@@ -1173,7 +1475,8 @@ describe('golden encounter payloads: edited encounters', () => {
         // "changed" and takes the uuid-bearing edit path. Do NOT naively "fix"
         // that comparison: returning false here falls through to
         // `constructNewDiagnosis`, which carries no uuid, and duplicates the
-        // stored diagnosis — the same trap the obs edit-then-revert case pins.
+        // stored diagnosis. The obs adapter avoids this trap by returning early
+        // for an unchanged value on a stored obs.
         unchangedDiagnosis: 'asthma-concept-uuid',
       },
     );
@@ -1183,15 +1486,9 @@ describe('golden encounter payloads: edited encounters', () => {
     await matchGolden(payload, 'edit-encounter-orders-and-diagnoses');
   });
 
-  it('drops the void when a diagnosis is cleared and then re-answered', async () => {
-    // Three things have to line up for this: `EncounterDiagnosisAdapter` never
-    // calls `clearSubmission` (unlike `ObsAdapter`, which clears both values on
-    // every write), `gracefullySetSubmission` only ever sets — it cannot clear an
-    // already-set `voidedValue` — and `prepareDiagnosis` then collapses each field
-    // with `newValue || voidedValue`. So clearing a diagnosis and picking a
-    // different answer submits the new diagnosis and silently forgets the void,
-    // leaving the original in place. The missing `clearSubmission` is the fix
-    // candidate; `prepareOrders` sidesteps it by emitting both values.
+  it('edits a diagnosis in place when it is cleared and then re-answered', async () => {
+    // `EncounterDiagnosisAdapter` clears the submission on every write, so the
+    // void from clearing the field doesn't survive the re-answer
     const encounter = existingEncounter({
       diagnoses: [
         {
@@ -1231,16 +1528,8 @@ describe('golden encounter payloads: edited encounters', () => {
 
     applyValues(context, { reAnsweredDiagnosis: 'anaemia-concept-uuid' });
 
-    // the MECHANISM: the void is still sitting on the field after the re-answer.
-    // Asserting this (and not just the payload) is what makes the recommended
-    // `clearSubmission` fix visible — with it, this expectation flips to null while
-    // the payload below stays the same.
-    expect(fieldById(context, 'reAnsweredDiagnosis').meta.submission.voidedValue).toEqual({
-      uuid: 'existing-diagnosis-uuid',
-      voided: true,
-    });
+    expect(fieldById(context, 'reAnsweredDiagnosis').meta.submission.voidedValue).toBeNull();
 
-    // the OUTCOME: `prepareDiagnosis` drops it anyway
     const { diagnoses } = toEncounterPayload(context);
     expect(diagnoses).toHaveLength(1);
     expect(diagnoses[0]).toMatchObject({ diagnosis: { coded: 'anaemia-concept-uuid' } });
@@ -1265,10 +1554,11 @@ describe('golden encounter payloads: edited encounters', () => {
   });
 
   it('treats re-selecting a stored order as a no-op', async () => {
-    // `editOrder` early-returns and CLEARS the submission when the value matches
-    // the stored order — the opposite of the diagnosis path above, which re-emits
-    // an update. Without it, the stored order would be voided and a duplicate
-    // `action: 'NEW'` order submitted alongside it.
+    // `editOrder` early-returns when the value matches the stored order, leaving
+    // the submission that `transformFieldValue` just cleared empty — the opposite
+    // of the diagnosis path above, which re-emits an update. Without it, the stored
+    // order would be voided and a duplicate `action: 'NEW'` order submitted
+    // alongside it.
     const encounter = existingEncounter({
       orders: [
         {
@@ -1300,6 +1590,64 @@ describe('golden encounter payloads: edited encounters', () => {
       voidedValue: null,
     });
     expect(toEncounterPayload(context).orders).toEqual([]);
+  });
+
+  it('voids a stored order and diagnosis that are swapped and then cleared', async () => {
+    const encounter = existingEncounter({
+      orders: [
+        {
+          uuid: 'existing-order-uuid',
+          display: 'Malaria smear',
+          concept: { uuid: 'malaria-test-concept-uuid', display: 'Malaria smear' },
+          voided: false,
+        },
+      ],
+      diagnoses: [
+        {
+          uuid: 'existing-diagnosis-uuid',
+          certainty: 'PROVISIONAL',
+          rank: 1,
+          voided: false,
+          formFieldNamespace: 'rfe-forms',
+          formFieldPath: 'rfe-forms-diagnosis',
+          diagnosis: { coded: { uuid: 'malaria-concept-uuid', display: 'Malaria' } },
+        },
+      ] as unknown as OpenmrsEncounter['diagnoses'],
+    });
+    const context = await buildScenario({
+      encounter,
+      fields: [
+        buildField({
+          id: 'order',
+          type: 'testOrder',
+          questionOptions: {
+            rendering: 'select',
+            answers: [
+              { concept: 'malaria-test-concept-uuid', label: 'Malaria smear' },
+              { concept: 'cbc-test-concept-uuid', label: 'Complete blood count' },
+            ],
+          },
+        }),
+        buildField({
+          id: 'diagnosis',
+          type: 'diagnosis',
+          questionOptions: {
+            rendering: 'select',
+            answers: [
+              { concept: 'malaria-concept-uuid', label: 'Malaria' },
+              { concept: 'anaemia-concept-uuid', label: 'Anaemia' },
+            ],
+          },
+        }),
+      ],
+    });
+
+    applyValues(context, { order: 'cbc-test-concept-uuid', diagnosis: 'anaemia-concept-uuid' });
+    applyValues(context, { order: '', diagnosis: '' });
+
+    const payload = toEncounterPayload(context);
+    expect(payload.orders).toEqual([{ uuid: 'existing-order-uuid', voided: true }]);
+    expect(payload.diagnoses).toEqual([{ uuid: 'existing-diagnosis-uuid', voided: true }]);
   });
 
   it('lets only the first field claim a stored order', async () => {

@@ -203,7 +203,7 @@ describe('EncounterDiagnosisAdapter', () => {
       formFieldNamespace: 'rfe-forms',
       uuid: '0e20bb67-5d7f-41e0-96a1-751efc21a96f',
     });
-    expect(field.meta.submission.voidedValue).toBe(undefined);
+    expect(field.meta.submission.voidedValue).toBeNull();
   });
 
   it('should void removed diagnosis in edit mode', () => {

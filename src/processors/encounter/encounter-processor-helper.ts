@@ -222,23 +222,19 @@ export function getMutableSessionProps(context: FormContextProps): MutableSessio
 // Helpers
 
 function prepareObs(obsForSubmission: OpenmrsObs[], fields: FormField[]) {
-  fields.filter((field) => hasSubmittableObs(field)).forEach((field) => processObsField(obsForSubmission, field));
+  fields
+    .filter((field) => hasSubmittableObs(field))
+    .forEach((field) => processObsField(obsForSubmission, field, fields));
 }
 
-function processObsField(obsForSubmission: OpenmrsObs[], field: FormField) {
-  if ((field.isHidden || field.isParentHidden) && field.meta.initialValue.omrsObject) {
-    const valuesArray = Array.isArray(field.meta.initialValue.omrsObject)
-      ? field.meta.initialValue.omrsObject
-      : [field.meta.initialValue.omrsObject];
-    addObsToList(
-      obsForSubmission,
-      valuesArray.map((obs) => voidObs(obs)),
-    );
+function processObsField(obsForSubmission: OpenmrsObs[], field: FormField, fields: FormField[]) {
+  if (isFieldHidden(field) && field.meta.initialValue.omrsObject) {
+    voidStoredObs(obsForSubmission, field);
     return;
   }
 
   if (field.type === 'obsGroup') {
-    processObsGroup(obsForSubmission, field);
+    processObsGroup(obsForSubmission, field, fields);
     return;
   }
 
@@ -249,7 +245,7 @@ function processObsField(obsForSubmission: OpenmrsObs[], field: FormField) {
   addObsToList(obsForSubmission, field.meta.submission.voidedValue);
 }
 
-function processObsGroup(obsForSubmission: OpenmrsObs[], groupField: FormField) {
+function processObsGroup(obsForSubmission: OpenmrsObs[], groupField: FormField, fields: FormField[]) {
   if (groupField.meta.submission?.voidedValue) {
     addObsToList(obsForSubmission, groupField.meta.submission.voidedValue);
     return;
@@ -261,13 +257,18 @@ function processObsGroup(obsForSubmission: OpenmrsObs[], groupField: FormField) 
   }
 
   groupField.questions.forEach((nestedField) => {
-    if (nestedField.type === 'obsGroup') {
+    // Hide logic and hydration update the flattened copy of a group member rather than the
+    // copy held in `groupField.questions`, so visibility and stored obs are read from there
+    const member = fields.find((field) => field.id === nestedField.id) ?? nestedField;
+    if (isFieldHidden(member)) {
+      voidStoredObs(obsGroup.groupMembers, member);
+    } else if (member.type === 'obsGroup') {
       const nestedObsGroup: OpenmrsObs[] = [];
-      processObsGroup(nestedObsGroup, nestedField);
+      processObsGroup(nestedObsGroup, member, fields);
       addObsToList(obsGroup.groupMembers, nestedObsGroup);
-    } else if (hasSubmission(nestedField)) {
-      addObsToList(obsGroup.groupMembers, nestedField.meta.submission.newValue);
-      addObsToList(obsGroup.groupMembers, nestedField.meta.submission.voidedValue);
+    } else if (hasSubmission(member)) {
+      addObsToList(obsGroup.groupMembers, member.meta.submission.newValue);
+      addObsToList(obsGroup.groupMembers, member.meta.submission.voidedValue);
     }
   });
 
@@ -276,10 +277,26 @@ function processObsGroup(obsForSubmission: OpenmrsObs[], groupField: FormField) 
   }
 }
 
+function voidStoredObs(obsList: Array<Partial<OpenmrsObs>>, field: FormField) {
+  const storedObs = field.meta.initialValue?.omrsObject;
+  if (!storedObs) {
+    return;
+  }
+  const valuesArray = Array.isArray(storedObs) ? storedObs : [storedObs];
+  addObsToList(
+    obsList,
+    valuesArray.map((obs) => voidObs(obs)),
+  );
+}
+
 function prepareOrders(fields: FormField[]) {
   return fields
     .filter((field) => field.type === 'testOrder' && hasSubmission(field))
-    .flatMap((field) => [field.meta.submission.newValue, field.meta.submission.voidedValue])
+    .flatMap((field) =>
+      isFieldHidden(field)
+        ? [field.meta.submission.newValue ? undefined : field.meta.submission.voidedValue]
+        : [field.meta.submission.newValue, field.meta.submission.voidedValue],
+    )
     .filter((o) => o);
 }
 
@@ -294,6 +311,10 @@ function addObsToList(obsList: Array<Partial<OpenmrsObs>>, obs: Partial<OpenmrsO
   }
 }
 
+function isFieldHidden(field: FormField) {
+  return Boolean(field.isHidden || field.isParentHidden);
+}
+
 function hasSubmittableObs(field: FormField) {
   const {
     questionOptions: { isTransient },
@@ -303,10 +324,10 @@ function hasSubmittableObs(field: FormField) {
   if (isTransient || !['obs', 'obsGroup'].includes(type) || field.meta.groupId) {
     return false;
   }
-  if ((field.isHidden || field.isParentHidden) && field.meta.initialValue?.omrsObject) {
+  if (isFieldHidden(field) && field.meta.initialValue?.omrsObject) {
     return true;
   }
-  return !field.isHidden && !field.isParentHidden && (type === 'obsGroup' || hasSubmission(field));
+  return !isFieldHidden(field) && (type === 'obsGroup' || hasSubmission(field));
 }
 
 export function inferInitialValueFromDefaultFieldValue(field: FormField) {
@@ -408,7 +429,13 @@ export async function hydrateRepeatField(
 function prepareDiagnosis(fields: FormField[]) {
   const diagnoses = fields
     .filter((field) => field.type === 'diagnosis' && hasSubmission(field))
-    .map((field) => field.meta.submission.newValue || field.meta.submission.voidedValue)
+    .map((field) =>
+      isFieldHidden(field)
+        ? field.meta.submission.newValue
+          ? undefined
+          : field.meta.submission.voidedValue
+        : field.meta.submission.newValue || field.meta.submission.voidedValue,
+    )
     .filter((o) => o);
 
   return diagnoses;

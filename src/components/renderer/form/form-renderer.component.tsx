@@ -15,7 +15,7 @@ export type FormRendererProps = {
   processorContext: FormProcessorContextProps;
   initialValues: Record<string, any>;
   isSubForm: boolean;
-  setIsLoadingFormDependencies: (isLoading: boolean) => void;
+  setIsLoadingFormDependencies: (formId: string, isLoading: boolean) => void;
 };
 
 export const FormRenderer = ({

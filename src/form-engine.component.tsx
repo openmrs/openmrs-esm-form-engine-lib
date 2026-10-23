@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSet, InlineLoading } from '@carbon/react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
@@ -67,7 +67,16 @@ const FormEngine = ({
   }, [visit?.startDatetime, visit?.stopDatetime]);
   const workspaceSize = useFormWorkspaceSize(ref);
   const { patient, isLoadingPatient } = usePatientData(patientUUID);
-  const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
+  const [isLoadingDependencies, setIsLoadingDependencies] = useState(true);
+  const loadingForms = useRef(new Set<string>());
+  const setIsLoadingFormDependencies = useCallback((formId: string, isLoading: boolean) => {
+    if (isLoading) {
+      loadingForms.current.add(formId);
+    } else {
+      loadingForms.current.delete(formId);
+    }
+    setIsLoadingDependencies(loadingForms.current.size > 0);
+  }, []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
   const sessionMode = !isEmpty(mode) ? mode : !isEmpty(encounterUUID) ? 'edit' : 'enter';
@@ -132,6 +141,7 @@ const FormEngine = ({
       ) : (
         <FormFactoryProvider
           patient={patient}
+          isLoadingDependencies={isLoadingDependencies}
           patientUUID={patientUUID}
           sessionMode={sessionMode}
           sessionDate={sessionDate}
@@ -179,7 +189,7 @@ const FormEngine = ({
                 <div className={styles.formBody}>
                   <FormProcessorFactory
                     formJson={refinedFormJson}
-                    setIsLoadingFormDependencies={setIsLoadingDependencies}
+                    setIsLoadingFormDependencies={setIsLoadingFormDependencies}
                   />
                 </div>
                 {showBottomButtonSet && !hideControls && (
@@ -217,9 +227,11 @@ const FormEngine = ({
 
 function I18FormEngine(props: FormEngineProps) {
   return (
-    <I18nextProvider i18n={window.i18next} defaultNS={formEngineAppName}>
-      <FormEngine {...props} />
-    </I18nextProvider>
+    <Suspense fallback={<Loader />}>
+      <I18nextProvider i18n={window.i18next} defaultNS={formEngineAppName}>
+        <FormEngine {...props} />
+      </I18nextProvider>
+    </Suspense>
   );
 }
 

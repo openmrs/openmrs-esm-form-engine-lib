@@ -1,0 +1,105 @@
+{
+  "name": "Z-score loading test",
+  "processor": "EncounterFormProcessor",
+  "uuid": "b3f1e0a2-6f2b-4d7e-9a53-3c1f5a7e2d10",
+  "referencedForms": [],
+  "encounterType": "79c1f50f-f77d-42e2-ad2a-d29304dde2fe",
+  "pages": [
+    {
+      "label": "Growth",
+      "sections": [
+        {
+          "label": "Measurements",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Height",
+              "type": "obs",
+              "id": "height",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "defaultValue": 150
+              }
+            },
+            {
+              "label": "Weight",
+              "type": "obs",
+              "id": "weight",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "5089AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "defaultValue": 60
+              }
+            },
+            {
+              "label": "BMI for age z-score",
+              "type": "obs",
+              "id": "bmiForAgeZscore",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "1342AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "calculate": {
+                  "calculateExpression": "calcBMIForAgeZscore(height, weight)"
+                }
+              }
+            },
+            {
+              "label": "Height for age z-score",
+              "type": "obs",
+              "id": "heightForAgeZscore",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "163515AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "calculate": {
+                  "calculateExpression": "calcHeightForAgeZscore(height)"
+                }
+              }
+            },
+            {
+              "label": "Follow-up measurements",
+              "type": "obsGroup",
+              "id": "followUp",
+              "questionOptions": {
+                "rendering": "repeating",
+                "concept": "1c70c490-cafa-4c95-9fdd-a30b62bb78b8"
+              },
+              "questions": [
+                {
+                  "label": "Follow-up height",
+                  "type": "obs",
+                  "id": "followUpHeight",
+                  "questionOptions": {
+                    "rendering": "number",
+                    "concept": "5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                  }
+                },
+                {
+                  "label": "Follow-up weight",
+                  "type": "obs",
+                  "id": "followUpWeight",
+                  "questionOptions": {
+                    "rendering": "number",
+                    "concept": "5089AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                  }
+                },
+                {
+                  "label": "Follow-up BMI for age z-score",
+                  "type": "obs",
+                  "id": "followUpBmiForAgeZscore",
+                  "questionOptions": {
+                    "rendering": "text",
+                    "concept": "1342AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "calculate": {
+                      "calculateExpression": "calcBMIForAgeZscore(followUpHeight, followUpWeight)"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

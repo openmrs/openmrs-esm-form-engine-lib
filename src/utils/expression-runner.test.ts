@@ -1,7 +1,8 @@
 import { registerExpressionHelper } from '..';
-import { vi, describe, it, expect, afterEach } from 'vitest';
+import { vi, describe, it, expect, afterEach, beforeAll, beforeEach } from 'vitest';
 import { type FormField } from '../types';
 import { evaluateAsyncExpression, evaluateExpression, type ExpressionContext } from './expression-runner';
+import { loadZScoreReferences } from './zscore-service';
 
 export const testFields: Array<FormField> = [
   {
@@ -403,5 +404,56 @@ describe('Expression runner', () => {
     // Should be approximately 30 days (allowing for time-of-day variations)
     expect(result).toBeGreaterThanOrEqual(29);
     expect(result).toBeLessThanOrEqual(31);
+  });
+});
+
+describe('Z-score helpers in expressions', () => {
+  // A two-year-old girl on 30 September 2026, for whom 80 cm and 6 kg is a weight-for-height z-score of -4
+  const context: ExpressionContext = { mode: 'enter', patient: { sex: 'F', birthDate: '2024-06-15' } };
+  const fields: Array<FormField> = [
+    { id: 'height', label: 'Height', type: 'obs', questionOptions: { rendering: 'number', concept: 'height-concept' } },
+    { id: 'weight', label: 'Weight', type: 'obs', questionOptions: { rendering: 'number', concept: 'weight-concept' } },
+    {
+      id: 'zscore',
+      label: 'Z-score',
+      type: 'obs',
+      questionOptions: {
+        rendering: 'text',
+        concept: 'zscore-concept',
+        calculate: { calculateExpression: 'calcWeightForHeightZscore(height, weight)' },
+      },
+    },
+  ];
+  const values = { height: 80, weight: 6, zscore: null };
+  const node = { value: fields[2], type: 'field' as const };
+
+  beforeAll(async () => {
+    await loadZScoreReferences({
+      name: 'Z-scores',
+      processor: 'EncounterFormProcessor',
+      uuid: 'zscore-form',
+      referencedForms: [],
+      encounterType: 'encounter-type',
+      pages: [{ label: 'Growth', sections: [{ label: 'Z-scores', isExpanded: 'true', questions: fields }] }],
+    });
+  });
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-09-30T12:00:00Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it.each([
+    ['calcWeightForHeightZscore(height, weight)', '-4'],
+    ['calcWeightForHeightZscore(height, weight) < -2', true],
+    ['Number(calcWeightForHeightZscore(height, weight))', -4],
+    ["calcWeightForHeightZscore(height, weight) === '-4' ? 'severe wasting' : 'other'", 'severe wasting'],
+  ])('evaluates %s the same way synchronously and asynchronously', async (expression, expected) => {
+    expect(evaluateExpression(expression, node, fields, values, context)).toBe(expected);
+    await expect(evaluateAsyncExpression(expression, node, fields, values, context)).resolves.toBe(expected);
   });
 });
