@@ -7,8 +7,8 @@ import styles from './annotation-thumbnail.scss';
 interface AnnotationThumbnailProps {
   src: string;
   title: string;
-  isAnnotated?: boolean;
-  onEdit?: () => void;
+  isAnnotated: boolean;
+  onEdit: () => void;
 }
 
 export function AnnotationThumbnail({ src, title, isAnnotated, onEdit }: AnnotationThumbnailProps) {
