@@ -272,9 +272,25 @@ function processObsGroup(obsForSubmission: OpenmrsObs[], groupField: FormField, 
     }
   });
 
+  if (obsGroup.uuid && obsGroup.groupMembers.some((member) => !member.voided)) {
+    keepUntouchedMembers(obsGroup, groupField.meta.initialValue.omrsObject as OpenmrsObs);
+  }
+
   if (obsGroup.groupMembers?.length || obsGroup.voided) {
     addObsToList(obsForSubmission, obsGroup);
   }
+}
+
+/**
+ * The REST API replaces a stored group's members with the ones submitted, and a group that gains or changes a member
+ * is saved as a new version holding only those, so every stored member not submitted would be voided with the old
+ * version. Each one is referenced by uuid to keep it in the group. A group that only voids members is not versioned.
+ */
+function keepUntouchedMembers(obsGroup: Partial<OpenmrsObs>, storedGroup: OpenmrsObs) {
+  const submitted = new Set(obsGroup.groupMembers.map((member) => member.uuid).filter(Boolean));
+  storedGroup.groupMembers
+    ?.filter((member) => !member.voided && !submitted.has(member.uuid))
+    .forEach((member) => obsGroup.groupMembers.push({ uuid: member.uuid }));
 }
 
 function voidStoredObs(obsList: Array<Partial<OpenmrsObs>>, field: FormField) {
