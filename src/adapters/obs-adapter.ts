@@ -313,8 +313,10 @@ const repeatedFieldId = (fieldId: string) => fieldId.match(/^(.+)_\d+$/)?.[1];
 /**
  * Whether the obs's form field path names another field of the form, or a repeat of one such as `dateStopped_1`,
  * which hydrates it by that path. The concept fallback leaves such an obs to it, as a field that recorded nothing
- * would otherwise take a value from a repeat of itself or from another question on the same concept. A repeat still
- * takes an obs saved under the path of the field it repeats, as some repeat rows are.
+ * would otherwise take a value from a repeat of itself or from another question on the same concept.
+ * A repeat still takes an obs saved under its question's path or that of any repeat of it: it is hydrated from its
+ * own group's obs only, and as repeats are numbered in order on hydration, one saved as `dateStopped_2` reopens as
+ * `dateStopped_1` once the row before it is deleted.
  */
 function isBoundToAnotherField(obs: OpenmrsObs, field: FormField, formFields: Array<FormField> = []) {
   const path = obs.formFieldPath;
@@ -322,7 +324,8 @@ function isBoundToAnotherField(obs: OpenmrsObs, field: FormField, formFields: Ar
     return false;
   }
   const fieldId = path.slice('rfe-forms-'.length);
-  if (fieldId === repeatedFieldId(field.id)) {
+  const repeated = repeatedFieldId(field.id);
+  if (repeated && (fieldId === repeated || repeatedFieldId(fieldId) === repeated)) {
     return false;
   }
   return formFields.some((one) => one.id === fieldId || one.id === repeatedFieldId(fieldId));

@@ -1275,11 +1275,14 @@ describe('findObsByFormField', () => {
       expect(findObsByFormField([othersDate], [], dateStopped, [dateStopped, otherField])).toEqual([]);
     });
 
-    it('lets a repeat take an obs saved under the path of the field it repeats', () => {
+    it('lets a repeat take an obs saved under the path of the field it repeats, or of another repeat of it', () => {
       const repeat = { ...dateStopped, id: 'dateStopped_1' };
       const basePathDate = stoppedObs('base-path-date', 'rfe-forms-dateStopped');
+      // Saved as the second repeat, it reopens as the first once the row before it is deleted
+      const renumberedDate = stoppedObs('renumbered-date', 'rfe-forms-dateStopped_2');
 
       expect(findObsByFormField([basePathDate], [], repeat, [dateStopped, repeat])).toEqual([basePathDate]);
+      expect(findObsByFormField([renumberedDate], [], repeat, [dateStopped, repeat])).toEqual([renumberedDate]);
     });
 
     it('still takes an obs whose path names no field of the form, as from a field since renamed', () => {

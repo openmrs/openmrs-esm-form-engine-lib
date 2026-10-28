@@ -927,51 +927,59 @@ describe('EncounterFormProcessor', () => {
       expect(initialValues).not.toHaveProperty('repeatGroup_1');
     });
 
-    it("leaves a repeat row's answer to that row when the first row never answered the question", async () => {
-      const medicine = buildObsGroup(
-        'medicine',
-        [buildField({ id: 'drug' }), buildField({ id: 'dateStopped', questionOptions: { rendering: 'date' } })],
-        { questionOptions: { rendering: 'repeating' } },
-      );
-      const member = (uuid: string, concept: string, value: string, path: string) => ({
-        uuid,
-        concept: { uuid: `${concept}-concept-uuid` },
-        value,
-        formFieldPath: `rfe-forms-${path}`,
-      });
-      const context = createTestFormContext({
-        sessionMode: 'edit',
-        formFields: [medicine, ...medicine.questions],
-        domainObjectValue: {
-          uuid: 'encounter-uuid',
-          obs: [
-            {
-              uuid: 'taken-now',
-              concept: { uuid: 'medicine-concept-uuid' },
-              formFieldPath: 'rfe-forms-medicine',
-              groupMembers: [member('acitrom', 'drug', 'Acitrom', 'drug')],
-            },
-            {
-              uuid: 'stopped',
-              concept: { uuid: 'medicine-concept-uuid' },
-              formFieldPath: 'rfe-forms-medicine_1',
-              groupMembers: [
-                member('amiodarone', 'drug', 'Amiodarone', 'drug_1'),
-                member('stopped-on', 'dateStopped', '2026-10-28', 'dateStopped_1'),
-              ],
-            },
-          ],
-          orders: [],
-          diagnoses: [],
-        } as never,
-      });
+    // A row saved as `_2` reopens as the first repeat once the row saved as `_1` was deleted
+    it.each([
+      { saved: 1, scenario: 'its saved place' },
+      { saved: 2, scenario: 'a place after a deleted row' },
+    ])(
+      "leaves a repeat row's answer to that row when the first row never answered it, from $scenario",
+      async ({ saved }) => {
+        const medicine = buildObsGroup(
+          'medicine',
+          [buildField({ id: 'drug' }), buildField({ id: 'dateStopped', questionOptions: { rendering: 'date' } })],
+          { questionOptions: { rendering: 'repeating' } },
+        );
+        const member = (uuid: string, concept: string, value: string, path: string) => ({
+          uuid,
+          concept: { uuid: `${concept}-concept-uuid` },
+          value,
+          formFieldPath: `rfe-forms-${path}`,
+        });
+        const context = createTestFormContext({
+          sessionMode: 'edit',
+          formFields: [medicine, ...medicine.questions],
+          domainObjectValue: {
+            uuid: 'encounter-uuid',
+            obs: [
+              {
+                uuid: 'taken-now',
+                concept: { uuid: 'medicine-concept-uuid' },
+                formFieldPath: 'rfe-forms-medicine',
+                groupMembers: [member('acitrom', 'drug', 'Acitrom', 'drug')],
+              },
+              {
+                uuid: 'stopped',
+                concept: { uuid: 'medicine-concept-uuid' },
+                formFieldPath: `rfe-forms-medicine_${saved}`,
+                groupMembers: [
+                  member('amiodarone', 'drug', 'Amiodarone', `drug_${saved}`),
+                  member('stopped-on', 'dateStopped', '2026-10-28', `dateStopped_${saved}`),
+                ],
+              },
+            ],
+            orders: [],
+            diagnoses: [],
+          } as never,
+        });
 
-      const initialValues = await context.processor.getInitialValues(context);
+        const initialValues = await context.processor.getInitialValues(context);
 
-      expect(initialValues.drug).toBe('Acitrom');
-      expect(initialValues.dateStopped).toBe('');
-      expect(initialValues.drug_1).toBe('Amiodarone');
-      expect(initialValues.dateStopped_1).toEqual(expect.anything());
-    });
+        expect(initialValues.drug).toBe('Acitrom');
+        expect(initialValues.dateStopped).toBe('');
+        expect(initialValues.drug_1).toBe('Amiodarone');
+        const stoppedOn = initialValues.dateStopped_1 as Date;
+        expect([stoppedOn.getFullYear(), stoppedOn.getMonth() + 1, stoppedOn.getDate()]).toEqual([2026, 10, 28]);
+      },
+    );
   });
 });
