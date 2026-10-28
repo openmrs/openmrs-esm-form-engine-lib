@@ -926,5 +926,52 @@ describe('EncounterFormProcessor', () => {
       expect(initialValues).not.toHaveProperty('repeatGroup');
       expect(initialValues).not.toHaveProperty('repeatGroup_1');
     });
+
+    it("leaves a repeat row's answer to that row when the first row never answered the question", async () => {
+      const medicine = buildObsGroup(
+        'medicine',
+        [buildField({ id: 'drug' }), buildField({ id: 'dateStopped', questionOptions: { rendering: 'date' } })],
+        { questionOptions: { rendering: 'repeating' } },
+      );
+      const member = (uuid: string, concept: string, value: string, path: string) => ({
+        uuid,
+        concept: { uuid: `${concept}-concept-uuid` },
+        value,
+        formFieldPath: `rfe-forms-${path}`,
+      });
+      const context = createTestFormContext({
+        sessionMode: 'edit',
+        formFields: [medicine, ...medicine.questions],
+        domainObjectValue: {
+          uuid: 'encounter-uuid',
+          obs: [
+            {
+              uuid: 'taken-now',
+              concept: { uuid: 'medicine-concept-uuid' },
+              formFieldPath: 'rfe-forms-medicine',
+              groupMembers: [member('acitrom', 'drug', 'Acitrom', 'drug')],
+            },
+            {
+              uuid: 'stopped',
+              concept: { uuid: 'medicine-concept-uuid' },
+              formFieldPath: 'rfe-forms-medicine_1',
+              groupMembers: [
+                member('amiodarone', 'drug', 'Amiodarone', 'drug_1'),
+                member('stopped-on', 'dateStopped', '2026-10-28', 'dateStopped_1'),
+              ],
+            },
+          ],
+          orders: [],
+          diagnoses: [],
+        } as never,
+      });
+
+      const initialValues = await context.processor.getInitialValues(context);
+
+      expect(initialValues.drug).toBe('Acitrom');
+      expect(initialValues.dateStopped).toBe('');
+      expect(initialValues.drug_1).toBe('Amiodarone');
+      expect(initialValues.dateStopped_1).toEqual(expect.anything());
+    });
   });
 });

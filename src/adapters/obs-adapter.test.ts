@@ -1246,6 +1246,48 @@ describe('findObsByFormField', () => {
     expect(matchedObs.length).toBe(1);
     expect(matchedObs[0]).toBe(obsList[3]);
   });
+
+  describe('falling back by concept, given the form fields', () => {
+    const dateStopped: FormField = {
+      label: 'Date stopped',
+      type: 'obs',
+      questionOptions: { rendering: 'date', concept: 'date-stopped-concept' },
+      id: 'dateStopped',
+    };
+    const stoppedObs = (uuid: string, path: string): any => ({
+      uuid,
+      concept: { uuid: 'date-stopped-concept' },
+      formFieldNamespace: namespace,
+      formFieldPath: path,
+    });
+
+    it('leaves an obs recorded by a repeat of the field to that repeat', () => {
+      // The first medicine of a repeating group was saved without a date stopped and its repeat with one
+      const repeatsDate = stoppedObs('repeat-date', 'rfe-forms-dateStopped_1');
+
+      expect(findObsByFormField([repeatsDate], [], dateStopped, [dateStopped])).toEqual([]);
+    });
+
+    it('leaves an obs recorded by another field on the same concept to that field', () => {
+      const otherField = { ...dateStopped, id: 'otherDateStopped' };
+      const othersDate = stoppedObs('other-date', 'rfe-forms-otherDateStopped');
+
+      expect(findObsByFormField([othersDate], [], dateStopped, [dateStopped, otherField])).toEqual([]);
+    });
+
+    it('lets a repeat take an obs saved under the path of the field it repeats', () => {
+      const repeat = { ...dateStopped, id: 'dateStopped_1' };
+      const basePathDate = stoppedObs('base-path-date', 'rfe-forms-dateStopped');
+
+      expect(findObsByFormField([basePathDate], [], repeat, [dateStopped, repeat])).toEqual([basePathDate]);
+    });
+
+    it('still takes an obs whose path names no field of the form, as from a field since renamed', () => {
+      const renamedDate = stoppedObs('renamed-date', 'rfe-forms-stopDate');
+
+      expect(findObsByFormField([renamedDate], [], dateStopped, [dateStopped])).toEqual([renamedDate]);
+    });
+  });
 });
 
 describe('ObsAdapter - handling nested obsGroups', () => {
