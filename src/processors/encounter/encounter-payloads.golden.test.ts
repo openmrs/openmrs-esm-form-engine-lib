@@ -955,10 +955,11 @@ describe('golden encounter payloads: edited encounters', () => {
     fieldById(context, 'weight').isHidden = true;
 
     const payload = toEncounterPayload(context);
+    // the visible temperature follows the voided weight by uuid, so a new version of the group keeps it
     expect(payload.obs).toEqual([
       expect.objectContaining({
         uuid: 'obs-group-uuid',
-        groupMembers: [{ uuid: 'obs-weight-uuid', voided: true }],
+        groupMembers: [{ uuid: 'obs-weight-uuid', voided: true }, { uuid: 'obs-temperature-uuid' }],
       }),
     ]);
     await matchGolden(payload, 'edit-encounter-hidden-group-member-voiding');
@@ -1014,7 +1015,7 @@ describe('golden encounter payloads: edited encounters', () => {
         groupMembers: [
           expect.objectContaining({
             uuid: 'obs-nested-group-uuid',
-            groupMembers: [{ uuid: 'obs-weight-uuid', voided: true }],
+            groupMembers: [{ uuid: 'obs-weight-uuid', voided: true }, { uuid: 'obs-temperature-uuid' }],
           }),
         ],
       }),
@@ -1172,20 +1173,23 @@ describe('golden encounter payloads: edited encounters', () => {
     });
     // `pulse` and answer A are left untouched, so they follow the submitted members as
     // bare uuid references: the REST API replaces a stored group's members with the
-    // ones submitted, and the server saves a group that changed a member as a new
-    // version holding only those, which would void the untouched ones
+    // ones submitted, and when the server saves the group as a new version, because
+    // one of its own fields changed, that version holds only those and the untouched
+    // ones would be voided with the old version
 
     await matchGolden(toEncounterPayload(context), 'edit-encounter-nested-obs-groups');
   });
 
   describe('a stored obs group the REST API saves with only the members submitted', () => {
-    const diagnosisEncounter = () =>
+    // A group saved without its form field path, as one saved outside the form, or under another one, as a repeat
+    // row renumbered on reload, gets its path on this save, and the server saves it as a new version
+    const diagnosisEncounter = (groupPath = 'rfe-forms-diagnosis') =>
       existingEncounter({
         obs: [
           existingObs({
             uuid: 'obs-diagnosis-uuid',
             concept: { uuid: 'diagnosis-concept-uuid', name: { name: 'Diagnosis' } },
-            formFieldPath: 'rfe-forms-diagnosis',
+            formFieldPath: groupPath,
             groupMembers: [
               existingObs({
                 uuid: 'obs-category-uuid',
@@ -1261,14 +1265,19 @@ describe('golden encounter payloads: edited encounters', () => {
       ]);
     });
 
-    it('submits only the voided member when a member is cleared, as the group keeps its version', async () => {
-      const context = await buildScenario({ fields: [diagnosisGroup()], encounter: diagnosisEncounter() });
+    it('references the untouched members by uuid when a member is only cleared', async () => {
+      const context = await buildScenario({ fields: [diagnosisGroup()], encounter: diagnosisEncounter('') });
       applyValues(context, { details: [] });
 
       expect(toEncounterPayload(context).obs).toEqual([
         expect.objectContaining({
           uuid: 'obs-diagnosis-uuid',
-          groupMembers: [{ uuid: 'obs-details-b-uuid', voided: true }],
+          formFieldPath: 'rfe-forms-diagnosis',
+          groupMembers: [
+            { uuid: 'obs-details-b-uuid', voided: true },
+            { uuid: 'obs-category-uuid' },
+            { uuid: 'obs-history-uuid' },
+          ],
         }),
       ]);
     });
