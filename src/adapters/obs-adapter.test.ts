@@ -1247,6 +1247,26 @@ describe('findObsByFormField', () => {
     expect(matchedObs[0]).toBe(obsList[3]);
   });
 
+  it("Should not fall back to an obs saved by one of the field's repeat instances", () => {
+    const repeatInstanceObs = {
+      uuid: '7d1b3c4e-2f5a-4b6c-9d8e-0a1b2c3d4e5f',
+      concept: { uuid: fields[0].questionOptions.concept },
+      formFieldNamespace: namespace,
+      formFieldPath: 'rfe-forms-fieldOne_1',
+    };
+    const legacyObs = {
+      uuid: '9e2c4d5f-3a6b-4c7d-8e9f-1b2c3d4e5f6a',
+      concept: { uuid: fields[0].questionOptions.concept },
+    };
+
+    expect(findObsByFormField([repeatInstanceObs] as any, [], fields[0])).toEqual([]);
+    expect(findObsByFormField([repeatInstanceObs, legacyObs] as any, [], fields[0])).toEqual([legacyObs]);
+    // the repeat instance itself still finds it by its path
+    expect(findObsByFormField([repeatInstanceObs] as any, [], { ...fields[0], id: 'fieldOne_1' })).toEqual([
+      repeatInstanceObs,
+    ]);
+  });
+
   describe('falling back by concept, given the form fields', () => {
     const dateStopped: FormField = {
       label: 'Date stopped',
