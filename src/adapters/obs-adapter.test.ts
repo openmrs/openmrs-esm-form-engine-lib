@@ -1287,8 +1287,24 @@ describe('findObsByFormField', () => {
 
     it('still takes an obs whose path names no field of the form, as from a field since renamed', () => {
       const renamedDate = stoppedObs('renamed-date', 'rfe-forms-stopDate');
+      // A question without an id names no path, so it must not match one
+      const withoutId = { ...dateStopped, id: undefined };
 
-      expect(findObsByFormField([renamedDate], [], dateStopped, [dateStopped])).toEqual([renamedDate]);
+      expect(findObsByFormField([renamedDate], [], dateStopped, [dateStopped, withoutId])).toEqual([renamedDate]);
+    });
+
+    it("doesn't offer a repeat's answer as the field's previous value", async () => {
+      const previousEncounter = {
+        uuid: 'previous-encounter',
+        obs: [{ ...stoppedObs('repeat-date', 'rfe-forms-dateStopped_1'), value: '2026-10-28' }],
+      };
+
+      expect(
+        await ObsAdapter.getPreviousValue(dateStopped, previousEncounter, {
+          ...formContext,
+          formFields: [dateStopped],
+        }),
+      ).toBeNull();
     });
   });
 });

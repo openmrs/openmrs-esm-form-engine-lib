@@ -328,7 +328,7 @@ function isBoundToAnotherField(obs: OpenmrsObs, field: FormField, formFields: Ar
   if (repeated && (fieldId === repeated || repeatedFieldId(fieldId) === repeated)) {
     return false;
   }
-  return formFields.some((one) => one.id === fieldId || one.id === repeatedFieldId(fieldId));
+  return formFields.some((one) => one.id && (one.id === fieldId || one.id === repeatedFieldId(fieldId)));
 }
 
 async function resolveAttachmentsFromObs(field: FormField, obs: OpenmrsObs[]) {
