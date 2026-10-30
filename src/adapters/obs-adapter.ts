@@ -27,7 +27,7 @@ export let assignedObsIds: string[] = [];
 export const ObsAdapter: FormFieldValueAdapter = {
   async getInitialValue(field: FormField, sourceObject: any, context: FormContextProps) {
     const encounter = sourceObject ?? (context.domainObjectValue as OpenmrsEncounter);
-    const matchingObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field);
+    const matchingObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field, context.formFields);
     if (hasRendering(field, 'file') && matchingObs?.length) {
       return resolveAttachmentsFromObs(field, matchingObs);
     }
@@ -40,7 +40,7 @@ export const ObsAdapter: FormFieldValueAdapter = {
       // an obs already loaded for this encounter stays bound to the field
       const value = extractFieldValue(
         field,
-        findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field),
+        findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field, context.formFields),
         false,
       );
       if (!isEmpty(value)) {
@@ -277,12 +277,14 @@ function handleAttachments(field: FormField, attachments: Attachment[] = []) {
  *
  * Notes:
  * If the query by field-path returns an empty list, the function falls back to querying
- * by concept and uses `claimedObsIds` to exclude already assigned observations.
+ * by concept and uses `claimedObsIds` to exclude already assigned observations. Given the
+ * form's fields, it also leaves out obs whose path names another of them or a repeat of one.
  */
 export function findObsByFormField(
   obsList: Array<OpenmrsObs>,
   claimedObsIds: string[],
   field: FormField,
+  formFields?: Array<FormField>,
 ): OpenmrsObs[] {
   const obs = obsList.filter((candidate) => {
     // we ignore the concept for attachments because they're managed from the backend
@@ -297,11 +299,42 @@ export function findObsByFormField(
   // We shall fall back to mapping by the associated concept
   // That being said, we shall find all matching obs and pick the one that wasn't previously claimed.
   if (!obs?.length) {
-    const obsByConcept = obsList.filter((obs) => obs.concept.uuid == field.questionOptions.concept);
+    const obsByConcept = obsList.filter(
+      (obs) => obs.concept.uuid == field.questionOptions.concept && !isBoundToAnotherField(obs, field, formFields),
+    );
     return claimedObsIds?.length ? obsByConcept.filter((obs) => !claimedObsIds.includes(obs.uuid)) : obsByConcept;
   }
 
   return obs;
+}
+
+const repeatedFieldId = (fieldId: string) => fieldId.match(/^(.+)_\d+$/)?.[1];
+
+/**
+ * Whether the obs's form field path names another field of the form, or a repeat of one such as `dateStopped_1`,
+ * which hydrates it by that path. The concept fallback leaves such an obs to it, as a field that recorded nothing
+ * would otherwise take a value from a repeat of itself or from another question on the same concept.
+ * A repeat still takes an obs saved under its question's path or that of any repeat of it: it is hydrated from its
+ * own group's obs only, and as repeats are numbered in order on hydration, one saved as `dateStopped_2` reopens as
+ * `dateStopped_1` once the row before it is deleted. A field of the form whose id only reads like a repeat, such as
+ * `item_1` beside `item`, is not one.
+ * A repeat of the field itself is told by its path alone, so the field never takes one even without the form's fields.
+ */
+function isBoundToAnotherField(obs: OpenmrsObs, field: FormField, formFields: Array<FormField> = []) {
+  const path = obs.formFieldPath;
+  if (!path?.startsWith('rfe-forms-')) {
+    return false;
+  }
+  const fieldId = path.slice('rfe-forms-'.length);
+  if (repeatedFieldId(fieldId) === field.id) {
+    return true;
+  }
+  // Repeats are cloned while the encounter is hydrated, so they are not yet among the form's fields
+  const repeated = formFields.some((one) => one.id === field.id) ? undefined : repeatedFieldId(field.id);
+  if (repeated && (fieldId === repeated || repeatedFieldId(fieldId) === repeated)) {
+    return false;
+  }
+  return formFields.some((one) => one.id && (one.id === fieldId || one.id === repeatedFieldId(fieldId)));
 }
 
 async function resolveAttachmentsFromObs(field: FormField, obs: OpenmrsObs[]) {

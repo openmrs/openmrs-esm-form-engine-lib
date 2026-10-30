@@ -964,6 +964,49 @@ describe('golden encounter payloads: edited encounters', () => {
     await matchGolden(payload, 'edit-encounter-hidden-group-member-voiding');
   });
 
+  it("binds each repeat instance's stored obs to that instance, not to the first instance's hidden copy", async () => {
+    // A repeating group whose details question differs by category, as a diagnosis with per-category details. The
+    // first instance answered category A, the second category B, so each stored only its own details obs.
+    const groupMember = (uuid: string, id: string, suffix = '') =>
+      existingObs({
+        uuid,
+        concept: { uuid: `${id}-concept-uuid`, name: { name: id } },
+        value: `${id} answer`,
+        formFieldPath: `rfe-forms-${id}${suffix}`,
+      });
+    const encounter = existingEncounter({
+      obs: [
+        existingObs({
+          uuid: 'obs-entry-uuid',
+          concept: { uuid: 'entry-concept-uuid', name: { name: 'Entry' } },
+          formFieldPath: 'rfe-forms-entry',
+          groupMembers: [groupMember('obs-details-a-uuid', 'detailsA')],
+        }),
+        existingObs({
+          uuid: 'obs-entry-1-uuid',
+          concept: { uuid: 'entry-concept-uuid', name: { name: 'Entry' } },
+          formFieldPath: 'rfe-forms-entry_1',
+          groupMembers: [groupMember('obs-details-b-uuid', 'detailsB', '_1')],
+        }),
+      ],
+    });
+    const entry = buildObsGroup('entry', [buildField({ id: 'detailsA' }), buildField({ id: 'detailsB' })], {
+      questionOptions: { rendering: 'repeating' },
+    });
+
+    const context = await buildScenario({ fields: [entry], encounter });
+    expect(fieldById(context, 'detailsB').meta.initialValue.omrsObject).toBeFalsy();
+    expect(fieldById(context, 'detailsB_1').meta.initialValue.omrsObject).toEqual(
+      expect.objectContaining({ uuid: 'obs-details-b-uuid' }),
+    );
+
+    // The first instance's details B is hidden, as its category is A; an unchanged save must void nothing.
+    fieldById(context, 'detailsB').isHidden = true;
+    fieldById(context, 'detailsA_1').isHidden = true;
+    const payload = toEncounterPayload(context);
+    expect(JSON.stringify(payload.obs)).not.toContain('"voided":true');
+  });
+
   it('keeps the stored uuid of a nested obs group whose member is hidden after hydration', async () => {
     const encounter = existingEncounter({
       obs: [

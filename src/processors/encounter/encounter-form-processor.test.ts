@@ -926,5 +926,93 @@ describe('EncounterFormProcessor', () => {
       expect(initialValues).not.toHaveProperty('repeatGroup');
       expect(initialValues).not.toHaveProperty('repeatGroup_1');
     });
+
+    // A row saved as `_2` reopens as the first repeat once the row saved as `_1` was deleted
+    it.each([
+      { saved: 1, scenario: 'its saved place' },
+      { saved: 2, scenario: 'a place after a deleted row' },
+    ])(
+      "leaves a repeat row's answer to that row when the first row never answered it, from $scenario",
+      async ({ saved }) => {
+        const medicine = buildObsGroup(
+          'medicine',
+          [buildField({ id: 'drug' }), buildField({ id: 'dateStopped', questionOptions: { rendering: 'date' } })],
+          { questionOptions: { rendering: 'repeating' } },
+        );
+        const member = (uuid: string, concept: string, value: string, path: string) => ({
+          uuid,
+          concept: { uuid: `${concept}-concept-uuid` },
+          value,
+          formFieldPath: `rfe-forms-${path}`,
+        });
+        const context = createTestFormContext({
+          sessionMode: 'edit',
+          formFields: [medicine, ...medicine.questions],
+          domainObjectValue: {
+            uuid: 'encounter-uuid',
+            obs: [
+              {
+                uuid: 'taken-now',
+                concept: { uuid: 'medicine-concept-uuid' },
+                formFieldPath: 'rfe-forms-medicine',
+                groupMembers: [member('acitrom', 'drug', 'Acitrom', 'drug')],
+              },
+              {
+                uuid: 'stopped',
+                concept: { uuid: 'medicine-concept-uuid' },
+                formFieldPath: `rfe-forms-medicine_${saved}`,
+                groupMembers: [
+                  member('amiodarone', 'drug', 'Amiodarone', `drug_${saved}`),
+                  member('stopped-on', 'dateStopped', '2026-10-28', `dateStopped_${saved}`),
+                ],
+              },
+            ],
+            orders: [],
+            diagnoses: [],
+          } as never,
+        });
+
+        const initialValues = await context.processor.getInitialValues(context);
+
+        expect(initialValues.drug).toBe('Acitrom');
+        expect(initialValues.dateStopped).toBe('');
+        expect(initialValues.drug_1).toBe('Amiodarone');
+        const stoppedOn = initialValues.dateStopped_1 as Date;
+        expect([stoppedOn.getFullYear(), stoppedOn.getMonth() + 1, stoppedOn.getDate()]).toEqual([2026, 10, 28]);
+      },
+    );
+
+    // Two separate questions on one concept whose ids read like a field and its repeat
+    it.each([
+      { answered: ['item', 'item_1'], order: ['item', 'item_1'] },
+      { answered: ['item_1'], order: ['item', 'item_1'] },
+      { answered: ['item'], order: ['item', 'item_1'] },
+      { answered: ['item_1'], order: ['item_1', 'item'] },
+      { answered: ['item'], order: ['item_1', 'item'] },
+    ])(
+      'loads only its own answer into each of the fields `item` and `item_1`, with $answered answered and the form ordered $order',
+      async ({ answered, order }) => {
+        const context = createTestFormContext({
+          sessionMode: 'edit',
+          formFields: order.map((id) => buildField({ id, questionOptions: { concept: 'shared-concept-uuid' } })),
+          domainObjectValue: {
+            uuid: 'encounter-uuid',
+            obs: answered.map((id) => ({
+              uuid: `${id}-obs`,
+              concept: { uuid: 'shared-concept-uuid' },
+              value: `Answer to ${id}`,
+              formFieldPath: `rfe-forms-${id}`,
+            })),
+            orders: [],
+            diagnoses: [],
+          } as never,
+        });
+
+        const initialValues = await context.processor.getInitialValues(context);
+
+        expect(initialValues.item).toBe(answered.includes('item') ? 'Answer to item' : '');
+        expect(initialValues.item_1).toBe(answered.includes('item_1') ? 'Answer to item_1' : '');
+      },
+    );
   });
 });
