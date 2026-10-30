@@ -1301,8 +1301,16 @@ describe('findObsByFormField', () => {
       // Saved as the second repeat, it reopens as the first once the row before it is deleted
       const renumberedDate = stoppedObs('renumbered-date', 'rfe-forms-dateStopped_2');
 
-      expect(findObsByFormField([basePathDate], [], repeat, [dateStopped, repeat])).toEqual([basePathDate]);
-      expect(findObsByFormField([renumberedDate], [], repeat, [dateStopped, repeat])).toEqual([renumberedDate]);
+      // The repeat is cloned while the encounter is hydrated, so it is not yet among the form's fields
+      expect(findObsByFormField([basePathDate], [], repeat, [dateStopped])).toEqual([basePathDate]);
+      expect(findObsByFormField([renumberedDate], [], repeat, [dateStopped])).toEqual([renumberedDate]);
+    });
+
+    it("doesn't let a field whose id only reads like a repeat take another field's obs", () => {
+      const itemOne = { ...dateStopped, id: 'dateStopped_1' };
+      const othersDate = stoppedObs('others-date', 'rfe-forms-dateStopped');
+
+      expect(findObsByFormField([othersDate], [], itemOne, [itemOne, dateStopped])).toEqual([]);
     });
 
     it('still takes an obs whose path names no field of the form, as from a field since renamed', () => {

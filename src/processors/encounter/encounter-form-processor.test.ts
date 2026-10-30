@@ -981,5 +981,38 @@ describe('EncounterFormProcessor', () => {
         expect([stoppedOn.getFullYear(), stoppedOn.getMonth() + 1, stoppedOn.getDate()]).toEqual([2026, 10, 28]);
       },
     );
+
+    // Two separate questions on one concept whose ids read like a field and its repeat
+    it.each([
+      { answered: ['item', 'item_1'], order: ['item', 'item_1'] },
+      { answered: ['item_1'], order: ['item', 'item_1'] },
+      { answered: ['item'], order: ['item', 'item_1'] },
+      { answered: ['item_1'], order: ['item_1', 'item'] },
+      { answered: ['item'], order: ['item_1', 'item'] },
+    ])(
+      'loads only its own answer into each of the fields `item` and `item_1`, with $answered answered and the form ordered $order',
+      async ({ answered, order }) => {
+        const context = createTestFormContext({
+          sessionMode: 'edit',
+          formFields: order.map((id) => buildField({ id, questionOptions: { concept: 'shared-concept-uuid' } })),
+          domainObjectValue: {
+            uuid: 'encounter-uuid',
+            obs: answered.map((id) => ({
+              uuid: `${id}-obs`,
+              concept: { uuid: 'shared-concept-uuid' },
+              value: `Answer to ${id}`,
+              formFieldPath: `rfe-forms-${id}`,
+            })),
+            orders: [],
+            diagnoses: [],
+          } as never,
+        });
+
+        const initialValues = await context.processor.getInitialValues(context);
+
+        expect(initialValues.item).toBe(answered.includes('item') ? 'Answer to item' : '');
+        expect(initialValues.item_1).toBe(answered.includes('item_1') ? 'Answer to item_1' : '');
+      },
+    );
   });
 });

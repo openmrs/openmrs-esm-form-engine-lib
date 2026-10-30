@@ -316,7 +316,8 @@ const repeatedFieldId = (fieldId: string) => fieldId.match(/^(.+)_\d+$/)?.[1];
  * would otherwise take a value from a repeat of itself or from another question on the same concept.
  * A repeat still takes an obs saved under its question's path or that of any repeat of it: it is hydrated from its
  * own group's obs only, and as repeats are numbered in order on hydration, one saved as `dateStopped_2` reopens as
- * `dateStopped_1` once the row before it is deleted.
+ * `dateStopped_1` once the row before it is deleted. A field of the form whose id only reads like a repeat, such as
+ * `item_1` beside `item`, is not one.
  * A repeat of the field itself is told by its path alone, so the field never takes one even without the form's fields.
  */
 function isBoundToAnotherField(obs: OpenmrsObs, field: FormField, formFields: Array<FormField> = []) {
@@ -328,7 +329,8 @@ function isBoundToAnotherField(obs: OpenmrsObs, field: FormField, formFields: Ar
   if (repeatedFieldId(fieldId) === field.id) {
     return true;
   }
-  const repeated = repeatedFieldId(field.id);
+  // Repeats are cloned while the encounter is hydrated, so they are not yet among the form's fields
+  const repeated = formFields.some((one) => one.id === field.id) ? undefined : repeatedFieldId(field.id);
   if (repeated && (fieldId === repeated || repeatedFieldId(fieldId) === repeated)) {
     return false;
   }
