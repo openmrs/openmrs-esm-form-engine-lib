@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type FormField, type FormSchema } from '../types';
 
 const today = new Date('2026-09-30T12:00:00Z');
+const oneYearOld = new Date('2025-06-15');
 const twoYearOld = new Date('2024-06-15');
 const tenYearOld = new Date('2016-06-15');
 
@@ -48,7 +49,7 @@ describe('zscore-service', () => {
 
     expect(getWeightForHeightRef('M', twoYearOld, today)).toBeUndefined();
     expect(console.warn).toHaveBeenCalledWith(
-      "Z-score calculation: the wflMaleBelow5 reference table hasn't been loaded",
+      "Z-score calculation: the wfhMaleBelow5 reference table hasn't been loaded",
     );
   });
 
@@ -107,8 +108,34 @@ describe('zscore-service', () => {
       loadZScoreReferences(formUsing([calculatedField('calcWeightForHeightZscore(height, weight)')])),
     ).rejects.toThrow();
 
-    expect(getWeightForHeightRef('M', twoYearOld, today)?.length).toBeGreaterThan(0);
-    expect(getWeightForHeightRef('F', twoYearOld, today)).toBeUndefined();
+    expect(getWeightForHeightRef('M', oneYearOld, today)?.length).toBeGreaterThan(0);
+    expect(getWeightForHeightRef('F', oneYearOld, today)).toBeUndefined();
+  });
+
+  it('uses weight-for-length under 2, weight-for-height from 2 to 5, and no table from 5', async () => {
+    const { loadZScoreReferences, getWeightForHeightRef } = await importZScoreService();
+    const [{ default: wflGirls }, { default: wflBoys }, { default: wfhGirls }, { default: wfhBoys }] =
+      await Promise.all([
+        import('../zscore/wfl_girls_below5.json'),
+        import('../zscore/wfl_boys_below5.json'),
+        import('../zscore/wfh_girls_below5.json'),
+        import('../zscore/wfh_boys_below5.json'),
+      ]);
+    const dayShortOfTwo = new Date('2024-10-01');
+    const turnedTwo = new Date('2024-09-30');
+    const dayShortOfFive = new Date('2021-10-01');
+    const turnedFive = new Date('2021-09-30');
+
+    await loadZScoreReferences(formUsing([calculatedField('calcWeightForHeightZscore(height, weight)')]));
+
+    expect(getWeightForHeightRef('F', dayShortOfTwo, today)).toEqual(wflGirls);
+    expect(getWeightForHeightRef('F', turnedTwo, today)).toEqual(wfhGirls);
+    expect(getWeightForHeightRef('F', dayShortOfFive, today)).toEqual(wfhGirls);
+    expect(getWeightForHeightRef('F', turnedFive, today)).toBeNull();
+    expect(getWeightForHeightRef('M', dayShortOfTwo, today)).toEqual(wflBoys);
+    expect(getWeightForHeightRef('M', turnedTwo, today)).toEqual(wfhBoys);
+    expect(getWeightForHeightRef('M', dayShortOfFive, today)).toEqual(wfhBoys);
+    expect(getWeightForHeightRef('M', turnedFive, today)).toBeNull();
   });
 
   it('returns the under-5 height-for-age row and no BMI-for-age reference in the month after the fifth birthday', async () => {
@@ -204,6 +231,8 @@ describe('WHO reference tables', () => {
     const [
       { default: wflGirlsBelow5 },
       { default: wflBoysBelow5 },
+      { default: wfhGirlsBelow5 },
+      { default: wfhBoysBelow5 },
       { default: hfaGirlsBelow5 },
       { default: hfaBoysBelow5 },
       { default: hfaGirls5Above },
@@ -213,6 +242,8 @@ describe('WHO reference tables', () => {
     ] = await Promise.all([
       import('../zscore/wfl_girls_below5.json'),
       import('../zscore/wfl_boys_below5.json'),
+      import('../zscore/wfh_girls_below5.json'),
+      import('../zscore/wfh_boys_below5.json'),
       import('../zscore/hfa_girls_below5.json'),
       import('../zscore/hfa_boys_below5.json'),
       import('../zscore/hfa_girls_5_above.json'),
@@ -222,6 +253,7 @@ describe('WHO reference tables', () => {
     ]);
 
     expect(wflGirlsBelow5).not.toEqual(wflBoysBelow5);
+    expect(wfhGirlsBelow5).not.toEqual(wfhBoysBelow5);
     expect(hfaGirlsBelow5).not.toEqual(hfaBoysBelow5);
     expect(hfaGirls5Above).not.toEqual(hfaBoys5Above);
     expect(bfaGirls5Above).not.toEqual(bfaBoys5Above);
