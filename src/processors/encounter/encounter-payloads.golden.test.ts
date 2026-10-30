@@ -955,10 +955,11 @@ describe('golden encounter payloads: edited encounters', () => {
     fieldById(context, 'weight').isHidden = true;
 
     const payload = toEncounterPayload(context);
+    // the visible temperature follows the voided weight by uuid, so a new version of the group keeps it
     expect(payload.obs).toEqual([
       expect.objectContaining({
         uuid: 'obs-group-uuid',
-        groupMembers: [{ uuid: 'obs-weight-uuid', voided: true }],
+        groupMembers: [{ uuid: 'obs-weight-uuid', voided: true }, { uuid: 'obs-temperature-uuid' }],
       }),
     ]);
     await matchGolden(payload, 'edit-encounter-hidden-group-member-voiding');
@@ -1014,7 +1015,7 @@ describe('golden encounter payloads: edited encounters', () => {
         groupMembers: [
           expect.objectContaining({
             uuid: 'obs-nested-group-uuid',
-            groupMembers: [{ uuid: 'obs-weight-uuid', voided: true }],
+            groupMembers: [{ uuid: 'obs-weight-uuid', voided: true }, { uuid: 'obs-temperature-uuid' }],
           }),
         ],
       }),
@@ -1082,7 +1083,7 @@ describe('golden encounter payloads: edited encounters', () => {
     expect(toEncounterPayload(context).obs).toEqual([]);
   });
 
-  it('reuses obs group uuids, voids cleared members, and drops untouched ones', async () => {
+  it('reuses obs group uuids, voids cleared members, and keeps untouched ones by uuid', async () => {
     const encounter = existingEncounter({
       obs: [
         existingObs({
@@ -1170,10 +1171,116 @@ describe('golden encounter payloads: edited encounters', () => {
       groupCheckbox: ['answer-a-uuid', 'answer-c-uuid'],
       nestedNote: 'Taken while standing',
     });
-    // `pulse` is left untouched, so it drops out of `groupMembers` entirely — the
-    // reused group uuid is what keeps the stored member alive server-side
+    // `pulse` and answer A are left untouched, so they follow the submitted members as
+    // bare uuid references: the REST API replaces a stored group's members with the
+    // ones submitted, and when the server saves the group as a new version, because
+    // one of its own fields changed, that version holds only those and the untouched
+    // ones would be voided with the old version
 
     await matchGolden(toEncounterPayload(context), 'edit-encounter-nested-obs-groups');
+  });
+
+  describe('a stored obs group the REST API saves with only the members submitted', () => {
+    // A group saved without its form field path, as one saved outside the form, or under another one, as a repeat
+    // row renumbered on reload, gets its path on this save, and the server saves it as a new version
+    const diagnosisEncounter = (groupPath = 'rfe-forms-diagnosis') =>
+      existingEncounter({
+        obs: [
+          existingObs({
+            uuid: 'obs-diagnosis-uuid',
+            concept: { uuid: 'diagnosis-concept-uuid', name: { name: 'Diagnosis' } },
+            formFieldPath: groupPath,
+            groupMembers: [
+              existingObs({
+                uuid: 'obs-category-uuid',
+                concept: { uuid: 'category-concept-uuid', name: { name: 'Category' } },
+                value: { uuid: 'rhd-uuid', name: { name: 'RHD' } },
+                formFieldPath: 'rfe-forms-category',
+              }),
+              existingObs({
+                uuid: 'obs-details-b-uuid',
+                concept: { uuid: 'details-concept-uuid', name: { name: 'Details' } },
+                value: { uuid: 'rhd-b-uuid', name: { name: 'RHD B' } },
+                formFieldPath: 'rfe-forms-details',
+              }),
+              existingObs({
+                uuid: 'obs-voided-note-uuid',
+                concept: { uuid: 'note-concept-uuid', name: { name: 'Note' } },
+                value: 'Superseded',
+                voided: true,
+                formFieldPath: 'rfe-forms-note',
+              }),
+              existingObs({
+                uuid: 'obs-history-uuid',
+                concept: { uuid: 'history-concept-uuid', name: { name: 'History' } },
+                formFieldPath: 'rfe-forms-history',
+                groupMembers: [
+                  existingObs({
+                    uuid: 'obs-started-uuid',
+                    concept: { uuid: 'started-concept-uuid', name: { name: 'Started' } },
+                    value: 'In childhood',
+                    formFieldPath: 'rfe-forms-started',
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      });
+    const diagnosisGroup = () =>
+      buildObsGroup('diagnosis', [
+        buildField({
+          id: 'category',
+          questionOptions: { rendering: 'select', answers: [{ concept: 'rhd-uuid', label: 'RHD' }] },
+        }),
+        buildField({
+          id: 'details',
+          questionOptions: {
+            rendering: 'checkbox',
+            answers: [
+              { concept: 'rhd-a-uuid', label: 'RHD A' },
+              { concept: 'rhd-b-uuid', label: 'RHD B' },
+            ],
+          },
+        }),
+        buildField({ id: 'note' }),
+        buildObsGroup('history', [buildField({ id: 'started' })]),
+      ]);
+
+    it('references the untouched members by uuid when a member gains an answer', async () => {
+      const context = await buildScenario({ fields: [diagnosisGroup()], encounter: diagnosisEncounter() });
+      applyValues(context, { details: ['rhd-a-uuid', 'rhd-b-uuid'] });
+
+      // The untouched category, checkbox answer and nested group, but not the member voided before the edit
+      expect(toEncounterPayload(context).obs).toEqual([
+        expect.objectContaining({
+          uuid: 'obs-diagnosis-uuid',
+          groupMembers: [
+            expect.objectContaining({ concept: 'details-concept-uuid', value: 'rhd-a-uuid' }),
+            { uuid: 'obs-category-uuid' },
+            { uuid: 'obs-details-b-uuid' },
+            { uuid: 'obs-history-uuid' },
+          ],
+        }),
+      ]);
+    });
+
+    it('references the untouched members by uuid when a member is only cleared', async () => {
+      const context = await buildScenario({ fields: [diagnosisGroup()], encounter: diagnosisEncounter('') });
+      applyValues(context, { details: [] });
+
+      expect(toEncounterPayload(context).obs).toEqual([
+        expect.objectContaining({
+          uuid: 'obs-diagnosis-uuid',
+          formFieldPath: 'rfe-forms-diagnosis',
+          groupMembers: [
+            { uuid: 'obs-details-b-uuid', voided: true },
+            { uuid: 'obs-category-uuid' },
+            { uuid: 'obs-history-uuid' },
+          ],
+        }),
+      ]);
+    });
   });
 
   it('submits nothing when obs group members are re-entered unchanged', async () => {
