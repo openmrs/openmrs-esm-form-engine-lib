@@ -1,6 +1,7 @@
 import React from 'react';
 import { vi, describe, it, expect, test, beforeEach, type Mock } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
+import { OpenmrsDatePicker } from '@openmrs/esm-framework';
 import { type FormField } from '../../../types';
 import { useFormProviderContext } from '../../../provider/form-provider';
 import DateField from './date.component';
@@ -84,5 +85,31 @@ describe('DateField Component', () => {
     warningMessages.forEach((message) => {
       expect(message).toBeInTheDocument();
     });
+  });
+
+  it('should clear the value and reset the time when the date picker fires onChange with undefined', async () => {
+    const props = {
+      field: dateFieldMock,
+      value: new Date(2024, 0, 15, 10, 30),
+      errors: [],
+      warnings: [],
+      setFieldValue: mockSetFieldValue,
+    };
+
+    let utils: ReturnType<typeof render>;
+    await act(() => {
+      utils = render(<DateField {...props} />);
+    });
+
+    const onChange = (OpenmrsDatePicker as unknown as Mock).mock.calls.at(-1)[0].onChange;
+    expect(() => act(() => onChange(undefined))).not.toThrow();
+    expect(mockSetFieldValue).toHaveBeenLastCalledWith(null);
+
+    await act(() => {
+      utils.rerender(<DateField {...props} value={null} />);
+    });
+
+    const timeInput = screen.getByPlaceholderText('HH:MM');
+    expect(timeInput).toHaveValue('');
   });
 });

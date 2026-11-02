@@ -25,7 +25,12 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
   }, [sessionMode, field.readonly, field.inlineRendering, layoutType, workspaceLayout]);
 
   const onDateChange = useCallback(
-    (date: Date) => {
+    (date: Date | null | undefined) => {
+      if (!date) {
+        setTime('');
+        setFieldValue(null);
+        return;
+      }
       setTimeIfPresent(date, time);
       setFieldValue(date);
     },
