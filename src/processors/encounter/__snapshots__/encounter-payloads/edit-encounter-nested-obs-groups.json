@@ -63,6 +63,12 @@
           "formFieldNamespace": "rfe-forms",
           "formFieldPath": "rfe-forms-nestedGroup",
           "uuid": "obs-nested-group-uuid"
+        },
+        {
+          "uuid": "obs-pulse-uuid"
+        },
+        {
+          "uuid": "obs-group-checkbox-a-uuid"
         }
       ],
       "concept": "vitals-concept-uuid",
