@@ -2,7 +2,12 @@ import React from 'react';
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { buildField, renderWithFormContext, createTestFormContext } from '../../../test-support';
+import {
+  buildField,
+  renderWithFormContext,
+  createTestFormContext,
+  withEnglishTranslationFallbacks,
+} from '../../../test-support';
 import { ObsAdapter } from '../../../adapters/obs-adapter';
 import * as fieldLogic from './fieldLogic';
 import { FormFieldRenderer } from './form-field-renderer.component';
@@ -22,6 +27,8 @@ function expectChanges(spies: ReturnType<typeof observeChanges>, count: number) 
   expect(spies.transform).toHaveBeenCalledTimes(count);
   expect(spies.logic).toHaveBeenCalledTimes(count);
 }
+
+withEnglishTranslationFallbacks();
 
 describe('field change processing', () => {
   it('processes each typed value once and still processes external updates', async () => {

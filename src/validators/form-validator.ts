@@ -1,6 +1,21 @@
+import { translateFrom } from '@openmrs/esm-framework';
+import { type TOptions } from 'i18next';
 import { type FormFieldValidator, type FormField } from '../types';
+import { formEngineAppName } from '../globals';
 export const fieldRequiredErrCode = 'field.required';
 export const fieldOutOfBoundErrCode = 'field.outOfBound';
+
+/**
+ * Translates a validation message. The English text is the fallback, so a locale bundle
+ * without the key still shows a readable message.
+ */
+export function translateValidationMessage(
+  key: string,
+  defaultValue: string,
+  options?: Omit<TOptions, 'ns' | 'defaultValue'>,
+): string {
+  return translateFrom(formEngineAppName, key, defaultValue, options);
+}
 
 export const FieldValidator: FormFieldValidator = {
   validate: (field: FormField, value: any) => {
@@ -9,9 +24,12 @@ export const FieldValidator: FormFieldValidator = {
     }
     if (isEmpty(value) && field.isRequired) {
       if (typeof field.required === 'object' && field.required.type === 'conditionalRequired' && field.isRequired) {
-        return addError(fieldRequiredErrCode, field.required.message ?? 'Field is mandatory');
+        return addError(
+          fieldRequiredErrCode,
+          field.required.message ?? translateValidationMessage('fieldIsMandatory', 'Field is mandatory'),
+        );
       } else if (field.isRequired) {
-        return addError(fieldRequiredErrCode, 'Field is mandatory');
+        return addError(fieldRequiredErrCode, translateValidationMessage('fieldIsMandatory', 'Field is mandatory'));
       }
     }
     if (field.questionOptions.rendering === 'text') {
@@ -26,7 +44,10 @@ export const FieldValidator: FormFieldValidator = {
       const disallowDecimals = field.questionOptions.disallowDecimals || field.meta?.concept?.allowDecimal;
       if (isEmpty(value)) return [];
       if (disallowDecimals && !Number.isInteger(value)) {
-        return addError(fieldOutOfBoundErrCode, 'Decimal values are not allowed for this field');
+        return addError(
+          fieldOutOfBoundErrCode,
+          translateValidationMessage('decimalValuesNotAllowed', 'Decimal values are not allowed for this field'),
+        );
       }
       if (!Number.isNaN(min) || !Number.isNaN(max)) {
         return numberInputRangeValidator(min, max, value);
@@ -38,11 +59,17 @@ export const FieldValidator: FormFieldValidator = {
 
 export function numberInputRangeValidator(min: number, max: number, inputValue: number) {
   if (!Number.isNaN(min) && inputValue < min) {
-    return addError(fieldOutOfBoundErrCode, `Value must be greater than ${min}`);
+    return addError(
+      fieldOutOfBoundErrCode,
+      translateValidationMessage('valueMustBeAtLeast', 'Value must be at least {{min}}', { min }),
+    );
   }
 
   if (!Number.isNaN(max) && inputValue > max) {
-    return addError(fieldOutOfBoundErrCode, `Value must be lower than ${max}`);
+    return addError(
+      fieldOutOfBoundErrCode,
+      translateValidationMessage('valueMustBeAtMost', 'Value must be at most {{max}}', { max }),
+    );
   }
 
   return [];
@@ -71,15 +98,32 @@ export function textInputLengthValidator(minLength: string, maxLength: string, i
     }
 
     if (minLen && inputLength < minLen) {
-      return addError(fieldOutOfBoundErrCode, `Length should be at least ${minLen} characters`);
+      return addError(
+        fieldOutOfBoundErrCode,
+        translateValidationMessage('lengthShouldBeAtLeast', 'Length should be at least {{minLength}} characters', {
+          minLength: minLen,
+        }),
+      );
     }
 
     if (maxLen && inputLength > maxLen) {
-      return addError(fieldOutOfBoundErrCode, `Length should not exceed ${maxLen} characters`);
+      return addError(
+        fieldOutOfBoundErrCode,
+        translateValidationMessage('lengthShouldNotExceed', 'Length should not exceed {{maxLength}} characters', {
+          maxLength: maxLen,
+        }),
+      );
     }
 
     if (maxLen && minLen && inputLength < minLen && inputLength > maxLen) {
-      return addError(fieldOutOfBoundErrCode, `Length should be between ${minLen} and ${maxLen} characters`);
+      return addError(
+        fieldOutOfBoundErrCode,
+        translateValidationMessage(
+          'lengthShouldBeBetween',
+          'Length should be between {{minLength}} and {{maxLength}} characters',
+          { minLength: minLen, maxLength: maxLen },
+        ),
+      );
     }
   }
 }
