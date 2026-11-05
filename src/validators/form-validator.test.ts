@@ -1,7 +1,10 @@
 import { type FormField } from '../types';
 import { vi, describe, it, expect, test } from 'vitest';
+import { translateFrom } from '@openmrs/esm-framework';
 import { FieldValidator } from './form-validator';
+import { withEnglishTranslationFallbacks } from '../test-support';
 
+withEnglishTranslationFallbacks();
 
 describe('FieldValidator - validate', () => {
   const numberInputField: FormField = {
@@ -106,7 +109,7 @@ describe('FieldValidator - validate', () => {
     const validationErrors = FieldValidator.validate(
       textInputFieldWithoutValidation,
       'super text super text super text',
-      null
+      null,
     );
 
     expect(validationErrors).toEqual([]);
@@ -158,7 +161,7 @@ describe('FieldValidator - validate', () => {
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
-        message: `Value must be greater than ${numberInputField.questionOptions.min}`,
+        message: `Value must be at least ${numberInputField.questionOptions.min}`,
         resultType: 'error',
       },
     ]);
@@ -170,7 +173,7 @@ describe('FieldValidator - validate', () => {
     expect(validationErrors).toEqual([
       {
         errCode: 'field.outOfBound',
-        message: `Value must be lower than ${numberInputField.questionOptions.max}`,
+        message: `Value must be at most ${numberInputField.questionOptions.max}`,
         resultType: 'error',
       },
     ]);
@@ -184,6 +187,39 @@ describe('FieldValidator - validate', () => {
         message: 'Decimal values are not allowed for this field',
         resultType: 'error',
       },
+    ]);
+  });
+
+  it('should accept numbers equal to the defined min and max', () => {
+    expect(FieldValidator.validate(numberInputField, 5, null)).toEqual([]);
+    expect(FieldValidator.validate(numberInputField, 10, null)).toEqual([]);
+  });
+
+  it('should look up range messages in the form engine translations with the limit as a parameter', () => {
+    FieldValidator.validate(numberInputField, 3, null);
+    FieldValidator.validate(numberInputField, 100, null);
+
+    expect(translateFrom).toHaveBeenCalledWith(
+      '@openmrs/esm-form-engine-app',
+      'valueMustBeAtLeast',
+      'Value must be at least {{min}}',
+      { min: 5 },
+    );
+    expect(translateFrom).toHaveBeenCalledWith(
+      '@openmrs/esm-form-engine-app',
+      'valueMustBeAtMost',
+      'Value must be at most {{max}}',
+      { max: 10 },
+    );
+  });
+
+  it('should show the translated message when the active locale has one', () => {
+    vi.mocked(translateFrom).mockImplementationOnce((_moduleName, key) =>
+      key === 'fieldIsMandatory' ? 'Champ obligatoire' : key,
+    );
+
+    expect(FieldValidator.validate({ ...textInputField, isRequired: true }, '', null)).toEqual([
+      { errCode: 'field.required', message: 'Champ obligatoire', resultType: 'error' },
     ]);
   });
 });

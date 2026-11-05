@@ -1,6 +1,9 @@
 import { type FormField } from '../types';
 import { vi, describe, it, expect, test } from 'vitest';
 import { DefaultValueValidator } from './default-value-validator';
+import { withEnglishTranslationFallbacks } from '../test-support';
+
+withEnglishTranslationFallbacks();
 
 describe('DefaultValueValidator - validate', () => {
   // setup
@@ -85,7 +88,7 @@ describe('DefaultValueValidator - validate', () => {
 
     // verify
     expect(errors).toEqual([
-      { errCode: 'invalid.defaultValue', message: `Invalid numerical  value: '500.5hds'`, resultType: 'error' },
+      { errCode: 'invalid.defaultValue', message: `Invalid numerical value: '500.5hds'`, resultType: 'error' },
     ]);
   });
 });

@@ -1,6 +1,9 @@
 import { type FormField } from '../types';
 import { vi, describe, it, expect } from 'vitest';
 import { DateValidator } from './date-validator';
+import { withEnglishTranslationFallbacks } from '../test-support';
+
+withEnglishTranslationFallbacks();
 
 describe('DateValidator - validate', () => {
   const field: FormField = {

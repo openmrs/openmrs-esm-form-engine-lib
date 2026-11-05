@@ -14,3 +14,4 @@ export {
   type FetchRoute,
 } from './openmrs-fetch-router';
 export { resetFormEngineModuleState } from './reset';
+export { withEnglishTranslationFallbacks } from './translations';

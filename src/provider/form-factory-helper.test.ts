@@ -2,7 +2,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { type OpenmrsResource, showSnackbar } from '@openmrs/esm-framework';
 import { type TFunction } from 'i18next';
 import { type PostSubmissionActionMeta } from '../hooks/usePostSubmissionActions';
-import { buildField, createFormMethodsStub, createTestFormContext } from '../test-support';
+import {
+  buildField,
+  createFormMethodsStub,
+  createTestFormContext,
+  withEnglishTranslationFallbacks,
+} from '../test-support';
 import { type FormField } from '../types';
 import { processPostSubmissionActions, validateForm } from './form-factory-helper';
 
@@ -22,6 +27,8 @@ const alwaysFails = { type: 'js_expression', failsWhenExpression: 'true' };
 function buildContext(formFields: FormField[], values: Record<string, unknown> = {}) {
   return createTestFormContext({ formFields, methods: createFormMethodsStub(values) });
 }
+
+withEnglishTranslationFallbacks();
 
 describe('validateForm', () => {
   it('passes a form whose fields all validate', () => {
