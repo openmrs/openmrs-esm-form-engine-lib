@@ -222,7 +222,7 @@ export const FormFieldRenderer = ({ fieldId, valueAdapter, repeatOptions }: Form
         control={control}
         name={field.id}
         render={({ field: { value, onChange, onBlur } }) => (
-          <div>
+          <div data-form-field-id={field.id}>
             <InputComponent
               key={`${field.id}-input-component`}
               field={field}
