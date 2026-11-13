@@ -52,6 +52,7 @@ import {
 import { type FormSchema, type OpenmrsEncounter, type SessionMode } from './types';
 import { useEncounter } from './hooks/useEncounter';
 import FormEngine from './form-engine.component';
+import { withEnglishTranslationFallbacks } from './test-support';
 
 const patientUUID = '8673ee4f-e2ab-4077-ba55-4980f408773e';
 const visit = mockVisit;
@@ -177,6 +178,8 @@ vi.mock('./hooks/useEncounter', () => ({
     };
   }),
 }));
+
+withEnglishTranslationFallbacks();
 
 describe('Form engine component', () => {
   const user = userEvent.setup();

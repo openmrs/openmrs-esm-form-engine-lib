@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { type FormFieldValidator, type FormField } from '../types';
 import { codedTypes } from '../constants';
-import { isEmpty } from './form-validator';
+import { isEmpty, translateValidationMessage } from './form-validator';
 
 export const DefaultValueValidator: FormFieldValidator = {
   validate: (field: FormField, value: any) => {
@@ -14,20 +14,36 @@ export const DefaultValueValidator: FormFieldValidator = {
         )
       ) {
         return [
-          { resultType: 'error', errCode: 'invalid.defaultValue', message: 'Value not found in coded answers list' },
+          {
+            resultType: 'error',
+            errCode: 'invalid.defaultValue',
+            message: translateValidationMessage('valueNotFoundInCodedAnswers', 'Value not found in coded answers list'),
+          },
         ];
       }
     }
     if (!isEmpty(value) && field.questionOptions.rendering == 'date') {
       // Check if value is a valid date value
       if (!dayjs(value).isValid()) {
-        return [{ resultType: 'error', errCode: 'invalid.defaultValue', message: `Invalid date value: '${value}'` }];
+        return [
+          {
+            resultType: 'error',
+            errCode: 'invalid.defaultValue',
+            message: translateValidationMessage('invalidDateValue', "Invalid date value: '{{- value}}'", { value }),
+          },
+        ];
       }
     }
     if (!isEmpty(value) && field.questionOptions.rendering == 'number') {
       if (isNaN(value)) {
         return [
-          { resultType: 'error', errCode: 'invalid.defaultValue', message: `Invalid numerical  value: '${value}'` },
+          {
+            resultType: 'error',
+            errCode: 'invalid.defaultValue',
+            message: translateValidationMessage('invalidNumericalValue', "Invalid numerical value: '{{- value}}'", {
+              value,
+            }),
+          },
         ];
       }
     }
