@@ -17,32 +17,45 @@ const PredefinedAnnotation: React.FC<FormFieldInputProps<Array<AnnotatedAttachme
 
   const annotatedAttachmentsMap = useMemo(() => {
     const attachmentMap = new Map<string, AnnotatedAttachment>();
-    if (value) value.forEach((attachment) => attachmentMap.set(attachment.templateId, attachment));
+    value
+      ?.filter((attachment) => !attachment.voided)
+      .forEach((attachment) => attachmentMap.set(attachment.templateId, attachment));
     return attachmentMap;
   }, [value]);
 
   const handleEditTemplate = useCallback(
     (template: AnnotationTemplate) => {
-      const annotatedTemplate = annotatedAttachmentsMap.get(template.id)?.base64Content ?? undefined;
+      const currentAnnotatedAttachment = annotatedAttachmentsMap.get(template.id);
 
       launchWorkspace2('annotation-editor-workspace', {
         templateSrc: template.src,
-        annotatedTemplateSrc: annotatedTemplate,
+        annotatedTemplateSrc: currentAnnotatedAttachment?.base64Content,
         title: template.label,
+        annotationComments: currentAnnotatedAttachment?.fileDescription ?? null,
         onSave: (annotatedAttachment: Omit<AnnotatedAttachment, 'templateId'>) => {
-          const currentAnnotations = value ? [...value] : [];
-          const existingIndex = currentAnnotations.findIndex((a) => a.templateId === template.id);
-
+          const currentAnnotatedAttachments = value ? [...value] : [];
+          const existingAnnotatedAttachmentIndex = currentAnnotatedAttachments.findIndex(
+            (a) => a.templateId === template.id && !a.voided,
+          );
           const newAnnotatedAttachment: AnnotatedAttachment = { ...annotatedAttachment, templateId: template.id };
 
-          if (existingIndex >= 0) currentAnnotations[existingIndex] = newAnnotatedAttachment;
-          else currentAnnotations.push(newAnnotatedAttachment);
+          if (existingAnnotatedAttachmentIndex === -1) {
+            currentAnnotatedAttachments.push(newAnnotatedAttachment);
+          } else if (currentAnnotatedAttachments[existingAnnotatedAttachmentIndex].uuid) {
+            currentAnnotatedAttachments[existingAnnotatedAttachmentIndex] = {
+              ...currentAnnotatedAttachments[existingAnnotatedAttachmentIndex],
+              voided: true,
+            };
+            currentAnnotatedAttachments.push(newAnnotatedAttachment);
+          } else {
+            currentAnnotatedAttachments[existingAnnotatedAttachmentIndex] = newAnnotatedAttachment;
+          }
 
-          setFieldValue(currentAnnotations);
+          setFieldValue(currentAnnotatedAttachments);
         },
       });
     },
-    [value, setFieldValue],
+    [value, setFieldValue, annotatedAttachmentsMap],
   );
 
   const templates = field?.questionOptions?.annotationOptions?.templates ?? [];

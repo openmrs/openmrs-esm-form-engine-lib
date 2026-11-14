@@ -7,6 +7,7 @@ import {
   type OpenmrsEncounter,
   type ValueAndDisplay,
   type FormFieldValueAdapter,
+  AnnotatedAttachment,
 } from '../types';
 import {
   hasRendering,
@@ -30,6 +31,9 @@ export const ObsAdapter: FormFieldValueAdapter = {
     const matchingObs = findObsByFormField(flattenObsList(encounter.obs), assignedObsIds, field);
     if (hasRendering(field, 'file') && matchingObs?.length) {
       return resolveAttachmentsFromObs(field, matchingObs);
+    }
+    if (hasRendering(field, 'predefined-annotation') && matchingObs?.length) {
+      return resolveAnnotatedAttachmentsFromObs(field, matchingObs);
     }
     return extractFieldValue(field, matchingObs, true);
   },
@@ -84,6 +88,9 @@ export const ObsAdapter: FormFieldValueAdapter = {
     }
     if (hasRendering(field, 'file')) {
       return handleAttachments(field, value);
+    }
+    if (hasRendering(field, 'predefined-annotation')) {
+      return handleAnnotatedAttachments(field, value);
     }
     if (!isEmpty(value) && hasPreviousObsValueChanged(field, value)) {
       return gracefullySetSubmission(field, editObs(field, value), undefined);
@@ -272,6 +279,20 @@ function handleAttachments(field: FormField, attachments: Attachment[] = []) {
   return gracefullySetSubmission(field, newAttachments, voided);
 }
 
+function handleAnnotatedAttachments(field: FormField, attachments: AnnotatedAttachment[] = []) {
+  const voided = attachments
+    .filter((attachment) => attachment.uuid && attachment.voided)
+    .map((voided) => ({ uuid: voided.uuid, voided: true }));
+  const newAttachments = (field.meta.submission.newValue = attachments
+    .filter((attachment) => !attachment.uuid)
+    .map((newAttachment) => ({
+      formFieldNamespace: 'rfe-forms',
+      formFieldPath: `rfe-forms-${field.id}-${newAttachment.templateId}`,
+      ...newAttachment,
+    })));
+  return gracefullySetSubmission(field, newAttachments, voided);
+}
+
 /**
  * Retrieves a list of observations from a given `obsList` that correspond to the specified field.
  *
@@ -287,6 +308,9 @@ export function findObsByFormField(
   const obs = obsList.filter((candidate) => {
     // we ignore the concept for attachments because they're managed from the backend
     if (hasRendering(field, 'file') && candidate.formFieldPath == `rfe-forms-${field.id}`) {
+      return true;
+    }
+    if (hasRendering(field, 'predefined-annotation') && candidate.formFieldPath?.startsWith(`rfe-forms-${field.id}-`)) {
       return true;
     }
     return (
@@ -327,4 +351,32 @@ async function resolveAttachmentsFromObs(field: FormField, obs: OpenmrsObs[]) {
     fileDescription: attachment.comment,
     fileType: attachment.bytesContentFamily?.toLowerCase(),
   })) as Attachment[];
+}
+
+async function resolveAnnotatedAttachmentsFromObs(field: FormField, obs: OpenmrsObs[]) {
+  const abortController = new AbortController();
+
+  const results = await Promise.all(
+    obs.map((matchedObs) =>
+      getAttachmentByUuid(matchedObs.uuid, abortController)
+        .then((response) => ({ attachment: response.data, obs: matchedObs }))
+        .catch((error) => {
+          console.error(`Failed to fetch attachment ${matchedObs.uuid}:`, error);
+          return null;
+        }),
+    ),
+  );
+
+  field.meta.initialValue = {
+    omrsObject: obs,
+  };
+
+  return results.filter(Boolean).map(({ attachment, obs: matchedObs }) => ({
+    uuid: attachment.uuid,
+    base64Content: `${window.openmrsBase}${attachmentUrl}/${attachment.uuid}/bytes`,
+    fileName: attachment.filename,
+    fileDescription: attachment.comment,
+    fileType: attachment.bytesContentFamily?.toLowerCase(),
+    templateId: matchedObs.formFieldPath.slice(`rfe-forms-${field.id}-`.length),
+  })) as AnnotatedAttachment[];
 }
