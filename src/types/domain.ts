@@ -113,6 +113,10 @@ export interface Attachment extends UploadedFile {
   voided?: boolean;
 }
 
+export interface AnnotatedAttachment extends Attachment {
+  templateId: string;
+}
+
 export interface AttachmentFieldValue extends Attachment {
   formFieldNamespace: string;
   formFieldPath: string;
