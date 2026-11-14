@@ -1246,6 +1246,95 @@ describe('findObsByFormField', () => {
     expect(matchedObs.length).toBe(1);
     expect(matchedObs[0]).toBe(obsList[3]);
   });
+
+  it("Should not fall back to an obs saved by one of the field's repeat instances", () => {
+    const repeatInstanceObs = {
+      uuid: '7d1b3c4e-2f5a-4b6c-9d8e-0a1b2c3d4e5f',
+      concept: { uuid: fields[0].questionOptions.concept },
+      formFieldNamespace: namespace,
+      formFieldPath: 'rfe-forms-fieldOne_1',
+    };
+    const legacyObs = {
+      uuid: '9e2c4d5f-3a6b-4c7d-8e9f-1b2c3d4e5f6a',
+      concept: { uuid: fields[0].questionOptions.concept },
+    };
+
+    expect(findObsByFormField([repeatInstanceObs] as any, [], fields[0])).toEqual([]);
+    expect(findObsByFormField([repeatInstanceObs, legacyObs] as any, [], fields[0])).toEqual([legacyObs]);
+    // the repeat instance itself still finds it by its path
+    expect(findObsByFormField([repeatInstanceObs] as any, [], { ...fields[0], id: 'fieldOne_1' })).toEqual([
+      repeatInstanceObs,
+    ]);
+  });
+
+  describe('falling back by concept, given the form fields', () => {
+    const dateStopped: FormField = {
+      label: 'Date stopped',
+      type: 'obs',
+      questionOptions: { rendering: 'date', concept: 'date-stopped-concept' },
+      id: 'dateStopped',
+    };
+    const stoppedObs = (uuid: string, path: string): any => ({
+      uuid,
+      concept: { uuid: 'date-stopped-concept' },
+      formFieldNamespace: namespace,
+      formFieldPath: path,
+    });
+
+    it('leaves an obs recorded by a repeat of the field to that repeat', () => {
+      // The first medicine of a repeating group was saved without a date stopped and its repeat with one
+      const repeatsDate = stoppedObs('repeat-date', 'rfe-forms-dateStopped_1');
+
+      expect(findObsByFormField([repeatsDate], [], dateStopped, [dateStopped])).toEqual([]);
+    });
+
+    it('leaves an obs recorded by another field on the same concept to that field', () => {
+      const otherField = { ...dateStopped, id: 'otherDateStopped' };
+      const othersDate = stoppedObs('other-date', 'rfe-forms-otherDateStopped');
+
+      expect(findObsByFormField([othersDate], [], dateStopped, [dateStopped, otherField])).toEqual([]);
+    });
+
+    it('lets a repeat take an obs saved under the path of the field it repeats, or of another repeat of it', () => {
+      const repeat = { ...dateStopped, id: 'dateStopped_1' };
+      const basePathDate = stoppedObs('base-path-date', 'rfe-forms-dateStopped');
+      // Saved as the second repeat, it reopens as the first once the row before it is deleted
+      const renumberedDate = stoppedObs('renumbered-date', 'rfe-forms-dateStopped_2');
+
+      // The repeat is cloned while the encounter is hydrated, so it is not yet among the form's fields
+      expect(findObsByFormField([basePathDate], [], repeat, [dateStopped])).toEqual([basePathDate]);
+      expect(findObsByFormField([renumberedDate], [], repeat, [dateStopped])).toEqual([renumberedDate]);
+    });
+
+    it("doesn't let a field whose id only reads like a repeat take another field's obs", () => {
+      const itemOne = { ...dateStopped, id: 'dateStopped_1' };
+      const othersDate = stoppedObs('others-date', 'rfe-forms-dateStopped');
+
+      expect(findObsByFormField([othersDate], [], itemOne, [itemOne, dateStopped])).toEqual([]);
+    });
+
+    it('still takes an obs whose path names no field of the form, as from a field since renamed', () => {
+      const renamedDate = stoppedObs('renamed-date', 'rfe-forms-stopDate');
+      // A question without an id names no path, so it must not match one
+      const withoutId = { ...dateStopped, id: undefined };
+
+      expect(findObsByFormField([renamedDate], [], dateStopped, [dateStopped, withoutId])).toEqual([renamedDate]);
+    });
+
+    it("doesn't offer a repeat's answer as the field's previous value", async () => {
+      const previousEncounter = {
+        uuid: 'previous-encounter',
+        obs: [{ ...stoppedObs('repeat-date', 'rfe-forms-dateStopped_1'), value: '2026-10-28' }],
+      };
+
+      expect(
+        await ObsAdapter.getPreviousValue(dateStopped, previousEncounter, {
+          ...formContext,
+          formFields: [dateStopped],
+        }),
+      ).toBeNull();
+    });
+  });
 });
 
 describe('ObsAdapter - handling nested obsGroups', () => {

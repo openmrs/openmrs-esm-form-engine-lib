@@ -33,6 +33,9 @@
         {
           "uuid": "obs-weight-uuid",
           "voided": true
+        },
+        {
+          "uuid": "obs-temperature-uuid"
         }
       ],
       "concept": "vitals-concept-uuid",
