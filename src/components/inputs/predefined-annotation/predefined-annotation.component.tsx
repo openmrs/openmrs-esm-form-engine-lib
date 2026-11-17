@@ -14,6 +14,8 @@ import classNames from 'classnames';
 const PredefinedAnnotation: React.FC<FormFieldInputProps<Array<AnnotatedAttachment>>> = ({
   field,
   value,
+  errors,
+  warnings,
   setFieldValue,
 }) => {
   const { t } = useTranslation();
@@ -79,6 +81,8 @@ const PredefinedAnnotation: React.FC<FormFieldInputProps<Array<AnnotatedAttachme
 
   const templates = field.questionOptions?.annotationOptions?.templates ?? [];
   const isEditable = !isViewMode(sessionMode) && !isTrue(field.readonly) && !field.isDisabled;
+  const errorMessage = errors?.[0]?.message;
+  const warningMessage = warnings?.[0]?.message;
 
   return (
     <div>
@@ -104,6 +108,13 @@ const PredefinedAnnotation: React.FC<FormFieldInputProps<Array<AnnotatedAttachme
           <div className={styles.noAnnotations}>{t('noAnnotationTemplates', 'No annotation templates available.')}</div>
         )}
       </div>
+      {errorMessage ? (
+        <div className={styles.errorMessage} role="alert">
+          {errorMessage}
+        </div>
+      ) : warningMessage ? (
+        <div className={styles.warningMessage}>{warningMessage}</div>
+      ) : null}
     </div>
   );
 };

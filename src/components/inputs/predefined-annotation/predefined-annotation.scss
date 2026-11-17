@@ -15,6 +15,15 @@
   margin-bottom: layout.$spacing-03;
 }
 
+.errorMessage,
+.warningMessage {
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1rem;
+  margin-bottom: layout.$spacing-03;
+  color: colors.$red-60;
+}
+
 .noAnnotations {
   font-style: italic;
   color: colors.$gray-50;
