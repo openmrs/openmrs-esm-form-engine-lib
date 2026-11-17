@@ -106,8 +106,8 @@ describe('useCurrentActivePage', () => {
     });
   });
 
-  describe('Waypoint Interaction', () => {
-    it('should ignore Waypoint updates during initial phase', () => {
+  describe('Page visibility updates', () => {
+    it('should ignore visibility updates during initial phase', () => {
       const { result } = renderHook(() =>
         useCurrentActivePage({
           pages: mockPages,
@@ -128,7 +128,7 @@ describe('useCurrentActivePage', () => {
       expect(result.current.currentActivePage).toBe('page-1');
     });
 
-    it('should respect Waypoint updates after initial phase', () => {
+    it('should respect visibility updates after initial phase', () => {
       const { result, rerender } = renderHook(() =>
         useCurrentActivePage({
           pages: mockPages,
