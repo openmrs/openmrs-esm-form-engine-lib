@@ -1,8 +1,11 @@
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { launchWorkspace2 } from '@openmrs/esm-framework';
+import { launchWorkspace2, showSnackbar } from '@openmrs/esm-framework';
 import { type AnnotatedAttachment, type FormFieldInputProps } from '../../../types';
 import { type AnnotationTemplate } from '../../../types/schema';
+import { useFormProviderContext } from '../../../provider/form-provider';
+import { isTrue } from '../../../utils/boolean-utils';
+import { isViewMode } from '../../../utils/common-utils';
 import FieldLabel from '../../field-label/field-label.component';
 import { AnnotationThumbnail } from './annotation-thumbnail.component';
 import styles from './predefined-annotation.scss';
@@ -14,6 +17,7 @@ const PredefinedAnnotation: React.FC<FormFieldInputProps<Array<AnnotatedAttachme
   setFieldValue,
 }) => {
   const { t } = useTranslation();
+  const { sessionMode } = useFormProviderContext();
 
   const annotatedAttachmentsMap = useMemo(() => {
     const attachmentMap = new Map<string, AnnotatedAttachment>();
@@ -24,41 +28,57 @@ const PredefinedAnnotation: React.FC<FormFieldInputProps<Array<AnnotatedAttachme
   }, [value]);
 
   const handleEditTemplate = useCallback(
-    (template: AnnotationTemplate) => {
+    async (template: AnnotationTemplate) => {
       const currentAnnotatedAttachment = annotatedAttachmentsMap.get(template.id);
 
-      launchWorkspace2('annotation-editor-workspace', {
-        templateSrc: template.src,
-        annotatedTemplateSrc: currentAnnotatedAttachment?.base64Content,
-        title: template.label,
-        annotationComments: currentAnnotatedAttachment?.fileDescription ?? null,
-        onSave: (annotatedAttachment: Omit<AnnotatedAttachment, 'templateId'>) => {
-          const currentAnnotatedAttachments = value ? [...value] : [];
-          const existingAnnotatedAttachmentIndex = currentAnnotatedAttachments.findIndex(
-            (a) => a.templateId === template.id && !a.voided,
-          );
-          const newAnnotatedAttachment: AnnotatedAttachment = { ...annotatedAttachment, templateId: template.id };
+      try {
+        await launchWorkspace2('annotation-editor-workspace', {
+          templateSrc: template.src,
+          annotatedTemplateSrc: currentAnnotatedAttachment?.base64Content,
+          title: t(template.label),
+          annotationComments: currentAnnotatedAttachment?.fileDescription ?? null,
+          onSave: (annotatedAttachment: Omit<AnnotatedAttachment, 'templateId'>) => {
+            const currentAnnotatedAttachments = value ? [...value] : [];
+            const existingAnnotatedAttachmentIndex = currentAnnotatedAttachments.findIndex(
+              (a) => a.templateId === template.id && !a.voided,
+            );
+            const newAnnotatedAttachment: AnnotatedAttachment = { ...annotatedAttachment, templateId: template.id };
 
-          if (existingAnnotatedAttachmentIndex === -1) {
-            currentAnnotatedAttachments.push(newAnnotatedAttachment);
-          } else if (currentAnnotatedAttachments[existingAnnotatedAttachmentIndex].uuid) {
-            currentAnnotatedAttachments[existingAnnotatedAttachmentIndex] = {
-              ...currentAnnotatedAttachments[existingAnnotatedAttachmentIndex],
-              voided: true,
-            };
-            currentAnnotatedAttachments.push(newAnnotatedAttachment);
-          } else {
-            currentAnnotatedAttachments[existingAnnotatedAttachmentIndex] = newAnnotatedAttachment;
-          }
+            if (existingAnnotatedAttachmentIndex === -1) {
+              currentAnnotatedAttachments.push(newAnnotatedAttachment);
+            } else if (currentAnnotatedAttachments[existingAnnotatedAttachmentIndex].uuid) {
+              currentAnnotatedAttachments[existingAnnotatedAttachmentIndex] = {
+                ...currentAnnotatedAttachments[existingAnnotatedAttachmentIndex],
+                voided: true,
+              };
+              currentAnnotatedAttachments.push(newAnnotatedAttachment);
+            } else {
+              currentAnnotatedAttachments[existingAnnotatedAttachmentIndex] = newAnnotatedAttachment;
+            }
 
-          setFieldValue(currentAnnotatedAttachments);
-        },
-      });
+            setFieldValue(currentAnnotatedAttachments);
+          },
+        });
+      } catch (error) {
+        showSnackbar({
+          title: t('errorLaunchingWorkspace', 'Error launching workspace'),
+          subtitle:
+            (error as Error)?.message ??
+            t('errorLaunchingWorkspaceSubtitle', 'An unexpected error occurred while launching the workspace.'),
+          kind: 'error',
+          isLowContrast: true,
+        });
+      }
     },
-    [value, setFieldValue, annotatedAttachmentsMap],
+    [value, setFieldValue, annotatedAttachmentsMap, t],
   );
 
-  const templates = field?.questionOptions?.annotationOptions?.templates ?? [];
+  if (field.isHidden) {
+    return null;
+  }
+
+  const templates = field.questionOptions?.annotationOptions?.templates ?? [];
+  const isEditable = !isViewMode(sessionMode) && !isTrue(field.readonly) && !field.isDisabled;
 
   return (
     <div>
@@ -68,13 +88,14 @@ const PredefinedAnnotation: React.FC<FormFieldInputProps<Array<AnnotatedAttachme
       <div className={styles.thumbnailContainer}>
         {templates.length > 0 ? (
           templates.map((template) => {
-            const annotatatedAttachment = annotatedAttachmentsMap.get(template.id);
+            const annotatedAttachment = annotatedAttachmentsMap.get(template.id);
             return (
               <AnnotationThumbnail
                 key={template.id}
-                src={annotatatedAttachment ? annotatatedAttachment.base64Content : template.src}
-                title={template.label}
-                isAnnotated={!!annotatatedAttachment}
+                src={annotatedAttachment ? annotatedAttachment.base64Content : template.src}
+                title={t(template.label)}
+                isAnnotated={!!annotatedAttachment}
+                isEditable={isEditable}
                 onEdit={() => handleEditTemplate(template)}
               />
             );

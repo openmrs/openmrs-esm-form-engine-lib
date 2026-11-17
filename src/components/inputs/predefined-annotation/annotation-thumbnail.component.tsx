@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@carbon/react';
 import { Edit } from '@carbon/react/icons';
 import classNames from 'classnames';
@@ -8,15 +9,18 @@ interface AnnotationThumbnailProps {
   src: string;
   title: string;
   isAnnotated: boolean;
+  isEditable: boolean;
   onEdit: () => void;
 }
 
-export function AnnotationThumbnail({ src, title, isAnnotated, onEdit }: AnnotationThumbnailProps) {
+export function AnnotationThumbnail({ src, title, isAnnotated, isEditable, onEdit }: AnnotationThumbnailProps) {
+  const { t } = useTranslation();
+
   return (
     <div className={styles.thumbnailContainer}>
       <div className={classNames(styles.thumbnailBox, { [styles.annotated]: isAnnotated })}>
         <img className={styles.thumbnailImage} src={src} alt={title} />
-        {onEdit && (
+        {isEditable && (
           <div className={styles.thumbnailButtons}>
             <Button
               kind="ghost"
@@ -26,7 +30,7 @@ export function AnnotationThumbnail({ src, title, isAnnotated, onEdit }: Annotat
               renderIcon={(props) => <Edit size={16} {...props} />}
               hasIconOnly
               tooltipPosition="left"
-              iconDescription={isAnnotated ? 'Edit annotation' : 'Annotate'}
+              iconDescription={isAnnotated ? t('editAnnotation', 'Edit annotation') : t('annotate', 'Annotate')}
             />
           </div>
         )}
