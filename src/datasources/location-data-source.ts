@@ -38,7 +38,7 @@ async function fetchAllPages(url: string): Promise<Array<any>> {
   return results;
 }
 
-// Keeps only the path and query so a backend host, port or scheme in next links never bypasses the proxy.
+// Keeps only the path and query: a backend host, port or scheme must not bypass the proxy.
 function getNextUrl(response): string | null {
   const uri = response?.links?.find((link) => link.rel === 'next')?.uri;
   if (!uri) {
