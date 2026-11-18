@@ -7,7 +7,7 @@ const mockOpenmrsFetch = vi.mocked(openmrsFetch);
 const locations = (from: number, count: number) =>
   Array.from({ length: count }, (_, i) => ({ uuid: `uuid-${from + i}`, display: `Clinic ${from + i}` }));
 
-const backendNextUri = 'http://backend:8080/openmrs/ws/rest/v1/location?tag=Visit+Location&startIndex=50';
+const backendNextUri = 'https://backend:8443/openmrs/ws/rest/v1/location?tag=Visit+Location&startIndex=50';
 const proxiedNextUri = `${window.location.protocol}//${window.location.host}/openmrs/ws/rest/v1/location?tag=Visit+Location&startIndex=50`;
 
 describe('LocationDataSource', () => {
