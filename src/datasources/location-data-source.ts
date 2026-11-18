@@ -38,14 +38,12 @@ async function fetchAllPages(url: string): Promise<Array<any>> {
   return results;
 }
 
-// A copy of the framework's unexported getNextUrl: keeps next links on this origin so proxies work.
+// Keeps only the path and query so a backend host, port or scheme in next links never bypasses the proxy.
 function getNextUrl(response): string | null {
   const uri = response?.links?.find((link) => link.rel === 'next')?.uri;
   if (!uri) {
     return null;
   }
-  const url = new URL(uri);
-  url.host = window.location.host;
-  url.protocol = window.location.protocol;
-  return url.toString();
+  const next = new URL(uri);
+  return new URL(next.pathname + next.search, window.location.origin).toString();
 }
