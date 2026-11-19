@@ -167,7 +167,10 @@ export function savePatientPrograms(patientPrograms: PatientProgramPayload[]) {
 }
 
 export function saveAttachments(fields: FormField[], encounter: OpenmrsEncounter, abortController: AbortController) {
-  const complexFields = fields?.filter((field) => field?.questionOptions.rendering === 'file' && hasSubmission(field));
+  const COMPLEX_RENDERINGS = new Set(['file', 'predefined-annotation']);
+  const complexFields = fields?.filter(
+    (field) => COMPLEX_RENDERINGS.has(field?.questionOptions.rendering) && hasSubmission(field),
+  );
 
   if (!complexFields?.length) {
     return [];
@@ -239,7 +242,7 @@ function processObsField(obsForSubmission: OpenmrsObs[], field: FormField, field
   }
 
   // new attachments will be processed later
-  if (!hasRendering(field, 'file')) {
+  if (!hasRendering(field, 'file') && !hasRendering(field, 'predefined-annotation')) {
     addObsToList(obsForSubmission, field.meta.submission.newValue);
   }
   addObsToList(obsForSubmission, field.meta.submission.voidedValue);
