@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
 import { mockPatient, mockSessionDataResponse, mockVisit } from '__mocks__';
 import { radioButtonFormSchema } from '__mocks__/forms';
@@ -193,5 +194,68 @@ describe('Radio Component', () => {
     expect(screen.getByLabelText('New visit')).toBeDisabled();
     expect(screen.getByLabelText('Return visit type')).toBeDisabled();
     expect(screen.getByLabelText('Other')).toBeDisabled();
+  });
+
+  describe('selection', () => {
+    const StatefulRadio = ({ onValueChange }: { onValueChange: (value: unknown) => void }) => {
+      const [value, setValue] = useState(null);
+      return (
+        <Radio
+          field={addTestValues.field as any}
+          value={value}
+          errors={[]}
+          warnings={[]}
+          setFieldValue={(newValue) => {
+            onValueChange(newValue);
+            setValue(newValue);
+          }}
+        />
+      );
+    };
+
+    beforeEach(() => {
+      mockUseFormProviderContext.mockReturnValue({ ...mockProviderValues });
+    });
+
+    it('switches the selected option on subsequent clicks', async () => {
+      const user = userEvent.setup();
+      const onValueChange = vi.fn();
+      render(<StatefulRadio onValueChange={onValueChange} />);
+
+      const newVisit = screen.getByLabelText('New visit');
+      const returnVisit = screen.getByLabelText('Return visit type');
+      const other = screen.getByLabelText('Other');
+
+      await user.click(newVisit);
+      expect(newVisit).toBeChecked();
+
+      await user.click(returnVisit);
+      expect(returnVisit).toBeChecked();
+      expect(newVisit).not.toBeChecked();
+
+      await user.click(other);
+      expect(other).toBeChecked();
+      expect(returnVisit).not.toBeChecked();
+
+      expect(onValueChange.mock.calls.map(([v]) => v)).toEqual([
+        '164180AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        '160530AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        '5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      ]);
+    });
+
+    it('clears the selection when the selected option is clicked again', async () => {
+      const user = userEvent.setup();
+      const onValueChange = vi.fn();
+      render(<StatefulRadio onValueChange={onValueChange} />);
+
+      const newVisit = screen.getByLabelText('New visit');
+      await user.click(newVisit);
+      await user.click(newVisit);
+
+      expect(newVisit).not.toBeChecked();
+      expect(screen.getAllByRole('radio').some((radio) => (radio as HTMLInputElement).checked)).toBe(false);
+      expect(onValueChange).toHaveBeenLastCalledWith(null);
+    });
   });
 });
