@@ -1,10 +1,15 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type OpenmrsResource, showSnackbar } from '@openmrs/esm-framework';
 import { type TFunction } from 'i18next';
 import { type PostSubmissionActionMeta } from '../hooks/usePostSubmissionActions';
 import { buildField, createFormMethodsStub, createTestFormContext } from '../test-support';
 import { type FormField } from '../types';
-import { processPostSubmissionActions, validateForm } from './form-factory-helper';
+import {
+  getInvalidFields,
+  processPostSubmissionActions,
+  revealInvalidFields,
+  validateForm,
+} from './form-factory-helper';
 
 /**
  * Characterization tests for the two submission-orchestration helpers the form
@@ -168,6 +173,78 @@ describe('validateForm', () => {
     validateForm(context);
 
     expect(context.methods.trigger).not.toHaveBeenCalled();
+  });
+});
+
+describe('getInvalidFields', () => {
+  it('returns each invalid field once, in form order', () => {
+    const first = buildField({ id: 'first', isRequired: true, validators: [alwaysFails] });
+    const valid = buildField({ id: 'valid' });
+    const second = buildField({ id: 'second', isRequired: true });
+    const context = buildContext([first, valid, second], { first: '', valid: 'ok', second: '' });
+
+    expect(getInvalidFields(context)).toEqual([first, second]);
+  });
+
+  it('returns nothing for a valid form', () => {
+    const context = buildContext([buildField({ id: 'note' })], { note: 'Some text' });
+
+    expect(getInvalidFields(context)).toEqual([]);
+  });
+});
+
+describe('revealInvalidFields', () => {
+  const interpolate = ((key: string, fallback: string, options?: Record<string, unknown>) =>
+    typeof fallback === 'string'
+      ? fallback.replace(/{{-? ?(\w+)}}/g, (_match, name) => String(options?.[name]))
+      : key) as unknown as TFunction;
+
+  const renderFieldContainer = (fieldId: string) => {
+    const container = document.createElement('div');
+    container.dataset.formFieldId = fieldId;
+    const input = document.createElement('input');
+    container.appendChild(input);
+    document.body.appendChild(container);
+    container.scrollIntoView = vi.fn();
+    return { container, input };
+  };
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('scrolls to and focuses the first invalid field, and names it in an error snackbar', () => {
+    const other = renderFieldContainer('other');
+    const period = renderFieldContainer('period');
+    const later = renderFieldContainer('later');
+
+    revealInvalidFields(
+      [buildField({ id: 'period', label: 'Period' }), buildField({ id: 'later', label: 'Later' })],
+      interpolate,
+    );
+
+    expect(period.container.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
+    expect(period.input).toHaveFocus();
+    expect(other.container.scrollIntoView).not.toHaveBeenCalled();
+    expect(later.container.scrollIntoView).not.toHaveBeenCalled();
+    expect(showSnackbar).toHaveBeenCalledWith({
+      title: 'Some fields need your attention',
+      subtitle: 'Fields to complete or correct: 2. First: Period',
+      kind: 'error',
+      isLowContrast: false,
+    });
+  });
+
+  it('still shows the snackbar when the field is not on the page', () => {
+    revealInvalidFields([buildField({ id: 'missing', label: 'Missing' })], interpolate);
+
+    expect(showSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'error' }));
+  });
+
+  it('does nothing when no field is invalid', () => {
+    revealInvalidFields([], interpolate);
+
+    expect(showSnackbar).not.toHaveBeenCalled();
   });
 });
 
