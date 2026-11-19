@@ -486,7 +486,8 @@ export class CommonExpressionHelpers {
   /**
    * Calculates the Weight-for-Height Z-score for pediatric patients using WHO growth standards.
    * Used to assess acute malnutrition (wasting).
-   * @param height - Patient's height/length in centimeters (valid range: 45-110 cm). Numeric strings are accepted.
+   * @param height - Patient's height/length in centimeters (valid range: 45-110 cm under age 2 and 65-120 cm
+   * from age 2 to 5). Numeric strings are accepted.
    * @param weight - Patient's weight in kilograms
    * @returns Z-score as a string (e.g., '-2', '0', '1'), or null if out of range, reference missing, or inputs missing
    */
@@ -503,10 +504,10 @@ export class CommonExpressionHelpers {
       return null;
     }
 
-    const standardHeightMin = 45;
-    const standardMaxHeight = 110;
-
-    if (numericHeight < standardHeightMin || numericHeight > standardMaxHeight) {
+    // The valid height range is the range of the reference table: 45 to 110 cm for weight-for-length and
+    // 65 to 120 cm for weight-for-height
+    const referenceHeights = weightForHeightRef.map((refObject) => Number(refObject['Length']));
+    if (numericHeight < Math.min(...referenceHeights) || numericHeight > Math.max(...referenceHeights)) {
       return null;
     }
 
