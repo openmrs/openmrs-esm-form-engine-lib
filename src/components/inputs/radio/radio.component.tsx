@@ -53,13 +53,12 @@ const Radio: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, 
                   labelText={t(answer.label) ?? ''}
                   value={answer.concept}
                   key={index}
-                  onClick={(e: React.MouseEvent<HTMLInputElement>) => {
-                    if (value && (e.target as HTMLInputElement).checked) {
-                      (e.target as HTMLInputElement).checked = false;
-                      e.preventDefault();
+                  onClick={() => {
+                    // Clicking the already-selected option clears the answer. Selecting a different
+                    // option is handled by RadioButtonGroup's onChange; don't cancel that click, or the
+                    // browser reverts the DOM checked state and the UI drifts out of sync with the value.
+                    if (value === answer.concept) {
                       handleChange(null);
-                    } else {
-                      handleChange(answer.concept);
                     }
                   }}
                 />
