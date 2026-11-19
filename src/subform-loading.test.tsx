@@ -4,7 +4,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
 import { mockPatient, mockSessionDataResponse, mockVisit } from '__mocks__';
-import { buildFormSchema, buildField } from './test-support';
+import { buildFormSchema, buildField, withEnglishTranslationFallbacks } from './test-support';
 import FormEngine from './form-engine.component';
 import { getPreviousEncounter, saveEncounter } from './api';
 
@@ -14,6 +14,8 @@ vi.mock('./api', async (original) => ({
   getConcept: vi.fn().mockResolvedValue(null),
   saveEncounter: vi.fn().mockResolvedValue({ data: { uuid: 'saved-encounter', orders: [], diagnoses: [] } }),
 }));
+
+withEnglishTranslationFallbacks();
 
 describe('Subform dependencies', () => {
   beforeEach(() => {

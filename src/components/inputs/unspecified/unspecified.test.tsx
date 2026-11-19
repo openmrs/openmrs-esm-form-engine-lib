@@ -10,6 +10,7 @@ import { unspecifiedForm } from '__mocks__/forms';
 import { mockPatient } from '__mocks__/patient.mock';
 import { mockSessionDataResponse } from '__mocks__/session.mock';
 import FormEngine from '../../../form-engine.component';
+import { withEnglishTranslationFallbacks } from '../../../test-support';
 
 const mockUsePatient = vi.mocked(usePatient);
 const mockUseSession = vi.mocked(useSession);
@@ -69,6 +70,8 @@ const renderForm = async (mode: SessionMode = 'enter') => {
     );
   });
 };
+
+withEnglishTranslationFallbacks();
 
 describe('Unspecified', () => {
   const user = userEvent.setup();
