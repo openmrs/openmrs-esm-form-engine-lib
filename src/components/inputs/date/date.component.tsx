@@ -26,7 +26,7 @@ const DateField: React.FC<FormFieldInputProps> = ({ field, value: dateValue, err
 
   const onDateChange = useCallback(
     (date: Date | null | undefined) => {
-      if (!date) {
+      if (date === null || date === undefined) {
         setTime('');
         setFieldValue(null);
         return;
