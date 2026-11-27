@@ -2834,7 +2834,6 @@ __metadata:
     react-hook-form: "npm:^7.52.0"
     react-i18next: "npm:^16.0.0"
     react-markdown: "npm:^9.0.1"
-    react-waypoint: "npm:^10.3.0"
     react-webcam: "npm:^7.2.0"
     resize-observer-polyfill: "npm:^1.5.1"
     rimraf: "npm:^5.0.0"
@@ -6722,13 +6721,6 @@ __metadata:
   version: 2.0.0
   resolution: "connect-history-api-fallback@npm:2.0.0"
   checksum: 10/3b26bf4041fdb33deacdcb3af9ae11e9a0b413fb14c95844d74a460b55e407625b364955dcf965c654605cde9d24ad5dad423c489aa430825aab2035859aba0c
-  languageName: node
-  linkType: hard
-
-"consolidated-events@npm:^1.1.0 || ^2.0.0":
-  version: 2.0.2
-  resolution: "consolidated-events@npm:2.0.2"
-  checksum: 10/594de16e04e3140e8f7d5ae5e3d8f6f95f9922a926829e2099e2e743b36fac62398db1a501cdf975f76e55be8b1f14c427346bb6683d38798a1ccd752401c7ca
   languageName: node
   linkType: hard
 
@@ -13947,7 +13939,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.0.0, prop-types@npm:^15.8.1":
+"prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -14204,13 +14196,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^17.0.1 || ^18.0.0":
-  version: 18.3.1
-  resolution: "react-is@npm:18.3.1"
-  checksum: 10/d5f60c87d285af24b1e1e7eaeb123ec256c3c8bdea7061ab3932e3e14685708221bf234ec50b21e10dd07f008f1b966a2730a0ce4ff67905b3872ff2042aec22
-  languageName: node
-  linkType: hard
-
 "react-markdown@npm:^9.0.1":
   version: 9.0.1
   resolution: "react-markdown@npm:9.0.1"
@@ -14269,20 +14254,6 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
   checksum: 10/b5f602df10fa1814b944d8c2d37f83be8a26bd841d349346bad9bc04d89995e8f4dbf4a096e30b2f72f50edaf232d907ff36a08f274f7ea367ce3912d5c93567
-  languageName: node
-  linkType: hard
-
-"react-waypoint@npm:^10.3.0":
-  version: 10.3.0
-  resolution: "react-waypoint@npm:10.3.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.12.5"
-    consolidated-events: "npm:^1.1.0 || ^2.0.0"
-    prop-types: "npm:^15.0.0"
-    react-is: "npm:^17.0.1 || ^18.0.0"
-  peerDependencies:
-    react: ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 10/b862f0172bab8f62d16b9dd3486edf872f219ef33224e8473aec5198a1e64490a70904f1f15752140841ab49ae873f8d4dbdbf6e6cae1240d8ce30d0fb39ee8e
   languageName: node
   linkType: hard
 

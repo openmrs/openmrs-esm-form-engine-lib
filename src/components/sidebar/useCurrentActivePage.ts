@@ -17,17 +17,18 @@ interface UseCurrentActivePageResult {
 /**
  * Hook to manage the currently active page in a form sidebar.
  *
- * This implementation includes a locking mechanism to handle a specific limitation with Waypoint:
+ * This implementation includes a locking mechanism to handle a specific limitation with the way
+ * pages report their visibility (see useScrollSpy):
  * When dealing with short forms where multiple pages are visible in the viewport simultaneously,
- * Waypoint's initial visibility detection can be unpredictable. It might:
+ * the initial visibility detection can be unpredictable. It might:
  * 1. Report pages in a different order than their DOM position
  * 2. Miss reporting some visible pages in the first few renders
  * 3. Report visibility events before our desired initial scroll position is established
  *
- * The locking mechanism (isInitialPhaseRef) prevents these early Waypoint events from
+ * The locking mechanism (isInitialPhaseRef) prevents these early visibility events from
  * overriding our intended initial page selection. Without this lock:
  * - The form might initially select the first page
- * - But then immediately jump to a different page due to Waypoint's visibility events
+ * - But then immediately jump to a different page due to the pages' visibility events
  * - This creates a jarring user experience where the form appears to "jump" during initialization
  *
  * The lock is released either:
@@ -71,10 +72,10 @@ export const useCurrentActivePage = ({
 
   useEffect(() => {
     let initialLockTimeout = null;
-    // Lock out Waypoint updates for 200ms to allow for:
+    // Lock out visibility updates for 200ms to allow for:
     // 1. Initial render completion
     // 2. Scroll position establishment
-    // 3. Waypoint to complete its initial visibility detection
+    // 3. The pages to complete their initial visibility detection
     if (isInitialized) {
       initialLockTimeout = setTimeout(() => {
         isInitialPhaseRef.current = false;

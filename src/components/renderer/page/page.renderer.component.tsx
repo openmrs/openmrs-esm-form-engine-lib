@@ -3,12 +3,12 @@ import { type FormSection, type FormPage } from '../../../types';
 import { isTrue } from '../../../utils/boolean-utils';
 import { useTranslation } from 'react-i18next';
 import { SectionRenderer } from '../section/section-renderer.component';
-import { Waypoint } from 'react-waypoint';
 import styles from './page.renderer.scss';
 import { Accordion, AccordionItem } from '@carbon/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@openmrs/esm-framework';
 import classNames from 'classnames';
 import { pageObserver } from '../../sidebar/page-observer';
+import { useScrollSpy } from '../../../hooks/useScrollSpy';
 
 interface PageRendererProps {
   page: FormPage;
@@ -25,6 +25,10 @@ interface CollapsibleSectionContainerProps {
 function PageRenderer({ page, isFormExpanded }: PageRendererProps) {
   const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const pageRef = useScrollSpy<HTMLDivElement>({
+    onEnter: () => pageObserver.addActivePage(page.id),
+    onLeave: () => pageObserver.removeInactivePage(page.id),
+  });
 
   const visibleSections = useMemo(
     () =>
@@ -47,44 +51,37 @@ function PageRenderer({ page, isFormExpanded }: PageRendererProps) {
 
   return (
     <div>
-      <Waypoint
-        key={page.id}
-        onEnter={() => pageObserver.addActivePage(page.id)}
-        onLeave={() => pageObserver.removeInactivePage(page.id)}
-        topOffset="40%"
-        bottomOffset="40%">
-        <div id={page.id} className={styles.pageContent}>
-          <div className={styles.pageHeader} onClick={toggleCollapse}>
-            <p className={styles.pageTitle}>
-              {t(page.label)}
-              <span className={styles.collapseIconWrapper}>
-                {isCollapsed ? (
-                  <ChevronDownIcon className={styles.collapseIcon} aria-label="Expand" />
-                ) : (
-                  <ChevronUpIcon className={styles.collapseIcon} aria-label="Collapse" />
-                )}
-              </span>
-            </p>
-          </div>
-          <div
-            className={classNames({
-              [styles.hiddenAccordion]: isCollapsed,
-              [styles.accordionContainer]: !isCollapsed,
-            })}>
-            <Accordion>
-              {visibleSections.map((section, index) => (
-                <CollapsibleSectionContainer
-                  key={`section-${section.label}`}
-                  section={section}
-                  sectionIndex={index}
-                  visibleSections={visibleSections}
-                  isFormExpanded={isFormExpanded}
-                />
-              ))}
-            </Accordion>
-          </div>
+      <div id={page.id} ref={pageRef} className={styles.pageContent}>
+        <div className={styles.pageHeader} onClick={toggleCollapse}>
+          <p className={styles.pageTitle}>
+            {t(page.label)}
+            <span className={styles.collapseIconWrapper}>
+              {isCollapsed ? (
+                <ChevronDownIcon className={styles.collapseIcon} aria-label="Expand" />
+              ) : (
+                <ChevronUpIcon className={styles.collapseIcon} aria-label="Collapse" />
+              )}
+            </span>
+          </p>
         </div>
-      </Waypoint>
+        <div
+          className={classNames({
+            [styles.hiddenAccordion]: isCollapsed,
+            [styles.accordionContainer]: !isCollapsed,
+          })}>
+          <Accordion>
+            {visibleSections.map((section, index) => (
+              <CollapsibleSectionContainer
+                key={`section-${section.label}`}
+                section={section}
+                sectionIndex={index}
+                visibleSections={visibleSections}
+                isFormExpanded={isFormExpanded}
+              />
+            ))}
+          </Accordion>
+        </div>
+      </div>
     </div>
   );
 }
