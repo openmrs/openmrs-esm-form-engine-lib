@@ -1,4 +1,4 @@
-import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { openmrsFetch, openmrsFetchAll, restBaseUrl } from '@openmrs/esm-framework';
 import { BaseOpenMRSDataSource } from './data-source';
 
 export class LocationDataSource extends BaseOpenMRSDataSource {
@@ -15,13 +15,14 @@ export class LocationDataSource extends BaseOpenMRSDataSource {
     //overwrite url if there's a uuid value, meaning we are in edit mode
     if (uuid) {
       apiUrl = `${urlParts[0]}/${uuid}?${urlParts[1]}`;
+      return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
+        if (data.results) {
+          return data.results;
+        }
+        return data;
+      });
     }
 
-    return openmrsFetch(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => {
-      if (data.results) {
-        return data.results;
-      }
-      return data;
-    });
+    return openmrsFetchAll(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => data.results);
   }
 }
