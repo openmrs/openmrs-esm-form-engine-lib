@@ -1,4 +1,4 @@
-import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { openmrsFetch, openmrsFetchAll, restBaseUrl } from '@openmrs/esm-framework';
 import { BaseOpenMRSDataSource } from './data-source';
 
 export class LocationDataSource extends BaseOpenMRSDataSource {
@@ -23,27 +23,6 @@ export class LocationDataSource extends BaseOpenMRSDataSource {
       });
     }
 
-    return fetchAllPages(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl);
+    return openmrsFetchAll(searchTerm ? `${apiUrl}&q=${searchTerm}` : apiUrl).then(({ data }) => data.results);
   }
-}
-
-async function fetchAllPages(url: string): Promise<Array<any>> {
-  const results = [];
-  let nextUrl: string | null = url;
-  while (nextUrl) {
-    const { data } = await openmrsFetch(nextUrl);
-    results.push(...(data.results ?? []));
-    nextUrl = getNextUrl(data);
-  }
-  return results;
-}
-
-// Keeps only the path and query: a backend host, port or scheme must not bypass the proxy.
-function getNextUrl(response): string | null {
-  const uri = response?.links?.find((link) => link.rel === 'next')?.uri;
-  if (!uri) {
-    return null;
-  }
-  const next = new URL(uri);
-  return new URL(next.pathname + next.search, window.location.origin).toString();
 }
