@@ -5,7 +5,7 @@ import { type FormSchema } from '../types';
 type ZScoreTable = Array<Record<string, any>>;
 
 /**
- * The WHO reference tables come to about 1.3 MB of JSON and few forms use them, so each one loads only
+ * The WHO reference tables come to about 1.6 MB of JSON and few forms use them, so each one loads only
  * when a form that calls a z-score helper opens. The helpers themselves stay synchronous: the expression
  * evaluator doesn't wait for a promise a helper returns before comparing it or passing it to another
  * function, so an async helper would break expressions like `calcBMIForAgeZscore(height, weight) < -2`.
@@ -13,6 +13,8 @@ type ZScoreTable = Array<Record<string, any>>;
 const tableLoaders = {
   wflFemaleBelow5: () => import('../zscore/wfl_girls_below5.json'),
   wflMaleBelow5: () => import('../zscore/wfl_boys_below5.json'),
+  wfhFemaleBelow5: () => import('../zscore/wfh_girls_below5.json'),
+  wfhMaleBelow5: () => import('../zscore/wfh_boys_below5.json'),
   hfaFemaleBelow5: () => import('../zscore/hfa_girls_below5.json'),
   hfaMaleBelow5: () => import('../zscore/hfa_boys_below5.json'),
   hfaFemale5Above: () => import('../zscore/hfa_girls_5_above.json'),
@@ -24,7 +26,7 @@ const tableLoaders = {
 type ZScoreTableName = keyof typeof tableLoaders;
 
 const tablesByHelper: Record<string, Array<ZScoreTableName>> = {
-  calcWeightForHeightZscore: ['wflFemaleBelow5', 'wflMaleBelow5'],
+  calcWeightForHeightZscore: ['wflFemaleBelow5', 'wflMaleBelow5', 'wfhFemaleBelow5', 'wfhMaleBelow5'],
   calcHeightForAgeZscore: ['hfaFemaleBelow5', 'hfaMaleBelow5', 'hfaFemale5Above', 'hfaMale5Above'],
   calcBMIForAgeZscore: ['bfaFemale5Above', 'bfaMale5Above'],
 };
@@ -74,11 +76,23 @@ const firstMonthOfOlderChildTables = 61;
 export function getWeightForHeightRef(gender, birthDate, refdate) {
   const age = getAge(birthDate, refdate, 'years');
 
-  if (gender === 'F' && age !== null && age < 5) {
-    return getTable('wflFemaleBelow5');
+  // The WHO standards measure children under 2 lying down (weight-for-length, 45 to 110 cm) and from 2 standing up
+  // (weight-for-height, 65 to 120 cm). Standing height reads about 0.7 cm less than length for the same child.
+  if (gender === 'F' && age !== null) {
+    if (age < 2) {
+      return getTable('wflFemaleBelow5');
+    }
+    if (age < 5) {
+      return getTable('wfhFemaleBelow5');
+    }
   }
-  if (gender === 'M' && age !== null && age < 5) {
-    return getTable('wflMaleBelow5');
+  if (gender === 'M' && age !== null) {
+    if (age < 2) {
+      return getTable('wflMaleBelow5');
+    }
+    if (age < 5) {
+      return getTable('wfhMaleBelow5');
+    }
   }
   return null;
 }
