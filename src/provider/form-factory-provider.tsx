@@ -10,7 +10,7 @@ import {
 } from '@openmrs/esm-framework';
 
 import { EncounterFormProcessor } from '../processors/encounter/encounter-form-processor';
-import { processPostSubmissionActions, validateForm } from './form-factory-helper';
+import { getInvalidFields, processPostSubmissionActions, revealInvalidFields } from './form-factory-helper';
 import { type FormContextProps } from './form-provider';
 import { type FormField, type FormSchema, type SessionMode } from '../types';
 import { type FormProcessorConstructor } from '../processors/form-processor';
@@ -104,10 +104,15 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
 
   const validateAllForms = useCallback(() => {
     const forms = [rootForm.current, ...Object.values(subForms.current)];
-    const isValid = forms.every((formContext) => validateForm(formContext));
+    let invalidFields: FormField[] = [];
+    const isValid = forms.every((formContext) => {
+      invalidFields = getInvalidFields(formContext);
+      return invalidFields.length === 0;
+    });
     return {
       forms: forms,
       isValid: isValid,
+      invalidFields: invalidFields,
     };
   }, []);
 
@@ -135,7 +140,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
       }
       // TODO: find a dynamic way of managing the form processing order
       // validate all forms
-      const { forms, isValid } = validateAllForms();
+      const { forms, isValid, invalidFields } = validateAllForms();
       if (isValid) {
         Promise.all(forms.map((formContext) => formContext.processor.processSubmission(formContext, abortController)))
           .then(async (results) => {
@@ -180,6 +185,7 @@ export const FormFactoryProvider: React.FC<FormFactoryProviderProps> = ({
           });
       } else {
         setIsSubmitting(false);
+        revealInvalidFields(invalidFields, t);
       }
     }
     return () => {

@@ -147,7 +147,11 @@ describe('FormFactoryProvider submission', () => {
 
     await waitFor(() => expect(handlers.setIsSubmitting).toHaveBeenCalledWith(false));
     expect(formContexts[0].processor.processSubmission).not.toHaveBeenCalled();
-    expect(showSnackbar).not.toHaveBeenCalled();
+    // the only snackbar is the one telling the user which fields block the save
+    expect(showSnackbar).toHaveBeenCalledTimes(1);
+    expect(showSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'error', title: 'Some fields need your attention' }),
+    );
     expect(handlers.onSubmit).not.toHaveBeenCalled();
   });
 
