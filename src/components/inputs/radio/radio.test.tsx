@@ -1,6 +1,7 @@
 import React from 'react';
 import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { type FetchResponse, openmrsFetch, usePatient, useSession } from '@openmrs/esm-framework';
 import { mockPatient, mockSessionDataResponse, mockVisit } from '__mocks__';
 import { radioButtonFormSchema } from '__mocks__/forms';
@@ -193,5 +194,55 @@ describe('Radio Component', () => {
     expect(screen.getByLabelText('New visit')).toBeDisabled();
     expect(screen.getByLabelText('Return visit type')).toBeDisabled();
     expect(screen.getByLabelText('Other')).toBeDisabled();
+  });
+
+  describe('changing the answer', () => {
+    const setFieldValue = vi.fn();
+
+    const StatefulRadio = () => {
+      const [value, setValue] = React.useState(null);
+      return (
+        <Radio
+          {...(addTestValues as any)}
+          value={value}
+          setFieldValue={(newValue) => {
+            setFieldValue(newValue);
+            setValue(newValue);
+          }}
+        />
+      );
+    };
+
+    beforeEach(() => {
+      setFieldValue.mockClear();
+      mockUseFormProviderContext.mockReturnValue({ ...mockProviderValues });
+    });
+
+    it('shows the newly selected answer when switching from another answer', async () => {
+      const user = userEvent.setup();
+      await act(() => render(<StatefulRadio />));
+
+      await user.click(screen.getByLabelText('New visit'));
+      expect(screen.getByLabelText('New visit')).toBeChecked();
+
+      await user.click(screen.getByLabelText('Return visit type'));
+
+      expect(setFieldValue).toHaveBeenLastCalledWith('160530AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+      expect(screen.getByLabelText('Return visit type')).toBeChecked();
+      expect(screen.getByLabelText('New visit')).not.toBeChecked();
+    });
+
+    it('clears the answer when the selected answer is clicked again', async () => {
+      const user = userEvent.setup();
+      await act(() => render(<StatefulRadio />));
+
+      await user.click(screen.getByLabelText('Other'));
+      expect(screen.getByLabelText('Other')).toBeChecked();
+
+      await user.click(screen.getByLabelText('Other'));
+
+      expect(setFieldValue).toHaveBeenLastCalledWith(null);
+      screen.getAllByRole('radio').forEach((radio) => expect(radio).not.toBeChecked());
+    });
   });
 });

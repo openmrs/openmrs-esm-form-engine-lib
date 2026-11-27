@@ -53,14 +53,12 @@ const Radio: React.FC<FormFieldInputProps> = ({ field, value, errors, warnings, 
                   labelText={t(answer.label) ?? ''}
                   value={answer.concept}
                   key={index}
-                  onClick={(e: React.MouseEvent<HTMLInputElement>) => {
-                    if (value && (e.target as HTMLInputElement).checked) {
-                      (e.target as HTMLInputElement).checked = false;
-                      e.preventDefault();
-                      handleChange(null);
-                    } else {
-                      handleChange(answer.concept);
-                    }
+                  onClick={() => {
+                    // Clicking the selected answer again clears it. Any other click selects the answer.
+                    // The click is not cancelled: a cancelled click makes the browser restore the
+                    // previously checked radio after React has rendered the new value, so the field
+                    // would keep the new answer while the old one shows as selected.
+                    handleChange(value === answer.concept ? null : answer.concept);
                   }}
                 />
               );
